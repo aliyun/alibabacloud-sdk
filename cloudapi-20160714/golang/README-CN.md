@@ -10,7 +10,7 @@
 ## 安装
 你可以使用 `go mod` 来管理你的依赖，
 ```sh
-  go get github.com/alibabacloud-go/CloudAPI-20160714
+  go get github.com/alibabacloud-go/cloudapi-20160714
 ```
 
 ## 问题

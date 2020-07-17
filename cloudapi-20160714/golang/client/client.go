@@ -9,9 +9,8 @@ import (
 )
 
 type DescribeSummaryDataRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Language      *string `json:"Language" xml:"Language"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	Language      *string `json:"Language,omitempty" xml:"Language,omitempty"`
 }
 
 func (s DescribeSummaryDataRequest) String() string {
@@ -27,23 +26,18 @@ func (s *DescribeSummaryDataRequest) SetSecurityToken(v string) *DescribeSummary
 	return s
 }
 
-func (s *DescribeSummaryDataRequest) SetAccessKeyId(v string) *DescribeSummaryDataRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DescribeSummaryDataRequest) SetLanguage(v string) *DescribeSummaryDataRequest {
 	s.Language = &v
 	return s
 }
 
 type DescribeSummaryDataResponse struct {
-	RequestId              *string `json:"RequestId" xml:"RequestId" require:"true"`
-	UsageGroupNum          *int    `json:"UsageGroupNum" xml:"UsageGroupNum" require:"true"`
-	UsageApiNum            *int    `json:"UsageApiNum" xml:"UsageApiNum" require:"true"`
-	UsageInstanceNum       *int    `json:"UsageInstanceNum" xml:"UsageInstanceNum" require:"true"`
-	ComeingSoonInstanceNum *int    `json:"ComeingSoonInstanceNum" xml:"ComeingSoonInstanceNum" require:"true"`
-	Region                 *string `json:"Region" xml:"Region" require:"true"`
+	RequestId              *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	UsageGroupNum          *int    `json:"UsageGroupNum,omitempty" xml:"UsageGroupNum,omitempty" require:"true"`
+	UsageApiNum            *int    `json:"UsageApiNum,omitempty" xml:"UsageApiNum,omitempty" require:"true"`
+	UsageInstanceNum       *int    `json:"UsageInstanceNum,omitempty" xml:"UsageInstanceNum,omitempty" require:"true"`
+	ComeingSoonInstanceNum *int    `json:"ComeingSoonInstanceNum,omitempty" xml:"ComeingSoonInstanceNum,omitempty" require:"true"`
+	Region                 *string `json:"Region,omitempty" xml:"Region,omitempty" require:"true"`
 }
 
 func (s DescribeSummaryDataResponse) String() string {
@@ -85,12 +79,11 @@ func (s *DescribeSummaryDataResponse) SetRegion(v string) *DescribeSummaryDataRe
 }
 
 type ModifyApiMarketAttributesRequest struct {
-	SecurityToken      *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId        *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId            *string `json:"GroupId" xml:"GroupId" require:"true"`
-	ApiId              *string `json:"ApiId" xml:"ApiId" require:"true"`
-	NeedCharging       *bool   `json:"NeedCharging" xml:"NeedCharging" require:"true"`
-	MarketChargingMode *string `json:"MarketChargingMode" xml:"MarketChargingMode"`
+	SecurityToken      *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId            *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	ApiId              *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	NeedCharging       *bool   `json:"NeedCharging,omitempty" xml:"NeedCharging,omitempty" require:"true"`
+	MarketChargingMode *string `json:"MarketChargingMode,omitempty" xml:"MarketChargingMode,omitempty"`
 }
 
 func (s ModifyApiMarketAttributesRequest) String() string {
@@ -103,11 +96,6 @@ func (s ModifyApiMarketAttributesRequest) GoString() string {
 
 func (s *ModifyApiMarketAttributesRequest) SetSecurityToken(v string) *ModifyApiMarketAttributesRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *ModifyApiMarketAttributesRequest) SetAccessKeyId(v string) *ModifyApiMarketAttributesRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -132,7 +120,7 @@ func (s *ModifyApiMarketAttributesRequest) SetMarketChargingMode(v string) *Modi
 }
 
 type ModifyApiMarketAttributesResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyApiMarketAttributesResponse) String() string {
@@ -149,10 +137,9 @@ func (s *ModifyApiMarketAttributesResponse) SetRequestId(v string) *ModifyApiMar
 }
 
 type DescribeApiMarketAttributesRequest struct {
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
 }
 
 func (s DescribeApiMarketAttributesRequest) String() string {
@@ -161,11 +148,6 @@ func (s DescribeApiMarketAttributesRequest) String() string {
 
 func (s DescribeApiMarketAttributesRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeApiMarketAttributesRequest) SetAccessKeyId(v string) *DescribeApiMarketAttributesRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DescribeApiMarketAttributesRequest) SetSecurityToken(v string) *DescribeApiMarketAttributesRequest {
@@ -184,10 +166,10 @@ func (s *DescribeApiMarketAttributesRequest) SetApiId(v string) *DescribeApiMark
 }
 
 type DescribeApiMarketAttributesResponse struct {
-	RequestId          *string `json:"RequestId" xml:"RequestId" require:"true"`
-	ApiId              *string `json:"ApiId" xml:"ApiId" require:"true"`
-	NeedCharging       *string `json:"NeedCharging" xml:"NeedCharging" require:"true"`
-	MarketChargingMode *string `json:"MarketChargingMode" xml:"MarketChargingMode" require:"true"`
+	RequestId          *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ApiId              *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	NeedCharging       *string `json:"NeedCharging,omitempty" xml:"NeedCharging,omitempty" require:"true"`
+	MarketChargingMode *string `json:"MarketChargingMode,omitempty" xml:"MarketChargingMode,omitempty" require:"true"`
 }
 
 func (s DescribeApiMarketAttributesResponse) String() string {
@@ -219,11 +201,10 @@ func (s *DescribeApiMarketAttributesResponse) SetMarketChargingMode(v string) *D
 }
 
 type SetWildcardDomainPatternsRequest struct {
-	SecurityToken          *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId            *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId                *string `json:"GroupId" xml:"GroupId" require:"true"`
-	DomainName             *string `json:"DomainName" xml:"DomainName" require:"true"`
-	WildcardDomainPatterns *string `json:"WildcardDomainPatterns" xml:"WildcardDomainPatterns"`
+	SecurityToken          *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId                *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	DomainName             *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	WildcardDomainPatterns *string `json:"WildcardDomainPatterns,omitempty" xml:"WildcardDomainPatterns,omitempty"`
 }
 
 func (s SetWildcardDomainPatternsRequest) String() string {
@@ -236,11 +217,6 @@ func (s SetWildcardDomainPatternsRequest) GoString() string {
 
 func (s *SetWildcardDomainPatternsRequest) SetSecurityToken(v string) *SetWildcardDomainPatternsRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *SetWildcardDomainPatternsRequest) SetAccessKeyId(v string) *SetWildcardDomainPatternsRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -260,7 +236,7 @@ func (s *SetWildcardDomainPatternsRequest) SetWildcardDomainPatterns(v string) *
 }
 
 type SetWildcardDomainPatternsResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetWildcardDomainPatternsResponse) String() string {
@@ -277,10 +253,9 @@ func (s *SetWildcardDomainPatternsResponse) SetRequestId(v string) *SetWildcardD
 }
 
 type ModifyApiGroupVpcWhitelistRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	VpcIds        *string `json:"VpcIds" xml:"VpcIds" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	VpcIds        *string `json:"VpcIds,omitempty" xml:"VpcIds,omitempty" require:"true"`
 }
 
 func (s ModifyApiGroupVpcWhitelistRequest) String() string {
@@ -296,11 +271,6 @@ func (s *ModifyApiGroupVpcWhitelistRequest) SetSecurityToken(v string) *ModifyAp
 	return s
 }
 
-func (s *ModifyApiGroupVpcWhitelistRequest) SetAccessKeyId(v string) *ModifyApiGroupVpcWhitelistRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *ModifyApiGroupVpcWhitelistRequest) SetGroupId(v string) *ModifyApiGroupVpcWhitelistRequest {
 	s.GroupId = &v
 	return s
@@ -312,7 +282,7 @@ func (s *ModifyApiGroupVpcWhitelistRequest) SetVpcIds(v string) *ModifyApiGroupV
 }
 
 type ModifyApiGroupVpcWhitelistResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyApiGroupVpcWhitelistResponse) String() string {
@@ -329,9 +299,8 @@ func (s *ModifyApiGroupVpcWhitelistResponse) SetRequestId(v string) *ModifyApiGr
 }
 
 type DescribeApiGroupVpcWhitelistRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
 }
 
 func (s DescribeApiGroupVpcWhitelistRequest) String() string {
@@ -347,19 +316,14 @@ func (s *DescribeApiGroupVpcWhitelistRequest) SetSecurityToken(v string) *Descri
 	return s
 }
 
-func (s *DescribeApiGroupVpcWhitelistRequest) SetAccessKeyId(v string) *DescribeApiGroupVpcWhitelistRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DescribeApiGroupVpcWhitelistRequest) SetGroupId(v string) *DescribeApiGroupVpcWhitelistRequest {
 	s.GroupId = &v
 	return s
 }
 
 type DescribeApiGroupVpcWhitelistResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	VpcIds    *string `json:"VpcIds" xml:"VpcIds" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	VpcIds    *string `json:"VpcIds,omitempty" xml:"VpcIds,omitempty" require:"true"`
 }
 
 func (s DescribeApiGroupVpcWhitelistResponse) String() string {
@@ -381,8 +345,8 @@ func (s *DescribeApiGroupVpcWhitelistResponse) SetVpcIds(v string) *DescribeApiG
 }
 
 type DeleteInstanceRequest struct {
-	InstanceId *string                     `json:"InstanceId" xml:"InstanceId" require:"true"`
-	Tag        []*DeleteInstanceRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
+	InstanceId *string                     `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	Tag        []*DeleteInstanceRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
 }
 
 func (s DeleteInstanceRequest) String() string {
@@ -404,8 +368,8 @@ func (s *DeleteInstanceRequest) SetTag(v []*DeleteInstanceRequestTag) *DeleteIns
 }
 
 type DeleteInstanceRequestTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s DeleteInstanceRequestTag) String() string {
@@ -427,7 +391,7 @@ func (s *DeleteInstanceRequestTag) SetValue(v string) *DeleteInstanceRequestTag 
 }
 
 type DeleteInstanceResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteInstanceResponse) String() string {
@@ -444,15 +408,15 @@ func (s *DeleteInstanceResponse) SetRequestId(v string) *DeleteInstanceResponse 
 }
 
 type CreateInstanceRequest struct {
-	ChargeType   *string `json:"ChargeType" xml:"ChargeType" require:"true"`
-	InstanceName *string `json:"InstanceName" xml:"InstanceName" require:"true"`
-	InstanceSpec *string `json:"InstanceSpec" xml:"InstanceSpec" require:"true"`
-	ZoneId       *string `json:"ZoneId" xml:"ZoneId"`
-	HttpsPolicy  *string `json:"HttpsPolicy" xml:"HttpsPolicy"`
-	Duration     *int    `json:"Duration" xml:"Duration"`
-	PricingCycle *string `json:"PricingCycle" xml:"PricingCycle"`
-	AutoPay      *bool   `json:"AutoPay" xml:"AutoPay"`
-	Token        *string `json:"Token" xml:"Token" require:"true"`
+	ChargeType   *string `json:"ChargeType,omitempty" xml:"ChargeType,omitempty" require:"true"`
+	InstanceName *string `json:"InstanceName,omitempty" xml:"InstanceName,omitempty" require:"true"`
+	InstanceSpec *string `json:"InstanceSpec,omitempty" xml:"InstanceSpec,omitempty" require:"true"`
+	ZoneId       *string `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
+	HttpsPolicy  *string `json:"HttpsPolicy,omitempty" xml:"HttpsPolicy,omitempty"`
+	Duration     *int    `json:"Duration,omitempty" xml:"Duration,omitempty"`
+	PricingCycle *string `json:"PricingCycle,omitempty" xml:"PricingCycle,omitempty"`
+	AutoPay      *bool   `json:"AutoPay,omitempty" xml:"AutoPay,omitempty"`
+	Token        *string `json:"Token,omitempty" xml:"Token,omitempty" require:"true"`
 }
 
 func (s CreateInstanceRequest) String() string {
@@ -509,8 +473,8 @@ func (s *CreateInstanceRequest) SetToken(v string) *CreateInstanceRequest {
 }
 
 type CreateInstanceResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	InstanceId *string `json:"InstanceId" xml:"InstanceId" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	InstanceId *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
 }
 
 func (s CreateInstanceResponse) String() string {
@@ -532,12 +496,11 @@ func (s *CreateInstanceResponse) SetInstanceId(v string) *CreateInstanceResponse
 }
 
 type UntagResourcesRequest struct {
-	SecurityToken *string   `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string   `json:"AccessKeyId" xml:"AccessKeyId"`
-	ResourceId    []*string `json:"ResourceId" xml:"ResourceId" require:"true" type:"Repeated"`
-	ResourceType  *string   `json:"ResourceType" xml:"ResourceType" require:"true"`
-	TagKey        []*string `json:"TagKey" xml:"TagKey" type:"Repeated"`
-	All           *bool     `json:"All" xml:"All"`
+	SecurityToken *string   `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	ResourceId    []*string `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" require:"true" type:"Repeated"`
+	ResourceType  *string   `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	TagKey        []*string `json:"TagKey,omitempty" xml:"TagKey,omitempty" type:"Repeated"`
+	All           *bool     `json:"All,omitempty" xml:"All,omitempty"`
 }
 
 func (s UntagResourcesRequest) String() string {
@@ -550,11 +513,6 @@ func (s UntagResourcesRequest) GoString() string {
 
 func (s *UntagResourcesRequest) SetSecurityToken(v string) *UntagResourcesRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *UntagResourcesRequest) SetAccessKeyId(v string) *UntagResourcesRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -579,7 +537,7 @@ func (s *UntagResourcesRequest) SetAll(v bool) *UntagResourcesRequest {
 }
 
 type UntagResourcesResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UntagResourcesResponse) String() string {
@@ -596,12 +554,11 @@ func (s *UntagResourcesResponse) SetRequestId(v string) *UntagResourcesResponse 
 }
 
 type ListTagResourcesRequest struct {
-	SecurityToken *string                       `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string                       `json:"AccessKeyId" xml:"AccessKeyId"`
-	ResourceId    []*string                     `json:"ResourceId" xml:"ResourceId" type:"Repeated"`
-	ResourceType  *string                       `json:"ResourceType" xml:"ResourceType" require:"true"`
-	NextToken     *string                       `json:"NextToken" xml:"NextToken"`
-	Tag           []*ListTagResourcesRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
+	SecurityToken *string                       `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	ResourceId    []*string                     `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" type:"Repeated"`
+	ResourceType  *string                       `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	NextToken     *string                       `json:"NextToken,omitempty" xml:"NextToken,omitempty"`
+	Tag           []*ListTagResourcesRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
 }
 
 func (s ListTagResourcesRequest) String() string {
@@ -614,11 +571,6 @@ func (s ListTagResourcesRequest) GoString() string {
 
 func (s *ListTagResourcesRequest) SetSecurityToken(v string) *ListTagResourcesRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *ListTagResourcesRequest) SetAccessKeyId(v string) *ListTagResourcesRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -643,8 +595,8 @@ func (s *ListTagResourcesRequest) SetTag(v []*ListTagResourcesRequestTag) *ListT
 }
 
 type ListTagResourcesRequestTag struct {
-	Key   *string `json:"Key" xml:"Key"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s ListTagResourcesRequestTag) String() string {
@@ -666,9 +618,9 @@ func (s *ListTagResourcesRequestTag) SetValue(v string) *ListTagResourcesRequest
 }
 
 type ListTagResourcesResponse struct {
-	NextToken    *string                               `json:"NextToken" xml:"NextToken" require:"true"`
-	RequestId    *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	TagResources *ListTagResourcesResponseTagResources `json:"TagResources" xml:"TagResources" require:"true" type:"Struct"`
+	NextToken    *string                               `json:"NextToken,omitempty" xml:"NextToken,omitempty" require:"true"`
+	RequestId    *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TagResources *ListTagResourcesResponseTagResources `json:"TagResources,omitempty" xml:"TagResources,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListTagResourcesResponse) String() string {
@@ -695,7 +647,7 @@ func (s *ListTagResourcesResponse) SetTagResources(v *ListTagResourcesResponseTa
 }
 
 type ListTagResourcesResponseTagResources struct {
-	TagResource []*ListTagResourcesResponseTagResourcesTagResource `json:"TagResource" xml:"TagResource" require:"true" type:"Repeated"`
+	TagResource []*ListTagResourcesResponseTagResourcesTagResource `json:"TagResource,omitempty" xml:"TagResource,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListTagResourcesResponseTagResources) String() string {
@@ -712,10 +664,10 @@ func (s *ListTagResourcesResponseTagResources) SetTagResource(v []*ListTagResour
 }
 
 type ListTagResourcesResponseTagResourcesTagResource struct {
-	ResourceId   *string `json:"ResourceId" xml:"ResourceId" require:"true"`
-	ResourceType *string `json:"ResourceType" xml:"ResourceType" require:"true"`
-	TagKey       *string `json:"TagKey" xml:"TagKey" require:"true"`
-	TagValue     *string `json:"TagValue" xml:"TagValue" require:"true"`
+	ResourceId   *string `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" require:"true"`
+	ResourceType *string `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	TagKey       *string `json:"TagKey,omitempty" xml:"TagKey,omitempty" require:"true"`
+	TagValue     *string `json:"TagValue,omitempty" xml:"TagValue,omitempty" require:"true"`
 }
 
 func (s ListTagResourcesResponseTagResourcesTagResource) String() string {
@@ -747,11 +699,10 @@ func (s *ListTagResourcesResponseTagResourcesTagResource) SetTagValue(v string) 
 }
 
 type TagResourcesRequest struct {
-	SecurityToken *string                   `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string                   `json:"AccessKeyId" xml:"AccessKeyId"`
-	ResourceType  *string                   `json:"ResourceType" xml:"ResourceType" require:"true"`
-	Tag           []*TagResourcesRequestTag `json:"Tag" xml:"Tag" require:"true" type:"Repeated"`
-	ResourceId    []*string                 `json:"ResourceId" xml:"ResourceId" require:"true" type:"Repeated"`
+	SecurityToken *string                   `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	ResourceType  *string                   `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	Tag           []*TagResourcesRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true" type:"Repeated"`
+	ResourceId    []*string                 `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s TagResourcesRequest) String() string {
@@ -764,11 +715,6 @@ func (s TagResourcesRequest) GoString() string {
 
 func (s *TagResourcesRequest) SetSecurityToken(v string) *TagResourcesRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *TagResourcesRequest) SetAccessKeyId(v string) *TagResourcesRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -788,8 +734,8 @@ func (s *TagResourcesRequest) SetResourceId(v []*string) *TagResourcesRequest {
 }
 
 type TagResourcesRequestTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s TagResourcesRequestTag) String() string {
@@ -811,7 +757,7 @@ func (s *TagResourcesRequestTag) SetValue(v string) *TagResourcesRequestTag {
 }
 
 type TagResourcesResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s TagResourcesResponse) String() string {
@@ -827,10 +773,95 @@ func (s *TagResourcesResponse) SetRequestId(v string) *TagResourcesResponse {
 	return s
 }
 
+type DescribeZonesRequest struct {
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	Language      *string `json:"Language,omitempty" xml:"Language,omitempty"`
+}
+
+func (s DescribeZonesRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeZonesRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeZonesRequest) SetSecurityToken(v string) *DescribeZonesRequest {
+	s.SecurityToken = &v
+	return s
+}
+
+func (s *DescribeZonesRequest) SetLanguage(v string) *DescribeZonesRequest {
+	s.Language = &v
+	return s
+}
+
+type DescribeZonesResponse struct {
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Zones     *DescribeZonesResponseZones `json:"Zones,omitempty" xml:"Zones,omitempty" require:"true" type:"Struct"`
+}
+
+func (s DescribeZonesResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeZonesResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeZonesResponse) SetRequestId(v string) *DescribeZonesResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DescribeZonesResponse) SetZones(v *DescribeZonesResponseZones) *DescribeZonesResponse {
+	s.Zones = v
+	return s
+}
+
+type DescribeZonesResponseZones struct {
+	Zone []*DescribeZonesResponseZonesZone `json:"Zone,omitempty" xml:"Zone,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DescribeZonesResponseZones) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeZonesResponseZones) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeZonesResponseZones) SetZone(v []*DescribeZonesResponseZonesZone) *DescribeZonesResponseZones {
+	s.Zone = v
+	return s
+}
+
+type DescribeZonesResponseZonesZone struct {
+	ZoneId    *string `json:"ZoneId,omitempty" xml:"ZoneId,omitempty" require:"true"`
+	LocalName *string `json:"LocalName,omitempty" xml:"LocalName,omitempty" require:"true"`
+}
+
+func (s DescribeZonesResponseZonesZone) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeZonesResponseZonesZone) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeZonesResponseZonesZone) SetZoneId(v string) *DescribeZonesResponseZonesZone {
+	s.ZoneId = &v
+	return s
+}
+
+func (s *DescribeZonesResponseZonesZone) SetLocalName(v string) *DescribeZonesResponseZonesZone {
+	s.LocalName = &v
+	return s
+}
+
 type ResetAppCodeRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	AppCode       *string `json:"AppCode" xml:"AppCode" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	AppCode       *string `json:"AppCode,omitempty" xml:"AppCode,omitempty" require:"true"`
 }
 
 func (s ResetAppCodeRequest) String() string {
@@ -846,18 +877,13 @@ func (s *ResetAppCodeRequest) SetSecurityToken(v string) *ResetAppCodeRequest {
 	return s
 }
 
-func (s *ResetAppCodeRequest) SetAccessKeyId(v string) *ResetAppCodeRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *ResetAppCodeRequest) SetAppCode(v string) *ResetAppCodeRequest {
 	s.AppCode = &v
 	return s
 }
 
 type ResetAppCodeResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ResetAppCodeResponse) String() string {
@@ -874,9 +900,8 @@ func (s *ResetAppCodeResponse) SetRequestId(v string) *ResetAppCodeResponse {
 }
 
 type DescribeAppRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	AppId         *int64  `json:"AppId" xml:"AppId"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	AppId         *int64  `json:"AppId,omitempty" xml:"AppId,omitempty"`
 }
 
 func (s DescribeAppRequest) String() string {
@@ -892,23 +917,18 @@ func (s *DescribeAppRequest) SetSecurityToken(v string) *DescribeAppRequest {
 	return s
 }
 
-func (s *DescribeAppRequest) SetAccessKeyId(v string) *DescribeAppRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DescribeAppRequest) SetAppId(v int64) *DescribeAppRequest {
 	s.AppId = &v
 	return s
 }
 
 type DescribeAppResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	AppId        *int64  `json:"AppId" xml:"AppId" require:"true"`
-	AppName      *string `json:"AppName" xml:"AppName" require:"true"`
-	Description  *string `json:"Description" xml:"Description" require:"true"`
-	CreatedTime  *string `json:"CreatedTime" xml:"CreatedTime" require:"true"`
-	ModifiedTime *string `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AppId        *int64  `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	AppName      *string `json:"AppName,omitempty" xml:"AppName,omitempty" require:"true"`
+	Description  *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreatedTime  *string `json:"CreatedTime,omitempty" xml:"CreatedTime,omitempty" require:"true"`
+	ModifiedTime *string `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
 }
 
 func (s DescribeAppResponse) String() string {
@@ -950,12 +970,11 @@ func (s *DescribeAppResponse) SetModifiedTime(v string) *DescribeAppResponse {
 }
 
 type CreateModelRequest struct {
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	ModelName     *string `json:"ModelName" xml:"ModelName" require:"true"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	Schema        *string `json:"Schema" xml:"Schema" require:"true"`
-	Description   *string `json:"Description" xml:"Description"`
+	ModelName     *string `json:"ModelName,omitempty" xml:"ModelName,omitempty" require:"true"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	Schema        *string `json:"Schema,omitempty" xml:"Schema,omitempty" require:"true"`
+	Description   *string `json:"Description,omitempty" xml:"Description,omitempty"`
 }
 
 func (s CreateModelRequest) String() string {
@@ -964,11 +983,6 @@ func (s CreateModelRequest) String() string {
 
 func (s CreateModelRequest) GoString() string {
 	return s.String()
-}
-
-func (s *CreateModelRequest) SetAccessKeyId(v string) *CreateModelRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *CreateModelRequest) SetModelName(v string) *CreateModelRequest {
@@ -997,16 +1011,16 @@ func (s *CreateModelRequest) SetDescription(v string) *CreateModelRequest {
 }
 
 type CreateModelResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	ModelId      *string `json:"ModelId" xml:"ModelId" require:"true"`
-	ModelRef     *string `json:"ModelRef" xml:"ModelRef" require:"true"`
-	ModelName    *string `json:"ModelName" xml:"ModelName" require:"true"`
-	GroupId      *string `json:"GroupId" xml:"GroupId" require:"true"`
-	Schema       *string `json:"Schema" xml:"Schema" require:"true"`
-	RegionId     *string `json:"RegionId" xml:"RegionId" require:"true"`
-	Description  *string `json:"Description" xml:"Description" require:"true"`
-	CreatedTime  *string `json:"CreatedTime" xml:"CreatedTime" require:"true"`
-	ModifiedTime *string `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ModelId      *string `json:"ModelId,omitempty" xml:"ModelId,omitempty" require:"true"`
+	ModelRef     *string `json:"ModelRef,omitempty" xml:"ModelRef,omitempty" require:"true"`
+	ModelName    *string `json:"ModelName,omitempty" xml:"ModelName,omitempty" require:"true"`
+	GroupId      *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	Schema       *string `json:"Schema,omitempty" xml:"Schema,omitempty" require:"true"`
+	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Description  *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreatedTime  *string `json:"CreatedTime,omitempty" xml:"CreatedTime,omitempty" require:"true"`
+	ModifiedTime *string `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
 }
 
 func (s CreateModelResponse) String() string {
@@ -1068,10 +1082,9 @@ func (s *CreateModelResponse) SetModifiedTime(v string) *CreateModelResponse {
 }
 
 type DeleteModelRequest struct {
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	ModelName     *string `json:"ModelName" xml:"ModelName" require:"true"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	ModelName     *string `json:"ModelName,omitempty" xml:"ModelName,omitempty" require:"true"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
 }
 
 func (s DeleteModelRequest) String() string {
@@ -1080,11 +1093,6 @@ func (s DeleteModelRequest) String() string {
 
 func (s DeleteModelRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteModelRequest) SetAccessKeyId(v string) *DeleteModelRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DeleteModelRequest) SetSecurityToken(v string) *DeleteModelRequest {
@@ -1103,7 +1111,7 @@ func (s *DeleteModelRequest) SetGroupId(v string) *DeleteModelRequest {
 }
 
 type DeleteModelResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteModelResponse) String() string {
@@ -1120,13 +1128,12 @@ func (s *DeleteModelResponse) SetRequestId(v string) *DeleteModelResponse {
 }
 
 type DescribeModelsRequest struct {
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	ModelName     *string `json:"ModelName" xml:"ModelName"`
-	PageSize      *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber    *int    `json:"PageNumber" xml:"PageNumber"`
-	ModelId       *string `json:"ModelId" xml:"ModelId"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	ModelName     *string `json:"ModelName,omitempty" xml:"ModelName,omitempty"`
+	PageSize      *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber    *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	ModelId       *string `json:"ModelId,omitempty" xml:"ModelId,omitempty"`
 }
 
 func (s DescribeModelsRequest) String() string {
@@ -1135,11 +1142,6 @@ func (s DescribeModelsRequest) String() string {
 
 func (s DescribeModelsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeModelsRequest) SetAccessKeyId(v string) *DescribeModelsRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DescribeModelsRequest) SetSecurityToken(v string) *DescribeModelsRequest {
@@ -1173,11 +1175,11 @@ func (s *DescribeModelsRequest) SetModelId(v string) *DescribeModelsRequest {
 }
 
 type DescribeModelsResponse struct {
-	RequestId    *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount   *int                                `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize     *int                                `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber   *int                                `json:"PageNumber" xml:"PageNumber" require:"true"`
-	ModelDetails *DescribeModelsResponseModelDetails `json:"ModelDetails" xml:"ModelDetails" require:"true" type:"Struct"`
+	RequestId    *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount   *int                                `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize     *int                                `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber   *int                                `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	ModelDetails *DescribeModelsResponseModelDetails `json:"ModelDetails,omitempty" xml:"ModelDetails,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeModelsResponse) String() string {
@@ -1214,7 +1216,7 @@ func (s *DescribeModelsResponse) SetModelDetails(v *DescribeModelsResponseModelD
 }
 
 type DescribeModelsResponseModelDetails struct {
-	ModelDetail []*DescribeModelsResponseModelDetailsModelDetail `json:"ModelDetail" xml:"ModelDetail" require:"true" type:"Repeated"`
+	ModelDetail []*DescribeModelsResponseModelDetailsModelDetail `json:"ModelDetail,omitempty" xml:"ModelDetail,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeModelsResponseModelDetails) String() string {
@@ -1231,14 +1233,14 @@ func (s *DescribeModelsResponseModelDetails) SetModelDetail(v []*DescribeModelsR
 }
 
 type DescribeModelsResponseModelDetailsModelDetail struct {
-	GroupId      *string `json:"GroupId" xml:"GroupId" require:"true"`
-	ModelId      *string `json:"ModelId" xml:"ModelId" require:"true"`
-	ModelName    *string `json:"ModelName" xml:"ModelName" require:"true"`
-	Schema       *string `json:"Schema" xml:"Schema" require:"true"`
-	Description  *string `json:"Description" xml:"Description" require:"true"`
-	CreatedTime  *string `json:"CreatedTime" xml:"CreatedTime" require:"true"`
-	ModifiedTime *string `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
-	ModelRef     *string `json:"ModelRef" xml:"ModelRef" require:"true"`
+	GroupId      *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	ModelId      *string `json:"ModelId,omitempty" xml:"ModelId,omitempty" require:"true"`
+	ModelName    *string `json:"ModelName,omitempty" xml:"ModelName,omitempty" require:"true"`
+	Schema       *string `json:"Schema,omitempty" xml:"Schema,omitempty" require:"true"`
+	Description  *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreatedTime  *string `json:"CreatedTime,omitempty" xml:"CreatedTime,omitempty" require:"true"`
+	ModifiedTime *string `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
+	ModelRef     *string `json:"ModelRef,omitempty" xml:"ModelRef,omitempty" require:"true"`
 }
 
 func (s DescribeModelsResponseModelDetailsModelDetail) String() string {
@@ -1290,13 +1292,12 @@ func (s *DescribeModelsResponseModelDetailsModelDetail) SetModelRef(v string) *D
 }
 
 type ModifyModelRequest struct {
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	ModelName     *string `json:"ModelName" xml:"ModelName" require:"true"`
-	Description   *string `json:"Description" xml:"Description"`
-	Schema        *string `json:"Schema" xml:"Schema"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	NewModelName  *string `json:"NewModelName" xml:"NewModelName"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	ModelName     *string `json:"ModelName,omitempty" xml:"ModelName,omitempty" require:"true"`
+	Description   *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	Schema        *string `json:"Schema,omitempty" xml:"Schema,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	NewModelName  *string `json:"NewModelName,omitempty" xml:"NewModelName,omitempty"`
 }
 
 func (s ModifyModelRequest) String() string {
@@ -1305,11 +1306,6 @@ func (s ModifyModelRequest) String() string {
 
 func (s ModifyModelRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifyModelRequest) SetAccessKeyId(v string) *ModifyModelRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *ModifyModelRequest) SetSecurityToken(v string) *ModifyModelRequest {
@@ -1343,7 +1339,7 @@ func (s *ModifyModelRequest) SetNewModelName(v string) *ModifyModelRequest {
 }
 
 type ModifyModelResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyModelResponse) String() string {
@@ -1360,9 +1356,8 @@ func (s *ModifyModelResponse) SetRequestId(v string) *ModifyModelResponse {
 }
 
 type CreateIntranetDomainRequest struct {
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
 }
 
 func (s CreateIntranetDomainRequest) String() string {
@@ -1371,11 +1366,6 @@ func (s CreateIntranetDomainRequest) String() string {
 
 func (s CreateIntranetDomainRequest) GoString() string {
 	return s.String()
-}
-
-func (s *CreateIntranetDomainRequest) SetAccessKeyId(v string) *CreateIntranetDomainRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *CreateIntranetDomainRequest) SetSecurityToken(v string) *CreateIntranetDomainRequest {
@@ -1389,8 +1379,8 @@ func (s *CreateIntranetDomainRequest) SetGroupId(v string) *CreateIntranetDomain
 }
 
 type CreateIntranetDomainResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
 }
 
 func (s CreateIntranetDomainResponse) String() string {
@@ -1412,11 +1402,11 @@ func (s *CreateIntranetDomainResponse) SetDomainName(v string) *CreateIntranetDo
 }
 
 type ImportSwaggerRequest struct {
-	Overwrite       *bool                  `json:"Overwrite" xml:"Overwrite" require:"true"`
-	GlobalCondition map[string]interface{} `json:"GlobalCondition" xml:"GlobalCondition"`
-	DataFormat      *string                `json:"DataFormat" xml:"DataFormat" require:"true"`
-	Data            *string                `json:"Data" xml:"Data" require:"true"`
-	GroupId         *string                `json:"GroupId" xml:"GroupId" require:"true"`
+	Overwrite       *bool                  `json:"Overwrite,omitempty" xml:"Overwrite,omitempty" require:"true"`
+	GlobalCondition map[string]interface{} `json:"GlobalCondition,omitempty" xml:"GlobalCondition,omitempty"`
+	DataFormat      *string                `json:"DataFormat,omitempty" xml:"DataFormat,omitempty" require:"true"`
+	Data            *string                `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
+	GroupId         *string                `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
 }
 
 func (s ImportSwaggerRequest) String() string {
@@ -1453,11 +1443,11 @@ func (s *ImportSwaggerRequest) SetGroupId(v string) *ImportSwaggerRequest {
 }
 
 type ImportSwaggerResponse struct {
-	RequestId    *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	Success      *ImportSwaggerResponseSuccess      `json:"Success" xml:"Success" require:"true" type:"Struct"`
-	Failed       *ImportSwaggerResponseFailed       `json:"Failed" xml:"Failed" require:"true" type:"Struct"`
-	ModelFailed  *ImportSwaggerResponseModelFailed  `json:"ModelFailed" xml:"ModelFailed" require:"true" type:"Struct"`
-	ModelSuccess *ImportSwaggerResponseModelSuccess `json:"ModelSuccess" xml:"ModelSuccess" require:"true" type:"Struct"`
+	RequestId    *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success      *ImportSwaggerResponseSuccess      `json:"Success,omitempty" xml:"Success,omitempty" require:"true" type:"Struct"`
+	Failed       *ImportSwaggerResponseFailed       `json:"Failed,omitempty" xml:"Failed,omitempty" require:"true" type:"Struct"`
+	ModelFailed  *ImportSwaggerResponseModelFailed  `json:"ModelFailed,omitempty" xml:"ModelFailed,omitempty" require:"true" type:"Struct"`
+	ModelSuccess *ImportSwaggerResponseModelSuccess `json:"ModelSuccess,omitempty" xml:"ModelSuccess,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ImportSwaggerResponse) String() string {
@@ -1494,7 +1484,7 @@ func (s *ImportSwaggerResponse) SetModelSuccess(v *ImportSwaggerResponseModelSuc
 }
 
 type ImportSwaggerResponseSuccess struct {
-	ApiImportSwaggerSuccess []*ImportSwaggerResponseSuccessApiImportSwaggerSuccess `json:"ApiImportSwaggerSuccess" xml:"ApiImportSwaggerSuccess" require:"true" type:"Repeated"`
+	ApiImportSwaggerSuccess []*ImportSwaggerResponseSuccessApiImportSwaggerSuccess `json:"ApiImportSwaggerSuccess,omitempty" xml:"ApiImportSwaggerSuccess,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ImportSwaggerResponseSuccess) String() string {
@@ -1511,10 +1501,10 @@ func (s *ImportSwaggerResponseSuccess) SetApiImportSwaggerSuccess(v []*ImportSwa
 }
 
 type ImportSwaggerResponseSuccessApiImportSwaggerSuccess struct {
-	Path         *string `json:"Path" xml:"Path" require:"true"`
-	HttpMethod   *string `json:"HttpMethod" xml:"HttpMethod" require:"true"`
-	ApiUid       *string `json:"ApiUid" xml:"ApiUid" require:"true"`
-	ApiOperation *string `json:"ApiOperation" xml:"ApiOperation" require:"true"`
+	Path         *string `json:"Path,omitempty" xml:"Path,omitempty" require:"true"`
+	HttpMethod   *string `json:"HttpMethod,omitempty" xml:"HttpMethod,omitempty" require:"true"`
+	ApiUid       *string `json:"ApiUid,omitempty" xml:"ApiUid,omitempty" require:"true"`
+	ApiOperation *string `json:"ApiOperation,omitempty" xml:"ApiOperation,omitempty" require:"true"`
 }
 
 func (s ImportSwaggerResponseSuccessApiImportSwaggerSuccess) String() string {
@@ -1546,7 +1536,7 @@ func (s *ImportSwaggerResponseSuccessApiImportSwaggerSuccess) SetApiOperation(v 
 }
 
 type ImportSwaggerResponseFailed struct {
-	ApiImportSwaggerFailed []*ImportSwaggerResponseFailedApiImportSwaggerFailed `json:"ApiImportSwaggerFailed" xml:"ApiImportSwaggerFailed" require:"true" type:"Repeated"`
+	ApiImportSwaggerFailed []*ImportSwaggerResponseFailedApiImportSwaggerFailed `json:"ApiImportSwaggerFailed,omitempty" xml:"ApiImportSwaggerFailed,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ImportSwaggerResponseFailed) String() string {
@@ -1563,9 +1553,9 @@ func (s *ImportSwaggerResponseFailed) SetApiImportSwaggerFailed(v []*ImportSwagg
 }
 
 type ImportSwaggerResponseFailedApiImportSwaggerFailed struct {
-	Path       *string `json:"Path" xml:"Path" require:"true"`
-	HttpMethod *string `json:"HttpMethod" xml:"HttpMethod" require:"true"`
-	ErrorMsg   *string `json:"ErrorMsg" xml:"ErrorMsg" require:"true"`
+	Path       *string `json:"Path,omitempty" xml:"Path,omitempty" require:"true"`
+	HttpMethod *string `json:"HttpMethod,omitempty" xml:"HttpMethod,omitempty" require:"true"`
+	ErrorMsg   *string `json:"ErrorMsg,omitempty" xml:"ErrorMsg,omitempty" require:"true"`
 }
 
 func (s ImportSwaggerResponseFailedApiImportSwaggerFailed) String() string {
@@ -1592,7 +1582,7 @@ func (s *ImportSwaggerResponseFailedApiImportSwaggerFailed) SetErrorMsg(v string
 }
 
 type ImportSwaggerResponseModelFailed struct {
-	ApiImportModelFailed []*ImportSwaggerResponseModelFailedApiImportModelFailed `json:"ApiImportModelFailed" xml:"ApiImportModelFailed" require:"true" type:"Repeated"`
+	ApiImportModelFailed []*ImportSwaggerResponseModelFailedApiImportModelFailed `json:"ApiImportModelFailed,omitempty" xml:"ApiImportModelFailed,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ImportSwaggerResponseModelFailed) String() string {
@@ -1609,9 +1599,9 @@ func (s *ImportSwaggerResponseModelFailed) SetApiImportModelFailed(v []*ImportSw
 }
 
 type ImportSwaggerResponseModelFailedApiImportModelFailed struct {
-	GroupId   *string `json:"GroupId" xml:"GroupId" require:"true"`
-	ModelName *string `json:"ModelName" xml:"ModelName" require:"true"`
-	ErrorMsg  *string `json:"ErrorMsg" xml:"ErrorMsg" require:"true"`
+	GroupId   *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	ModelName *string `json:"ModelName,omitempty" xml:"ModelName,omitempty" require:"true"`
+	ErrorMsg  *string `json:"ErrorMsg,omitempty" xml:"ErrorMsg,omitempty" require:"true"`
 }
 
 func (s ImportSwaggerResponseModelFailedApiImportModelFailed) String() string {
@@ -1638,7 +1628,7 @@ func (s *ImportSwaggerResponseModelFailedApiImportModelFailed) SetErrorMsg(v str
 }
 
 type ImportSwaggerResponseModelSuccess struct {
-	ApiImportModelSuccess []*ImportSwaggerResponseModelSuccessApiImportModelSuccess `json:"ApiImportModelSuccess" xml:"ApiImportModelSuccess" require:"true" type:"Repeated"`
+	ApiImportModelSuccess []*ImportSwaggerResponseModelSuccessApiImportModelSuccess `json:"ApiImportModelSuccess,omitempty" xml:"ApiImportModelSuccess,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ImportSwaggerResponseModelSuccess) String() string {
@@ -1655,10 +1645,10 @@ func (s *ImportSwaggerResponseModelSuccess) SetApiImportModelSuccess(v []*Import
 }
 
 type ImportSwaggerResponseModelSuccessApiImportModelSuccess struct {
-	ModelUid       *string `json:"ModelUid" xml:"ModelUid" require:"true"`
-	ModelOperation *string `json:"ModelOperation" xml:"ModelOperation" require:"true"`
-	GroupId        *string `json:"GroupId" xml:"GroupId" require:"true"`
-	ModelName      *string `json:"ModelName" xml:"ModelName" require:"true"`
+	ModelUid       *string `json:"ModelUid,omitempty" xml:"ModelUid,omitempty" require:"true"`
+	ModelOperation *string `json:"ModelOperation,omitempty" xml:"ModelOperation,omitempty" require:"true"`
+	GroupId        *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	ModelName      *string `json:"ModelName,omitempty" xml:"ModelName,omitempty" require:"true"`
 }
 
 func (s ImportSwaggerResponseModelSuccessApiImportModelSuccess) String() string {
@@ -1690,12 +1680,11 @@ func (s *ImportSwaggerResponseModelSuccessApiImportModelSuccess) SetModelName(v 
 }
 
 type SetIpControlApisRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	IpControlId   *string `json:"IpControlId" xml:"IpControlId" require:"true"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	ApiIds        *string `json:"ApiIds" xml:"ApiIds" require:"true"`
-	StageName     *string `json:"StageName" xml:"StageName" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	IpControlId   *string `json:"IpControlId,omitempty" xml:"IpControlId,omitempty" require:"true"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	ApiIds        *string `json:"ApiIds,omitempty" xml:"ApiIds,omitempty" require:"true"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
 }
 
 func (s SetIpControlApisRequest) String() string {
@@ -1708,11 +1697,6 @@ func (s SetIpControlApisRequest) GoString() string {
 
 func (s *SetIpControlApisRequest) SetSecurityToken(v string) *SetIpControlApisRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *SetIpControlApisRequest) SetAccessKeyId(v string) *SetIpControlApisRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -1737,7 +1721,7 @@ func (s *SetIpControlApisRequest) SetStageName(v string) *SetIpControlApisReques
 }
 
 type SetIpControlApisResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetIpControlApisResponse) String() string {
@@ -1754,10 +1738,9 @@ func (s *SetIpControlApisResponse) SetRequestId(v string) *SetIpControlApisRespo
 }
 
 type RemoveIpControlPolicyItemRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	IpControlId   *string `json:"IpControlId" xml:"IpControlId" require:"true"`
-	PolicyItemIds *string `json:"PolicyItemIds" xml:"PolicyItemIds" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	IpControlId   *string `json:"IpControlId,omitempty" xml:"IpControlId,omitempty" require:"true"`
+	PolicyItemIds *string `json:"PolicyItemIds,omitempty" xml:"PolicyItemIds,omitempty" require:"true"`
 }
 
 func (s RemoveIpControlPolicyItemRequest) String() string {
@@ -1773,11 +1756,6 @@ func (s *RemoveIpControlPolicyItemRequest) SetSecurityToken(v string) *RemoveIpC
 	return s
 }
 
-func (s *RemoveIpControlPolicyItemRequest) SetAccessKeyId(v string) *RemoveIpControlPolicyItemRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *RemoveIpControlPolicyItemRequest) SetIpControlId(v string) *RemoveIpControlPolicyItemRequest {
 	s.IpControlId = &v
 	return s
@@ -1789,7 +1767,7 @@ func (s *RemoveIpControlPolicyItemRequest) SetPolicyItemIds(v string) *RemoveIpC
 }
 
 type RemoveIpControlPolicyItemResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s RemoveIpControlPolicyItemResponse) String() string {
@@ -1806,12 +1784,11 @@ func (s *RemoveIpControlPolicyItemResponse) SetRequestId(v string) *RemoveIpCont
 }
 
 type RemoveIpControlApisRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	IpControlId   *string `json:"IpControlId" xml:"IpControlId" require:"true"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	ApiIds        *string `json:"ApiIds" xml:"ApiIds"`
-	StageName     *string `json:"StageName" xml:"StageName" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	IpControlId   *string `json:"IpControlId,omitempty" xml:"IpControlId,omitempty" require:"true"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	ApiIds        *string `json:"ApiIds,omitempty" xml:"ApiIds,omitempty"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
 }
 
 func (s RemoveIpControlApisRequest) String() string {
@@ -1824,11 +1801,6 @@ func (s RemoveIpControlApisRequest) GoString() string {
 
 func (s *RemoveIpControlApisRequest) SetSecurityToken(v string) *RemoveIpControlApisRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *RemoveIpControlApisRequest) SetAccessKeyId(v string) *RemoveIpControlApisRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -1853,7 +1825,7 @@ func (s *RemoveIpControlApisRequest) SetStageName(v string) *RemoveIpControlApis
 }
 
 type RemoveIpControlApisResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s RemoveIpControlApisResponse) String() string {
@@ -1870,12 +1842,11 @@ func (s *RemoveIpControlApisResponse) SetRequestId(v string) *RemoveIpControlApi
 }
 
 type ModifyIpControlPolicyItemRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	IpControlId   *string `json:"IpControlId" xml:"IpControlId" require:"true"`
-	PolicyItemId  *string `json:"PolicyItemId" xml:"PolicyItemId" require:"true"`
-	AppId         *string `json:"AppId" xml:"AppId"`
-	CidrIp        *string `json:"CidrIp" xml:"CidrIp" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	IpControlId   *string `json:"IpControlId,omitempty" xml:"IpControlId,omitempty" require:"true"`
+	PolicyItemId  *string `json:"PolicyItemId,omitempty" xml:"PolicyItemId,omitempty" require:"true"`
+	AppId         *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
+	CidrIp        *string `json:"CidrIp,omitempty" xml:"CidrIp,omitempty" require:"true"`
 }
 
 func (s ModifyIpControlPolicyItemRequest) String() string {
@@ -1888,11 +1859,6 @@ func (s ModifyIpControlPolicyItemRequest) GoString() string {
 
 func (s *ModifyIpControlPolicyItemRequest) SetSecurityToken(v string) *ModifyIpControlPolicyItemRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *ModifyIpControlPolicyItemRequest) SetAccessKeyId(v string) *ModifyIpControlPolicyItemRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -1917,7 +1883,7 @@ func (s *ModifyIpControlPolicyItemRequest) SetCidrIp(v string) *ModifyIpControlP
 }
 
 type ModifyIpControlPolicyItemResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyIpControlPolicyItemResponse) String() string {
@@ -1934,11 +1900,10 @@ func (s *ModifyIpControlPolicyItemResponse) SetRequestId(v string) *ModifyIpCont
 }
 
 type ModifyIpControlRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	IpControlId   *string `json:"IpControlId" xml:"IpControlId" require:"true"`
-	IpControlName *string `json:"IpControlName" xml:"IpControlName"`
-	Description   *string `json:"Description" xml:"Description"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	IpControlId   *string `json:"IpControlId,omitempty" xml:"IpControlId,omitempty" require:"true"`
+	IpControlName *string `json:"IpControlName,omitempty" xml:"IpControlName,omitempty"`
+	Description   *string `json:"Description,omitempty" xml:"Description,omitempty"`
 }
 
 func (s ModifyIpControlRequest) String() string {
@@ -1951,11 +1916,6 @@ func (s ModifyIpControlRequest) GoString() string {
 
 func (s *ModifyIpControlRequest) SetSecurityToken(v string) *ModifyIpControlRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *ModifyIpControlRequest) SetAccessKeyId(v string) *ModifyIpControlRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -1975,7 +1935,7 @@ func (s *ModifyIpControlRequest) SetDescription(v string) *ModifyIpControlReques
 }
 
 type ModifyIpControlResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyIpControlResponse) String() string {
@@ -1992,13 +1952,12 @@ func (s *ModifyIpControlResponse) SetRequestId(v string) *ModifyIpControlRespons
 }
 
 type DescribeIpControlsRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	IpControlId   *string `json:"IpControlId" xml:"IpControlId"`
-	IpControlName *string `json:"IpControlName" xml:"IpControlName"`
-	IpControlType *string `json:"IpControlType" xml:"IpControlType"`
-	PageNumber    *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize      *int    `json:"PageSize" xml:"PageSize"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	IpControlId   *string `json:"IpControlId,omitempty" xml:"IpControlId,omitempty"`
+	IpControlName *string `json:"IpControlName,omitempty" xml:"IpControlName,omitempty"`
+	IpControlType *string `json:"IpControlType,omitempty" xml:"IpControlType,omitempty"`
+	PageNumber    *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize      *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s DescribeIpControlsRequest) String() string {
@@ -2011,11 +1970,6 @@ func (s DescribeIpControlsRequest) GoString() string {
 
 func (s *DescribeIpControlsRequest) SetSecurityToken(v string) *DescribeIpControlsRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeIpControlsRequest) SetAccessKeyId(v string) *DescribeIpControlsRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -2045,11 +1999,11 @@ func (s *DescribeIpControlsRequest) SetPageSize(v int) *DescribeIpControlsReques
 }
 
 type DescribeIpControlsResponse struct {
-	RequestId      *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount     *int                                      `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize       *int                                      `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber     *int                                      `json:"PageNumber" xml:"PageNumber" require:"true"`
-	IpControlInfos *DescribeIpControlsResponseIpControlInfos `json:"IpControlInfos" xml:"IpControlInfos" require:"true" type:"Struct"`
+	RequestId      *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount     *int                                      `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize       *int                                      `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber     *int                                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	IpControlInfos *DescribeIpControlsResponseIpControlInfos `json:"IpControlInfos,omitempty" xml:"IpControlInfos,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeIpControlsResponse) String() string {
@@ -2086,7 +2040,7 @@ func (s *DescribeIpControlsResponse) SetIpControlInfos(v *DescribeIpControlsResp
 }
 
 type DescribeIpControlsResponseIpControlInfos struct {
-	IpControlInfo []*DescribeIpControlsResponseIpControlInfosIpControlInfo `json:"IpControlInfo" xml:"IpControlInfo" require:"true" type:"Repeated"`
+	IpControlInfo []*DescribeIpControlsResponseIpControlInfosIpControlInfo `json:"IpControlInfo,omitempty" xml:"IpControlInfo,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeIpControlsResponseIpControlInfos) String() string {
@@ -2103,13 +2057,13 @@ func (s *DescribeIpControlsResponseIpControlInfos) SetIpControlInfo(v []*Describ
 }
 
 type DescribeIpControlsResponseIpControlInfosIpControlInfo struct {
-	IpControlId   *string `json:"IpControlId" xml:"IpControlId" require:"true"`
-	IpControlName *string `json:"IpControlName" xml:"IpControlName" require:"true"`
-	IpControlType *string `json:"IpControlType" xml:"IpControlType" require:"true"`
-	Description   *string `json:"Description" xml:"Description" require:"true"`
-	CreateTime    *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	ModifiedTime  *string `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
-	RegionId      *string `json:"RegionId" xml:"RegionId" require:"true"`
+	IpControlId   *string `json:"IpControlId,omitempty" xml:"IpControlId,omitempty" require:"true"`
+	IpControlName *string `json:"IpControlName,omitempty" xml:"IpControlName,omitempty" require:"true"`
+	IpControlType *string `json:"IpControlType,omitempty" xml:"IpControlType,omitempty" require:"true"`
+	Description   *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreateTime    *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	ModifiedTime  *string `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
+	RegionId      *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
 }
 
 func (s DescribeIpControlsResponseIpControlInfosIpControlInfo) String() string {
@@ -2156,12 +2110,11 @@ func (s *DescribeIpControlsResponseIpControlInfosIpControlInfo) SetRegionId(v st
 }
 
 type DescribeIpControlPolicyItemsRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	IpControlId   *string `json:"IpControlId" xml:"IpControlId"`
-	PolicyItemId  *string `json:"PolicyItemId" xml:"PolicyItemId"`
-	PageNumber    *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize      *int    `json:"PageSize" xml:"PageSize"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	IpControlId   *string `json:"IpControlId,omitempty" xml:"IpControlId,omitempty"`
+	PolicyItemId  *string `json:"PolicyItemId,omitempty" xml:"PolicyItemId,omitempty"`
+	PageNumber    *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize      *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s DescribeIpControlPolicyItemsRequest) String() string {
@@ -2174,11 +2127,6 @@ func (s DescribeIpControlPolicyItemsRequest) GoString() string {
 
 func (s *DescribeIpControlPolicyItemsRequest) SetSecurityToken(v string) *DescribeIpControlPolicyItemsRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeIpControlPolicyItemsRequest) SetAccessKeyId(v string) *DescribeIpControlPolicyItemsRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -2203,11 +2151,11 @@ func (s *DescribeIpControlPolicyItemsRequest) SetPageSize(v int) *DescribeIpCont
 }
 
 type DescribeIpControlPolicyItemsResponse struct {
-	RequestId            *string                                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount           *int                                                      `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize             *int                                                      `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber           *int                                                      `json:"PageNumber" xml:"PageNumber" require:"true"`
-	IpControlPolicyItems *DescribeIpControlPolicyItemsResponseIpControlPolicyItems `json:"IpControlPolicyItems" xml:"IpControlPolicyItems" require:"true" type:"Struct"`
+	RequestId            *string                                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount           *int                                                      `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize             *int                                                      `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber           *int                                                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	IpControlPolicyItems *DescribeIpControlPolicyItemsResponseIpControlPolicyItems `json:"IpControlPolicyItems,omitempty" xml:"IpControlPolicyItems,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeIpControlPolicyItemsResponse) String() string {
@@ -2244,7 +2192,7 @@ func (s *DescribeIpControlPolicyItemsResponse) SetIpControlPolicyItems(v *Descri
 }
 
 type DescribeIpControlPolicyItemsResponseIpControlPolicyItems struct {
-	IpControlPolicyItem []*DescribeIpControlPolicyItemsResponseIpControlPolicyItemsIpControlPolicyItem `json:"IpControlPolicyItem" xml:"IpControlPolicyItem" require:"true" type:"Repeated"`
+	IpControlPolicyItem []*DescribeIpControlPolicyItemsResponseIpControlPolicyItemsIpControlPolicyItem `json:"IpControlPolicyItem,omitempty" xml:"IpControlPolicyItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeIpControlPolicyItemsResponseIpControlPolicyItems) String() string {
@@ -2261,11 +2209,11 @@ func (s *DescribeIpControlPolicyItemsResponseIpControlPolicyItems) SetIpControlP
 }
 
 type DescribeIpControlPolicyItemsResponseIpControlPolicyItemsIpControlPolicyItem struct {
-	AppId        *string `json:"AppId" xml:"AppId" require:"true"`
-	CidrIp       *string `json:"CidrIp" xml:"CidrIp" require:"true"`
-	PolicyItemId *string `json:"PolicyItemId" xml:"PolicyItemId" require:"true"`
-	CreateTime   *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	ModifiedTime *string `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
+	AppId        *string `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	CidrIp       *string `json:"CidrIp,omitempty" xml:"CidrIp,omitempty" require:"true"`
+	PolicyItemId *string `json:"PolicyItemId,omitempty" xml:"PolicyItemId,omitempty" require:"true"`
+	CreateTime   *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	ModifiedTime *string `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
 }
 
 func (s DescribeIpControlPolicyItemsResponseIpControlPolicyItemsIpControlPolicyItem) String() string {
@@ -2302,11 +2250,10 @@ func (s *DescribeIpControlPolicyItemsResponseIpControlPolicyItemsIpControlPolicy
 }
 
 type DescribeApisByIpControlRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	IpControlId   *string `json:"IpControlId" xml:"IpControlId" require:"true"`
-	PageSize      *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber    *int    `json:"PageNumber" xml:"PageNumber"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	IpControlId   *string `json:"IpControlId,omitempty" xml:"IpControlId,omitempty" require:"true"`
+	PageSize      *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber    *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeApisByIpControlRequest) String() string {
@@ -2319,11 +2266,6 @@ func (s DescribeApisByIpControlRequest) GoString() string {
 
 func (s *DescribeApisByIpControlRequest) SetSecurityToken(v string) *DescribeApisByIpControlRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeApisByIpControlRequest) SetAccessKeyId(v string) *DescribeApisByIpControlRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -2343,11 +2285,11 @@ func (s *DescribeApisByIpControlRequest) SetPageNumber(v int) *DescribeApisByIpC
 }
 
 type DescribeApisByIpControlResponse struct {
-	RequestId  *string                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount *int                                     `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize   *int                                     `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber *int                                     `json:"PageNumber" xml:"PageNumber" require:"true"`
-	ApiInfos   *DescribeApisByIpControlResponseApiInfos `json:"ApiInfos" xml:"ApiInfos" require:"true" type:"Struct"`
+	RequestId  *string                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount *int                                     `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize   *int                                     `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber *int                                     `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	ApiInfos   *DescribeApisByIpControlResponseApiInfos `json:"ApiInfos,omitempty" xml:"ApiInfos,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApisByIpControlResponse) String() string {
@@ -2384,7 +2326,7 @@ func (s *DescribeApisByIpControlResponse) SetApiInfos(v *DescribeApisByIpControl
 }
 
 type DescribeApisByIpControlResponseApiInfos struct {
-	ApiInfo []*DescribeApisByIpControlResponseApiInfosApiInfo `json:"ApiInfo" xml:"ApiInfo" require:"true" type:"Repeated"`
+	ApiInfo []*DescribeApisByIpControlResponseApiInfosApiInfo `json:"ApiInfo,omitempty" xml:"ApiInfo,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApisByIpControlResponseApiInfos) String() string {
@@ -2401,15 +2343,15 @@ func (s *DescribeApisByIpControlResponseApiInfos) SetApiInfo(v []*DescribeApisBy
 }
 
 type DescribeApisByIpControlResponseApiInfosApiInfo struct {
-	RegionId    *string `json:"RegionId" xml:"RegionId" require:"true"`
-	GroupId     *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName   *string `json:"GroupName" xml:"GroupName" require:"true"`
-	StageName   *string `json:"StageName" xml:"StageName" require:"true"`
-	ApiId       *string `json:"ApiId" xml:"ApiId" require:"true"`
-	ApiName     *string `json:"ApiName" xml:"ApiName" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
-	Visibility  *string `json:"Visibility" xml:"Visibility" require:"true"`
-	BoundTime   *string `json:"BoundTime" xml:"BoundTime" require:"true"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	GroupId     *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName   *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	StageName   *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	ApiId       *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	ApiName     *string `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	Visibility  *string `json:"Visibility,omitempty" xml:"Visibility,omitempty" require:"true"`
+	BoundTime   *string `json:"BoundTime,omitempty" xml:"BoundTime,omitempty" require:"true"`
 }
 
 func (s DescribeApisByIpControlResponseApiInfosApiInfo) String() string {
@@ -2466,13 +2408,12 @@ func (s *DescribeApisByIpControlResponseApiInfosApiInfo) SetBoundTime(v string) 
 }
 
 type DescribeApiIpControlsRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	StageName     *string `json:"StageName" xml:"StageName" require:"true"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	ApiIds        *string `json:"ApiIds" xml:"ApiIds"`
-	PageNumber    *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize      *int    `json:"PageSize" xml:"PageSize"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	ApiIds        *string `json:"ApiIds,omitempty" xml:"ApiIds,omitempty"`
+	PageNumber    *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize      *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s DescribeApiIpControlsRequest) String() string {
@@ -2485,11 +2426,6 @@ func (s DescribeApiIpControlsRequest) GoString() string {
 
 func (s *DescribeApiIpControlsRequest) SetSecurityToken(v string) *DescribeApiIpControlsRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeApiIpControlsRequest) SetAccessKeyId(v string) *DescribeApiIpControlsRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -2519,11 +2455,11 @@ func (s *DescribeApiIpControlsRequest) SetPageSize(v int) *DescribeApiIpControls
 }
 
 type DescribeApiIpControlsResponse struct {
-	RequestId     *string                                     `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount    *int                                        `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize      *int                                        `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber    *int                                        `json:"PageNumber" xml:"PageNumber" require:"true"`
-	ApiIpControls *DescribeApiIpControlsResponseApiIpControls `json:"ApiIpControls" xml:"ApiIpControls" require:"true" type:"Struct"`
+	RequestId     *string                                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount    *int                                        `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize      *int                                        `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber    *int                                        `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	ApiIpControls *DescribeApiIpControlsResponseApiIpControls `json:"ApiIpControls,omitempty" xml:"ApiIpControls,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiIpControlsResponse) String() string {
@@ -2560,7 +2496,7 @@ func (s *DescribeApiIpControlsResponse) SetApiIpControls(v *DescribeApiIpControl
 }
 
 type DescribeApiIpControlsResponseApiIpControls struct {
-	ApiIpControlItem []*DescribeApiIpControlsResponseApiIpControlsApiIpControlItem `json:"ApiIpControlItem" xml:"ApiIpControlItem" require:"true" type:"Repeated"`
+	ApiIpControlItem []*DescribeApiIpControlsResponseApiIpControlsApiIpControlItem `json:"ApiIpControlItem,omitempty" xml:"ApiIpControlItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiIpControlsResponseApiIpControls) String() string {
@@ -2577,11 +2513,11 @@ func (s *DescribeApiIpControlsResponseApiIpControls) SetApiIpControlItem(v []*De
 }
 
 type DescribeApiIpControlsResponseApiIpControlsApiIpControlItem struct {
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
-	ApiName       *string `json:"ApiName" xml:"ApiName" require:"true"`
-	IpControlId   *string `json:"IpControlId" xml:"IpControlId" require:"true"`
-	IpControlName *string `json:"IpControlName" xml:"IpControlName" require:"true"`
-	BoundTime     *string `json:"BoundTime" xml:"BoundTime" require:"true"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	ApiName       *string `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	IpControlId   *string `json:"IpControlId,omitempty" xml:"IpControlId,omitempty" require:"true"`
+	IpControlName *string `json:"IpControlName,omitempty" xml:"IpControlName,omitempty" require:"true"`
+	BoundTime     *string `json:"BoundTime,omitempty" xml:"BoundTime,omitempty" require:"true"`
 }
 
 func (s DescribeApiIpControlsResponseApiIpControlsApiIpControlItem) String() string {
@@ -2618,9 +2554,8 @@ func (s *DescribeApiIpControlsResponseApiIpControlsApiIpControlItem) SetBoundTim
 }
 
 type DeleteIpControlRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	IpControlId   *string `json:"IpControlId" xml:"IpControlId" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	IpControlId   *string `json:"IpControlId,omitempty" xml:"IpControlId,omitempty" require:"true"`
 }
 
 func (s DeleteIpControlRequest) String() string {
@@ -2636,18 +2571,13 @@ func (s *DeleteIpControlRequest) SetSecurityToken(v string) *DeleteIpControlRequ
 	return s
 }
 
-func (s *DeleteIpControlRequest) SetAccessKeyId(v string) *DeleteIpControlRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DeleteIpControlRequest) SetIpControlId(v string) *DeleteIpControlRequest {
 	s.IpControlId = &v
 	return s
 }
 
 type DeleteIpControlResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteIpControlResponse) String() string {
@@ -2664,12 +2594,11 @@ func (s *DeleteIpControlResponse) SetRequestId(v string) *DeleteIpControlRespons
 }
 
 type CreateIpControlRequest struct {
-	SecurityToken    *string                                   `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId      *string                                   `json:"AccessKeyId" xml:"AccessKeyId"`
-	IpControlName    *string                                   `json:"IpControlName" xml:"IpControlName" require:"true"`
-	IpControlType    *string                                   `json:"IpControlType" xml:"IpControlType" require:"true"`
-	Description      *string                                   `json:"Description" xml:"Description"`
-	IpControlPolicys []*CreateIpControlRequestIpControlPolicys `json:"IpControlPolicys" xml:"IpControlPolicys" type:"Repeated"`
+	SecurityToken    *string                                   `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	IpControlName    *string                                   `json:"IpControlName,omitempty" xml:"IpControlName,omitempty" require:"true"`
+	IpControlType    *string                                   `json:"IpControlType,omitempty" xml:"IpControlType,omitempty" require:"true"`
+	Description      *string                                   `json:"Description,omitempty" xml:"Description,omitempty"`
+	IpControlPolicys []*CreateIpControlRequestIpControlPolicys `json:"IpControlPolicys,omitempty" xml:"IpControlPolicys,omitempty" type:"Repeated"`
 }
 
 func (s CreateIpControlRequest) String() string {
@@ -2682,11 +2611,6 @@ func (s CreateIpControlRequest) GoString() string {
 
 func (s *CreateIpControlRequest) SetSecurityToken(v string) *CreateIpControlRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *CreateIpControlRequest) SetAccessKeyId(v string) *CreateIpControlRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -2711,8 +2635,8 @@ func (s *CreateIpControlRequest) SetIpControlPolicys(v []*CreateIpControlRequest
 }
 
 type CreateIpControlRequestIpControlPolicys struct {
-	AppId  *string `json:"AppId" xml:"AppId" require:"true"`
-	CidrIp *string `json:"CidrIp" xml:"CidrIp" require:"true"`
+	AppId  *string `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	CidrIp *string `json:"CidrIp,omitempty" xml:"CidrIp,omitempty" require:"true"`
 }
 
 func (s CreateIpControlRequestIpControlPolicys) String() string {
@@ -2734,8 +2658,8 @@ func (s *CreateIpControlRequestIpControlPolicys) SetCidrIp(v string) *CreateIpCo
 }
 
 type CreateIpControlResponse struct {
-	RequestId   *string `json:"RequestId" xml:"RequestId" require:"true"`
-	IpControlId *string `json:"IpControlId" xml:"IpControlId" require:"true"`
+	RequestId   *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	IpControlId *string `json:"IpControlId,omitempty" xml:"IpControlId,omitempty" require:"true"`
 }
 
 func (s CreateIpControlResponse) String() string {
@@ -2757,11 +2681,10 @@ func (s *CreateIpControlResponse) SetIpControlId(v string) *CreateIpControlRespo
 }
 
 type AddIpControlPolicyItemRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	IpControlId   *string `json:"IpControlId" xml:"IpControlId" require:"true"`
-	AppId         *string `json:"AppId" xml:"AppId"`
-	CidrIp        *string `json:"CidrIp" xml:"CidrIp" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	IpControlId   *string `json:"IpControlId,omitempty" xml:"IpControlId,omitempty" require:"true"`
+	AppId         *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
+	CidrIp        *string `json:"CidrIp,omitempty" xml:"CidrIp,omitempty" require:"true"`
 }
 
 func (s AddIpControlPolicyItemRequest) String() string {
@@ -2774,11 +2697,6 @@ func (s AddIpControlPolicyItemRequest) GoString() string {
 
 func (s *AddIpControlPolicyItemRequest) SetSecurityToken(v string) *AddIpControlPolicyItemRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *AddIpControlPolicyItemRequest) SetAccessKeyId(v string) *AddIpControlPolicyItemRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -2798,8 +2716,8 @@ func (s *AddIpControlPolicyItemRequest) SetCidrIp(v string) *AddIpControlPolicyI
 }
 
 type AddIpControlPolicyItemResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	PolicyItemId *string `json:"PolicyItemId" xml:"PolicyItemId" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PolicyItemId *string `json:"PolicyItemId,omitempty" xml:"PolicyItemId,omitempty" require:"true"`
 }
 
 func (s AddIpControlPolicyItemResponse) String() string {
@@ -2821,11 +2739,10 @@ func (s *AddIpControlPolicyItemResponse) SetPolicyItemId(v string) *AddIpControl
 }
 
 type ModifyLogConfigRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	SlsProject    *string `json:"SlsProject" xml:"SlsProject" require:"true"`
-	SlsLogStore   *string `json:"SlsLogStore" xml:"SlsLogStore" require:"true"`
-	LogType       *string `json:"LogType" xml:"LogType"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	SlsProject    *string `json:"SlsProject,omitempty" xml:"SlsProject,omitempty" require:"true"`
+	SlsLogStore   *string `json:"SlsLogStore,omitempty" xml:"SlsLogStore,omitempty" require:"true"`
+	LogType       *string `json:"LogType,omitempty" xml:"LogType,omitempty"`
 }
 
 func (s ModifyLogConfigRequest) String() string {
@@ -2838,11 +2755,6 @@ func (s ModifyLogConfigRequest) GoString() string {
 
 func (s *ModifyLogConfigRequest) SetSecurityToken(v string) *ModifyLogConfigRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *ModifyLogConfigRequest) SetAccessKeyId(v string) *ModifyLogConfigRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -2862,7 +2774,7 @@ func (s *ModifyLogConfigRequest) SetLogType(v string) *ModifyLogConfigRequest {
 }
 
 type ModifyLogConfigResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyLogConfigResponse) String() string {
@@ -2879,9 +2791,8 @@ func (s *ModifyLogConfigResponse) SetRequestId(v string) *ModifyLogConfigRespons
 }
 
 type DescribeLogConfigRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	LogType       *string `json:"LogType" xml:"LogType"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	LogType       *string `json:"LogType,omitempty" xml:"LogType,omitempty"`
 }
 
 func (s DescribeLogConfigRequest) String() string {
@@ -2897,19 +2808,14 @@ func (s *DescribeLogConfigRequest) SetSecurityToken(v string) *DescribeLogConfig
 	return s
 }
 
-func (s *DescribeLogConfigRequest) SetAccessKeyId(v string) *DescribeLogConfigRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DescribeLogConfigRequest) SetLogType(v string) *DescribeLogConfigRequest {
 	s.LogType = &v
 	return s
 }
 
 type DescribeLogConfigResponse struct {
-	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	LogInfos  *DescribeLogConfigResponseLogInfos `json:"LogInfos" xml:"LogInfos" require:"true" type:"Struct"`
+	RequestId *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	LogInfos  *DescribeLogConfigResponseLogInfos `json:"LogInfos,omitempty" xml:"LogInfos,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeLogConfigResponse) String() string {
@@ -2931,7 +2837,7 @@ func (s *DescribeLogConfigResponse) SetLogInfos(v *DescribeLogConfigResponseLogI
 }
 
 type DescribeLogConfigResponseLogInfos struct {
-	LogInfo []*DescribeLogConfigResponseLogInfosLogInfo `json:"LogInfo" xml:"LogInfo" require:"true" type:"Repeated"`
+	LogInfo []*DescribeLogConfigResponseLogInfosLogInfo `json:"LogInfo,omitempty" xml:"LogInfo,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeLogConfigResponseLogInfos) String() string {
@@ -2948,10 +2854,10 @@ func (s *DescribeLogConfigResponseLogInfos) SetLogInfo(v []*DescribeLogConfigRes
 }
 
 type DescribeLogConfigResponseLogInfosLogInfo struct {
-	RegionId    *string `json:"RegionId" xml:"RegionId" require:"true"`
-	SlsProject  *string `json:"SlsProject" xml:"SlsProject" require:"true"`
-	SlsLogStore *string `json:"SlsLogStore" xml:"SlsLogStore" require:"true"`
-	LogType     *string `json:"LogType" xml:"LogType" require:"true"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	SlsProject  *string `json:"SlsProject,omitempty" xml:"SlsProject,omitempty" require:"true"`
+	SlsLogStore *string `json:"SlsLogStore,omitempty" xml:"SlsLogStore,omitempty" require:"true"`
+	LogType     *string `json:"LogType,omitempty" xml:"LogType,omitempty" require:"true"`
 }
 
 func (s DescribeLogConfigResponseLogInfosLogInfo) String() string {
@@ -2983,9 +2889,8 @@ func (s *DescribeLogConfigResponseLogInfosLogInfo) SetLogType(v string) *Describ
 }
 
 type DeleteLogConfigRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	LogType       *string `json:"LogType" xml:"LogType"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	LogType       *string `json:"LogType,omitempty" xml:"LogType,omitempty"`
 }
 
 func (s DeleteLogConfigRequest) String() string {
@@ -3001,18 +2906,13 @@ func (s *DeleteLogConfigRequest) SetSecurityToken(v string) *DeleteLogConfigRequ
 	return s
 }
 
-func (s *DeleteLogConfigRequest) SetAccessKeyId(v string) *DeleteLogConfigRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DeleteLogConfigRequest) SetLogType(v string) *DeleteLogConfigRequest {
 	s.LogType = &v
 	return s
 }
 
 type DeleteLogConfigResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteLogConfigResponse) String() string {
@@ -3029,11 +2929,10 @@ func (s *DeleteLogConfigResponse) SetRequestId(v string) *DeleteLogConfigRespons
 }
 
 type CreateLogConfigRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	SlsProject    *string `json:"SlsProject" xml:"SlsProject" require:"true"`
-	SlsLogStore   *string `json:"SlsLogStore" xml:"SlsLogStore" require:"true"`
-	LogType       *string `json:"LogType" xml:"LogType"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	SlsProject    *string `json:"SlsProject,omitempty" xml:"SlsProject,omitempty" require:"true"`
+	SlsLogStore   *string `json:"SlsLogStore,omitempty" xml:"SlsLogStore,omitempty" require:"true"`
+	LogType       *string `json:"LogType,omitempty" xml:"LogType,omitempty"`
 }
 
 func (s CreateLogConfigRequest) String() string {
@@ -3046,11 +2945,6 @@ func (s CreateLogConfigRequest) GoString() string {
 
 func (s *CreateLogConfigRequest) SetSecurityToken(v string) *CreateLogConfigRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *CreateLogConfigRequest) SetAccessKeyId(v string) *CreateLogConfigRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -3070,7 +2964,7 @@ func (s *CreateLogConfigRequest) SetLogType(v string) *CreateLogConfigRequest {
 }
 
 type CreateLogConfigResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s CreateLogConfigResponse) String() string {
@@ -3087,11 +2981,10 @@ func (s *CreateLogConfigResponse) SetRequestId(v string) *CreateLogConfigRespons
 }
 
 type SetDomainWebSocketStatusRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	DomainName    *string `json:"DomainName" xml:"DomainName" require:"true"`
-	ActionValue   *string `json:"ActionValue" xml:"ActionValue" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	DomainName    *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	ActionValue   *string `json:"ActionValue,omitempty" xml:"ActionValue,omitempty" require:"true"`
 }
 
 func (s SetDomainWebSocketStatusRequest) String() string {
@@ -3104,11 +2997,6 @@ func (s SetDomainWebSocketStatusRequest) GoString() string {
 
 func (s *SetDomainWebSocketStatusRequest) SetSecurityToken(v string) *SetDomainWebSocketStatusRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *SetDomainWebSocketStatusRequest) SetAccessKeyId(v string) *SetDomainWebSocketStatusRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -3128,7 +3016,7 @@ func (s *SetDomainWebSocketStatusRequest) SetActionValue(v string) *SetDomainWeb
 }
 
 type SetDomainWebSocketStatusResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetDomainWebSocketStatusResponse) String() string {
@@ -3145,11 +3033,10 @@ func (s *SetDomainWebSocketStatusResponse) SetRequestId(v string) *SetDomainWebS
 }
 
 type RemoveVpcAccessRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	VpcId         *string `json:"VpcId" xml:"VpcId" require:"true"`
-	InstanceId    *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	Port          *int    `json:"Port" xml:"Port" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	VpcId         *string `json:"VpcId,omitempty" xml:"VpcId,omitempty" require:"true"`
+	InstanceId    *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	Port          *int    `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
 }
 
 func (s RemoveVpcAccessRequest) String() string {
@@ -3162,11 +3049,6 @@ func (s RemoveVpcAccessRequest) GoString() string {
 
 func (s *RemoveVpcAccessRequest) SetSecurityToken(v string) *RemoveVpcAccessRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *RemoveVpcAccessRequest) SetAccessKeyId(v string) *RemoveVpcAccessRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -3186,7 +3068,7 @@ func (s *RemoveVpcAccessRequest) SetPort(v int) *RemoveVpcAccessRequest {
 }
 
 type RemoveVpcAccessResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s RemoveVpcAccessResponse) String() string {
@@ -3203,12 +3085,11 @@ func (s *RemoveVpcAccessResponse) SetRequestId(v string) *RemoveVpcAccessRespons
 }
 
 type SetVpcAccessRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Name          *string `json:"Name" xml:"Name" require:"true"`
-	VpcId         *string `json:"VpcId" xml:"VpcId" require:"true"`
-	InstanceId    *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	Port          *int    `json:"Port" xml:"Port" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	Name          *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	VpcId         *string `json:"VpcId,omitempty" xml:"VpcId,omitempty" require:"true"`
+	InstanceId    *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	Port          *int    `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
 }
 
 func (s SetVpcAccessRequest) String() string {
@@ -3221,11 +3102,6 @@ func (s SetVpcAccessRequest) GoString() string {
 
 func (s *SetVpcAccessRequest) SetSecurityToken(v string) *SetVpcAccessRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *SetVpcAccessRequest) SetAccessKeyId(v string) *SetVpcAccessRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -3250,7 +3126,7 @@ func (s *SetVpcAccessRequest) SetPort(v int) *SetVpcAccessRequest {
 }
 
 type SetVpcAccessResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetVpcAccessResponse) String() string {
@@ -3267,11 +3143,10 @@ func (s *SetVpcAccessResponse) SetRequestId(v string) *SetVpcAccessResponse {
 }
 
 type DescribeVpcAccessesRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	PageNumber    *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize      *int    `json:"PageSize" xml:"PageSize"`
-	Name          *string `json:"Name" xml:"Name"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	PageNumber    *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize      *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	Name          *string `json:"Name,omitempty" xml:"Name,omitempty"`
 }
 
 func (s DescribeVpcAccessesRequest) String() string {
@@ -3284,11 +3159,6 @@ func (s DescribeVpcAccessesRequest) GoString() string {
 
 func (s *DescribeVpcAccessesRequest) SetSecurityToken(v string) *DescribeVpcAccessesRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeVpcAccessesRequest) SetAccessKeyId(v string) *DescribeVpcAccessesRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -3308,11 +3178,11 @@ func (s *DescribeVpcAccessesRequest) SetName(v string) *DescribeVpcAccessesReque
 }
 
 type DescribeVpcAccessesResponse struct {
-	RequestId           *string                                         `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount          *int                                            `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize            *int                                            `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber          *int                                            `json:"PageNumber" xml:"PageNumber" require:"true"`
-	VpcAccessAttributes *DescribeVpcAccessesResponseVpcAccessAttributes `json:"VpcAccessAttributes" xml:"VpcAccessAttributes" require:"true" type:"Struct"`
+	RequestId           *string                                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount          *int                                            `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize            *int                                            `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber          *int                                            `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	VpcAccessAttributes *DescribeVpcAccessesResponseVpcAccessAttributes `json:"VpcAccessAttributes,omitempty" xml:"VpcAccessAttributes,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVpcAccessesResponse) String() string {
@@ -3349,7 +3219,7 @@ func (s *DescribeVpcAccessesResponse) SetVpcAccessAttributes(v *DescribeVpcAcces
 }
 
 type DescribeVpcAccessesResponseVpcAccessAttributes struct {
-	VpcAccessAttribute []*DescribeVpcAccessesResponseVpcAccessAttributesVpcAccessAttribute `json:"VpcAccessAttribute" xml:"VpcAccessAttribute" require:"true" type:"Repeated"`
+	VpcAccessAttribute []*DescribeVpcAccessesResponseVpcAccessAttributesVpcAccessAttribute `json:"VpcAccessAttribute,omitempty" xml:"VpcAccessAttribute,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVpcAccessesResponseVpcAccessAttributes) String() string {
@@ -3366,12 +3236,12 @@ func (s *DescribeVpcAccessesResponseVpcAccessAttributes) SetVpcAccessAttribute(v
 }
 
 type DescribeVpcAccessesResponseVpcAccessAttributesVpcAccessAttribute struct {
-	VpcId       *string `json:"VpcId" xml:"VpcId" require:"true"`
-	InstanceId  *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	CreatedTime *string `json:"CreatedTime" xml:"CreatedTime" require:"true"`
-	Port        *int    `json:"Port" xml:"Port" require:"true"`
-	RegionId    *string `json:"RegionId" xml:"RegionId" require:"true"`
-	Name        *string `json:"Name" xml:"Name" require:"true"`
+	VpcId       *string `json:"VpcId,omitempty" xml:"VpcId,omitempty" require:"true"`
+	InstanceId  *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	CreatedTime *string `json:"CreatedTime,omitempty" xml:"CreatedTime,omitempty" require:"true"`
+	Port        *int    `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Name        *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
 }
 
 func (s DescribeVpcAccessesResponseVpcAccessAttributesVpcAccessAttribute) String() string {
@@ -3413,10 +3283,9 @@ func (s *DescribeVpcAccessesResponseVpcAccessAttributesVpcAccessAttribute) SetNa
 }
 
 type ReactivateDomainRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	DomainName    *string `json:"DomainName" xml:"DomainName" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	DomainName    *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
 }
 
 func (s ReactivateDomainRequest) String() string {
@@ -3432,11 +3301,6 @@ func (s *ReactivateDomainRequest) SetSecurityToken(v string) *ReactivateDomainRe
 	return s
 }
 
-func (s *ReactivateDomainRequest) SetAccessKeyId(v string) *ReactivateDomainRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *ReactivateDomainRequest) SetGroupId(v string) *ReactivateDomainRequest {
 	s.GroupId = &v
 	return s
@@ -3448,7 +3312,7 @@ func (s *ReactivateDomainRequest) SetDomainName(v string) *ReactivateDomainReque
 }
 
 type ReactivateDomainResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ReactivateDomainResponse) String() string {
@@ -3465,14 +3329,13 @@ func (s *ReactivateDomainResponse) SetRequestId(v string) *ReactivateDomainRespo
 }
 
 type DescribeApiHistoriesRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	StageName     *string `json:"StageName" xml:"StageName"`
-	ApiId         *string `json:"ApiId" xml:"ApiId"`
-	ApiName       *string `json:"ApiName" xml:"ApiName"`
-	PageSize      *string `json:"PageSize" xml:"PageSize"`
-	PageNumber    *string `json:"PageNumber" xml:"PageNumber"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty"`
+	ApiName       *string `json:"ApiName,omitempty" xml:"ApiName,omitempty"`
+	PageSize      *string `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber    *string `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeApiHistoriesRequest) String() string {
@@ -3485,11 +3348,6 @@ func (s DescribeApiHistoriesRequest) GoString() string {
 
 func (s *DescribeApiHistoriesRequest) SetSecurityToken(v string) *DescribeApiHistoriesRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeApiHistoriesRequest) SetAccessKeyId(v string) *DescribeApiHistoriesRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -3524,11 +3382,11 @@ func (s *DescribeApiHistoriesRequest) SetPageNumber(v string) *DescribeApiHistor
 }
 
 type DescribeApiHistoriesResponse struct {
-	RequestId   *string                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount  *int                                     `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize    *int                                     `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber  *int                                     `json:"PageNumber" xml:"PageNumber" require:"true"`
-	ApiHisItems *DescribeApiHistoriesResponseApiHisItems `json:"ApiHisItems" xml:"ApiHisItems" require:"true" type:"Struct"`
+	RequestId   *string                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount  *int                                     `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize    *int                                     `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber  *int                                     `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	ApiHisItems *DescribeApiHistoriesResponseApiHisItems `json:"ApiHisItems,omitempty" xml:"ApiHisItems,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiHistoriesResponse) String() string {
@@ -3565,7 +3423,7 @@ func (s *DescribeApiHistoriesResponse) SetApiHisItems(v *DescribeApiHistoriesRes
 }
 
 type DescribeApiHistoriesResponseApiHisItems struct {
-	ApiHisItem []*DescribeApiHistoriesResponseApiHisItemsApiHisItem `json:"ApiHisItem" xml:"ApiHisItem" require:"true" type:"Repeated"`
+	ApiHisItem []*DescribeApiHistoriesResponseApiHisItemsApiHisItem `json:"ApiHisItem,omitempty" xml:"ApiHisItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiHistoriesResponseApiHisItems) String() string {
@@ -3582,16 +3440,16 @@ func (s *DescribeApiHistoriesResponseApiHisItems) SetApiHisItem(v []*DescribeApi
 }
 
 type DescribeApiHistoriesResponseApiHisItemsApiHisItem struct {
-	RegionId       *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ApiId          *string `json:"ApiId" xml:"ApiId" require:"true"`
-	ApiName        *string `json:"ApiName" xml:"ApiName" require:"true"`
-	GroupId        *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName      *string `json:"GroupName" xml:"GroupName" require:"true"`
-	StageName      *string `json:"StageName" xml:"StageName" require:"true"`
-	HistoryVersion *string `json:"HistoryVersion" xml:"HistoryVersion" require:"true"`
-	Status         *string `json:"Status" xml:"Status" require:"true"`
-	Description    *string `json:"Description" xml:"Description" require:"true"`
-	DeployedTime   *string `json:"DeployedTime" xml:"DeployedTime" require:"true"`
+	RegionId       *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ApiId          *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	ApiName        *string `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	GroupId        *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName      *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	StageName      *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	HistoryVersion *string `json:"HistoryVersion,omitempty" xml:"HistoryVersion,omitempty" require:"true"`
+	Status         *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Description    *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	DeployedTime   *string `json:"DeployedTime,omitempty" xml:"DeployedTime,omitempty" require:"true"`
 }
 
 func (s DescribeApiHistoriesResponseApiHisItemsApiHisItem) String() string {
@@ -3653,10 +3511,9 @@ func (s *DescribeApiHistoriesResponseApiHisItemsApiHisItem) SetDeployedTime(v st
 }
 
 type SdkGenerateByGroupRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	Language      *string `json:"Language" xml:"Language" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	Language      *string `json:"Language,omitempty" xml:"Language,omitempty" require:"true"`
 }
 
 func (s SdkGenerateByGroupRequest) String() string {
@@ -3672,11 +3529,6 @@ func (s *SdkGenerateByGroupRequest) SetSecurityToken(v string) *SdkGenerateByGro
 	return s
 }
 
-func (s *SdkGenerateByGroupRequest) SetAccessKeyId(v string) *SdkGenerateByGroupRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *SdkGenerateByGroupRequest) SetGroupId(v string) *SdkGenerateByGroupRequest {
 	s.GroupId = &v
 	return s
@@ -3688,8 +3540,8 @@ func (s *SdkGenerateByGroupRequest) SetLanguage(v string) *SdkGenerateByGroupReq
 }
 
 type SdkGenerateByGroupResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	DownloadLink *string `json:"DownloadLink" xml:"DownloadLink" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DownloadLink *string `json:"DownloadLink,omitempty" xml:"DownloadLink,omitempty" require:"true"`
 }
 
 func (s SdkGenerateByGroupResponse) String() string {
@@ -3711,10 +3563,9 @@ func (s *SdkGenerateByGroupResponse) SetDownloadLink(v string) *SdkGenerateByGro
 }
 
 type SdkGenerateByAppRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	AppId         *int64  `json:"AppId" xml:"AppId" require:"true"`
-	Language      *string `json:"Language" xml:"Language" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	AppId         *int64  `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	Language      *string `json:"Language,omitempty" xml:"Language,omitempty" require:"true"`
 }
 
 func (s SdkGenerateByAppRequest) String() string {
@@ -3730,11 +3581,6 @@ func (s *SdkGenerateByAppRequest) SetSecurityToken(v string) *SdkGenerateByAppRe
 	return s
 }
 
-func (s *SdkGenerateByAppRequest) SetAccessKeyId(v string) *SdkGenerateByAppRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *SdkGenerateByAppRequest) SetAppId(v int64) *SdkGenerateByAppRequest {
 	s.AppId = &v
 	return s
@@ -3746,8 +3592,8 @@ func (s *SdkGenerateByAppRequest) SetLanguage(v string) *SdkGenerateByAppRequest
 }
 
 type SdkGenerateByAppResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	DownloadLink *string `json:"DownloadLink" xml:"DownloadLink" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DownloadLink *string `json:"DownloadLink,omitempty" xml:"DownloadLink,omitempty" require:"true"`
 }
 
 func (s SdkGenerateByAppResponse) String() string {
@@ -3769,12 +3615,11 @@ func (s *SdkGenerateByAppResponse) SetDownloadLink(v string) *SdkGenerateByAppRe
 }
 
 type DescribeApisByAppRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	AppId         *int64  `json:"AppId" xml:"AppId" require:"true"`
-	PageNumber    *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize      *int    `json:"PageSize" xml:"PageSize"`
-	ApiUid        *string `json:"ApiUid" xml:"ApiUid"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	AppId         *int64  `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	PageNumber    *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize      *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	ApiUid        *string `json:"ApiUid,omitempty" xml:"ApiUid,omitempty"`
 }
 
 func (s DescribeApisByAppRequest) String() string {
@@ -3787,11 +3632,6 @@ func (s DescribeApisByAppRequest) GoString() string {
 
 func (s *DescribeApisByAppRequest) SetSecurityToken(v string) *DescribeApisByAppRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeApisByAppRequest) SetAccessKeyId(v string) *DescribeApisByAppRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -3816,11 +3656,11 @@ func (s *DescribeApisByAppRequest) SetApiUid(v string) *DescribeApisByAppRequest
 }
 
 type DescribeApisByAppResponse struct {
-	RequestId           *string                                       `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount          *int                                          `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize            *int                                          `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber          *int                                          `json:"PageNumber" xml:"PageNumber" require:"true"`
-	AppApiRelationInfos *DescribeApisByAppResponseAppApiRelationInfos `json:"AppApiRelationInfos" xml:"AppApiRelationInfos" require:"true" type:"Struct"`
+	RequestId           *string                                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount          *int                                          `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize            *int                                          `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber          *int                                          `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	AppApiRelationInfos *DescribeApisByAppResponseAppApiRelationInfos `json:"AppApiRelationInfos,omitempty" xml:"AppApiRelationInfos,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApisByAppResponse) String() string {
@@ -3857,7 +3697,7 @@ func (s *DescribeApisByAppResponse) SetAppApiRelationInfos(v *DescribeApisByAppR
 }
 
 type DescribeApisByAppResponseAppApiRelationInfos struct {
-	AppApiRelationInfo []*DescribeApisByAppResponseAppApiRelationInfosAppApiRelationInfo `json:"AppApiRelationInfo" xml:"AppApiRelationInfo" require:"true" type:"Repeated"`
+	AppApiRelationInfo []*DescribeApisByAppResponseAppApiRelationInfosAppApiRelationInfo `json:"AppApiRelationInfo,omitempty" xml:"AppApiRelationInfo,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApisByAppResponseAppApiRelationInfos) String() string {
@@ -3874,17 +3714,17 @@ func (s *DescribeApisByAppResponseAppApiRelationInfos) SetAppApiRelationInfo(v [
 }
 
 type DescribeApisByAppResponseAppApiRelationInfosAppApiRelationInfo struct {
-	RegionId            *string `json:"RegionId" xml:"RegionId" require:"true"`
-	GroupId             *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName           *string `json:"GroupName" xml:"GroupName" require:"true"`
-	StageName           *string `json:"StageName" xml:"StageName" require:"true"`
-	Operator            *string `json:"Operator" xml:"Operator" require:"true"`
-	ApiId               *string `json:"ApiId" xml:"ApiId" require:"true"`
-	ApiName             *string `json:"ApiName" xml:"ApiName" require:"true"`
-	AuthorizationSource *string `json:"AuthorizationSource" xml:"AuthorizationSource" require:"true"`
-	Description         *string `json:"Description" xml:"Description" require:"true"`
-	CreatedTime         *string `json:"CreatedTime" xml:"CreatedTime" require:"true"`
-	AuthVaildTime       *string `json:"AuthVaildTime" xml:"AuthVaildTime" require:"true"`
+	RegionId            *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	GroupId             *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName           *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	StageName           *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	Operator            *string `json:"Operator,omitempty" xml:"Operator,omitempty" require:"true"`
+	ApiId               *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	ApiName             *string `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	AuthorizationSource *string `json:"AuthorizationSource,omitempty" xml:"AuthorizationSource,omitempty" require:"true"`
+	Description         *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreatedTime         *string `json:"CreatedTime,omitempty" xml:"CreatedTime,omitempty" require:"true"`
+	AuthVaildTime       *string `json:"AuthVaildTime,omitempty" xml:"AuthVaildTime,omitempty" require:"true"`
 }
 
 func (s DescribeApisByAppResponseAppApiRelationInfosAppApiRelationInfo) String() string {
@@ -3951,10 +3791,9 @@ func (s *DescribeApisByAppResponseAppApiRelationInfosAppApiRelationInfo) SetAuth
 }
 
 type DescribeApiStageRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	StageId       *string `json:"StageId" xml:"StageId" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	StageId       *string `json:"StageId,omitempty" xml:"StageId,omitempty" require:"true"`
 }
 
 func (s DescribeApiStageRequest) String() string {
@@ -3970,11 +3809,6 @@ func (s *DescribeApiStageRequest) SetSecurityToken(v string) *DescribeApiStageRe
 	return s
 }
 
-func (s *DescribeApiStageRequest) SetAccessKeyId(v string) *DescribeApiStageRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DescribeApiStageRequest) SetGroupId(v string) *DescribeApiStageRequest {
 	s.GroupId = &v
 	return s
@@ -3986,14 +3820,14 @@ func (s *DescribeApiStageRequest) SetStageId(v string) *DescribeApiStageRequest 
 }
 
 type DescribeApiStageResponse struct {
-	RequestId    *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	GroupId      *string                            `json:"GroupId" xml:"GroupId" require:"true"`
-	StageId      *string                            `json:"StageId" xml:"StageId" require:"true"`
-	StageName    *string                            `json:"StageName" xml:"StageName" require:"true"`
-	Description  *string                            `json:"Description" xml:"Description" require:"true"`
-	CreatedTime  *string                            `json:"CreatedTime" xml:"CreatedTime" require:"true"`
-	ModifiedTime *string                            `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
-	Variables    *DescribeApiStageResponseVariables `json:"Variables" xml:"Variables" require:"true" type:"Struct"`
+	RequestId    *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	GroupId      *string                            `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	StageId      *string                            `json:"StageId,omitempty" xml:"StageId,omitempty" require:"true"`
+	StageName    *string                            `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	Description  *string                            `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreatedTime  *string                            `json:"CreatedTime,omitempty" xml:"CreatedTime,omitempty" require:"true"`
+	ModifiedTime *string                            `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
+	Variables    *DescribeApiStageResponseVariables `json:"Variables,omitempty" xml:"Variables,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiStageResponse) String() string {
@@ -4045,7 +3879,7 @@ func (s *DescribeApiStageResponse) SetVariables(v *DescribeApiStageResponseVaria
 }
 
 type DescribeApiStageResponseVariables struct {
-	VariableItem []*DescribeApiStageResponseVariablesVariableItem `json:"VariableItem" xml:"VariableItem" require:"true" type:"Repeated"`
+	VariableItem []*DescribeApiStageResponseVariablesVariableItem `json:"VariableItem,omitempty" xml:"VariableItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiStageResponseVariables) String() string {
@@ -4062,10 +3896,10 @@ func (s *DescribeApiStageResponseVariables) SetVariableItem(v []*DescribeApiStag
 }
 
 type DescribeApiStageResponseVariablesVariableItem struct {
-	VariableName    *string                                                       `json:"VariableName" xml:"VariableName" require:"true"`
-	VariableValue   *string                                                       `json:"VariableValue" xml:"VariableValue" require:"true"`
-	SupportRoute    *bool                                                         `json:"SupportRoute" xml:"SupportRoute" require:"true"`
-	StageRouteModel *DescribeApiStageResponseVariablesVariableItemStageRouteModel `json:"StageRouteModel" xml:"StageRouteModel" require:"true" type:"Struct"`
+	VariableName    *string                                                       `json:"VariableName,omitempty" xml:"VariableName,omitempty" require:"true"`
+	VariableValue   *string                                                       `json:"VariableValue,omitempty" xml:"VariableValue,omitempty" require:"true"`
+	SupportRoute    *bool                                                         `json:"SupportRoute,omitempty" xml:"SupportRoute,omitempty" require:"true"`
+	StageRouteModel *DescribeApiStageResponseVariablesVariableItemStageRouteModel `json:"StageRouteModel,omitempty" xml:"StageRouteModel,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiStageResponseVariablesVariableItem) String() string {
@@ -4097,12 +3931,12 @@ func (s *DescribeApiStageResponseVariablesVariableItem) SetStageRouteModel(v *De
 }
 
 type DescribeApiStageResponseVariablesVariableItemStageRouteModel struct {
-	ParameterCatalog     *string                                                                 `json:"ParameterCatalog" xml:"ParameterCatalog" require:"true"`
-	ServiceParameterName *string                                                                 `json:"ServiceParameterName" xml:"ServiceParameterName" require:"true"`
-	Location             *string                                                                 `json:"Location" xml:"Location" require:"true"`
-	ParameterType        *string                                                                 `json:"ParameterType" xml:"ParameterType" require:"true"`
-	RouteMatchSymbol     *string                                                                 `json:"RouteMatchSymbol" xml:"RouteMatchSymbol" require:"true"`
-	RouteRules           *DescribeApiStageResponseVariablesVariableItemStageRouteModelRouteRules `json:"RouteRules" xml:"RouteRules" require:"true" type:"Struct"`
+	ParameterCatalog     *string                                                                 `json:"ParameterCatalog,omitempty" xml:"ParameterCatalog,omitempty" require:"true"`
+	ServiceParameterName *string                                                                 `json:"ServiceParameterName,omitempty" xml:"ServiceParameterName,omitempty" require:"true"`
+	Location             *string                                                                 `json:"Location,omitempty" xml:"Location,omitempty" require:"true"`
+	ParameterType        *string                                                                 `json:"ParameterType,omitempty" xml:"ParameterType,omitempty" require:"true"`
+	RouteMatchSymbol     *string                                                                 `json:"RouteMatchSymbol,omitempty" xml:"RouteMatchSymbol,omitempty" require:"true"`
+	RouteRules           *DescribeApiStageResponseVariablesVariableItemStageRouteModelRouteRules `json:"RouteRules,omitempty" xml:"RouteRules,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiStageResponseVariablesVariableItemStageRouteModel) String() string {
@@ -4144,7 +3978,7 @@ func (s *DescribeApiStageResponseVariablesVariableItemStageRouteModel) SetRouteR
 }
 
 type DescribeApiStageResponseVariablesVariableItemStageRouteModelRouteRules struct {
-	RouteRuleItem []*DescribeApiStageResponseVariablesVariableItemStageRouteModelRouteRulesRouteRuleItem `json:"RouteRuleItem" xml:"RouteRuleItem" require:"true" type:"Repeated"`
+	RouteRuleItem []*DescribeApiStageResponseVariablesVariableItemStageRouteModelRouteRulesRouteRuleItem `json:"RouteRuleItem,omitempty" xml:"RouteRuleItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiStageResponseVariablesVariableItemStageRouteModelRouteRules) String() string {
@@ -4161,10 +3995,10 @@ func (s *DescribeApiStageResponseVariablesVariableItemStageRouteModelRouteRules)
 }
 
 type DescribeApiStageResponseVariablesVariableItemStageRouteModelRouteRulesRouteRuleItem struct {
-	MaxValue       *int64  `json:"MaxValue" xml:"MaxValue" require:"true"`
-	MinValue       *int64  `json:"MinValue" xml:"MinValue" require:"true"`
-	ConditionValue *string `json:"ConditionValue" xml:"ConditionValue" require:"true"`
-	ResultValue    *string `json:"ResultValue" xml:"ResultValue" require:"true"`
+	MaxValue       *int64  `json:"MaxValue,omitempty" xml:"MaxValue,omitempty" require:"true"`
+	MinValue       *int64  `json:"MinValue,omitempty" xml:"MinValue,omitempty" require:"true"`
+	ConditionValue *string `json:"ConditionValue,omitempty" xml:"ConditionValue,omitempty" require:"true"`
+	ResultValue    *string `json:"ResultValue,omitempty" xml:"ResultValue,omitempty" require:"true"`
 }
 
 func (s DescribeApiStageResponseVariablesVariableItemStageRouteModelRouteRulesRouteRuleItem) String() string {
@@ -4196,11 +4030,10 @@ func (s *DescribeApiStageResponseVariablesVariableItemStageRouteModelRouteRulesR
 }
 
 type DeleteApiStageVariableRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	StageId       *string `json:"StageId" xml:"StageId" require:"true"`
-	VariableName  *string `json:"VariableName" xml:"VariableName" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	StageId       *string `json:"StageId,omitempty" xml:"StageId,omitempty" require:"true"`
+	VariableName  *string `json:"VariableName,omitempty" xml:"VariableName,omitempty" require:"true"`
 }
 
 func (s DeleteApiStageVariableRequest) String() string {
@@ -4213,11 +4046,6 @@ func (s DeleteApiStageVariableRequest) GoString() string {
 
 func (s *DeleteApiStageVariableRequest) SetSecurityToken(v string) *DeleteApiStageVariableRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DeleteApiStageVariableRequest) SetAccessKeyId(v string) *DeleteApiStageVariableRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -4237,7 +4065,7 @@ func (s *DeleteApiStageVariableRequest) SetVariableName(v string) *DeleteApiStag
 }
 
 type DeleteApiStageVariableResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteApiStageVariableResponse) String() string {
@@ -4254,14 +4082,13 @@ func (s *DeleteApiStageVariableResponse) SetRequestId(v string) *DeleteApiStageV
 }
 
 type CreateApiStageVariableRequest struct {
-	SecurityToken   *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId     *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId         *string `json:"GroupId" xml:"GroupId" require:"true"`
-	StageId         *string `json:"StageId" xml:"StageId" require:"true"`
-	VariableName    *string `json:"VariableName" xml:"VariableName" require:"true"`
-	SupportRoute    *bool   `json:"SupportRoute" xml:"SupportRoute"`
-	VariableValue   *string `json:"VariableValue" xml:"VariableValue"`
-	StageRouteModel *string `json:"StageRouteModel" xml:"StageRouteModel"`
+	SecurityToken   *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId         *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	StageId         *string `json:"StageId,omitempty" xml:"StageId,omitempty" require:"true"`
+	VariableName    *string `json:"VariableName,omitempty" xml:"VariableName,omitempty" require:"true"`
+	SupportRoute    *bool   `json:"SupportRoute,omitempty" xml:"SupportRoute,omitempty"`
+	VariableValue   *string `json:"VariableValue,omitempty" xml:"VariableValue,omitempty"`
+	StageRouteModel *string `json:"StageRouteModel,omitempty" xml:"StageRouteModel,omitempty"`
 }
 
 func (s CreateApiStageVariableRequest) String() string {
@@ -4274,11 +4101,6 @@ func (s CreateApiStageVariableRequest) GoString() string {
 
 func (s *CreateApiStageVariableRequest) SetSecurityToken(v string) *CreateApiStageVariableRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *CreateApiStageVariableRequest) SetAccessKeyId(v string) *CreateApiStageVariableRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -4313,7 +4135,7 @@ func (s *CreateApiStageVariableRequest) SetStageRouteModel(v string) *CreateApiS
 }
 
 type CreateApiStageVariableResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s CreateApiStageVariableResponse) String() string {
@@ -4330,13 +4152,12 @@ func (s *CreateApiStageVariableResponse) SetRequestId(v string) *CreateApiStageV
 }
 
 type SwitchApiRequest struct {
-	SecurityToken  *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId    *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId        *string `json:"GroupId" xml:"GroupId"`
-	ApiId          *string `json:"ApiId" xml:"ApiId" require:"true"`
-	StageName      *string `json:"StageName" xml:"StageName" require:"true"`
-	Description    *string `json:"Description" xml:"Description" require:"true"`
-	HistoryVersion *string `json:"HistoryVersion" xml:"HistoryVersion" require:"true"`
+	SecurityToken  *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId        *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	ApiId          *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	StageName      *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	Description    *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	HistoryVersion *string `json:"HistoryVersion,omitempty" xml:"HistoryVersion,omitempty" require:"true"`
 }
 
 func (s SwitchApiRequest) String() string {
@@ -4349,11 +4170,6 @@ func (s SwitchApiRequest) GoString() string {
 
 func (s *SwitchApiRequest) SetSecurityToken(v string) *SwitchApiRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *SwitchApiRequest) SetAccessKeyId(v string) *SwitchApiRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -4383,7 +4199,7 @@ func (s *SwitchApiRequest) SetHistoryVersion(v string) *SwitchApiRequest {
 }
 
 type SwitchApiResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SwitchApiResponse) String() string {
@@ -4400,12 +4216,11 @@ func (s *SwitchApiResponse) SetRequestId(v string) *SwitchApiResponse {
 }
 
 type SetTrafficControlApisRequest struct {
-	SecurityToken    *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId      *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	TrafficControlId *string `json:"TrafficControlId" xml:"TrafficControlId" require:"true"`
-	GroupId          *string `json:"GroupId" xml:"GroupId" require:"true"`
-	ApiIds           *string `json:"ApiIds" xml:"ApiIds" require:"true"`
-	StageName        *string `json:"StageName" xml:"StageName" require:"true"`
+	SecurityToken    *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	TrafficControlId *string `json:"TrafficControlId,omitempty" xml:"TrafficControlId,omitempty" require:"true"`
+	GroupId          *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	ApiIds           *string `json:"ApiIds,omitempty" xml:"ApiIds,omitempty" require:"true"`
+	StageName        *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
 }
 
 func (s SetTrafficControlApisRequest) String() string {
@@ -4418,11 +4233,6 @@ func (s SetTrafficControlApisRequest) GoString() string {
 
 func (s *SetTrafficControlApisRequest) SetSecurityToken(v string) *SetTrafficControlApisRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *SetTrafficControlApisRequest) SetAccessKeyId(v string) *SetTrafficControlApisRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -4447,7 +4257,7 @@ func (s *SetTrafficControlApisRequest) SetStageName(v string) *SetTrafficControl
 }
 
 type SetTrafficControlApisResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetTrafficControlApisResponse) String() string {
@@ -4464,12 +4274,11 @@ func (s *SetTrafficControlApisResponse) SetRequestId(v string) *SetTrafficContro
 }
 
 type SetSignatureApisRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	SignatureId   *string `json:"SignatureId" xml:"SignatureId" require:"true"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	ApiIds        *string `json:"ApiIds" xml:"ApiIds" require:"true"`
-	StageName     *string `json:"StageName" xml:"StageName" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	SignatureId   *string `json:"SignatureId,omitempty" xml:"SignatureId,omitempty" require:"true"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	ApiIds        *string `json:"ApiIds,omitempty" xml:"ApiIds,omitempty" require:"true"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
 }
 
 func (s SetSignatureApisRequest) String() string {
@@ -4482,11 +4291,6 @@ func (s SetSignatureApisRequest) GoString() string {
 
 func (s *SetSignatureApisRequest) SetSecurityToken(v string) *SetSignatureApisRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *SetSignatureApisRequest) SetAccessKeyId(v string) *SetSignatureApisRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -4511,7 +4315,7 @@ func (s *SetSignatureApisRequest) SetStageName(v string) *SetSignatureApisReques
 }
 
 type SetSignatureApisResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetSignatureApisResponse) String() string {
@@ -4528,14 +4332,13 @@ func (s *SetSignatureApisResponse) SetRequestId(v string) *SetSignatureApisRespo
 }
 
 type SetDomainCertificateRequest struct {
-	SecurityToken         *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId           *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId               *string `json:"GroupId" xml:"GroupId" require:"true"`
-	DomainName            *string `json:"DomainName" xml:"DomainName" require:"true"`
-	CertificateName       *string `json:"CertificateName" xml:"CertificateName" require:"true"`
-	CertificateBody       *string `json:"CertificateBody" xml:"CertificateBody"`
-	CertificatePrivateKey *string `json:"CertificatePrivateKey" xml:"CertificatePrivateKey"`
-	CaCertificateBody     *string `json:"CaCertificateBody" xml:"CaCertificateBody"`
+	SecurityToken         *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId               *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	DomainName            *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	CertificateName       *string `json:"CertificateName,omitempty" xml:"CertificateName,omitempty" require:"true"`
+	CertificateBody       *string `json:"CertificateBody,omitempty" xml:"CertificateBody,omitempty"`
+	CertificatePrivateKey *string `json:"CertificatePrivateKey,omitempty" xml:"CertificatePrivateKey,omitempty"`
+	CaCertificateBody     *string `json:"CaCertificateBody,omitempty" xml:"CaCertificateBody,omitempty"`
 }
 
 func (s SetDomainCertificateRequest) String() string {
@@ -4548,11 +4351,6 @@ func (s SetDomainCertificateRequest) GoString() string {
 
 func (s *SetDomainCertificateRequest) SetSecurityToken(v string) *SetDomainCertificateRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *SetDomainCertificateRequest) SetAccessKeyId(v string) *SetDomainCertificateRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -4587,7 +4385,7 @@ func (s *SetDomainCertificateRequest) SetCaCertificateBody(v string) *SetDomainC
 }
 
 type SetDomainCertificateResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetDomainCertificateResponse) String() string {
@@ -4604,12 +4402,11 @@ func (s *SetDomainCertificateResponse) SetRequestId(v string) *SetDomainCertific
 }
 
 type SetDomainRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	DomainName    *string `json:"DomainName" xml:"DomainName" require:"true"`
-	BindStageName *string `json:"BindStageName" xml:"BindStageName"`
-	IsForce       *bool   `json:"IsForce" xml:"IsForce"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	DomainName    *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	BindStageName *string `json:"BindStageName,omitempty" xml:"BindStageName,omitempty"`
+	IsForce       *bool   `json:"IsForce,omitempty" xml:"IsForce,omitempty"`
 }
 
 func (s SetDomainRequest) String() string {
@@ -4622,11 +4419,6 @@ func (s SetDomainRequest) GoString() string {
 
 func (s *SetDomainRequest) SetSecurityToken(v string) *SetDomainRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *SetDomainRequest) SetAccessKeyId(v string) *SetDomainRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -4651,14 +4443,14 @@ func (s *SetDomainRequest) SetIsForce(v bool) *SetDomainRequest {
 }
 
 type SetDomainResponse struct {
-	RequestId             *string `json:"RequestId" xml:"RequestId" require:"true"`
-	GroupId               *string `json:"GroupId" xml:"GroupId" require:"true"`
-	DomainName            *string `json:"DomainName" xml:"DomainName" require:"true"`
-	SubDomain             *string `json:"SubDomain" xml:"SubDomain" require:"true"`
-	DomainBindingStatus   *string `json:"DomainBindingStatus" xml:"DomainBindingStatus" require:"true"`
-	DomainLegalStatus     *string `json:"DomainLegalStatus" xml:"DomainLegalStatus" require:"true"`
-	DomainWebSocketStatus *string `json:"DomainWebSocketStatus" xml:"DomainWebSocketStatus" require:"true"`
-	DomainRemark          *string `json:"DomainRemark" xml:"DomainRemark" require:"true"`
+	RequestId             *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	GroupId               *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	DomainName            *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	SubDomain             *string `json:"SubDomain,omitempty" xml:"SubDomain,omitempty" require:"true"`
+	DomainBindingStatus   *string `json:"DomainBindingStatus,omitempty" xml:"DomainBindingStatus,omitempty" require:"true"`
+	DomainLegalStatus     *string `json:"DomainLegalStatus,omitempty" xml:"DomainLegalStatus,omitempty" require:"true"`
+	DomainWebSocketStatus *string `json:"DomainWebSocketStatus,omitempty" xml:"DomainWebSocketStatus,omitempty" require:"true"`
+	DomainRemark          *string `json:"DomainRemark,omitempty" xml:"DomainRemark,omitempty" require:"true"`
 }
 
 func (s SetDomainResponse) String() string {
@@ -4710,14 +4502,13 @@ func (s *SetDomainResponse) SetDomainRemark(v string) *SetDomainResponse {
 }
 
 type SetAppsAuthoritiesRequest struct {
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	GroupId       *string `json:"GroupId" xml:"GroupId"`
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
-	StageName     *string `json:"StageName" xml:"StageName" require:"true"`
-	AppIds        *string `json:"AppIds" xml:"AppIds" require:"true"`
-	Description   *string `json:"Description" xml:"Description"`
-	AuthValidTime *string `json:"AuthValidTime" xml:"AuthValidTime"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	AppIds        *string `json:"AppIds,omitempty" xml:"AppIds,omitempty" require:"true"`
+	Description   *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	AuthValidTime *string `json:"AuthValidTime,omitempty" xml:"AuthValidTime,omitempty"`
 }
 
 func (s SetAppsAuthoritiesRequest) String() string {
@@ -4726,11 +4517,6 @@ func (s SetAppsAuthoritiesRequest) String() string {
 
 func (s SetAppsAuthoritiesRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SetAppsAuthoritiesRequest) SetAccessKeyId(v string) *SetAppsAuthoritiesRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *SetAppsAuthoritiesRequest) SetSecurityToken(v string) *SetAppsAuthoritiesRequest {
@@ -4769,7 +4555,7 @@ func (s *SetAppsAuthoritiesRequest) SetAuthValidTime(v string) *SetAppsAuthoriti
 }
 
 type SetAppsAuthoritiesResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetAppsAuthoritiesResponse) String() string {
@@ -4786,14 +4572,13 @@ func (s *SetAppsAuthoritiesResponse) SetRequestId(v string) *SetAppsAuthoritiesR
 }
 
 type SetApisAuthoritiesRequest struct {
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	GroupId       *string `json:"GroupId" xml:"GroupId"`
-	AppId         *int64  `json:"AppId" xml:"AppId" require:"true"`
-	StageName     *string `json:"StageName" xml:"StageName" require:"true"`
-	ApiIds        *string `json:"ApiIds" xml:"ApiIds"`
-	Description   *string `json:"Description" xml:"Description"`
-	AuthValidTime *string `json:"AuthValidTime" xml:"AuthValidTime"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	AppId         *int64  `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	ApiIds        *string `json:"ApiIds,omitempty" xml:"ApiIds,omitempty"`
+	Description   *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	AuthValidTime *string `json:"AuthValidTime,omitempty" xml:"AuthValidTime,omitempty"`
 }
 
 func (s SetApisAuthoritiesRequest) String() string {
@@ -4802,11 +4587,6 @@ func (s SetApisAuthoritiesRequest) String() string {
 
 func (s SetApisAuthoritiesRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SetApisAuthoritiesRequest) SetAccessKeyId(v string) *SetApisAuthoritiesRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *SetApisAuthoritiesRequest) SetSecurityToken(v string) *SetApisAuthoritiesRequest {
@@ -4845,7 +4625,7 @@ func (s *SetApisAuthoritiesRequest) SetAuthValidTime(v string) *SetApisAuthoriti
 }
 
 type SetApisAuthoritiesResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetApisAuthoritiesResponse) String() string {
@@ -4862,9 +4642,8 @@ func (s *SetApisAuthoritiesResponse) SetRequestId(v string) *SetApisAuthoritiesR
 }
 
 type ResetAppSecretRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	AppKey        *string `json:"AppKey" xml:"AppKey" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	AppKey        *string `json:"AppKey,omitempty" xml:"AppKey,omitempty" require:"true"`
 }
 
 func (s ResetAppSecretRequest) String() string {
@@ -4880,18 +4659,13 @@ func (s *ResetAppSecretRequest) SetSecurityToken(v string) *ResetAppSecretReques
 	return s
 }
 
-func (s *ResetAppSecretRequest) SetAccessKeyId(v string) *ResetAppSecretRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *ResetAppSecretRequest) SetAppKey(v string) *ResetAppSecretRequest {
 	s.AppKey = &v
 	return s
 }
 
 type ResetAppSecretResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ResetAppSecretResponse) String() string {
@@ -4908,12 +4682,11 @@ func (s *ResetAppSecretResponse) SetRequestId(v string) *ResetAppSecretResponse 
 }
 
 type RemoveTrafficControlApisRequest struct {
-	SecurityToken    *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId      *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	TrafficControlId *string `json:"TrafficControlId" xml:"TrafficControlId" require:"true"`
-	GroupId          *string `json:"GroupId" xml:"GroupId" require:"true"`
-	ApiIds           *string `json:"ApiIds" xml:"ApiIds"`
-	StageName        *string `json:"StageName" xml:"StageName" require:"true"`
+	SecurityToken    *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	TrafficControlId *string `json:"TrafficControlId,omitempty" xml:"TrafficControlId,omitempty" require:"true"`
+	GroupId          *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	ApiIds           *string `json:"ApiIds,omitempty" xml:"ApiIds,omitempty"`
+	StageName        *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
 }
 
 func (s RemoveTrafficControlApisRequest) String() string {
@@ -4926,11 +4699,6 @@ func (s RemoveTrafficControlApisRequest) GoString() string {
 
 func (s *RemoveTrafficControlApisRequest) SetSecurityToken(v string) *RemoveTrafficControlApisRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *RemoveTrafficControlApisRequest) SetAccessKeyId(v string) *RemoveTrafficControlApisRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -4955,7 +4723,7 @@ func (s *RemoveTrafficControlApisRequest) SetStageName(v string) *RemoveTrafficC
 }
 
 type RemoveTrafficControlApisResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s RemoveTrafficControlApisResponse) String() string {
@@ -4972,12 +4740,11 @@ func (s *RemoveTrafficControlApisResponse) SetRequestId(v string) *RemoveTraffic
 }
 
 type RemoveSignatureApisRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	SignatureId   *string `json:"SignatureId" xml:"SignatureId" require:"true"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	ApiIds        *string `json:"ApiIds" xml:"ApiIds"`
-	StageName     *string `json:"StageName" xml:"StageName" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	SignatureId   *string `json:"SignatureId,omitempty" xml:"SignatureId,omitempty" require:"true"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	ApiIds        *string `json:"ApiIds,omitempty" xml:"ApiIds,omitempty"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
 }
 
 func (s RemoveSignatureApisRequest) String() string {
@@ -4990,11 +4757,6 @@ func (s RemoveSignatureApisRequest) GoString() string {
 
 func (s *RemoveSignatureApisRequest) SetSecurityToken(v string) *RemoveSignatureApisRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *RemoveSignatureApisRequest) SetAccessKeyId(v string) *RemoveSignatureApisRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -5019,7 +4781,7 @@ func (s *RemoveSignatureApisRequest) SetStageName(v string) *RemoveSignatureApis
 }
 
 type RemoveSignatureApisResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s RemoveSignatureApisResponse) String() string {
@@ -5036,12 +4798,11 @@ func (s *RemoveSignatureApisResponse) SetRequestId(v string) *RemoveSignatureApi
 }
 
 type RemoveAppsAuthoritiesRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId"`
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
-	StageName     *string `json:"StageName" xml:"StageName" require:"true"`
-	AppIds        *string `json:"AppIds" xml:"AppIds" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	AppIds        *string `json:"AppIds,omitempty" xml:"AppIds,omitempty" require:"true"`
 }
 
 func (s RemoveAppsAuthoritiesRequest) String() string {
@@ -5054,11 +4815,6 @@ func (s RemoveAppsAuthoritiesRequest) GoString() string {
 
 func (s *RemoveAppsAuthoritiesRequest) SetSecurityToken(v string) *RemoveAppsAuthoritiesRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *RemoveAppsAuthoritiesRequest) SetAccessKeyId(v string) *RemoveAppsAuthoritiesRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -5083,7 +4839,7 @@ func (s *RemoveAppsAuthoritiesRequest) SetAppIds(v string) *RemoveAppsAuthoritie
 }
 
 type RemoveAppsAuthoritiesResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s RemoveAppsAuthoritiesResponse) String() string {
@@ -5100,13 +4856,12 @@ func (s *RemoveAppsAuthoritiesResponse) SetRequestId(v string) *RemoveAppsAuthor
 }
 
 type RemoveApisAuthoritiesRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId"`
-	AppId         *int64  `json:"AppId" xml:"AppId" require:"true"`
-	StageName     *string `json:"StageName" xml:"StageName" require:"true"`
-	ApiIds        *string `json:"ApiIds" xml:"ApiIds" require:"true"`
-	Description   *string `json:"Description" xml:"Description"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	AppId         *int64  `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	ApiIds        *string `json:"ApiIds,omitempty" xml:"ApiIds,omitempty" require:"true"`
+	Description   *string `json:"Description,omitempty" xml:"Description,omitempty"`
 }
 
 func (s RemoveApisAuthoritiesRequest) String() string {
@@ -5119,11 +4874,6 @@ func (s RemoveApisAuthoritiesRequest) GoString() string {
 
 func (s *RemoveApisAuthoritiesRequest) SetSecurityToken(v string) *RemoveApisAuthoritiesRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *RemoveApisAuthoritiesRequest) SetAccessKeyId(v string) *RemoveApisAuthoritiesRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -5153,7 +4903,7 @@ func (s *RemoveApisAuthoritiesRequest) SetDescription(v string) *RemoveApisAutho
 }
 
 type RemoveApisAuthoritiesResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s RemoveApisAuthoritiesResponse) String() string {
@@ -5170,15 +4920,14 @@ func (s *RemoveApisAuthoritiesResponse) SetRequestId(v string) *RemoveApisAuthor
 }
 
 type ModifyTrafficControlRequest struct {
-	SecurityToken      *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId        *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	TrafficControlId   *string `json:"TrafficControlId" xml:"TrafficControlId" require:"true"`
-	TrafficControlName *string `json:"TrafficControlName" xml:"TrafficControlName"`
-	TrafficControlUnit *string `json:"TrafficControlUnit" xml:"TrafficControlUnit"`
-	ApiDefault         *int    `json:"ApiDefault" xml:"ApiDefault"`
-	UserDefault        *int    `json:"UserDefault" xml:"UserDefault"`
-	AppDefault         *int    `json:"AppDefault" xml:"AppDefault"`
-	Description        *string `json:"Description" xml:"Description"`
+	SecurityToken      *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	TrafficControlId   *string `json:"TrafficControlId,omitempty" xml:"TrafficControlId,omitempty" require:"true"`
+	TrafficControlName *string `json:"TrafficControlName,omitempty" xml:"TrafficControlName,omitempty"`
+	TrafficControlUnit *string `json:"TrafficControlUnit,omitempty" xml:"TrafficControlUnit,omitempty"`
+	ApiDefault         *int    `json:"ApiDefault,omitempty" xml:"ApiDefault,omitempty"`
+	UserDefault        *int    `json:"UserDefault,omitempty" xml:"UserDefault,omitempty"`
+	AppDefault         *int    `json:"AppDefault,omitempty" xml:"AppDefault,omitempty"`
+	Description        *string `json:"Description,omitempty" xml:"Description,omitempty"`
 }
 
 func (s ModifyTrafficControlRequest) String() string {
@@ -5191,11 +4940,6 @@ func (s ModifyTrafficControlRequest) GoString() string {
 
 func (s *ModifyTrafficControlRequest) SetSecurityToken(v string) *ModifyTrafficControlRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *ModifyTrafficControlRequest) SetAccessKeyId(v string) *ModifyTrafficControlRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -5235,7 +4979,7 @@ func (s *ModifyTrafficControlRequest) SetDescription(v string) *ModifyTrafficCon
 }
 
 type ModifyTrafficControlResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyTrafficControlResponse) String() string {
@@ -5252,12 +4996,11 @@ func (s *ModifyTrafficControlResponse) SetRequestId(v string) *ModifyTrafficCont
 }
 
 type ModifySignatureRequest struct {
-	SecurityToken   *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId     *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	SignatureId     *string `json:"SignatureId" xml:"SignatureId" require:"true"`
-	SignatureName   *string `json:"SignatureName" xml:"SignatureName"`
-	SignatureKey    *string `json:"SignatureKey" xml:"SignatureKey"`
-	SignatureSecret *string `json:"SignatureSecret" xml:"SignatureSecret"`
+	SecurityToken   *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	SignatureId     *string `json:"SignatureId,omitempty" xml:"SignatureId,omitempty" require:"true"`
+	SignatureName   *string `json:"SignatureName,omitempty" xml:"SignatureName,omitempty"`
+	SignatureKey    *string `json:"SignatureKey,omitempty" xml:"SignatureKey,omitempty"`
+	SignatureSecret *string `json:"SignatureSecret,omitempty" xml:"SignatureSecret,omitempty"`
 }
 
 func (s ModifySignatureRequest) String() string {
@@ -5270,11 +5013,6 @@ func (s ModifySignatureRequest) GoString() string {
 
 func (s *ModifySignatureRequest) SetSecurityToken(v string) *ModifySignatureRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *ModifySignatureRequest) SetAccessKeyId(v string) *ModifySignatureRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -5299,9 +5037,9 @@ func (s *ModifySignatureRequest) SetSignatureSecret(v string) *ModifySignatureRe
 }
 
 type ModifySignatureResponse struct {
-	RequestId     *string `json:"RequestId" xml:"RequestId" require:"true"`
-	SignatureId   *string `json:"SignatureId" xml:"SignatureId" require:"true"`
-	SignatureName *string `json:"SignatureName" xml:"SignatureName" require:"true"`
+	RequestId     *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SignatureId   *string `json:"SignatureId,omitempty" xml:"SignatureId,omitempty" require:"true"`
+	SignatureName *string `json:"SignatureName,omitempty" xml:"SignatureName,omitempty" require:"true"`
 }
 
 func (s ModifySignatureResponse) String() string {
@@ -5328,12 +5066,11 @@ func (s *ModifySignatureResponse) SetSignatureName(v string) *ModifySignatureRes
 }
 
 type ModifyAppRequest struct {
-	SecurityToken *string                `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string                `json:"AccessKeyId" xml:"AccessKeyId"`
-	AppId         *int64                 `json:"AppId" xml:"AppId" require:"true"`
-	AppName       *string                `json:"AppName" xml:"AppName"`
-	Description   *string                `json:"Description" xml:"Description"`
-	Tag           []*ModifyAppRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
+	SecurityToken *string                `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	AppId         *int64                 `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	AppName       *string                `json:"AppName,omitempty" xml:"AppName,omitempty"`
+	Description   *string                `json:"Description,omitempty" xml:"Description,omitempty"`
+	Tag           []*ModifyAppRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
 }
 
 func (s ModifyAppRequest) String() string {
@@ -5346,11 +5083,6 @@ func (s ModifyAppRequest) GoString() string {
 
 func (s *ModifyAppRequest) SetSecurityToken(v string) *ModifyAppRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *ModifyAppRequest) SetAccessKeyId(v string) *ModifyAppRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -5375,8 +5107,8 @@ func (s *ModifyAppRequest) SetTag(v []*ModifyAppRequestTag) *ModifyAppRequest {
 }
 
 type ModifyAppRequestTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s ModifyAppRequestTag) String() string {
@@ -5398,7 +5130,7 @@ func (s *ModifyAppRequestTag) SetValue(v string) *ModifyAppRequestTag {
 }
 
 type ModifyAppResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyAppResponse) String() string {
@@ -5415,17 +5147,17 @@ func (s *ModifyAppResponse) SetRequestId(v string) *ModifyAppResponse {
 }
 
 type ModifyApiGroupRequest struct {
-	SecurityToken      *string                     `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId        *string                     `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId            *string                     `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName          *string                     `json:"GroupName" xml:"GroupName"`
-	Description        *string                     `json:"Description" xml:"Description"`
-	UserLogConfig      *string                     `json:"UserLogConfig" xml:"UserLogConfig"`
-	CustomTraceConfig  *string                     `json:"CustomTraceConfig" xml:"CustomTraceConfig"`
-	CompatibleFlags    *string                     `json:"CompatibleFlags" xml:"CompatibleFlags"`
-	PassthroughHeaders *string                     `json:"PassthroughHeaders" xml:"PassthroughHeaders"`
-	RpcPattern         *string                     `json:"RpcPattern" xml:"RpcPattern"`
-	Tag                []*ModifyApiGroupRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
+	SecurityToken      *string                     `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId            *string                     `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName          *string                     `json:"GroupName,omitempty" xml:"GroupName,omitempty"`
+	Description        *string                     `json:"Description,omitempty" xml:"Description,omitempty"`
+	UserLogConfig      *string                     `json:"UserLogConfig,omitempty" xml:"UserLogConfig,omitempty"`
+	CustomTraceConfig  *string                     `json:"CustomTraceConfig,omitempty" xml:"CustomTraceConfig,omitempty"`
+	CompatibleFlags    *string                     `json:"CompatibleFlags,omitempty" xml:"CompatibleFlags,omitempty"`
+	PassthroughHeaders *string                     `json:"PassthroughHeaders,omitempty" xml:"PassthroughHeaders,omitempty"`
+	DefaultDomain      *string                     `json:"DefaultDomain,omitempty" xml:"DefaultDomain,omitempty"`
+	RpcPattern         *string                     `json:"RpcPattern,omitempty" xml:"RpcPattern,omitempty"`
+	Tag                []*ModifyApiGroupRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
 }
 
 func (s ModifyApiGroupRequest) String() string {
@@ -5438,11 +5170,6 @@ func (s ModifyApiGroupRequest) GoString() string {
 
 func (s *ModifyApiGroupRequest) SetSecurityToken(v string) *ModifyApiGroupRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *ModifyApiGroupRequest) SetAccessKeyId(v string) *ModifyApiGroupRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -5481,6 +5208,11 @@ func (s *ModifyApiGroupRequest) SetPassthroughHeaders(v string) *ModifyApiGroupR
 	return s
 }
 
+func (s *ModifyApiGroupRequest) SetDefaultDomain(v string) *ModifyApiGroupRequest {
+	s.DefaultDomain = &v
+	return s
+}
+
 func (s *ModifyApiGroupRequest) SetRpcPattern(v string) *ModifyApiGroupRequest {
 	s.RpcPattern = &v
 	return s
@@ -5492,8 +5224,8 @@ func (s *ModifyApiGroupRequest) SetTag(v []*ModifyApiGroupRequestTag) *ModifyApi
 }
 
 type ModifyApiGroupRequestTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s ModifyApiGroupRequestTag) String() string {
@@ -5515,11 +5247,11 @@ func (s *ModifyApiGroupRequestTag) SetValue(v string) *ModifyApiGroupRequestTag 
 }
 
 type ModifyApiGroupResponse struct {
-	RequestId   *string `json:"RequestId" xml:"RequestId" require:"true"`
-	GroupId     *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName   *string `json:"GroupName" xml:"GroupName" require:"true"`
-	SubDomain   *string `json:"SubDomain" xml:"SubDomain" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
+	RequestId   *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	GroupId     *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName   *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	SubDomain   *string `json:"SubDomain,omitempty" xml:"SubDomain,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s ModifyApiGroupResponse) String() string {
@@ -5556,33 +5288,32 @@ func (s *ModifyApiGroupResponse) SetDescription(v string) *ModifyApiGroupRespons
 }
 
 type ModifyApiRequest struct {
-	SecurityToken        *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId              *string `json:"GroupId" xml:"GroupId"`
-	ApiId                *string `json:"ApiId" xml:"ApiId" require:"true"`
-	ApiName              *string `json:"ApiName" xml:"ApiName" require:"true"`
-	Description          *string `json:"Description" xml:"Description"`
-	Visibility           *string `json:"Visibility" xml:"Visibility" require:"true"`
-	AuthType             *string `json:"AuthType" xml:"AuthType"`
-	RequestConfig        *string `json:"RequestConfig" xml:"RequestConfig" require:"true"`
-	ServiceConfig        *string `json:"ServiceConfig" xml:"ServiceConfig" require:"true"`
-	RequestParameters    *string `json:"RequestParameters" xml:"RequestParameters"`
-	SystemParameters     *string `json:"SystemParameters" xml:"SystemParameters"`
-	ConstantParameters   *string `json:"ConstantParameters" xml:"ConstantParameters"`
-	ServiceParameters    *string `json:"ServiceParameters" xml:"ServiceParameters"`
-	ServiceParametersMap *string `json:"ServiceParametersMap" xml:"ServiceParametersMap"`
-	ResultType           *string `json:"ResultType" xml:"ResultType"`
-	ResultSample         *string `json:"ResultSample" xml:"ResultSample"`
-	FailResultSample     *string `json:"FailResultSample" xml:"FailResultSample"`
-	ErrorCodeSamples     *string `json:"ErrorCodeSamples" xml:"ErrorCodeSamples"`
-	ResultDescriptions   *string `json:"ResultDescriptions" xml:"ResultDescriptions"`
-	OpenIdConnectConfig  *string `json:"OpenIdConnectConfig" xml:"OpenIdConnectConfig"`
-	AllowSignatureMethod *string `json:"AllowSignatureMethod" xml:"AllowSignatureMethod"`
-	WebSocketApiType     *string `json:"WebSocketApiType" xml:"WebSocketApiType"`
-	ResultBodyModel      *string `json:"ResultBodyModel" xml:"ResultBodyModel"`
-	ForceNonceCheck      *bool   `json:"ForceNonceCheck" xml:"ForceNonceCheck"`
-	DisableInternet      *bool   `json:"DisableInternet" xml:"DisableInternet"`
-	AppCodeAuthType      *string `json:"AppCodeAuthType" xml:"AppCodeAuthType"`
+	SecurityToken        *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId              *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	ApiId                *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	ApiName              *string `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	Description          *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	Visibility           *string `json:"Visibility,omitempty" xml:"Visibility,omitempty" require:"true"`
+	AuthType             *string `json:"AuthType,omitempty" xml:"AuthType,omitempty"`
+	RequestConfig        *string `json:"RequestConfig,omitempty" xml:"RequestConfig,omitempty" require:"true"`
+	ServiceConfig        *string `json:"ServiceConfig,omitempty" xml:"ServiceConfig,omitempty" require:"true"`
+	RequestParameters    *string `json:"RequestParameters,omitempty" xml:"RequestParameters,omitempty"`
+	SystemParameters     *string `json:"SystemParameters,omitempty" xml:"SystemParameters,omitempty"`
+	ConstantParameters   *string `json:"ConstantParameters,omitempty" xml:"ConstantParameters,omitempty"`
+	ServiceParameters    *string `json:"ServiceParameters,omitempty" xml:"ServiceParameters,omitempty"`
+	ServiceParametersMap *string `json:"ServiceParametersMap,omitempty" xml:"ServiceParametersMap,omitempty"`
+	ResultType           *string `json:"ResultType,omitempty" xml:"ResultType,omitempty"`
+	ResultSample         *string `json:"ResultSample,omitempty" xml:"ResultSample,omitempty"`
+	FailResultSample     *string `json:"FailResultSample,omitempty" xml:"FailResultSample,omitempty"`
+	ErrorCodeSamples     *string `json:"ErrorCodeSamples,omitempty" xml:"ErrorCodeSamples,omitempty"`
+	ResultDescriptions   *string `json:"ResultDescriptions,omitempty" xml:"ResultDescriptions,omitempty"`
+	OpenIdConnectConfig  *string `json:"OpenIdConnectConfig,omitempty" xml:"OpenIdConnectConfig,omitempty"`
+	AllowSignatureMethod *string `json:"AllowSignatureMethod,omitempty" xml:"AllowSignatureMethod,omitempty"`
+	WebSocketApiType     *string `json:"WebSocketApiType,omitempty" xml:"WebSocketApiType,omitempty"`
+	ResultBodyModel      *string `json:"ResultBodyModel,omitempty" xml:"ResultBodyModel,omitempty"`
+	ForceNonceCheck      *bool   `json:"ForceNonceCheck,omitempty" xml:"ForceNonceCheck,omitempty"`
+	DisableInternet      *bool   `json:"DisableInternet,omitempty" xml:"DisableInternet,omitempty"`
+	AppCodeAuthType      *string `json:"AppCodeAuthType,omitempty" xml:"AppCodeAuthType,omitempty"`
 }
 
 func (s ModifyApiRequest) String() string {
@@ -5595,11 +5326,6 @@ func (s ModifyApiRequest) GoString() string {
 
 func (s *ModifyApiRequest) SetSecurityToken(v string) *ModifyApiRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *ModifyApiRequest) SetAccessKeyId(v string) *ModifyApiRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -5729,7 +5455,7 @@ func (s *ModifyApiRequest) SetAppCodeAuthType(v string) *ModifyApiRequest {
 }
 
 type ModifyApiResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyApiResponse) String() string {
@@ -5746,11 +5472,10 @@ func (s *ModifyApiResponse) SetRequestId(v string) *ModifyApiResponse {
 }
 
 type DescribeTrafficControlsByApiRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
-	StageName     *string `json:"StageName" xml:"StageName" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
 }
 
 func (s DescribeTrafficControlsByApiRequest) String() string {
@@ -5763,11 +5488,6 @@ func (s DescribeTrafficControlsByApiRequest) GoString() string {
 
 func (s *DescribeTrafficControlsByApiRequest) SetSecurityToken(v string) *DescribeTrafficControlsByApiRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeTrafficControlsByApiRequest) SetAccessKeyId(v string) *DescribeTrafficControlsByApiRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -5787,8 +5507,8 @@ func (s *DescribeTrafficControlsByApiRequest) SetStageName(v string) *DescribeTr
 }
 
 type DescribeTrafficControlsByApiResponse struct {
-	RequestId           *string                                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	TrafficControlItems *DescribeTrafficControlsByApiResponseTrafficControlItems `json:"TrafficControlItems" xml:"TrafficControlItems" require:"true" type:"Struct"`
+	RequestId           *string                                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TrafficControlItems *DescribeTrafficControlsByApiResponseTrafficControlItems `json:"TrafficControlItems,omitempty" xml:"TrafficControlItems,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeTrafficControlsByApiResponse) String() string {
@@ -5810,7 +5530,7 @@ func (s *DescribeTrafficControlsByApiResponse) SetTrafficControlItems(v *Describ
 }
 
 type DescribeTrafficControlsByApiResponseTrafficControlItems struct {
-	TrafficControlItem []*DescribeTrafficControlsByApiResponseTrafficControlItemsTrafficControlItem `json:"TrafficControlItem" xml:"TrafficControlItem" require:"true" type:"Repeated"`
+	TrafficControlItem []*DescribeTrafficControlsByApiResponseTrafficControlItemsTrafficControlItem `json:"TrafficControlItem,omitempty" xml:"TrafficControlItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeTrafficControlsByApiResponseTrafficControlItems) String() string {
@@ -5827,9 +5547,9 @@ func (s *DescribeTrafficControlsByApiResponseTrafficControlItems) SetTrafficCont
 }
 
 type DescribeTrafficControlsByApiResponseTrafficControlItemsTrafficControlItem struct {
-	TrafficControlItemId   *string `json:"TrafficControlItemId" xml:"TrafficControlItemId" require:"true"`
-	TrafficControlItemName *string `json:"TrafficControlItemName" xml:"TrafficControlItemName" require:"true"`
-	BoundTime              *string `json:"BoundTime" xml:"BoundTime" require:"true"`
+	TrafficControlItemId   *string `json:"TrafficControlItemId,omitempty" xml:"TrafficControlItemId,omitempty" require:"true"`
+	TrafficControlItemName *string `json:"TrafficControlItemName,omitempty" xml:"TrafficControlItemName,omitempty" require:"true"`
+	BoundTime              *string `json:"BoundTime,omitempty" xml:"BoundTime,omitempty" require:"true"`
 }
 
 func (s DescribeTrafficControlsByApiResponseTrafficControlItemsTrafficControlItem) String() string {
@@ -5856,15 +5576,14 @@ func (s *DescribeTrafficControlsByApiResponseTrafficControlItemsTrafficControlIt
 }
 
 type DescribeTrafficControlsRequest struct {
-	SecurityToken      *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId        *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	TrafficControlId   *string `json:"TrafficControlId" xml:"TrafficControlId"`
-	GroupId            *string `json:"GroupId" xml:"GroupId"`
-	ApiId              *string `json:"ApiId" xml:"ApiId"`
-	StageName          *string `json:"StageName" xml:"StageName"`
-	TrafficControlName *string `json:"TrafficControlName" xml:"TrafficControlName"`
-	PageNumber         *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize           *int    `json:"PageSize" xml:"PageSize"`
+	SecurityToken      *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	TrafficControlId   *string `json:"TrafficControlId,omitempty" xml:"TrafficControlId,omitempty"`
+	GroupId            *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	ApiId              *string `json:"ApiId,omitempty" xml:"ApiId,omitempty"`
+	StageName          *string `json:"StageName,omitempty" xml:"StageName,omitempty"`
+	TrafficControlName *string `json:"TrafficControlName,omitempty" xml:"TrafficControlName,omitempty"`
+	PageNumber         *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize           *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s DescribeTrafficControlsRequest) String() string {
@@ -5877,11 +5596,6 @@ func (s DescribeTrafficControlsRequest) GoString() string {
 
 func (s *DescribeTrafficControlsRequest) SetSecurityToken(v string) *DescribeTrafficControlsRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeTrafficControlsRequest) SetAccessKeyId(v string) *DescribeTrafficControlsRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -5921,11 +5635,11 @@ func (s *DescribeTrafficControlsRequest) SetPageSize(v int) *DescribeTrafficCont
 }
 
 type DescribeTrafficControlsResponse struct {
-	RequestId       *string                                         `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount      *int                                            `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize        *int                                            `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber      *int                                            `json:"PageNumber" xml:"PageNumber" require:"true"`
-	TrafficControls *DescribeTrafficControlsResponseTrafficControls `json:"TrafficControls" xml:"TrafficControls" require:"true" type:"Struct"`
+	RequestId       *string                                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount      *int                                            `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize        *int                                            `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber      *int                                            `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	TrafficControls *DescribeTrafficControlsResponseTrafficControls `json:"TrafficControls,omitempty" xml:"TrafficControls,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeTrafficControlsResponse) String() string {
@@ -5962,7 +5676,7 @@ func (s *DescribeTrafficControlsResponse) SetTrafficControls(v *DescribeTrafficC
 }
 
 type DescribeTrafficControlsResponseTrafficControls struct {
-	TrafficControl []*DescribeTrafficControlsResponseTrafficControlsTrafficControl `json:"TrafficControl" xml:"TrafficControl" require:"true" type:"Repeated"`
+	TrafficControl []*DescribeTrafficControlsResponseTrafficControlsTrafficControl `json:"TrafficControl,omitempty" xml:"TrafficControl,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeTrafficControlsResponseTrafficControls) String() string {
@@ -5979,16 +5693,16 @@ func (s *DescribeTrafficControlsResponseTrafficControls) SetTrafficControl(v []*
 }
 
 type DescribeTrafficControlsResponseTrafficControlsTrafficControl struct {
-	TrafficControlId   *string                                                                      `json:"TrafficControlId" xml:"TrafficControlId" require:"true"`
-	TrafficControlName *string                                                                      `json:"TrafficControlName" xml:"TrafficControlName" require:"true"`
-	Description        *string                                                                      `json:"Description" xml:"Description" require:"true"`
-	TrafficControlUnit *string                                                                      `json:"TrafficControlUnit" xml:"TrafficControlUnit" require:"true"`
-	ApiDefault         *int                                                                         `json:"ApiDefault" xml:"ApiDefault" require:"true"`
-	UserDefault        *int                                                                         `json:"UserDefault" xml:"UserDefault" require:"true"`
-	AppDefault         *int                                                                         `json:"AppDefault" xml:"AppDefault" require:"true"`
-	CreatedTime        *string                                                                      `json:"CreatedTime" xml:"CreatedTime" require:"true"`
-	ModifiedTime       *string                                                                      `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
-	SpecialPolicies    *DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPolicies `json:"SpecialPolicies" xml:"SpecialPolicies" require:"true" type:"Struct"`
+	TrafficControlId   *string                                                                      `json:"TrafficControlId,omitempty" xml:"TrafficControlId,omitempty" require:"true"`
+	TrafficControlName *string                                                                      `json:"TrafficControlName,omitempty" xml:"TrafficControlName,omitempty" require:"true"`
+	Description        *string                                                                      `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	TrafficControlUnit *string                                                                      `json:"TrafficControlUnit,omitempty" xml:"TrafficControlUnit,omitempty" require:"true"`
+	ApiDefault         *int                                                                         `json:"ApiDefault,omitempty" xml:"ApiDefault,omitempty" require:"true"`
+	UserDefault        *int                                                                         `json:"UserDefault,omitempty" xml:"UserDefault,omitempty" require:"true"`
+	AppDefault         *int                                                                         `json:"AppDefault,omitempty" xml:"AppDefault,omitempty" require:"true"`
+	CreatedTime        *string                                                                      `json:"CreatedTime,omitempty" xml:"CreatedTime,omitempty" require:"true"`
+	ModifiedTime       *string                                                                      `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
+	SpecialPolicies    *DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPolicies `json:"SpecialPolicies,omitempty" xml:"SpecialPolicies,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeTrafficControlsResponseTrafficControlsTrafficControl) String() string {
@@ -6050,7 +5764,7 @@ func (s *DescribeTrafficControlsResponseTrafficControlsTrafficControl) SetSpecia
 }
 
 type DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPolicies struct {
-	SpecialPolicy []*DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPoliciesSpecialPolicy `json:"SpecialPolicy" xml:"SpecialPolicy" require:"true" type:"Repeated"`
+	SpecialPolicy []*DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPoliciesSpecialPolicy `json:"SpecialPolicy,omitempty" xml:"SpecialPolicy,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPolicies) String() string {
@@ -6067,8 +5781,8 @@ func (s *DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPoli
 }
 
 type DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPoliciesSpecialPolicy struct {
-	SpecialType *string                                                                                           `json:"SpecialType" xml:"SpecialType" require:"true"`
-	Specials    *DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPoliciesSpecialPolicySpecials `json:"Specials" xml:"Specials" require:"true" type:"Struct"`
+	SpecialType *string                                                                                           `json:"SpecialType,omitempty" xml:"SpecialType,omitempty" require:"true"`
+	Specials    *DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPoliciesSpecialPolicySpecials `json:"Specials,omitempty" xml:"Specials,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPoliciesSpecialPolicy) String() string {
@@ -6090,7 +5804,7 @@ func (s *DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPoli
 }
 
 type DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPoliciesSpecialPolicySpecials struct {
-	Special []*DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPoliciesSpecialPolicySpecialsSpecial `json:"Special" xml:"Special" require:"true" type:"Repeated"`
+	Special []*DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPoliciesSpecialPolicySpecialsSpecial `json:"Special,omitempty" xml:"Special,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPoliciesSpecialPolicySpecials) String() string {
@@ -6107,8 +5821,8 @@ func (s *DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPoli
 }
 
 type DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPoliciesSpecialPolicySpecialsSpecial struct {
-	SpecialKey   *string `json:"SpecialKey" xml:"SpecialKey" require:"true"`
-	TrafficValue *int    `json:"TrafficValue" xml:"TrafficValue" require:"true"`
+	SpecialKey   *string `json:"SpecialKey,omitempty" xml:"SpecialKey,omitempty" require:"true"`
+	TrafficValue *int    `json:"TrafficValue,omitempty" xml:"TrafficValue,omitempty" require:"true"`
 }
 
 func (s DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPoliciesSpecialPolicySpecialsSpecial) String() string {
@@ -6130,8 +5844,7 @@ func (s *DescribeTrafficControlsResponseTrafficControlsTrafficControlSpecialPoli
 }
 
 type DescribeSystemParametersRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
 }
 
 func (s DescribeSystemParametersRequest) String() string {
@@ -6147,14 +5860,9 @@ func (s *DescribeSystemParametersRequest) SetSecurityToken(v string) *DescribeSy
 	return s
 }
 
-func (s *DescribeSystemParametersRequest) SetAccessKeyId(v string) *DescribeSystemParametersRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 type DescribeSystemParametersResponse struct {
-	RequestId    *string                                       `json:"RequestId" xml:"RequestId" require:"true"`
-	SystemParams *DescribeSystemParametersResponseSystemParams `json:"SystemParams" xml:"SystemParams" require:"true" type:"Struct"`
+	RequestId    *string                                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SystemParams *DescribeSystemParametersResponseSystemParams `json:"SystemParams,omitempty" xml:"SystemParams,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeSystemParametersResponse) String() string {
@@ -6176,7 +5884,7 @@ func (s *DescribeSystemParametersResponse) SetSystemParams(v *DescribeSystemPara
 }
 
 type DescribeSystemParametersResponseSystemParams struct {
-	SystemParamItem []*DescribeSystemParametersResponseSystemParamsSystemParamItem `json:"SystemParamItem" xml:"SystemParamItem" require:"true" type:"Repeated"`
+	SystemParamItem []*DescribeSystemParametersResponseSystemParamsSystemParamItem `json:"SystemParamItem,omitempty" xml:"SystemParamItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeSystemParametersResponseSystemParams) String() string {
@@ -6193,10 +5901,10 @@ func (s *DescribeSystemParametersResponseSystemParams) SetSystemParamItem(v []*D
 }
 
 type DescribeSystemParametersResponseSystemParamsSystemParamItem struct {
-	ParamName   *string `json:"ParamName" xml:"ParamName" require:"true"`
-	ParamType   *string `json:"ParamType" xml:"ParamType" require:"true"`
-	DemoValue   *string `json:"DemoValue" xml:"DemoValue" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
+	ParamName   *string `json:"ParamName,omitempty" xml:"ParamName,omitempty" require:"true"`
+	ParamType   *string `json:"ParamType,omitempty" xml:"ParamType,omitempty" require:"true"`
+	DemoValue   *string `json:"DemoValue,omitempty" xml:"DemoValue,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeSystemParametersResponseSystemParamsSystemParamItem) String() string {
@@ -6228,11 +5936,10 @@ func (s *DescribeSystemParametersResponseSystemParamsSystemParamItem) SetDescrip
 }
 
 type DescribeSignaturesByApiRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
-	StageName     *string `json:"StageName" xml:"StageName" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
 }
 
 func (s DescribeSignaturesByApiRequest) String() string {
@@ -6245,11 +5952,6 @@ func (s DescribeSignaturesByApiRequest) GoString() string {
 
 func (s *DescribeSignaturesByApiRequest) SetSecurityToken(v string) *DescribeSignaturesByApiRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeSignaturesByApiRequest) SetAccessKeyId(v string) *DescribeSignaturesByApiRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -6269,8 +5971,8 @@ func (s *DescribeSignaturesByApiRequest) SetStageName(v string) *DescribeSignatu
 }
 
 type DescribeSignaturesByApiResponse struct {
-	RequestId  *string                                    `json:"RequestId" xml:"RequestId" require:"true"`
-	Signatures *DescribeSignaturesByApiResponseSignatures `json:"Signatures" xml:"Signatures" require:"true" type:"Struct"`
+	RequestId  *string                                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Signatures *DescribeSignaturesByApiResponseSignatures `json:"Signatures,omitempty" xml:"Signatures,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeSignaturesByApiResponse) String() string {
@@ -6292,7 +5994,7 @@ func (s *DescribeSignaturesByApiResponse) SetSignatures(v *DescribeSignaturesByA
 }
 
 type DescribeSignaturesByApiResponseSignatures struct {
-	SignatureItem []*DescribeSignaturesByApiResponseSignaturesSignatureItem `json:"SignatureItem" xml:"SignatureItem" require:"true" type:"Repeated"`
+	SignatureItem []*DescribeSignaturesByApiResponseSignaturesSignatureItem `json:"SignatureItem,omitempty" xml:"SignatureItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeSignaturesByApiResponseSignatures) String() string {
@@ -6309,9 +6011,9 @@ func (s *DescribeSignaturesByApiResponseSignatures) SetSignatureItem(v []*Descri
 }
 
 type DescribeSignaturesByApiResponseSignaturesSignatureItem struct {
-	SignatureId   *string `json:"SignatureId" xml:"SignatureId" require:"true"`
-	SignatureName *string `json:"SignatureName" xml:"SignatureName" require:"true"`
-	BoundTime     *string `json:"BoundTime" xml:"BoundTime" require:"true"`
+	SignatureId   *string `json:"SignatureId,omitempty" xml:"SignatureId,omitempty" require:"true"`
+	SignatureName *string `json:"SignatureName,omitempty" xml:"SignatureName,omitempty" require:"true"`
+	BoundTime     *string `json:"BoundTime,omitempty" xml:"BoundTime,omitempty" require:"true"`
 }
 
 func (s DescribeSignaturesByApiResponseSignaturesSignatureItem) String() string {
@@ -6338,12 +6040,11 @@ func (s *DescribeSignaturesByApiResponseSignaturesSignatureItem) SetBoundTime(v 
 }
 
 type DescribeSignaturesRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	SignatureId   *string `json:"SignatureId" xml:"SignatureId"`
-	SignatureName *string `json:"SignatureName" xml:"SignatureName"`
-	PageNumber    *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize      *int    `json:"PageSize" xml:"PageSize"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	SignatureId   *string `json:"SignatureId,omitempty" xml:"SignatureId,omitempty"`
+	SignatureName *string `json:"SignatureName,omitempty" xml:"SignatureName,omitempty"`
+	PageNumber    *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize      *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s DescribeSignaturesRequest) String() string {
@@ -6356,11 +6057,6 @@ func (s DescribeSignaturesRequest) GoString() string {
 
 func (s *DescribeSignaturesRequest) SetSecurityToken(v string) *DescribeSignaturesRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeSignaturesRequest) SetAccessKeyId(v string) *DescribeSignaturesRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -6385,11 +6081,11 @@ func (s *DescribeSignaturesRequest) SetPageSize(v int) *DescribeSignaturesReques
 }
 
 type DescribeSignaturesResponse struct {
-	RequestId      *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount     *int                                      `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize       *int                                      `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber     *int                                      `json:"PageNumber" xml:"PageNumber" require:"true"`
-	SignatureInfos *DescribeSignaturesResponseSignatureInfos `json:"SignatureInfos" xml:"SignatureInfos" require:"true" type:"Struct"`
+	RequestId      *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount     *int                                      `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize       *int                                      `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber     *int                                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	SignatureInfos *DescribeSignaturesResponseSignatureInfos `json:"SignatureInfos,omitempty" xml:"SignatureInfos,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeSignaturesResponse) String() string {
@@ -6426,7 +6122,7 @@ func (s *DescribeSignaturesResponse) SetSignatureInfos(v *DescribeSignaturesResp
 }
 
 type DescribeSignaturesResponseSignatureInfos struct {
-	SignatureInfo []*DescribeSignaturesResponseSignatureInfosSignatureInfo `json:"SignatureInfo" xml:"SignatureInfo" require:"true" type:"Repeated"`
+	SignatureInfo []*DescribeSignaturesResponseSignatureInfosSignatureInfo `json:"SignatureInfo,omitempty" xml:"SignatureInfo,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeSignaturesResponseSignatureInfos) String() string {
@@ -6443,13 +6139,13 @@ func (s *DescribeSignaturesResponseSignatureInfos) SetSignatureInfo(v []*Describ
 }
 
 type DescribeSignaturesResponseSignatureInfosSignatureInfo struct {
-	RegionId        *string `json:"RegionId" xml:"RegionId" require:"true"`
-	SignatureId     *string `json:"SignatureId" xml:"SignatureId" require:"true"`
-	SignatureName   *string `json:"SignatureName" xml:"SignatureName" require:"true"`
-	SignatureKey    *string `json:"SignatureKey" xml:"SignatureKey" require:"true"`
-	SignatureSecret *string `json:"SignatureSecret" xml:"SignatureSecret" require:"true"`
-	CreatedTime     *string `json:"CreatedTime" xml:"CreatedTime" require:"true"`
-	ModifiedTime    *string `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
+	RegionId        *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	SignatureId     *string `json:"SignatureId,omitempty" xml:"SignatureId,omitempty" require:"true"`
+	SignatureName   *string `json:"SignatureName,omitempty" xml:"SignatureName,omitempty" require:"true"`
+	SignatureKey    *string `json:"SignatureKey,omitempty" xml:"SignatureKey,omitempty" require:"true"`
+	SignatureSecret *string `json:"SignatureSecret,omitempty" xml:"SignatureSecret,omitempty" require:"true"`
+	CreatedTime     *string `json:"CreatedTime,omitempty" xml:"CreatedTime,omitempty" require:"true"`
+	ModifiedTime    *string `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
 }
 
 func (s DescribeSignaturesResponseSignatureInfosSignatureInfo) String() string {
@@ -6496,9 +6192,8 @@ func (s *DescribeSignaturesResponseSignatureInfosSignatureInfo) SetModifiedTime(
 }
 
 type DescribeRegionsRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Language      *string `json:"Language" xml:"Language"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	Language      *string `json:"Language,omitempty" xml:"Language,omitempty"`
 }
 
 func (s DescribeRegionsRequest) String() string {
@@ -6514,19 +6209,14 @@ func (s *DescribeRegionsRequest) SetSecurityToken(v string) *DescribeRegionsRequ
 	return s
 }
 
-func (s *DescribeRegionsRequest) SetAccessKeyId(v string) *DescribeRegionsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DescribeRegionsRequest) SetLanguage(v string) *DescribeRegionsRequest {
 	s.Language = &v
 	return s
 }
 
 type DescribeRegionsResponse struct {
-	RequestId *string                         `json:"RequestId" xml:"RequestId" require:"true"`
-	Regions   *DescribeRegionsResponseRegions `json:"Regions" xml:"Regions" require:"true" type:"Struct"`
+	RequestId *string                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Regions   *DescribeRegionsResponseRegions `json:"Regions,omitempty" xml:"Regions,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeRegionsResponse) String() string {
@@ -6548,7 +6238,7 @@ func (s *DescribeRegionsResponse) SetRegions(v *DescribeRegionsResponseRegions) 
 }
 
 type DescribeRegionsResponseRegions struct {
-	Region []*DescribeRegionsResponseRegionsRegion `json:"Region" xml:"Region" require:"true" type:"Repeated"`
+	Region []*DescribeRegionsResponseRegionsRegion `json:"Region,omitempty" xml:"Region,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeRegionsResponseRegions) String() string {
@@ -6565,9 +6255,9 @@ func (s *DescribeRegionsResponseRegions) SetRegion(v []*DescribeRegionsResponseR
 }
 
 type DescribeRegionsResponseRegionsRegion struct {
-	RegionId       *string `json:"RegionId" xml:"RegionId" require:"true"`
-	LocalName      *string `json:"LocalName" xml:"LocalName" require:"true"`
-	RegionEndpoint *string `json:"RegionEndpoint" xml:"RegionEndpoint" require:"true"`
+	RegionId       *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	LocalName      *string `json:"LocalName,omitempty" xml:"LocalName,omitempty" require:"true"`
+	RegionEndpoint *string `json:"RegionEndpoint,omitempty" xml:"RegionEndpoint,omitempty" require:"true"`
 }
 
 func (s DescribeRegionsResponseRegionsRegion) String() string {
@@ -6594,15 +6284,14 @@ func (s *DescribeRegionsResponseRegionsRegion) SetRegionEndpoint(v string) *Desc
 }
 
 type DescribePurchasedApisRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId"`
-	StageName     *string `json:"StageName" xml:"StageName"`
-	ApiId         *string `json:"ApiId" xml:"ApiId"`
-	ApiName       *string `json:"ApiName" xml:"ApiName"`
-	Visibility    *string `json:"Visibility" xml:"Visibility"`
-	PageSize      *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber    *int    `json:"PageNumber" xml:"PageNumber"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty"`
+	ApiName       *string `json:"ApiName,omitempty" xml:"ApiName,omitempty"`
+	Visibility    *string `json:"Visibility,omitempty" xml:"Visibility,omitempty"`
+	PageSize      *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber    *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribePurchasedApisRequest) String() string {
@@ -6615,11 +6304,6 @@ func (s DescribePurchasedApisRequest) GoString() string {
 
 func (s *DescribePurchasedApisRequest) SetSecurityToken(v string) *DescribePurchasedApisRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribePurchasedApisRequest) SetAccessKeyId(v string) *DescribePurchasedApisRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -6659,11 +6343,11 @@ func (s *DescribePurchasedApisRequest) SetPageNumber(v int) *DescribePurchasedAp
 }
 
 type DescribePurchasedApisResponse struct {
-	RequestId     *string                                     `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount    *int                                        `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize      *int                                        `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber    *int                                        `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PurchasedApis *DescribePurchasedApisResponsePurchasedApis `json:"PurchasedApis" xml:"PurchasedApis" require:"true" type:"Struct"`
+	RequestId     *string                                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount    *int                                        `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize      *int                                        `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber    *int                                        `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PurchasedApis *DescribePurchasedApisResponsePurchasedApis `json:"PurchasedApis,omitempty" xml:"PurchasedApis,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribePurchasedApisResponse) String() string {
@@ -6700,7 +6384,7 @@ func (s *DescribePurchasedApisResponse) SetPurchasedApis(v *DescribePurchasedApi
 }
 
 type DescribePurchasedApisResponsePurchasedApis struct {
-	PurchasedApi []*DescribePurchasedApisResponsePurchasedApisPurchasedApi `json:"PurchasedApi" xml:"PurchasedApi" require:"true" type:"Repeated"`
+	PurchasedApi []*DescribePurchasedApisResponsePurchasedApisPurchasedApi `json:"PurchasedApi,omitempty" xml:"PurchasedApi,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribePurchasedApisResponsePurchasedApis) String() string {
@@ -6717,17 +6401,17 @@ func (s *DescribePurchasedApisResponsePurchasedApis) SetPurchasedApi(v []*Descri
 }
 
 type DescribePurchasedApisResponsePurchasedApisPurchasedApi struct {
-	RegionId      *string `json:"RegionId" xml:"RegionId" require:"true"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName     *string `json:"GroupName" xml:"GroupName" require:"true"`
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
-	ApiName       *string `json:"ApiName" xml:"ApiName" require:"true"`
-	StageName     *string `json:"StageName" xml:"StageName" require:"true"`
-	Description   *string `json:"Description" xml:"Description" require:"true"`
-	PurchasedTime *string `json:"PurchasedTime" xml:"PurchasedTime" require:"true"`
-	DeployedTime  *string `json:"DeployedTime" xml:"DeployedTime" require:"true"`
-	ModifiedTime  *string `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
-	Visibility    *string `json:"Visibility" xml:"Visibility" require:"true"`
+	RegionId      *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName     *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	ApiName       *string `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	Description   *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	PurchasedTime *string `json:"PurchasedTime,omitempty" xml:"PurchasedTime,omitempty" require:"true"`
+	DeployedTime  *string `json:"DeployedTime,omitempty" xml:"DeployedTime,omitempty" require:"true"`
+	ModifiedTime  *string `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
+	Visibility    *string `json:"Visibility,omitempty" xml:"Visibility,omitempty" require:"true"`
 }
 
 func (s DescribePurchasedApisResponsePurchasedApisPurchasedApi) String() string {
@@ -6794,10 +6478,9 @@ func (s *DescribePurchasedApisResponsePurchasedApisPurchasedApi) SetVisibility(v
 }
 
 type DescribePurchasedApiGroupsRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	PageNumber    *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize      *int    `json:"PageSize" xml:"PageSize"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	PageNumber    *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize      *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s DescribePurchasedApiGroupsRequest) String() string {
@@ -6813,11 +6496,6 @@ func (s *DescribePurchasedApiGroupsRequest) SetSecurityToken(v string) *Describe
 	return s
 }
 
-func (s *DescribePurchasedApiGroupsRequest) SetAccessKeyId(v string) *DescribePurchasedApiGroupsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DescribePurchasedApiGroupsRequest) SetPageNumber(v int) *DescribePurchasedApiGroupsRequest {
 	s.PageNumber = &v
 	return s
@@ -6829,11 +6507,11 @@ func (s *DescribePurchasedApiGroupsRequest) SetPageSize(v int) *DescribePurchase
 }
 
 type DescribePurchasedApiGroupsResponse struct {
-	RequestId                   *string                                                        `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount                  *int                                                           `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize                    *int                                                           `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber                  *int                                                           `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PurchasedApiGroupAttributes *DescribePurchasedApiGroupsResponsePurchasedApiGroupAttributes `json:"PurchasedApiGroupAttributes" xml:"PurchasedApiGroupAttributes" require:"true" type:"Struct"`
+	RequestId                   *string                                                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount                  *int                                                           `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize                    *int                                                           `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber                  *int                                                           `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PurchasedApiGroupAttributes *DescribePurchasedApiGroupsResponsePurchasedApiGroupAttributes `json:"PurchasedApiGroupAttributes,omitempty" xml:"PurchasedApiGroupAttributes,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribePurchasedApiGroupsResponse) String() string {
@@ -6870,7 +6548,7 @@ func (s *DescribePurchasedApiGroupsResponse) SetPurchasedApiGroupAttributes(v *D
 }
 
 type DescribePurchasedApiGroupsResponsePurchasedApiGroupAttributes struct {
-	PurchasedApiGroupAttribute []*DescribePurchasedApiGroupsResponsePurchasedApiGroupAttributesPurchasedApiGroupAttribute `json:"PurchasedApiGroupAttribute" xml:"PurchasedApiGroupAttribute" require:"true" type:"Repeated"`
+	PurchasedApiGroupAttribute []*DescribePurchasedApiGroupsResponsePurchasedApiGroupAttributesPurchasedApiGroupAttribute `json:"PurchasedApiGroupAttribute,omitempty" xml:"PurchasedApiGroupAttribute,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribePurchasedApiGroupsResponsePurchasedApiGroupAttributes) String() string {
@@ -6887,16 +6565,16 @@ func (s *DescribePurchasedApiGroupsResponsePurchasedApiGroupAttributes) SetPurch
 }
 
 type DescribePurchasedApiGroupsResponsePurchasedApiGroupAttributesPurchasedApiGroupAttribute struct {
-	GroupId        *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName      *string `json:"GroupName" xml:"GroupName" require:"true"`
-	Description    *string `json:"Description" xml:"Description" require:"true"`
-	PurchasedTime  *string `json:"PurchasedTime" xml:"PurchasedTime" require:"true"`
-	ExpireTime     *string `json:"ExpireTime" xml:"ExpireTime" require:"true"`
-	RegionId       *string `json:"RegionId" xml:"RegionId" require:"true"`
-	BillingType    *string `json:"BillingType" xml:"BillingType" require:"true"`
-	InvokeTimesMax *int64  `json:"InvokeTimesMax" xml:"InvokeTimesMax" require:"true"`
-	InvokeTimesNow *int64  `json:"InvokeTimesNow" xml:"InvokeTimesNow" require:"true"`
-	Status         *string `json:"Status" xml:"Status" require:"true"`
+	GroupId        *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName      *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	Description    *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	PurchasedTime  *string `json:"PurchasedTime,omitempty" xml:"PurchasedTime,omitempty" require:"true"`
+	ExpireTime     *string `json:"ExpireTime,omitempty" xml:"ExpireTime,omitempty" require:"true"`
+	RegionId       *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	BillingType    *string `json:"BillingType,omitempty" xml:"BillingType,omitempty" require:"true"`
+	InvokeTimesMax *int64  `json:"InvokeTimesMax,omitempty" xml:"InvokeTimesMax,omitempty" require:"true"`
+	InvokeTimesNow *int64  `json:"InvokeTimesNow,omitempty" xml:"InvokeTimesNow,omitempty" require:"true"`
+	Status         *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
 }
 
 func (s DescribePurchasedApiGroupsResponsePurchasedApiGroupAttributesPurchasedApiGroupAttribute) String() string {
@@ -6958,9 +6636,8 @@ func (s *DescribePurchasedApiGroupsResponsePurchasedApiGroupAttributesPurchasedA
 }
 
 type DescribePurchasedApiGroupRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
 }
 
 func (s DescribePurchasedApiGroupRequest) String() string {
@@ -6976,25 +6653,20 @@ func (s *DescribePurchasedApiGroupRequest) SetSecurityToken(v string) *DescribeP
 	return s
 }
 
-func (s *DescribePurchasedApiGroupRequest) SetAccessKeyId(v string) *DescribePurchasedApiGroupRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DescribePurchasedApiGroupRequest) SetGroupId(v string) *DescribePurchasedApiGroupRequest {
 	s.GroupId = &v
 	return s
 }
 
 type DescribePurchasedApiGroupResponse struct {
-	RequestId     *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	GroupId       *string                                   `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName     *string                                   `json:"GroupName" xml:"GroupName" require:"true"`
-	Description   *string                                   `json:"Description" xml:"Description" require:"true"`
-	PurchasedTime *string                                   `json:"PurchasedTime" xml:"PurchasedTime" require:"true"`
-	RegionId      *string                                   `json:"RegionId" xml:"RegionId" require:"true"`
-	Status        *string                                   `json:"Status" xml:"Status" require:"true"`
-	Domains       *DescribePurchasedApiGroupResponseDomains `json:"Domains" xml:"Domains" require:"true" type:"Struct"`
+	RequestId     *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	GroupId       *string                                   `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName     *string                                   `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	Description   *string                                   `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	PurchasedTime *string                                   `json:"PurchasedTime,omitempty" xml:"PurchasedTime,omitempty" require:"true"`
+	RegionId      *string                                   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Status        *string                                   `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Domains       *DescribePurchasedApiGroupResponseDomains `json:"Domains,omitempty" xml:"Domains,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribePurchasedApiGroupResponse) String() string {
@@ -7046,7 +6718,7 @@ func (s *DescribePurchasedApiGroupResponse) SetDomains(v *DescribePurchasedApiGr
 }
 
 type DescribePurchasedApiGroupResponseDomains struct {
-	DomainItem []*DescribePurchasedApiGroupResponseDomainsDomainItem `json:"DomainItem" xml:"DomainItem" require:"true" type:"Repeated"`
+	DomainItem []*DescribePurchasedApiGroupResponseDomainsDomainItem `json:"DomainItem,omitempty" xml:"DomainItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribePurchasedApiGroupResponseDomains) String() string {
@@ -7063,7 +6735,7 @@ func (s *DescribePurchasedApiGroupResponseDomains) SetDomainItem(v []*DescribePu
 }
 
 type DescribePurchasedApiGroupResponseDomainsDomainItem struct {
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
 }
 
 func (s DescribePurchasedApiGroupResponseDomainsDomainItem) String() string {
@@ -7080,14 +6752,13 @@ func (s *DescribePurchasedApiGroupResponseDomainsDomainItem) SetDomainName(v str
 }
 
 type DescribeHistoryApisRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	StageName     *string `json:"StageName" xml:"StageName"`
-	ApiId         *string `json:"ApiId" xml:"ApiId"`
-	ApiName       *string `json:"ApiName" xml:"ApiName"`
-	PageSize      *string `json:"PageSize" xml:"PageSize"`
-	PageNumber    *string `json:"PageNumber" xml:"PageNumber"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty"`
+	ApiName       *string `json:"ApiName,omitempty" xml:"ApiName,omitempty"`
+	PageSize      *string `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber    *string `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeHistoryApisRequest) String() string {
@@ -7100,11 +6771,6 @@ func (s DescribeHistoryApisRequest) GoString() string {
 
 func (s *DescribeHistoryApisRequest) SetSecurityToken(v string) *DescribeHistoryApisRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeHistoryApisRequest) SetAccessKeyId(v string) *DescribeHistoryApisRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -7139,11 +6805,11 @@ func (s *DescribeHistoryApisRequest) SetPageNumber(v string) *DescribeHistoryApi
 }
 
 type DescribeHistoryApisResponse struct {
-	RequestId   *string                                 `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount  *int                                    `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize    *int                                    `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber  *int                                    `json:"PageNumber" xml:"PageNumber" require:"true"`
-	ApiHisItems *DescribeHistoryApisResponseApiHisItems `json:"ApiHisItems" xml:"ApiHisItems" require:"true" type:"Struct"`
+	RequestId   *string                                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount  *int                                    `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize    *int                                    `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber  *int                                    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	ApiHisItems *DescribeHistoryApisResponseApiHisItems `json:"ApiHisItems,omitempty" xml:"ApiHisItems,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeHistoryApisResponse) String() string {
@@ -7180,7 +6846,7 @@ func (s *DescribeHistoryApisResponse) SetApiHisItems(v *DescribeHistoryApisRespo
 }
 
 type DescribeHistoryApisResponseApiHisItems struct {
-	ApiHisItem []*DescribeHistoryApisResponseApiHisItemsApiHisItem `json:"ApiHisItem" xml:"ApiHisItem" require:"true" type:"Repeated"`
+	ApiHisItem []*DescribeHistoryApisResponseApiHisItemsApiHisItem `json:"ApiHisItem,omitempty" xml:"ApiHisItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeHistoryApisResponseApiHisItems) String() string {
@@ -7197,16 +6863,16 @@ func (s *DescribeHistoryApisResponseApiHisItems) SetApiHisItem(v []*DescribeHist
 }
 
 type DescribeHistoryApisResponseApiHisItemsApiHisItem struct {
-	RegionId       *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ApiId          *string `json:"ApiId" xml:"ApiId" require:"true"`
-	ApiName        *string `json:"ApiName" xml:"ApiName" require:"true"`
-	GroupId        *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName      *string `json:"GroupName" xml:"GroupName" require:"true"`
-	StageName      *string `json:"StageName" xml:"StageName" require:"true"`
-	HistoryVersion *string `json:"HistoryVersion" xml:"HistoryVersion" require:"true"`
-	Status         *string `json:"Status" xml:"Status" require:"true"`
-	Description    *string `json:"Description" xml:"Description" require:"true"`
-	DeployedTime   *string `json:"DeployedTime" xml:"DeployedTime" require:"true"`
+	RegionId       *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ApiId          *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	ApiName        *string `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	GroupId        *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName      *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	StageName      *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	HistoryVersion *string `json:"HistoryVersion,omitempty" xml:"HistoryVersion,omitempty" require:"true"`
+	Status         *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Description    *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	DeployedTime   *string `json:"DeployedTime,omitempty" xml:"DeployedTime,omitempty" require:"true"`
 }
 
 func (s DescribeHistoryApisResponseApiHisItemsApiHisItem) String() string {
@@ -7268,10 +6934,9 @@ func (s *DescribeHistoryApisResponseApiHisItemsApiHisItem) SetDeployedTime(v str
 }
 
 type DescribeDomainsResolutionRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	DomainNames   *string `json:"DomainNames" xml:"DomainNames" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	DomainNames   *string `json:"DomainNames,omitempty" xml:"DomainNames,omitempty" require:"true"`
 }
 
 func (s DescribeDomainsResolutionRequest) String() string {
@@ -7287,11 +6952,6 @@ func (s *DescribeDomainsResolutionRequest) SetSecurityToken(v string) *DescribeD
 	return s
 }
 
-func (s *DescribeDomainsResolutionRequest) SetAccessKeyId(v string) *DescribeDomainsResolutionRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DescribeDomainsResolutionRequest) SetGroupId(v string) *DescribeDomainsResolutionRequest {
 	s.GroupId = &v
 	return s
@@ -7303,9 +6963,9 @@ func (s *DescribeDomainsResolutionRequest) SetDomainNames(v string) *DescribeDom
 }
 
 type DescribeDomainsResolutionResponse struct {
-	RequestId         *string                                             `json:"RequestId" xml:"RequestId" require:"true"`
-	GroupId           *string                                             `json:"GroupId" xml:"GroupId" require:"true"`
-	DomainResolutions *DescribeDomainsResolutionResponseDomainResolutions `json:"DomainResolutions" xml:"DomainResolutions" require:"true" type:"Struct"`
+	RequestId         *string                                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	GroupId           *string                                             `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	DomainResolutions *DescribeDomainsResolutionResponseDomainResolutions `json:"DomainResolutions,omitempty" xml:"DomainResolutions,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDomainsResolutionResponse) String() string {
@@ -7332,7 +6992,7 @@ func (s *DescribeDomainsResolutionResponse) SetDomainResolutions(v *DescribeDoma
 }
 
 type DescribeDomainsResolutionResponseDomainResolutions struct {
-	DomainResolution []*DescribeDomainsResolutionResponseDomainResolutionsDomainResolution `json:"DomainResolution" xml:"DomainResolution" require:"true" type:"Repeated"`
+	DomainResolution []*DescribeDomainsResolutionResponseDomainResolutionsDomainResolution `json:"DomainResolution,omitempty" xml:"DomainResolution,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDomainsResolutionResponseDomainResolutions) String() string {
@@ -7349,8 +7009,8 @@ func (s *DescribeDomainsResolutionResponseDomainResolutions) SetDomainResolution
 }
 
 type DescribeDomainsResolutionResponseDomainResolutionsDomainResolution struct {
-	DomainName             *string `json:"DomainName" xml:"DomainName" require:"true"`
-	DomainResolutionStatus *string `json:"DomainResolutionStatus" xml:"DomainResolutionStatus" require:"true"`
+	DomainName             *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	DomainResolutionStatus *string `json:"DomainResolutionStatus,omitempty" xml:"DomainResolutionStatus,omitempty" require:"true"`
 }
 
 func (s DescribeDomainsResolutionResponseDomainResolutionsDomainResolution) String() string {
@@ -7372,10 +7032,9 @@ func (s *DescribeDomainsResolutionResponseDomainResolutionsDomainResolution) Set
 }
 
 type DescribeDomainRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	DomainName    *string `json:"DomainName" xml:"DomainName" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	DomainName    *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
 }
 
 func (s DescribeDomainRequest) String() string {
@@ -7391,11 +7050,6 @@ func (s *DescribeDomainRequest) SetSecurityToken(v string) *DescribeDomainReques
 	return s
 }
 
-func (s *DescribeDomainRequest) SetAccessKeyId(v string) *DescribeDomainRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DescribeDomainRequest) SetGroupId(v string) *DescribeDomainRequest {
 	s.GroupId = &v
 	return s
@@ -7407,19 +7061,19 @@ func (s *DescribeDomainRequest) SetDomainName(v string) *DescribeDomainRequest {
 }
 
 type DescribeDomainResponse struct {
-	RequestId             *string `json:"RequestId" xml:"RequestId" require:"true"`
-	GroupId               *string `json:"GroupId" xml:"GroupId" require:"true"`
-	DomainName            *string `json:"DomainName" xml:"DomainName" require:"true"`
-	SubDomain             *string `json:"SubDomain" xml:"SubDomain" require:"true"`
-	CertificateId         *string `json:"CertificateId" xml:"CertificateId" require:"true"`
-	CertificateName       *string `json:"CertificateName" xml:"CertificateName" require:"true"`
-	CertificateBody       *string `json:"CertificateBody" xml:"CertificateBody" require:"true"`
-	CertificatePrivateKey *string `json:"CertificatePrivateKey" xml:"CertificatePrivateKey" require:"true"`
-	DomainBindingStatus   *string `json:"DomainBindingStatus" xml:"DomainBindingStatus" require:"true"`
-	DomainCNAMEStatus     *string `json:"DomainCNAMEStatus" xml:"DomainCNAMEStatus" require:"true"`
-	DomainLegalStatus     *string `json:"DomainLegalStatus" xml:"DomainLegalStatus" require:"true"`
-	DomainWebSocketStatus *string `json:"DomainWebSocketStatus" xml:"DomainWebSocketStatus" require:"true"`
-	DomainRemark          *string `json:"DomainRemark" xml:"DomainRemark" require:"true"`
+	RequestId             *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	GroupId               *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	DomainName            *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	SubDomain             *string `json:"SubDomain,omitempty" xml:"SubDomain,omitempty" require:"true"`
+	CertificateId         *string `json:"CertificateId,omitempty" xml:"CertificateId,omitempty" require:"true"`
+	CertificateName       *string `json:"CertificateName,omitempty" xml:"CertificateName,omitempty" require:"true"`
+	CertificateBody       *string `json:"CertificateBody,omitempty" xml:"CertificateBody,omitempty" require:"true"`
+	CertificatePrivateKey *string `json:"CertificatePrivateKey,omitempty" xml:"CertificatePrivateKey,omitempty" require:"true"`
+	DomainBindingStatus   *string `json:"DomainBindingStatus,omitempty" xml:"DomainBindingStatus,omitempty" require:"true"`
+	DomainCNAMEStatus     *string `json:"DomainCNAMEStatus,omitempty" xml:"DomainCNAMEStatus,omitempty" require:"true"`
+	DomainLegalStatus     *string `json:"DomainLegalStatus,omitempty" xml:"DomainLegalStatus,omitempty" require:"true"`
+	DomainWebSocketStatus *string `json:"DomainWebSocketStatus,omitempty" xml:"DomainWebSocketStatus,omitempty" require:"true"`
+	DomainRemark          *string `json:"DomainRemark,omitempty" xml:"DomainRemark,omitempty" require:"true"`
 }
 
 func (s DescribeDomainResponse) String() string {
@@ -7496,16 +7150,15 @@ func (s *DescribeDomainResponse) SetDomainRemark(v string) *DescribeDomainRespon
 }
 
 type DescribeDeployedApisRequest struct {
-	SecurityToken *string                           `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string                           `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string                           `json:"GroupId" xml:"GroupId"`
-	StageName     *string                           `json:"StageName" xml:"StageName"`
-	ApiId         *string                           `json:"ApiId" xml:"ApiId"`
-	ApiName       *string                           `json:"ApiName" xml:"ApiName"`
-	PageNumber    *int                              `json:"PageNumber" xml:"PageNumber"`
-	PageSize      *int                              `json:"PageSize" xml:"PageSize"`
-	Tag           []*DescribeDeployedApisRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
-	EnableTagAuth *bool                             `json:"EnableTagAuth" xml:"EnableTagAuth"`
+	SecurityToken *string                           `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string                           `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	StageName     *string                           `json:"StageName,omitempty" xml:"StageName,omitempty"`
+	ApiId         *string                           `json:"ApiId,omitempty" xml:"ApiId,omitempty"`
+	ApiName       *string                           `json:"ApiName,omitempty" xml:"ApiName,omitempty"`
+	PageNumber    *int                              `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize      *int                              `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	Tag           []*DescribeDeployedApisRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	EnableTagAuth *bool                             `json:"EnableTagAuth,omitempty" xml:"EnableTagAuth,omitempty"`
 }
 
 func (s DescribeDeployedApisRequest) String() string {
@@ -7518,11 +7171,6 @@ func (s DescribeDeployedApisRequest) GoString() string {
 
 func (s *DescribeDeployedApisRequest) SetSecurityToken(v string) *DescribeDeployedApisRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeDeployedApisRequest) SetAccessKeyId(v string) *DescribeDeployedApisRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -7567,8 +7215,8 @@ func (s *DescribeDeployedApisRequest) SetEnableTagAuth(v bool) *DescribeDeployed
 }
 
 type DescribeDeployedApisRequestTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s DescribeDeployedApisRequestTag) String() string {
@@ -7590,11 +7238,11 @@ func (s *DescribeDeployedApisRequestTag) SetValue(v string) *DescribeDeployedApi
 }
 
 type DescribeDeployedApisResponse struct {
-	RequestId    *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount   *int                                      `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize     *int                                      `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber   *int                                      `json:"PageNumber" xml:"PageNumber" require:"true"`
-	DeployedApis *DescribeDeployedApisResponseDeployedApis `json:"DeployedApis" xml:"DeployedApis" require:"true" type:"Struct"`
+	RequestId    *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount   *int                                      `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize     *int                                      `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber   *int                                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	DeployedApis *DescribeDeployedApisResponseDeployedApis `json:"DeployedApis,omitempty" xml:"DeployedApis,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDeployedApisResponse) String() string {
@@ -7631,7 +7279,7 @@ func (s *DescribeDeployedApisResponse) SetDeployedApis(v *DescribeDeployedApisRe
 }
 
 type DescribeDeployedApisResponseDeployedApis struct {
-	DeployedApiItem []*DescribeDeployedApisResponseDeployedApisDeployedApiItem `json:"DeployedApiItem" xml:"DeployedApiItem" require:"true" type:"Repeated"`
+	DeployedApiItem []*DescribeDeployedApisResponseDeployedApisDeployedApiItem `json:"DeployedApiItem,omitempty" xml:"DeployedApiItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDeployedApisResponseDeployedApis) String() string {
@@ -7648,15 +7296,15 @@ func (s *DescribeDeployedApisResponseDeployedApis) SetDeployedApiItem(v []*Descr
 }
 
 type DescribeDeployedApisResponseDeployedApisDeployedApiItem struct {
-	RegionId     *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ApiId        *string `json:"ApiId" xml:"ApiId" require:"true"`
-	ApiName      *string `json:"ApiName" xml:"ApiName" require:"true"`
-	GroupId      *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName    *string `json:"GroupName" xml:"GroupName" require:"true"`
-	StageName    *string `json:"StageName" xml:"StageName" require:"true"`
-	Visibility   *string `json:"Visibility" xml:"Visibility" require:"true"`
-	Description  *string `json:"Description" xml:"Description" require:"true"`
-	DeployedTime *string `json:"DeployedTime" xml:"DeployedTime" require:"true"`
+	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ApiId        *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	ApiName      *string `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	GroupId      *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName    *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	StageName    *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	Visibility   *string `json:"Visibility,omitempty" xml:"Visibility,omitempty" require:"true"`
+	Description  *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	DeployedTime *string `json:"DeployedTime,omitempty" xml:"DeployedTime,omitempty" require:"true"`
 }
 
 func (s DescribeDeployedApisResponseDeployedApisDeployedApiItem) String() string {
@@ -7713,11 +7361,10 @@ func (s *DescribeDeployedApisResponseDeployedApisDeployedApiItem) SetDeployedTim
 }
 
 type DescribeDeployedApiRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId"`
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
-	StageName     *string `json:"StageName" xml:"StageName" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
 }
 
 func (s DescribeDeployedApiRequest) String() string {
@@ -7730,11 +7377,6 @@ func (s DescribeDeployedApiRequest) GoString() string {
 
 func (s *DescribeDeployedApiRequest) SetSecurityToken(v string) *DescribeDeployedApiRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeDeployedApiRequest) SetAccessKeyId(v string) *DescribeDeployedApiRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -7754,35 +7396,35 @@ func (s *DescribeDeployedApiRequest) SetStageName(v string) *DescribeDeployedApi
 }
 
 type DescribeDeployedApiResponse struct {
-	RequestId              *string                                            `json:"RequestId" xml:"RequestId" require:"true"`
-	RegionId               *string                                            `json:"RegionId" xml:"RegionId" require:"true"`
-	GroupId                *string                                            `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName              *string                                            `json:"GroupName" xml:"GroupName" require:"true"`
-	StageName              *string                                            `json:"StageName" xml:"StageName" require:"true"`
-	ApiId                  *string                                            `json:"ApiId" xml:"ApiId" require:"true"`
-	ApiName                *string                                            `json:"ApiName" xml:"ApiName" require:"true"`
-	Description            *string                                            `json:"Description" xml:"Description" require:"true"`
-	Visibility             *string                                            `json:"Visibility" xml:"Visibility" require:"true"`
-	AuthType               *string                                            `json:"AuthType" xml:"AuthType" require:"true"`
-	ResultType             *string                                            `json:"ResultType" xml:"ResultType" require:"true"`
-	ResultSample           *string                                            `json:"ResultSample" xml:"ResultSample" require:"true"`
-	FailResultSample       *string                                            `json:"FailResultSample" xml:"FailResultSample" require:"true"`
-	DeployedTime           *string                                            `json:"DeployedTime" xml:"DeployedTime" require:"true"`
-	AllowSignatureMethod   *string                                            `json:"AllowSignatureMethod" xml:"AllowSignatureMethod" require:"true"`
-	ResultBodyModel        *string                                            `json:"ResultBodyModel" xml:"ResultBodyModel" require:"true"`
-	ForceNonceCheck        *bool                                              `json:"ForceNonceCheck" xml:"ForceNonceCheck" require:"true"`
-	DisableInternet        *bool                                              `json:"DisableInternet" xml:"DisableInternet" require:"true"`
-	ErrorCodeSamples       *DescribeDeployedApiResponseErrorCodeSamples       `json:"ErrorCodeSamples" xml:"ErrorCodeSamples" require:"true" type:"Struct"`
-	ResultDescriptions     *DescribeDeployedApiResponseResultDescriptions     `json:"ResultDescriptions" xml:"ResultDescriptions" require:"true" type:"Struct"`
-	SystemParameters       *DescribeDeployedApiResponseSystemParameters       `json:"SystemParameters" xml:"SystemParameters" require:"true" type:"Struct"`
-	CustomSystemParameters *DescribeDeployedApiResponseCustomSystemParameters `json:"CustomSystemParameters" xml:"CustomSystemParameters" require:"true" type:"Struct"`
-	ConstantParameters     *DescribeDeployedApiResponseConstantParameters     `json:"ConstantParameters" xml:"ConstantParameters" require:"true" type:"Struct"`
-	RequestParameters      *DescribeDeployedApiResponseRequestParameters      `json:"RequestParameters" xml:"RequestParameters" require:"true" type:"Struct"`
-	ServiceParameters      *DescribeDeployedApiResponseServiceParameters      `json:"ServiceParameters" xml:"ServiceParameters" require:"true" type:"Struct"`
-	ServiceParametersMap   *DescribeDeployedApiResponseServiceParametersMap   `json:"ServiceParametersMap" xml:"ServiceParametersMap" require:"true" type:"Struct"`
-	RequestConfig          *DescribeDeployedApiResponseRequestConfig          `json:"RequestConfig" xml:"RequestConfig" require:"true" type:"Struct"`
-	ServiceConfig          *DescribeDeployedApiResponseServiceConfig          `json:"ServiceConfig" xml:"ServiceConfig" require:"true" type:"Struct"`
-	OpenIdConnectConfig    *DescribeDeployedApiResponseOpenIdConnectConfig    `json:"OpenIdConnectConfig" xml:"OpenIdConnectConfig" require:"true" type:"Struct"`
+	RequestId              *string                                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RegionId               *string                                            `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	GroupId                *string                                            `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName              *string                                            `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	StageName              *string                                            `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	ApiId                  *string                                            `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	ApiName                *string                                            `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	Description            *string                                            `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	Visibility             *string                                            `json:"Visibility,omitempty" xml:"Visibility,omitempty" require:"true"`
+	AuthType               *string                                            `json:"AuthType,omitempty" xml:"AuthType,omitempty" require:"true"`
+	ResultType             *string                                            `json:"ResultType,omitempty" xml:"ResultType,omitempty" require:"true"`
+	ResultSample           *string                                            `json:"ResultSample,omitempty" xml:"ResultSample,omitempty" require:"true"`
+	FailResultSample       *string                                            `json:"FailResultSample,omitempty" xml:"FailResultSample,omitempty" require:"true"`
+	DeployedTime           *string                                            `json:"DeployedTime,omitempty" xml:"DeployedTime,omitempty" require:"true"`
+	AllowSignatureMethod   *string                                            `json:"AllowSignatureMethod,omitempty" xml:"AllowSignatureMethod,omitempty" require:"true"`
+	ResultBodyModel        *string                                            `json:"ResultBodyModel,omitempty" xml:"ResultBodyModel,omitempty" require:"true"`
+	ForceNonceCheck        *bool                                              `json:"ForceNonceCheck,omitempty" xml:"ForceNonceCheck,omitempty" require:"true"`
+	DisableInternet        *bool                                              `json:"DisableInternet,omitempty" xml:"DisableInternet,omitempty" require:"true"`
+	ErrorCodeSamples       *DescribeDeployedApiResponseErrorCodeSamples       `json:"ErrorCodeSamples,omitempty" xml:"ErrorCodeSamples,omitempty" require:"true" type:"Struct"`
+	ResultDescriptions     *DescribeDeployedApiResponseResultDescriptions     `json:"ResultDescriptions,omitempty" xml:"ResultDescriptions,omitempty" require:"true" type:"Struct"`
+	SystemParameters       *DescribeDeployedApiResponseSystemParameters       `json:"SystemParameters,omitempty" xml:"SystemParameters,omitempty" require:"true" type:"Struct"`
+	CustomSystemParameters *DescribeDeployedApiResponseCustomSystemParameters `json:"CustomSystemParameters,omitempty" xml:"CustomSystemParameters,omitempty" require:"true" type:"Struct"`
+	ConstantParameters     *DescribeDeployedApiResponseConstantParameters     `json:"ConstantParameters,omitempty" xml:"ConstantParameters,omitempty" require:"true" type:"Struct"`
+	RequestParameters      *DescribeDeployedApiResponseRequestParameters      `json:"RequestParameters,omitempty" xml:"RequestParameters,omitempty" require:"true" type:"Struct"`
+	ServiceParameters      *DescribeDeployedApiResponseServiceParameters      `json:"ServiceParameters,omitempty" xml:"ServiceParameters,omitempty" require:"true" type:"Struct"`
+	ServiceParametersMap   *DescribeDeployedApiResponseServiceParametersMap   `json:"ServiceParametersMap,omitempty" xml:"ServiceParametersMap,omitempty" require:"true" type:"Struct"`
+	RequestConfig          *DescribeDeployedApiResponseRequestConfig          `json:"RequestConfig,omitempty" xml:"RequestConfig,omitempty" require:"true" type:"Struct"`
+	ServiceConfig          *DescribeDeployedApiResponseServiceConfig          `json:"ServiceConfig,omitempty" xml:"ServiceConfig,omitempty" require:"true" type:"Struct"`
+	OpenIdConnectConfig    *DescribeDeployedApiResponseOpenIdConnectConfig    `json:"OpenIdConnectConfig,omitempty" xml:"OpenIdConnectConfig,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDeployedApiResponse) String() string {
@@ -7939,7 +7581,7 @@ func (s *DescribeDeployedApiResponse) SetOpenIdConnectConfig(v *DescribeDeployed
 }
 
 type DescribeDeployedApiResponseErrorCodeSamples struct {
-	ErrorCodeSample []*DescribeDeployedApiResponseErrorCodeSamplesErrorCodeSample `json:"ErrorCodeSample" xml:"ErrorCodeSample" require:"true" type:"Repeated"`
+	ErrorCodeSample []*DescribeDeployedApiResponseErrorCodeSamplesErrorCodeSample `json:"ErrorCodeSample,omitempty" xml:"ErrorCodeSample,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDeployedApiResponseErrorCodeSamples) String() string {
@@ -7956,9 +7598,9 @@ func (s *DescribeDeployedApiResponseErrorCodeSamples) SetErrorCodeSample(v []*De
 }
 
 type DescribeDeployedApiResponseErrorCodeSamplesErrorCodeSample struct {
-	Code        *string `json:"Code" xml:"Code" require:"true"`
-	Message     *string `json:"Message" xml:"Message" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
+	Code        *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message     *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeDeployedApiResponseErrorCodeSamplesErrorCodeSample) String() string {
@@ -7985,7 +7627,7 @@ func (s *DescribeDeployedApiResponseErrorCodeSamplesErrorCodeSample) SetDescript
 }
 
 type DescribeDeployedApiResponseResultDescriptions struct {
-	ResultDescription []*DescribeDeployedApiResponseResultDescriptionsResultDescription `json:"ResultDescription" xml:"ResultDescription" require:"true" type:"Repeated"`
+	ResultDescription []*DescribeDeployedApiResponseResultDescriptionsResultDescription `json:"ResultDescription,omitempty" xml:"ResultDescription,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDeployedApiResponseResultDescriptions) String() string {
@@ -8002,14 +7644,14 @@ func (s *DescribeDeployedApiResponseResultDescriptions) SetResultDescription(v [
 }
 
 type DescribeDeployedApiResponseResultDescriptionsResultDescription struct {
-	Id          *string `json:"Id" xml:"Id" require:"true"`
-	Pid         *string `json:"Pid" xml:"Pid" require:"true"`
-	HasChild    *bool   `json:"HasChild" xml:"HasChild" require:"true"`
-	Key         *string `json:"Key" xml:"Key" require:"true"`
-	Name        *string `json:"Name" xml:"Name" require:"true"`
-	Mandatory   *bool   `json:"Mandatory" xml:"Mandatory" require:"true"`
-	Type        *string `json:"Type" xml:"Type" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
+	Id          *string `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	Pid         *string `json:"Pid,omitempty" xml:"Pid,omitempty" require:"true"`
+	HasChild    *bool   `json:"HasChild,omitempty" xml:"HasChild,omitempty" require:"true"`
+	Key         *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Name        *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Mandatory   *bool   `json:"Mandatory,omitempty" xml:"Mandatory,omitempty" require:"true"`
+	Type        *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeDeployedApiResponseResultDescriptionsResultDescription) String() string {
@@ -8061,7 +7703,7 @@ func (s *DescribeDeployedApiResponseResultDescriptionsResultDescription) SetDesc
 }
 
 type DescribeDeployedApiResponseSystemParameters struct {
-	SystemParameter []*DescribeDeployedApiResponseSystemParametersSystemParameter `json:"SystemParameter" xml:"SystemParameter" require:"true" type:"Repeated"`
+	SystemParameter []*DescribeDeployedApiResponseSystemParametersSystemParameter `json:"SystemParameter,omitempty" xml:"SystemParameter,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDeployedApiResponseSystemParameters) String() string {
@@ -8078,11 +7720,11 @@ func (s *DescribeDeployedApiResponseSystemParameters) SetSystemParameter(v []*De
 }
 
 type DescribeDeployedApiResponseSystemParametersSystemParameter struct {
-	ParameterName        *string `json:"ParameterName" xml:"ParameterName" require:"true"`
-	ServiceParameterName *string `json:"ServiceParameterName" xml:"ServiceParameterName" require:"true"`
-	Location             *string `json:"Location" xml:"Location" require:"true"`
-	DemoValue            *string `json:"DemoValue" xml:"DemoValue" require:"true"`
-	Description          *string `json:"Description" xml:"Description" require:"true"`
+	ParameterName        *string `json:"ParameterName,omitempty" xml:"ParameterName,omitempty" require:"true"`
+	ServiceParameterName *string `json:"ServiceParameterName,omitempty" xml:"ServiceParameterName,omitempty" require:"true"`
+	Location             *string `json:"Location,omitempty" xml:"Location,omitempty" require:"true"`
+	DemoValue            *string `json:"DemoValue,omitempty" xml:"DemoValue,omitempty" require:"true"`
+	Description          *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeDeployedApiResponseSystemParametersSystemParameter) String() string {
@@ -8119,7 +7761,7 @@ func (s *DescribeDeployedApiResponseSystemParametersSystemParameter) SetDescript
 }
 
 type DescribeDeployedApiResponseCustomSystemParameters struct {
-	CustomSystemParameter []*DescribeDeployedApiResponseCustomSystemParametersCustomSystemParameter `json:"CustomSystemParameter" xml:"CustomSystemParameter" require:"true" type:"Repeated"`
+	CustomSystemParameter []*DescribeDeployedApiResponseCustomSystemParametersCustomSystemParameter `json:"CustomSystemParameter,omitempty" xml:"CustomSystemParameter,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDeployedApiResponseCustomSystemParameters) String() string {
@@ -8136,11 +7778,11 @@ func (s *DescribeDeployedApiResponseCustomSystemParameters) SetCustomSystemParam
 }
 
 type DescribeDeployedApiResponseCustomSystemParametersCustomSystemParameter struct {
-	ParameterName        *string `json:"ParameterName" xml:"ParameterName" require:"true"`
-	ServiceParameterName *string `json:"ServiceParameterName" xml:"ServiceParameterName" require:"true"`
-	Location             *string `json:"Location" xml:"Location" require:"true"`
-	DemoValue            *string `json:"DemoValue" xml:"DemoValue" require:"true"`
-	Description          *string `json:"Description" xml:"Description" require:"true"`
+	ParameterName        *string `json:"ParameterName,omitempty" xml:"ParameterName,omitempty" require:"true"`
+	ServiceParameterName *string `json:"ServiceParameterName,omitempty" xml:"ServiceParameterName,omitempty" require:"true"`
+	Location             *string `json:"Location,omitempty" xml:"Location,omitempty" require:"true"`
+	DemoValue            *string `json:"DemoValue,omitempty" xml:"DemoValue,omitempty" require:"true"`
+	Description          *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeDeployedApiResponseCustomSystemParametersCustomSystemParameter) String() string {
@@ -8177,7 +7819,7 @@ func (s *DescribeDeployedApiResponseCustomSystemParametersCustomSystemParameter)
 }
 
 type DescribeDeployedApiResponseConstantParameters struct {
-	ConstantParameter []*DescribeDeployedApiResponseConstantParametersConstantParameter `json:"ConstantParameter" xml:"ConstantParameter" require:"true" type:"Repeated"`
+	ConstantParameter []*DescribeDeployedApiResponseConstantParametersConstantParameter `json:"ConstantParameter,omitempty" xml:"ConstantParameter,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDeployedApiResponseConstantParameters) String() string {
@@ -8194,10 +7836,10 @@ func (s *DescribeDeployedApiResponseConstantParameters) SetConstantParameter(v [
 }
 
 type DescribeDeployedApiResponseConstantParametersConstantParameter struct {
-	ServiceParameterName *string `json:"ServiceParameterName" xml:"ServiceParameterName" require:"true"`
-	ConstantValue        *string `json:"ConstantValue" xml:"ConstantValue" require:"true"`
-	Location             *string `json:"Location" xml:"Location" require:"true"`
-	Description          *string `json:"Description" xml:"Description" require:"true"`
+	ServiceParameterName *string `json:"ServiceParameterName,omitempty" xml:"ServiceParameterName,omitempty" require:"true"`
+	ConstantValue        *string `json:"ConstantValue,omitempty" xml:"ConstantValue,omitempty" require:"true"`
+	Location             *string `json:"Location,omitempty" xml:"Location,omitempty" require:"true"`
+	Description          *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeDeployedApiResponseConstantParametersConstantParameter) String() string {
@@ -8229,7 +7871,7 @@ func (s *DescribeDeployedApiResponseConstantParametersConstantParameter) SetDesc
 }
 
 type DescribeDeployedApiResponseRequestParameters struct {
-	RequestParameter []*DescribeDeployedApiResponseRequestParametersRequestParameter `json:"RequestParameter" xml:"RequestParameter" require:"true" type:"Repeated"`
+	RequestParameter []*DescribeDeployedApiResponseRequestParametersRequestParameter `json:"RequestParameter,omitempty" xml:"RequestParameter,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDeployedApiResponseRequestParameters) String() string {
@@ -8246,23 +7888,23 @@ func (s *DescribeDeployedApiResponseRequestParameters) SetRequestParameter(v []*
 }
 
 type DescribeDeployedApiResponseRequestParametersRequestParameter struct {
-	ApiParameterName  *string `json:"ApiParameterName" xml:"ApiParameterName" require:"true"`
-	Location          *string `json:"Location" xml:"Location" require:"true"`
-	ParameterType     *string `json:"ParameterType" xml:"ParameterType" require:"true"`
-	Required          *string `json:"Required" xml:"Required" require:"true"`
-	DefaultValue      *string `json:"DefaultValue" xml:"DefaultValue" require:"true"`
-	DemoValue         *string `json:"DemoValue" xml:"DemoValue" require:"true"`
-	MaxValue          *int64  `json:"MaxValue" xml:"MaxValue" require:"true"`
-	MinValue          *int64  `json:"MinValue" xml:"MinValue" require:"true"`
-	MaxLength         *int64  `json:"MaxLength" xml:"MaxLength" require:"true"`
-	MinLength         *int64  `json:"MinLength" xml:"MinLength" require:"true"`
-	RegularExpression *string `json:"RegularExpression" xml:"RegularExpression" require:"true"`
-	JsonScheme        *string `json:"JsonScheme" xml:"JsonScheme" require:"true"`
-	EnumValue         *string `json:"EnumValue" xml:"EnumValue" require:"true"`
-	DocShow           *string `json:"DocShow" xml:"DocShow" require:"true"`
-	DocOrder          *int    `json:"DocOrder" xml:"DocOrder" require:"true"`
-	Description       *string `json:"Description" xml:"Description" require:"true"`
-	ArrayItemsType    *string `json:"ArrayItemsType" xml:"ArrayItemsType" require:"true"`
+	ApiParameterName  *string `json:"ApiParameterName,omitempty" xml:"ApiParameterName,omitempty" require:"true"`
+	Location          *string `json:"Location,omitempty" xml:"Location,omitempty" require:"true"`
+	ParameterType     *string `json:"ParameterType,omitempty" xml:"ParameterType,omitempty" require:"true"`
+	Required          *string `json:"Required,omitempty" xml:"Required,omitempty" require:"true"`
+	DefaultValue      *string `json:"DefaultValue,omitempty" xml:"DefaultValue,omitempty" require:"true"`
+	DemoValue         *string `json:"DemoValue,omitempty" xml:"DemoValue,omitempty" require:"true"`
+	MaxValue          *int64  `json:"MaxValue,omitempty" xml:"MaxValue,omitempty" require:"true"`
+	MinValue          *int64  `json:"MinValue,omitempty" xml:"MinValue,omitempty" require:"true"`
+	MaxLength         *int64  `json:"MaxLength,omitempty" xml:"MaxLength,omitempty" require:"true"`
+	MinLength         *int64  `json:"MinLength,omitempty" xml:"MinLength,omitempty" require:"true"`
+	RegularExpression *string `json:"RegularExpression,omitempty" xml:"RegularExpression,omitempty" require:"true"`
+	JsonScheme        *string `json:"JsonScheme,omitempty" xml:"JsonScheme,omitempty" require:"true"`
+	EnumValue         *string `json:"EnumValue,omitempty" xml:"EnumValue,omitempty" require:"true"`
+	DocShow           *string `json:"DocShow,omitempty" xml:"DocShow,omitempty" require:"true"`
+	DocOrder          *int    `json:"DocOrder,omitempty" xml:"DocOrder,omitempty" require:"true"`
+	Description       *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	ArrayItemsType    *string `json:"ArrayItemsType,omitempty" xml:"ArrayItemsType,omitempty" require:"true"`
 }
 
 func (s DescribeDeployedApiResponseRequestParametersRequestParameter) String() string {
@@ -8359,7 +8001,7 @@ func (s *DescribeDeployedApiResponseRequestParametersRequestParameter) SetArrayI
 }
 
 type DescribeDeployedApiResponseServiceParameters struct {
-	ServiceParameter []*DescribeDeployedApiResponseServiceParametersServiceParameter `json:"ServiceParameter" xml:"ServiceParameter" require:"true" type:"Repeated"`
+	ServiceParameter []*DescribeDeployedApiResponseServiceParametersServiceParameter `json:"ServiceParameter,omitempty" xml:"ServiceParameter,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDeployedApiResponseServiceParameters) String() string {
@@ -8376,9 +8018,9 @@ func (s *DescribeDeployedApiResponseServiceParameters) SetServiceParameter(v []*
 }
 
 type DescribeDeployedApiResponseServiceParametersServiceParameter struct {
-	ServiceParameterName *string `json:"ServiceParameterName" xml:"ServiceParameterName" require:"true"`
-	Location             *string `json:"Location" xml:"Location" require:"true"`
-	ParameterType        *string `json:"ParameterType" xml:"ParameterType" require:"true"`
+	ServiceParameterName *string `json:"ServiceParameterName,omitempty" xml:"ServiceParameterName,omitempty" require:"true"`
+	Location             *string `json:"Location,omitempty" xml:"Location,omitempty" require:"true"`
+	ParameterType        *string `json:"ParameterType,omitempty" xml:"ParameterType,omitempty" require:"true"`
 }
 
 func (s DescribeDeployedApiResponseServiceParametersServiceParameter) String() string {
@@ -8405,7 +8047,7 @@ func (s *DescribeDeployedApiResponseServiceParametersServiceParameter) SetParame
 }
 
 type DescribeDeployedApiResponseServiceParametersMap struct {
-	ServiceParameterMap []*DescribeDeployedApiResponseServiceParametersMapServiceParameterMap `json:"ServiceParameterMap" xml:"ServiceParameterMap" require:"true" type:"Repeated"`
+	ServiceParameterMap []*DescribeDeployedApiResponseServiceParametersMapServiceParameterMap `json:"ServiceParameterMap,omitempty" xml:"ServiceParameterMap,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDeployedApiResponseServiceParametersMap) String() string {
@@ -8422,8 +8064,8 @@ func (s *DescribeDeployedApiResponseServiceParametersMap) SetServiceParameterMap
 }
 
 type DescribeDeployedApiResponseServiceParametersMapServiceParameterMap struct {
-	ServiceParameterName *string `json:"ServiceParameterName" xml:"ServiceParameterName" require:"true"`
-	RequestParameterName *string `json:"RequestParameterName" xml:"RequestParameterName" require:"true"`
+	ServiceParameterName *string `json:"ServiceParameterName,omitempty" xml:"ServiceParameterName,omitempty" require:"true"`
+	RequestParameterName *string `json:"RequestParameterName,omitempty" xml:"RequestParameterName,omitempty" require:"true"`
 }
 
 func (s DescribeDeployedApiResponseServiceParametersMapServiceParameterMap) String() string {
@@ -8445,13 +8087,13 @@ func (s *DescribeDeployedApiResponseServiceParametersMapServiceParameterMap) Set
 }
 
 type DescribeDeployedApiResponseRequestConfig struct {
-	RequestProtocol     *string `json:"RequestProtocol" xml:"RequestProtocol" require:"true"`
-	RequestHttpMethod   *string `json:"RequestHttpMethod" xml:"RequestHttpMethod" require:"true"`
-	RequestPath         *string `json:"RequestPath" xml:"RequestPath" require:"true"`
-	BodyFormat          *string `json:"BodyFormat" xml:"BodyFormat" require:"true"`
-	PostBodyDescription *string `json:"PostBodyDescription" xml:"PostBodyDescription" require:"true"`
-	RequestMode         *string `json:"RequestMode" xml:"RequestMode" require:"true"`
-	BodyModel           *string `json:"BodyModel" xml:"BodyModel" require:"true"`
+	RequestProtocol     *string `json:"RequestProtocol,omitempty" xml:"RequestProtocol,omitempty" require:"true"`
+	RequestHttpMethod   *string `json:"RequestHttpMethod,omitempty" xml:"RequestHttpMethod,omitempty" require:"true"`
+	RequestPath         *string `json:"RequestPath,omitempty" xml:"RequestPath,omitempty" require:"true"`
+	BodyFormat          *string `json:"BodyFormat,omitempty" xml:"BodyFormat,omitempty" require:"true"`
+	PostBodyDescription *string `json:"PostBodyDescription,omitempty" xml:"PostBodyDescription,omitempty" require:"true"`
+	RequestMode         *string `json:"RequestMode,omitempty" xml:"RequestMode,omitempty" require:"true"`
+	BodyModel           *string `json:"BodyModel,omitempty" xml:"BodyModel,omitempty" require:"true"`
 }
 
 func (s DescribeDeployedApiResponseRequestConfig) String() string {
@@ -8498,19 +8140,19 @@ func (s *DescribeDeployedApiResponseRequestConfig) SetBodyModel(v string) *Descr
 }
 
 type DescribeDeployedApiResponseServiceConfig struct {
-	ServiceProtocol       *string                                                        `json:"ServiceProtocol" xml:"ServiceProtocol" require:"true"`
-	ServiceAddress        *string                                                        `json:"ServiceAddress" xml:"ServiceAddress" require:"true"`
-	ServiceHttpMethod     *string                                                        `json:"ServiceHttpMethod" xml:"ServiceHttpMethod" require:"true"`
-	ServicePath           *string                                                        `json:"ServicePath" xml:"ServicePath" require:"true"`
-	ServiceTimeout        *int                                                           `json:"ServiceTimeout" xml:"ServiceTimeout" require:"true"`
-	Mock                  *string                                                        `json:"Mock" xml:"Mock" require:"true"`
-	MockResult            *string                                                        `json:"MockResult" xml:"MockResult" require:"true"`
-	ServiceVpcEnable      *string                                                        `json:"ServiceVpcEnable" xml:"ServiceVpcEnable" require:"true"`
-	MockStatusCode        *int                                                           `json:"MockStatusCode" xml:"MockStatusCode" require:"true"`
-	VpcId                 *string                                                        `json:"VpcId" xml:"VpcId" require:"true"`
-	MockHeaders           *DescribeDeployedApiResponseServiceConfigMockHeaders           `json:"MockHeaders" xml:"MockHeaders" require:"true" type:"Struct"`
-	VpcConfig             *DescribeDeployedApiResponseServiceConfigVpcConfig             `json:"VpcConfig" xml:"VpcConfig" require:"true" type:"Struct"`
-	FunctionComputeConfig *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig `json:"FunctionComputeConfig" xml:"FunctionComputeConfig" require:"true" type:"Struct"`
+	ServiceProtocol       *string                                                        `json:"ServiceProtocol,omitempty" xml:"ServiceProtocol,omitempty" require:"true"`
+	ServiceAddress        *string                                                        `json:"ServiceAddress,omitempty" xml:"ServiceAddress,omitempty" require:"true"`
+	ServiceHttpMethod     *string                                                        `json:"ServiceHttpMethod,omitempty" xml:"ServiceHttpMethod,omitempty" require:"true"`
+	ServicePath           *string                                                        `json:"ServicePath,omitempty" xml:"ServicePath,omitempty" require:"true"`
+	ServiceTimeout        *int                                                           `json:"ServiceTimeout,omitempty" xml:"ServiceTimeout,omitempty" require:"true"`
+	Mock                  *string                                                        `json:"Mock,omitempty" xml:"Mock,omitempty" require:"true"`
+	MockResult            *string                                                        `json:"MockResult,omitempty" xml:"MockResult,omitempty" require:"true"`
+	ServiceVpcEnable      *string                                                        `json:"ServiceVpcEnable,omitempty" xml:"ServiceVpcEnable,omitempty" require:"true"`
+	MockStatusCode        *int                                                           `json:"MockStatusCode,omitempty" xml:"MockStatusCode,omitempty" require:"true"`
+	VpcId                 *string                                                        `json:"VpcId,omitempty" xml:"VpcId,omitempty" require:"true"`
+	MockHeaders           *DescribeDeployedApiResponseServiceConfigMockHeaders           `json:"MockHeaders,omitempty" xml:"MockHeaders,omitempty" require:"true" type:"Struct"`
+	VpcConfig             *DescribeDeployedApiResponseServiceConfigVpcConfig             `json:"VpcConfig,omitempty" xml:"VpcConfig,omitempty" require:"true" type:"Struct"`
+	FunctionComputeConfig *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig `json:"FunctionComputeConfig,omitempty" xml:"FunctionComputeConfig,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDeployedApiResponseServiceConfig) String() string {
@@ -8587,7 +8229,7 @@ func (s *DescribeDeployedApiResponseServiceConfig) SetFunctionComputeConfig(v *D
 }
 
 type DescribeDeployedApiResponseServiceConfigMockHeaders struct {
-	MockHeader []*DescribeDeployedApiResponseServiceConfigMockHeadersMockHeader `json:"MockHeader" xml:"MockHeader" require:"true" type:"Repeated"`
+	MockHeader []*DescribeDeployedApiResponseServiceConfigMockHeadersMockHeader `json:"MockHeader,omitempty" xml:"MockHeader,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDeployedApiResponseServiceConfigMockHeaders) String() string {
@@ -8604,8 +8246,8 @@ func (s *DescribeDeployedApiResponseServiceConfigMockHeaders) SetMockHeader(v []
 }
 
 type DescribeDeployedApiResponseServiceConfigMockHeadersMockHeader struct {
-	HeaderName  *string `json:"HeaderName" xml:"HeaderName" require:"true"`
-	HeaderValue *string `json:"HeaderValue" xml:"HeaderValue" require:"true"`
+	HeaderName  *string `json:"HeaderName,omitempty" xml:"HeaderName,omitempty" require:"true"`
+	HeaderValue *string `json:"HeaderValue,omitempty" xml:"HeaderValue,omitempty" require:"true"`
 }
 
 func (s DescribeDeployedApiResponseServiceConfigMockHeadersMockHeader) String() string {
@@ -8627,10 +8269,10 @@ func (s *DescribeDeployedApiResponseServiceConfigMockHeadersMockHeader) SetHeade
 }
 
 type DescribeDeployedApiResponseServiceConfigVpcConfig struct {
-	Name       *string `json:"Name" xml:"Name" require:"true"`
-	VpcId      *string `json:"VpcId" xml:"VpcId" require:"true"`
-	InstanceId *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	Port       *int    `json:"Port" xml:"Port" require:"true"`
+	Name       *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	VpcId      *string `json:"VpcId,omitempty" xml:"VpcId,omitempty" require:"true"`
+	InstanceId *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	Port       *int    `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
 }
 
 func (s DescribeDeployedApiResponseServiceConfigVpcConfig) String() string {
@@ -8662,10 +8304,10 @@ func (s *DescribeDeployedApiResponseServiceConfigVpcConfig) SetPort(v int) *Desc
 }
 
 type DescribeDeployedApiResponseServiceConfigFunctionComputeConfig struct {
-	RegionId     *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ServiceName  *string `json:"ServiceName" xml:"ServiceName" require:"true"`
-	FunctionName *string `json:"FunctionName" xml:"FunctionName" require:"true"`
-	RoleArn      *string `json:"RoleArn" xml:"RoleArn" require:"true"`
+	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ServiceName  *string `json:"ServiceName,omitempty" xml:"ServiceName,omitempty" require:"true"`
+	FunctionName *string `json:"FunctionName,omitempty" xml:"FunctionName,omitempty" require:"true"`
+	RoleArn      *string `json:"RoleArn,omitempty" xml:"RoleArn,omitempty" require:"true"`
 }
 
 func (s DescribeDeployedApiResponseServiceConfigFunctionComputeConfig) String() string {
@@ -8697,10 +8339,10 @@ func (s *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig) SetRoleA
 }
 
 type DescribeDeployedApiResponseOpenIdConnectConfig struct {
-	OpenIdApiType    *string `json:"OpenIdApiType" xml:"OpenIdApiType" require:"true"`
-	IdTokenParamName *string `json:"IdTokenParamName" xml:"IdTokenParamName" require:"true"`
-	PublicKeyId      *string `json:"PublicKeyId" xml:"PublicKeyId" require:"true"`
-	PublicKey        *string `json:"PublicKey" xml:"PublicKey" require:"true"`
+	OpenIdApiType    *string `json:"OpenIdApiType,omitempty" xml:"OpenIdApiType,omitempty" require:"true"`
+	IdTokenParamName *string `json:"IdTokenParamName,omitempty" xml:"IdTokenParamName,omitempty" require:"true"`
+	PublicKeyId      *string `json:"PublicKeyId,omitempty" xml:"PublicKeyId,omitempty" require:"true"`
+	PublicKey        *string `json:"PublicKey,omitempty" xml:"PublicKey,omitempty" require:"true"`
 }
 
 func (s DescribeDeployedApiResponseOpenIdConnectConfig) String() string {
@@ -8732,16 +8374,15 @@ func (s *DescribeDeployedApiResponseOpenIdConnectConfig) SetPublicKey(v string) 
 }
 
 type DescribeAuthorizedAppsRequest struct {
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	GroupId       *string `json:"GroupId" xml:"GroupId"`
-	StageName     *string `json:"StageName" xml:"StageName"`
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
-	PageNumber    *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize      *int    `json:"PageSize" xml:"PageSize"`
-	AppId         *int64  `json:"AppId" xml:"AppId"`
-	AppName       *string `json:"AppName" xml:"AppName"`
-	AppOwnerId    *int64  `json:"AppOwnerId" xml:"AppOwnerId"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	PageNumber    *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize      *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	AppId         *int64  `json:"AppId,omitempty" xml:"AppId,omitempty"`
+	AppName       *string `json:"AppName,omitempty" xml:"AppName,omitempty"`
+	AppOwnerId    *int64  `json:"AppOwnerId,omitempty" xml:"AppOwnerId,omitempty"`
 }
 
 func (s DescribeAuthorizedAppsRequest) String() string {
@@ -8750,11 +8391,6 @@ func (s DescribeAuthorizedAppsRequest) String() string {
 
 func (s DescribeAuthorizedAppsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeAuthorizedAppsRequest) SetAccessKeyId(v string) *DescribeAuthorizedAppsRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DescribeAuthorizedAppsRequest) SetSecurityToken(v string) *DescribeAuthorizedAppsRequest {
@@ -8803,11 +8439,11 @@ func (s *DescribeAuthorizedAppsRequest) SetAppOwnerId(v int64) *DescribeAuthoriz
 }
 
 type DescribeAuthorizedAppsResponse struct {
-	RequestId      *string                                       `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount     *int                                          `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize       *int                                          `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber     *int                                          `json:"PageNumber" xml:"PageNumber" require:"true"`
-	AuthorizedApps *DescribeAuthorizedAppsResponseAuthorizedApps `json:"AuthorizedApps" xml:"AuthorizedApps" require:"true" type:"Struct"`
+	RequestId      *string                                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount     *int                                          `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize       *int                                          `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber     *int                                          `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	AuthorizedApps *DescribeAuthorizedAppsResponseAuthorizedApps `json:"AuthorizedApps,omitempty" xml:"AuthorizedApps,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeAuthorizedAppsResponse) String() string {
@@ -8844,7 +8480,7 @@ func (s *DescribeAuthorizedAppsResponse) SetAuthorizedApps(v *DescribeAuthorized
 }
 
 type DescribeAuthorizedAppsResponseAuthorizedApps struct {
-	AuthorizedApp []*DescribeAuthorizedAppsResponseAuthorizedAppsAuthorizedApp `json:"AuthorizedApp" xml:"AuthorizedApp" require:"true" type:"Repeated"`
+	AuthorizedApp []*DescribeAuthorizedAppsResponseAuthorizedAppsAuthorizedApp `json:"AuthorizedApp,omitempty" xml:"AuthorizedApp,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeAuthorizedAppsResponseAuthorizedApps) String() string {
@@ -8861,14 +8497,14 @@ func (s *DescribeAuthorizedAppsResponseAuthorizedApps) SetAuthorizedApp(v []*Des
 }
 
 type DescribeAuthorizedAppsResponseAuthorizedAppsAuthorizedApp struct {
-	StageName           *string `json:"StageName" xml:"StageName" require:"true"`
-	AppId               *int64  `json:"AppId" xml:"AppId" require:"true"`
-	AppName             *string `json:"AppName" xml:"AppName" require:"true"`
-	Operator            *string `json:"Operator" xml:"Operator" require:"true"`
-	AuthorizationSource *string `json:"AuthorizationSource" xml:"AuthorizationSource" require:"true"`
-	Description         *string `json:"Description" xml:"Description" require:"true"`
-	AuthorizedTime      *string `json:"AuthorizedTime" xml:"AuthorizedTime" require:"true"`
-	AuthVaildTime       *string `json:"AuthVaildTime" xml:"AuthVaildTime" require:"true"`
+	StageName           *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	AppId               *int64  `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	AppName             *string `json:"AppName,omitempty" xml:"AppName,omitempty" require:"true"`
+	Operator            *string `json:"Operator,omitempty" xml:"Operator,omitempty" require:"true"`
+	AuthorizationSource *string `json:"AuthorizationSource,omitempty" xml:"AuthorizationSource,omitempty" require:"true"`
+	Description         *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	AuthorizedTime      *string `json:"AuthorizedTime,omitempty" xml:"AuthorizedTime,omitempty" require:"true"`
+	AuthVaildTime       *string `json:"AuthVaildTime,omitempty" xml:"AuthVaildTime,omitempty" require:"true"`
 }
 
 func (s DescribeAuthorizedAppsResponseAuthorizedAppsAuthorizedApp) String() string {
@@ -8920,11 +8556,10 @@ func (s *DescribeAuthorizedAppsResponseAuthorizedAppsAuthorizedApp) SetAuthVaild
 }
 
 type DescribeAuthorizedApisRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	AppId         *int64  `json:"AppId" xml:"AppId" require:"true"`
-	PageNumber    *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize      *int    `json:"PageSize" xml:"PageSize"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	AppId         *int64  `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	PageNumber    *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize      *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s DescribeAuthorizedApisRequest) String() string {
@@ -8937,11 +8572,6 @@ func (s DescribeAuthorizedApisRequest) GoString() string {
 
 func (s *DescribeAuthorizedApisRequest) SetSecurityToken(v string) *DescribeAuthorizedApisRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeAuthorizedApisRequest) SetAccessKeyId(v string) *DescribeAuthorizedApisRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -8961,11 +8591,11 @@ func (s *DescribeAuthorizedApisRequest) SetPageSize(v int) *DescribeAuthorizedAp
 }
 
 type DescribeAuthorizedApisResponse struct {
-	RequestId      *string                                       `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount     *int                                          `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize       *int                                          `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber     *int                                          `json:"PageNumber" xml:"PageNumber" require:"true"`
-	AuthorizedApis *DescribeAuthorizedApisResponseAuthorizedApis `json:"AuthorizedApis" xml:"AuthorizedApis" require:"true" type:"Struct"`
+	RequestId      *string                                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount     *int                                          `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize       *int                                          `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber     *int                                          `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	AuthorizedApis *DescribeAuthorizedApisResponseAuthorizedApis `json:"AuthorizedApis,omitempty" xml:"AuthorizedApis,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeAuthorizedApisResponse) String() string {
@@ -9002,7 +8632,7 @@ func (s *DescribeAuthorizedApisResponse) SetAuthorizedApis(v *DescribeAuthorized
 }
 
 type DescribeAuthorizedApisResponseAuthorizedApis struct {
-	AuthorizedApi []*DescribeAuthorizedApisResponseAuthorizedApisAuthorizedApi `json:"AuthorizedApi" xml:"AuthorizedApi" require:"true" type:"Repeated"`
+	AuthorizedApi []*DescribeAuthorizedApisResponseAuthorizedApisAuthorizedApi `json:"AuthorizedApi,omitempty" xml:"AuthorizedApi,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeAuthorizedApisResponseAuthorizedApis) String() string {
@@ -9019,17 +8649,17 @@ func (s *DescribeAuthorizedApisResponseAuthorizedApis) SetAuthorizedApi(v []*Des
 }
 
 type DescribeAuthorizedApisResponseAuthorizedApisAuthorizedApi struct {
-	RegionId            *string `json:"RegionId" xml:"RegionId" require:"true"`
-	GroupId             *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName           *string `json:"GroupName" xml:"GroupName" require:"true"`
-	StageName           *string `json:"StageName" xml:"StageName" require:"true"`
-	Operator            *string `json:"Operator" xml:"Operator" require:"true"`
-	ApiId               *string `json:"ApiId" xml:"ApiId" require:"true"`
-	ApiName             *string `json:"ApiName" xml:"ApiName" require:"true"`
-	AuthorizationSource *string `json:"AuthorizationSource" xml:"AuthorizationSource" require:"true"`
-	Description         *string `json:"Description" xml:"Description" require:"true"`
-	AuthorizedTime      *string `json:"AuthorizedTime" xml:"AuthorizedTime" require:"true"`
-	AuthVaildTime       *string `json:"AuthVaildTime" xml:"AuthVaildTime" require:"true"`
+	RegionId            *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	GroupId             *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName           *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	StageName           *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	Operator            *string `json:"Operator,omitempty" xml:"Operator,omitempty" require:"true"`
+	ApiId               *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	ApiName             *string `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	AuthorizationSource *string `json:"AuthorizationSource,omitempty" xml:"AuthorizationSource,omitempty" require:"true"`
+	Description         *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	AuthorizedTime      *string `json:"AuthorizedTime,omitempty" xml:"AuthorizedTime,omitempty" require:"true"`
+	AuthVaildTime       *string `json:"AuthVaildTime,omitempty" xml:"AuthVaildTime,omitempty" require:"true"`
 }
 
 func (s DescribeAuthorizedApisResponseAuthorizedApisAuthorizedApi) String() string {
@@ -9096,10 +8726,9 @@ func (s *DescribeAuthorizedApisResponseAuthorizedApisAuthorizedApi) SetAuthVaild
 }
 
 type DescribeAppSecurityRequest struct {
-	SecurityToken *string                          `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string                          `json:"AccessKeyId" xml:"AccessKeyId"`
-	AppId         *int64                           `json:"AppId" xml:"AppId" require:"true"`
-	Tag           []*DescribeAppSecurityRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
+	SecurityToken *string                          `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	AppId         *int64                           `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	Tag           []*DescribeAppSecurityRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
 }
 
 func (s DescribeAppSecurityRequest) String() string {
@@ -9115,11 +8744,6 @@ func (s *DescribeAppSecurityRequest) SetSecurityToken(v string) *DescribeAppSecu
 	return s
 }
 
-func (s *DescribeAppSecurityRequest) SetAccessKeyId(v string) *DescribeAppSecurityRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DescribeAppSecurityRequest) SetAppId(v int64) *DescribeAppSecurityRequest {
 	s.AppId = &v
 	return s
@@ -9131,8 +8755,8 @@ func (s *DescribeAppSecurityRequest) SetTag(v []*DescribeAppSecurityRequestTag) 
 }
 
 type DescribeAppSecurityRequestTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s DescribeAppSecurityRequestTag) String() string {
@@ -9154,12 +8778,12 @@ func (s *DescribeAppSecurityRequestTag) SetValue(v string) *DescribeAppSecurityR
 }
 
 type DescribeAppSecurityResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	AppKey       *string `json:"AppKey" xml:"AppKey" require:"true"`
-	AppSecret    *string `json:"AppSecret" xml:"AppSecret" require:"true"`
-	CreatedTime  *string `json:"CreatedTime" xml:"CreatedTime" require:"true"`
-	ModifiedTime *string `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
-	AppCode      *string `json:"AppCode" xml:"AppCode" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AppKey       *string `json:"AppKey,omitempty" xml:"AppKey,omitempty" require:"true"`
+	AppSecret    *string `json:"AppSecret,omitempty" xml:"AppSecret,omitempty" require:"true"`
+	CreatedTime  *string `json:"CreatedTime,omitempty" xml:"CreatedTime,omitempty" require:"true"`
+	ModifiedTime *string `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
+	AppCode      *string `json:"AppCode,omitempty" xml:"AppCode,omitempty" require:"true"`
 }
 
 func (s DescribeAppSecurityResponse) String() string {
@@ -9201,12 +8825,11 @@ func (s *DescribeAppSecurityResponse) SetAppCode(v string) *DescribeAppSecurityR
 }
 
 type DescribeAppsRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	AppId         *int64  `json:"AppId" xml:"AppId"`
-	AppOwner      *int64  `json:"AppOwner" xml:"AppOwner"`
-	PageNumber    *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize      *int    `json:"PageSize" xml:"PageSize"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	AppId         *int64  `json:"AppId,omitempty" xml:"AppId,omitempty"`
+	AppOwner      *int64  `json:"AppOwner,omitempty" xml:"AppOwner,omitempty"`
+	PageNumber    *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize      *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s DescribeAppsRequest) String() string {
@@ -9219,11 +8842,6 @@ func (s DescribeAppsRequest) GoString() string {
 
 func (s *DescribeAppsRequest) SetSecurityToken(v string) *DescribeAppsRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeAppsRequest) SetAccessKeyId(v string) *DescribeAppsRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -9248,11 +8866,11 @@ func (s *DescribeAppsRequest) SetPageSize(v int) *DescribeAppsRequest {
 }
 
 type DescribeAppsResponse struct {
-	RequestId  *string                   `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount *int                      `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize   *int                      `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber *int                      `json:"PageNumber" xml:"PageNumber" require:"true"`
-	Apps       *DescribeAppsResponseApps `json:"Apps" xml:"Apps" require:"true" type:"Struct"`
+	RequestId  *string                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount *int                      `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize   *int                      `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber *int                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	Apps       *DescribeAppsResponseApps `json:"Apps,omitempty" xml:"Apps,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeAppsResponse) String() string {
@@ -9289,7 +8907,7 @@ func (s *DescribeAppsResponse) SetApps(v *DescribeAppsResponseApps) *DescribeApp
 }
 
 type DescribeAppsResponseApps struct {
-	AppItem []*DescribeAppsResponseAppsAppItem `json:"AppItem" xml:"AppItem" require:"true" type:"Repeated"`
+	AppItem []*DescribeAppsResponseAppsAppItem `json:"AppItem,omitempty" xml:"AppItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeAppsResponseApps) String() string {
@@ -9306,9 +8924,9 @@ func (s *DescribeAppsResponseApps) SetAppItem(v []*DescribeAppsResponseAppsAppIt
 }
 
 type DescribeAppsResponseAppsAppItem struct {
-	AppId       *int64  `json:"AppId" xml:"AppId" require:"true"`
-	AppName     *string `json:"AppName" xml:"AppName" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
+	AppId       *int64  `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	AppName     *string `json:"AppName,omitempty" xml:"AppName,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeAppsResponseAppsAppItem) String() string {
@@ -9335,14 +8953,13 @@ func (s *DescribeAppsResponseAppsAppItem) SetDescription(v string) *DescribeApps
 }
 
 type DescribeAppAttributesRequest struct {
-	SecurityToken *string                            `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string                            `json:"AccessKeyId" xml:"AccessKeyId"`
-	AppId         *int64                             `json:"AppId" xml:"AppId"`
-	AppName       *string                            `json:"AppName" xml:"AppName"`
-	PageNumber    *int                               `json:"PageNumber" xml:"PageNumber"`
-	PageSize      *int                               `json:"PageSize" xml:"PageSize"`
-	Tag           []*DescribeAppAttributesRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
-	EnableTagAuth *bool                              `json:"EnableTagAuth" xml:"EnableTagAuth"`
+	SecurityToken *string                            `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	AppId         *int64                             `json:"AppId,omitempty" xml:"AppId,omitempty"`
+	AppName       *string                            `json:"AppName,omitempty" xml:"AppName,omitempty"`
+	PageNumber    *int                               `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize      *int                               `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	Tag           []*DescribeAppAttributesRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	EnableTagAuth *bool                              `json:"EnableTagAuth,omitempty" xml:"EnableTagAuth,omitempty"`
 }
 
 func (s DescribeAppAttributesRequest) String() string {
@@ -9355,11 +8972,6 @@ func (s DescribeAppAttributesRequest) GoString() string {
 
 func (s *DescribeAppAttributesRequest) SetSecurityToken(v string) *DescribeAppAttributesRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeAppAttributesRequest) SetAccessKeyId(v string) *DescribeAppAttributesRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -9394,8 +9006,8 @@ func (s *DescribeAppAttributesRequest) SetEnableTagAuth(v bool) *DescribeAppAttr
 }
 
 type DescribeAppAttributesRequestTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s DescribeAppAttributesRequestTag) String() string {
@@ -9417,11 +9029,11 @@ func (s *DescribeAppAttributesRequestTag) SetValue(v string) *DescribeAppAttribu
 }
 
 type DescribeAppAttributesResponse struct {
-	RequestId  *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount *int                               `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize   *int                               `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber *int                               `json:"PageNumber" xml:"PageNumber" require:"true"`
-	Apps       *DescribeAppAttributesResponseApps `json:"Apps" xml:"Apps" require:"true" type:"Struct"`
+	RequestId  *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount *int                               `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize   *int                               `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber *int                               `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	Apps       *DescribeAppAttributesResponseApps `json:"Apps,omitempty" xml:"Apps,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeAppAttributesResponse) String() string {
@@ -9458,7 +9070,7 @@ func (s *DescribeAppAttributesResponse) SetApps(v *DescribeAppAttributesResponse
 }
 
 type DescribeAppAttributesResponseApps struct {
-	AppAttribute []*DescribeAppAttributesResponseAppsAppAttribute `json:"AppAttribute" xml:"AppAttribute" require:"true" type:"Repeated"`
+	AppAttribute []*DescribeAppAttributesResponseAppsAppAttribute `json:"AppAttribute,omitempty" xml:"AppAttribute,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeAppAttributesResponseApps) String() string {
@@ -9475,12 +9087,12 @@ func (s *DescribeAppAttributesResponseApps) SetAppAttribute(v []*DescribeAppAttr
 }
 
 type DescribeAppAttributesResponseAppsAppAttribute struct {
-	AppId        *int64                                             `json:"AppId" xml:"AppId" require:"true"`
-	AppName      *string                                            `json:"AppName" xml:"AppName" require:"true"`
-	Description  *string                                            `json:"Description" xml:"Description" require:"true"`
-	CreatedTime  *string                                            `json:"CreatedTime" xml:"CreatedTime" require:"true"`
-	ModifiedTime *string                                            `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
-	Tags         *DescribeAppAttributesResponseAppsAppAttributeTags `json:"Tags" xml:"Tags" require:"true" type:"Struct"`
+	AppId        *int64                                             `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	AppName      *string                                            `json:"AppName,omitempty" xml:"AppName,omitempty" require:"true"`
+	Description  *string                                            `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreatedTime  *string                                            `json:"CreatedTime,omitempty" xml:"CreatedTime,omitempty" require:"true"`
+	ModifiedTime *string                                            `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
+	Tags         *DescribeAppAttributesResponseAppsAppAttributeTags `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeAppAttributesResponseAppsAppAttribute) String() string {
@@ -9522,7 +9134,7 @@ func (s *DescribeAppAttributesResponseAppsAppAttribute) SetTags(v *DescribeAppAt
 }
 
 type DescribeAppAttributesResponseAppsAppAttributeTags struct {
-	TagInfo []*DescribeAppAttributesResponseAppsAppAttributeTagsTagInfo `json:"TagInfo" xml:"TagInfo" require:"true" type:"Repeated"`
+	TagInfo []*DescribeAppAttributesResponseAppsAppAttributeTagsTagInfo `json:"TagInfo,omitempty" xml:"TagInfo,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeAppAttributesResponseAppsAppAttributeTags) String() string {
@@ -9539,8 +9151,8 @@ func (s *DescribeAppAttributesResponseAppsAppAttributeTags) SetTagInfo(v []*Desc
 }
 
 type DescribeAppAttributesResponseAppsAppAttributeTagsTagInfo struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s DescribeAppAttributesResponseAppsAppAttributeTagsTagInfo) String() string {
@@ -9562,12 +9174,11 @@ func (s *DescribeAppAttributesResponseAppsAppAttributeTagsTagInfo) SetValue(v st
 }
 
 type DescribeApiTrafficDataRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
-	GroupId       *string `json:"GroupId" xml:"GroupId"`
-	StartTime     *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime       *string `json:"EndTime" xml:"EndTime" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	StartTime     *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime       *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
 }
 
 func (s DescribeApiTrafficDataRequest) String() string {
@@ -9580,11 +9191,6 @@ func (s DescribeApiTrafficDataRequest) GoString() string {
 
 func (s *DescribeApiTrafficDataRequest) SetSecurityToken(v string) *DescribeApiTrafficDataRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeApiTrafficDataRequest) SetAccessKeyId(v string) *DescribeApiTrafficDataRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -9609,9 +9215,9 @@ func (s *DescribeApiTrafficDataRequest) SetEndTime(v string) *DescribeApiTraffic
 }
 
 type DescribeApiTrafficDataResponse struct {
-	RequestId     *string                                      `json:"RequestId" xml:"RequestId" require:"true"`
-	CallUploads   *DescribeApiTrafficDataResponseCallUploads   `json:"CallUploads" xml:"CallUploads" require:"true" type:"Struct"`
-	CallDownloads *DescribeApiTrafficDataResponseCallDownloads `json:"CallDownloads" xml:"CallDownloads" require:"true" type:"Struct"`
+	RequestId     *string                                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	CallUploads   *DescribeApiTrafficDataResponseCallUploads   `json:"CallUploads,omitempty" xml:"CallUploads,omitempty" require:"true" type:"Struct"`
+	CallDownloads *DescribeApiTrafficDataResponseCallDownloads `json:"CallDownloads,omitempty" xml:"CallDownloads,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiTrafficDataResponse) String() string {
@@ -9638,7 +9244,7 @@ func (s *DescribeApiTrafficDataResponse) SetCallDownloads(v *DescribeApiTrafficD
 }
 
 type DescribeApiTrafficDataResponseCallUploads struct {
-	MonitorItem []*DescribeApiTrafficDataResponseCallUploadsMonitorItem `json:"MonitorItem" xml:"MonitorItem" require:"true" type:"Repeated"`
+	MonitorItem []*DescribeApiTrafficDataResponseCallUploadsMonitorItem `json:"MonitorItem,omitempty" xml:"MonitorItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiTrafficDataResponseCallUploads) String() string {
@@ -9655,8 +9261,8 @@ func (s *DescribeApiTrafficDataResponseCallUploads) SetMonitorItem(v []*Describe
 }
 
 type DescribeApiTrafficDataResponseCallUploadsMonitorItem struct {
-	ItemTime  *string `json:"ItemTime" xml:"ItemTime" require:"true"`
-	ItemValue *string `json:"ItemValue" xml:"ItemValue" require:"true"`
+	ItemTime  *string `json:"ItemTime,omitempty" xml:"ItemTime,omitempty" require:"true"`
+	ItemValue *string `json:"ItemValue,omitempty" xml:"ItemValue,omitempty" require:"true"`
 }
 
 func (s DescribeApiTrafficDataResponseCallUploadsMonitorItem) String() string {
@@ -9678,7 +9284,7 @@ func (s *DescribeApiTrafficDataResponseCallUploadsMonitorItem) SetItemValue(v st
 }
 
 type DescribeApiTrafficDataResponseCallDownloads struct {
-	MonitorItem []*DescribeApiTrafficDataResponseCallDownloadsMonitorItem `json:"MonitorItem" xml:"MonitorItem" require:"true" type:"Repeated"`
+	MonitorItem []*DescribeApiTrafficDataResponseCallDownloadsMonitorItem `json:"MonitorItem,omitempty" xml:"MonitorItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiTrafficDataResponseCallDownloads) String() string {
@@ -9695,8 +9301,8 @@ func (s *DescribeApiTrafficDataResponseCallDownloads) SetMonitorItem(v []*Descri
 }
 
 type DescribeApiTrafficDataResponseCallDownloadsMonitorItem struct {
-	ItemTime  *string `json:"ItemTime" xml:"ItemTime" require:"true"`
-	ItemValue *string `json:"ItemValue" xml:"ItemValue" require:"true"`
+	ItemTime  *string `json:"ItemTime,omitempty" xml:"ItemTime,omitempty" require:"true"`
+	ItemValue *string `json:"ItemValue,omitempty" xml:"ItemValue,omitempty" require:"true"`
 }
 
 func (s DescribeApiTrafficDataResponseCallDownloadsMonitorItem) String() string {
@@ -9718,13 +9324,12 @@ func (s *DescribeApiTrafficDataResponseCallDownloadsMonitorItem) SetItemValue(v 
 }
 
 type DescribeApiTrafficControlsRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	StageName     *string `json:"StageName" xml:"StageName" require:"true"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	ApiIds        *string `json:"ApiIds" xml:"ApiIds"`
-	PageNumber    *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize      *int    `json:"PageSize" xml:"PageSize"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	ApiIds        *string `json:"ApiIds,omitempty" xml:"ApiIds,omitempty"`
+	PageNumber    *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize      *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s DescribeApiTrafficControlsRequest) String() string {
@@ -9737,11 +9342,6 @@ func (s DescribeApiTrafficControlsRequest) GoString() string {
 
 func (s *DescribeApiTrafficControlsRequest) SetSecurityToken(v string) *DescribeApiTrafficControlsRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeApiTrafficControlsRequest) SetAccessKeyId(v string) *DescribeApiTrafficControlsRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -9771,11 +9371,11 @@ func (s *DescribeApiTrafficControlsRequest) SetPageSize(v int) *DescribeApiTraff
 }
 
 type DescribeApiTrafficControlsResponse struct {
-	RequestId          *string                                               `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount         *int                                                  `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize           *int                                                  `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber         *int                                                  `json:"PageNumber" xml:"PageNumber" require:"true"`
-	ApiTrafficControls *DescribeApiTrafficControlsResponseApiTrafficControls `json:"ApiTrafficControls" xml:"ApiTrafficControls" require:"true" type:"Struct"`
+	RequestId          *string                                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount         *int                                                  `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize           *int                                                  `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber         *int                                                  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	ApiTrafficControls *DescribeApiTrafficControlsResponseApiTrafficControls `json:"ApiTrafficControls,omitempty" xml:"ApiTrafficControls,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiTrafficControlsResponse) String() string {
@@ -9812,7 +9412,7 @@ func (s *DescribeApiTrafficControlsResponse) SetApiTrafficControls(v *DescribeAp
 }
 
 type DescribeApiTrafficControlsResponseApiTrafficControls struct {
-	ApiTrafficControlItem []*DescribeApiTrafficControlsResponseApiTrafficControlsApiTrafficControlItem `json:"ApiTrafficControlItem" xml:"ApiTrafficControlItem" require:"true" type:"Repeated"`
+	ApiTrafficControlItem []*DescribeApiTrafficControlsResponseApiTrafficControlsApiTrafficControlItem `json:"ApiTrafficControlItem,omitempty" xml:"ApiTrafficControlItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiTrafficControlsResponseApiTrafficControls) String() string {
@@ -9829,11 +9429,11 @@ func (s *DescribeApiTrafficControlsResponseApiTrafficControls) SetApiTrafficCont
 }
 
 type DescribeApiTrafficControlsResponseApiTrafficControlsApiTrafficControlItem struct {
-	ApiId              *string `json:"ApiId" xml:"ApiId" require:"true"`
-	ApiName            *string `json:"ApiName" xml:"ApiName" require:"true"`
-	TrafficControlId   *string `json:"TrafficControlId" xml:"TrafficControlId" require:"true"`
-	TrafficControlName *string `json:"TrafficControlName" xml:"TrafficControlName" require:"true"`
-	BoundTime          *string `json:"BoundTime" xml:"BoundTime" require:"true"`
+	ApiId              *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	ApiName            *string `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	TrafficControlId   *string `json:"TrafficControlId,omitempty" xml:"TrafficControlId,omitempty" require:"true"`
+	TrafficControlName *string `json:"TrafficControlName,omitempty" xml:"TrafficControlName,omitempty" require:"true"`
+	BoundTime          *string `json:"BoundTime,omitempty" xml:"BoundTime,omitempty" require:"true"`
 }
 
 func (s DescribeApiTrafficControlsResponseApiTrafficControlsApiTrafficControlItem) String() string {
@@ -9870,13 +9470,12 @@ func (s *DescribeApiTrafficControlsResponseApiTrafficControlsApiTrafficControlIt
 }
 
 type DescribeApiSignaturesRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	StageName     *string `json:"StageName" xml:"StageName" require:"true"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	ApiIds        *string `json:"ApiIds" xml:"ApiIds"`
-	PageNumber    *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize      *int    `json:"PageSize" xml:"PageSize"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	ApiIds        *string `json:"ApiIds,omitempty" xml:"ApiIds,omitempty"`
+	PageNumber    *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize      *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s DescribeApiSignaturesRequest) String() string {
@@ -9889,11 +9488,6 @@ func (s DescribeApiSignaturesRequest) GoString() string {
 
 func (s *DescribeApiSignaturesRequest) SetSecurityToken(v string) *DescribeApiSignaturesRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeApiSignaturesRequest) SetAccessKeyId(v string) *DescribeApiSignaturesRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -9923,11 +9517,11 @@ func (s *DescribeApiSignaturesRequest) SetPageSize(v int) *DescribeApiSignatures
 }
 
 type DescribeApiSignaturesResponse struct {
-	RequestId     *string                                     `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount    *int                                        `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize      *int                                        `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber    *int                                        `json:"PageNumber" xml:"PageNumber" require:"true"`
-	ApiSignatures *DescribeApiSignaturesResponseApiSignatures `json:"ApiSignatures" xml:"ApiSignatures" require:"true" type:"Struct"`
+	RequestId     *string                                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount    *int                                        `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize      *int                                        `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber    *int                                        `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	ApiSignatures *DescribeApiSignaturesResponseApiSignatures `json:"ApiSignatures,omitempty" xml:"ApiSignatures,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiSignaturesResponse) String() string {
@@ -9964,7 +9558,7 @@ func (s *DescribeApiSignaturesResponse) SetApiSignatures(v *DescribeApiSignature
 }
 
 type DescribeApiSignaturesResponseApiSignatures struct {
-	ApiSignatureItem []*DescribeApiSignaturesResponseApiSignaturesApiSignatureItem `json:"ApiSignatureItem" xml:"ApiSignatureItem" require:"true" type:"Repeated"`
+	ApiSignatureItem []*DescribeApiSignaturesResponseApiSignaturesApiSignatureItem `json:"ApiSignatureItem,omitempty" xml:"ApiSignatureItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiSignaturesResponseApiSignatures) String() string {
@@ -9981,11 +9575,11 @@ func (s *DescribeApiSignaturesResponseApiSignatures) SetApiSignatureItem(v []*De
 }
 
 type DescribeApiSignaturesResponseApiSignaturesApiSignatureItem struct {
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
-	ApiName       *string `json:"ApiName" xml:"ApiName" require:"true"`
-	SignatureId   *string `json:"SignatureId" xml:"SignatureId" require:"true"`
-	SignatureName *string `json:"SignatureName" xml:"SignatureName" require:"true"`
-	BoundTime     *string `json:"BoundTime" xml:"BoundTime" require:"true"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	ApiName       *string `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	SignatureId   *string `json:"SignatureId,omitempty" xml:"SignatureId,omitempty" require:"true"`
+	SignatureName *string `json:"SignatureName,omitempty" xml:"SignatureName,omitempty" require:"true"`
+	BoundTime     *string `json:"BoundTime,omitempty" xml:"BoundTime,omitempty" require:"true"`
 }
 
 func (s DescribeApiSignaturesResponseApiSignaturesApiSignatureItem) String() string {
@@ -10022,11 +9616,10 @@ func (s *DescribeApiSignaturesResponseApiSignaturesApiSignatureItem) SetBoundTim
 }
 
 type DescribeApisByTrafficControlRequest struct {
-	SecurityToken    *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId      *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	TrafficControlId *string `json:"TrafficControlId" xml:"TrafficControlId" require:"true"`
-	PageSize         *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber       *int    `json:"PageNumber" xml:"PageNumber"`
+	SecurityToken    *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	TrafficControlId *string `json:"TrafficControlId,omitempty" xml:"TrafficControlId,omitempty" require:"true"`
+	PageSize         *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber       *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeApisByTrafficControlRequest) String() string {
@@ -10039,11 +9632,6 @@ func (s DescribeApisByTrafficControlRequest) GoString() string {
 
 func (s *DescribeApisByTrafficControlRequest) SetSecurityToken(v string) *DescribeApisByTrafficControlRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeApisByTrafficControlRequest) SetAccessKeyId(v string) *DescribeApisByTrafficControlRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -10063,11 +9651,11 @@ func (s *DescribeApisByTrafficControlRequest) SetPageNumber(v int) *DescribeApis
 }
 
 type DescribeApisByTrafficControlResponse struct {
-	RequestId  *string                                       `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount *int                                          `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize   *int                                          `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber *int                                          `json:"PageNumber" xml:"PageNumber" require:"true"`
-	ApiInfos   *DescribeApisByTrafficControlResponseApiInfos `json:"ApiInfos" xml:"ApiInfos" require:"true" type:"Struct"`
+	RequestId  *string                                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount *int                                          `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize   *int                                          `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber *int                                          `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	ApiInfos   *DescribeApisByTrafficControlResponseApiInfos `json:"ApiInfos,omitempty" xml:"ApiInfos,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApisByTrafficControlResponse) String() string {
@@ -10104,7 +9692,7 @@ func (s *DescribeApisByTrafficControlResponse) SetApiInfos(v *DescribeApisByTraf
 }
 
 type DescribeApisByTrafficControlResponseApiInfos struct {
-	ApiInfo []*DescribeApisByTrafficControlResponseApiInfosApiInfo `json:"ApiInfo" xml:"ApiInfo" require:"true" type:"Repeated"`
+	ApiInfo []*DescribeApisByTrafficControlResponseApiInfosApiInfo `json:"ApiInfo,omitempty" xml:"ApiInfo,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApisByTrafficControlResponseApiInfos) String() string {
@@ -10121,15 +9709,15 @@ func (s *DescribeApisByTrafficControlResponseApiInfos) SetApiInfo(v []*DescribeA
 }
 
 type DescribeApisByTrafficControlResponseApiInfosApiInfo struct {
-	RegionId    *string `json:"RegionId" xml:"RegionId" require:"true"`
-	GroupId     *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName   *string `json:"GroupName" xml:"GroupName" require:"true"`
-	StageName   *string `json:"StageName" xml:"StageName" require:"true"`
-	ApiId       *string `json:"ApiId" xml:"ApiId" require:"true"`
-	ApiName     *string `json:"ApiName" xml:"ApiName" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
-	Visibility  *string `json:"Visibility" xml:"Visibility" require:"true"`
-	BoundTime   *string `json:"BoundTime" xml:"BoundTime" require:"true"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	GroupId     *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName   *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	StageName   *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	ApiId       *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	ApiName     *string `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	Visibility  *string `json:"Visibility,omitempty" xml:"Visibility,omitempty" require:"true"`
+	BoundTime   *string `json:"BoundTime,omitempty" xml:"BoundTime,omitempty" require:"true"`
 }
 
 func (s DescribeApisByTrafficControlResponseApiInfosApiInfo) String() string {
@@ -10186,11 +9774,10 @@ func (s *DescribeApisByTrafficControlResponseApiInfosApiInfo) SetBoundTime(v str
 }
 
 type DescribeApisBySignatureRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	SignatureId   *string `json:"SignatureId" xml:"SignatureId" require:"true"`
-	PageSize      *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber    *int    `json:"PageNumber" xml:"PageNumber"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	SignatureId   *string `json:"SignatureId,omitempty" xml:"SignatureId,omitempty" require:"true"`
+	PageSize      *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber    *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeApisBySignatureRequest) String() string {
@@ -10203,11 +9790,6 @@ func (s DescribeApisBySignatureRequest) GoString() string {
 
 func (s *DescribeApisBySignatureRequest) SetSecurityToken(v string) *DescribeApisBySignatureRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeApisBySignatureRequest) SetAccessKeyId(v string) *DescribeApisBySignatureRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -10227,11 +9809,11 @@ func (s *DescribeApisBySignatureRequest) SetPageNumber(v int) *DescribeApisBySig
 }
 
 type DescribeApisBySignatureResponse struct {
-	RequestId  *string                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount *int                                     `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize   *int                                     `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber *int                                     `json:"PageNumber" xml:"PageNumber" require:"true"`
-	ApiInfos   *DescribeApisBySignatureResponseApiInfos `json:"ApiInfos" xml:"ApiInfos" require:"true" type:"Struct"`
+	RequestId  *string                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount *int                                     `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize   *int                                     `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber *int                                     `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	ApiInfos   *DescribeApisBySignatureResponseApiInfos `json:"ApiInfos,omitempty" xml:"ApiInfos,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApisBySignatureResponse) String() string {
@@ -10268,7 +9850,7 @@ func (s *DescribeApisBySignatureResponse) SetApiInfos(v *DescribeApisBySignature
 }
 
 type DescribeApisBySignatureResponseApiInfos struct {
-	ApiInfo []*DescribeApisBySignatureResponseApiInfosApiInfo `json:"ApiInfo" xml:"ApiInfo" require:"true" type:"Repeated"`
+	ApiInfo []*DescribeApisBySignatureResponseApiInfosApiInfo `json:"ApiInfo,omitempty" xml:"ApiInfo,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApisBySignatureResponseApiInfos) String() string {
@@ -10285,15 +9867,15 @@ func (s *DescribeApisBySignatureResponseApiInfos) SetApiInfo(v []*DescribeApisBy
 }
 
 type DescribeApisBySignatureResponseApiInfosApiInfo struct {
-	RegionId    *string `json:"RegionId" xml:"RegionId" require:"true"`
-	GroupId     *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName   *string `json:"GroupName" xml:"GroupName" require:"true"`
-	StageName   *string `json:"StageName" xml:"StageName" require:"true"`
-	ApiId       *string `json:"ApiId" xml:"ApiId" require:"true"`
-	ApiName     *string `json:"ApiName" xml:"ApiName" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
-	Visibility  *string `json:"Visibility" xml:"Visibility" require:"true"`
-	BoundTime   *string `json:"BoundTime" xml:"BoundTime" require:"true"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	GroupId     *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName   *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	StageName   *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	ApiId       *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	ApiName     *string `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	Visibility  *string `json:"Visibility,omitempty" xml:"Visibility,omitempty" require:"true"`
+	BoundTime   *string `json:"BoundTime,omitempty" xml:"BoundTime,omitempty" require:"true"`
 }
 
 func (s DescribeApisBySignatureResponseApiInfosApiInfo) String() string {
@@ -10350,17 +9932,16 @@ func (s *DescribeApisBySignatureResponseApiInfosApiInfo) SetBoundTime(v string) 
 }
 
 type DescribeApisRequest struct {
-	SecurityToken *string                   `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string                   `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string                   `json:"GroupId" xml:"GroupId"`
-	ApiId         *string                   `json:"ApiId" xml:"ApiId"`
-	ApiName       *string                   `json:"ApiName" xml:"ApiName"`
-	CatalogId     *string                   `json:"CatalogId" xml:"CatalogId"`
-	Visibility    *string                   `json:"Visibility" xml:"Visibility"`
-	PageSize      *int                      `json:"PageSize" xml:"PageSize"`
-	PageNumber    *int                      `json:"PageNumber" xml:"PageNumber"`
-	EnableTagAuth *bool                     `json:"EnableTagAuth" xml:"EnableTagAuth"`
-	Tag           []*DescribeApisRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
+	SecurityToken *string                   `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string                   `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	ApiId         *string                   `json:"ApiId,omitempty" xml:"ApiId,omitempty"`
+	ApiName       *string                   `json:"ApiName,omitempty" xml:"ApiName,omitempty"`
+	CatalogId     *string                   `json:"CatalogId,omitempty" xml:"CatalogId,omitempty"`
+	Visibility    *string                   `json:"Visibility,omitempty" xml:"Visibility,omitempty"`
+	PageSize      *int                      `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber    *int                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	EnableTagAuth *bool                     `json:"EnableTagAuth,omitempty" xml:"EnableTagAuth,omitempty"`
+	Tag           []*DescribeApisRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
 }
 
 func (s DescribeApisRequest) String() string {
@@ -10373,11 +9954,6 @@ func (s DescribeApisRequest) GoString() string {
 
 func (s *DescribeApisRequest) SetSecurityToken(v string) *DescribeApisRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeApisRequest) SetAccessKeyId(v string) *DescribeApisRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -10427,8 +10003,8 @@ func (s *DescribeApisRequest) SetTag(v []*DescribeApisRequestTag) *DescribeApisR
 }
 
 type DescribeApisRequestTag struct {
-	Key   *string `json:"Key" xml:"Key"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s DescribeApisRequestTag) String() string {
@@ -10450,11 +10026,11 @@ func (s *DescribeApisRequestTag) SetValue(v string) *DescribeApisRequestTag {
 }
 
 type DescribeApisResponse struct {
-	RequestId   *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount  *int                             `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize    *int                             `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber  *int                             `json:"PageNumber" xml:"PageNumber" require:"true"`
-	ApiSummarys *DescribeApisResponseApiSummarys `json:"ApiSummarys" xml:"ApiSummarys" require:"true" type:"Struct"`
+	RequestId   *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount  *int                             `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize    *int                             `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber  *int                             `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	ApiSummarys *DescribeApisResponseApiSummarys `json:"ApiSummarys,omitempty" xml:"ApiSummarys,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApisResponse) String() string {
@@ -10491,7 +10067,7 @@ func (s *DescribeApisResponse) SetApiSummarys(v *DescribeApisResponseApiSummarys
 }
 
 type DescribeApisResponseApiSummarys struct {
-	ApiSummary []*DescribeApisResponseApiSummarysApiSummary `json:"ApiSummary" xml:"ApiSummary" require:"true" type:"Repeated"`
+	ApiSummary []*DescribeApisResponseApiSummarysApiSummary `json:"ApiSummary,omitempty" xml:"ApiSummary,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApisResponseApiSummarys) String() string {
@@ -10508,15 +10084,15 @@ func (s *DescribeApisResponseApiSummarys) SetApiSummary(v []*DescribeApisRespons
 }
 
 type DescribeApisResponseApiSummarysApiSummary struct {
-	RegionId     *string `json:"RegionId" xml:"RegionId" require:"true"`
-	GroupId      *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName    *string `json:"GroupName" xml:"GroupName" require:"true"`
-	ApiId        *string `json:"ApiId" xml:"ApiId" require:"true"`
-	ApiName      *string `json:"ApiName" xml:"ApiName" require:"true"`
-	Visibility   *string `json:"Visibility" xml:"Visibility" require:"true"`
-	Description  *string `json:"Description" xml:"Description" require:"true"`
-	CreatedTime  *string `json:"CreatedTime" xml:"CreatedTime" require:"true"`
-	ModifiedTime *string `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
+	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	GroupId      *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName    *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	ApiId        *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	ApiName      *string `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	Visibility   *string `json:"Visibility,omitempty" xml:"Visibility,omitempty" require:"true"`
+	Description  *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreatedTime  *string `json:"CreatedTime,omitempty" xml:"CreatedTime,omitempty" require:"true"`
+	ModifiedTime *string `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
 }
 
 func (s DescribeApisResponseApiSummarysApiSummary) String() string {
@@ -10573,12 +10149,11 @@ func (s *DescribeApisResponseApiSummarysApiSummary) SetModifiedTime(v string) *D
 }
 
 type DescribeApiQpsDataRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
-	GroupId       *string `json:"GroupId" xml:"GroupId"`
-	StartTime     *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime       *string `json:"EndTime" xml:"EndTime" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	StartTime     *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime       *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
 }
 
 func (s DescribeApiQpsDataRequest) String() string {
@@ -10591,11 +10166,6 @@ func (s DescribeApiQpsDataRequest) GoString() string {
 
 func (s *DescribeApiQpsDataRequest) SetSecurityToken(v string) *DescribeApiQpsDataRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeApiQpsDataRequest) SetAccessKeyId(v string) *DescribeApiQpsDataRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -10620,9 +10190,9 @@ func (s *DescribeApiQpsDataRequest) SetEndTime(v string) *DescribeApiQpsDataRequ
 }
 
 type DescribeApiQpsDataResponse struct {
-	RequestId     *string                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	CallSuccesses *DescribeApiQpsDataResponseCallSuccesses `json:"CallSuccesses" xml:"CallSuccesses" require:"true" type:"Struct"`
-	CallFails     *DescribeApiQpsDataResponseCallFails     `json:"CallFails" xml:"CallFails" require:"true" type:"Struct"`
+	RequestId     *string                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	CallSuccesses *DescribeApiQpsDataResponseCallSuccesses `json:"CallSuccesses,omitempty" xml:"CallSuccesses,omitempty" require:"true" type:"Struct"`
+	CallFails     *DescribeApiQpsDataResponseCallFails     `json:"CallFails,omitempty" xml:"CallFails,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiQpsDataResponse) String() string {
@@ -10649,7 +10219,7 @@ func (s *DescribeApiQpsDataResponse) SetCallFails(v *DescribeApiQpsDataResponseC
 }
 
 type DescribeApiQpsDataResponseCallSuccesses struct {
-	MonitorItem []*DescribeApiQpsDataResponseCallSuccessesMonitorItem `json:"MonitorItem" xml:"MonitorItem" require:"true" type:"Repeated"`
+	MonitorItem []*DescribeApiQpsDataResponseCallSuccessesMonitorItem `json:"MonitorItem,omitempty" xml:"MonitorItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiQpsDataResponseCallSuccesses) String() string {
@@ -10666,8 +10236,8 @@ func (s *DescribeApiQpsDataResponseCallSuccesses) SetMonitorItem(v []*DescribeAp
 }
 
 type DescribeApiQpsDataResponseCallSuccessesMonitorItem struct {
-	ItemTime  *string `json:"ItemTime" xml:"ItemTime" require:"true"`
-	ItemValue *string `json:"ItemValue" xml:"ItemValue" require:"true"`
+	ItemTime  *string `json:"ItemTime,omitempty" xml:"ItemTime,omitempty" require:"true"`
+	ItemValue *string `json:"ItemValue,omitempty" xml:"ItemValue,omitempty" require:"true"`
 }
 
 func (s DescribeApiQpsDataResponseCallSuccessesMonitorItem) String() string {
@@ -10689,7 +10259,7 @@ func (s *DescribeApiQpsDataResponseCallSuccessesMonitorItem) SetItemValue(v stri
 }
 
 type DescribeApiQpsDataResponseCallFails struct {
-	MonitorItem []*DescribeApiQpsDataResponseCallFailsMonitorItem `json:"MonitorItem" xml:"MonitorItem" require:"true" type:"Repeated"`
+	MonitorItem []*DescribeApiQpsDataResponseCallFailsMonitorItem `json:"MonitorItem,omitempty" xml:"MonitorItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiQpsDataResponseCallFails) String() string {
@@ -10706,8 +10276,8 @@ func (s *DescribeApiQpsDataResponseCallFails) SetMonitorItem(v []*DescribeApiQps
 }
 
 type DescribeApiQpsDataResponseCallFailsMonitorItem struct {
-	ItemTime  *string `json:"ItemTime" xml:"ItemTime" require:"true"`
-	ItemValue *string `json:"ItemValue" xml:"ItemValue" require:"true"`
+	ItemTime  *string `json:"ItemTime,omitempty" xml:"ItemTime,omitempty" require:"true"`
+	ItemValue *string `json:"ItemValue,omitempty" xml:"ItemValue,omitempty" require:"true"`
 }
 
 func (s DescribeApiQpsDataResponseCallFailsMonitorItem) String() string {
@@ -10729,12 +10299,11 @@ func (s *DescribeApiQpsDataResponseCallFailsMonitorItem) SetItemValue(v string) 
 }
 
 type DescribeApiLatencyDataRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
-	GroupId       *string `json:"GroupId" xml:"GroupId"`
-	StartTime     *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime       *string `json:"EndTime" xml:"EndTime" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	StartTime     *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime       *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
 }
 
 func (s DescribeApiLatencyDataRequest) String() string {
@@ -10747,11 +10316,6 @@ func (s DescribeApiLatencyDataRequest) GoString() string {
 
 func (s *DescribeApiLatencyDataRequest) SetSecurityToken(v string) *DescribeApiLatencyDataRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeApiLatencyDataRequest) SetAccessKeyId(v string) *DescribeApiLatencyDataRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -10776,8 +10340,8 @@ func (s *DescribeApiLatencyDataRequest) SetEndTime(v string) *DescribeApiLatency
 }
 
 type DescribeApiLatencyDataResponse struct {
-	RequestId    *string                                     `json:"RequestId" xml:"RequestId" require:"true"`
-	CallLatencys *DescribeApiLatencyDataResponseCallLatencys `json:"CallLatencys" xml:"CallLatencys" require:"true" type:"Struct"`
+	RequestId    *string                                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	CallLatencys *DescribeApiLatencyDataResponseCallLatencys `json:"CallLatencys,omitempty" xml:"CallLatencys,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiLatencyDataResponse) String() string {
@@ -10799,7 +10363,7 @@ func (s *DescribeApiLatencyDataResponse) SetCallLatencys(v *DescribeApiLatencyDa
 }
 
 type DescribeApiLatencyDataResponseCallLatencys struct {
-	MonitorItem []*DescribeApiLatencyDataResponseCallLatencysMonitorItem `json:"MonitorItem" xml:"MonitorItem" require:"true" type:"Repeated"`
+	MonitorItem []*DescribeApiLatencyDataResponseCallLatencysMonitorItem `json:"MonitorItem,omitempty" xml:"MonitorItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiLatencyDataResponseCallLatencys) String() string {
@@ -10816,8 +10380,8 @@ func (s *DescribeApiLatencyDataResponseCallLatencys) SetMonitorItem(v []*Describ
 }
 
 type DescribeApiLatencyDataResponseCallLatencysMonitorItem struct {
-	ItemTime  *string `json:"ItemTime" xml:"ItemTime" require:"true"`
-	ItemValue *string `json:"ItemValue" xml:"ItemValue" require:"true"`
+	ItemTime  *string `json:"ItemTime,omitempty" xml:"ItemTime,omitempty" require:"true"`
+	ItemValue *string `json:"ItemValue,omitempty" xml:"ItemValue,omitempty" require:"true"`
 }
 
 func (s DescribeApiLatencyDataResponseCallLatencysMonitorItem) String() string {
@@ -10839,12 +10403,11 @@ func (s *DescribeApiLatencyDataResponseCallLatencysMonitorItem) SetItemValue(v s
 }
 
 type DescribeApiHistoryRequest struct {
-	SecurityToken  *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId    *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId        *string `json:"GroupId" xml:"GroupId"`
-	ApiId          *string `json:"ApiId" xml:"ApiId" require:"true"`
-	StageName      *string `json:"StageName" xml:"StageName" require:"true"`
-	HistoryVersion *string `json:"HistoryVersion" xml:"HistoryVersion" require:"true"`
+	SecurityToken  *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId        *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	ApiId          *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	StageName      *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	HistoryVersion *string `json:"HistoryVersion,omitempty" xml:"HistoryVersion,omitempty" require:"true"`
 }
 
 func (s DescribeApiHistoryRequest) String() string {
@@ -10857,11 +10420,6 @@ func (s DescribeApiHistoryRequest) GoString() string {
 
 func (s *DescribeApiHistoryRequest) SetSecurityToken(v string) *DescribeApiHistoryRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeApiHistoryRequest) SetAccessKeyId(v string) *DescribeApiHistoryRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -10886,37 +10444,37 @@ func (s *DescribeApiHistoryRequest) SetHistoryVersion(v string) *DescribeApiHist
 }
 
 type DescribeApiHistoryResponse struct {
-	RequestId              *string                                           `json:"RequestId" xml:"RequestId" require:"true"`
-	RegionId               *string                                           `json:"RegionId" xml:"RegionId" require:"true"`
-	GroupId                *string                                           `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName              *string                                           `json:"GroupName" xml:"GroupName" require:"true"`
-	StageName              *string                                           `json:"StageName" xml:"StageName" require:"true"`
-	ApiId                  *string                                           `json:"ApiId" xml:"ApiId" require:"true"`
-	ApiName                *string                                           `json:"ApiName" xml:"ApiName" require:"true"`
-	Description            *string                                           `json:"Description" xml:"Description" require:"true"`
-	HistoryVersion         *string                                           `json:"HistoryVersion" xml:"HistoryVersion" require:"true"`
-	Status                 *string                                           `json:"Status" xml:"Status" require:"true"`
-	Visibility             *string                                           `json:"Visibility" xml:"Visibility" require:"true"`
-	AuthType               *string                                           `json:"AuthType" xml:"AuthType" require:"true"`
-	ResultType             *string                                           `json:"ResultType" xml:"ResultType" require:"true"`
-	ResultSample           *string                                           `json:"ResultSample" xml:"ResultSample" require:"true"`
-	FailResultSample       *string                                           `json:"FailResultSample" xml:"FailResultSample" require:"true"`
-	DeployedTime           *string                                           `json:"DeployedTime" xml:"DeployedTime" require:"true"`
-	AllowSignatureMethod   *string                                           `json:"AllowSignatureMethod" xml:"AllowSignatureMethod" require:"true"`
-	ResultBodyModel        *string                                           `json:"ResultBodyModel" xml:"ResultBodyModel" require:"true"`
-	ForceNonceCheck        *bool                                             `json:"ForceNonceCheck" xml:"ForceNonceCheck" require:"true"`
-	DisableInternet        *bool                                             `json:"DisableInternet" xml:"DisableInternet" require:"true"`
-	ErrorCodeSamples       *DescribeApiHistoryResponseErrorCodeSamples       `json:"ErrorCodeSamples" xml:"ErrorCodeSamples" require:"true" type:"Struct"`
-	ResultDescriptions     *DescribeApiHistoryResponseResultDescriptions     `json:"ResultDescriptions" xml:"ResultDescriptions" require:"true" type:"Struct"`
-	SystemParameters       *DescribeApiHistoryResponseSystemParameters       `json:"SystemParameters" xml:"SystemParameters" require:"true" type:"Struct"`
-	CustomSystemParameters *DescribeApiHistoryResponseCustomSystemParameters `json:"CustomSystemParameters" xml:"CustomSystemParameters" require:"true" type:"Struct"`
-	ConstantParameters     *DescribeApiHistoryResponseConstantParameters     `json:"ConstantParameters" xml:"ConstantParameters" require:"true" type:"Struct"`
-	RequestParameters      *DescribeApiHistoryResponseRequestParameters      `json:"RequestParameters" xml:"RequestParameters" require:"true" type:"Struct"`
-	ServiceParameters      *DescribeApiHistoryResponseServiceParameters      `json:"ServiceParameters" xml:"ServiceParameters" require:"true" type:"Struct"`
-	ServiceParametersMap   *DescribeApiHistoryResponseServiceParametersMap   `json:"ServiceParametersMap" xml:"ServiceParametersMap" require:"true" type:"Struct"`
-	RequestConfig          *DescribeApiHistoryResponseRequestConfig          `json:"RequestConfig" xml:"RequestConfig" require:"true" type:"Struct"`
-	ServiceConfig          *DescribeApiHistoryResponseServiceConfig          `json:"ServiceConfig" xml:"ServiceConfig" require:"true" type:"Struct"`
-	OpenIdConnectConfig    *DescribeApiHistoryResponseOpenIdConnectConfig    `json:"OpenIdConnectConfig" xml:"OpenIdConnectConfig" require:"true" type:"Struct"`
+	RequestId              *string                                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RegionId               *string                                           `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	GroupId                *string                                           `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName              *string                                           `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	StageName              *string                                           `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	ApiId                  *string                                           `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	ApiName                *string                                           `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	Description            *string                                           `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	HistoryVersion         *string                                           `json:"HistoryVersion,omitempty" xml:"HistoryVersion,omitempty" require:"true"`
+	Status                 *string                                           `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Visibility             *string                                           `json:"Visibility,omitempty" xml:"Visibility,omitempty" require:"true"`
+	AuthType               *string                                           `json:"AuthType,omitempty" xml:"AuthType,omitempty" require:"true"`
+	ResultType             *string                                           `json:"ResultType,omitempty" xml:"ResultType,omitempty" require:"true"`
+	ResultSample           *string                                           `json:"ResultSample,omitempty" xml:"ResultSample,omitempty" require:"true"`
+	FailResultSample       *string                                           `json:"FailResultSample,omitempty" xml:"FailResultSample,omitempty" require:"true"`
+	DeployedTime           *string                                           `json:"DeployedTime,omitempty" xml:"DeployedTime,omitempty" require:"true"`
+	AllowSignatureMethod   *string                                           `json:"AllowSignatureMethod,omitempty" xml:"AllowSignatureMethod,omitempty" require:"true"`
+	ResultBodyModel        *string                                           `json:"ResultBodyModel,omitempty" xml:"ResultBodyModel,omitempty" require:"true"`
+	ForceNonceCheck        *bool                                             `json:"ForceNonceCheck,omitempty" xml:"ForceNonceCheck,omitempty" require:"true"`
+	DisableInternet        *bool                                             `json:"DisableInternet,omitempty" xml:"DisableInternet,omitempty" require:"true"`
+	ErrorCodeSamples       *DescribeApiHistoryResponseErrorCodeSamples       `json:"ErrorCodeSamples,omitempty" xml:"ErrorCodeSamples,omitempty" require:"true" type:"Struct"`
+	ResultDescriptions     *DescribeApiHistoryResponseResultDescriptions     `json:"ResultDescriptions,omitempty" xml:"ResultDescriptions,omitempty" require:"true" type:"Struct"`
+	SystemParameters       *DescribeApiHistoryResponseSystemParameters       `json:"SystemParameters,omitempty" xml:"SystemParameters,omitempty" require:"true" type:"Struct"`
+	CustomSystemParameters *DescribeApiHistoryResponseCustomSystemParameters `json:"CustomSystemParameters,omitempty" xml:"CustomSystemParameters,omitempty" require:"true" type:"Struct"`
+	ConstantParameters     *DescribeApiHistoryResponseConstantParameters     `json:"ConstantParameters,omitempty" xml:"ConstantParameters,omitempty" require:"true" type:"Struct"`
+	RequestParameters      *DescribeApiHistoryResponseRequestParameters      `json:"RequestParameters,omitempty" xml:"RequestParameters,omitempty" require:"true" type:"Struct"`
+	ServiceParameters      *DescribeApiHistoryResponseServiceParameters      `json:"ServiceParameters,omitempty" xml:"ServiceParameters,omitempty" require:"true" type:"Struct"`
+	ServiceParametersMap   *DescribeApiHistoryResponseServiceParametersMap   `json:"ServiceParametersMap,omitempty" xml:"ServiceParametersMap,omitempty" require:"true" type:"Struct"`
+	RequestConfig          *DescribeApiHistoryResponseRequestConfig          `json:"RequestConfig,omitempty" xml:"RequestConfig,omitempty" require:"true" type:"Struct"`
+	ServiceConfig          *DescribeApiHistoryResponseServiceConfig          `json:"ServiceConfig,omitempty" xml:"ServiceConfig,omitempty" require:"true" type:"Struct"`
+	OpenIdConnectConfig    *DescribeApiHistoryResponseOpenIdConnectConfig    `json:"OpenIdConnectConfig,omitempty" xml:"OpenIdConnectConfig,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiHistoryResponse) String() string {
@@ -11083,7 +10641,7 @@ func (s *DescribeApiHistoryResponse) SetOpenIdConnectConfig(v *DescribeApiHistor
 }
 
 type DescribeApiHistoryResponseErrorCodeSamples struct {
-	ErrorCodeSample []*DescribeApiHistoryResponseErrorCodeSamplesErrorCodeSample `json:"ErrorCodeSample" xml:"ErrorCodeSample" require:"true" type:"Repeated"`
+	ErrorCodeSample []*DescribeApiHistoryResponseErrorCodeSamplesErrorCodeSample `json:"ErrorCodeSample,omitempty" xml:"ErrorCodeSample,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiHistoryResponseErrorCodeSamples) String() string {
@@ -11100,9 +10658,9 @@ func (s *DescribeApiHistoryResponseErrorCodeSamples) SetErrorCodeSample(v []*Des
 }
 
 type DescribeApiHistoryResponseErrorCodeSamplesErrorCodeSample struct {
-	Code        *string `json:"Code" xml:"Code" require:"true"`
-	Message     *string `json:"Message" xml:"Message" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
+	Code        *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message     *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeApiHistoryResponseErrorCodeSamplesErrorCodeSample) String() string {
@@ -11129,7 +10687,7 @@ func (s *DescribeApiHistoryResponseErrorCodeSamplesErrorCodeSample) SetDescripti
 }
 
 type DescribeApiHistoryResponseResultDescriptions struct {
-	ResultDescription []*DescribeApiHistoryResponseResultDescriptionsResultDescription `json:"ResultDescription" xml:"ResultDescription" require:"true" type:"Repeated"`
+	ResultDescription []*DescribeApiHistoryResponseResultDescriptionsResultDescription `json:"ResultDescription,omitempty" xml:"ResultDescription,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiHistoryResponseResultDescriptions) String() string {
@@ -11146,14 +10704,14 @@ func (s *DescribeApiHistoryResponseResultDescriptions) SetResultDescription(v []
 }
 
 type DescribeApiHistoryResponseResultDescriptionsResultDescription struct {
-	Id          *string `json:"Id" xml:"Id" require:"true"`
-	Pid         *string `json:"Pid" xml:"Pid" require:"true"`
-	HasChild    *bool   `json:"HasChild" xml:"HasChild" require:"true"`
-	Key         *string `json:"Key" xml:"Key" require:"true"`
-	Name        *string `json:"Name" xml:"Name" require:"true"`
-	Mandatory   *bool   `json:"Mandatory" xml:"Mandatory" require:"true"`
-	Type        *string `json:"Type" xml:"Type" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
+	Id          *string `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	Pid         *string `json:"Pid,omitempty" xml:"Pid,omitempty" require:"true"`
+	HasChild    *bool   `json:"HasChild,omitempty" xml:"HasChild,omitempty" require:"true"`
+	Key         *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Name        *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Mandatory   *bool   `json:"Mandatory,omitempty" xml:"Mandatory,omitempty" require:"true"`
+	Type        *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeApiHistoryResponseResultDescriptionsResultDescription) String() string {
@@ -11205,7 +10763,7 @@ func (s *DescribeApiHistoryResponseResultDescriptionsResultDescription) SetDescr
 }
 
 type DescribeApiHistoryResponseSystemParameters struct {
-	SystemParameter []*DescribeApiHistoryResponseSystemParametersSystemParameter `json:"SystemParameter" xml:"SystemParameter" require:"true" type:"Repeated"`
+	SystemParameter []*DescribeApiHistoryResponseSystemParametersSystemParameter `json:"SystemParameter,omitempty" xml:"SystemParameter,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiHistoryResponseSystemParameters) String() string {
@@ -11222,11 +10780,11 @@ func (s *DescribeApiHistoryResponseSystemParameters) SetSystemParameter(v []*Des
 }
 
 type DescribeApiHistoryResponseSystemParametersSystemParameter struct {
-	ParameterName        *string `json:"ParameterName" xml:"ParameterName" require:"true"`
-	ServiceParameterName *string `json:"ServiceParameterName" xml:"ServiceParameterName" require:"true"`
-	Location             *string `json:"Location" xml:"Location" require:"true"`
-	DemoValue            *string `json:"DemoValue" xml:"DemoValue" require:"true"`
-	Description          *string `json:"Description" xml:"Description" require:"true"`
+	ParameterName        *string `json:"ParameterName,omitempty" xml:"ParameterName,omitempty" require:"true"`
+	ServiceParameterName *string `json:"ServiceParameterName,omitempty" xml:"ServiceParameterName,omitempty" require:"true"`
+	Location             *string `json:"Location,omitempty" xml:"Location,omitempty" require:"true"`
+	DemoValue            *string `json:"DemoValue,omitempty" xml:"DemoValue,omitempty" require:"true"`
+	Description          *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeApiHistoryResponseSystemParametersSystemParameter) String() string {
@@ -11263,7 +10821,7 @@ func (s *DescribeApiHistoryResponseSystemParametersSystemParameter) SetDescripti
 }
 
 type DescribeApiHistoryResponseCustomSystemParameters struct {
-	CustomSystemParameter []*DescribeApiHistoryResponseCustomSystemParametersCustomSystemParameter `json:"CustomSystemParameter" xml:"CustomSystemParameter" require:"true" type:"Repeated"`
+	CustomSystemParameter []*DescribeApiHistoryResponseCustomSystemParametersCustomSystemParameter `json:"CustomSystemParameter,omitempty" xml:"CustomSystemParameter,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiHistoryResponseCustomSystemParameters) String() string {
@@ -11280,11 +10838,11 @@ func (s *DescribeApiHistoryResponseCustomSystemParameters) SetCustomSystemParame
 }
 
 type DescribeApiHistoryResponseCustomSystemParametersCustomSystemParameter struct {
-	ParameterName        *string `json:"ParameterName" xml:"ParameterName" require:"true"`
-	ServiceParameterName *string `json:"ServiceParameterName" xml:"ServiceParameterName" require:"true"`
-	Location             *string `json:"Location" xml:"Location" require:"true"`
-	DemoValue            *string `json:"DemoValue" xml:"DemoValue" require:"true"`
-	Description          *string `json:"Description" xml:"Description" require:"true"`
+	ParameterName        *string `json:"ParameterName,omitempty" xml:"ParameterName,omitempty" require:"true"`
+	ServiceParameterName *string `json:"ServiceParameterName,omitempty" xml:"ServiceParameterName,omitempty" require:"true"`
+	Location             *string `json:"Location,omitempty" xml:"Location,omitempty" require:"true"`
+	DemoValue            *string `json:"DemoValue,omitempty" xml:"DemoValue,omitempty" require:"true"`
+	Description          *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeApiHistoryResponseCustomSystemParametersCustomSystemParameter) String() string {
@@ -11321,7 +10879,7 @@ func (s *DescribeApiHistoryResponseCustomSystemParametersCustomSystemParameter) 
 }
 
 type DescribeApiHistoryResponseConstantParameters struct {
-	ConstantParameter []*DescribeApiHistoryResponseConstantParametersConstantParameter `json:"ConstantParameter" xml:"ConstantParameter" require:"true" type:"Repeated"`
+	ConstantParameter []*DescribeApiHistoryResponseConstantParametersConstantParameter `json:"ConstantParameter,omitempty" xml:"ConstantParameter,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiHistoryResponseConstantParameters) String() string {
@@ -11338,10 +10896,10 @@ func (s *DescribeApiHistoryResponseConstantParameters) SetConstantParameter(v []
 }
 
 type DescribeApiHistoryResponseConstantParametersConstantParameter struct {
-	ServiceParameterName *string `json:"ServiceParameterName" xml:"ServiceParameterName" require:"true"`
-	ConstantValue        *string `json:"ConstantValue" xml:"ConstantValue" require:"true"`
-	Location             *string `json:"Location" xml:"Location" require:"true"`
-	Description          *string `json:"Description" xml:"Description" require:"true"`
+	ServiceParameterName *string `json:"ServiceParameterName,omitempty" xml:"ServiceParameterName,omitempty" require:"true"`
+	ConstantValue        *string `json:"ConstantValue,omitempty" xml:"ConstantValue,omitempty" require:"true"`
+	Location             *string `json:"Location,omitempty" xml:"Location,omitempty" require:"true"`
+	Description          *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeApiHistoryResponseConstantParametersConstantParameter) String() string {
@@ -11373,7 +10931,7 @@ func (s *DescribeApiHistoryResponseConstantParametersConstantParameter) SetDescr
 }
 
 type DescribeApiHistoryResponseRequestParameters struct {
-	RequestParameter []*DescribeApiHistoryResponseRequestParametersRequestParameter `json:"RequestParameter" xml:"RequestParameter" require:"true" type:"Repeated"`
+	RequestParameter []*DescribeApiHistoryResponseRequestParametersRequestParameter `json:"RequestParameter,omitempty" xml:"RequestParameter,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiHistoryResponseRequestParameters) String() string {
@@ -11390,23 +10948,23 @@ func (s *DescribeApiHistoryResponseRequestParameters) SetRequestParameter(v []*D
 }
 
 type DescribeApiHistoryResponseRequestParametersRequestParameter struct {
-	ApiParameterName  *string `json:"ApiParameterName" xml:"ApiParameterName" require:"true"`
-	Location          *string `json:"Location" xml:"Location" require:"true"`
-	ParameterType     *string `json:"ParameterType" xml:"ParameterType" require:"true"`
-	Required          *string `json:"Required" xml:"Required" require:"true"`
-	DefaultValue      *string `json:"DefaultValue" xml:"DefaultValue" require:"true"`
-	DemoValue         *string `json:"DemoValue" xml:"DemoValue" require:"true"`
-	MaxValue          *int64  `json:"MaxValue" xml:"MaxValue" require:"true"`
-	MinValue          *int64  `json:"MinValue" xml:"MinValue" require:"true"`
-	MaxLength         *int64  `json:"MaxLength" xml:"MaxLength" require:"true"`
-	MinLength         *int64  `json:"MinLength" xml:"MinLength" require:"true"`
-	RegularExpression *string `json:"RegularExpression" xml:"RegularExpression" require:"true"`
-	JsonScheme        *string `json:"JsonScheme" xml:"JsonScheme" require:"true"`
-	EnumValue         *string `json:"EnumValue" xml:"EnumValue" require:"true"`
-	DocShow           *string `json:"DocShow" xml:"DocShow" require:"true"`
-	DocOrder          *int    `json:"DocOrder" xml:"DocOrder" require:"true"`
-	Description       *string `json:"Description" xml:"Description" require:"true"`
-	ArrayItemsType    *string `json:"ArrayItemsType" xml:"ArrayItemsType" require:"true"`
+	ApiParameterName  *string `json:"ApiParameterName,omitempty" xml:"ApiParameterName,omitempty" require:"true"`
+	Location          *string `json:"Location,omitempty" xml:"Location,omitempty" require:"true"`
+	ParameterType     *string `json:"ParameterType,omitempty" xml:"ParameterType,omitempty" require:"true"`
+	Required          *string `json:"Required,omitempty" xml:"Required,omitempty" require:"true"`
+	DefaultValue      *string `json:"DefaultValue,omitempty" xml:"DefaultValue,omitempty" require:"true"`
+	DemoValue         *string `json:"DemoValue,omitempty" xml:"DemoValue,omitempty" require:"true"`
+	MaxValue          *int64  `json:"MaxValue,omitempty" xml:"MaxValue,omitempty" require:"true"`
+	MinValue          *int64  `json:"MinValue,omitempty" xml:"MinValue,omitempty" require:"true"`
+	MaxLength         *int64  `json:"MaxLength,omitempty" xml:"MaxLength,omitempty" require:"true"`
+	MinLength         *int64  `json:"MinLength,omitempty" xml:"MinLength,omitempty" require:"true"`
+	RegularExpression *string `json:"RegularExpression,omitempty" xml:"RegularExpression,omitempty" require:"true"`
+	JsonScheme        *string `json:"JsonScheme,omitempty" xml:"JsonScheme,omitempty" require:"true"`
+	EnumValue         *string `json:"EnumValue,omitempty" xml:"EnumValue,omitempty" require:"true"`
+	DocShow           *string `json:"DocShow,omitempty" xml:"DocShow,omitempty" require:"true"`
+	DocOrder          *int    `json:"DocOrder,omitempty" xml:"DocOrder,omitempty" require:"true"`
+	Description       *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	ArrayItemsType    *string `json:"ArrayItemsType,omitempty" xml:"ArrayItemsType,omitempty" require:"true"`
 }
 
 func (s DescribeApiHistoryResponseRequestParametersRequestParameter) String() string {
@@ -11503,7 +11061,7 @@ func (s *DescribeApiHistoryResponseRequestParametersRequestParameter) SetArrayIt
 }
 
 type DescribeApiHistoryResponseServiceParameters struct {
-	ServiceParameter []*DescribeApiHistoryResponseServiceParametersServiceParameter `json:"ServiceParameter" xml:"ServiceParameter" require:"true" type:"Repeated"`
+	ServiceParameter []*DescribeApiHistoryResponseServiceParametersServiceParameter `json:"ServiceParameter,omitempty" xml:"ServiceParameter,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiHistoryResponseServiceParameters) String() string {
@@ -11520,9 +11078,9 @@ func (s *DescribeApiHistoryResponseServiceParameters) SetServiceParameter(v []*D
 }
 
 type DescribeApiHistoryResponseServiceParametersServiceParameter struct {
-	ServiceParameterName *string `json:"ServiceParameterName" xml:"ServiceParameterName" require:"true"`
-	Location             *string `json:"Location" xml:"Location" require:"true"`
-	ParameterType        *string `json:"ParameterType" xml:"ParameterType" require:"true"`
+	ServiceParameterName *string `json:"ServiceParameterName,omitempty" xml:"ServiceParameterName,omitempty" require:"true"`
+	Location             *string `json:"Location,omitempty" xml:"Location,omitempty" require:"true"`
+	ParameterType        *string `json:"ParameterType,omitempty" xml:"ParameterType,omitempty" require:"true"`
 }
 
 func (s DescribeApiHistoryResponseServiceParametersServiceParameter) String() string {
@@ -11549,7 +11107,7 @@ func (s *DescribeApiHistoryResponseServiceParametersServiceParameter) SetParamet
 }
 
 type DescribeApiHistoryResponseServiceParametersMap struct {
-	ServiceParameterMap []*DescribeApiHistoryResponseServiceParametersMapServiceParameterMap `json:"ServiceParameterMap" xml:"ServiceParameterMap" require:"true" type:"Repeated"`
+	ServiceParameterMap []*DescribeApiHistoryResponseServiceParametersMapServiceParameterMap `json:"ServiceParameterMap,omitempty" xml:"ServiceParameterMap,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiHistoryResponseServiceParametersMap) String() string {
@@ -11566,8 +11124,8 @@ func (s *DescribeApiHistoryResponseServiceParametersMap) SetServiceParameterMap(
 }
 
 type DescribeApiHistoryResponseServiceParametersMapServiceParameterMap struct {
-	ServiceParameterName *string `json:"ServiceParameterName" xml:"ServiceParameterName" require:"true"`
-	RequestParameterName *string `json:"RequestParameterName" xml:"RequestParameterName" require:"true"`
+	ServiceParameterName *string `json:"ServiceParameterName,omitempty" xml:"ServiceParameterName,omitempty" require:"true"`
+	RequestParameterName *string `json:"RequestParameterName,omitempty" xml:"RequestParameterName,omitempty" require:"true"`
 }
 
 func (s DescribeApiHistoryResponseServiceParametersMapServiceParameterMap) String() string {
@@ -11589,13 +11147,13 @@ func (s *DescribeApiHistoryResponseServiceParametersMapServiceParameterMap) SetR
 }
 
 type DescribeApiHistoryResponseRequestConfig struct {
-	RequestProtocol     *string `json:"RequestProtocol" xml:"RequestProtocol" require:"true"`
-	RequestHttpMethod   *string `json:"RequestHttpMethod" xml:"RequestHttpMethod" require:"true"`
-	RequestPath         *string `json:"RequestPath" xml:"RequestPath" require:"true"`
-	BodyFormat          *string `json:"BodyFormat" xml:"BodyFormat" require:"true"`
-	PostBodyDescription *string `json:"PostBodyDescription" xml:"PostBodyDescription" require:"true"`
-	RequestMode         *string `json:"RequestMode" xml:"RequestMode" require:"true"`
-	BodyModel           *string `json:"BodyModel" xml:"BodyModel" require:"true"`
+	RequestProtocol     *string `json:"RequestProtocol,omitempty" xml:"RequestProtocol,omitempty" require:"true"`
+	RequestHttpMethod   *string `json:"RequestHttpMethod,omitempty" xml:"RequestHttpMethod,omitempty" require:"true"`
+	RequestPath         *string `json:"RequestPath,omitempty" xml:"RequestPath,omitempty" require:"true"`
+	BodyFormat          *string `json:"BodyFormat,omitempty" xml:"BodyFormat,omitempty" require:"true"`
+	PostBodyDescription *string `json:"PostBodyDescription,omitempty" xml:"PostBodyDescription,omitempty" require:"true"`
+	RequestMode         *string `json:"RequestMode,omitempty" xml:"RequestMode,omitempty" require:"true"`
+	BodyModel           *string `json:"BodyModel,omitempty" xml:"BodyModel,omitempty" require:"true"`
 }
 
 func (s DescribeApiHistoryResponseRequestConfig) String() string {
@@ -11642,19 +11200,19 @@ func (s *DescribeApiHistoryResponseRequestConfig) SetBodyModel(v string) *Descri
 }
 
 type DescribeApiHistoryResponseServiceConfig struct {
-	ServiceProtocol       *string                                                       `json:"ServiceProtocol" xml:"ServiceProtocol" require:"true"`
-	ServiceAddress        *string                                                       `json:"ServiceAddress" xml:"ServiceAddress" require:"true"`
-	ServiceHttpMethod     *string                                                       `json:"ServiceHttpMethod" xml:"ServiceHttpMethod" require:"true"`
-	ServicePath           *string                                                       `json:"ServicePath" xml:"ServicePath" require:"true"`
-	ServiceTimeout        *int                                                          `json:"ServiceTimeout" xml:"ServiceTimeout" require:"true"`
-	Mock                  *string                                                       `json:"Mock" xml:"Mock" require:"true"`
-	MockResult            *string                                                       `json:"MockResult" xml:"MockResult" require:"true"`
-	ServiceVpcEnable      *string                                                       `json:"ServiceVpcEnable" xml:"ServiceVpcEnable" require:"true"`
-	MockStatusCode        *int                                                          `json:"MockStatusCode" xml:"MockStatusCode" require:"true"`
-	VpcId                 *string                                                       `json:"VpcId" xml:"VpcId" require:"true"`
-	MockHeaders           *DescribeApiHistoryResponseServiceConfigMockHeaders           `json:"MockHeaders" xml:"MockHeaders" require:"true" type:"Struct"`
-	VpcConfig             *DescribeApiHistoryResponseServiceConfigVpcConfig             `json:"VpcConfig" xml:"VpcConfig" require:"true" type:"Struct"`
-	FunctionComputeConfig *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig `json:"FunctionComputeConfig" xml:"FunctionComputeConfig" require:"true" type:"Struct"`
+	ServiceProtocol       *string                                                       `json:"ServiceProtocol,omitempty" xml:"ServiceProtocol,omitempty" require:"true"`
+	ServiceAddress        *string                                                       `json:"ServiceAddress,omitempty" xml:"ServiceAddress,omitempty" require:"true"`
+	ServiceHttpMethod     *string                                                       `json:"ServiceHttpMethod,omitempty" xml:"ServiceHttpMethod,omitempty" require:"true"`
+	ServicePath           *string                                                       `json:"ServicePath,omitempty" xml:"ServicePath,omitempty" require:"true"`
+	ServiceTimeout        *int                                                          `json:"ServiceTimeout,omitempty" xml:"ServiceTimeout,omitempty" require:"true"`
+	Mock                  *string                                                       `json:"Mock,omitempty" xml:"Mock,omitempty" require:"true"`
+	MockResult            *string                                                       `json:"MockResult,omitempty" xml:"MockResult,omitempty" require:"true"`
+	ServiceVpcEnable      *string                                                       `json:"ServiceVpcEnable,omitempty" xml:"ServiceVpcEnable,omitempty" require:"true"`
+	MockStatusCode        *int                                                          `json:"MockStatusCode,omitempty" xml:"MockStatusCode,omitempty" require:"true"`
+	VpcId                 *string                                                       `json:"VpcId,omitempty" xml:"VpcId,omitempty" require:"true"`
+	MockHeaders           *DescribeApiHistoryResponseServiceConfigMockHeaders           `json:"MockHeaders,omitempty" xml:"MockHeaders,omitempty" require:"true" type:"Struct"`
+	VpcConfig             *DescribeApiHistoryResponseServiceConfigVpcConfig             `json:"VpcConfig,omitempty" xml:"VpcConfig,omitempty" require:"true" type:"Struct"`
+	FunctionComputeConfig *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig `json:"FunctionComputeConfig,omitempty" xml:"FunctionComputeConfig,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiHistoryResponseServiceConfig) String() string {
@@ -11731,7 +11289,7 @@ func (s *DescribeApiHistoryResponseServiceConfig) SetFunctionComputeConfig(v *De
 }
 
 type DescribeApiHistoryResponseServiceConfigMockHeaders struct {
-	MockHeader []*DescribeApiHistoryResponseServiceConfigMockHeadersMockHeader `json:"MockHeader" xml:"MockHeader" require:"true" type:"Repeated"`
+	MockHeader []*DescribeApiHistoryResponseServiceConfigMockHeadersMockHeader `json:"MockHeader,omitempty" xml:"MockHeader,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiHistoryResponseServiceConfigMockHeaders) String() string {
@@ -11748,8 +11306,8 @@ func (s *DescribeApiHistoryResponseServiceConfigMockHeaders) SetMockHeader(v []*
 }
 
 type DescribeApiHistoryResponseServiceConfigMockHeadersMockHeader struct {
-	HeaderName  *string `json:"HeaderName" xml:"HeaderName" require:"true"`
-	HeaderValue *string `json:"HeaderValue" xml:"HeaderValue" require:"true"`
+	HeaderName  *string `json:"HeaderName,omitempty" xml:"HeaderName,omitempty" require:"true"`
+	HeaderValue *string `json:"HeaderValue,omitempty" xml:"HeaderValue,omitempty" require:"true"`
 }
 
 func (s DescribeApiHistoryResponseServiceConfigMockHeadersMockHeader) String() string {
@@ -11771,10 +11329,10 @@ func (s *DescribeApiHistoryResponseServiceConfigMockHeadersMockHeader) SetHeader
 }
 
 type DescribeApiHistoryResponseServiceConfigVpcConfig struct {
-	Name       *string `json:"Name" xml:"Name" require:"true"`
-	VpcId      *string `json:"VpcId" xml:"VpcId" require:"true"`
-	InstanceId *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	Port       *int    `json:"Port" xml:"Port" require:"true"`
+	Name       *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	VpcId      *string `json:"VpcId,omitempty" xml:"VpcId,omitempty" require:"true"`
+	InstanceId *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	Port       *int    `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
 }
 
 func (s DescribeApiHistoryResponseServiceConfigVpcConfig) String() string {
@@ -11806,10 +11364,10 @@ func (s *DescribeApiHistoryResponseServiceConfigVpcConfig) SetPort(v int) *Descr
 }
 
 type DescribeApiHistoryResponseServiceConfigFunctionComputeConfig struct {
-	RegionId     *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ServiceName  *string `json:"ServiceName" xml:"ServiceName" require:"true"`
-	FunctionName *string `json:"FunctionName" xml:"FunctionName" require:"true"`
-	RoleArn      *string `json:"RoleArn" xml:"RoleArn" require:"true"`
+	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ServiceName  *string `json:"ServiceName,omitempty" xml:"ServiceName,omitempty" require:"true"`
+	FunctionName *string `json:"FunctionName,omitempty" xml:"FunctionName,omitempty" require:"true"`
+	RoleArn      *string `json:"RoleArn,omitempty" xml:"RoleArn,omitempty" require:"true"`
 }
 
 func (s DescribeApiHistoryResponseServiceConfigFunctionComputeConfig) String() string {
@@ -11841,10 +11399,10 @@ func (s *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig) SetRoleAr
 }
 
 type DescribeApiHistoryResponseOpenIdConnectConfig struct {
-	OpenIdApiType    *string `json:"OpenIdApiType" xml:"OpenIdApiType" require:"true"`
-	IdTokenParamName *string `json:"IdTokenParamName" xml:"IdTokenParamName" require:"true"`
-	PublicKeyId      *string `json:"PublicKeyId" xml:"PublicKeyId" require:"true"`
-	PublicKey        *string `json:"PublicKey" xml:"PublicKey" require:"true"`
+	OpenIdApiType    *string `json:"OpenIdApiType,omitempty" xml:"OpenIdApiType,omitempty" require:"true"`
+	IdTokenParamName *string `json:"IdTokenParamName,omitempty" xml:"IdTokenParamName,omitempty" require:"true"`
+	PublicKeyId      *string `json:"PublicKeyId,omitempty" xml:"PublicKeyId,omitempty" require:"true"`
+	PublicKey        *string `json:"PublicKey,omitempty" xml:"PublicKey,omitempty" require:"true"`
 }
 
 func (s DescribeApiHistoryResponseOpenIdConnectConfig) String() string {
@@ -11876,15 +11434,14 @@ func (s *DescribeApiHistoryResponseOpenIdConnectConfig) SetPublicKey(v string) *
 }
 
 type DescribeApiGroupsRequest struct {
-	SecurityToken *string                        `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string                        `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string                        `json:"GroupId" xml:"GroupId"`
-	GroupName     *string                        `json:"GroupName" xml:"GroupName"`
-	PageNumber    *int                           `json:"PageNumber" xml:"PageNumber"`
-	PageSize      *int                           `json:"PageSize" xml:"PageSize"`
-	Tag           []*DescribeApiGroupsRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
-	EnableTagAuth *bool                          `json:"EnableTagAuth" xml:"EnableTagAuth"`
-	InstanceId    *string                        `json:"InstanceId" xml:"InstanceId"`
+	SecurityToken *string                        `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string                        `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	GroupName     *string                        `json:"GroupName,omitempty" xml:"GroupName,omitempty"`
+	PageNumber    *int                           `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize      *int                           `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	Tag           []*DescribeApiGroupsRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	EnableTagAuth *bool                          `json:"EnableTagAuth,omitempty" xml:"EnableTagAuth,omitempty"`
+	InstanceId    *string                        `json:"InstanceId,omitempty" xml:"InstanceId,omitempty"`
 }
 
 func (s DescribeApiGroupsRequest) String() string {
@@ -11897,11 +11454,6 @@ func (s DescribeApiGroupsRequest) GoString() string {
 
 func (s *DescribeApiGroupsRequest) SetSecurityToken(v string) *DescribeApiGroupsRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeApiGroupsRequest) SetAccessKeyId(v string) *DescribeApiGroupsRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -11941,8 +11493,8 @@ func (s *DescribeApiGroupsRequest) SetInstanceId(v string) *DescribeApiGroupsReq
 }
 
 type DescribeApiGroupsRequestTag struct {
-	Key   *string `json:"Key" xml:"Key"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s DescribeApiGroupsRequestTag) String() string {
@@ -11964,11 +11516,11 @@ func (s *DescribeApiGroupsRequestTag) SetValue(v string) *DescribeApiGroupsReque
 }
 
 type DescribeApiGroupsResponse struct {
-	RequestId          *string                                      `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount         *int                                         `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize           *int                                         `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber         *int                                         `json:"PageNumber" xml:"PageNumber" require:"true"`
-	ApiGroupAttributes *DescribeApiGroupsResponseApiGroupAttributes `json:"ApiGroupAttributes" xml:"ApiGroupAttributes" require:"true" type:"Struct"`
+	RequestId          *string                                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount         *int                                         `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize           *int                                         `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber         *int                                         `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	ApiGroupAttributes *DescribeApiGroupsResponseApiGroupAttributes `json:"ApiGroupAttributes,omitempty" xml:"ApiGroupAttributes,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiGroupsResponse) String() string {
@@ -12005,7 +11557,7 @@ func (s *DescribeApiGroupsResponse) SetApiGroupAttributes(v *DescribeApiGroupsRe
 }
 
 type DescribeApiGroupsResponseApiGroupAttributes struct {
-	ApiGroupAttribute []*DescribeApiGroupsResponseApiGroupAttributesApiGroupAttribute `json:"ApiGroupAttribute" xml:"ApiGroupAttribute" require:"true" type:"Repeated"`
+	ApiGroupAttribute []*DescribeApiGroupsResponseApiGroupAttributesApiGroupAttribute `json:"ApiGroupAttribute,omitempty" xml:"ApiGroupAttribute,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiGroupsResponseApiGroupAttributes) String() string {
@@ -12022,19 +11574,20 @@ func (s *DescribeApiGroupsResponseApiGroupAttributes) SetApiGroupAttribute(v []*
 }
 
 type DescribeApiGroupsResponseApiGroupAttributesApiGroupAttribute struct {
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName     *string `json:"GroupName" xml:"GroupName" require:"true"`
-	SubDomain     *string `json:"SubDomain" xml:"SubDomain" require:"true"`
-	Description   *string `json:"Description" xml:"Description" require:"true"`
-	CreatedTime   *string `json:"CreatedTime" xml:"CreatedTime" require:"true"`
-	ModifiedTime  *string `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
-	RegionId      *string `json:"RegionId" xml:"RegionId" require:"true"`
-	TrafficLimit  *int    `json:"TrafficLimit" xml:"TrafficLimit" require:"true"`
-	BillingStatus *string `json:"BillingStatus" xml:"BillingStatus" require:"true"`
-	IllegalStatus *string `json:"IllegalStatus" xml:"IllegalStatus" require:"true"`
-	InstanceId    *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	InstanceType  *string `json:"InstanceType" xml:"InstanceType" require:"true"`
-	HttpsPolicy   *string `json:"HttpsPolicy" xml:"HttpsPolicy" require:"true"`
+	GroupId       *string                                                           `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName     *string                                                           `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	SubDomain     *string                                                           `json:"SubDomain,omitempty" xml:"SubDomain,omitempty" require:"true"`
+	Description   *string                                                           `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreatedTime   *string                                                           `json:"CreatedTime,omitempty" xml:"CreatedTime,omitempty" require:"true"`
+	ModifiedTime  *string                                                           `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
+	RegionId      *string                                                           `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	TrafficLimit  *int                                                              `json:"TrafficLimit,omitempty" xml:"TrafficLimit,omitempty" require:"true"`
+	BillingStatus *string                                                           `json:"BillingStatus,omitempty" xml:"BillingStatus,omitempty" require:"true"`
+	IllegalStatus *string                                                           `json:"IllegalStatus,omitempty" xml:"IllegalStatus,omitempty" require:"true"`
+	InstanceId    *string                                                           `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	InstanceType  *string                                                           `json:"InstanceType,omitempty" xml:"InstanceType,omitempty" require:"true"`
+	HttpsPolicy   *string                                                           `json:"HttpsPolicy,omitempty" xml:"HttpsPolicy,omitempty" require:"true"`
+	Tags          *DescribeApiGroupsResponseApiGroupAttributesApiGroupAttributeTags `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiGroupsResponseApiGroupAttributesApiGroupAttribute) String() string {
@@ -12110,11 +11663,55 @@ func (s *DescribeApiGroupsResponseApiGroupAttributesApiGroupAttribute) SetHttpsP
 	return s
 }
 
+func (s *DescribeApiGroupsResponseApiGroupAttributesApiGroupAttribute) SetTags(v *DescribeApiGroupsResponseApiGroupAttributesApiGroupAttributeTags) *DescribeApiGroupsResponseApiGroupAttributesApiGroupAttribute {
+	s.Tags = v
+	return s
+}
+
+type DescribeApiGroupsResponseApiGroupAttributesApiGroupAttributeTags struct {
+	TagInfo []*DescribeApiGroupsResponseApiGroupAttributesApiGroupAttributeTagsTagInfo `json:"TagInfo,omitempty" xml:"TagInfo,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DescribeApiGroupsResponseApiGroupAttributesApiGroupAttributeTags) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeApiGroupsResponseApiGroupAttributesApiGroupAttributeTags) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeApiGroupsResponseApiGroupAttributesApiGroupAttributeTags) SetTagInfo(v []*DescribeApiGroupsResponseApiGroupAttributesApiGroupAttributeTagsTagInfo) *DescribeApiGroupsResponseApiGroupAttributesApiGroupAttributeTags {
+	s.TagInfo = v
+	return s
+}
+
+type DescribeApiGroupsResponseApiGroupAttributesApiGroupAttributeTagsTagInfo struct {
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+}
+
+func (s DescribeApiGroupsResponseApiGroupAttributesApiGroupAttributeTagsTagInfo) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeApiGroupsResponseApiGroupAttributesApiGroupAttributeTagsTagInfo) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeApiGroupsResponseApiGroupAttributesApiGroupAttributeTagsTagInfo) SetKey(v string) *DescribeApiGroupsResponseApiGroupAttributesApiGroupAttributeTagsTagInfo {
+	s.Key = &v
+	return s
+}
+
+func (s *DescribeApiGroupsResponseApiGroupAttributesApiGroupAttributeTagsTagInfo) SetValue(v string) *DescribeApiGroupsResponseApiGroupAttributesApiGroupAttributeTagsTagInfo {
+	s.Value = &v
+	return s
+}
+
 type DescribeApiGroupRequest struct {
-	AccessKeyId   *string                       `json:"AccessKeyId" xml:"AccessKeyId"`
-	SecurityToken *string                       `json:"SecurityToken" xml:"SecurityToken"`
-	GroupId       *string                       `json:"GroupId" xml:"GroupId" require:"true"`
-	Tag           []*DescribeApiGroupRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
+	SecurityToken *string                       `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string                       `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	Tag           []*DescribeApiGroupRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
 }
 
 func (s DescribeApiGroupRequest) String() string {
@@ -12123,11 +11720,6 @@ func (s DescribeApiGroupRequest) String() string {
 
 func (s DescribeApiGroupRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeApiGroupRequest) SetAccessKeyId(v string) *DescribeApiGroupRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DescribeApiGroupRequest) SetSecurityToken(v string) *DescribeApiGroupRequest {
@@ -12146,8 +11738,8 @@ func (s *DescribeApiGroupRequest) SetTag(v []*DescribeApiGroupRequestTag) *Descr
 }
 
 type DescribeApiGroupRequestTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s DescribeApiGroupRequestTag) String() string {
@@ -12169,32 +11761,32 @@ func (s *DescribeApiGroupRequestTag) SetValue(v string) *DescribeApiGroupRequest
 }
 
 type DescribeApiGroupResponse struct {
-	RequestId           *string                                `json:"RequestId" xml:"RequestId" require:"true"`
-	GroupId             *string                                `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName           *string                                `json:"GroupName" xml:"GroupName" require:"true"`
-	SubDomain           *string                                `json:"SubDomain" xml:"SubDomain" require:"true"`
-	Description         *string                                `json:"Description" xml:"Description" require:"true"`
-	CreatedTime         *string                                `json:"CreatedTime" xml:"CreatedTime" require:"true"`
-	ModifiedTime        *string                                `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
-	RegionId            *string                                `json:"RegionId" xml:"RegionId" require:"true"`
-	Status              *string                                `json:"Status" xml:"Status" require:"true"`
-	BillingStatus       *string                                `json:"BillingStatus" xml:"BillingStatus" require:"true"`
-	IllegalStatus       *string                                `json:"IllegalStatus" xml:"IllegalStatus" require:"true"`
-	Ipv6Status          *string                                `json:"Ipv6Status" xml:"Ipv6Status" require:"true"`
-	TrafficLimit        *int                                   `json:"TrafficLimit" xml:"TrafficLimit" require:"true"`
-	VpcDomain           *string                                `json:"VpcDomain" xml:"VpcDomain" require:"true"`
-	InstanceType        *string                                `json:"InstanceType" xml:"InstanceType" require:"true"`
-	InstanceId          *string                                `json:"InstanceId" xml:"InstanceId" require:"true"`
-	InstanceVipList     *string                                `json:"InstanceVipList" xml:"InstanceVipList" require:"true"`
-	HttpsPolicy         *string                                `json:"HttpsPolicy" xml:"HttpsPolicy" require:"true"`
-	UserLogConfig       *string                                `json:"UserLogConfig" xml:"UserLogConfig" require:"true"`
-	CustomTraceConfig   *string                                `json:"CustomTraceConfig" xml:"CustomTraceConfig" require:"true"`
-	PassthroughHeaders  *string                                `json:"PassthroughHeaders" xml:"PassthroughHeaders" require:"true"`
-	RpcPattern          *string                                `json:"RpcPattern" xml:"RpcPattern" require:"true"`
-	CompatibleFlags     *string                                `json:"CompatibleFlags" xml:"CompatibleFlags" require:"true"`
-	ClassicVpcSubDomain *string                                `json:"ClassicVpcSubDomain" xml:"ClassicVpcSubDomain" require:"true"`
-	CustomDomains       *DescribeApiGroupResponseCustomDomains `json:"CustomDomains" xml:"CustomDomains" require:"true" type:"Struct"`
-	StageItems          *DescribeApiGroupResponseStageItems    `json:"StageItems" xml:"StageItems" require:"true" type:"Struct"`
+	RequestId           *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	GroupId             *string                                `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName           *string                                `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	SubDomain           *string                                `json:"SubDomain,omitempty" xml:"SubDomain,omitempty" require:"true"`
+	Description         *string                                `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreatedTime         *string                                `json:"CreatedTime,omitempty" xml:"CreatedTime,omitempty" require:"true"`
+	ModifiedTime        *string                                `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
+	RegionId            *string                                `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Status              *string                                `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	BillingStatus       *string                                `json:"BillingStatus,omitempty" xml:"BillingStatus,omitempty" require:"true"`
+	IllegalStatus       *string                                `json:"IllegalStatus,omitempty" xml:"IllegalStatus,omitempty" require:"true"`
+	Ipv6Status          *string                                `json:"Ipv6Status,omitempty" xml:"Ipv6Status,omitempty" require:"true"`
+	TrafficLimit        *int                                   `json:"TrafficLimit,omitempty" xml:"TrafficLimit,omitempty" require:"true"`
+	VpcDomain           *string                                `json:"VpcDomain,omitempty" xml:"VpcDomain,omitempty" require:"true"`
+	InstanceType        *string                                `json:"InstanceType,omitempty" xml:"InstanceType,omitempty" require:"true"`
+	InstanceId          *string                                `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	InstanceVipList     *string                                `json:"InstanceVipList,omitempty" xml:"InstanceVipList,omitempty" require:"true"`
+	HttpsPolicy         *string                                `json:"HttpsPolicy,omitempty" xml:"HttpsPolicy,omitempty" require:"true"`
+	UserLogConfig       *string                                `json:"UserLogConfig,omitempty" xml:"UserLogConfig,omitempty" require:"true"`
+	CustomTraceConfig   *string                                `json:"CustomTraceConfig,omitempty" xml:"CustomTraceConfig,omitempty" require:"true"`
+	PassthroughHeaders  *string                                `json:"PassthroughHeaders,omitempty" xml:"PassthroughHeaders,omitempty" require:"true"`
+	RpcPattern          *string                                `json:"RpcPattern,omitempty" xml:"RpcPattern,omitempty" require:"true"`
+	CompatibleFlags     *string                                `json:"CompatibleFlags,omitempty" xml:"CompatibleFlags,omitempty" require:"true"`
+	ClassicVpcSubDomain *string                                `json:"ClassicVpcSubDomain,omitempty" xml:"ClassicVpcSubDomain,omitempty" require:"true"`
+	CustomDomains       *DescribeApiGroupResponseCustomDomains `json:"CustomDomains,omitempty" xml:"CustomDomains,omitempty" require:"true" type:"Struct"`
+	StageItems          *DescribeApiGroupResponseStageItems    `json:"StageItems,omitempty" xml:"StageItems,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiGroupResponse) String() string {
@@ -12336,7 +11928,7 @@ func (s *DescribeApiGroupResponse) SetStageItems(v *DescribeApiGroupResponseStag
 }
 
 type DescribeApiGroupResponseCustomDomains struct {
-	DomainItem []*DescribeApiGroupResponseCustomDomainsDomainItem `json:"DomainItem" xml:"DomainItem" require:"true" type:"Repeated"`
+	DomainItem []*DescribeApiGroupResponseCustomDomainsDomainItem `json:"DomainItem,omitempty" xml:"DomainItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiGroupResponseCustomDomains) String() string {
@@ -12353,15 +11945,15 @@ func (s *DescribeApiGroupResponseCustomDomains) SetDomainItem(v []*DescribeApiGr
 }
 
 type DescribeApiGroupResponseCustomDomainsDomainItem struct {
-	DomainName            *string `json:"DomainName" xml:"DomainName" require:"true"`
-	CertificateId         *string `json:"CertificateId" xml:"CertificateId" require:"true"`
-	CertificateName       *string `json:"CertificateName" xml:"CertificateName" require:"true"`
-	DomainCNAMEStatus     *string `json:"DomainCNAMEStatus" xml:"DomainCNAMEStatus" require:"true"`
-	DomainBindingStatus   *string `json:"DomainBindingStatus" xml:"DomainBindingStatus" require:"true"`
-	BindStageName         *string `json:"BindStageName" xml:"BindStageName" require:"true"`
-	DomainLegalStatus     *string `json:"DomainLegalStatus" xml:"DomainLegalStatus" require:"true"`
-	DomainWebSocketStatus *string `json:"DomainWebSocketStatus" xml:"DomainWebSocketStatus" require:"true"`
-	DomainRemark          *string `json:"DomainRemark" xml:"DomainRemark" require:"true"`
+	DomainName            *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	CertificateId         *string `json:"CertificateId,omitempty" xml:"CertificateId,omitempty" require:"true"`
+	CertificateName       *string `json:"CertificateName,omitempty" xml:"CertificateName,omitempty" require:"true"`
+	DomainCNAMEStatus     *string `json:"DomainCNAMEStatus,omitempty" xml:"DomainCNAMEStatus,omitempty" require:"true"`
+	DomainBindingStatus   *string `json:"DomainBindingStatus,omitempty" xml:"DomainBindingStatus,omitempty" require:"true"`
+	BindStageName         *string `json:"BindStageName,omitempty" xml:"BindStageName,omitempty" require:"true"`
+	DomainLegalStatus     *string `json:"DomainLegalStatus,omitempty" xml:"DomainLegalStatus,omitempty" require:"true"`
+	DomainWebSocketStatus *string `json:"DomainWebSocketStatus,omitempty" xml:"DomainWebSocketStatus,omitempty" require:"true"`
+	DomainRemark          *string `json:"DomainRemark,omitempty" xml:"DomainRemark,omitempty" require:"true"`
 }
 
 func (s DescribeApiGroupResponseCustomDomainsDomainItem) String() string {
@@ -12418,7 +12010,7 @@ func (s *DescribeApiGroupResponseCustomDomainsDomainItem) SetDomainRemark(v stri
 }
 
 type DescribeApiGroupResponseStageItems struct {
-	StageInfo []*DescribeApiGroupResponseStageItemsStageInfo `json:"StageInfo" xml:"StageInfo" require:"true" type:"Repeated"`
+	StageInfo []*DescribeApiGroupResponseStageItemsStageInfo `json:"StageInfo,omitempty" xml:"StageInfo,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiGroupResponseStageItems) String() string {
@@ -12435,9 +12027,9 @@ func (s *DescribeApiGroupResponseStageItems) SetStageInfo(v []*DescribeApiGroupR
 }
 
 type DescribeApiGroupResponseStageItemsStageInfo struct {
-	StageId     *string `json:"StageId" xml:"StageId" require:"true"`
-	StageName   *string `json:"StageName" xml:"StageName" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
+	StageId     *string `json:"StageId,omitempty" xml:"StageId,omitempty" require:"true"`
+	StageName   *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeApiGroupResponseStageItemsStageInfo) String() string {
@@ -12464,12 +12056,11 @@ func (s *DescribeApiGroupResponseStageItemsStageInfo) SetDescription(v string) *
 }
 
 type DescribeApiErrorDataRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
-	GroupId       *string `json:"GroupId" xml:"GroupId"`
-	StartTime     *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime       *string `json:"EndTime" xml:"EndTime" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	StartTime     *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime       *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
 }
 
 func (s DescribeApiErrorDataRequest) String() string {
@@ -12482,11 +12073,6 @@ func (s DescribeApiErrorDataRequest) GoString() string {
 
 func (s *DescribeApiErrorDataRequest) SetSecurityToken(v string) *DescribeApiErrorDataRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeApiErrorDataRequest) SetAccessKeyId(v string) *DescribeApiErrorDataRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -12511,9 +12097,9 @@ func (s *DescribeApiErrorDataRequest) SetEndTime(v string) *DescribeApiErrorData
 }
 
 type DescribeApiErrorDataResponse struct {
-	RequestId    *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	ClientErrors *DescribeApiErrorDataResponseClientErrors `json:"ClientErrors" xml:"ClientErrors" require:"true" type:"Struct"`
-	ServerErrors *DescribeApiErrorDataResponseServerErrors `json:"ServerErrors" xml:"ServerErrors" require:"true" type:"Struct"`
+	RequestId    *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ClientErrors *DescribeApiErrorDataResponseClientErrors `json:"ClientErrors,omitempty" xml:"ClientErrors,omitempty" require:"true" type:"Struct"`
+	ServerErrors *DescribeApiErrorDataResponseServerErrors `json:"ServerErrors,omitempty" xml:"ServerErrors,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiErrorDataResponse) String() string {
@@ -12540,7 +12126,7 @@ func (s *DescribeApiErrorDataResponse) SetServerErrors(v *DescribeApiErrorDataRe
 }
 
 type DescribeApiErrorDataResponseClientErrors struct {
-	MonitorItem []*DescribeApiErrorDataResponseClientErrorsMonitorItem `json:"MonitorItem" xml:"MonitorItem" require:"true" type:"Repeated"`
+	MonitorItem []*DescribeApiErrorDataResponseClientErrorsMonitorItem `json:"MonitorItem,omitempty" xml:"MonitorItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiErrorDataResponseClientErrors) String() string {
@@ -12557,8 +12143,8 @@ func (s *DescribeApiErrorDataResponseClientErrors) SetMonitorItem(v []*DescribeA
 }
 
 type DescribeApiErrorDataResponseClientErrorsMonitorItem struct {
-	ItemTime  *string `json:"ItemTime" xml:"ItemTime" require:"true"`
-	ItemValue *string `json:"ItemValue" xml:"ItemValue" require:"true"`
+	ItemTime  *string `json:"ItemTime,omitempty" xml:"ItemTime,omitempty" require:"true"`
+	ItemValue *string `json:"ItemValue,omitempty" xml:"ItemValue,omitempty" require:"true"`
 }
 
 func (s DescribeApiErrorDataResponseClientErrorsMonitorItem) String() string {
@@ -12580,7 +12166,7 @@ func (s *DescribeApiErrorDataResponseClientErrorsMonitorItem) SetItemValue(v str
 }
 
 type DescribeApiErrorDataResponseServerErrors struct {
-	MonitorItem []*DescribeApiErrorDataResponseServerErrorsMonitorItem `json:"MonitorItem" xml:"MonitorItem" require:"true" type:"Repeated"`
+	MonitorItem []*DescribeApiErrorDataResponseServerErrorsMonitorItem `json:"MonitorItem,omitempty" xml:"MonitorItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiErrorDataResponseServerErrors) String() string {
@@ -12597,8 +12183,8 @@ func (s *DescribeApiErrorDataResponseServerErrors) SetMonitorItem(v []*DescribeA
 }
 
 type DescribeApiErrorDataResponseServerErrorsMonitorItem struct {
-	ItemTime  *string `json:"ItemTime" xml:"ItemTime" require:"true"`
-	ItemValue *string `json:"ItemValue" xml:"ItemValue" require:"true"`
+	ItemTime  *string `json:"ItemTime,omitempty" xml:"ItemTime,omitempty" require:"true"`
+	ItemValue *string `json:"ItemValue,omitempty" xml:"ItemValue,omitempty" require:"true"`
 }
 
 func (s DescribeApiErrorDataResponseServerErrorsMonitorItem) String() string {
@@ -12620,11 +12206,10 @@ func (s *DescribeApiErrorDataResponseServerErrorsMonitorItem) SetItemValue(v str
 }
 
 type DescribeApiDocRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId"`
-	StageName     *string `json:"StageName" xml:"StageName"`
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
 }
 
 func (s DescribeApiDocRequest) String() string {
@@ -12637,11 +12222,6 @@ func (s DescribeApiDocRequest) GoString() string {
 
 func (s *DescribeApiDocRequest) SetSecurityToken(v string) *DescribeApiDocRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DescribeApiDocRequest) SetAccessKeyId(v string) *DescribeApiDocRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -12661,26 +12241,26 @@ func (s *DescribeApiDocRequest) SetApiId(v string) *DescribeApiDocRequest {
 }
 
 type DescribeApiDocResponse struct {
-	RequestId          *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	RegionId           *string                                   `json:"RegionId" xml:"RegionId" require:"true"`
-	GroupId            *string                                   `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName          *string                                   `json:"GroupName" xml:"GroupName" require:"true"`
-	StageName          *string                                   `json:"StageName" xml:"StageName" require:"true"`
-	ApiId              *string                                   `json:"ApiId" xml:"ApiId" require:"true"`
-	ApiName            *string                                   `json:"ApiName" xml:"ApiName" require:"true"`
-	Description        *string                                   `json:"Description" xml:"Description" require:"true"`
-	Visibility         *string                                   `json:"Visibility" xml:"Visibility" require:"true"`
-	AuthType           *string                                   `json:"AuthType" xml:"AuthType" require:"true"`
-	ResultType         *string                                   `json:"ResultType" xml:"ResultType" require:"true"`
-	ResultSample       *string                                   `json:"ResultSample" xml:"ResultSample" require:"true"`
-	FailResultSample   *string                                   `json:"FailResultSample" xml:"FailResultSample" require:"true"`
-	DeployedTime       *string                                   `json:"DeployedTime" xml:"DeployedTime" require:"true"`
-	ForceNonceCheck    *bool                                     `json:"ForceNonceCheck" xml:"ForceNonceCheck" require:"true"`
-	DisableInternet    *bool                                     `json:"DisableInternet" xml:"DisableInternet" require:"true"`
-	ErrorCodeSamples   *DescribeApiDocResponseErrorCodeSamples   `json:"ErrorCodeSamples" xml:"ErrorCodeSamples" require:"true" type:"Struct"`
-	ResultDescriptions *DescribeApiDocResponseResultDescriptions `json:"ResultDescriptions" xml:"ResultDescriptions" require:"true" type:"Struct"`
-	RequestParameters  *DescribeApiDocResponseRequestParameters  `json:"RequestParameters" xml:"RequestParameters" require:"true" type:"Struct"`
-	RequestConfig      *DescribeApiDocResponseRequestConfig      `json:"RequestConfig" xml:"RequestConfig" require:"true" type:"Struct"`
+	RequestId          *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RegionId           *string                                   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	GroupId            *string                                   `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName          *string                                   `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	StageName          *string                                   `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	ApiId              *string                                   `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	ApiName            *string                                   `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	Description        *string                                   `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	Visibility         *string                                   `json:"Visibility,omitempty" xml:"Visibility,omitempty" require:"true"`
+	AuthType           *string                                   `json:"AuthType,omitempty" xml:"AuthType,omitempty" require:"true"`
+	ResultType         *string                                   `json:"ResultType,omitempty" xml:"ResultType,omitempty" require:"true"`
+	ResultSample       *string                                   `json:"ResultSample,omitempty" xml:"ResultSample,omitempty" require:"true"`
+	FailResultSample   *string                                   `json:"FailResultSample,omitempty" xml:"FailResultSample,omitempty" require:"true"`
+	DeployedTime       *string                                   `json:"DeployedTime,omitempty" xml:"DeployedTime,omitempty" require:"true"`
+	ForceNonceCheck    *bool                                     `json:"ForceNonceCheck,omitempty" xml:"ForceNonceCheck,omitempty" require:"true"`
+	DisableInternet    *bool                                     `json:"DisableInternet,omitempty" xml:"DisableInternet,omitempty" require:"true"`
+	ErrorCodeSamples   *DescribeApiDocResponseErrorCodeSamples   `json:"ErrorCodeSamples,omitempty" xml:"ErrorCodeSamples,omitempty" require:"true" type:"Struct"`
+	ResultDescriptions *DescribeApiDocResponseResultDescriptions `json:"ResultDescriptions,omitempty" xml:"ResultDescriptions,omitempty" require:"true" type:"Struct"`
+	RequestParameters  *DescribeApiDocResponseRequestParameters  `json:"RequestParameters,omitempty" xml:"RequestParameters,omitempty" require:"true" type:"Struct"`
+	RequestConfig      *DescribeApiDocResponseRequestConfig      `json:"RequestConfig,omitempty" xml:"RequestConfig,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiDocResponse) String() string {
@@ -12792,7 +12372,7 @@ func (s *DescribeApiDocResponse) SetRequestConfig(v *DescribeApiDocResponseReque
 }
 
 type DescribeApiDocResponseErrorCodeSamples struct {
-	ErrorCodeSample []*DescribeApiDocResponseErrorCodeSamplesErrorCodeSample `json:"ErrorCodeSample" xml:"ErrorCodeSample" require:"true" type:"Repeated"`
+	ErrorCodeSample []*DescribeApiDocResponseErrorCodeSamplesErrorCodeSample `json:"ErrorCodeSample,omitempty" xml:"ErrorCodeSample,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiDocResponseErrorCodeSamples) String() string {
@@ -12809,9 +12389,9 @@ func (s *DescribeApiDocResponseErrorCodeSamples) SetErrorCodeSample(v []*Describ
 }
 
 type DescribeApiDocResponseErrorCodeSamplesErrorCodeSample struct {
-	Code        *string `json:"Code" xml:"Code" require:"true"`
-	Message     *string `json:"Message" xml:"Message" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
+	Code        *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message     *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeApiDocResponseErrorCodeSamplesErrorCodeSample) String() string {
@@ -12838,7 +12418,7 @@ func (s *DescribeApiDocResponseErrorCodeSamplesErrorCodeSample) SetDescription(v
 }
 
 type DescribeApiDocResponseResultDescriptions struct {
-	ResultDescription []*DescribeApiDocResponseResultDescriptionsResultDescription `json:"ResultDescription" xml:"ResultDescription" require:"true" type:"Repeated"`
+	ResultDescription []*DescribeApiDocResponseResultDescriptionsResultDescription `json:"ResultDescription,omitempty" xml:"ResultDescription,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiDocResponseResultDescriptions) String() string {
@@ -12855,14 +12435,14 @@ func (s *DescribeApiDocResponseResultDescriptions) SetResultDescription(v []*Des
 }
 
 type DescribeApiDocResponseResultDescriptionsResultDescription struct {
-	Id          *string `json:"Id" xml:"Id" require:"true"`
-	Pid         *string `json:"Pid" xml:"Pid" require:"true"`
-	HasChild    *bool   `json:"HasChild" xml:"HasChild" require:"true"`
-	Key         *string `json:"Key" xml:"Key" require:"true"`
-	Name        *string `json:"Name" xml:"Name" require:"true"`
-	Mandatory   *bool   `json:"Mandatory" xml:"Mandatory" require:"true"`
-	Type        *string `json:"Type" xml:"Type" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
+	Id          *string `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	Pid         *string `json:"Pid,omitempty" xml:"Pid,omitempty" require:"true"`
+	HasChild    *bool   `json:"HasChild,omitempty" xml:"HasChild,omitempty" require:"true"`
+	Key         *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Name        *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Mandatory   *bool   `json:"Mandatory,omitempty" xml:"Mandatory,omitempty" require:"true"`
+	Type        *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeApiDocResponseResultDescriptionsResultDescription) String() string {
@@ -12914,7 +12494,7 @@ func (s *DescribeApiDocResponseResultDescriptionsResultDescription) SetDescripti
 }
 
 type DescribeApiDocResponseRequestParameters struct {
-	RequestParameter []*DescribeApiDocResponseRequestParametersRequestParameter `json:"RequestParameter" xml:"RequestParameter" require:"true" type:"Repeated"`
+	RequestParameter []*DescribeApiDocResponseRequestParametersRequestParameter `json:"RequestParameter,omitempty" xml:"RequestParameter,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiDocResponseRequestParameters) String() string {
@@ -12931,23 +12511,23 @@ func (s *DescribeApiDocResponseRequestParameters) SetRequestParameter(v []*Descr
 }
 
 type DescribeApiDocResponseRequestParametersRequestParameter struct {
-	ApiParameterName  *string `json:"ApiParameterName" xml:"ApiParameterName" require:"true"`
-	Location          *string `json:"Location" xml:"Location" require:"true"`
-	ParameterType     *string `json:"ParameterType" xml:"ParameterType" require:"true"`
-	Required          *string `json:"Required" xml:"Required" require:"true"`
-	DefaultValue      *string `json:"DefaultValue" xml:"DefaultValue" require:"true"`
-	DemoValue         *string `json:"DemoValue" xml:"DemoValue" require:"true"`
-	MaxValue          *int64  `json:"MaxValue" xml:"MaxValue" require:"true"`
-	MinValue          *int64  `json:"MinValue" xml:"MinValue" require:"true"`
-	MaxLength         *int64  `json:"MaxLength" xml:"MaxLength" require:"true"`
-	MinLength         *int64  `json:"MinLength" xml:"MinLength" require:"true"`
-	RegularExpression *string `json:"RegularExpression" xml:"RegularExpression" require:"true"`
-	JsonScheme        *string `json:"JsonScheme" xml:"JsonScheme" require:"true"`
-	EnumValue         *string `json:"EnumValue" xml:"EnumValue" require:"true"`
-	DocShow           *string `json:"DocShow" xml:"DocShow" require:"true"`
-	DocOrder          *int    `json:"DocOrder" xml:"DocOrder" require:"true"`
-	Description       *string `json:"Description" xml:"Description" require:"true"`
-	ArrayItemsType    *string `json:"ArrayItemsType" xml:"ArrayItemsType" require:"true"`
+	ApiParameterName  *string `json:"ApiParameterName,omitempty" xml:"ApiParameterName,omitempty" require:"true"`
+	Location          *string `json:"Location,omitempty" xml:"Location,omitempty" require:"true"`
+	ParameterType     *string `json:"ParameterType,omitempty" xml:"ParameterType,omitempty" require:"true"`
+	Required          *string `json:"Required,omitempty" xml:"Required,omitempty" require:"true"`
+	DefaultValue      *string `json:"DefaultValue,omitempty" xml:"DefaultValue,omitempty" require:"true"`
+	DemoValue         *string `json:"DemoValue,omitempty" xml:"DemoValue,omitempty" require:"true"`
+	MaxValue          *int64  `json:"MaxValue,omitempty" xml:"MaxValue,omitempty" require:"true"`
+	MinValue          *int64  `json:"MinValue,omitempty" xml:"MinValue,omitempty" require:"true"`
+	MaxLength         *int64  `json:"MaxLength,omitempty" xml:"MaxLength,omitempty" require:"true"`
+	MinLength         *int64  `json:"MinLength,omitempty" xml:"MinLength,omitempty" require:"true"`
+	RegularExpression *string `json:"RegularExpression,omitempty" xml:"RegularExpression,omitempty" require:"true"`
+	JsonScheme        *string `json:"JsonScheme,omitempty" xml:"JsonScheme,omitempty" require:"true"`
+	EnumValue         *string `json:"EnumValue,omitempty" xml:"EnumValue,omitempty" require:"true"`
+	DocShow           *string `json:"DocShow,omitempty" xml:"DocShow,omitempty" require:"true"`
+	DocOrder          *int    `json:"DocOrder,omitempty" xml:"DocOrder,omitempty" require:"true"`
+	Description       *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	ArrayItemsType    *string `json:"ArrayItemsType,omitempty" xml:"ArrayItemsType,omitempty" require:"true"`
 }
 
 func (s DescribeApiDocResponseRequestParametersRequestParameter) String() string {
@@ -13044,12 +12624,12 @@ func (s *DescribeApiDocResponseRequestParametersRequestParameter) SetArrayItemsT
 }
 
 type DescribeApiDocResponseRequestConfig struct {
-	RequestProtocol     *string `json:"RequestProtocol" xml:"RequestProtocol" require:"true"`
-	RequestHttpMethod   *string `json:"RequestHttpMethod" xml:"RequestHttpMethod" require:"true"`
-	RequestPath         *string `json:"RequestPath" xml:"RequestPath" require:"true"`
-	BodyFormat          *string `json:"BodyFormat" xml:"BodyFormat" require:"true"`
-	PostBodyDescription *string `json:"PostBodyDescription" xml:"PostBodyDescription" require:"true"`
-	RequestMode         *string `json:"RequestMode" xml:"RequestMode" require:"true"`
+	RequestProtocol     *string `json:"RequestProtocol,omitempty" xml:"RequestProtocol,omitempty" require:"true"`
+	RequestHttpMethod   *string `json:"RequestHttpMethod,omitempty" xml:"RequestHttpMethod,omitempty" require:"true"`
+	RequestPath         *string `json:"RequestPath,omitempty" xml:"RequestPath,omitempty" require:"true"`
+	BodyFormat          *string `json:"BodyFormat,omitempty" xml:"BodyFormat,omitempty" require:"true"`
+	PostBodyDescription *string `json:"PostBodyDescription,omitempty" xml:"PostBodyDescription,omitempty" require:"true"`
+	RequestMode         *string `json:"RequestMode,omitempty" xml:"RequestMode,omitempty" require:"true"`
 }
 
 func (s DescribeApiDocResponseRequestConfig) String() string {
@@ -13091,10 +12671,9 @@ func (s *DescribeApiDocResponseRequestConfig) SetRequestMode(v string) *Describe
 }
 
 type DescribeApiRequest struct {
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	GroupId       *string `json:"GroupId" xml:"GroupId"`
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
 }
 
 func (s DescribeApiRequest) String() string {
@@ -13103,11 +12682,6 @@ func (s DescribeApiRequest) String() string {
 
 func (s DescribeApiRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeApiRequest) SetAccessKeyId(v string) *DescribeApiRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DescribeApiRequest) SetSecurityToken(v string) *DescribeApiRequest {
@@ -13126,40 +12700,40 @@ func (s *DescribeApiRequest) SetApiId(v string) *DescribeApiRequest {
 }
 
 type DescribeApiResponse struct {
-	RequestId              *string                                    `json:"RequestId" xml:"RequestId" require:"true"`
-	RegionId               *string                                    `json:"RegionId" xml:"RegionId" require:"true"`
-	ApiId                  *string                                    `json:"ApiId" xml:"ApiId" require:"true"`
-	ApiName                *string                                    `json:"ApiName" xml:"ApiName" require:"true"`
-	GroupId                *string                                    `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName              *string                                    `json:"GroupName" xml:"GroupName" require:"true"`
-	Visibility             *string                                    `json:"Visibility" xml:"Visibility" require:"true"`
-	AuthType               *string                                    `json:"AuthType" xml:"AuthType" require:"true"`
-	ResultType             *string                                    `json:"ResultType" xml:"ResultType" require:"true"`
-	ResultSample           *string                                    `json:"ResultSample" xml:"ResultSample" require:"true"`
-	FailResultSample       *string                                    `json:"FailResultSample" xml:"FailResultSample" require:"true"`
-	CreatedTime            *string                                    `json:"CreatedTime" xml:"CreatedTime" require:"true"`
-	ModifiedTime           *string                                    `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
-	Description            *string                                    `json:"Description" xml:"Description" require:"true"`
-	Mock                   *string                                    `json:"Mock" xml:"Mock" require:"true"`
-	MockResult             *string                                    `json:"MockResult" xml:"MockResult" require:"true"`
-	AllowSignatureMethod   *string                                    `json:"AllowSignatureMethod" xml:"AllowSignatureMethod" require:"true"`
-	WebSocketApiType       *string                                    `json:"WebSocketApiType" xml:"WebSocketApiType" require:"true"`
-	ResultBodyModel        *string                                    `json:"ResultBodyModel" xml:"ResultBodyModel" require:"true"`
-	ForceNonceCheck        *bool                                      `json:"ForceNonceCheck" xml:"ForceNonceCheck" require:"true"`
-	DisableInternet        *bool                                      `json:"DisableInternet" xml:"DisableInternet" require:"true"`
-	AppCodeAuthType        *string                                    `json:"AppCodeAuthType" xml:"AppCodeAuthType" require:"true"`
-	ErrorCodeSamples       *DescribeApiResponseErrorCodeSamples       `json:"ErrorCodeSamples" xml:"ErrorCodeSamples" require:"true" type:"Struct"`
-	ResultDescriptions     *DescribeApiResponseResultDescriptions     `json:"ResultDescriptions" xml:"ResultDescriptions" require:"true" type:"Struct"`
-	SystemParameters       *DescribeApiResponseSystemParameters       `json:"SystemParameters" xml:"SystemParameters" require:"true" type:"Struct"`
-	CustomSystemParameters *DescribeApiResponseCustomSystemParameters `json:"CustomSystemParameters" xml:"CustomSystemParameters" require:"true" type:"Struct"`
-	ConstantParameters     *DescribeApiResponseConstantParameters     `json:"ConstantParameters" xml:"ConstantParameters" require:"true" type:"Struct"`
-	RequestParameters      *DescribeApiResponseRequestParameters      `json:"RequestParameters" xml:"RequestParameters" require:"true" type:"Struct"`
-	ServiceParameters      *DescribeApiResponseServiceParameters      `json:"ServiceParameters" xml:"ServiceParameters" require:"true" type:"Struct"`
-	ServiceParametersMap   *DescribeApiResponseServiceParametersMap   `json:"ServiceParametersMap" xml:"ServiceParametersMap" require:"true" type:"Struct"`
-	DeployedInfos          *DescribeApiResponseDeployedInfos          `json:"DeployedInfos" xml:"DeployedInfos" require:"true" type:"Struct"`
-	RequestConfig          *DescribeApiResponseRequestConfig          `json:"RequestConfig" xml:"RequestConfig" require:"true" type:"Struct"`
-	ServiceConfig          *DescribeApiResponseServiceConfig          `json:"ServiceConfig" xml:"ServiceConfig" require:"true" type:"Struct"`
-	OpenIdConnectConfig    *DescribeApiResponseOpenIdConnectConfig    `json:"OpenIdConnectConfig" xml:"OpenIdConnectConfig" require:"true" type:"Struct"`
+	RequestId              *string                                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RegionId               *string                                    `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ApiId                  *string                                    `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	ApiName                *string                                    `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	GroupId                *string                                    `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName              *string                                    `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	Visibility             *string                                    `json:"Visibility,omitempty" xml:"Visibility,omitempty" require:"true"`
+	AuthType               *string                                    `json:"AuthType,omitempty" xml:"AuthType,omitempty" require:"true"`
+	ResultType             *string                                    `json:"ResultType,omitempty" xml:"ResultType,omitempty" require:"true"`
+	ResultSample           *string                                    `json:"ResultSample,omitempty" xml:"ResultSample,omitempty" require:"true"`
+	FailResultSample       *string                                    `json:"FailResultSample,omitempty" xml:"FailResultSample,omitempty" require:"true"`
+	CreatedTime            *string                                    `json:"CreatedTime,omitempty" xml:"CreatedTime,omitempty" require:"true"`
+	ModifiedTime           *string                                    `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
+	Description            *string                                    `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	Mock                   *string                                    `json:"Mock,omitempty" xml:"Mock,omitempty" require:"true"`
+	MockResult             *string                                    `json:"MockResult,omitempty" xml:"MockResult,omitempty" require:"true"`
+	AllowSignatureMethod   *string                                    `json:"AllowSignatureMethod,omitempty" xml:"AllowSignatureMethod,omitempty" require:"true"`
+	WebSocketApiType       *string                                    `json:"WebSocketApiType,omitempty" xml:"WebSocketApiType,omitempty" require:"true"`
+	ResultBodyModel        *string                                    `json:"ResultBodyModel,omitempty" xml:"ResultBodyModel,omitempty" require:"true"`
+	ForceNonceCheck        *bool                                      `json:"ForceNonceCheck,omitempty" xml:"ForceNonceCheck,omitempty" require:"true"`
+	DisableInternet        *bool                                      `json:"DisableInternet,omitempty" xml:"DisableInternet,omitempty" require:"true"`
+	AppCodeAuthType        *string                                    `json:"AppCodeAuthType,omitempty" xml:"AppCodeAuthType,omitempty" require:"true"`
+	ErrorCodeSamples       *DescribeApiResponseErrorCodeSamples       `json:"ErrorCodeSamples,omitempty" xml:"ErrorCodeSamples,omitempty" require:"true" type:"Struct"`
+	ResultDescriptions     *DescribeApiResponseResultDescriptions     `json:"ResultDescriptions,omitempty" xml:"ResultDescriptions,omitempty" require:"true" type:"Struct"`
+	SystemParameters       *DescribeApiResponseSystemParameters       `json:"SystemParameters,omitempty" xml:"SystemParameters,omitempty" require:"true" type:"Struct"`
+	CustomSystemParameters *DescribeApiResponseCustomSystemParameters `json:"CustomSystemParameters,omitempty" xml:"CustomSystemParameters,omitempty" require:"true" type:"Struct"`
+	ConstantParameters     *DescribeApiResponseConstantParameters     `json:"ConstantParameters,omitempty" xml:"ConstantParameters,omitempty" require:"true" type:"Struct"`
+	RequestParameters      *DescribeApiResponseRequestParameters      `json:"RequestParameters,omitempty" xml:"RequestParameters,omitempty" require:"true" type:"Struct"`
+	ServiceParameters      *DescribeApiResponseServiceParameters      `json:"ServiceParameters,omitempty" xml:"ServiceParameters,omitempty" require:"true" type:"Struct"`
+	ServiceParametersMap   *DescribeApiResponseServiceParametersMap   `json:"ServiceParametersMap,omitempty" xml:"ServiceParametersMap,omitempty" require:"true" type:"Struct"`
+	DeployedInfos          *DescribeApiResponseDeployedInfos          `json:"DeployedInfos,omitempty" xml:"DeployedInfos,omitempty" require:"true" type:"Struct"`
+	RequestConfig          *DescribeApiResponseRequestConfig          `json:"RequestConfig,omitempty" xml:"RequestConfig,omitempty" require:"true" type:"Struct"`
+	ServiceConfig          *DescribeApiResponseServiceConfig          `json:"ServiceConfig,omitempty" xml:"ServiceConfig,omitempty" require:"true" type:"Struct"`
+	OpenIdConnectConfig    *DescribeApiResponseOpenIdConnectConfig    `json:"OpenIdConnectConfig,omitempty" xml:"OpenIdConnectConfig,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiResponse) String() string {
@@ -13341,7 +12915,7 @@ func (s *DescribeApiResponse) SetOpenIdConnectConfig(v *DescribeApiResponseOpenI
 }
 
 type DescribeApiResponseErrorCodeSamples struct {
-	ErrorCodeSample []*DescribeApiResponseErrorCodeSamplesErrorCodeSample `json:"ErrorCodeSample" xml:"ErrorCodeSample" require:"true" type:"Repeated"`
+	ErrorCodeSample []*DescribeApiResponseErrorCodeSamplesErrorCodeSample `json:"ErrorCodeSample,omitempty" xml:"ErrorCodeSample,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiResponseErrorCodeSamples) String() string {
@@ -13358,10 +12932,10 @@ func (s *DescribeApiResponseErrorCodeSamples) SetErrorCodeSample(v []*DescribeAp
 }
 
 type DescribeApiResponseErrorCodeSamplesErrorCodeSample struct {
-	Code        *string `json:"Code" xml:"Code" require:"true"`
-	Message     *string `json:"Message" xml:"Message" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
-	Model       *string `json:"Model" xml:"Model" require:"true"`
+	Code        *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message     *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	Model       *string `json:"Model,omitempty" xml:"Model,omitempty" require:"true"`
 }
 
 func (s DescribeApiResponseErrorCodeSamplesErrorCodeSample) String() string {
@@ -13393,7 +12967,7 @@ func (s *DescribeApiResponseErrorCodeSamplesErrorCodeSample) SetModel(v string) 
 }
 
 type DescribeApiResponseResultDescriptions struct {
-	ResultDescription []*DescribeApiResponseResultDescriptionsResultDescription `json:"ResultDescription" xml:"ResultDescription" require:"true" type:"Repeated"`
+	ResultDescription []*DescribeApiResponseResultDescriptionsResultDescription `json:"ResultDescription,omitempty" xml:"ResultDescription,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiResponseResultDescriptions) String() string {
@@ -13410,14 +12984,14 @@ func (s *DescribeApiResponseResultDescriptions) SetResultDescription(v []*Descri
 }
 
 type DescribeApiResponseResultDescriptionsResultDescription struct {
-	Id          *string `json:"Id" xml:"Id" require:"true"`
-	Pid         *string `json:"Pid" xml:"Pid" require:"true"`
-	HasChild    *bool   `json:"HasChild" xml:"HasChild" require:"true"`
-	Key         *string `json:"Key" xml:"Key" require:"true"`
-	Name        *string `json:"Name" xml:"Name" require:"true"`
-	Mandatory   *bool   `json:"Mandatory" xml:"Mandatory" require:"true"`
-	Type        *string `json:"Type" xml:"Type" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
+	Id          *string `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	Pid         *string `json:"Pid,omitempty" xml:"Pid,omitempty" require:"true"`
+	HasChild    *bool   `json:"HasChild,omitempty" xml:"HasChild,omitempty" require:"true"`
+	Key         *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Name        *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Mandatory   *bool   `json:"Mandatory,omitempty" xml:"Mandatory,omitempty" require:"true"`
+	Type        *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeApiResponseResultDescriptionsResultDescription) String() string {
@@ -13469,7 +13043,7 @@ func (s *DescribeApiResponseResultDescriptionsResultDescription) SetDescription(
 }
 
 type DescribeApiResponseSystemParameters struct {
-	SystemParameter []*DescribeApiResponseSystemParametersSystemParameter `json:"SystemParameter" xml:"SystemParameter" require:"true" type:"Repeated"`
+	SystemParameter []*DescribeApiResponseSystemParametersSystemParameter `json:"SystemParameter,omitempty" xml:"SystemParameter,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiResponseSystemParameters) String() string {
@@ -13486,11 +13060,11 @@ func (s *DescribeApiResponseSystemParameters) SetSystemParameter(v []*DescribeAp
 }
 
 type DescribeApiResponseSystemParametersSystemParameter struct {
-	ParameterName        *string `json:"ParameterName" xml:"ParameterName" require:"true"`
-	ServiceParameterName *string `json:"ServiceParameterName" xml:"ServiceParameterName" require:"true"`
-	Location             *string `json:"Location" xml:"Location" require:"true"`
-	DemoValue            *string `json:"DemoValue" xml:"DemoValue" require:"true"`
-	Description          *string `json:"Description" xml:"Description" require:"true"`
+	ParameterName        *string `json:"ParameterName,omitempty" xml:"ParameterName,omitempty" require:"true"`
+	ServiceParameterName *string `json:"ServiceParameterName,omitempty" xml:"ServiceParameterName,omitempty" require:"true"`
+	Location             *string `json:"Location,omitempty" xml:"Location,omitempty" require:"true"`
+	DemoValue            *string `json:"DemoValue,omitempty" xml:"DemoValue,omitempty" require:"true"`
+	Description          *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeApiResponseSystemParametersSystemParameter) String() string {
@@ -13527,7 +13101,7 @@ func (s *DescribeApiResponseSystemParametersSystemParameter) SetDescription(v st
 }
 
 type DescribeApiResponseCustomSystemParameters struct {
-	CustomSystemParameter []*DescribeApiResponseCustomSystemParametersCustomSystemParameter `json:"CustomSystemParameter" xml:"CustomSystemParameter" require:"true" type:"Repeated"`
+	CustomSystemParameter []*DescribeApiResponseCustomSystemParametersCustomSystemParameter `json:"CustomSystemParameter,omitempty" xml:"CustomSystemParameter,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiResponseCustomSystemParameters) String() string {
@@ -13544,11 +13118,11 @@ func (s *DescribeApiResponseCustomSystemParameters) SetCustomSystemParameter(v [
 }
 
 type DescribeApiResponseCustomSystemParametersCustomSystemParameter struct {
-	ParameterName        *string `json:"ParameterName" xml:"ParameterName" require:"true"`
-	ServiceParameterName *string `json:"ServiceParameterName" xml:"ServiceParameterName" require:"true"`
-	Location             *string `json:"Location" xml:"Location" require:"true"`
-	DemoValue            *string `json:"DemoValue" xml:"DemoValue" require:"true"`
-	Description          *string `json:"Description" xml:"Description" require:"true"`
+	ParameterName        *string `json:"ParameterName,omitempty" xml:"ParameterName,omitempty" require:"true"`
+	ServiceParameterName *string `json:"ServiceParameterName,omitempty" xml:"ServiceParameterName,omitempty" require:"true"`
+	Location             *string `json:"Location,omitempty" xml:"Location,omitempty" require:"true"`
+	DemoValue            *string `json:"DemoValue,omitempty" xml:"DemoValue,omitempty" require:"true"`
+	Description          *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeApiResponseCustomSystemParametersCustomSystemParameter) String() string {
@@ -13585,7 +13159,7 @@ func (s *DescribeApiResponseCustomSystemParametersCustomSystemParameter) SetDesc
 }
 
 type DescribeApiResponseConstantParameters struct {
-	ConstantParameter []*DescribeApiResponseConstantParametersConstantParameter `json:"ConstantParameter" xml:"ConstantParameter" require:"true" type:"Repeated"`
+	ConstantParameter []*DescribeApiResponseConstantParametersConstantParameter `json:"ConstantParameter,omitempty" xml:"ConstantParameter,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiResponseConstantParameters) String() string {
@@ -13602,10 +13176,10 @@ func (s *DescribeApiResponseConstantParameters) SetConstantParameter(v []*Descri
 }
 
 type DescribeApiResponseConstantParametersConstantParameter struct {
-	ServiceParameterName *string `json:"ServiceParameterName" xml:"ServiceParameterName" require:"true"`
-	ConstantValue        *string `json:"ConstantValue" xml:"ConstantValue" require:"true"`
-	Location             *string `json:"Location" xml:"Location" require:"true"`
-	Description          *string `json:"Description" xml:"Description" require:"true"`
+	ServiceParameterName *string `json:"ServiceParameterName,omitempty" xml:"ServiceParameterName,omitempty" require:"true"`
+	ConstantValue        *string `json:"ConstantValue,omitempty" xml:"ConstantValue,omitempty" require:"true"`
+	Location             *string `json:"Location,omitempty" xml:"Location,omitempty" require:"true"`
+	Description          *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeApiResponseConstantParametersConstantParameter) String() string {
@@ -13637,7 +13211,7 @@ func (s *DescribeApiResponseConstantParametersConstantParameter) SetDescription(
 }
 
 type DescribeApiResponseRequestParameters struct {
-	RequestParameter []*DescribeApiResponseRequestParametersRequestParameter `json:"RequestParameter" xml:"RequestParameter" require:"true" type:"Repeated"`
+	RequestParameter []*DescribeApiResponseRequestParametersRequestParameter `json:"RequestParameter,omitempty" xml:"RequestParameter,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiResponseRequestParameters) String() string {
@@ -13654,23 +13228,23 @@ func (s *DescribeApiResponseRequestParameters) SetRequestParameter(v []*Describe
 }
 
 type DescribeApiResponseRequestParametersRequestParameter struct {
-	ApiParameterName  *string `json:"ApiParameterName" xml:"ApiParameterName" require:"true"`
-	Location          *string `json:"Location" xml:"Location" require:"true"`
-	ParameterType     *string `json:"ParameterType" xml:"ParameterType" require:"true"`
-	Required          *string `json:"Required" xml:"Required" require:"true"`
-	DefaultValue      *string `json:"DefaultValue" xml:"DefaultValue" require:"true"`
-	DemoValue         *string `json:"DemoValue" xml:"DemoValue" require:"true"`
-	MaxValue          *int64  `json:"MaxValue" xml:"MaxValue" require:"true"`
-	MinValue          *int64  `json:"MinValue" xml:"MinValue" require:"true"`
-	MaxLength         *int64  `json:"MaxLength" xml:"MaxLength" require:"true"`
-	MinLength         *int64  `json:"MinLength" xml:"MinLength" require:"true"`
-	RegularExpression *string `json:"RegularExpression" xml:"RegularExpression" require:"true"`
-	JsonScheme        *string `json:"JsonScheme" xml:"JsonScheme" require:"true"`
-	EnumValue         *string `json:"EnumValue" xml:"EnumValue" require:"true"`
-	DocShow           *string `json:"DocShow" xml:"DocShow" require:"true"`
-	DocOrder          *int    `json:"DocOrder" xml:"DocOrder" require:"true"`
-	Description       *string `json:"Description" xml:"Description" require:"true"`
-	ArrayItemsType    *string `json:"ArrayItemsType" xml:"ArrayItemsType" require:"true"`
+	ApiParameterName  *string `json:"ApiParameterName,omitempty" xml:"ApiParameterName,omitempty" require:"true"`
+	Location          *string `json:"Location,omitempty" xml:"Location,omitempty" require:"true"`
+	ParameterType     *string `json:"ParameterType,omitempty" xml:"ParameterType,omitempty" require:"true"`
+	Required          *string `json:"Required,omitempty" xml:"Required,omitempty" require:"true"`
+	DefaultValue      *string `json:"DefaultValue,omitempty" xml:"DefaultValue,omitempty" require:"true"`
+	DemoValue         *string `json:"DemoValue,omitempty" xml:"DemoValue,omitempty" require:"true"`
+	MaxValue          *int64  `json:"MaxValue,omitempty" xml:"MaxValue,omitempty" require:"true"`
+	MinValue          *int64  `json:"MinValue,omitempty" xml:"MinValue,omitempty" require:"true"`
+	MaxLength         *int64  `json:"MaxLength,omitempty" xml:"MaxLength,omitempty" require:"true"`
+	MinLength         *int64  `json:"MinLength,omitempty" xml:"MinLength,omitempty" require:"true"`
+	RegularExpression *string `json:"RegularExpression,omitempty" xml:"RegularExpression,omitempty" require:"true"`
+	JsonScheme        *string `json:"JsonScheme,omitempty" xml:"JsonScheme,omitempty" require:"true"`
+	EnumValue         *string `json:"EnumValue,omitempty" xml:"EnumValue,omitempty" require:"true"`
+	DocShow           *string `json:"DocShow,omitempty" xml:"DocShow,omitempty" require:"true"`
+	DocOrder          *int    `json:"DocOrder,omitempty" xml:"DocOrder,omitempty" require:"true"`
+	Description       *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	ArrayItemsType    *string `json:"ArrayItemsType,omitempty" xml:"ArrayItemsType,omitempty" require:"true"`
 }
 
 func (s DescribeApiResponseRequestParametersRequestParameter) String() string {
@@ -13767,7 +13341,7 @@ func (s *DescribeApiResponseRequestParametersRequestParameter) SetArrayItemsType
 }
 
 type DescribeApiResponseServiceParameters struct {
-	ServiceParameter []*DescribeApiResponseServiceParametersServiceParameter `json:"ServiceParameter" xml:"ServiceParameter" require:"true" type:"Repeated"`
+	ServiceParameter []*DescribeApiResponseServiceParametersServiceParameter `json:"ServiceParameter,omitempty" xml:"ServiceParameter,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiResponseServiceParameters) String() string {
@@ -13784,9 +13358,9 @@ func (s *DescribeApiResponseServiceParameters) SetServiceParameter(v []*Describe
 }
 
 type DescribeApiResponseServiceParametersServiceParameter struct {
-	ServiceParameterName *string `json:"ServiceParameterName" xml:"ServiceParameterName" require:"true"`
-	Location             *string `json:"Location" xml:"Location" require:"true"`
-	ParameterType        *string `json:"ParameterType" xml:"ParameterType" require:"true"`
+	ServiceParameterName *string `json:"ServiceParameterName,omitempty" xml:"ServiceParameterName,omitempty" require:"true"`
+	Location             *string `json:"Location,omitempty" xml:"Location,omitempty" require:"true"`
+	ParameterType        *string `json:"ParameterType,omitempty" xml:"ParameterType,omitempty" require:"true"`
 }
 
 func (s DescribeApiResponseServiceParametersServiceParameter) String() string {
@@ -13813,7 +13387,7 @@ func (s *DescribeApiResponseServiceParametersServiceParameter) SetParameterType(
 }
 
 type DescribeApiResponseServiceParametersMap struct {
-	ServiceParameterMap []*DescribeApiResponseServiceParametersMapServiceParameterMap `json:"ServiceParameterMap" xml:"ServiceParameterMap" require:"true" type:"Repeated"`
+	ServiceParameterMap []*DescribeApiResponseServiceParametersMapServiceParameterMap `json:"ServiceParameterMap,omitempty" xml:"ServiceParameterMap,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiResponseServiceParametersMap) String() string {
@@ -13830,8 +13404,8 @@ func (s *DescribeApiResponseServiceParametersMap) SetServiceParameterMap(v []*De
 }
 
 type DescribeApiResponseServiceParametersMapServiceParameterMap struct {
-	ServiceParameterName *string `json:"ServiceParameterName" xml:"ServiceParameterName" require:"true"`
-	RequestParameterName *string `json:"RequestParameterName" xml:"RequestParameterName" require:"true"`
+	ServiceParameterName *string `json:"ServiceParameterName,omitempty" xml:"ServiceParameterName,omitempty" require:"true"`
+	RequestParameterName *string `json:"RequestParameterName,omitempty" xml:"RequestParameterName,omitempty" require:"true"`
 }
 
 func (s DescribeApiResponseServiceParametersMapServiceParameterMap) String() string {
@@ -13853,7 +13427,7 @@ func (s *DescribeApiResponseServiceParametersMapServiceParameterMap) SetRequestP
 }
 
 type DescribeApiResponseDeployedInfos struct {
-	DeployedInfo []*DescribeApiResponseDeployedInfosDeployedInfo `json:"DeployedInfo" xml:"DeployedInfo" require:"true" type:"Repeated"`
+	DeployedInfo []*DescribeApiResponseDeployedInfosDeployedInfo `json:"DeployedInfo,omitempty" xml:"DeployedInfo,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiResponseDeployedInfos) String() string {
@@ -13870,9 +13444,9 @@ func (s *DescribeApiResponseDeployedInfos) SetDeployedInfo(v []*DescribeApiRespo
 }
 
 type DescribeApiResponseDeployedInfosDeployedInfo struct {
-	StageName        *string `json:"StageName" xml:"StageName" require:"true"`
-	EffectiveVersion *string `json:"EffectiveVersion" xml:"EffectiveVersion" require:"true"`
-	DeployedStatus   *string `json:"DeployedStatus" xml:"DeployedStatus" require:"true"`
+	StageName        *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	EffectiveVersion *string `json:"EffectiveVersion,omitempty" xml:"EffectiveVersion,omitempty" require:"true"`
+	DeployedStatus   *string `json:"DeployedStatus,omitempty" xml:"DeployedStatus,omitempty" require:"true"`
 }
 
 func (s DescribeApiResponseDeployedInfosDeployedInfo) String() string {
@@ -13899,13 +13473,13 @@ func (s *DescribeApiResponseDeployedInfosDeployedInfo) SetDeployedStatus(v strin
 }
 
 type DescribeApiResponseRequestConfig struct {
-	RequestProtocol     *string `json:"RequestProtocol" xml:"RequestProtocol" require:"true"`
-	RequestHttpMethod   *string `json:"RequestHttpMethod" xml:"RequestHttpMethod" require:"true"`
-	RequestPath         *string `json:"RequestPath" xml:"RequestPath" require:"true"`
-	BodyFormat          *string `json:"BodyFormat" xml:"BodyFormat" require:"true"`
-	PostBodyDescription *string `json:"PostBodyDescription" xml:"PostBodyDescription" require:"true"`
-	RequestMode         *string `json:"RequestMode" xml:"RequestMode" require:"true"`
-	BodyModel           *string `json:"BodyModel" xml:"BodyModel" require:"true"`
+	RequestProtocol     *string `json:"RequestProtocol,omitempty" xml:"RequestProtocol,omitempty" require:"true"`
+	RequestHttpMethod   *string `json:"RequestHttpMethod,omitempty" xml:"RequestHttpMethod,omitempty" require:"true"`
+	RequestPath         *string `json:"RequestPath,omitempty" xml:"RequestPath,omitempty" require:"true"`
+	BodyFormat          *string `json:"BodyFormat,omitempty" xml:"BodyFormat,omitempty" require:"true"`
+	PostBodyDescription *string `json:"PostBodyDescription,omitempty" xml:"PostBodyDescription,omitempty" require:"true"`
+	RequestMode         *string `json:"RequestMode,omitempty" xml:"RequestMode,omitempty" require:"true"`
+	BodyModel           *string `json:"BodyModel,omitempty" xml:"BodyModel,omitempty" require:"true"`
 }
 
 func (s DescribeApiResponseRequestConfig) String() string {
@@ -13952,21 +13526,21 @@ func (s *DescribeApiResponseRequestConfig) SetBodyModel(v string) *DescribeApiRe
 }
 
 type DescribeApiResponseServiceConfig struct {
-	ServiceProtocol       *string                                                `json:"ServiceProtocol" xml:"ServiceProtocol" require:"true"`
-	ServiceAddress        *string                                                `json:"ServiceAddress" xml:"ServiceAddress" require:"true"`
-	ServiceHttpMethod     *string                                                `json:"ServiceHttpMethod" xml:"ServiceHttpMethod" require:"true"`
-	ServicePath           *string                                                `json:"ServicePath" xml:"ServicePath" require:"true"`
-	ServiceTimeout        *int                                                   `json:"ServiceTimeout" xml:"ServiceTimeout" require:"true"`
-	ContentTypeCatagory   *string                                                `json:"ContentTypeCatagory" xml:"ContentTypeCatagory" require:"true"`
-	ContentTypeValue      *string                                                `json:"ContentTypeValue" xml:"ContentTypeValue" require:"true"`
-	Mock                  *string                                                `json:"Mock" xml:"Mock" require:"true"`
-	MockResult            *string                                                `json:"MockResult" xml:"MockResult" require:"true"`
-	ServiceVpcEnable      *string                                                `json:"ServiceVpcEnable" xml:"ServiceVpcEnable" require:"true"`
-	AoneAppName           *string                                                `json:"AoneAppName" xml:"AoneAppName" require:"true"`
-	MockStatusCode        *int                                                   `json:"MockStatusCode" xml:"MockStatusCode" require:"true"`
-	MockHeaders           *DescribeApiResponseServiceConfigMockHeaders           `json:"MockHeaders" xml:"MockHeaders" require:"true" type:"Struct"`
-	VpcConfig             *DescribeApiResponseServiceConfigVpcConfig             `json:"VpcConfig" xml:"VpcConfig" require:"true" type:"Struct"`
-	FunctionComputeConfig *DescribeApiResponseServiceConfigFunctionComputeConfig `json:"FunctionComputeConfig" xml:"FunctionComputeConfig" require:"true" type:"Struct"`
+	ServiceProtocol       *string                                                `json:"ServiceProtocol,omitempty" xml:"ServiceProtocol,omitempty" require:"true"`
+	ServiceAddress        *string                                                `json:"ServiceAddress,omitempty" xml:"ServiceAddress,omitempty" require:"true"`
+	ServiceHttpMethod     *string                                                `json:"ServiceHttpMethod,omitempty" xml:"ServiceHttpMethod,omitempty" require:"true"`
+	ServicePath           *string                                                `json:"ServicePath,omitempty" xml:"ServicePath,omitempty" require:"true"`
+	ServiceTimeout        *int                                                   `json:"ServiceTimeout,omitempty" xml:"ServiceTimeout,omitempty" require:"true"`
+	ContentTypeCatagory   *string                                                `json:"ContentTypeCatagory,omitempty" xml:"ContentTypeCatagory,omitempty" require:"true"`
+	ContentTypeValue      *string                                                `json:"ContentTypeValue,omitempty" xml:"ContentTypeValue,omitempty" require:"true"`
+	Mock                  *string                                                `json:"Mock,omitempty" xml:"Mock,omitempty" require:"true"`
+	MockResult            *string                                                `json:"MockResult,omitempty" xml:"MockResult,omitempty" require:"true"`
+	ServiceVpcEnable      *string                                                `json:"ServiceVpcEnable,omitempty" xml:"ServiceVpcEnable,omitempty" require:"true"`
+	AoneAppName           *string                                                `json:"AoneAppName,omitempty" xml:"AoneAppName,omitempty" require:"true"`
+	MockStatusCode        *int                                                   `json:"MockStatusCode,omitempty" xml:"MockStatusCode,omitempty" require:"true"`
+	MockHeaders           *DescribeApiResponseServiceConfigMockHeaders           `json:"MockHeaders,omitempty" xml:"MockHeaders,omitempty" require:"true" type:"Struct"`
+	VpcConfig             *DescribeApiResponseServiceConfigVpcConfig             `json:"VpcConfig,omitempty" xml:"VpcConfig,omitempty" require:"true" type:"Struct"`
+	FunctionComputeConfig *DescribeApiResponseServiceConfigFunctionComputeConfig `json:"FunctionComputeConfig,omitempty" xml:"FunctionComputeConfig,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiResponseServiceConfig) String() string {
@@ -14053,7 +13627,7 @@ func (s *DescribeApiResponseServiceConfig) SetFunctionComputeConfig(v *DescribeA
 }
 
 type DescribeApiResponseServiceConfigMockHeaders struct {
-	MockHeader []*DescribeApiResponseServiceConfigMockHeadersMockHeader `json:"MockHeader" xml:"MockHeader" require:"true" type:"Repeated"`
+	MockHeader []*DescribeApiResponseServiceConfigMockHeadersMockHeader `json:"MockHeader,omitempty" xml:"MockHeader,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeApiResponseServiceConfigMockHeaders) String() string {
@@ -14070,8 +13644,8 @@ func (s *DescribeApiResponseServiceConfigMockHeaders) SetMockHeader(v []*Describ
 }
 
 type DescribeApiResponseServiceConfigMockHeadersMockHeader struct {
-	HeaderName  *string `json:"HeaderName" xml:"HeaderName" require:"true"`
-	HeaderValue *string `json:"HeaderValue" xml:"HeaderValue" require:"true"`
+	HeaderName  *string `json:"HeaderName,omitempty" xml:"HeaderName,omitempty" require:"true"`
+	HeaderValue *string `json:"HeaderValue,omitempty" xml:"HeaderValue,omitempty" require:"true"`
 }
 
 func (s DescribeApiResponseServiceConfigMockHeadersMockHeader) String() string {
@@ -14093,10 +13667,10 @@ func (s *DescribeApiResponseServiceConfigMockHeadersMockHeader) SetHeaderValue(v
 }
 
 type DescribeApiResponseServiceConfigVpcConfig struct {
-	Name       *string `json:"Name" xml:"Name" require:"true"`
-	VpcId      *string `json:"VpcId" xml:"VpcId" require:"true"`
-	InstanceId *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	Port       *int    `json:"Port" xml:"Port" require:"true"`
+	Name       *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	VpcId      *string `json:"VpcId,omitempty" xml:"VpcId,omitempty" require:"true"`
+	InstanceId *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	Port       *int    `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
 }
 
 func (s DescribeApiResponseServiceConfigVpcConfig) String() string {
@@ -14128,10 +13702,10 @@ func (s *DescribeApiResponseServiceConfigVpcConfig) SetPort(v int) *DescribeApiR
 }
 
 type DescribeApiResponseServiceConfigFunctionComputeConfig struct {
-	RegionId     *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ServiceName  *string `json:"ServiceName" xml:"ServiceName" require:"true"`
-	FunctionName *string `json:"FunctionName" xml:"FunctionName" require:"true"`
-	RoleArn      *string `json:"RoleArn" xml:"RoleArn" require:"true"`
+	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ServiceName  *string `json:"ServiceName,omitempty" xml:"ServiceName,omitempty" require:"true"`
+	FunctionName *string `json:"FunctionName,omitempty" xml:"FunctionName,omitempty" require:"true"`
+	RoleArn      *string `json:"RoleArn,omitempty" xml:"RoleArn,omitempty" require:"true"`
 }
 
 func (s DescribeApiResponseServiceConfigFunctionComputeConfig) String() string {
@@ -14163,10 +13737,10 @@ func (s *DescribeApiResponseServiceConfigFunctionComputeConfig) SetRoleArn(v str
 }
 
 type DescribeApiResponseOpenIdConnectConfig struct {
-	OpenIdApiType    *string `json:"OpenIdApiType" xml:"OpenIdApiType" require:"true"`
-	IdTokenParamName *string `json:"IdTokenParamName" xml:"IdTokenParamName" require:"true"`
-	PublicKeyId      *string `json:"PublicKeyId" xml:"PublicKeyId" require:"true"`
-	PublicKey        *string `json:"PublicKey" xml:"PublicKey" require:"true"`
+	OpenIdApiType    *string `json:"OpenIdApiType,omitempty" xml:"OpenIdApiType,omitempty" require:"true"`
+	IdTokenParamName *string `json:"IdTokenParamName,omitempty" xml:"IdTokenParamName,omitempty" require:"true"`
+	PublicKeyId      *string `json:"PublicKeyId,omitempty" xml:"PublicKeyId,omitempty" require:"true"`
+	PublicKey        *string `json:"PublicKey,omitempty" xml:"PublicKey,omitempty" require:"true"`
 }
 
 func (s DescribeApiResponseOpenIdConnectConfig) String() string {
@@ -14198,12 +13772,11 @@ func (s *DescribeApiResponseOpenIdConnectConfig) SetPublicKey(v string) *Describ
 }
 
 type DeployApiRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId"`
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
-	StageName     *string `json:"StageName" xml:"StageName" require:"true"`
-	Description   *string `json:"Description" xml:"Description" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
+	Description   *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DeployApiRequest) String() string {
@@ -14216,11 +13789,6 @@ func (s DeployApiRequest) GoString() string {
 
 func (s *DeployApiRequest) SetSecurityToken(v string) *DeployApiRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DeployApiRequest) SetAccessKeyId(v string) *DeployApiRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -14245,7 +13813,7 @@ func (s *DeployApiRequest) SetDescription(v string) *DeployApiRequest {
 }
 
 type DeployApiResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeployApiResponse) String() string {
@@ -14262,11 +13830,10 @@ func (s *DeployApiResponse) SetRequestId(v string) *DeployApiResponse {
 }
 
 type DeleteTrafficSpecialControlRequest struct {
-	SecurityToken    *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId      *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	TrafficControlId *string `json:"TrafficControlId" xml:"TrafficControlId" require:"true"`
-	SpecialType      *string `json:"SpecialType" xml:"SpecialType" require:"true"`
-	SpecialKey       *string `json:"SpecialKey" xml:"SpecialKey" require:"true"`
+	SecurityToken    *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	TrafficControlId *string `json:"TrafficControlId,omitempty" xml:"TrafficControlId,omitempty" require:"true"`
+	SpecialType      *string `json:"SpecialType,omitempty" xml:"SpecialType,omitempty" require:"true"`
+	SpecialKey       *string `json:"SpecialKey,omitempty" xml:"SpecialKey,omitempty" require:"true"`
 }
 
 func (s DeleteTrafficSpecialControlRequest) String() string {
@@ -14279,11 +13846,6 @@ func (s DeleteTrafficSpecialControlRequest) GoString() string {
 
 func (s *DeleteTrafficSpecialControlRequest) SetSecurityToken(v string) *DeleteTrafficSpecialControlRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DeleteTrafficSpecialControlRequest) SetAccessKeyId(v string) *DeleteTrafficSpecialControlRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -14303,7 +13865,7 @@ func (s *DeleteTrafficSpecialControlRequest) SetSpecialKey(v string) *DeleteTraf
 }
 
 type DeleteTrafficSpecialControlResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteTrafficSpecialControlResponse) String() string {
@@ -14320,9 +13882,8 @@ func (s *DeleteTrafficSpecialControlResponse) SetRequestId(v string) *DeleteTraf
 }
 
 type DeleteTrafficControlRequest struct {
-	SecurityToken    *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId      *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	TrafficControlId *string `json:"TrafficControlId" xml:"TrafficControlId" require:"true"`
+	SecurityToken    *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	TrafficControlId *string `json:"TrafficControlId,omitempty" xml:"TrafficControlId,omitempty" require:"true"`
 }
 
 func (s DeleteTrafficControlRequest) String() string {
@@ -14338,18 +13899,13 @@ func (s *DeleteTrafficControlRequest) SetSecurityToken(v string) *DeleteTrafficC
 	return s
 }
 
-func (s *DeleteTrafficControlRequest) SetAccessKeyId(v string) *DeleteTrafficControlRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DeleteTrafficControlRequest) SetTrafficControlId(v string) *DeleteTrafficControlRequest {
 	s.TrafficControlId = &v
 	return s
 }
 
 type DeleteTrafficControlResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteTrafficControlResponse) String() string {
@@ -14366,9 +13922,8 @@ func (s *DeleteTrafficControlResponse) SetRequestId(v string) *DeleteTrafficCont
 }
 
 type DeleteSignatureRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	SignatureId   *string `json:"SignatureId" xml:"SignatureId" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	SignatureId   *string `json:"SignatureId,omitempty" xml:"SignatureId,omitempty" require:"true"`
 }
 
 func (s DeleteSignatureRequest) String() string {
@@ -14384,18 +13939,13 @@ func (s *DeleteSignatureRequest) SetSecurityToken(v string) *DeleteSignatureRequ
 	return s
 }
 
-func (s *DeleteSignatureRequest) SetAccessKeyId(v string) *DeleteSignatureRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DeleteSignatureRequest) SetSignatureId(v string) *DeleteSignatureRequest {
 	s.SignatureId = &v
 	return s
 }
 
 type DeleteSignatureResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteSignatureResponse) String() string {
@@ -14412,11 +13962,10 @@ func (s *DeleteSignatureResponse) SetRequestId(v string) *DeleteSignatureRespons
 }
 
 type DeleteDomainCertificateRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	DomainName    *string `json:"DomainName" xml:"DomainName" require:"true"`
-	CertificateId *string `json:"CertificateId" xml:"CertificateId" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	DomainName    *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	CertificateId *string `json:"CertificateId,omitempty" xml:"CertificateId,omitempty" require:"true"`
 }
 
 func (s DeleteDomainCertificateRequest) String() string {
@@ -14429,11 +13978,6 @@ func (s DeleteDomainCertificateRequest) GoString() string {
 
 func (s *DeleteDomainCertificateRequest) SetSecurityToken(v string) *DeleteDomainCertificateRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *DeleteDomainCertificateRequest) SetAccessKeyId(v string) *DeleteDomainCertificateRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -14453,7 +13997,7 @@ func (s *DeleteDomainCertificateRequest) SetCertificateId(v string) *DeleteDomai
 }
 
 type DeleteDomainCertificateResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteDomainCertificateResponse) String() string {
@@ -14470,10 +14014,9 @@ func (s *DeleteDomainCertificateResponse) SetRequestId(v string) *DeleteDomainCe
 }
 
 type DeleteDomainRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId" require:"true"`
-	DomainName    *string `json:"DomainName" xml:"DomainName" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	DomainName    *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
 }
 
 func (s DeleteDomainRequest) String() string {
@@ -14489,11 +14032,6 @@ func (s *DeleteDomainRequest) SetSecurityToken(v string) *DeleteDomainRequest {
 	return s
 }
 
-func (s *DeleteDomainRequest) SetAccessKeyId(v string) *DeleteDomainRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DeleteDomainRequest) SetGroupId(v string) *DeleteDomainRequest {
 	s.GroupId = &v
 	return s
@@ -14505,7 +14043,7 @@ func (s *DeleteDomainRequest) SetDomainName(v string) *DeleteDomainRequest {
 }
 
 type DeleteDomainResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteDomainResponse) String() string {
@@ -14522,10 +14060,9 @@ func (s *DeleteDomainResponse) SetRequestId(v string) *DeleteDomainResponse {
 }
 
 type DeleteAppRequest struct {
-	SecurityToken *string                `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string                `json:"AccessKeyId" xml:"AccessKeyId"`
-	AppId         *int64                 `json:"AppId" xml:"AppId" require:"true"`
-	Tag           []*DeleteAppRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
+	SecurityToken *string                `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	AppId         *int64                 `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	Tag           []*DeleteAppRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
 }
 
 func (s DeleteAppRequest) String() string {
@@ -14541,11 +14078,6 @@ func (s *DeleteAppRequest) SetSecurityToken(v string) *DeleteAppRequest {
 	return s
 }
 
-func (s *DeleteAppRequest) SetAccessKeyId(v string) *DeleteAppRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DeleteAppRequest) SetAppId(v int64) *DeleteAppRequest {
 	s.AppId = &v
 	return s
@@ -14557,8 +14089,8 @@ func (s *DeleteAppRequest) SetTag(v []*DeleteAppRequestTag) *DeleteAppRequest {
 }
 
 type DeleteAppRequestTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s DeleteAppRequestTag) String() string {
@@ -14580,7 +14112,7 @@ func (s *DeleteAppRequestTag) SetValue(v string) *DeleteAppRequestTag {
 }
 
 type DeleteAppResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteAppResponse) String() string {
@@ -14597,10 +14129,9 @@ func (s *DeleteAppResponse) SetRequestId(v string) *DeleteAppResponse {
 }
 
 type DeleteApiGroupRequest struct {
-	SecurityToken *string                     `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string                     `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string                     `json:"GroupId" xml:"GroupId" require:"true"`
-	Tag           []*DeleteApiGroupRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
+	SecurityToken *string                     `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string                     `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	Tag           []*DeleteApiGroupRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
 }
 
 func (s DeleteApiGroupRequest) String() string {
@@ -14616,11 +14147,6 @@ func (s *DeleteApiGroupRequest) SetSecurityToken(v string) *DeleteApiGroupReques
 	return s
 }
 
-func (s *DeleteApiGroupRequest) SetAccessKeyId(v string) *DeleteApiGroupRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DeleteApiGroupRequest) SetGroupId(v string) *DeleteApiGroupRequest {
 	s.GroupId = &v
 	return s
@@ -14632,8 +14158,8 @@ func (s *DeleteApiGroupRequest) SetTag(v []*DeleteApiGroupRequestTag) *DeleteApi
 }
 
 type DeleteApiGroupRequestTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s DeleteApiGroupRequestTag) String() string {
@@ -14655,7 +14181,7 @@ func (s *DeleteApiGroupRequestTag) SetValue(v string) *DeleteApiGroupRequestTag 
 }
 
 type DeleteApiGroupResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteApiGroupResponse) String() string {
@@ -14672,10 +14198,9 @@ func (s *DeleteApiGroupResponse) SetRequestId(v string) *DeleteApiGroupResponse 
 }
 
 type DeleteApiRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId"`
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
 }
 
 func (s DeleteApiRequest) String() string {
@@ -14691,11 +14216,6 @@ func (s *DeleteApiRequest) SetSecurityToken(v string) *DeleteApiRequest {
 	return s
 }
 
-func (s *DeleteApiRequest) SetAccessKeyId(v string) *DeleteApiRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DeleteApiRequest) SetGroupId(v string) *DeleteApiRequest {
 	s.GroupId = &v
 	return s
@@ -14707,7 +14227,7 @@ func (s *DeleteApiRequest) SetApiId(v string) *DeleteApiRequest {
 }
 
 type DeleteApiResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteApiResponse) String() string {
@@ -14724,9 +14244,8 @@ func (s *DeleteApiResponse) SetRequestId(v string) *DeleteApiResponse {
 }
 
 type DeleteAllTrafficSpecialControlRequest struct {
-	SecurityToken    *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId      *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	TrafficControlId *string `json:"TrafficControlId" xml:"TrafficControlId" require:"true"`
+	SecurityToken    *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	TrafficControlId *string `json:"TrafficControlId,omitempty" xml:"TrafficControlId,omitempty" require:"true"`
 }
 
 func (s DeleteAllTrafficSpecialControlRequest) String() string {
@@ -14742,18 +14261,13 @@ func (s *DeleteAllTrafficSpecialControlRequest) SetSecurityToken(v string) *Dele
 	return s
 }
 
-func (s *DeleteAllTrafficSpecialControlRequest) SetAccessKeyId(v string) *DeleteAllTrafficSpecialControlRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
 func (s *DeleteAllTrafficSpecialControlRequest) SetTrafficControlId(v string) *DeleteAllTrafficSpecialControlRequest {
 	s.TrafficControlId = &v
 	return s
 }
 
 type DeleteAllTrafficSpecialControlResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteAllTrafficSpecialControlResponse) String() string {
@@ -14770,14 +14284,13 @@ func (s *DeleteAllTrafficSpecialControlResponse) SetRequestId(v string) *DeleteA
 }
 
 type CreateTrafficControlRequest struct {
-	SecurityToken      *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId        *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	TrafficControlName *string `json:"TrafficControlName" xml:"TrafficControlName" require:"true"`
-	TrafficControlUnit *string `json:"TrafficControlUnit" xml:"TrafficControlUnit" require:"true"`
-	ApiDefault         *int    `json:"ApiDefault" xml:"ApiDefault" require:"true"`
-	UserDefault        *int    `json:"UserDefault" xml:"UserDefault"`
-	AppDefault         *int    `json:"AppDefault" xml:"AppDefault"`
-	Description        *string `json:"Description" xml:"Description"`
+	SecurityToken      *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	TrafficControlName *string `json:"TrafficControlName,omitempty" xml:"TrafficControlName,omitempty" require:"true"`
+	TrafficControlUnit *string `json:"TrafficControlUnit,omitempty" xml:"TrafficControlUnit,omitempty" require:"true"`
+	ApiDefault         *int    `json:"ApiDefault,omitempty" xml:"ApiDefault,omitempty" require:"true"`
+	UserDefault        *int    `json:"UserDefault,omitempty" xml:"UserDefault,omitempty"`
+	AppDefault         *int    `json:"AppDefault,omitempty" xml:"AppDefault,omitempty"`
+	Description        *string `json:"Description,omitempty" xml:"Description,omitempty"`
 }
 
 func (s CreateTrafficControlRequest) String() string {
@@ -14790,11 +14303,6 @@ func (s CreateTrafficControlRequest) GoString() string {
 
 func (s *CreateTrafficControlRequest) SetSecurityToken(v string) *CreateTrafficControlRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *CreateTrafficControlRequest) SetAccessKeyId(v string) *CreateTrafficControlRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -14829,8 +14337,8 @@ func (s *CreateTrafficControlRequest) SetDescription(v string) *CreateTrafficCon
 }
 
 type CreateTrafficControlResponse struct {
-	RequestId        *string `json:"RequestId" xml:"RequestId" require:"true"`
-	TrafficControlId *string `json:"TrafficControlId" xml:"TrafficControlId" require:"true"`
+	RequestId        *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TrafficControlId *string `json:"TrafficControlId,omitempty" xml:"TrafficControlId,omitempty" require:"true"`
 }
 
 func (s CreateTrafficControlResponse) String() string {
@@ -14852,11 +14360,10 @@ func (s *CreateTrafficControlResponse) SetTrafficControlId(v string) *CreateTraf
 }
 
 type CreateSignatureRequest struct {
-	SecurityToken   *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId     *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	SignatureName   *string `json:"SignatureName" xml:"SignatureName" require:"true"`
-	SignatureKey    *string `json:"SignatureKey" xml:"SignatureKey" require:"true"`
-	SignatureSecret *string `json:"SignatureSecret" xml:"SignatureSecret" require:"true"`
+	SecurityToken   *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	SignatureName   *string `json:"SignatureName,omitempty" xml:"SignatureName,omitempty" require:"true"`
+	SignatureKey    *string `json:"SignatureKey,omitempty" xml:"SignatureKey,omitempty" require:"true"`
+	SignatureSecret *string `json:"SignatureSecret,omitempty" xml:"SignatureSecret,omitempty" require:"true"`
 }
 
 func (s CreateSignatureRequest) String() string {
@@ -14869,11 +14376,6 @@ func (s CreateSignatureRequest) GoString() string {
 
 func (s *CreateSignatureRequest) SetSecurityToken(v string) *CreateSignatureRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *CreateSignatureRequest) SetAccessKeyId(v string) *CreateSignatureRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -14893,9 +14395,9 @@ func (s *CreateSignatureRequest) SetSignatureSecret(v string) *CreateSignatureRe
 }
 
 type CreateSignatureResponse struct {
-	RequestId     *string `json:"RequestId" xml:"RequestId" require:"true"`
-	SignatureId   *string `json:"SignatureId" xml:"SignatureId" require:"true"`
-	SignatureName *string `json:"SignatureName" xml:"SignatureName" require:"true"`
+	RequestId     *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SignatureId   *string `json:"SignatureId,omitempty" xml:"SignatureId,omitempty" require:"true"`
+	SignatureName *string `json:"SignatureName,omitempty" xml:"SignatureName,omitempty" require:"true"`
 }
 
 func (s CreateSignatureResponse) String() string {
@@ -14922,12 +14424,11 @@ func (s *CreateSignatureResponse) SetSignatureName(v string) *CreateSignatureRes
 }
 
 type CreateAppRequest struct {
-	SecurityToken *string                `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string                `json:"AccessKeyId" xml:"AccessKeyId"`
-	AppName       *string                `json:"AppName" xml:"AppName" require:"true"`
-	Description   *string                `json:"Description" xml:"Description"`
-	Source        *string                `json:"Source" xml:"Source"`
-	Tag           []*CreateAppRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
+	SecurityToken *string                `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	AppName       *string                `json:"AppName,omitempty" xml:"AppName,omitempty" require:"true"`
+	Description   *string                `json:"Description,omitempty" xml:"Description,omitempty"`
+	Source        *string                `json:"Source,omitempty" xml:"Source,omitempty"`
+	Tag           []*CreateAppRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
 }
 
 func (s CreateAppRequest) String() string {
@@ -14940,11 +14441,6 @@ func (s CreateAppRequest) GoString() string {
 
 func (s *CreateAppRequest) SetSecurityToken(v string) *CreateAppRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *CreateAppRequest) SetAccessKeyId(v string) *CreateAppRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -14969,8 +14465,8 @@ func (s *CreateAppRequest) SetTag(v []*CreateAppRequestTag) *CreateAppRequest {
 }
 
 type CreateAppRequestTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s CreateAppRequestTag) String() string {
@@ -14992,9 +14488,9 @@ func (s *CreateAppRequestTag) SetValue(v string) *CreateAppRequestTag {
 }
 
 type CreateAppResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	AppId     *int64  `json:"AppId" xml:"AppId" require:"true"`
-	TagStatus *bool   `json:"TagStatus" xml:"TagStatus" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AppId     *int64  `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	TagStatus *bool   `json:"TagStatus,omitempty" xml:"TagStatus,omitempty" require:"true"`
 }
 
 func (s CreateAppResponse) String() string {
@@ -15021,12 +14517,11 @@ func (s *CreateAppResponse) SetTagStatus(v bool) *CreateAppResponse {
 }
 
 type CreateApiGroupRequest struct {
-	SecurityToken *string                     `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string                     `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupName     *string                     `json:"GroupName" xml:"GroupName" require:"true"`
-	Description   *string                     `json:"Description" xml:"Description"`
-	InstanceId    *string                     `json:"InstanceId" xml:"InstanceId"`
-	Tag           []*CreateApiGroupRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
+	SecurityToken *string                     `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupName     *string                     `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	Description   *string                     `json:"Description,omitempty" xml:"Description,omitempty"`
+	InstanceId    *string                     `json:"InstanceId,omitempty" xml:"InstanceId,omitempty"`
+	Tag           []*CreateApiGroupRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
 }
 
 func (s CreateApiGroupRequest) String() string {
@@ -15039,11 +14534,6 @@ func (s CreateApiGroupRequest) GoString() string {
 
 func (s *CreateApiGroupRequest) SetSecurityToken(v string) *CreateApiGroupRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *CreateApiGroupRequest) SetAccessKeyId(v string) *CreateApiGroupRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -15068,8 +14558,8 @@ func (s *CreateApiGroupRequest) SetTag(v []*CreateApiGroupRequestTag) *CreateApi
 }
 
 type CreateApiGroupRequestTag struct {
-	Key   *string `json:"Key" xml:"Key"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s CreateApiGroupRequestTag) String() string {
@@ -15091,14 +14581,14 @@ func (s *CreateApiGroupRequestTag) SetValue(v string) *CreateApiGroupRequestTag 
 }
 
 type CreateApiGroupResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	GroupId      *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName    *string `json:"GroupName" xml:"GroupName" require:"true"`
-	SubDomain    *string `json:"SubDomain" xml:"SubDomain" require:"true"`
-	Description  *string `json:"Description" xml:"Description" require:"true"`
-	InstanceId   *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	InstanceType *string `json:"InstanceType" xml:"InstanceType" require:"true"`
-	TagStatus    *bool   `json:"TagStatus" xml:"TagStatus" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	GroupId      *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName    *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	SubDomain    *string `json:"SubDomain,omitempty" xml:"SubDomain,omitempty" require:"true"`
+	Description  *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	InstanceId   *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	InstanceType *string `json:"InstanceType,omitempty" xml:"InstanceType,omitempty" require:"true"`
+	TagStatus    *bool   `json:"TagStatus,omitempty" xml:"TagStatus,omitempty" require:"true"`
 }
 
 func (s CreateApiGroupResponse) String() string {
@@ -15150,32 +14640,31 @@ func (s *CreateApiGroupResponse) SetTagStatus(v bool) *CreateApiGroupResponse {
 }
 
 type CreateApiRequest struct {
-	SecurityToken        *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId              *string `json:"GroupId" xml:"GroupId" require:"true"`
-	ApiName              *string `json:"ApiName" xml:"ApiName" require:"true"`
-	Visibility           *string `json:"Visibility" xml:"Visibility" require:"true"`
-	Description          *string `json:"Description" xml:"Description"`
-	AuthType             *string `json:"AuthType" xml:"AuthType"`
-	RequestConfig        *string `json:"RequestConfig" xml:"RequestConfig" require:"true"`
-	ServiceConfig        *string `json:"ServiceConfig" xml:"ServiceConfig" require:"true"`
-	RequestParameters    *string `json:"RequestParameters" xml:"RequestParameters"`
-	SystemParameters     *string `json:"SystemParameters" xml:"SystemParameters"`
-	ConstantParameters   *string `json:"ConstantParameters" xml:"ConstantParameters"`
-	ServiceParameters    *string `json:"ServiceParameters" xml:"ServiceParameters"`
-	ServiceParametersMap *string `json:"ServiceParametersMap" xml:"ServiceParametersMap"`
-	ResultType           *string `json:"ResultType" xml:"ResultType"`
-	ResultSample         *string `json:"ResultSample" xml:"ResultSample"`
-	FailResultSample     *string `json:"FailResultSample" xml:"FailResultSample"`
-	ErrorCodeSamples     *string `json:"ErrorCodeSamples" xml:"ErrorCodeSamples"`
-	ResultDescriptions   *string `json:"ResultDescriptions" xml:"ResultDescriptions"`
-	OpenIdConnectConfig  *string `json:"OpenIdConnectConfig" xml:"OpenIdConnectConfig"`
-	AllowSignatureMethod *string `json:"AllowSignatureMethod" xml:"AllowSignatureMethod"`
-	WebSocketApiType     *string `json:"WebSocketApiType" xml:"WebSocketApiType"`
-	ResultBodyModel      *string `json:"ResultBodyModel" xml:"ResultBodyModel"`
-	ForceNonceCheck      *bool   `json:"ForceNonceCheck" xml:"ForceNonceCheck"`
-	DisableInternet      *bool   `json:"DisableInternet" xml:"DisableInternet"`
-	AppCodeAuthType      *string `json:"AppCodeAuthType" xml:"AppCodeAuthType"`
+	SecurityToken        *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId              *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	ApiName              *string `json:"ApiName,omitempty" xml:"ApiName,omitempty" require:"true"`
+	Visibility           *string `json:"Visibility,omitempty" xml:"Visibility,omitempty" require:"true"`
+	Description          *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	AuthType             *string `json:"AuthType,omitempty" xml:"AuthType,omitempty"`
+	RequestConfig        *string `json:"RequestConfig,omitempty" xml:"RequestConfig,omitempty" require:"true"`
+	ServiceConfig        *string `json:"ServiceConfig,omitempty" xml:"ServiceConfig,omitempty" require:"true"`
+	RequestParameters    *string `json:"RequestParameters,omitempty" xml:"RequestParameters,omitempty"`
+	SystemParameters     *string `json:"SystemParameters,omitempty" xml:"SystemParameters,omitempty"`
+	ConstantParameters   *string `json:"ConstantParameters,omitempty" xml:"ConstantParameters,omitempty"`
+	ServiceParameters    *string `json:"ServiceParameters,omitempty" xml:"ServiceParameters,omitempty"`
+	ServiceParametersMap *string `json:"ServiceParametersMap,omitempty" xml:"ServiceParametersMap,omitempty"`
+	ResultType           *string `json:"ResultType,omitempty" xml:"ResultType,omitempty"`
+	ResultSample         *string `json:"ResultSample,omitempty" xml:"ResultSample,omitempty"`
+	FailResultSample     *string `json:"FailResultSample,omitempty" xml:"FailResultSample,omitempty"`
+	ErrorCodeSamples     *string `json:"ErrorCodeSamples,omitempty" xml:"ErrorCodeSamples,omitempty"`
+	ResultDescriptions   *string `json:"ResultDescriptions,omitempty" xml:"ResultDescriptions,omitempty"`
+	OpenIdConnectConfig  *string `json:"OpenIdConnectConfig,omitempty" xml:"OpenIdConnectConfig,omitempty"`
+	AllowSignatureMethod *string `json:"AllowSignatureMethod,omitempty" xml:"AllowSignatureMethod,omitempty"`
+	WebSocketApiType     *string `json:"WebSocketApiType,omitempty" xml:"WebSocketApiType,omitempty"`
+	ResultBodyModel      *string `json:"ResultBodyModel,omitempty" xml:"ResultBodyModel,omitempty"`
+	ForceNonceCheck      *bool   `json:"ForceNonceCheck,omitempty" xml:"ForceNonceCheck,omitempty"`
+	DisableInternet      *bool   `json:"DisableInternet,omitempty" xml:"DisableInternet,omitempty"`
+	AppCodeAuthType      *string `json:"AppCodeAuthType,omitempty" xml:"AppCodeAuthType,omitempty"`
 }
 
 func (s CreateApiRequest) String() string {
@@ -15188,11 +14677,6 @@ func (s CreateApiRequest) GoString() string {
 
 func (s *CreateApiRequest) SetSecurityToken(v string) *CreateApiRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *CreateApiRequest) SetAccessKeyId(v string) *CreateApiRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -15317,8 +14801,8 @@ func (s *CreateApiRequest) SetAppCodeAuthType(v string) *CreateApiRequest {
 }
 
 type CreateApiResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	ApiId     *string `json:"ApiId" xml:"ApiId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ApiId     *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
 }
 
 func (s CreateApiResponse) String() string {
@@ -15340,12 +14824,11 @@ func (s *CreateApiResponse) SetApiId(v string) *CreateApiResponse {
 }
 
 type AddTrafficSpecialControlRequest struct {
-	SecurityToken    *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId      *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	TrafficControlId *string `json:"TrafficControlId" xml:"TrafficControlId" require:"true"`
-	SpecialType      *string `json:"SpecialType" xml:"SpecialType" require:"true"`
-	SpecialKey       *string `json:"SpecialKey" xml:"SpecialKey" require:"true"`
-	TrafficValue     *int    `json:"TrafficValue" xml:"TrafficValue" require:"true"`
+	SecurityToken    *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	TrafficControlId *string `json:"TrafficControlId,omitempty" xml:"TrafficControlId,omitempty" require:"true"`
+	SpecialType      *string `json:"SpecialType,omitempty" xml:"SpecialType,omitempty" require:"true"`
+	SpecialKey       *string `json:"SpecialKey,omitempty" xml:"SpecialKey,omitempty" require:"true"`
+	TrafficValue     *int    `json:"TrafficValue,omitempty" xml:"TrafficValue,omitempty" require:"true"`
 }
 
 func (s AddTrafficSpecialControlRequest) String() string {
@@ -15358,11 +14841,6 @@ func (s AddTrafficSpecialControlRequest) GoString() string {
 
 func (s *AddTrafficSpecialControlRequest) SetSecurityToken(v string) *AddTrafficSpecialControlRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *AddTrafficSpecialControlRequest) SetAccessKeyId(v string) *AddTrafficSpecialControlRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -15387,7 +14865,7 @@ func (s *AddTrafficSpecialControlRequest) SetTrafficValue(v int) *AddTrafficSpec
 }
 
 type AddTrafficSpecialControlResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s AddTrafficSpecialControlResponse) String() string {
@@ -15404,11 +14882,10 @@ func (s *AddTrafficSpecialControlResponse) SetRequestId(v string) *AddTrafficSpe
 }
 
 type AbolishApiRequest struct {
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	GroupId       *string `json:"GroupId" xml:"GroupId"`
-	ApiId         *string `json:"ApiId" xml:"ApiId" require:"true"`
-	StageName     *string `json:"StageName" xml:"StageName" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	GroupId       *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	ApiId         *string `json:"ApiId,omitempty" xml:"ApiId,omitempty" require:"true"`
+	StageName     *string `json:"StageName,omitempty" xml:"StageName,omitempty" require:"true"`
 }
 
 func (s AbolishApiRequest) String() string {
@@ -15421,11 +14898,6 @@ func (s AbolishApiRequest) GoString() string {
 
 func (s *AbolishApiRequest) SetSecurityToken(v string) *AbolishApiRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *AbolishApiRequest) SetAccessKeyId(v string) *AbolishApiRequest {
-	s.AccessKeyId = &v
 	return s
 }
 
@@ -15445,7 +14917,7 @@ func (s *AbolishApiRequest) SetStageName(v string) *AbolishApiRequest {
 }
 
 type AbolishApiResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s AbolishApiResponse) String() string {
@@ -15783,6 +15255,31 @@ func (client *Client) TagResources(request *TagResourcesRequest) (_result *TagRe
 	runtime := &util.RuntimeOptions{}
 	_result = &TagResourcesResponse{}
 	_body, _err := client.TagResourcesWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeZonesWithOptions(request *DescribeZonesRequest, runtime *util.RuntimeOptions) (_result *DescribeZonesResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DescribeZonesResponse{}
+	_body, _err := client.DoRequest(tea.String("DescribeZones"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-07-14"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DescribeZones(request *DescribeZonesRequest) (_result *DescribeZonesResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeZonesResponse{}
+	_body, _err := client.DescribeZonesWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
