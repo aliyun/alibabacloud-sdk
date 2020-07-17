@@ -2,8 +2,8 @@
 package client
 
 import (
-	openplatform "github.com/alibabacloud-go/OpenPlatform-20191219/client"
 	endpointutil "github.com/alibabacloud-go/endpoint-util/service"
+	openplatform "github.com/alibabacloud-go/openplatform-20191219/client"
 	fileform "github.com/alibabacloud-go/tea-fileform/service"
 	oss "github.com/alibabacloud-go/tea-oss-sdk/client"
 	ossutil "github.com/alibabacloud-go/tea-oss-utils/service"
@@ -26,8 +26,8 @@ func (s ListImageDbsRequest) GoString() string {
 }
 
 type ListImageDbsResponse struct {
-	RequestId *string                   `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *ListImageDbsResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ListImageDbsResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListImageDbsResponse) String() string {
@@ -49,7 +49,7 @@ func (s *ListImageDbsResponse) SetData(v *ListImageDbsResponseData) *ListImageDb
 }
 
 type ListImageDbsResponseData struct {
-	DbList []*ListImageDbsResponseDataDbList `json:"DbList" xml:"DbList" require:"true" type:"Repeated"`
+	DbList []*ListImageDbsResponseDataDbList `json:"DbList,omitempty" xml:"DbList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListImageDbsResponseData) String() string {
@@ -66,7 +66,7 @@ func (s *ListImageDbsResponseData) SetDbList(v []*ListImageDbsResponseDataDbList
 }
 
 type ListImageDbsResponseDataDbList struct {
-	Name *string `json:"Name" xml:"Name" require:"true"`
+	Name *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
 }
 
 func (s ListImageDbsResponseDataDbList) String() string {
@@ -83,12 +83,12 @@ func (s *ListImageDbsResponseDataDbList) SetName(v string) *ListImageDbsResponse
 }
 
 type ListImagesRequest struct {
-	DbName         *string `json:"DbName" xml:"DbName" require:"true"`
-	Token          *string `json:"Token" xml:"Token"`
-	Offset         *int    `json:"Offset" xml:"Offset"`
-	Limit          *int    `json:"Limit" xml:"Limit"`
-	Order          *string `json:"Order" xml:"Order"`
-	EntityIdPrefix *string `json:"EntityIdPrefix" xml:"EntityIdPrefix"`
+	DbName         *string `json:"DbName,omitempty" xml:"DbName,omitempty" require:"true"`
+	Token          *string `json:"Token,omitempty" xml:"Token,omitempty"`
+	Offset         *int    `json:"Offset,omitempty" xml:"Offset,omitempty"`
+	Limit          *int    `json:"Limit,omitempty" xml:"Limit,omitempty"`
+	Order          *string `json:"Order,omitempty" xml:"Order,omitempty"`
+	EntityIdPrefix *string `json:"EntityIdPrefix,omitempty" xml:"EntityIdPrefix,omitempty"`
 }
 
 func (s ListImagesRequest) String() string {
@@ -130,8 +130,8 @@ func (s *ListImagesRequest) SetEntityIdPrefix(v string) *ListImagesRequest {
 }
 
 type ListImagesResponse struct {
-	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *ListImagesResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ListImagesResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListImagesResponse) String() string {
@@ -153,9 +153,9 @@ func (s *ListImagesResponse) SetData(v *ListImagesResponseData) *ListImagesRespo
 }
 
 type ListImagesResponseData struct {
-	Token      *string                            `json:"Token" xml:"Token" require:"true"`
-	TotalCount *int                               `json:"TotalCount" xml:"TotalCount" require:"true"`
-	ImageList  []*ListImagesResponseDataImageList `json:"ImageList" xml:"ImageList" require:"true" type:"Repeated"`
+	Token      *string                            `json:"Token,omitempty" xml:"Token,omitempty" require:"true"`
+	TotalCount *int                               `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	ImageList  []*ListImagesResponseDataImageList `json:"ImageList,omitempty" xml:"ImageList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListImagesResponseData) String() string {
@@ -182,11 +182,11 @@ func (s *ListImagesResponseData) SetImageList(v []*ListImagesResponseDataImageLi
 }
 
 type ListImagesResponseDataImageList struct {
-	DataId    *string `json:"DataId" xml:"DataId" require:"true"`
-	ExtraData *string `json:"ExtraData" xml:"ExtraData" require:"true"`
-	EntityId  *string `json:"EntityId" xml:"EntityId" require:"true"`
-	UpdatedAt *int64  `json:"UpdatedAt" xml:"UpdatedAt" require:"true"`
-	CreatedAt *int64  `json:"CreatedAt" xml:"CreatedAt" require:"true"`
+	DataId    *string `json:"DataId,omitempty" xml:"DataId,omitempty" require:"true"`
+	ExtraData *string `json:"ExtraData,omitempty" xml:"ExtraData,omitempty" require:"true"`
+	EntityId  *string `json:"EntityId,omitempty" xml:"EntityId,omitempty" require:"true"`
+	UpdatedAt *int64  `json:"UpdatedAt,omitempty" xml:"UpdatedAt,omitempty" require:"true"`
+	CreatedAt *int64  `json:"CreatedAt,omitempty" xml:"CreatedAt,omitempty" require:"true"`
 }
 
 func (s ListImagesResponseDataImageList) String() string {
@@ -223,9 +223,9 @@ func (s *ListImagesResponseDataImageList) SetCreatedAt(v int64) *ListImagesRespo
 }
 
 type SearchImageRequest struct {
-	DbName   *string `json:"DbName" xml:"DbName" require:"true"`
-	ImageUrl *string `json:"ImageUrl" xml:"ImageUrl" require:"true"`
-	Limit    *int    `json:"Limit" xml:"Limit" require:"true"`
+	DbName   *string `json:"DbName,omitempty" xml:"DbName,omitempty" require:"true"`
+	ImageUrl *string `json:"ImageUrl,omitempty" xml:"ImageUrl,omitempty" require:"true"`
+	Limit    *int    `json:"Limit,omitempty" xml:"Limit,omitempty" require:"true"`
 }
 
 func (s SearchImageRequest) String() string {
@@ -252,8 +252,8 @@ func (s *SearchImageRequest) SetLimit(v int) *SearchImageRequest {
 }
 
 type SearchImageResponse struct {
-	RequestId *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *SearchImageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SearchImageResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SearchImageResponse) String() string {
@@ -275,7 +275,7 @@ func (s *SearchImageResponse) SetData(v *SearchImageResponseData) *SearchImageRe
 }
 
 type SearchImageResponseData struct {
-	MatchList []*SearchImageResponseDataMatchList `json:"MatchList" xml:"MatchList" require:"true" type:"Repeated"`
+	MatchList []*SearchImageResponseDataMatchList `json:"MatchList,omitempty" xml:"MatchList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SearchImageResponseData) String() string {
@@ -292,9 +292,9 @@ func (s *SearchImageResponseData) SetMatchList(v []*SearchImageResponseDataMatch
 }
 
 type SearchImageResponseDataMatchList struct {
-	DataId    *string `json:"DataId" xml:"DataId" require:"true"`
-	ExtraData *string `json:"ExtraData" xml:"ExtraData" require:"true"`
-	EntityId  *string `json:"EntityId" xml:"EntityId" require:"true"`
+	DataId    *string `json:"DataId,omitempty" xml:"DataId,omitempty" require:"true"`
+	ExtraData *string `json:"ExtraData,omitempty" xml:"ExtraData,omitempty" require:"true"`
+	EntityId  *string `json:"EntityId,omitempty" xml:"EntityId,omitempty" require:"true"`
 }
 
 func (s SearchImageResponseDataMatchList) String() string {
@@ -321,9 +321,9 @@ func (s *SearchImageResponseDataMatchList) SetEntityId(v string) *SearchImageRes
 }
 
 type SearchImageAdvanceRequest struct {
-	ImageUrlObject io.Reader `json:"ImageUrlObject" xml:"ImageUrlObject" require:"true"`
-	DbName         *string   `json:"DbName" xml:"DbName" require:"true"`
-	Limit          *int      `json:"Limit" xml:"Limit" require:"true"`
+	ImageUrlObject io.Reader `json:"ImageUrlObject,omitempty" xml:"ImageUrlObject,omitempty" require:"true"`
+	DbName         *string   `json:"DbName,omitempty" xml:"DbName,omitempty" require:"true"`
+	Limit          *int      `json:"Limit,omitempty" xml:"Limit,omitempty" require:"true"`
 }
 
 func (s SearchImageAdvanceRequest) String() string {
@@ -350,10 +350,10 @@ func (s *SearchImageAdvanceRequest) SetLimit(v int) *SearchImageAdvanceRequest {
 }
 
 type AddImageRequest struct {
-	DbName    *string `json:"DbName" xml:"DbName" require:"true"`
-	ImageUrl  *string `json:"ImageUrl" xml:"ImageUrl" require:"true"`
-	ExtraData *string `json:"ExtraData" xml:"ExtraData"`
-	EntityId  *string `json:"EntityId" xml:"EntityId" require:"true"`
+	DbName    *string `json:"DbName,omitempty" xml:"DbName,omitempty" require:"true"`
+	ImageUrl  *string `json:"ImageUrl,omitempty" xml:"ImageUrl,omitempty" require:"true"`
+	ExtraData *string `json:"ExtraData,omitempty" xml:"ExtraData,omitempty"`
+	EntityId  *string `json:"EntityId,omitempty" xml:"EntityId,omitempty" require:"true"`
 }
 
 func (s AddImageRequest) String() string {
@@ -385,8 +385,8 @@ func (s *AddImageRequest) SetEntityId(v string) *AddImageRequest {
 }
 
 type AddImageResponse struct {
-	RequestId *string               `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *AddImageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *AddImageResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s AddImageResponse) String() string {
@@ -408,7 +408,7 @@ func (s *AddImageResponse) SetData(v *AddImageResponseData) *AddImageResponse {
 }
 
 type AddImageResponseData struct {
-	DataId *string `json:"DataId" xml:"DataId" require:"true"`
+	DataId *string `json:"DataId,omitempty" xml:"DataId,omitempty" require:"true"`
 }
 
 func (s AddImageResponseData) String() string {
@@ -425,10 +425,10 @@ func (s *AddImageResponseData) SetDataId(v string) *AddImageResponseData {
 }
 
 type AddImageAdvanceRequest struct {
-	ImageUrlObject io.Reader `json:"ImageUrlObject" xml:"ImageUrlObject" require:"true"`
-	DbName         *string   `json:"DbName" xml:"DbName" require:"true"`
-	ExtraData      *string   `json:"ExtraData" xml:"ExtraData"`
-	EntityId       *string   `json:"EntityId" xml:"EntityId" require:"true"`
+	ImageUrlObject io.Reader `json:"ImageUrlObject,omitempty" xml:"ImageUrlObject,omitempty" require:"true"`
+	DbName         *string   `json:"DbName,omitempty" xml:"DbName,omitempty" require:"true"`
+	ExtraData      *string   `json:"ExtraData,omitempty" xml:"ExtraData,omitempty"`
+	EntityId       *string   `json:"EntityId,omitempty" xml:"EntityId,omitempty" require:"true"`
 }
 
 func (s AddImageAdvanceRequest) String() string {
@@ -460,7 +460,7 @@ func (s *AddImageAdvanceRequest) SetEntityId(v string) *AddImageAdvanceRequest {
 }
 
 type DeleteImageDbRequest struct {
-	Name *string `json:"Name" xml:"Name" require:"true"`
+	Name *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
 }
 
 func (s DeleteImageDbRequest) String() string {
@@ -477,7 +477,7 @@ func (s *DeleteImageDbRequest) SetName(v string) *DeleteImageDbRequest {
 }
 
 type DeleteImageDbResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteImageDbResponse) String() string {
@@ -494,7 +494,7 @@ func (s *DeleteImageDbResponse) SetRequestId(v string) *DeleteImageDbResponse {
 }
 
 type CreateImageDbRequest struct {
-	Name *string `json:"Name" xml:"Name" require:"true"`
+	Name *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
 }
 
 func (s CreateImageDbRequest) String() string {
@@ -511,7 +511,7 @@ func (s *CreateImageDbRequest) SetName(v string) *CreateImageDbRequest {
 }
 
 type CreateImageDbResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s CreateImageDbResponse) String() string {
@@ -528,8 +528,8 @@ func (s *CreateImageDbResponse) SetRequestId(v string) *CreateImageDbResponse {
 }
 
 type DeleteImageRequest struct {
-	DbName   *string `json:"DbName" xml:"DbName" require:"true"`
-	EntityId *string `json:"EntityId" xml:"EntityId" require:"true"`
+	DbName   *string `json:"DbName,omitempty" xml:"DbName,omitempty" require:"true"`
+	EntityId *string `json:"EntityId,omitempty" xml:"EntityId,omitempty" require:"true"`
 }
 
 func (s DeleteImageRequest) String() string {
@@ -551,7 +551,7 @@ func (s *DeleteImageRequest) SetEntityId(v string) *DeleteImageRequest {
 }
 
 type DeleteImageResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteImageResponse) String() string {
@@ -587,7 +587,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("imgsearch"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
@@ -666,7 +666,7 @@ func (client *Client) SearchImageAdvance(request *SearchImageAdvanceRequest, run
 		Product:  tea.String("imgsearch"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -764,7 +764,7 @@ func (client *Client) AddImageAdvance(request *AddImageAdvanceRequest, runtime *
 		Product:  tea.String("imgsearch"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}

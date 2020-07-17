@@ -2,8 +2,8 @@
 package client
 
 import (
-	openplatform "github.com/alibabacloud-go/OpenPlatform-20191219/client"
 	endpointutil "github.com/alibabacloud-go/endpoint-util/service"
+	openplatform "github.com/alibabacloud-go/openplatform-20191219/client"
 	fileform "github.com/alibabacloud-go/tea-fileform/service"
 	oss "github.com/alibabacloud-go/tea-oss-sdk/client"
 	ossutil "github.com/alibabacloud-go/tea-oss-utils/service"
@@ -14,8 +14,288 @@ import (
 	"io"
 )
 
+type GenerateVehicleRepairPlanRequest struct {
+	DamageImageList []*GenerateVehicleRepairPlanRequestDamageImageList `json:"DamageImageList,omitempty" xml:"DamageImageList,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s GenerateVehicleRepairPlanRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GenerateVehicleRepairPlanRequest) GoString() string {
+	return s.String()
+}
+
+func (s *GenerateVehicleRepairPlanRequest) SetDamageImageList(v []*GenerateVehicleRepairPlanRequestDamageImageList) *GenerateVehicleRepairPlanRequest {
+	s.DamageImageList = v
+	return s
+}
+
+type GenerateVehicleRepairPlanRequestDamageImageList struct {
+	ImageUrl        *string `json:"ImageUrl,omitempty" xml:"ImageUrl,omitempty" require:"true"`
+	CreateTimeStamp *string `json:"CreateTimeStamp,omitempty" xml:"CreateTimeStamp,omitempty" require:"true"`
+}
+
+func (s GenerateVehicleRepairPlanRequestDamageImageList) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GenerateVehicleRepairPlanRequestDamageImageList) GoString() string {
+	return s.String()
+}
+
+func (s *GenerateVehicleRepairPlanRequestDamageImageList) SetImageUrl(v string) *GenerateVehicleRepairPlanRequestDamageImageList {
+	s.ImageUrl = &v
+	return s
+}
+
+func (s *GenerateVehicleRepairPlanRequestDamageImageList) SetCreateTimeStamp(v string) *GenerateVehicleRepairPlanRequestDamageImageList {
+	s.CreateTimeStamp = &v
+	return s
+}
+
+type GenerateVehicleRepairPlanResponse struct {
+	RequestId    *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	HttpCode     *int                                   `json:"HttpCode,omitempty" xml:"HttpCode,omitempty" require:"true"`
+	Code         *string                                `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	ErrorMessage *string                                `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
+	Success      *bool                                  `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Data         *GenerateVehicleRepairPlanResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s GenerateVehicleRepairPlanResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GenerateVehicleRepairPlanResponse) GoString() string {
+	return s.String()
+}
+
+func (s *GenerateVehicleRepairPlanResponse) SetRequestId(v string) *GenerateVehicleRepairPlanResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *GenerateVehicleRepairPlanResponse) SetHttpCode(v int) *GenerateVehicleRepairPlanResponse {
+	s.HttpCode = &v
+	return s
+}
+
+func (s *GenerateVehicleRepairPlanResponse) SetCode(v string) *GenerateVehicleRepairPlanResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *GenerateVehicleRepairPlanResponse) SetErrorMessage(v string) *GenerateVehicleRepairPlanResponse {
+	s.ErrorMessage = &v
+	return s
+}
+
+func (s *GenerateVehicleRepairPlanResponse) SetSuccess(v bool) *GenerateVehicleRepairPlanResponse {
+	s.Success = &v
+	return s
+}
+
+func (s *GenerateVehicleRepairPlanResponse) SetData(v *GenerateVehicleRepairPlanResponseData) *GenerateVehicleRepairPlanResponse {
+	s.Data = v
+	return s
+}
+
+type GenerateVehicleRepairPlanResponseData struct {
+	TaskId *string `json:"TaskId,omitempty" xml:"TaskId,omitempty" require:"true"`
+}
+
+func (s GenerateVehicleRepairPlanResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GenerateVehicleRepairPlanResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *GenerateVehicleRepairPlanResponseData) SetTaskId(v string) *GenerateVehicleRepairPlanResponseData {
+	s.TaskId = &v
+	return s
+}
+
+type GetVehicleRepairPlanRequest struct {
+	TaskId         *string `json:"TaskId,omitempty" xml:"TaskId,omitempty" require:"true"`
+	CarNumberImage *string `json:"CarNumberImage,omitempty" xml:"CarNumberImage,omitempty"`
+	VinCodeImage   *string `json:"VinCodeImage,omitempty" xml:"VinCodeImage,omitempty"`
+}
+
+func (s GetVehicleRepairPlanRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetVehicleRepairPlanRequest) GoString() string {
+	return s.String()
+}
+
+func (s *GetVehicleRepairPlanRequest) SetTaskId(v string) *GetVehicleRepairPlanRequest {
+	s.TaskId = &v
+	return s
+}
+
+func (s *GetVehicleRepairPlanRequest) SetCarNumberImage(v string) *GetVehicleRepairPlanRequest {
+	s.CarNumberImage = &v
+	return s
+}
+
+func (s *GetVehicleRepairPlanRequest) SetVinCodeImage(v string) *GetVehicleRepairPlanRequest {
+	s.VinCodeImage = &v
+	return s
+}
+
+type GetVehicleRepairPlanResponse struct {
+	RequestId    *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Code         *string                           `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	ErrorMessage *string                           `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
+	Success      *bool                             `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	HttpCode     *int                              `json:"HttpCode,omitempty" xml:"HttpCode,omitempty" require:"true"`
+	Data         *GetVehicleRepairPlanResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s GetVehicleRepairPlanResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetVehicleRepairPlanResponse) GoString() string {
+	return s.String()
+}
+
+func (s *GetVehicleRepairPlanResponse) SetRequestId(v string) *GetVehicleRepairPlanResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *GetVehicleRepairPlanResponse) SetCode(v string) *GetVehicleRepairPlanResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *GetVehicleRepairPlanResponse) SetErrorMessage(v string) *GetVehicleRepairPlanResponse {
+	s.ErrorMessage = &v
+	return s
+}
+
+func (s *GetVehicleRepairPlanResponse) SetSuccess(v bool) *GetVehicleRepairPlanResponse {
+	s.Success = &v
+	return s
+}
+
+func (s *GetVehicleRepairPlanResponse) SetHttpCode(v int) *GetVehicleRepairPlanResponse {
+	s.HttpCode = &v
+	return s
+}
+
+func (s *GetVehicleRepairPlanResponse) SetData(v *GetVehicleRepairPlanResponseData) *GetVehicleRepairPlanResponse {
+	s.Data = v
+	return s
+}
+
+type GetVehicleRepairPlanResponseData struct {
+	FrameNo     *string                                        `json:"FrameNo,omitempty" xml:"FrameNo,omitempty" require:"true"`
+	RepairParts []*GetVehicleRepairPlanResponseDataRepairParts `json:"RepairParts,omitempty" xml:"RepairParts,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s GetVehicleRepairPlanResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetVehicleRepairPlanResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *GetVehicleRepairPlanResponseData) SetFrameNo(v string) *GetVehicleRepairPlanResponseData {
+	s.FrameNo = &v
+	return s
+}
+
+func (s *GetVehicleRepairPlanResponseData) SetRepairParts(v []*GetVehicleRepairPlanResponseDataRepairParts) *GetVehicleRepairPlanResponseData {
+	s.RepairParts = v
+	return s
+}
+
+type GetVehicleRepairPlanResponseDataRepairParts struct {
+	GarageType           *string `json:"GarageType,omitempty" xml:"GarageType,omitempty" require:"true"`
+	OeMatch              *bool   `json:"OeMatch,omitempty" xml:"OeMatch,omitempty" require:"true"`
+	OutStandardPartsId   *string `json:"OutStandardPartsId,omitempty" xml:"OutStandardPartsId,omitempty" require:"true"`
+	OutStandardPartsName *string `json:"OutStandardPartsName,omitempty" xml:"OutStandardPartsName,omitempty" require:"true"`
+	PartNameMatch        *bool   `json:"PartNameMatch,omitempty" xml:"PartNameMatch,omitempty" require:"true"`
+	PartsStdCode         *string `json:"PartsStdCode,omitempty" xml:"PartsStdCode,omitempty" require:"true"`
+	PartsStdName         *string `json:"PartsStdName,omitempty" xml:"PartsStdName,omitempty" require:"true"`
+	RelationType         *string `json:"RelationType,omitempty" xml:"RelationType,omitempty" require:"true"`
+	RepairFee            *string `json:"RepairFee,omitempty" xml:"RepairFee,omitempty" require:"true"`
+	RepairType           *string `json:"RepairType,omitempty" xml:"RepairType,omitempty" require:"true"`
+	RepairTypeName       *string `json:"RepairTypeName,omitempty" xml:"RepairTypeName,omitempty" require:"true"`
+}
+
+func (s GetVehicleRepairPlanResponseDataRepairParts) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetVehicleRepairPlanResponseDataRepairParts) GoString() string {
+	return s.String()
+}
+
+func (s *GetVehicleRepairPlanResponseDataRepairParts) SetGarageType(v string) *GetVehicleRepairPlanResponseDataRepairParts {
+	s.GarageType = &v
+	return s
+}
+
+func (s *GetVehicleRepairPlanResponseDataRepairParts) SetOeMatch(v bool) *GetVehicleRepairPlanResponseDataRepairParts {
+	s.OeMatch = &v
+	return s
+}
+
+func (s *GetVehicleRepairPlanResponseDataRepairParts) SetOutStandardPartsId(v string) *GetVehicleRepairPlanResponseDataRepairParts {
+	s.OutStandardPartsId = &v
+	return s
+}
+
+func (s *GetVehicleRepairPlanResponseDataRepairParts) SetOutStandardPartsName(v string) *GetVehicleRepairPlanResponseDataRepairParts {
+	s.OutStandardPartsName = &v
+	return s
+}
+
+func (s *GetVehicleRepairPlanResponseDataRepairParts) SetPartNameMatch(v bool) *GetVehicleRepairPlanResponseDataRepairParts {
+	s.PartNameMatch = &v
+	return s
+}
+
+func (s *GetVehicleRepairPlanResponseDataRepairParts) SetPartsStdCode(v string) *GetVehicleRepairPlanResponseDataRepairParts {
+	s.PartsStdCode = &v
+	return s
+}
+
+func (s *GetVehicleRepairPlanResponseDataRepairParts) SetPartsStdName(v string) *GetVehicleRepairPlanResponseDataRepairParts {
+	s.PartsStdName = &v
+	return s
+}
+
+func (s *GetVehicleRepairPlanResponseDataRepairParts) SetRelationType(v string) *GetVehicleRepairPlanResponseDataRepairParts {
+	s.RelationType = &v
+	return s
+}
+
+func (s *GetVehicleRepairPlanResponseDataRepairParts) SetRepairFee(v string) *GetVehicleRepairPlanResponseDataRepairParts {
+	s.RepairFee = &v
+	return s
+}
+
+func (s *GetVehicleRepairPlanResponseDataRepairParts) SetRepairType(v string) *GetVehicleRepairPlanResponseDataRepairParts {
+	s.RepairType = &v
+	return s
+}
+
+func (s *GetVehicleRepairPlanResponseDataRepairParts) SetRepairTypeName(v string) *GetVehicleRepairPlanResponseDataRepairParts {
+	s.RepairTypeName = &v
+	return s
+}
+
 type DetectTransparentImageRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s DetectTransparentImageRequest) String() string {
@@ -32,8 +312,8 @@ func (s *DetectTransparentImageRequest) SetImageURL(v string) *DetectTransparent
 }
 
 type DetectTransparentImageResponse struct {
-	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *DetectTransparentImageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *DetectTransparentImageResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DetectTransparentImageResponse) String() string {
@@ -55,7 +335,7 @@ func (s *DetectTransparentImageResponse) SetData(v *DetectTransparentImageRespon
 }
 
 type DetectTransparentImageResponseData struct {
-	Elements []*DetectTransparentImageResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*DetectTransparentImageResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetectTransparentImageResponseData) String() string {
@@ -72,7 +352,7 @@ func (s *DetectTransparentImageResponseData) SetElements(v []*DetectTransparentI
 }
 
 type DetectTransparentImageResponseDataElements struct {
-	TransparentImage *int `json:"TransparentImage" xml:"TransparentImage" require:"true"`
+	TransparentImage *int `json:"TransparentImage,omitempty" xml:"TransparentImage,omitempty" require:"true"`
 }
 
 func (s DetectTransparentImageResponseDataElements) String() string {
@@ -89,7 +369,7 @@ func (s *DetectTransparentImageResponseDataElements) SetTransparentImage(v int) 
 }
 
 type DetectTransparentImageAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s DetectTransparentImageAdvanceRequest) String() string {
@@ -106,7 +386,7 @@ func (s *DetectTransparentImageAdvanceRequest) SetImageURLObject(v io.Reader) *D
 }
 
 type DetectObjectRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s DetectObjectRequest) String() string {
@@ -123,8 +403,8 @@ func (s *DetectObjectRequest) SetImageURL(v string) *DetectObjectRequest {
 }
 
 type DetectObjectResponse struct {
-	RequestId *string                   `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *DetectObjectResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *DetectObjectResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DetectObjectResponse) String() string {
@@ -146,9 +426,9 @@ func (s *DetectObjectResponse) SetData(v *DetectObjectResponseData) *DetectObjec
 }
 
 type DetectObjectResponseData struct {
-	Width    *int                                `json:"Width" xml:"Width" require:"true"`
-	Height   *int                                `json:"Height" xml:"Height" require:"true"`
-	Elements []*DetectObjectResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Width    *int                                `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height   *int                                `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Elements []*DetectObjectResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetectObjectResponseData) String() string {
@@ -175,9 +455,9 @@ func (s *DetectObjectResponseData) SetElements(v []*DetectObjectResponseDataElem
 }
 
 type DetectObjectResponseDataElements struct {
-	Score *float32 `json:"Score" xml:"Score" require:"true"`
-	Type  *string  `json:"Type" xml:"Type" require:"true"`
-	Boxes []*int   `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
+	Score *float32 `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Type  *string  `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Boxes []*int   `json:"Boxes,omitempty" xml:"Boxes,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetectObjectResponseDataElements) String() string {
@@ -204,7 +484,7 @@ func (s *DetectObjectResponseDataElements) SetBoxes(v []*int) *DetectObjectRespo
 }
 
 type DetectObjectAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s DetectObjectAdvanceRequest) String() string {
@@ -221,7 +501,7 @@ func (s *DetectObjectAdvanceRequest) SetImageURLObject(v io.Reader) *DetectObjec
 }
 
 type DetectWhiteBaseImageRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s DetectWhiteBaseImageRequest) String() string {
@@ -238,8 +518,8 @@ func (s *DetectWhiteBaseImageRequest) SetImageURL(v string) *DetectWhiteBaseImag
 }
 
 type DetectWhiteBaseImageResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *DetectWhiteBaseImageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *DetectWhiteBaseImageResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DetectWhiteBaseImageResponse) String() string {
@@ -261,7 +541,7 @@ func (s *DetectWhiteBaseImageResponse) SetData(v *DetectWhiteBaseImageResponseDa
 }
 
 type DetectWhiteBaseImageResponseData struct {
-	Elements []*DetectWhiteBaseImageResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*DetectWhiteBaseImageResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetectWhiteBaseImageResponseData) String() string {
@@ -278,7 +558,7 @@ func (s *DetectWhiteBaseImageResponseData) SetElements(v []*DetectWhiteBaseImage
 }
 
 type DetectWhiteBaseImageResponseDataElements struct {
-	WhiteBase *int `json:"WhiteBase" xml:"WhiteBase" require:"true"`
+	WhiteBase *int `json:"WhiteBase,omitempty" xml:"WhiteBase,omitempty" require:"true"`
 }
 
 func (s DetectWhiteBaseImageResponseDataElements) String() string {
@@ -295,7 +575,7 @@ func (s *DetectWhiteBaseImageResponseDataElements) SetWhiteBase(v int) *DetectWh
 }
 
 type DetectWhiteBaseImageAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s DetectWhiteBaseImageAdvanceRequest) String() string {
@@ -312,7 +592,7 @@ func (s *DetectWhiteBaseImageAdvanceRequest) SetImageURLObject(v io.Reader) *Det
 }
 
 type ClassifyVehicleInsuranceRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s ClassifyVehicleInsuranceRequest) String() string {
@@ -329,8 +609,8 @@ func (s *ClassifyVehicleInsuranceRequest) SetImageURL(v string) *ClassifyVehicle
 }
 
 type ClassifyVehicleInsuranceResponse struct {
-	RequestId *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *ClassifyVehicleInsuranceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ClassifyVehicleInsuranceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ClassifyVehicleInsuranceResponse) String() string {
@@ -352,8 +632,8 @@ func (s *ClassifyVehicleInsuranceResponse) SetData(v *ClassifyVehicleInsuranceRe
 }
 
 type ClassifyVehicleInsuranceResponseData struct {
-	Threshold *float32                                      `json:"Threshold" xml:"Threshold" require:"true"`
-	Labels    []*ClassifyVehicleInsuranceResponseDataLabels `json:"Labels" xml:"Labels" require:"true" type:"Repeated"`
+	Threshold *float32                                      `json:"Threshold,omitempty" xml:"Threshold,omitempty" require:"true"`
+	Labels    []*ClassifyVehicleInsuranceResponseDataLabels `json:"Labels,omitempty" xml:"Labels,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ClassifyVehicleInsuranceResponseData) String() string {
@@ -375,8 +655,8 @@ func (s *ClassifyVehicleInsuranceResponseData) SetLabels(v []*ClassifyVehicleIns
 }
 
 type ClassifyVehicleInsuranceResponseDataLabels struct {
-	Score *float32 `json:"Score" xml:"Score" require:"true"`
-	Name  *string  `json:"Name" xml:"Name" require:"true"`
+	Score *float32 `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Name  *string  `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
 }
 
 func (s ClassifyVehicleInsuranceResponseDataLabels) String() string {
@@ -398,7 +678,7 @@ func (s *ClassifyVehicleInsuranceResponseDataLabels) SetName(v string) *Classify
 }
 
 type ClassifyVehicleInsuranceAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s ClassifyVehicleInsuranceAdvanceRequest) String() string {
@@ -415,7 +695,7 @@ func (s *ClassifyVehicleInsuranceAdvanceRequest) SetImageURLObject(v io.Reader) 
 }
 
 type RecognizeVehicleDashboardRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeVehicleDashboardRequest) String() string {
@@ -432,8 +712,8 @@ func (s *RecognizeVehicleDashboardRequest) SetImageURL(v string) *RecognizeVehic
 }
 
 type RecognizeVehicleDashboardResponse struct {
-	RequestId *string                                `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeVehicleDashboardResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeVehicleDashboardResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeVehicleDashboardResponse) String() string {
@@ -455,7 +735,7 @@ func (s *RecognizeVehicleDashboardResponse) SetData(v *RecognizeVehicleDashboard
 }
 
 type RecognizeVehicleDashboardResponseData struct {
-	Elements []*RecognizeVehicleDashboardResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*RecognizeVehicleDashboardResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeVehicleDashboardResponseData) String() string {
@@ -472,10 +752,10 @@ func (s *RecognizeVehicleDashboardResponseData) SetElements(v []*RecognizeVehicl
 }
 
 type RecognizeVehicleDashboardResponseDataElements struct {
-	Score     *float32   `json:"Score" xml:"Score" require:"true"`
-	ClassName *string    `json:"ClassName" xml:"ClassName" require:"true"`
-	Label     *string    `json:"Label" xml:"Label" require:"true"`
-	Boxes     []*float32 `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
+	Score     *float32   `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	ClassName *string    `json:"ClassName,omitempty" xml:"ClassName,omitempty" require:"true"`
+	Label     *string    `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Boxes     []*float32 `json:"Boxes,omitempty" xml:"Boxes,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeVehicleDashboardResponseDataElements) String() string {
@@ -507,7 +787,7 @@ func (s *RecognizeVehicleDashboardResponseDataElements) SetBoxes(v []*float32) *
 }
 
 type RecognizeVehicleDashboardAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeVehicleDashboardAdvanceRequest) String() string {
@@ -524,7 +804,7 @@ func (s *RecognizeVehicleDashboardAdvanceRequest) SetImageURLObject(v io.Reader)
 }
 
 type RecognizeVehicleDamageRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeVehicleDamageRequest) String() string {
@@ -541,8 +821,8 @@ func (s *RecognizeVehicleDamageRequest) SetImageURL(v string) *RecognizeVehicleD
 }
 
 type RecognizeVehicleDamageResponse struct {
-	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeVehicleDamageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeVehicleDamageResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeVehicleDamageResponse) String() string {
@@ -564,7 +844,7 @@ func (s *RecognizeVehicleDamageResponse) SetData(v *RecognizeVehicleDamageRespon
 }
 
 type RecognizeVehicleDamageResponseData struct {
-	Elements []*RecognizeVehicleDamageResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*RecognizeVehicleDamageResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeVehicleDamageResponseData) String() string {
@@ -581,10 +861,10 @@ func (s *RecognizeVehicleDamageResponseData) SetElements(v []*RecognizeVehicleDa
 }
 
 type RecognizeVehicleDamageResponseDataElements struct {
-	Score  *float32   `json:"Score" xml:"Score" require:"true"`
-	Type   *string    `json:"Type" xml:"Type" require:"true"`
-	Scores []*float32 `json:"Scores" xml:"Scores" require:"true" type:"Repeated"`
-	Boxes  []*int     `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
+	Score  *float32   `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Type   *string    `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Scores []*float32 `json:"Scores,omitempty" xml:"Scores,omitempty" require:"true" type:"Repeated"`
+	Boxes  []*int     `json:"Boxes,omitempty" xml:"Boxes,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeVehicleDamageResponseDataElements) String() string {
@@ -616,7 +896,7 @@ func (s *RecognizeVehicleDamageResponseDataElements) SetBoxes(v []*int) *Recogni
 }
 
 type RecognizeVehicleDamageAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeVehicleDamageAdvanceRequest) String() string {
@@ -633,7 +913,7 @@ func (s *RecognizeVehicleDamageAdvanceRequest) SetImageURLObject(v io.Reader) *R
 }
 
 type RecognizeVehiclePartsRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeVehiclePartsRequest) String() string {
@@ -650,8 +930,8 @@ func (s *RecognizeVehiclePartsRequest) SetImageURL(v string) *RecognizeVehiclePa
 }
 
 type RecognizeVehiclePartsResponse struct {
-	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeVehiclePartsResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeVehiclePartsResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeVehiclePartsResponse) String() string {
@@ -673,8 +953,8 @@ func (s *RecognizeVehiclePartsResponse) SetData(v *RecognizeVehiclePartsResponse
 }
 
 type RecognizeVehiclePartsResponseData struct {
-	Elements     []*RecognizeVehiclePartsResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
-	OriginShapes []*int                                       `json:"OriginShapes" xml:"OriginShapes" require:"true" type:"Repeated"`
+	Elements     []*RecognizeVehiclePartsResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
+	OriginShapes []*int                                       `json:"OriginShapes,omitempty" xml:"OriginShapes,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeVehiclePartsResponseData) String() string {
@@ -696,9 +976,9 @@ func (s *RecognizeVehiclePartsResponseData) SetOriginShapes(v []*int) *Recognize
 }
 
 type RecognizeVehiclePartsResponseDataElements struct {
-	Score *float32 `json:"Score" xml:"Score" require:"true"`
-	Type  *string  `json:"Type" xml:"Type" require:"true"`
-	Boxes []*int   `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
+	Score *float32 `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Type  *string  `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Boxes []*int   `json:"Boxes,omitempty" xml:"Boxes,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeVehiclePartsResponseDataElements) String() string {
@@ -725,7 +1005,7 @@ func (s *RecognizeVehiclePartsResponseDataElements) SetBoxes(v []*int) *Recogniz
 }
 
 type RecognizeVehiclePartsAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeVehiclePartsAdvanceRequest) String() string {
@@ -742,7 +1022,7 @@ func (s *RecognizeVehiclePartsAdvanceRequest) SetImageURLObject(v io.Reader) *Re
 }
 
 type DetectVehicleRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s DetectVehicleRequest) String() string {
@@ -759,8 +1039,8 @@ func (s *DetectVehicleRequest) SetImageURL(v string) *DetectVehicleRequest {
 }
 
 type DetectVehicleResponse struct {
-	RequestId *string                    `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *DetectVehicleResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *DetectVehicleResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DetectVehicleResponse) String() string {
@@ -782,9 +1062,9 @@ func (s *DetectVehicleResponse) SetData(v *DetectVehicleResponseData) *DetectVeh
 }
 
 type DetectVehicleResponseData struct {
-	Width                *int                                             `json:"Width" xml:"Width" require:"true"`
-	Height               *int                                             `json:"Height" xml:"Height" require:"true"`
-	DetectObjectInfoList []*DetectVehicleResponseDataDetectObjectInfoList `json:"DetectObjectInfoList" xml:"DetectObjectInfoList" require:"true" type:"Repeated"`
+	Width                *int                                             `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height               *int                                             `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	DetectObjectInfoList []*DetectVehicleResponseDataDetectObjectInfoList `json:"DetectObjectInfoList,omitempty" xml:"DetectObjectInfoList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetectVehicleResponseData) String() string {
@@ -811,10 +1091,10 @@ func (s *DetectVehicleResponseData) SetDetectObjectInfoList(v []*DetectVehicleRe
 }
 
 type DetectVehicleResponseDataDetectObjectInfoList struct {
-	Score *float32 `json:"Score" xml:"Score" require:"true"`
-	Type  *string  `json:"Type" xml:"Type" require:"true"`
-	Id    *int     `json:"Id" xml:"Id" require:"true"`
-	Boxes []*int   `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
+	Score *float32 `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Type  *string  `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Id    *int     `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	Boxes []*int   `json:"Boxes,omitempty" xml:"Boxes,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetectVehicleResponseDataDetectObjectInfoList) String() string {
@@ -846,7 +1126,7 @@ func (s *DetectVehicleResponseDataDetectObjectInfoList) SetBoxes(v []*int) *Dete
 }
 
 type DetectVehicleAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s DetectVehicleAdvanceRequest) String() string {
@@ -863,7 +1143,7 @@ func (s *DetectVehicleAdvanceRequest) SetImageURLObject(v io.Reader) *DetectVehi
 }
 
 type DetectMainBodyRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s DetectMainBodyRequest) String() string {
@@ -880,8 +1160,8 @@ func (s *DetectMainBodyRequest) SetImageURL(v string) *DetectMainBodyRequest {
 }
 
 type DetectMainBodyResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *DetectMainBodyResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *DetectMainBodyResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DetectMainBodyResponse) String() string {
@@ -903,7 +1183,7 @@ func (s *DetectMainBodyResponse) SetData(v *DetectMainBodyResponseData) *DetectM
 }
 
 type DetectMainBodyResponseData struct {
-	Location *DetectMainBodyResponseDataLocation `json:"Location" xml:"Location" require:"true" type:"Struct"`
+	Location *DetectMainBodyResponseDataLocation `json:"Location,omitempty" xml:"Location,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DetectMainBodyResponseData) String() string {
@@ -920,10 +1200,10 @@ func (s *DetectMainBodyResponseData) SetLocation(v *DetectMainBodyResponseDataLo
 }
 
 type DetectMainBodyResponseDataLocation struct {
-	X      *int `json:"X" xml:"X" require:"true"`
-	Y      *int `json:"Y" xml:"Y" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
+	X      *int `json:"X,omitempty" xml:"X,omitempty" require:"true"`
+	Y      *int `json:"Y,omitempty" xml:"Y,omitempty" require:"true"`
+	Width  *int `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height *int `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
 }
 
 func (s DetectMainBodyResponseDataLocation) String() string {
@@ -955,7 +1235,7 @@ func (s *DetectMainBodyResponseDataLocation) SetHeight(v int) *DetectMainBodyRes
 }
 
 type DetectMainBodyAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s DetectMainBodyAdvanceRequest) String() string {
@@ -991,12 +1271,40 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("objectdet"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
 
 	return nil
+}
+
+func (client *Client) GenerateVehicleRepairPlan(request *GenerateVehicleRepairPlanRequest, runtime *util.RuntimeOptions) (_result *GenerateVehicleRepairPlanResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &GenerateVehicleRepairPlanResponse{}
+	_body, _err := client.DoRequest(tea.String("GenerateVehicleRepairPlan"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) GetVehicleRepairPlan(request *GetVehicleRepairPlanRequest, runtime *util.RuntimeOptions) (_result *GetVehicleRepairPlanResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &GetVehicleRepairPlanResponse{}
+	_body, _err := client.DoRequest(tea.String("GetVehicleRepairPlan"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
 }
 
 func (client *Client) DetectTransparentImage(request *DetectTransparentImageRequest, runtime *util.RuntimeOptions) (_result *DetectTransparentImageResponse, _err error) {
@@ -1042,7 +1350,7 @@ func (client *Client) DetectTransparentImageAdvance(request *DetectTransparentIm
 		Product:  tea.String("objectdet"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1140,7 +1448,7 @@ func (client *Client) DetectObjectAdvance(request *DetectObjectAdvanceRequest, r
 		Product:  tea.String("objectdet"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1238,7 +1546,7 @@ func (client *Client) DetectWhiteBaseImageAdvance(request *DetectWhiteBaseImageA
 		Product:  tea.String("objectdet"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1336,7 +1644,7 @@ func (client *Client) ClassifyVehicleInsuranceAdvance(request *ClassifyVehicleIn
 		Product:  tea.String("objectdet"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1434,7 +1742,7 @@ func (client *Client) RecognizeVehicleDashboardAdvance(request *RecognizeVehicle
 		Product:  tea.String("objectdet"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1532,7 +1840,7 @@ func (client *Client) RecognizeVehicleDamageAdvance(request *RecognizeVehicleDam
 		Product:  tea.String("objectdet"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1630,7 +1938,7 @@ func (client *Client) RecognizeVehiclePartsAdvance(request *RecognizeVehiclePart
 		Product:  tea.String("objectdet"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1728,7 +2036,7 @@ func (client *Client) DetectVehicleAdvance(request *DetectVehicleAdvanceRequest,
 		Product:  tea.String("objectdet"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1789,7 +2097,7 @@ func (client *Client) DetectMainBody(request *DetectMainBodyRequest, runtime *ut
 		return _result, _err
 	}
 	_result = &DetectMainBodyResponse{}
-	_body, _err := client.DoRequest(tea.String("DetectMainBody"), tea.String("HTTPS"), tea.String("GET"), tea.String("2019-12-30"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DetectMainBody"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1826,7 +2134,7 @@ func (client *Client) DetectMainBodyAdvance(request *DetectMainBodyAdvanceReques
 		Product:  tea.String("objectdet"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}

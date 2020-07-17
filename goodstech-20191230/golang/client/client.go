@@ -2,8 +2,8 @@
 package client
 
 import (
-	openplatform "github.com/alibabacloud-go/OpenPlatform-20191219/client"
 	endpointutil "github.com/alibabacloud-go/endpoint-util/service"
+	openplatform "github.com/alibabacloud-go/openplatform-20191219/client"
 	fileform "github.com/alibabacloud-go/tea-fileform/service"
 	oss "github.com/alibabacloud-go/tea-oss-sdk/client"
 	ossutil "github.com/alibabacloud-go/tea-oss-utils/service"
@@ -15,7 +15,7 @@ import (
 )
 
 type RecognizeFurnitureAttributeRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeFurnitureAttributeRequest) String() string {
@@ -32,8 +32,8 @@ func (s *RecognizeFurnitureAttributeRequest) SetImageURL(v string) *RecognizeFur
 }
 
 type RecognizeFurnitureAttributeResponse struct {
-	RequestId *string                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeFurnitureAttributeResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeFurnitureAttributeResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeFurnitureAttributeResponse) String() string {
@@ -55,9 +55,9 @@ func (s *RecognizeFurnitureAttributeResponse) SetData(v *RecognizeFurnitureAttri
 }
 
 type RecognizeFurnitureAttributeResponseData struct {
-	PredStyleId     *string  `json:"PredStyleId" xml:"PredStyleId" require:"true"`
-	PredStyle       *string  `json:"PredStyle" xml:"PredStyle" require:"true"`
-	PredProbability *float32 `json:"PredProbability" xml:"PredProbability" require:"true"`
+	PredStyleId     *string  `json:"PredStyleId,omitempty" xml:"PredStyleId,omitempty" require:"true"`
+	PredStyle       *string  `json:"PredStyle,omitempty" xml:"PredStyle,omitempty" require:"true"`
+	PredProbability *float32 `json:"PredProbability,omitempty" xml:"PredProbability,omitempty" require:"true"`
 }
 
 func (s RecognizeFurnitureAttributeResponseData) String() string {
@@ -84,7 +84,7 @@ func (s *RecognizeFurnitureAttributeResponseData) SetPredProbability(v float32) 
 }
 
 type RecognizeFurnitureAttributeAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeFurnitureAttributeAdvanceRequest) String() string {
@@ -101,10 +101,10 @@ func (s *RecognizeFurnitureAttributeAdvanceRequest) SetImageURLObject(v io.Reade
 }
 
 type RecognizeFurnitureSpuRequest struct {
-	ImageURL *string  `json:"ImageURL" xml:"ImageURL" require:"true"`
-	XLength  *float32 `json:"XLength" xml:"XLength" require:"true"`
-	YLength  *float32 `json:"YLength" xml:"YLength" require:"true"`
-	ZLength  *float32 `json:"ZLength" xml:"ZLength" require:"true"`
+	ImageURL *string  `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	XLength  *float32 `json:"XLength,omitempty" xml:"XLength,omitempty" require:"true"`
+	YLength  *float32 `json:"YLength,omitempty" xml:"YLength,omitempty" require:"true"`
+	ZLength  *float32 `json:"ZLength,omitempty" xml:"ZLength,omitempty" require:"true"`
 }
 
 func (s RecognizeFurnitureSpuRequest) String() string {
@@ -136,8 +136,8 @@ func (s *RecognizeFurnitureSpuRequest) SetZLength(v float32) *RecognizeFurniture
 }
 
 type RecognizeFurnitureSpuResponse struct {
-	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeFurnitureSpuResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeFurnitureSpuResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeFurnitureSpuResponse) String() string {
@@ -159,9 +159,9 @@ func (s *RecognizeFurnitureSpuResponse) SetData(v *RecognizeFurnitureSpuResponse
 }
 
 type RecognizeFurnitureSpuResponseData struct {
-	PredCateId      *string  `json:"PredCateId" xml:"PredCateId" require:"true"`
-	PredCate        *string  `json:"PredCate" xml:"PredCate" require:"true"`
-	PredProbability *float32 `json:"PredProbability" xml:"PredProbability" require:"true"`
+	PredCateId      *string  `json:"PredCateId,omitempty" xml:"PredCateId,omitempty" require:"true"`
+	PredCate        *string  `json:"PredCate,omitempty" xml:"PredCate,omitempty" require:"true"`
+	PredProbability *float32 `json:"PredProbability,omitempty" xml:"PredProbability,omitempty" require:"true"`
 }
 
 func (s RecognizeFurnitureSpuResponseData) String() string {
@@ -188,10 +188,10 @@ func (s *RecognizeFurnitureSpuResponseData) SetPredProbability(v float32) *Recog
 }
 
 type RecognizeFurnitureSpuAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	XLength        *float32  `json:"XLength" xml:"XLength" require:"true"`
-	YLength        *float32  `json:"YLength" xml:"YLength" require:"true"`
-	ZLength        *float32  `json:"ZLength" xml:"ZLength" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+	XLength        *float32  `json:"XLength,omitempty" xml:"XLength,omitempty" require:"true"`
+	YLength        *float32  `json:"YLength,omitempty" xml:"YLength,omitempty" require:"true"`
+	ZLength        *float32  `json:"ZLength,omitempty" xml:"ZLength,omitempty" require:"true"`
 }
 
 func (s RecognizeFurnitureSpuAdvanceRequest) String() string {
@@ -223,7 +223,7 @@ func (s *RecognizeFurnitureSpuAdvanceRequest) SetZLength(v float32) *RecognizeFu
 }
 
 type ClassifyCommodityRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s ClassifyCommodityRequest) String() string {
@@ -240,8 +240,8 @@ func (s *ClassifyCommodityRequest) SetImageURL(v string) *ClassifyCommodityReque
 }
 
 type ClassifyCommodityResponse struct {
-	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *ClassifyCommodityResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ClassifyCommodityResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ClassifyCommodityResponse) String() string {
@@ -263,7 +263,7 @@ func (s *ClassifyCommodityResponse) SetData(v *ClassifyCommodityResponseData) *C
 }
 
 type ClassifyCommodityResponseData struct {
-	Categories []*ClassifyCommodityResponseDataCategories `json:"Categories" xml:"Categories" require:"true" type:"Repeated"`
+	Categories []*ClassifyCommodityResponseDataCategories `json:"Categories,omitempty" xml:"Categories,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ClassifyCommodityResponseData) String() string {
@@ -280,9 +280,9 @@ func (s *ClassifyCommodityResponseData) SetCategories(v []*ClassifyCommodityResp
 }
 
 type ClassifyCommodityResponseDataCategories struct {
-	Score        *float32 `json:"Score" xml:"Score" require:"true"`
-	CategoryName *string  `json:"CategoryName" xml:"CategoryName" require:"true"`
-	CategoryId   *string  `json:"CategoryId" xml:"CategoryId" require:"true"`
+	Score        *float32 `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	CategoryName *string  `json:"CategoryName,omitempty" xml:"CategoryName,omitempty" require:"true"`
+	CategoryId   *string  `json:"CategoryId,omitempty" xml:"CategoryId,omitempty" require:"true"`
 }
 
 func (s ClassifyCommodityResponseDataCategories) String() string {
@@ -309,7 +309,7 @@ func (s *ClassifyCommodityResponseDataCategories) SetCategoryId(v string) *Class
 }
 
 type ClassifyCommodityAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s ClassifyCommodityAdvanceRequest) String() string {
@@ -345,7 +345,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("goodstech"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
@@ -396,7 +396,7 @@ func (client *Client) RecognizeFurnitureAttributeAdvance(request *RecognizeFurni
 		Product:  tea.String("goodstech"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -494,7 +494,7 @@ func (client *Client) RecognizeFurnitureSpuAdvance(request *RecognizeFurnitureSp
 		Product:  tea.String("goodstech"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -555,7 +555,7 @@ func (client *Client) ClassifyCommodity(request *ClassifyCommodityRequest, runti
 		return _result, _err
 	}
 	_result = &ClassifyCommodityResponse{}
-	_body, _err := client.DoRequest(tea.String("ClassifyCommodity"), tea.String("HTTPS"), tea.String("GET"), tea.String("2019-12-30"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ClassifyCommodity"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -592,7 +592,7 @@ func (client *Client) ClassifyCommodityAdvance(request *ClassifyCommodityAdvance
 		Product:  tea.String("goodstech"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}

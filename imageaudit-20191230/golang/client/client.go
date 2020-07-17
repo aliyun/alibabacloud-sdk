@@ -9,8 +9,8 @@ import (
 )
 
 type ScanTextRequest struct {
-	Tasks  []*ScanTextRequestTasks  `json:"Tasks" xml:"Tasks" require:"true" type:"Repeated"`
-	Labels []*ScanTextRequestLabels `json:"Labels" xml:"Labels" require:"true" type:"Repeated"`
+	Tasks  []*ScanTextRequestTasks  `json:"Tasks,omitempty" xml:"Tasks,omitempty" require:"true" type:"Repeated"`
+	Labels []*ScanTextRequestLabels `json:"Labels,omitempty" xml:"Labels,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ScanTextRequest) String() string {
@@ -32,7 +32,7 @@ func (s *ScanTextRequest) SetLabels(v []*ScanTextRequestLabels) *ScanTextRequest
 }
 
 type ScanTextRequestTasks struct {
-	Content *string `json:"Content" xml:"Content" require:"true"`
+	Content *string `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
 }
 
 func (s ScanTextRequestTasks) String() string {
@@ -49,7 +49,7 @@ func (s *ScanTextRequestTasks) SetContent(v string) *ScanTextRequestTasks {
 }
 
 type ScanTextRequestLabels struct {
-	Label *string `json:"Label" xml:"Label" require:"true"`
+	Label *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
 }
 
 func (s ScanTextRequestLabels) String() string {
@@ -66,8 +66,8 @@ func (s *ScanTextRequestLabels) SetLabel(v string) *ScanTextRequestLabels {
 }
 
 type ScanTextResponse struct {
-	RequestId *string               `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *ScanTextResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ScanTextResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ScanTextResponse) String() string {
@@ -89,7 +89,7 @@ func (s *ScanTextResponse) SetData(v *ScanTextResponseData) *ScanTextResponse {
 }
 
 type ScanTextResponseData struct {
-	Elements []*ScanTextResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*ScanTextResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ScanTextResponseData) String() string {
@@ -106,8 +106,8 @@ func (s *ScanTextResponseData) SetElements(v []*ScanTextResponseDataElements) *S
 }
 
 type ScanTextResponseDataElements struct {
-	TaskId  *string                                `json:"TaskId" xml:"TaskId" require:"true"`
-	Results []*ScanTextResponseDataElementsResults `json:"Results" xml:"Results" require:"true" type:"Repeated"`
+	TaskId  *string                                `json:"TaskId,omitempty" xml:"TaskId,omitempty" require:"true"`
+	Results []*ScanTextResponseDataElementsResults `json:"Results,omitempty" xml:"Results,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ScanTextResponseDataElements) String() string {
@@ -129,10 +129,10 @@ func (s *ScanTextResponseDataElements) SetResults(v []*ScanTextResponseDataEleme
 }
 
 type ScanTextResponseDataElementsResults struct {
-	Label      *string                                       `json:"Label" xml:"Label" require:"true"`
-	Suggestion *string                                       `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Rate       *float32                                      `json:"Rate" xml:"Rate" require:"true"`
-	Details    []*ScanTextResponseDataElementsResultsDetails `json:"Details" xml:"Details" require:"true" type:"Repeated"`
+	Label      *string                                       `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Suggestion *string                                       `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	Rate       *float32                                      `json:"Rate,omitempty" xml:"Rate,omitempty" require:"true"`
+	Details    []*ScanTextResponseDataElementsResultsDetails `json:"Details,omitempty" xml:"Details,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ScanTextResponseDataElementsResults) String() string {
@@ -164,8 +164,8 @@ func (s *ScanTextResponseDataElementsResults) SetDetails(v []*ScanTextResponseDa
 }
 
 type ScanTextResponseDataElementsResultsDetails struct {
-	Label    *string                                               `json:"Label" xml:"Label" require:"true"`
-	Contexts []*ScanTextResponseDataElementsResultsDetailsContexts `json:"Contexts" xml:"Contexts" require:"true" type:"Repeated"`
+	Label    *string                                               `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Contexts []*ScanTextResponseDataElementsResultsDetailsContexts `json:"Contexts,omitempty" xml:"Contexts,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ScanTextResponseDataElementsResultsDetails) String() string {
@@ -187,7 +187,7 @@ func (s *ScanTextResponseDataElementsResultsDetails) SetContexts(v []*ScanTextRe
 }
 
 type ScanTextResponseDataElementsResultsDetailsContexts struct {
-	Context *string `json:"Context" xml:"Context" require:"true"`
+	Context *string `json:"Context,omitempty" xml:"Context,omitempty" require:"true"`
 }
 
 func (s ScanTextResponseDataElementsResultsDetailsContexts) String() string {
@@ -204,8 +204,8 @@ func (s *ScanTextResponseDataElementsResultsDetailsContexts) SetContext(v string
 }
 
 type ScanImageRequest struct {
-	Task  []*ScanImageRequestTask `json:"Task" xml:"Task" require:"true" type:"Repeated"`
-	Scene []*string               `json:"Scene" xml:"Scene" require:"true" type:"Repeated"`
+	Task  []*ScanImageRequestTask `json:"Task,omitempty" xml:"Task,omitempty" require:"true" type:"Repeated"`
+	Scene []*string               `json:"Scene,omitempty" xml:"Scene,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ScanImageRequest) String() string {
@@ -227,11 +227,11 @@ func (s *ScanImageRequest) SetScene(v []*string) *ScanImageRequest {
 }
 
 type ScanImageRequestTask struct {
-	DataId               *string `json:"DataId" xml:"DataId"`
-	ImageURL             *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-	ImageTimeMillisecond *int64  `json:"ImageTimeMillisecond" xml:"ImageTimeMillisecond"`
-	Interval             *int    `json:"Interval" xml:"Interval"`
-	MaxFrames            *int    `json:"MaxFrames" xml:"MaxFrames"`
+	DataId               *string `json:"DataId,omitempty" xml:"DataId,omitempty"`
+	ImageURL             *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	ImageTimeMillisecond *int64  `json:"ImageTimeMillisecond,omitempty" xml:"ImageTimeMillisecond,omitempty"`
+	Interval             *int    `json:"Interval,omitempty" xml:"Interval,omitempty"`
+	MaxFrames            *int    `json:"MaxFrames,omitempty" xml:"MaxFrames,omitempty"`
 }
 
 func (s ScanImageRequestTask) String() string {
@@ -268,8 +268,8 @@ func (s *ScanImageRequestTask) SetMaxFrames(v int) *ScanImageRequestTask {
 }
 
 type ScanImageResponse struct {
-	RequestId *string                `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *ScanImageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ScanImageResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ScanImageResponse) String() string {
@@ -291,7 +291,7 @@ func (s *ScanImageResponse) SetData(v *ScanImageResponseData) *ScanImageResponse
 }
 
 type ScanImageResponseData struct {
-	Results []*ScanImageResponseDataResults `json:"Results" xml:"Results" require:"true" type:"Repeated"`
+	Results []*ScanImageResponseDataResults `json:"Results,omitempty" xml:"Results,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ScanImageResponseData) String() string {
@@ -308,10 +308,10 @@ func (s *ScanImageResponseData) SetResults(v []*ScanImageResponseDataResults) *S
 }
 
 type ScanImageResponseDataResults struct {
-	DataId     *string                                   `json:"DataId" xml:"DataId" require:"true"`
-	TaskId     *string                                   `json:"TaskId" xml:"TaskId" require:"true"`
-	ImageURL   *string                                   `json:"ImageURL" xml:"ImageURL" require:"true"`
-	SubResults []*ScanImageResponseDataResultsSubResults `json:"SubResults" xml:"SubResults" require:"true" type:"Repeated"`
+	DataId     *string                                   `json:"DataId,omitempty" xml:"DataId,omitempty" require:"true"`
+	TaskId     *string                                   `json:"TaskId,omitempty" xml:"TaskId,omitempty" require:"true"`
+	ImageURL   *string                                   `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	SubResults []*ScanImageResponseDataResultsSubResults `json:"SubResults,omitempty" xml:"SubResults,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ScanImageResponseDataResults) String() string {
@@ -343,16 +343,16 @@ func (s *ScanImageResponseDataResults) SetSubResults(v []*ScanImageResponseDataR
 }
 
 type ScanImageResponseDataResultsSubResults struct {
-	Label               *string                                                      `json:"Label" xml:"Label" require:"true"`
-	Suggestion          *string                                                      `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Rate                *float32                                                     `json:"Rate" xml:"Rate" require:"true"`
-	Scene               *string                                                      `json:"Scene" xml:"Scene" require:"true"`
-	Frames              []*ScanImageResponseDataResultsSubResultsFrames              `json:"Frames" xml:"Frames" require:"true" type:"Repeated"`
-	HintWordsInfoList   []*ScanImageResponseDataResultsSubResultsHintWordsInfoList   `json:"HintWordsInfoList" xml:"HintWordsInfoList" require:"true" type:"Repeated"`
-	ProgramCodeDataList []*ScanImageResponseDataResultsSubResultsProgramCodeDataList `json:"ProgramCodeDataList" xml:"ProgramCodeDataList" require:"true" type:"Repeated"`
-	LogoDataList        []*ScanImageResponseDataResultsSubResultsLogoDataList        `json:"LogoDataList" xml:"LogoDataList" require:"true" type:"Repeated"`
-	SfaceDataList       []*ScanImageResponseDataResultsSubResultsSfaceDataList       `json:"SfaceDataList" xml:"SfaceDataList" require:"true" type:"Repeated"`
-	OCRDataList         []*string                                                    `json:"OCRDataList" xml:"OCRDataList" require:"true" type:"Repeated"`
+	Label               *string                                                      `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Suggestion          *string                                                      `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	Rate                *float32                                                     `json:"Rate,omitempty" xml:"Rate,omitempty" require:"true"`
+	Scene               *string                                                      `json:"Scene,omitempty" xml:"Scene,omitempty" require:"true"`
+	Frames              []*ScanImageResponseDataResultsSubResultsFrames              `json:"Frames,omitempty" xml:"Frames,omitempty" require:"true" type:"Repeated"`
+	HintWordsInfoList   []*ScanImageResponseDataResultsSubResultsHintWordsInfoList   `json:"HintWordsInfoList,omitempty" xml:"HintWordsInfoList,omitempty" require:"true" type:"Repeated"`
+	ProgramCodeDataList []*ScanImageResponseDataResultsSubResultsProgramCodeDataList `json:"ProgramCodeDataList,omitempty" xml:"ProgramCodeDataList,omitempty" require:"true" type:"Repeated"`
+	LogoDataList        []*ScanImageResponseDataResultsSubResultsLogoDataList        `json:"LogoDataList,omitempty" xml:"LogoDataList,omitempty" require:"true" type:"Repeated"`
+	SfaceDataList       []*ScanImageResponseDataResultsSubResultsSfaceDataList       `json:"SfaceDataList,omitempty" xml:"SfaceDataList,omitempty" require:"true" type:"Repeated"`
+	OCRDataList         []*string                                                    `json:"OCRDataList,omitempty" xml:"OCRDataList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ScanImageResponseDataResultsSubResults) String() string {
@@ -414,8 +414,8 @@ func (s *ScanImageResponseDataResultsSubResults) SetOCRDataList(v []*string) *Sc
 }
 
 type ScanImageResponseDataResultsSubResultsFrames struct {
-	Rate *float32 `json:"Rate" xml:"Rate" require:"true"`
-	URL  *string  `json:"URL" xml:"URL" require:"true"`
+	Rate *float32 `json:"Rate,omitempty" xml:"Rate,omitempty" require:"true"`
+	URL  *string  `json:"URL,omitempty" xml:"URL,omitempty" require:"true"`
 }
 
 func (s ScanImageResponseDataResultsSubResultsFrames) String() string {
@@ -437,7 +437,7 @@ func (s *ScanImageResponseDataResultsSubResultsFrames) SetURL(v string) *ScanIma
 }
 
 type ScanImageResponseDataResultsSubResultsHintWordsInfoList struct {
-	Context *string `json:"Context" xml:"Context" require:"true"`
+	Context *string `json:"Context,omitempty" xml:"Context,omitempty" require:"true"`
 }
 
 func (s ScanImageResponseDataResultsSubResultsHintWordsInfoList) String() string {
@@ -454,10 +454,10 @@ func (s *ScanImageResponseDataResultsSubResultsHintWordsInfoList) SetContext(v s
 }
 
 type ScanImageResponseDataResultsSubResultsProgramCodeDataList struct {
-	X      *float32 `json:"X" xml:"X" require:"true"`
-	Y      *float32 `json:"Y" xml:"Y" require:"true"`
-	Width  *float32 `json:"Width" xml:"Width" require:"true"`
-	Height *float32 `json:"Height" xml:"Height" require:"true"`
+	X      *float32 `json:"X,omitempty" xml:"X,omitempty" require:"true"`
+	Y      *float32 `json:"Y,omitempty" xml:"Y,omitempty" require:"true"`
+	Width  *float32 `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height *float32 `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
 }
 
 func (s ScanImageResponseDataResultsSubResultsProgramCodeDataList) String() string {
@@ -489,12 +489,12 @@ func (s *ScanImageResponseDataResultsSubResultsProgramCodeDataList) SetHeight(v 
 }
 
 type ScanImageResponseDataResultsSubResultsLogoDataList struct {
-	Type   *string  `json:"Type" xml:"Type" require:"true"`
-	Name   *string  `json:"Name" xml:"Name" require:"true"`
-	X      *float32 `json:"X" xml:"X" require:"true"`
-	Y      *float32 `json:"Y" xml:"Y" require:"true"`
-	Width  *float32 `json:"Width" xml:"Width" require:"true"`
-	Height *float32 `json:"Height" xml:"Height" require:"true"`
+	Type   *string  `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Name   *string  `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	X      *float32 `json:"X,omitempty" xml:"X,omitempty" require:"true"`
+	Y      *float32 `json:"Y,omitempty" xml:"Y,omitempty" require:"true"`
+	Width  *float32 `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height *float32 `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
 }
 
 func (s ScanImageResponseDataResultsSubResultsLogoDataList) String() string {
@@ -536,11 +536,11 @@ func (s *ScanImageResponseDataResultsSubResultsLogoDataList) SetHeight(v float32
 }
 
 type ScanImageResponseDataResultsSubResultsSfaceDataList struct {
-	X      *float32                                                    `json:"X" xml:"X" require:"true"`
-	Y      *float32                                                    `json:"Y" xml:"Y" require:"true"`
-	Width  *float32                                                    `json:"Width" xml:"Width" require:"true"`
-	Height *float32                                                    `json:"Height" xml:"Height" require:"true"`
-	Faces  []*ScanImageResponseDataResultsSubResultsSfaceDataListFaces `json:"Faces" xml:"Faces" require:"true" type:"Repeated"`
+	X      *float32                                                    `json:"X,omitempty" xml:"X,omitempty" require:"true"`
+	Y      *float32                                                    `json:"Y,omitempty" xml:"Y,omitempty" require:"true"`
+	Width  *float32                                                    `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height *float32                                                    `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Faces  []*ScanImageResponseDataResultsSubResultsSfaceDataListFaces `json:"Faces,omitempty" xml:"Faces,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ScanImageResponseDataResultsSubResultsSfaceDataList) String() string {
@@ -577,9 +577,9 @@ func (s *ScanImageResponseDataResultsSubResultsSfaceDataList) SetFaces(v []*Scan
 }
 
 type ScanImageResponseDataResultsSubResultsSfaceDataListFaces struct {
-	Name *string  `json:"Name" xml:"Name" require:"true"`
-	Rate *float32 `json:"Rate" xml:"Rate" require:"true"`
-	Id   *string  `json:"Id" xml:"Id" require:"true"`
+	Name *string  `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Rate *float32 `json:"Rate,omitempty" xml:"Rate,omitempty" require:"true"`
+	Id   *string  `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
 }
 
 func (s ScanImageResponseDataResultsSubResultsSfaceDataListFaces) String() string {
@@ -625,7 +625,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("imageaudit"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
@@ -633,7 +633,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	return nil
 }
 
-func (client *Client) ScanTextEx(request *ScanTextRequest, runtime *util.RuntimeOptions) (_result *ScanTextResponse, _err error) {
+func (client *Client) ScanTextWithOptions(request *ScanTextRequest, runtime *util.RuntimeOptions) (_result *ScanTextResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -650,7 +650,7 @@ func (client *Client) ScanTextEx(request *ScanTextRequest, runtime *util.Runtime
 func (client *Client) ScanText(request *ScanTextRequest) (_result *ScanTextResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ScanTextResponse{}
-	_body, _err := client.ScanTextEx(request, runtime)
+	_body, _err := client.ScanTextWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -658,7 +658,7 @@ func (client *Client) ScanText(request *ScanTextRequest) (_result *ScanTextRespo
 	return _result, _err
 }
 
-func (client *Client) ScanImageEx(request *ScanImageRequest, runtime *util.RuntimeOptions) (_result *ScanImageResponse, _err error) {
+func (client *Client) ScanImageWithOptions(request *ScanImageRequest, runtime *util.RuntimeOptions) (_result *ScanImageResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -675,7 +675,7 @@ func (client *Client) ScanImageEx(request *ScanImageRequest, runtime *util.Runti
 func (client *Client) ScanImage(request *ScanImageRequest) (_result *ScanImageResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ScanImageResponse{}
-	_body, _err := client.ScanImageEx(request, runtime)
+	_body, _err := client.ScanImageWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}

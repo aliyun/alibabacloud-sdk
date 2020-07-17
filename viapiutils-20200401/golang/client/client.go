@@ -20,8 +20,8 @@ func (s GetOssStsTokenRequest) GoString() string {
 }
 
 type GetOssStsTokenResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *GetOssStsTokenResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *GetOssStsTokenResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetOssStsTokenResponse) String() string {
@@ -43,10 +43,10 @@ func (s *GetOssStsTokenResponse) SetData(v *GetOssStsTokenResponseData) *GetOssS
 }
 
 type GetOssStsTokenResponseData struct {
-	AccessKeyId     *string `json:"AccessKeyId" xml:"AccessKeyId" require:"true"`
-	AccessKeySecret *string `json:"AccessKeySecret" xml:"AccessKeySecret" require:"true"`
-	SecurityToken   *string `json:"SecurityToken" xml:"SecurityToken" require:"true"`
-	Script          *string `json:"Script" xml:"Script" require:"true"`
+	AccessKeyId     *string `json:"AccessKeyId,omitempty" xml:"AccessKeyId,omitempty" require:"true"`
+	AccessKeySecret *string `json:"AccessKeySecret,omitempty" xml:"AccessKeySecret,omitempty" require:"true"`
+	SecurityToken   *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty" require:"true"`
+	Script          *string `json:"Script,omitempty" xml:"Script,omitempty" require:"true"`
 }
 
 func (s GetOssStsTokenResponseData) String() string {
@@ -97,7 +97,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("viapiutils"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
@@ -105,7 +105,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	return nil
 }
 
-func (client *Client) GetOssStsTokenEx(request *GetOssStsTokenRequest, runtime *util.RuntimeOptions) (_result *GetOssStsTokenResponse, _err error) {
+func (client *Client) GetOssStsTokenWithOptions(request *GetOssStsTokenRequest, runtime *util.RuntimeOptions) (_result *GetOssStsTokenResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -122,7 +122,7 @@ func (client *Client) GetOssStsTokenEx(request *GetOssStsTokenRequest, runtime *
 func (client *Client) GetOssStsToken(request *GetOssStsTokenRequest) (_result *GetOssStsTokenResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &GetOssStsTokenResponse{}
-	_body, _err := client.GetOssStsTokenEx(request, runtime)
+	_body, _err := client.GetOssStsTokenWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
