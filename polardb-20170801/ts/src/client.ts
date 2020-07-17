@@ -5,31 +5,16 @@ import EndpointUtil from '@alicloud/endpoint-util';
 import * as $tea from '@alicloud/tea-typescript';
 
 export class DescribeDBClusterAuditLogCollectorRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   DBClusterId: string;
-  ownerAccount?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       DBClusterId: 'DBClusterId',
-      ownerAccount: 'OwnerAccount',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       DBClusterId: 'string',
-      ownerAccount: 'string',
     };
   }
 
@@ -61,34 +46,19 @@ export class DescribeDBClusterAuditLogCollectorResponse extends $tea.Model {
 }
 
 export class ModifyDBClusterAuditLogCollectorRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   DBClusterId: string;
   collectorStatus: string;
-  ownerAccount?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       DBClusterId: 'DBClusterId',
       collectorStatus: 'CollectorStatus',
-      ownerAccount: 'OwnerAccount',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       DBClusterId: 'string',
       collectorStatus: 'string',
-      ownerAccount: 'string',
     };
   }
 
@@ -117,11 +87,6 @@ export class ModifyDBClusterAuditLogCollectorResponse extends $tea.Model {
 }
 
 export class DescribeDetachedBackupsRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   backupId?: string;
   backupStatus?: string;
@@ -132,11 +97,6 @@ export class DescribeDetachedBackupsRequest extends $tea.Model {
   pageNumber?: number;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       backupId: 'BackupId',
       backupStatus: 'BackupStatus',
@@ -150,11 +110,6 @@ export class DescribeDetachedBackupsRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       backupId: 'string',
       backupStatus: 'string',
@@ -203,11 +158,6 @@ export class DescribeDetachedBackupsResponse extends $tea.Model {
 }
 
 export class DescribeDBClustersWithBackupsRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   DBClusterIds?: string;
   DBClusterDescription?: string;
@@ -218,11 +168,6 @@ export class DescribeDBClustersWithBackupsRequest extends $tea.Model {
   DBVersion?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       DBClusterIds: 'DBClusterIds',
       DBClusterDescription: 'DBClusterDescription',
@@ -236,11 +181,6 @@ export class DescribeDBClustersWithBackupsRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       DBClusterIds: 'string',
       DBClusterDescription: 'string',
@@ -289,30 +229,15 @@ export class DescribeDBClustersWithBackupsResponse extends $tea.Model {
 }
 
 export class DescribeLogBackupPolicyRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
     };
   }
@@ -348,20 +273,10 @@ export class DescribeLogBackupPolicyResponse extends $tea.Model {
 }
 
 export class ModifyLogBackupPolicyRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   logBackupRetentionPeriod?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       logBackupRetentionPeriod: 'LogBackupRetentionPeriod',
     };
@@ -369,11 +284,6 @@ export class ModifyLogBackupPolicyRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       logBackupRetentionPeriod: 'string',
     };
@@ -404,34 +314,19 @@ export class ModifyLogBackupPolicyResponse extends $tea.Model {
 }
 
 export class ModifyDBClusterMonitorRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   DBClusterId: string;
   period: string;
-  ownerAccount?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       DBClusterId: 'DBClusterId',
       period: 'Period',
-      ownerAccount: 'OwnerAccount',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       DBClusterId: 'string',
       period: 'string',
-      ownerAccount: 'string',
     };
   }
 
@@ -460,31 +355,16 @@ export class ModifyDBClusterMonitorResponse extends $tea.Model {
 }
 
 export class DescribeDBClusterMonitorRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   DBClusterId: string;
-  ownerAccount?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       DBClusterId: 'DBClusterId',
-      ownerAccount: 'OwnerAccount',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       DBClusterId: 'string',
-      ownerAccount: 'string',
     };
   }
 
@@ -516,11 +396,6 @@ export class DescribeDBClusterMonitorResponse extends $tea.Model {
 }
 
 export class DescribeDBClusterAvailableResourcesRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   payType: string;
   DBType?: string;
   DBVersion?: string;
@@ -529,11 +404,6 @@ export class DescribeDBClusterAvailableResourcesRequest extends $tea.Model {
   zoneId?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       payType: 'PayType',
       DBType: 'DBType',
       DBVersion: 'DBVersion',
@@ -545,11 +415,6 @@ export class DescribeDBClusterAvailableResourcesRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       payType: 'string',
       DBType: 'string',
       DBVersion: 'string',
@@ -587,11 +452,6 @@ export class DescribeDBClusterAvailableResourcesResponse extends $tea.Model {
 }
 
 export class DescribeBackupLogsRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   startTime: string;
   endTime: string;
@@ -599,11 +459,6 @@ export class DescribeBackupLogsRequest extends $tea.Model {
   pageNumber?: number;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       startTime: 'StartTime',
       endTime: 'EndTime',
@@ -614,11 +469,6 @@ export class DescribeBackupLogsRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       startTime: 'string',
       endTime: 'string',
@@ -664,22 +514,12 @@ export class DescribeBackupLogsResponse extends $tea.Model {
 }
 
 export class ModifyDBClusterSSLRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   SSLEnabled: string;
   DBEndpointId?: string;
   netType?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       SSLEnabled: 'SSLEnabled',
       DBEndpointId: 'DBEndpointId',
@@ -689,11 +529,6 @@ export class ModifyDBClusterSSLRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       SSLEnabled: 'string',
       DBEndpointId: 'string',
@@ -726,30 +561,15 @@ export class ModifyDBClusterSSLResponse extends $tea.Model {
 }
 
 export class DescribeDBClusterSSLRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
     };
   }
@@ -782,30 +602,15 @@ export class DescribeDBClusterSSLResponse extends $tea.Model {
 }
 
 export class DescribeDBClusterMigrationRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
     };
   }
@@ -868,20 +673,10 @@ export class DescribeDBClusterMigrationResponse extends $tea.Model {
 }
 
 export class CloseDBClusterMigrationRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   continueEnableBinlog?: boolean;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       continueEnableBinlog: 'ContinueEnableBinlog',
     };
@@ -889,11 +684,6 @@ export class CloseDBClusterMigrationRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       continueEnableBinlog: 'boolean',
     };
@@ -925,11 +715,6 @@ export class CloseDBClusterMigrationResponse extends $tea.Model {
 
 export class ModifyDBClusterMigrationRequest extends $tea.Model {
   securityToken?: string;
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   sourceRDSDBInstanceId: string;
   newMasterInstanceId: string;
@@ -937,11 +722,6 @@ export class ModifyDBClusterMigrationRequest extends $tea.Model {
   static names(): { [key: string]: string } {
     return {
       securityToken: 'SecurityToken',
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       sourceRDSDBInstanceId: 'SourceRDSDBInstanceId',
       newMasterInstanceId: 'NewMasterInstanceId',
@@ -952,11 +732,6 @@ export class ModifyDBClusterMigrationRequest extends $tea.Model {
   static types(): { [key: string]: any } {
     return {
       securityToken: 'string',
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       sourceRDSDBInstanceId: 'string',
       newMasterInstanceId: 'string',
@@ -989,11 +764,6 @@ export class ModifyDBClusterMigrationResponse extends $tea.Model {
 }
 
 export class ModifyAutoRenewAttributeRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterIds: string;
   regionId: string;
   renewalStatus?: string;
@@ -1002,11 +772,6 @@ export class ModifyAutoRenewAttributeRequest extends $tea.Model {
   resourceGroupId?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterIds: 'DBClusterIds',
       regionId: 'RegionId',
       renewalStatus: 'RenewalStatus',
@@ -1018,11 +783,6 @@ export class ModifyAutoRenewAttributeRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterIds: 'string',
       regionId: 'string',
       renewalStatus: 'string',
@@ -1057,22 +817,12 @@ export class ModifyAutoRenewAttributeResponse extends $tea.Model {
 }
 
 export class ModifyDBNodeClassRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   modifyType: string;
   DBNodeTargetClass: string;
   clientToken?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       modifyType: 'ModifyType',
       DBNodeTargetClass: 'DBNodeTargetClass',
@@ -1082,11 +832,6 @@ export class ModifyDBNodeClassRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       modifyType: 'string',
       DBNodeTargetClass: 'string',
@@ -1125,11 +870,6 @@ export class ModifyDBNodeClassResponse extends $tea.Model {
 }
 
 export class DescribeAutoRenewAttributeRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   DBClusterIds?: string;
   pageSize?: number;
@@ -1137,11 +877,6 @@ export class DescribeAutoRenewAttributeRequest extends $tea.Model {
   resourceGroupId?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       DBClusterIds: 'DBClusterIds',
       pageSize: 'PageSize',
@@ -1152,11 +887,6 @@ export class DescribeAutoRenewAttributeRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       DBClusterIds: 'string',
       pageSize: 'number',
@@ -1202,21 +932,11 @@ export class DescribeAutoRenewAttributeResponse extends $tea.Model {
 }
 
 export class CreateDBNodesRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   DBNode: CreateDBNodesRequestDBNode[];
   clientToken?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       DBNode: 'DBNode',
       clientToken: 'ClientToken',
@@ -1225,11 +945,6 @@ export class CreateDBNodesRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       DBNode: { 'type': 'array', 'itemType': CreateDBNodesRequestDBNode },
       clientToken: 'string',
@@ -1270,21 +985,11 @@ export class CreateDBNodesResponse extends $tea.Model {
 }
 
 export class DeleteDBNodesRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   DBNodeId: string[];
   clientToken?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       DBNodeId: 'DBNodeId',
       clientToken: 'ClientToken',
@@ -1293,11 +998,6 @@ export class DeleteDBNodesRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       DBNodeId: { 'type': 'array', 'itemType': 'string' },
       clientToken: 'string',
@@ -1335,11 +1035,6 @@ export class DeleteDBNodesResponse extends $tea.Model {
 }
 
 export class UntagResourcesRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   resourceType: string;
   resourceId: string[];
@@ -1347,11 +1042,6 @@ export class UntagResourcesRequest extends $tea.Model {
   all?: boolean;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       resourceType: 'ResourceType',
       resourceId: 'ResourceId',
@@ -1362,11 +1052,6 @@ export class UntagResourcesRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       resourceType: 'string',
       resourceId: { 'type': 'array', 'itemType': 'string' },
@@ -1400,22 +1085,12 @@ export class UntagResourcesResponse extends $tea.Model {
 }
 
 export class TagResourcesRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   resourceType: string;
   resourceId: string[];
   tag: TagResourcesRequestTag[];
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       resourceType: 'ResourceType',
       resourceId: 'ResourceId',
@@ -1425,11 +1100,6 @@ export class TagResourcesRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       resourceType: 'string',
       resourceId: { 'type': 'array', 'itemType': 'string' },
@@ -1462,11 +1132,6 @@ export class TagResourcesResponse extends $tea.Model {
 }
 
 export class ListTagResourcesRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   resourceType: string;
   resourceId?: string[];
@@ -1474,11 +1139,6 @@ export class ListTagResourcesRequest extends $tea.Model {
   nextToken?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       resourceType: 'ResourceType',
       resourceId: 'ResourceId',
@@ -1489,11 +1149,6 @@ export class ListTagResourcesRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       resourceType: 'string',
       resourceId: { 'type': 'array', 'itemType': 'string' },
@@ -1533,46 +1188,34 @@ export class ListTagResourcesResponse extends $tea.Model {
 }
 
 export class ModifyDBEndpointAddressRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   DBEndpointId: string;
   netType: string;
   connectionStringPrefix?: string;
   privateZoneAddressPrefix?: string;
   privateZoneName?: string;
+  port?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       DBEndpointId: 'DBEndpointId',
       netType: 'NetType',
       connectionStringPrefix: 'ConnectionStringPrefix',
       privateZoneAddressPrefix: 'PrivateZoneAddressPrefix',
       privateZoneName: 'PrivateZoneName',
+      port: 'Port',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       DBEndpointId: 'string',
       netType: 'string',
       connectionStringPrefix: 'string',
       privateZoneAddressPrefix: 'string',
       privateZoneName: 'string',
+      port: 'string',
     };
   }
 
@@ -1601,21 +1244,11 @@ export class ModifyDBEndpointAddressResponse extends $tea.Model {
 }
 
 export class ModifyDBDescriptionRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   DBName: string;
   DBDescription: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       DBName: 'DBName',
       DBDescription: 'DBDescription',
@@ -1624,11 +1257,6 @@ export class ModifyDBDescriptionRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       DBName: 'string',
       DBDescription: 'string',
@@ -1660,21 +1288,11 @@ export class ModifyDBDescriptionResponse extends $tea.Model {
 }
 
 export class ModifyDBClusterParametersRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   parameters: string;
   effectiveTime?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       parameters: 'Parameters',
       effectiveTime: 'EffectiveTime',
@@ -1683,11 +1301,6 @@ export class ModifyDBClusterParametersRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       parameters: 'string',
       effectiveTime: 'string',
@@ -1719,11 +1332,6 @@ export class ModifyDBClusterParametersResponse extends $tea.Model {
 }
 
 export class ModifyDBClusterEndpointRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   DBEndpointId: string;
   nodes?: string;
@@ -1732,11 +1340,6 @@ export class ModifyDBClusterEndpointRequest extends $tea.Model {
   endpointConfig?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       DBEndpointId: 'DBEndpointId',
       nodes: 'Nodes',
@@ -1748,11 +1351,6 @@ export class ModifyDBClusterEndpointRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       DBEndpointId: 'string',
       nodes: 'string',
@@ -1787,21 +1385,11 @@ export class ModifyDBClusterEndpointResponse extends $tea.Model {
 }
 
 export class ModifyAccountPasswordRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   accountName: string;
   newAccountPassword: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       accountName: 'AccountName',
       newAccountPassword: 'NewAccountPassword',
@@ -1810,11 +1398,6 @@ export class ModifyAccountPasswordRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       accountName: 'string',
       newAccountPassword: 'string',
@@ -1846,14 +1429,12 @@ export class ModifyAccountPasswordResponse extends $tea.Model {
 }
 
 export class DescribeDBClusterPerformanceRequest extends $tea.Model {
-  accessKeyId?: string;
   DBClusterId: string;
   key: string;
   startTime: string;
   endTime: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
       DBClusterId: 'DBClusterId',
       key: 'Key',
       startTime: 'StartTime',
@@ -1863,7 +1444,6 @@ export class DescribeDBClusterPerformanceRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
       DBClusterId: 'string',
       key: 'string',
       startTime: 'string',
@@ -1917,30 +1497,15 @@ export class DescribeDBClusterPerformanceResponse extends $tea.Model {
 }
 
 export class DescribeDBClusterParametersRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
     };
   }
@@ -1982,20 +1547,10 @@ export class DescribeDBClusterParametersResponse extends $tea.Model {
 }
 
 export class DescribeDBClusterEndpointsRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   DBEndpointId?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       DBEndpointId: 'DBEndpointId',
     };
@@ -2003,11 +1558,6 @@ export class DescribeDBClusterEndpointsRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       DBEndpointId: 'string',
     };
@@ -2041,21 +1591,11 @@ export class DescribeDBClusterEndpointsResponse extends $tea.Model {
 }
 
 export class DeleteDBEndpointAddressRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   DBEndpointId: string;
   netType: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       DBEndpointId: 'DBEndpointId',
       netType: 'NetType',
@@ -2064,11 +1604,6 @@ export class DeleteDBEndpointAddressRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       DBEndpointId: 'string',
       netType: 'string',
@@ -2100,20 +1635,10 @@ export class DeleteDBEndpointAddressResponse extends $tea.Model {
 }
 
 export class DeleteDBClusterEndpointRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   DBEndpointId: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       DBEndpointId: 'DBEndpointId',
     };
@@ -2121,11 +1646,6 @@ export class DeleteDBClusterEndpointRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       DBEndpointId: 'string',
     };
@@ -2156,22 +1676,12 @@ export class DeleteDBClusterEndpointResponse extends $tea.Model {
 }
 
 export class CreateDBEndpointAddressRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   DBEndpointId: string;
   connectionStringPrefix?: string;
   netType: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       DBEndpointId: 'DBEndpointId',
       connectionStringPrefix: 'ConnectionStringPrefix',
@@ -2181,11 +1691,6 @@ export class CreateDBEndpointAddressRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       DBEndpointId: 'string',
       connectionStringPrefix: 'string',
@@ -2218,11 +1723,6 @@ export class CreateDBEndpointAddressResponse extends $tea.Model {
 }
 
 export class CreateDBClusterEndpointRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   endpointType: string;
   nodes?: string;
@@ -2232,11 +1732,6 @@ export class CreateDBClusterEndpointRequest extends $tea.Model {
   clientToken?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       endpointType: 'EndpointType',
       nodes: 'Nodes',
@@ -2249,11 +1744,6 @@ export class CreateDBClusterEndpointRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       endpointType: 'string',
       nodes: 'string',
@@ -2289,30 +1779,15 @@ export class CreateDBClusterEndpointResponse extends $tea.Model {
 }
 
 export class RestartDBNodeRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBNodeId: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBNodeId: 'DBNodeId',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBNodeId: 'string',
     };
   }
@@ -2342,7 +1817,6 @@ export class RestartDBNodeResponse extends $tea.Model {
 }
 
 export class DescribeDBNodePerformanceRequest extends $tea.Model {
-  accessKeyId?: string;
   DBNodeId: string;
   key: string;
   startTime: string;
@@ -2350,7 +1824,6 @@ export class DescribeDBNodePerformanceRequest extends $tea.Model {
   DBClusterId?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
       DBNodeId: 'DBNodeId',
       key: 'Key',
       startTime: 'StartTime',
@@ -2361,7 +1834,6 @@ export class DescribeDBNodePerformanceRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
       DBNodeId: 'string',
       key: 'string',
       startTime: 'string',
@@ -2416,11 +1888,6 @@ export class DescribeDBNodePerformanceResponse extends $tea.Model {
 }
 
 export class ModifyDBClusterAccessWhitelistRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   securityIps?: string;
   DBClusterIPArrayName?: string;
@@ -2430,11 +1897,6 @@ export class ModifyDBClusterAccessWhitelistRequest extends $tea.Model {
   modifyMode?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       securityIps: 'SecurityIps',
       DBClusterIPArrayName: 'DBClusterIPArrayName',
@@ -2447,11 +1909,6 @@ export class ModifyDBClusterAccessWhitelistRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       securityIps: 'string',
       DBClusterIPArrayName: 'string',
@@ -2487,30 +1944,15 @@ export class ModifyDBClusterAccessWhitelistResponse extends $tea.Model {
 }
 
 export class DescribeDBClusterAccessWhitelistRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
     };
   }
@@ -2546,20 +1988,10 @@ export class DescribeDBClusterAccessWhitelistResponse extends $tea.Model {
 }
 
 export class ModifyDBClusterMaintainTimeRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   maintainTime: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       maintainTime: 'MaintainTime',
     };
@@ -2567,11 +1999,6 @@ export class ModifyDBClusterMaintainTimeRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       maintainTime: 'string',
     };
@@ -2602,21 +2029,11 @@ export class ModifyDBClusterMaintainTimeResponse extends $tea.Model {
 }
 
 export class RevokeAccountPrivilegeRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   accountName: string;
   DBName: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       accountName: 'AccountName',
       DBName: 'DBName',
@@ -2625,11 +2042,6 @@ export class RevokeAccountPrivilegeRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       accountName: 'string',
       DBName: 'string',
@@ -2661,21 +2073,11 @@ export class RevokeAccountPrivilegeResponse extends $tea.Model {
 }
 
 export class ResetAccountRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   accountName: string;
   accountPassword: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       accountName: 'AccountName',
       accountPassword: 'AccountPassword',
@@ -2684,11 +2086,6 @@ export class ResetAccountRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       accountName: 'string',
       accountPassword: 'string',
@@ -2720,22 +2117,12 @@ export class ResetAccountResponse extends $tea.Model {
 }
 
 export class GrantAccountPrivilegeRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   accountName: string;
   DBName: string;
   accountPrivilege: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       accountName: 'AccountName',
       DBName: 'DBName',
@@ -2745,11 +2132,6 @@ export class GrantAccountPrivilegeRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       accountName: 'string',
       DBName: 'string',
@@ -2782,20 +2164,10 @@ export class GrantAccountPrivilegeResponse extends $tea.Model {
 }
 
 export class DescribeDatabasesRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   DBName?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       DBName: 'DBName',
     };
@@ -2803,11 +2175,6 @@ export class DescribeDatabasesRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       DBName: 'string',
     };
@@ -2841,20 +2208,10 @@ export class DescribeDatabasesResponse extends $tea.Model {
 }
 
 export class DeleteDatabaseRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   DBName: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       DBName: 'DBName',
     };
@@ -2862,11 +2219,6 @@ export class DeleteDatabaseRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       DBName: 'string',
     };
@@ -2897,20 +2249,10 @@ export class DeleteDatabaseResponse extends $tea.Model {
 }
 
 export class DeleteAccountRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   accountName: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       accountName: 'AccountName',
     };
@@ -2918,11 +2260,6 @@ export class DeleteAccountRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       accountName: 'string',
     };
@@ -2953,11 +2290,6 @@ export class DeleteAccountResponse extends $tea.Model {
 }
 
 export class CreateDatabaseRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   DBName: string;
   characterSetName: string;
@@ -2968,11 +2300,6 @@ export class CreateDatabaseRequest extends $tea.Model {
   ctype?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       DBName: 'DBName',
       characterSetName: 'CharacterSetName',
@@ -2986,11 +2313,6 @@ export class CreateDatabaseRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       DBName: 'string',
       characterSetName: 'string',
@@ -3027,20 +2349,10 @@ export class CreateDatabaseResponse extends $tea.Model {
 }
 
 export class DeleteBackupRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   backupId: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       backupId: 'BackupId',
     };
@@ -3048,11 +2360,6 @@ export class DeleteBackupRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       backupId: 'string',
     };
@@ -3083,11 +2390,6 @@ export class DeleteBackupResponse extends $tea.Model {
 }
 
 export class DescribeSlowLogsRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   DBClusterId: string;
   startTime: string;
@@ -3097,11 +2399,6 @@ export class DescribeSlowLogsRequest extends $tea.Model {
   pageNumber?: number;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       DBClusterId: 'DBClusterId',
       startTime: 'StartTime',
@@ -3114,11 +2411,6 @@ export class DescribeSlowLogsRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       DBClusterId: 'string',
       startTime: 'string',
@@ -3178,11 +2470,6 @@ export class DescribeSlowLogsResponse extends $tea.Model {
 }
 
 export class DescribeSlowLogRecordsRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   DBClusterId: string;
   startTime: string;
@@ -3193,11 +2480,6 @@ export class DescribeSlowLogRecordsRequest extends $tea.Model {
   SQLHASH?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       DBClusterId: 'DBClusterId',
       startTime: 'StartTime',
@@ -3211,11 +2493,6 @@ export class DescribeSlowLogRecordsRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       DBClusterId: 'string',
       startTime: 'string',
@@ -3270,21 +2547,11 @@ export class DescribeSlowLogRecordsResponse extends $tea.Model {
 }
 
 export class FailoverDBClusterRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   targetDBNodeId?: string;
   clientToken?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       targetDBNodeId: 'TargetDBNodeId',
       clientToken: 'ClientToken',
@@ -3293,11 +2560,6 @@ export class FailoverDBClusterRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       targetDBNodeId: 'string',
       clientToken: 'string',
@@ -3329,20 +2591,10 @@ export class FailoverDBClusterResponse extends $tea.Model {
 }
 
 export class ModifyDBClusterDescriptionRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   DBClusterDescription: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       DBClusterDescription: 'DBClusterDescription',
     };
@@ -3350,11 +2602,6 @@ export class ModifyDBClusterDescriptionRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       DBClusterDescription: 'string',
     };
@@ -3385,21 +2632,11 @@ export class ModifyDBClusterDescriptionResponse extends $tea.Model {
 }
 
 export class ModifyAccountDescriptionRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   accountName: string;
   accountDescription: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       accountName: 'AccountName',
       accountDescription: 'AccountDescription',
@@ -3408,11 +2645,6 @@ export class ModifyAccountDescriptionRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       accountName: 'string',
       accountDescription: 'string',
@@ -3444,28 +2676,13 @@ export class ModifyAccountDescriptionResponse extends $tea.Model {
 }
 
 export class DescribeRegionsRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
     };
   }
 
@@ -3497,20 +2714,10 @@ export class DescribeRegionsResponse extends $tea.Model {
 }
 
 export class DescribeAccountsRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   accountName?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       accountName: 'AccountName',
     };
@@ -3518,11 +2725,6 @@ export class DescribeAccountsRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       accountName: 'string',
     };
@@ -3556,20 +2758,10 @@ export class DescribeAccountsResponse extends $tea.Model {
 }
 
 export class DeleteDBClusterRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   backupRetentionPolicyOnClusterDeletion?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       backupRetentionPolicyOnClusterDeletion: 'BackupRetentionPolicyOnClusterDeletion',
     };
@@ -3577,11 +2769,6 @@ export class DeleteDBClusterRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       backupRetentionPolicyOnClusterDeletion: 'string',
     };
@@ -3612,11 +2799,6 @@ export class DeleteDBClusterResponse extends $tea.Model {
 }
 
 export class CreateDBClusterRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   zoneId?: string;
   DBType: string;
   DBVersion: string;
@@ -3628,7 +2810,7 @@ export class CreateDBClusterRequest extends $tea.Model {
   period?: string;
   usedTime?: string;
   VPCId?: string;
-  VSwitchId?: string;
+  vSwitchId?: string;
   creationOption?: string;
   sourceResourceId?: string;
   cloneDataPoint?: string;
@@ -3640,11 +2822,6 @@ export class CreateDBClusterRequest extends $tea.Model {
   creationCategory?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       zoneId: 'ZoneId',
       DBType: 'DBType',
       DBVersion: 'DBVersion',
@@ -3656,7 +2833,7 @@ export class CreateDBClusterRequest extends $tea.Model {
       period: 'Period',
       usedTime: 'UsedTime',
       VPCId: 'VPCId',
-      VSwitchId: 'VSwitchId',
+      vSwitchId: 'VSwitchId',
       creationOption: 'CreationOption',
       sourceResourceId: 'SourceResourceId',
       cloneDataPoint: 'CloneDataPoint',
@@ -3671,11 +2848,6 @@ export class CreateDBClusterRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       zoneId: 'string',
       DBType: 'string',
       DBVersion: 'string',
@@ -3687,7 +2859,7 @@ export class CreateDBClusterRequest extends $tea.Model {
       period: 'string',
       usedTime: 'string',
       VPCId: 'string',
-      VSwitchId: 'string',
+      vSwitchId: 'string',
       creationOption: 'string',
       sourceResourceId: 'string',
       cloneDataPoint: 'string',
@@ -3734,30 +2906,15 @@ export class CreateDBClusterResponse extends $tea.Model {
 }
 
 export class CreateBackupRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
     };
   }
@@ -3790,11 +2947,6 @@ export class CreateBackupResponse extends $tea.Model {
 }
 
 export class CreateAccountRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   accountName: string;
   accountPassword: string;
@@ -3804,11 +2956,6 @@ export class CreateAccountRequest extends $tea.Model {
   accountPrivilege?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       accountName: 'AccountName',
       accountPassword: 'AccountPassword',
@@ -3821,11 +2968,6 @@ export class CreateAccountRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       accountName: 'string',
       accountPassword: 'string',
@@ -3861,11 +3003,6 @@ export class CreateAccountResponse extends $tea.Model {
 }
 
 export class DescribeBackupsRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   backupId?: string;
   backupStatus?: string;
@@ -3876,11 +3013,6 @@ export class DescribeBackupsRequest extends $tea.Model {
   pageNumber?: number;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       backupId: 'BackupId',
       backupStatus: 'BackupStatus',
@@ -3894,11 +3026,6 @@ export class DescribeBackupsRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       backupId: 'string',
       backupStatus: 'string',
@@ -3947,11 +3074,6 @@ export class DescribeBackupsResponse extends $tea.Model {
 }
 
 export class ModifyBackupPolicyRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   preferredBackupTime?: string;
   preferredBackupPeriod?: string;
@@ -3960,11 +3082,6 @@ export class ModifyBackupPolicyRequest extends $tea.Model {
   backupRetentionPolicyOnClusterDeletion?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
       preferredBackupTime: 'PreferredBackupTime',
       preferredBackupPeriod: 'PreferredBackupPeriod',
@@ -3976,11 +3093,6 @@ export class ModifyBackupPolicyRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
       preferredBackupTime: 'string',
       preferredBackupPeriod: 'string',
@@ -4015,30 +3127,15 @@ export class ModifyBackupPolicyResponse extends $tea.Model {
 }
 
 export class DescribeBackupPolicyRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
     };
   }
@@ -4089,11 +3186,6 @@ export class DescribeBackupPolicyResponse extends $tea.Model {
 }
 
 export class DescribeDBClustersRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   DBClusterIds?: string;
   DBClusterDescription?: string;
@@ -4105,11 +3197,6 @@ export class DescribeDBClustersRequest extends $tea.Model {
   resourceGroupId?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       DBClusterIds: 'DBClusterIds',
       DBClusterDescription: 'DBClusterDescription',
@@ -4124,11 +3211,6 @@ export class DescribeDBClustersRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       DBClusterIds: 'string',
       DBClusterDescription: 'string',
@@ -4178,30 +3260,15 @@ export class DescribeDBClustersResponse extends $tea.Model {
 }
 
 export class DescribeDBClusterAttributeRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   DBClusterId: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       DBClusterId: 'DBClusterId',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       DBClusterId: 'string',
     };
   }
@@ -4216,7 +3283,7 @@ export class DescribeDBClusterAttributeResponse extends $tea.Model {
   regionId: string;
   DBClusterNetworkType: string;
   VPCId: string;
-  VSwitchId: string;
+  vSwitchId: string;
   payType: string;
   DBClusterId: string;
   DBClusterStatus: string;
@@ -4245,7 +3312,7 @@ export class DescribeDBClusterAttributeResponse extends $tea.Model {
       regionId: 'RegionId',
       DBClusterNetworkType: 'DBClusterNetworkType',
       VPCId: 'VPCId',
-      VSwitchId: 'VSwitchId',
+      vSwitchId: 'VSwitchId',
       payType: 'PayType',
       DBClusterId: 'DBClusterId',
       DBClusterStatus: 'DBClusterStatus',
@@ -4277,7 +3344,7 @@ export class DescribeDBClusterAttributeResponse extends $tea.Model {
       regionId: 'string',
       DBClusterNetworkType: 'string',
       VPCId: 'string',
-      VSwitchId: 'string',
+      vSwitchId: 'string',
       payType: 'string',
       DBClusterId: 'string',
       DBClusterStatus: 'string',
@@ -4636,7 +3703,7 @@ export class DescribeDBClusterMigrationResponseDBClusterEndpointListAddressItems
   netType: string;
   port: string;
   VPCId: string;
-  VSwitchId: string;
+  vSwitchId: string;
   static names(): { [key: string]: string } {
     return {
       connectionString: 'ConnectionString',
@@ -4644,7 +3711,7 @@ export class DescribeDBClusterMigrationResponseDBClusterEndpointListAddressItems
       netType: 'NetType',
       port: 'Port',
       VPCId: 'VPCId',
-      VSwitchId: 'VSwitchId',
+      vSwitchId: 'VSwitchId',
     };
   }
 
@@ -4655,7 +3722,7 @@ export class DescribeDBClusterMigrationResponseDBClusterEndpointListAddressItems
       netType: 'string',
       port: 'string',
       VPCId: 'string',
-      VSwitchId: 'string',
+      vSwitchId: 'string',
     };
   }
 
@@ -4695,7 +3762,7 @@ export class DescribeDBClusterMigrationResponseRdsEndpointListAddressItems exten
   netType: string;
   port: string;
   VPCId: string;
-  VSwitchId: string;
+  vSwitchId: string;
   static names(): { [key: string]: string } {
     return {
       connectionString: 'ConnectionString',
@@ -4703,7 +3770,7 @@ export class DescribeDBClusterMigrationResponseRdsEndpointListAddressItems exten
       netType: 'NetType',
       port: 'Port',
       VPCId: 'VPCId',
-      VSwitchId: 'VSwitchId',
+      vSwitchId: 'VSwitchId',
     };
   }
 
@@ -4714,7 +3781,7 @@ export class DescribeDBClusterMigrationResponseRdsEndpointListAddressItems exten
       netType: 'string',
       port: 'string',
       VPCId: 'string',
-      VSwitchId: 'string',
+      vSwitchId: 'string',
     };
   }
 
@@ -5089,7 +4156,7 @@ export class DescribeDBClusterEndpointsResponseItemsAddressItems extends $tea.Mo
   netType: string;
   port: string;
   VPCId: string;
-  VSwitchId: string;
+  vSwitchId: string;
   vpcInstanceId: string;
   privateZoneConnectionString: string;
   static names(): { [key: string]: string } {
@@ -5099,7 +4166,7 @@ export class DescribeDBClusterEndpointsResponseItemsAddressItems extends $tea.Mo
       netType: 'NetType',
       port: 'Port',
       VPCId: 'VPCId',
-      VSwitchId: 'VSwitchId',
+      vSwitchId: 'VSwitchId',
       vpcInstanceId: 'VpcInstanceId',
       privateZoneConnectionString: 'PrivateZoneConnectionString',
     };
@@ -5112,7 +4179,7 @@ export class DescribeDBClusterEndpointsResponseItemsAddressItems extends $tea.Mo
       netType: 'string',
       port: 'string',
       VPCId: 'string',
-      VSwitchId: 'string',
+      vSwitchId: 'string',
       vpcInstanceId: 'string',
       privateZoneConnectionString: 'string',
     };
@@ -5130,6 +4197,7 @@ export class DescribeDBClusterEndpointsResponseItems extends $tea.Model {
   readWriteMode: string;
   autoAddNewNodes: string;
   endpointConfig: string;
+  nodeWithRoles: string;
   addressItems: DescribeDBClusterEndpointsResponseItemsAddressItems[];
   static names(): { [key: string]: string } {
     return {
@@ -5139,6 +4207,7 @@ export class DescribeDBClusterEndpointsResponseItems extends $tea.Model {
       readWriteMode: 'ReadWriteMode',
       autoAddNewNodes: 'AutoAddNewNodes',
       endpointConfig: 'EndpointConfig',
+      nodeWithRoles: 'NodeWithRoles',
       addressItems: 'AddressItems',
     };
   }
@@ -5151,6 +4220,7 @@ export class DescribeDBClusterEndpointsResponseItems extends $tea.Model {
       readWriteMode: 'string',
       autoAddNewNodes: 'string',
       endpointConfig: 'string',
+      nodeWithRoles: 'string',
       addressItems: { 'type': 'array', 'itemType': DescribeDBClusterEndpointsResponseItemsAddressItems },
     };
   }
