@@ -1792,7 +1792,8 @@ func (s *DescribeDBClusterPerformanceResponsePerformances) SetSeries(v []*Descri
 }
 
 type DescribeDBClusterPerformanceResponsePerformancesSeries struct {
-	Name *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Name   *string                                                         `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Values []*DescribeDBClusterPerformanceResponsePerformancesSeriesValues `json:"Values,omitempty" xml:"Values,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClusterPerformanceResponsePerformancesSeries) String() string {
@@ -1805,6 +1806,28 @@ func (s DescribeDBClusterPerformanceResponsePerformancesSeries) GoString() strin
 
 func (s *DescribeDBClusterPerformanceResponsePerformancesSeries) SetName(v string) *DescribeDBClusterPerformanceResponsePerformancesSeries {
 	s.Name = &v
+	return s
+}
+
+func (s *DescribeDBClusterPerformanceResponsePerformancesSeries) SetValues(v []*DescribeDBClusterPerformanceResponsePerformancesSeriesValues) *DescribeDBClusterPerformanceResponsePerformancesSeries {
+	s.Values = v
+	return s
+}
+
+type DescribeDBClusterPerformanceResponsePerformancesSeriesValues struct {
+	Point []*string `json:"Point,omitempty" xml:"Point,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DescribeDBClusterPerformanceResponsePerformancesSeriesValues) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDBClusterPerformanceResponsePerformancesSeriesValues) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDBClusterPerformanceResponsePerformancesSeriesValues) SetPoint(v []*string) *DescribeDBClusterPerformanceResponsePerformancesSeriesValues {
+	s.Point = v
 	return s
 }
 
