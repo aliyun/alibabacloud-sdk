@@ -41,6 +41,10 @@ namespace AlibabaCloud.SDK.Polardb20170801.Models
             [Validation(Required=true)]
             public string EndpointConfig { get; set; }
 
+            [NameInMap("NodeWithRoles")]
+            [Validation(Required=true)]
+            public string NodeWithRoles { get; set; }
+
             [NameInMap("AddressItems")]
             [Validation(Required=true)]
             public List<DescribeDBClusterEndpointsResponseItemsAddressItems> AddressItems { get; set; }

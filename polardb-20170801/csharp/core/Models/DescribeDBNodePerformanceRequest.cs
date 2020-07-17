@@ -9,10 +9,6 @@ using Tea;
 namespace AlibabaCloud.SDK.Polardb20170801.Models
 {
     public class DescribeDBNodePerformanceRequest : TeaModel {
-        [NameInMap("AccessKeyId")]
-        [Validation(Required=false)]
-        public string AccessKeyId { get; set; }
-
         [NameInMap("DBNodeId")]
         [Validation(Required=true)]
         public string DBNodeId { get; set; }
