@@ -8,8 +8,2218 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 )
 
+type ListBodyAlgorithmResultsRequest struct {
+	CorpId        *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	AlgorithmType *string `json:"AlgorithmType,omitempty" xml:"AlgorithmType,omitempty" require:"true"`
+	DataSourceId  *string `json:"DataSourceId,omitempty" xml:"DataSourceId,omitempty"`
+	StartTime     *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime       *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	PageNumber    *string `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize      *string `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	CapStyle      *string `json:"CapStyle,omitempty" xml:"CapStyle,omitempty"`
+}
+
+func (s ListBodyAlgorithmResultsRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListBodyAlgorithmResultsRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ListBodyAlgorithmResultsRequest) SetCorpId(v string) *ListBodyAlgorithmResultsRequest {
+	s.CorpId = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsRequest) SetAlgorithmType(v string) *ListBodyAlgorithmResultsRequest {
+	s.AlgorithmType = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsRequest) SetDataSourceId(v string) *ListBodyAlgorithmResultsRequest {
+	s.DataSourceId = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsRequest) SetStartTime(v string) *ListBodyAlgorithmResultsRequest {
+	s.StartTime = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsRequest) SetEndTime(v string) *ListBodyAlgorithmResultsRequest {
+	s.EndTime = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsRequest) SetPageNumber(v string) *ListBodyAlgorithmResultsRequest {
+	s.PageNumber = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsRequest) SetPageSize(v string) *ListBodyAlgorithmResultsRequest {
+	s.PageSize = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsRequest) SetCapStyle(v string) *ListBodyAlgorithmResultsRequest {
+	s.CapStyle = &v
+	return s
+}
+
+type ListBodyAlgorithmResultsResponse struct {
+	Code      *string                               `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                               `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ListBodyAlgorithmResultsResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s ListBodyAlgorithmResultsResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListBodyAlgorithmResultsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ListBodyAlgorithmResultsResponse) SetCode(v string) *ListBodyAlgorithmResultsResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponse) SetMessage(v string) *ListBodyAlgorithmResultsResponse {
+	s.Message = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponse) SetRequestId(v string) *ListBodyAlgorithmResultsResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponse) SetData(v *ListBodyAlgorithmResultsResponseData) *ListBodyAlgorithmResultsResponse {
+	s.Data = v
+	return s
+}
+
+type ListBodyAlgorithmResultsResponseData struct {
+	PageNumber *int                                           `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int                                           `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *int                                           `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	TotalPage  *int                                           `json:"TotalPage,omitempty" xml:"TotalPage,omitempty" require:"true"`
+	Records    []*ListBodyAlgorithmResultsResponseDataRecords `json:"Records,omitempty" xml:"Records,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s ListBodyAlgorithmResultsResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListBodyAlgorithmResultsResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *ListBodyAlgorithmResultsResponseData) SetPageNumber(v int) *ListBodyAlgorithmResultsResponseData {
+	s.PageNumber = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseData) SetPageSize(v int) *ListBodyAlgorithmResultsResponseData {
+	s.PageSize = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseData) SetTotalCount(v int) *ListBodyAlgorithmResultsResponseData {
+	s.TotalCount = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseData) SetTotalPage(v int) *ListBodyAlgorithmResultsResponseData {
+	s.TotalPage = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseData) SetRecords(v []*ListBodyAlgorithmResultsResponseDataRecords) *ListBodyAlgorithmResultsResponseData {
+	s.Records = v
+	return s
+}
+
+type ListBodyAlgorithmResultsResponseDataRecords struct {
+	CapStyle         *string  `json:"CapStyle,omitempty" xml:"CapStyle,omitempty" require:"true"`
+	CorpId           *string  `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	DataSourceId     *string  `json:"DataSourceId,omitempty" xml:"DataSourceId,omitempty" require:"true"`
+	PersonId         *string  `json:"PersonId,omitempty" xml:"PersonId,omitempty" require:"true"`
+	GenderCode       *string  `json:"GenderCode,omitempty" xml:"GenderCode,omitempty" require:"true"`
+	HairStyle        *string  `json:"HairStyle,omitempty" xml:"HairStyle,omitempty" require:"true"`
+	LeftTopX         *float32 `json:"LeftTopX,omitempty" xml:"LeftTopX,omitempty" require:"true"`
+	LeftTopY         *float32 `json:"LeftTopY,omitempty" xml:"LeftTopY,omitempty" require:"true"`
+	MaxAge           *string  `json:"MaxAge,omitempty" xml:"MaxAge,omitempty" require:"true"`
+	MinAge           *string  `json:"MinAge,omitempty" xml:"MinAge,omitempty" require:"true"`
+	PicUrlPath       *string  `json:"PicUrlPath,omitempty" xml:"PicUrlPath,omitempty" require:"true"`
+	RightBottomX     *float32 `json:"RightBottomX,omitempty" xml:"RightBottomX,omitempty" require:"true"`
+	RightBottomY     *float32 `json:"RightBottomY,omitempty" xml:"RightBottomY,omitempty" require:"true"`
+	ShotTime         *string  `json:"ShotTime,omitempty" xml:"ShotTime,omitempty" require:"true"`
+	TargetPicUrlPath *string  `json:"TargetPicUrlPath,omitempty" xml:"TargetPicUrlPath,omitempty" require:"true"`
+	CoatLength       *string  `json:"CoatLength,omitempty" xml:"CoatLength,omitempty" require:"true"`
+	CoatStyle        *string  `json:"CoatStyle,omitempty" xml:"CoatStyle,omitempty" require:"true"`
+	TrousersLength   *string  `json:"TrousersLength,omitempty" xml:"TrousersLength,omitempty" require:"true"`
+	TrousersStyle    *string  `json:"TrousersStyle,omitempty" xml:"TrousersStyle,omitempty" require:"true"`
+	CoatColor        *string  `json:"CoatColor,omitempty" xml:"CoatColor,omitempty" require:"true"`
+	TrousersColor    *string  `json:"TrousersColor,omitempty" xml:"TrousersColor,omitempty" require:"true"`
+}
+
+func (s ListBodyAlgorithmResultsResponseDataRecords) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListBodyAlgorithmResultsResponseDataRecords) GoString() string {
+	return s.String()
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetCapStyle(v string) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.CapStyle = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetCorpId(v string) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.CorpId = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetDataSourceId(v string) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.DataSourceId = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetPersonId(v string) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.PersonId = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetGenderCode(v string) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.GenderCode = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetHairStyle(v string) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.HairStyle = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetLeftTopX(v float32) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.LeftTopX = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetLeftTopY(v float32) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.LeftTopY = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetMaxAge(v string) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.MaxAge = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetMinAge(v string) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.MinAge = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetPicUrlPath(v string) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.PicUrlPath = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetRightBottomX(v float32) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.RightBottomX = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetRightBottomY(v float32) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.RightBottomY = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetShotTime(v string) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.ShotTime = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetTargetPicUrlPath(v string) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.TargetPicUrlPath = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetCoatLength(v string) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.CoatLength = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetCoatStyle(v string) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.CoatStyle = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetTrousersLength(v string) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.TrousersLength = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetTrousersStyle(v string) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.TrousersStyle = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetCoatColor(v string) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.CoatColor = &v
+	return s
+}
+
+func (s *ListBodyAlgorithmResultsResponseDataRecords) SetTrousersColor(v string) *ListBodyAlgorithmResultsResponseDataRecords {
+	s.TrousersColor = &v
+	return s
+}
+
+type AddDataSourceRequest struct {
+	CorpId         *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	DataSourceName *string `json:"DataSourceName,omitempty" xml:"DataSourceName,omitempty" require:"true"`
+	DataSourceType *string `json:"DataSourceType,omitempty" xml:"DataSourceType,omitempty" require:"true"`
+	Description    *string `json:"Description,omitempty" xml:"Description,omitempty"`
+}
+
+func (s AddDataSourceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s AddDataSourceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *AddDataSourceRequest) SetCorpId(v string) *AddDataSourceRequest {
+	s.CorpId = &v
+	return s
+}
+
+func (s *AddDataSourceRequest) SetDataSourceName(v string) *AddDataSourceRequest {
+	s.DataSourceName = &v
+	return s
+}
+
+func (s *AddDataSourceRequest) SetDataSourceType(v string) *AddDataSourceRequest {
+	s.DataSourceType = &v
+	return s
+}
+
+func (s *AddDataSourceRequest) SetDescription(v string) *AddDataSourceRequest {
+	s.Description = &v
+	return s
+}
+
+type AddDataSourceResponse struct {
+	Code    *string                    `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message *string                    `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data    *AddDataSourceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s AddDataSourceResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s AddDataSourceResponse) GoString() string {
+	return s.String()
+}
+
+func (s *AddDataSourceResponse) SetCode(v string) *AddDataSourceResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *AddDataSourceResponse) SetMessage(v string) *AddDataSourceResponse {
+	s.Message = &v
+	return s
+}
+
+func (s *AddDataSourceResponse) SetData(v *AddDataSourceResponseData) *AddDataSourceResponse {
+	s.Data = v
+	return s
+}
+
+type AddDataSourceResponseData struct {
+	DataSourceId *string `json:"DataSourceId,omitempty" xml:"DataSourceId,omitempty" require:"true"`
+	KafkaTopic   *string `json:"KafkaTopic,omitempty" xml:"KafkaTopic,omitempty" require:"true"`
+	OssPath      *string `json:"OssPath,omitempty" xml:"OssPath,omitempty" require:"true"`
+}
+
+func (s AddDataSourceResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s AddDataSourceResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *AddDataSourceResponseData) SetDataSourceId(v string) *AddDataSourceResponseData {
+	s.DataSourceId = &v
+	return s
+}
+
+func (s *AddDataSourceResponseData) SetKafkaTopic(v string) *AddDataSourceResponseData {
+	s.KafkaTopic = &v
+	return s
+}
+
+func (s *AddDataSourceResponseData) SetOssPath(v string) *AddDataSourceResponseData {
+	s.OssPath = &v
+	return s
+}
+
+type GetVideoComposeResultRequest struct {
+	CorpId        *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	TaskRequestId *string `json:"TaskRequestId,omitempty" xml:"TaskRequestId,omitempty" require:"true"`
+}
+
+func (s GetVideoComposeResultRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetVideoComposeResultRequest) GoString() string {
+	return s.String()
+}
+
+func (s *GetVideoComposeResultRequest) SetCorpId(v string) *GetVideoComposeResultRequest {
+	s.CorpId = &v
+	return s
+}
+
+func (s *GetVideoComposeResultRequest) SetTaskRequestId(v string) *GetVideoComposeResultRequest {
+	s.TaskRequestId = &v
+	return s
+}
+
+type GetVideoComposeResultResponse struct {
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	VideoUrl  *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Status    *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+}
+
+func (s GetVideoComposeResultResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetVideoComposeResultResponse) GoString() string {
+	return s.String()
+}
+
+func (s *GetVideoComposeResultResponse) SetMessage(v string) *GetVideoComposeResultResponse {
+	s.Message = &v
+	return s
+}
+
+func (s *GetVideoComposeResultResponse) SetRequestId(v string) *GetVideoComposeResultResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *GetVideoComposeResultResponse) SetVideoUrl(v string) *GetVideoComposeResultResponse {
+	s.VideoUrl = &v
+	return s
+}
+
+func (s *GetVideoComposeResultResponse) SetCode(v string) *GetVideoComposeResultResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *GetVideoComposeResultResponse) SetStatus(v string) *GetVideoComposeResultResponse {
+	s.Status = &v
+	return s
+}
+
+type CreateVideoComposeTaskRequest struct {
+	CorpId          *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	BucketName      *string `json:"BucketName,omitempty" xml:"BucketName,omitempty" require:"true"`
+	DomainName      *string `json:"DomainName,omitempty" xml:"DomainName,omitempty"`
+	ImageFileNames  *string `json:"ImageFileNames,omitempty" xml:"ImageFileNames,omitempty" require:"true"`
+	AudioFileName   *string `json:"AudioFileName,omitempty" xml:"AudioFileName,omitempty" require:"true"`
+	ImageParameters *string `json:"ImageParameters,omitempty" xml:"ImageParameters,omitempty" require:"true"`
+	VideoFormat     *string `json:"VideoFormat,omitempty" xml:"VideoFormat,omitempty"`
+	VideoFrameRate  *int    `json:"VideoFrameRate,omitempty" xml:"VideoFrameRate,omitempty"`
+}
+
+func (s CreateVideoComposeTaskRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateVideoComposeTaskRequest) GoString() string {
+	return s.String()
+}
+
+func (s *CreateVideoComposeTaskRequest) SetCorpId(v string) *CreateVideoComposeTaskRequest {
+	s.CorpId = &v
+	return s
+}
+
+func (s *CreateVideoComposeTaskRequest) SetBucketName(v string) *CreateVideoComposeTaskRequest {
+	s.BucketName = &v
+	return s
+}
+
+func (s *CreateVideoComposeTaskRequest) SetDomainName(v string) *CreateVideoComposeTaskRequest {
+	s.DomainName = &v
+	return s
+}
+
+func (s *CreateVideoComposeTaskRequest) SetImageFileNames(v string) *CreateVideoComposeTaskRequest {
+	s.ImageFileNames = &v
+	return s
+}
+
+func (s *CreateVideoComposeTaskRequest) SetAudioFileName(v string) *CreateVideoComposeTaskRequest {
+	s.AudioFileName = &v
+	return s
+}
+
+func (s *CreateVideoComposeTaskRequest) SetImageParameters(v string) *CreateVideoComposeTaskRequest {
+	s.ImageParameters = &v
+	return s
+}
+
+func (s *CreateVideoComposeTaskRequest) SetVideoFormat(v string) *CreateVideoComposeTaskRequest {
+	s.VideoFormat = &v
+	return s
+}
+
+func (s *CreateVideoComposeTaskRequest) SetVideoFrameRate(v int) *CreateVideoComposeTaskRequest {
+	s.VideoFrameRate = &v
+	return s
+}
+
+type CreateVideoComposeTaskResponse struct {
+	Code       *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message    *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	BucketName *string `json:"BucketName,omitempty" xml:"BucketName,omitempty" require:"true"`
+}
+
+func (s CreateVideoComposeTaskResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateVideoComposeTaskResponse) GoString() string {
+	return s.String()
+}
+
+func (s *CreateVideoComposeTaskResponse) SetCode(v string) *CreateVideoComposeTaskResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *CreateVideoComposeTaskResponse) SetMessage(v string) *CreateVideoComposeTaskResponse {
+	s.Message = &v
+	return s
+}
+
+func (s *CreateVideoComposeTaskResponse) SetRequestId(v string) *CreateVideoComposeTaskResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *CreateVideoComposeTaskResponse) SetDomainName(v string) *CreateVideoComposeTaskResponse {
+	s.DomainName = &v
+	return s
+}
+
+func (s *CreateVideoComposeTaskResponse) SetBucketName(v string) *CreateVideoComposeTaskResponse {
+	s.BucketName = &v
+	return s
+}
+
+type DeleteDataSourceRequest struct {
+	CorpId       *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	DataSourceId *string `json:"DataSourceId,omitempty" xml:"DataSourceId,omitempty" require:"true"`
+}
+
+func (s DeleteDataSourceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DeleteDataSourceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DeleteDataSourceRequest) SetCorpId(v string) *DeleteDataSourceRequest {
+	s.CorpId = &v
+	return s
+}
+
+func (s *DeleteDataSourceRequest) SetDataSourceId(v string) *DeleteDataSourceRequest {
+	s.DataSourceId = &v
+	return s
+}
+
+type DeleteDataSourceResponse struct {
+	Code    *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Data    *string `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
+	Message *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+}
+
+func (s DeleteDataSourceResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DeleteDataSourceResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DeleteDataSourceResponse) SetCode(v string) *DeleteDataSourceResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *DeleteDataSourceResponse) SetData(v string) *DeleteDataSourceResponse {
+	s.Data = &v
+	return s
+}
+
+func (s *DeleteDataSourceResponse) SetMessage(v string) *DeleteDataSourceResponse {
+	s.Message = &v
+	return s
+}
+
+type UploadFileRequest struct {
+	FileType      *string `json:"FileType,omitempty" xml:"FileType,omitempty" require:"true"`
+	MD5           *string `json:"MD5,omitempty" xml:"MD5,omitempty"`
+	CorpId        *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	FileContent   *string `json:"FileContent,omitempty" xml:"FileContent,omitempty"`
+	FileName      *string `json:"FileName,omitempty" xml:"FileName,omitempty" require:"true"`
+	FileAliasName *string `json:"FileAliasName,omitempty" xml:"FileAliasName,omitempty"`
+	DataSourceId  *string `json:"DataSourceId,omitempty" xml:"DataSourceId,omitempty" require:"true"`
+	FilePath      *string `json:"FilePath,omitempty" xml:"FilePath,omitempty"`
+}
+
+func (s UploadFileRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s UploadFileRequest) GoString() string {
+	return s.String()
+}
+
+func (s *UploadFileRequest) SetFileType(v string) *UploadFileRequest {
+	s.FileType = &v
+	return s
+}
+
+func (s *UploadFileRequest) SetMD5(v string) *UploadFileRequest {
+	s.MD5 = &v
+	return s
+}
+
+func (s *UploadFileRequest) SetCorpId(v string) *UploadFileRequest {
+	s.CorpId = &v
+	return s
+}
+
+func (s *UploadFileRequest) SetFileContent(v string) *UploadFileRequest {
+	s.FileContent = &v
+	return s
+}
+
+func (s *UploadFileRequest) SetFileName(v string) *UploadFileRequest {
+	s.FileName = &v
+	return s
+}
+
+func (s *UploadFileRequest) SetFileAliasName(v string) *UploadFileRequest {
+	s.FileAliasName = &v
+	return s
+}
+
+func (s *UploadFileRequest) SetDataSourceId(v string) *UploadFileRequest {
+	s.DataSourceId = &v
+	return s
+}
+
+func (s *UploadFileRequest) SetFilePath(v string) *UploadFileRequest {
+	s.FilePath = &v
+	return s
+}
+
+type UploadFileResponse struct {
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Data      *string `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+}
+
+func (s UploadFileResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s UploadFileResponse) GoString() string {
+	return s.String()
+}
+
+func (s *UploadFileResponse) SetCode(v string) *UploadFileResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *UploadFileResponse) SetData(v string) *UploadFileResponse {
+	s.Data = &v
+	return s
+}
+
+func (s *UploadFileResponse) SetMessage(v string) *UploadFileResponse {
+	s.Message = &v
+	return s
+}
+
+func (s *UploadFileResponse) SetRequestId(v string) *UploadFileResponse {
+	s.RequestId = &v
+	return s
+}
+
+type ListEventAlgorithmResultsRequest struct {
+	CorpId       *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	EventType    *string `json:"EventType,omitempty" xml:"EventType,omitempty" require:"true"`
+	DataSourceId *string `json:"DataSourceId,omitempty" xml:"DataSourceId,omitempty"`
+	StartTime    *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime      *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	PageNumber   *string `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize     *string `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+}
+
+func (s ListEventAlgorithmResultsRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListEventAlgorithmResultsRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ListEventAlgorithmResultsRequest) SetCorpId(v string) *ListEventAlgorithmResultsRequest {
+	s.CorpId = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsRequest) SetEventType(v string) *ListEventAlgorithmResultsRequest {
+	s.EventType = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsRequest) SetDataSourceId(v string) *ListEventAlgorithmResultsRequest {
+	s.DataSourceId = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsRequest) SetStartTime(v string) *ListEventAlgorithmResultsRequest {
+	s.StartTime = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsRequest) SetEndTime(v string) *ListEventAlgorithmResultsRequest {
+	s.EndTime = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsRequest) SetPageNumber(v string) *ListEventAlgorithmResultsRequest {
+	s.PageNumber = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsRequest) SetPageSize(v string) *ListEventAlgorithmResultsRequest {
+	s.PageSize = &v
+	return s
+}
+
+type ListEventAlgorithmResultsResponse struct {
+	Code      *string                                `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                                `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ListEventAlgorithmResultsResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s ListEventAlgorithmResultsResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListEventAlgorithmResultsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ListEventAlgorithmResultsResponse) SetCode(v string) *ListEventAlgorithmResultsResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsResponse) SetMessage(v string) *ListEventAlgorithmResultsResponse {
+	s.Message = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsResponse) SetRequestId(v string) *ListEventAlgorithmResultsResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsResponse) SetData(v *ListEventAlgorithmResultsResponseData) *ListEventAlgorithmResultsResponse {
+	s.Data = v
+	return s
+}
+
+type ListEventAlgorithmResultsResponseData struct {
+	PageNumber *int                                            `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int                                            `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *int                                            `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	TotalPage  *int                                            `json:"TotalPage,omitempty" xml:"TotalPage,omitempty" require:"true"`
+	Records    []*ListEventAlgorithmResultsResponseDataRecords `json:"Records,omitempty" xml:"Records,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s ListEventAlgorithmResultsResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListEventAlgorithmResultsResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *ListEventAlgorithmResultsResponseData) SetPageNumber(v int) *ListEventAlgorithmResultsResponseData {
+	s.PageNumber = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsResponseData) SetPageSize(v int) *ListEventAlgorithmResultsResponseData {
+	s.PageSize = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsResponseData) SetTotalCount(v int) *ListEventAlgorithmResultsResponseData {
+	s.TotalCount = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsResponseData) SetTotalPage(v int) *ListEventAlgorithmResultsResponseData {
+	s.TotalPage = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsResponseData) SetRecords(v []*ListEventAlgorithmResultsResponseDataRecords) *ListEventAlgorithmResultsResponseData {
+	s.Records = v
+	return s
+}
+
+type ListEventAlgorithmResultsResponseDataRecords struct {
+	CapStyle         *string `json:"CapStyle,omitempty" xml:"CapStyle,omitempty" require:"true"`
+	CorpId           *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	DataSourceId     *string `json:"DataSourceId,omitempty" xml:"DataSourceId,omitempty" require:"true"`
+	EventType        *string `json:"EventType,omitempty" xml:"EventType,omitempty" require:"true"`
+	FaceCount        *string `json:"FaceCount,omitempty" xml:"FaceCount,omitempty" require:"true"`
+	PicUrlPath       *string `json:"PicUrlPath,omitempty" xml:"PicUrlPath,omitempty" require:"true"`
+	ShotTime         *string `json:"ShotTime,omitempty" xml:"ShotTime,omitempty" require:"true"`
+	TargetPicUrlPath *string `json:"TargetPicUrlPath,omitempty" xml:"TargetPicUrlPath,omitempty" require:"true"`
+}
+
+func (s ListEventAlgorithmResultsResponseDataRecords) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListEventAlgorithmResultsResponseDataRecords) GoString() string {
+	return s.String()
+}
+
+func (s *ListEventAlgorithmResultsResponseDataRecords) SetCapStyle(v string) *ListEventAlgorithmResultsResponseDataRecords {
+	s.CapStyle = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsResponseDataRecords) SetCorpId(v string) *ListEventAlgorithmResultsResponseDataRecords {
+	s.CorpId = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsResponseDataRecords) SetDataSourceId(v string) *ListEventAlgorithmResultsResponseDataRecords {
+	s.DataSourceId = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsResponseDataRecords) SetEventType(v string) *ListEventAlgorithmResultsResponseDataRecords {
+	s.EventType = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsResponseDataRecords) SetFaceCount(v string) *ListEventAlgorithmResultsResponseDataRecords {
+	s.FaceCount = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsResponseDataRecords) SetPicUrlPath(v string) *ListEventAlgorithmResultsResponseDataRecords {
+	s.PicUrlPath = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsResponseDataRecords) SetShotTime(v string) *ListEventAlgorithmResultsResponseDataRecords {
+	s.ShotTime = &v
+	return s
+}
+
+func (s *ListEventAlgorithmResultsResponseDataRecords) SetTargetPicUrlPath(v string) *ListEventAlgorithmResultsResponseDataRecords {
+	s.TargetPicUrlPath = &v
+	return s
+}
+
+type DeleteVideoSummaryTaskRequest struct {
+	CorpId *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	TaskId *string `json:"TaskId,omitempty" xml:"TaskId,omitempty" require:"true"`
+}
+
+func (s DeleteVideoSummaryTaskRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DeleteVideoSummaryTaskRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DeleteVideoSummaryTaskRequest) SetCorpId(v string) *DeleteVideoSummaryTaskRequest {
+	s.CorpId = &v
+	return s
+}
+
+func (s *DeleteVideoSummaryTaskRequest) SetTaskId(v string) *DeleteVideoSummaryTaskRequest {
+	s.TaskId = &v
+	return s
+}
+
+type DeleteVideoSummaryTaskResponse struct {
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Data      *string `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+}
+
+func (s DeleteVideoSummaryTaskResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DeleteVideoSummaryTaskResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DeleteVideoSummaryTaskResponse) SetCode(v string) *DeleteVideoSummaryTaskResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *DeleteVideoSummaryTaskResponse) SetData(v string) *DeleteVideoSummaryTaskResponse {
+	s.Data = &v
+	return s
+}
+
+func (s *DeleteVideoSummaryTaskResponse) SetMessage(v string) *DeleteVideoSummaryTaskResponse {
+	s.Message = &v
+	return s
+}
+
+func (s *DeleteVideoSummaryTaskResponse) SetRequestId(v string) *DeleteVideoSummaryTaskResponse {
+	s.RequestId = &v
+	return s
+}
+
+type GetVideoSummaryTaskResultRequest struct {
+	CorpId *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	TaskId *string `json:"TaskId,omitempty" xml:"TaskId,omitempty" require:"true"`
+}
+
+func (s GetVideoSummaryTaskResultRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetVideoSummaryTaskResultRequest) GoString() string {
+	return s.String()
+}
+
+func (s *GetVideoSummaryTaskResultRequest) SetCorpId(v string) *GetVideoSummaryTaskResultRequest {
+	s.CorpId = &v
+	return s
+}
+
+func (s *GetVideoSummaryTaskResultRequest) SetTaskId(v string) *GetVideoSummaryTaskResultRequest {
+	s.TaskId = &v
+	return s
+}
+
+type GetVideoSummaryTaskResultResponse struct {
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Data      *string `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+}
+
+func (s GetVideoSummaryTaskResultResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetVideoSummaryTaskResultResponse) GoString() string {
+	return s.String()
+}
+
+func (s *GetVideoSummaryTaskResultResponse) SetCode(v string) *GetVideoSummaryTaskResultResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *GetVideoSummaryTaskResultResponse) SetData(v string) *GetVideoSummaryTaskResultResponse {
+	s.Data = &v
+	return s
+}
+
+func (s *GetVideoSummaryTaskResultResponse) SetMessage(v string) *GetVideoSummaryTaskResultResponse {
+	s.Message = &v
+	return s
+}
+
+func (s *GetVideoSummaryTaskResultResponse) SetRequestId(v string) *GetVideoSummaryTaskResultResponse {
+	s.RequestId = &v
+	return s
+}
+
+type CreateVideoSummaryTaskRequest struct {
+	CorpId           *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	DeviceId         *string `json:"DeviceId,omitempty" xml:"DeviceId,omitempty" require:"true"`
+	StartTimeStamp   *string `json:"StartTimeStamp,omitempty" xml:"StartTimeStamp,omitempty" require:"true"`
+	EndTimeStamp     *string `json:"EndTimeStamp,omitempty" xml:"EndTimeStamp,omitempty" require:"true"`
+	OptionList       *string `json:"OptionList,omitempty" xml:"OptionList,omitempty"`
+	LiveVideoSummary *string `json:"LiveVideoSummary,omitempty" xml:"LiveVideoSummary,omitempty"`
+}
+
+func (s CreateVideoSummaryTaskRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateVideoSummaryTaskRequest) GoString() string {
+	return s.String()
+}
+
+func (s *CreateVideoSummaryTaskRequest) SetCorpId(v string) *CreateVideoSummaryTaskRequest {
+	s.CorpId = &v
+	return s
+}
+
+func (s *CreateVideoSummaryTaskRequest) SetDeviceId(v string) *CreateVideoSummaryTaskRequest {
+	s.DeviceId = &v
+	return s
+}
+
+func (s *CreateVideoSummaryTaskRequest) SetStartTimeStamp(v string) *CreateVideoSummaryTaskRequest {
+	s.StartTimeStamp = &v
+	return s
+}
+
+func (s *CreateVideoSummaryTaskRequest) SetEndTimeStamp(v string) *CreateVideoSummaryTaskRequest {
+	s.EndTimeStamp = &v
+	return s
+}
+
+func (s *CreateVideoSummaryTaskRequest) SetOptionList(v string) *CreateVideoSummaryTaskRequest {
+	s.OptionList = &v
+	return s
+}
+
+func (s *CreateVideoSummaryTaskRequest) SetLiveVideoSummary(v string) *CreateVideoSummaryTaskRequest {
+	s.LiveVideoSummary = &v
+	return s
+}
+
+type CreateVideoSummaryTaskResponse struct {
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *string `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
+}
+
+func (s CreateVideoSummaryTaskResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateVideoSummaryTaskResponse) GoString() string {
+	return s.String()
+}
+
+func (s *CreateVideoSummaryTaskResponse) SetCode(v string) *CreateVideoSummaryTaskResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *CreateVideoSummaryTaskResponse) SetMessage(v string) *CreateVideoSummaryTaskResponse {
+	s.Message = &v
+	return s
+}
+
+func (s *CreateVideoSummaryTaskResponse) SetRequestId(v string) *CreateVideoSummaryTaskResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *CreateVideoSummaryTaskResponse) SetData(v string) *CreateVideoSummaryTaskResponse {
+	s.Data = &v
+	return s
+}
+
+type ListMotorAlgorithmResultsRequest struct {
+	CorpId        *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	AlgorithmType *string `json:"AlgorithmType,omitempty" xml:"AlgorithmType,omitempty" require:"true"`
+	DataSourceId  *string `json:"DataSourceId,omitempty" xml:"DataSourceId,omitempty"`
+	StartTime     *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime       *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	PageNumber    *string `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize      *string `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PlateNumber   *string `json:"PlateNumber,omitempty" xml:"PlateNumber,omitempty"`
+}
+
+func (s ListMotorAlgorithmResultsRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListMotorAlgorithmResultsRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ListMotorAlgorithmResultsRequest) SetCorpId(v string) *ListMotorAlgorithmResultsRequest {
+	s.CorpId = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsRequest) SetAlgorithmType(v string) *ListMotorAlgorithmResultsRequest {
+	s.AlgorithmType = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsRequest) SetDataSourceId(v string) *ListMotorAlgorithmResultsRequest {
+	s.DataSourceId = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsRequest) SetStartTime(v string) *ListMotorAlgorithmResultsRequest {
+	s.StartTime = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsRequest) SetEndTime(v string) *ListMotorAlgorithmResultsRequest {
+	s.EndTime = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsRequest) SetPageNumber(v string) *ListMotorAlgorithmResultsRequest {
+	s.PageNumber = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsRequest) SetPageSize(v string) *ListMotorAlgorithmResultsRequest {
+	s.PageSize = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsRequest) SetPlateNumber(v string) *ListMotorAlgorithmResultsRequest {
+	s.PlateNumber = &v
+	return s
+}
+
+type ListMotorAlgorithmResultsResponse struct {
+	Code      *string                                `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                                `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ListMotorAlgorithmResultsResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s ListMotorAlgorithmResultsResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListMotorAlgorithmResultsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ListMotorAlgorithmResultsResponse) SetCode(v string) *ListMotorAlgorithmResultsResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponse) SetMessage(v string) *ListMotorAlgorithmResultsResponse {
+	s.Message = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponse) SetRequestId(v string) *ListMotorAlgorithmResultsResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponse) SetData(v *ListMotorAlgorithmResultsResponseData) *ListMotorAlgorithmResultsResponse {
+	s.Data = v
+	return s
+}
+
+type ListMotorAlgorithmResultsResponseData struct {
+	PageNumber *int                                            `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int                                            `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *int                                            `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	TotalPage  *int                                            `json:"TotalPage,omitempty" xml:"TotalPage,omitempty" require:"true"`
+	Records    []*ListMotorAlgorithmResultsResponseDataRecords `json:"Records,omitempty" xml:"Records,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s ListMotorAlgorithmResultsResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListMotorAlgorithmResultsResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *ListMotorAlgorithmResultsResponseData) SetPageNumber(v int) *ListMotorAlgorithmResultsResponseData {
+	s.PageNumber = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponseData) SetPageSize(v int) *ListMotorAlgorithmResultsResponseData {
+	s.PageSize = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponseData) SetTotalCount(v int) *ListMotorAlgorithmResultsResponseData {
+	s.TotalCount = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponseData) SetTotalPage(v int) *ListMotorAlgorithmResultsResponseData {
+	s.TotalPage = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponseData) SetRecords(v []*ListMotorAlgorithmResultsResponseDataRecords) *ListMotorAlgorithmResultsResponseData {
+	s.Records = v
+	return s
+}
+
+type ListMotorAlgorithmResultsResponseDataRecords struct {
+	CorpId           *string  `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	DataSourceId     *string  `json:"DataSourceId,omitempty" xml:"DataSourceId,omitempty" require:"true"`
+	LeftTopX         *float32 `json:"LeftTopX,omitempty" xml:"LeftTopX,omitempty" require:"true"`
+	LeftTopY         *float32 `json:"LeftTopY,omitempty" xml:"LeftTopY,omitempty" require:"true"`
+	MotorId          *string  `json:"MotorId,omitempty" xml:"MotorId,omitempty" require:"true"`
+	PicUrlPath       *string  `json:"PicUrlPath,omitempty" xml:"PicUrlPath,omitempty" require:"true"`
+	PlateNumber      *string  `json:"PlateNumber,omitempty" xml:"PlateNumber,omitempty" require:"true"`
+	RightBottomX     *float32 `json:"RightBottomX,omitempty" xml:"RightBottomX,omitempty" require:"true"`
+	RightBottomY     *float32 `json:"RightBottomY,omitempty" xml:"RightBottomY,omitempty" require:"true"`
+	ShotTime         *string  `json:"ShotTime,omitempty" xml:"ShotTime,omitempty" require:"true"`
+	TargetPicUrlPath *string  `json:"TargetPicUrlPath,omitempty" xml:"TargetPicUrlPath,omitempty" require:"true"`
+	MotorStyle       *string  `json:"MotorStyle,omitempty" xml:"MotorStyle,omitempty" require:"true"`
+	MotorModel       *string  `json:"MotorModel,omitempty" xml:"MotorModel,omitempty" require:"true"`
+}
+
+func (s ListMotorAlgorithmResultsResponseDataRecords) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListMotorAlgorithmResultsResponseDataRecords) GoString() string {
+	return s.String()
+}
+
+func (s *ListMotorAlgorithmResultsResponseDataRecords) SetCorpId(v string) *ListMotorAlgorithmResultsResponseDataRecords {
+	s.CorpId = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponseDataRecords) SetDataSourceId(v string) *ListMotorAlgorithmResultsResponseDataRecords {
+	s.DataSourceId = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponseDataRecords) SetLeftTopX(v float32) *ListMotorAlgorithmResultsResponseDataRecords {
+	s.LeftTopX = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponseDataRecords) SetLeftTopY(v float32) *ListMotorAlgorithmResultsResponseDataRecords {
+	s.LeftTopY = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponseDataRecords) SetMotorId(v string) *ListMotorAlgorithmResultsResponseDataRecords {
+	s.MotorId = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponseDataRecords) SetPicUrlPath(v string) *ListMotorAlgorithmResultsResponseDataRecords {
+	s.PicUrlPath = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponseDataRecords) SetPlateNumber(v string) *ListMotorAlgorithmResultsResponseDataRecords {
+	s.PlateNumber = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponseDataRecords) SetRightBottomX(v float32) *ListMotorAlgorithmResultsResponseDataRecords {
+	s.RightBottomX = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponseDataRecords) SetRightBottomY(v float32) *ListMotorAlgorithmResultsResponseDataRecords {
+	s.RightBottomY = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponseDataRecords) SetShotTime(v string) *ListMotorAlgorithmResultsResponseDataRecords {
+	s.ShotTime = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponseDataRecords) SetTargetPicUrlPath(v string) *ListMotorAlgorithmResultsResponseDataRecords {
+	s.TargetPicUrlPath = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponseDataRecords) SetMotorStyle(v string) *ListMotorAlgorithmResultsResponseDataRecords {
+	s.MotorStyle = &v
+	return s
+}
+
+func (s *ListMotorAlgorithmResultsResponseDataRecords) SetMotorModel(v string) *ListMotorAlgorithmResultsResponseDataRecords {
+	s.MotorModel = &v
+	return s
+}
+
+type ListFaceAlgorithmResultsRequest struct {
+	CorpId        *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	AlgorithmType *string `json:"AlgorithmType,omitempty" xml:"AlgorithmType,omitempty" require:"true"`
+	DataSourceId  *string `json:"DataSourceId,omitempty" xml:"DataSourceId,omitempty"`
+	StartTime     *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime       *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	PageNumber    *string `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize      *string `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+}
+
+func (s ListFaceAlgorithmResultsRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListFaceAlgorithmResultsRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ListFaceAlgorithmResultsRequest) SetCorpId(v string) *ListFaceAlgorithmResultsRequest {
+	s.CorpId = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsRequest) SetAlgorithmType(v string) *ListFaceAlgorithmResultsRequest {
+	s.AlgorithmType = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsRequest) SetDataSourceId(v string) *ListFaceAlgorithmResultsRequest {
+	s.DataSourceId = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsRequest) SetStartTime(v string) *ListFaceAlgorithmResultsRequest {
+	s.StartTime = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsRequest) SetEndTime(v string) *ListFaceAlgorithmResultsRequest {
+	s.EndTime = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsRequest) SetPageNumber(v string) *ListFaceAlgorithmResultsRequest {
+	s.PageNumber = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsRequest) SetPageSize(v string) *ListFaceAlgorithmResultsRequest {
+	s.PageSize = &v
+	return s
+}
+
+type ListFaceAlgorithmResultsResponse struct {
+	Code      *string                               `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                               `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ListFaceAlgorithmResultsResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s ListFaceAlgorithmResultsResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListFaceAlgorithmResultsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ListFaceAlgorithmResultsResponse) SetCode(v string) *ListFaceAlgorithmResultsResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponse) SetMessage(v string) *ListFaceAlgorithmResultsResponse {
+	s.Message = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponse) SetRequestId(v string) *ListFaceAlgorithmResultsResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponse) SetData(v *ListFaceAlgorithmResultsResponseData) *ListFaceAlgorithmResultsResponse {
+	s.Data = v
+	return s
+}
+
+type ListFaceAlgorithmResultsResponseData struct {
+	PageNumber *int                                           `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int                                           `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *int                                           `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	TotalPage  *int                                           `json:"TotalPage,omitempty" xml:"TotalPage,omitempty" require:"true"`
+	Records    []*ListFaceAlgorithmResultsResponseDataRecords `json:"Records,omitempty" xml:"Records,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s ListFaceAlgorithmResultsResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListFaceAlgorithmResultsResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *ListFaceAlgorithmResultsResponseData) SetPageNumber(v int) *ListFaceAlgorithmResultsResponseData {
+	s.PageNumber = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponseData) SetPageSize(v int) *ListFaceAlgorithmResultsResponseData {
+	s.PageSize = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponseData) SetTotalCount(v int) *ListFaceAlgorithmResultsResponseData {
+	s.TotalCount = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponseData) SetTotalPage(v int) *ListFaceAlgorithmResultsResponseData {
+	s.TotalPage = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponseData) SetRecords(v []*ListFaceAlgorithmResultsResponseDataRecords) *ListFaceAlgorithmResultsResponseData {
+	s.Records = v
+	return s
+}
+
+type ListFaceAlgorithmResultsResponseDataRecords struct {
+	FaceId           *string  `json:"FaceId,omitempty" xml:"FaceId,omitempty" require:"true"`
+	CorpId           *string  `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	DataSourceId     *string  `json:"DataSourceId,omitempty" xml:"DataSourceId,omitempty" require:"true"`
+	ShotTime         *string  `json:"ShotTime,omitempty" xml:"ShotTime,omitempty" require:"true"`
+	GenderCode       *string  `json:"GenderCode,omitempty" xml:"GenderCode,omitempty" require:"true"`
+	MinAge           *string  `json:"MinAge,omitempty" xml:"MinAge,omitempty" require:"true"`
+	MaxAge           *string  `json:"MaxAge,omitempty" xml:"MaxAge,omitempty" require:"true"`
+	CapStyle         *string  `json:"CapStyle,omitempty" xml:"CapStyle,omitempty" require:"true"`
+	HairStyle        *string  `json:"HairStyle,omitempty" xml:"HairStyle,omitempty" require:"true"`
+	LeftTopX         *float32 `json:"LeftTopX,omitempty" xml:"LeftTopX,omitempty" require:"true"`
+	LeftTopY         *float32 `json:"LeftTopY,omitempty" xml:"LeftTopY,omitempty" require:"true"`
+	RightBottomX     *float32 `json:"RightBottomX,omitempty" xml:"RightBottomX,omitempty" require:"true"`
+	RightBottomY     *float32 `json:"RightBottomY,omitempty" xml:"RightBottomY,omitempty" require:"true"`
+	PicUrlPath       *string  `json:"PicUrlPath,omitempty" xml:"PicUrlPath,omitempty" require:"true"`
+	TargetPicUrlPath *string  `json:"TargetPicUrlPath,omitempty" xml:"TargetPicUrlPath,omitempty" require:"true"`
+}
+
+func (s ListFaceAlgorithmResultsResponseDataRecords) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListFaceAlgorithmResultsResponseDataRecords) GoString() string {
+	return s.String()
+}
+
+func (s *ListFaceAlgorithmResultsResponseDataRecords) SetFaceId(v string) *ListFaceAlgorithmResultsResponseDataRecords {
+	s.FaceId = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponseDataRecords) SetCorpId(v string) *ListFaceAlgorithmResultsResponseDataRecords {
+	s.CorpId = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponseDataRecords) SetDataSourceId(v string) *ListFaceAlgorithmResultsResponseDataRecords {
+	s.DataSourceId = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponseDataRecords) SetShotTime(v string) *ListFaceAlgorithmResultsResponseDataRecords {
+	s.ShotTime = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponseDataRecords) SetGenderCode(v string) *ListFaceAlgorithmResultsResponseDataRecords {
+	s.GenderCode = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponseDataRecords) SetMinAge(v string) *ListFaceAlgorithmResultsResponseDataRecords {
+	s.MinAge = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponseDataRecords) SetMaxAge(v string) *ListFaceAlgorithmResultsResponseDataRecords {
+	s.MaxAge = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponseDataRecords) SetCapStyle(v string) *ListFaceAlgorithmResultsResponseDataRecords {
+	s.CapStyle = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponseDataRecords) SetHairStyle(v string) *ListFaceAlgorithmResultsResponseDataRecords {
+	s.HairStyle = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponseDataRecords) SetLeftTopX(v float32) *ListFaceAlgorithmResultsResponseDataRecords {
+	s.LeftTopX = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponseDataRecords) SetLeftTopY(v float32) *ListFaceAlgorithmResultsResponseDataRecords {
+	s.LeftTopY = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponseDataRecords) SetRightBottomX(v float32) *ListFaceAlgorithmResultsResponseDataRecords {
+	s.RightBottomX = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponseDataRecords) SetRightBottomY(v float32) *ListFaceAlgorithmResultsResponseDataRecords {
+	s.RightBottomY = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponseDataRecords) SetPicUrlPath(v string) *ListFaceAlgorithmResultsResponseDataRecords {
+	s.PicUrlPath = &v
+	return s
+}
+
+func (s *ListFaceAlgorithmResultsResponseDataRecords) SetTargetPicUrlPath(v string) *ListFaceAlgorithmResultsResponseDataRecords {
+	s.TargetPicUrlPath = &v
+	return s
+}
+
+type ListMetricsRequest struct {
+	CorpId        *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	TagCode       *string `json:"TagCode,omitempty" xml:"TagCode,omitempty" require:"true"`
+	AggregateType *string `json:"AggregateType,omitempty" xml:"AggregateType,omitempty" require:"true"`
+	StartTime     *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime       *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	PageNumber    *string `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize      *string `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+}
+
+func (s ListMetricsRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListMetricsRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ListMetricsRequest) SetCorpId(v string) *ListMetricsRequest {
+	s.CorpId = &v
+	return s
+}
+
+func (s *ListMetricsRequest) SetTagCode(v string) *ListMetricsRequest {
+	s.TagCode = &v
+	return s
+}
+
+func (s *ListMetricsRequest) SetAggregateType(v string) *ListMetricsRequest {
+	s.AggregateType = &v
+	return s
+}
+
+func (s *ListMetricsRequest) SetStartTime(v string) *ListMetricsRequest {
+	s.StartTime = &v
+	return s
+}
+
+func (s *ListMetricsRequest) SetEndTime(v string) *ListMetricsRequest {
+	s.EndTime = &v
+	return s
+}
+
+func (s *ListMetricsRequest) SetPageNumber(v string) *ListMetricsRequest {
+	s.PageNumber = &v
+	return s
+}
+
+func (s *ListMetricsRequest) SetPageSize(v string) *ListMetricsRequest {
+	s.PageSize = &v
+	return s
+}
+
+type ListMetricsResponse struct {
+	Code      *string                  `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                  `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ListMetricsResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s ListMetricsResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListMetricsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ListMetricsResponse) SetCode(v string) *ListMetricsResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *ListMetricsResponse) SetMessage(v string) *ListMetricsResponse {
+	s.Message = &v
+	return s
+}
+
+func (s *ListMetricsResponse) SetRequestId(v string) *ListMetricsResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *ListMetricsResponse) SetData(v *ListMetricsResponseData) *ListMetricsResponse {
+	s.Data = v
+	return s
+}
+
+type ListMetricsResponseData struct {
+	PageNumber *int                              `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int                              `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *int                              `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	TotalPage  *int                              `json:"TotalPage,omitempty" xml:"TotalPage,omitempty" require:"true"`
+	Records    []*ListMetricsResponseDataRecords `json:"Records,omitempty" xml:"Records,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s ListMetricsResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListMetricsResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *ListMetricsResponseData) SetPageNumber(v int) *ListMetricsResponseData {
+	s.PageNumber = &v
+	return s
+}
+
+func (s *ListMetricsResponseData) SetPageSize(v int) *ListMetricsResponseData {
+	s.PageSize = &v
+	return s
+}
+
+func (s *ListMetricsResponseData) SetTotalCount(v int) *ListMetricsResponseData {
+	s.TotalCount = &v
+	return s
+}
+
+func (s *ListMetricsResponseData) SetTotalPage(v int) *ListMetricsResponseData {
+	s.TotalPage = &v
+	return s
+}
+
+func (s *ListMetricsResponseData) SetRecords(v []*ListMetricsResponseDataRecords) *ListMetricsResponseData {
+	s.Records = v
+	return s
+}
+
+type ListMetricsResponseDataRecords struct {
+	DateTime  *string `json:"DateTime,omitempty" xml:"DateTime,omitempty" require:"true"`
+	TagCode   *string `json:"TagCode,omitempty" xml:"TagCode,omitempty" require:"true"`
+	TagValue  *string `json:"TagValue,omitempty" xml:"TagValue,omitempty" require:"true"`
+	TagMetric *string `json:"TagMetric,omitempty" xml:"TagMetric,omitempty" require:"true"`
+}
+
+func (s ListMetricsResponseDataRecords) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListMetricsResponseDataRecords) GoString() string {
+	return s.String()
+}
+
+func (s *ListMetricsResponseDataRecords) SetDateTime(v string) *ListMetricsResponseDataRecords {
+	s.DateTime = &v
+	return s
+}
+
+func (s *ListMetricsResponseDataRecords) SetTagCode(v string) *ListMetricsResponseDataRecords {
+	s.TagCode = &v
+	return s
+}
+
+func (s *ListMetricsResponseDataRecords) SetTagValue(v string) *ListMetricsResponseDataRecords {
+	s.TagValue = &v
+	return s
+}
+
+func (s *ListMetricsResponseDataRecords) SetTagMetric(v string) *ListMetricsResponseDataRecords {
+	s.TagMetric = &v
+	return s
+}
+
+type DeleteRecordsRequest struct {
+	CorpId        *string `json:"CorpId,omitempty" xml:"CorpId,omitempty"`
+	AlgorithmType *string `json:"AlgorithmType,omitempty" xml:"AlgorithmType,omitempty"`
+	AttributeName *string `json:"AttributeName,omitempty" xml:"AttributeName,omitempty"`
+	OperatorType  *string `json:"OperatorType,omitempty" xml:"OperatorType,omitempty"`
+	Value         *string `json:"Value,omitempty" xml:"Value,omitempty"`
+}
+
+func (s DeleteRecordsRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DeleteRecordsRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DeleteRecordsRequest) SetCorpId(v string) *DeleteRecordsRequest {
+	s.CorpId = &v
+	return s
+}
+
+func (s *DeleteRecordsRequest) SetAlgorithmType(v string) *DeleteRecordsRequest {
+	s.AlgorithmType = &v
+	return s
+}
+
+func (s *DeleteRecordsRequest) SetAttributeName(v string) *DeleteRecordsRequest {
+	s.AttributeName = &v
+	return s
+}
+
+func (s *DeleteRecordsRequest) SetOperatorType(v string) *DeleteRecordsRequest {
+	s.OperatorType = &v
+	return s
+}
+
+func (s *DeleteRecordsRequest) SetValue(v string) *DeleteRecordsRequest {
+	s.Value = &v
+	return s
+}
+
+type DeleteRecordsResponse struct {
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *string `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
+}
+
+func (s DeleteRecordsResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DeleteRecordsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DeleteRecordsResponse) SetCode(v string) *DeleteRecordsResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *DeleteRecordsResponse) SetMessage(v string) *DeleteRecordsResponse {
+	s.Message = &v
+	return s
+}
+
+func (s *DeleteRecordsResponse) SetRequestId(v string) *DeleteRecordsResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DeleteRecordsResponse) SetData(v string) *DeleteRecordsResponse {
+	s.Data = &v
+	return s
+}
+
+type RecognizeFaceQualityRequest struct {
+	CorpId     *string `json:"CorpId,omitempty" xml:"CorpId,omitempty"`
+	PicContent *string `json:"PicContent,omitempty" xml:"PicContent,omitempty"`
+	PicFormat  *string `json:"PicFormat,omitempty" xml:"PicFormat,omitempty"`
+	PicUrl     *string `json:"PicUrl,omitempty" xml:"PicUrl,omitempty"`
+}
+
+func (s RecognizeFaceQualityRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeFaceQualityRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeFaceQualityRequest) SetCorpId(v string) *RecognizeFaceQualityRequest {
+	s.CorpId = &v
+	return s
+}
+
+func (s *RecognizeFaceQualityRequest) SetPicContent(v string) *RecognizeFaceQualityRequest {
+	s.PicContent = &v
+	return s
+}
+
+func (s *RecognizeFaceQualityRequest) SetPicFormat(v string) *RecognizeFaceQualityRequest {
+	s.PicFormat = &v
+	return s
+}
+
+func (s *RecognizeFaceQualityRequest) SetPicUrl(v string) *RecognizeFaceQualityRequest {
+	s.PicUrl = &v
+	return s
+}
+
+type RecognizeFaceQualityResponse struct {
+	Code      *string                           `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                           `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeFaceQualityResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s RecognizeFaceQualityResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeFaceQualityResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeFaceQualityResponse) SetCode(v string) *RecognizeFaceQualityResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *RecognizeFaceQualityResponse) SetMessage(v string) *RecognizeFaceQualityResponse {
+	s.Message = &v
+	return s
+}
+
+func (s *RecognizeFaceQualityResponse) SetRequestId(v string) *RecognizeFaceQualityResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeFaceQualityResponse) SetData(v *RecognizeFaceQualityResponseData) *RecognizeFaceQualityResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeFaceQualityResponseData struct {
+	QualityScore *string                                     `json:"QualityScore,omitempty" xml:"QualityScore,omitempty" require:"true"`
+	Description  *string                                     `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	Attributes   *RecognizeFaceQualityResponseDataAttributes `json:"Attributes,omitempty" xml:"Attributes,omitempty" require:"true" type:"Struct"`
+}
+
+func (s RecognizeFaceQualityResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeFaceQualityResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeFaceQualityResponseData) SetQualityScore(v string) *RecognizeFaceQualityResponseData {
+	s.QualityScore = &v
+	return s
+}
+
+func (s *RecognizeFaceQualityResponseData) SetDescription(v string) *RecognizeFaceQualityResponseData {
+	s.Description = &v
+	return s
+}
+
+func (s *RecognizeFaceQualityResponseData) SetAttributes(v *RecognizeFaceQualityResponseDataAttributes) *RecognizeFaceQualityResponseData {
+	s.Attributes = v
+	return s
+}
+
+type RecognizeFaceQualityResponseDataAttributes struct {
+	LeftTopX               *int    `json:"LeftTopX,omitempty" xml:"LeftTopX,omitempty" require:"true"`
+	LeftTopY               *int    `json:"LeftTopY,omitempty" xml:"LeftTopY,omitempty" require:"true"`
+	RightBottomX           *int    `json:"RightBottomX,omitempty" xml:"RightBottomX,omitempty" require:"true"`
+	RightBottomY           *int    `json:"RightBottomY,omitempty" xml:"RightBottomY,omitempty" require:"true"`
+	TargetImageStoragePath *string `json:"TargetImageStoragePath,omitempty" xml:"TargetImageStoragePath,omitempty" require:"true"`
+	FaceStyle              *string `json:"FaceStyle,omitempty" xml:"FaceStyle,omitempty" require:"true"`
+	FaceQuality            *string `json:"FaceQuality,omitempty" xml:"FaceQuality,omitempty" require:"true"`
+	FaceScore              *string `json:"FaceScore,omitempty" xml:"FaceScore,omitempty" require:"true"`
+}
+
+func (s RecognizeFaceQualityResponseDataAttributes) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeFaceQualityResponseDataAttributes) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeFaceQualityResponseDataAttributes) SetLeftTopX(v int) *RecognizeFaceQualityResponseDataAttributes {
+	s.LeftTopX = &v
+	return s
+}
+
+func (s *RecognizeFaceQualityResponseDataAttributes) SetLeftTopY(v int) *RecognizeFaceQualityResponseDataAttributes {
+	s.LeftTopY = &v
+	return s
+}
+
+func (s *RecognizeFaceQualityResponseDataAttributes) SetRightBottomX(v int) *RecognizeFaceQualityResponseDataAttributes {
+	s.RightBottomX = &v
+	return s
+}
+
+func (s *RecognizeFaceQualityResponseDataAttributes) SetRightBottomY(v int) *RecognizeFaceQualityResponseDataAttributes {
+	s.RightBottomY = &v
+	return s
+}
+
+func (s *RecognizeFaceQualityResponseDataAttributes) SetTargetImageStoragePath(v string) *RecognizeFaceQualityResponseDataAttributes {
+	s.TargetImageStoragePath = &v
+	return s
+}
+
+func (s *RecognizeFaceQualityResponseDataAttributes) SetFaceStyle(v string) *RecognizeFaceQualityResponseDataAttributes {
+	s.FaceStyle = &v
+	return s
+}
+
+func (s *RecognizeFaceQualityResponseDataAttributes) SetFaceQuality(v string) *RecognizeFaceQualityResponseDataAttributes {
+	s.FaceQuality = &v
+	return s
+}
+
+func (s *RecognizeFaceQualityResponseDataAttributes) SetFaceScore(v string) *RecognizeFaceQualityResponseDataAttributes {
+	s.FaceScore = &v
+	return s
+}
+
+type ListPersonsRequest struct {
+	CorpId   *string `json:"CorpId,omitempty" xml:"CorpId,omitempty"`
+	PageNo   *string `json:"PageNo,omitempty" xml:"PageNo,omitempty"`
+	PageSize *string `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+}
+
+func (s ListPersonsRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListPersonsRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ListPersonsRequest) SetCorpId(v string) *ListPersonsRequest {
+	s.CorpId = &v
+	return s
+}
+
+func (s *ListPersonsRequest) SetPageNo(v string) *ListPersonsRequest {
+	s.PageNo = &v
+	return s
+}
+
+func (s *ListPersonsRequest) SetPageSize(v string) *ListPersonsRequest {
+	s.PageSize = &v
+	return s
+}
+
+type ListPersonsResponse struct {
+	Code      *string                  `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                  `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ListPersonsResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s ListPersonsResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListPersonsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ListPersonsResponse) SetCode(v string) *ListPersonsResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *ListPersonsResponse) SetMessage(v string) *ListPersonsResponse {
+	s.Message = &v
+	return s
+}
+
+func (s *ListPersonsResponse) SetRequestId(v string) *ListPersonsResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *ListPersonsResponse) SetData(v *ListPersonsResponseData) *ListPersonsResponse {
+	s.Data = v
+	return s
+}
+
+type ListPersonsResponseData struct {
+	PageNo     *string                           `json:"PageNo,omitempty" xml:"PageNo,omitempty" require:"true"`
+	PageSize   *string                           `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *string                           `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	TotalPage  *string                           `json:"TotalPage,omitempty" xml:"TotalPage,omitempty" require:"true"`
+	Records    []*ListPersonsResponseDataRecords `json:"Records,omitempty" xml:"Records,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s ListPersonsResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListPersonsResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *ListPersonsResponseData) SetPageNo(v string) *ListPersonsResponseData {
+	s.PageNo = &v
+	return s
+}
+
+func (s *ListPersonsResponseData) SetPageSize(v string) *ListPersonsResponseData {
+	s.PageSize = &v
+	return s
+}
+
+func (s *ListPersonsResponseData) SetTotalCount(v string) *ListPersonsResponseData {
+	s.TotalCount = &v
+	return s
+}
+
+func (s *ListPersonsResponseData) SetTotalPage(v string) *ListPersonsResponseData {
+	s.TotalPage = &v
+	return s
+}
+
+func (s *ListPersonsResponseData) SetRecords(v []*ListPersonsResponseDataRecords) *ListPersonsResponseData {
+	s.Records = v
+	return s
+}
+
+type ListPersonsResponseDataRecords struct {
+	FirstAppearTime *string                                  `json:"FirstAppearTime,omitempty" xml:"FirstAppearTime,omitempty" require:"true"`
+	PersonId        *string                                  `json:"PersonId,omitempty" xml:"PersonId,omitempty" require:"true"`
+	PicUrl          *string                                  `json:"PicUrl,omitempty" xml:"PicUrl,omitempty" require:"true"`
+	TagList         []*ListPersonsResponseDataRecordsTagList `json:"TagList,omitempty" xml:"TagList,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s ListPersonsResponseDataRecords) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListPersonsResponseDataRecords) GoString() string {
+	return s.String()
+}
+
+func (s *ListPersonsResponseDataRecords) SetFirstAppearTime(v string) *ListPersonsResponseDataRecords {
+	s.FirstAppearTime = &v
+	return s
+}
+
+func (s *ListPersonsResponseDataRecords) SetPersonId(v string) *ListPersonsResponseDataRecords {
+	s.PersonId = &v
+	return s
+}
+
+func (s *ListPersonsResponseDataRecords) SetPicUrl(v string) *ListPersonsResponseDataRecords {
+	s.PicUrl = &v
+	return s
+}
+
+func (s *ListPersonsResponseDataRecords) SetTagList(v []*ListPersonsResponseDataRecordsTagList) *ListPersonsResponseDataRecords {
+	s.TagList = v
+	return s
+}
+
+type ListPersonsResponseDataRecordsTagList struct {
+	TagCode    *string `json:"TagCode,omitempty" xml:"TagCode,omitempty" require:"true"`
+	TagName    *string `json:"TagName,omitempty" xml:"TagName,omitempty" require:"true"`
+	TagValue   *string `json:"TagValue,omitempty" xml:"TagValue,omitempty" require:"true"`
+	TagValueId *string `json:"TagValueId,omitempty" xml:"TagValueId,omitempty" require:"true"`
+}
+
+func (s ListPersonsResponseDataRecordsTagList) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListPersonsResponseDataRecordsTagList) GoString() string {
+	return s.String()
+}
+
+func (s *ListPersonsResponseDataRecordsTagList) SetTagCode(v string) *ListPersonsResponseDataRecordsTagList {
+	s.TagCode = &v
+	return s
+}
+
+func (s *ListPersonsResponseDataRecordsTagList) SetTagName(v string) *ListPersonsResponseDataRecordsTagList {
+	s.TagName = &v
+	return s
+}
+
+func (s *ListPersonsResponseDataRecordsTagList) SetTagValue(v string) *ListPersonsResponseDataRecordsTagList {
+	s.TagValue = &v
+	return s
+}
+
+func (s *ListPersonsResponseDataRecordsTagList) SetTagValueId(v string) *ListPersonsResponseDataRecordsTagList {
+	s.TagValueId = &v
+	return s
+}
+
+type GetPersonDetailRequest struct {
+	CorpId   *string `json:"CorpId,omitempty" xml:"CorpId,omitempty"`
+	PersonID *string `json:"PersonID,omitempty" xml:"PersonID,omitempty"`
+}
+
+func (s GetPersonDetailRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetPersonDetailRequest) GoString() string {
+	return s.String()
+}
+
+func (s *GetPersonDetailRequest) SetCorpId(v string) *GetPersonDetailRequest {
+	s.CorpId = &v
+	return s
+}
+
+func (s *GetPersonDetailRequest) SetPersonID(v string) *GetPersonDetailRequest {
+	s.PersonID = &v
+	return s
+}
+
+type GetPersonDetailResponse struct {
+	Code      *string                      `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                      `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *GetPersonDetailResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s GetPersonDetailResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetPersonDetailResponse) GoString() string {
+	return s.String()
+}
+
+func (s *GetPersonDetailResponse) SetCode(v string) *GetPersonDetailResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *GetPersonDetailResponse) SetMessage(v string) *GetPersonDetailResponse {
+	s.Message = &v
+	return s
+}
+
+func (s *GetPersonDetailResponse) SetRequestId(v string) *GetPersonDetailResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *GetPersonDetailResponse) SetData(v *GetPersonDetailResponseData) *GetPersonDetailResponse {
+	s.Data = v
+	return s
+}
+
+type GetPersonDetailResponseData struct {
+	PicUrl   *string                               `json:"PicUrl,omitempty" xml:"PicUrl,omitempty" require:"true"`
+	PersonId *string                               `json:"PersonId,omitempty" xml:"PersonId,omitempty" require:"true"`
+	TagList  []*GetPersonDetailResponseDataTagList `json:"TagList,omitempty" xml:"TagList,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s GetPersonDetailResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetPersonDetailResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *GetPersonDetailResponseData) SetPicUrl(v string) *GetPersonDetailResponseData {
+	s.PicUrl = &v
+	return s
+}
+
+func (s *GetPersonDetailResponseData) SetPersonId(v string) *GetPersonDetailResponseData {
+	s.PersonId = &v
+	return s
+}
+
+func (s *GetPersonDetailResponseData) SetTagList(v []*GetPersonDetailResponseDataTagList) *GetPersonDetailResponseData {
+	s.TagList = v
+	return s
+}
+
+type GetPersonDetailResponseDataTagList struct {
+	TagCode    *string `json:"TagCode,omitempty" xml:"TagCode,omitempty" require:"true"`
+	TagName    *string `json:"TagName,omitempty" xml:"TagName,omitempty" require:"true"`
+	TagValue   *string `json:"TagValue,omitempty" xml:"TagValue,omitempty" require:"true"`
+	TagValueId *string `json:"TagValueId,omitempty" xml:"TagValueId,omitempty" require:"true"`
+}
+
+func (s GetPersonDetailResponseDataTagList) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetPersonDetailResponseDataTagList) GoString() string {
+	return s.String()
+}
+
+func (s *GetPersonDetailResponseDataTagList) SetTagCode(v string) *GetPersonDetailResponseDataTagList {
+	s.TagCode = &v
+	return s
+}
+
+func (s *GetPersonDetailResponseDataTagList) SetTagName(v string) *GetPersonDetailResponseDataTagList {
+	s.TagName = &v
+	return s
+}
+
+func (s *GetPersonDetailResponseDataTagList) SetTagValue(v string) *GetPersonDetailResponseDataTagList {
+	s.TagValue = &v
+	return s
+}
+
+func (s *GetPersonDetailResponseDataTagList) SetTagValueId(v string) *GetPersonDetailResponseDataTagList {
+	s.TagValueId = &v
+	return s
+}
+
 type GetFaceOptionsRequest struct {
-	CorpId *string `json:"CorpId" xml:"CorpId"`
+	CorpId *string `json:"CorpId,omitempty" xml:"CorpId,omitempty"`
 }
 
 func (s GetFaceOptionsRequest) String() string {
@@ -26,10 +2236,10 @@ func (s *GetFaceOptionsRequest) SetCorpId(v string) *GetFaceOptionsRequest {
 }
 
 type GetFaceOptionsResponse struct {
-	Code      *string                       `json:"Code" xml:"Code" require:"true"`
-	Message   *string                       `json:"Message" xml:"Message" require:"true"`
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      []*GetFaceOptionsResponseData `json:"Data" xml:"Data" require:"true" type:"Repeated"`
+	Code      *string                       `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                       `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      []*GetFaceOptionsResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetFaceOptionsResponse) String() string {
@@ -61,9 +2271,9 @@ func (s *GetFaceOptionsResponse) SetData(v []*GetFaceOptionsResponseData) *GetFa
 }
 
 type GetFaceOptionsResponseData struct {
-	Key        *string                                 `json:"Key" xml:"Key" require:"true"`
-	Name       *string                                 `json:"Name" xml:"Name" require:"true"`
-	OptionList []*GetFaceOptionsResponseDataOptionList `json:"OptionList" xml:"OptionList" require:"true" type:"Repeated"`
+	Key        *string                                 `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Name       *string                                 `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	OptionList []*GetFaceOptionsResponseDataOptionList `json:"OptionList,omitempty" xml:"OptionList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetFaceOptionsResponseData) String() string {
@@ -90,8 +2300,8 @@ func (s *GetFaceOptionsResponseData) SetOptionList(v []*GetFaceOptionsResponseDa
 }
 
 type GetFaceOptionsResponseDataOptionList struct {
-	Key  *string `json:"Key" xml:"Key" require:"true"`
-	Name *string `json:"Name" xml:"Name" require:"true"`
+	Key  *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Name *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
 }
 
 func (s GetFaceOptionsResponseDataOptionList) String() string {
@@ -113,7 +2323,7 @@ func (s *GetFaceOptionsResponseDataOptionList) SetName(v string) *GetFaceOptions
 }
 
 type GetBodyOptionsRequest struct {
-	CorpId *string `json:"CorpId" xml:"CorpId"`
+	CorpId *string `json:"CorpId,omitempty" xml:"CorpId,omitempty"`
 }
 
 func (s GetBodyOptionsRequest) String() string {
@@ -130,10 +2340,10 @@ func (s *GetBodyOptionsRequest) SetCorpId(v string) *GetBodyOptionsRequest {
 }
 
 type GetBodyOptionsResponse struct {
-	Code      *string                       `json:"Code" xml:"Code" require:"true"`
-	Message   *string                       `json:"Message" xml:"Message" require:"true"`
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      []*GetBodyOptionsResponseData `json:"Data" xml:"Data" require:"true" type:"Repeated"`
+	Code      *string                       `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                       `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      []*GetBodyOptionsResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetBodyOptionsResponse) String() string {
@@ -165,9 +2375,9 @@ func (s *GetBodyOptionsResponse) SetData(v []*GetBodyOptionsResponseData) *GetBo
 }
 
 type GetBodyOptionsResponseData struct {
-	Key        *string                                 `json:"Key" xml:"Key" require:"true"`
-	Name       *string                                 `json:"Name" xml:"Name" require:"true"`
-	OptionList []*GetBodyOptionsResponseDataOptionList `json:"OptionList" xml:"OptionList" require:"true" type:"Repeated"`
+	Key        *string                                 `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Name       *string                                 `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	OptionList []*GetBodyOptionsResponseDataOptionList `json:"OptionList,omitempty" xml:"OptionList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetBodyOptionsResponseData) String() string {
@@ -194,8 +2404,8 @@ func (s *GetBodyOptionsResponseData) SetOptionList(v []*GetBodyOptionsResponseDa
 }
 
 type GetBodyOptionsResponseDataOptionList struct {
-	Key  *string `json:"Key" xml:"Key" require:"true"`
-	Name *string `json:"Name" xml:"Name" require:"true"`
+	Key  *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Name *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
 }
 
 func (s GetBodyOptionsResponseDataOptionList) String() string {
@@ -217,7 +2427,8 @@ func (s *GetBodyOptionsResponseDataOptionList) SetName(v string) *GetBodyOptions
 }
 
 type StopMonitorRequest struct {
-	TaskId *string `json:"TaskId" xml:"TaskId"`
+	TaskId          *string `json:"TaskId,omitempty" xml:"TaskId,omitempty"`
+	AlgorithmVendor *string `json:"AlgorithmVendor,omitempty" xml:"AlgorithmVendor,omitempty"`
 }
 
 func (s StopMonitorRequest) String() string {
@@ -233,11 +2444,16 @@ func (s *StopMonitorRequest) SetTaskId(v string) *StopMonitorRequest {
 	return s
 }
 
+func (s *StopMonitorRequest) SetAlgorithmVendor(v string) *StopMonitorRequest {
+	s.AlgorithmVendor = &v
+	return s
+}
+
 type StopMonitorResponse struct {
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Data      *string `json:"Data" xml:"Data" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Data      *string `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s StopMonitorResponse) String() string {
@@ -269,13 +2485,13 @@ func (s *StopMonitorResponse) SetRequestId(v string) *StopMonitorResponse {
 }
 
 type SearchBodyRequest struct {
-	CorpId         *string                `json:"CorpId" xml:"CorpId" require:"true"`
-	GbId           *string                `json:"GbId" xml:"GbId"`
-	StartTimeStamp *int64                 `json:"StartTimeStamp" xml:"StartTimeStamp" require:"true"`
-	EndTimeStamp   *int64                 `json:"EndTimeStamp" xml:"EndTimeStamp" require:"true"`
-	PageNo         *int                   `json:"PageNo" xml:"PageNo" require:"true"`
-	PageSize       *int                   `json:"PageSize" xml:"PageSize" require:"true"`
-	OptionList     map[string]interface{} `json:"OptionList" xml:"OptionList"`
+	CorpId         *string                `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	GbId           *string                `json:"GbId,omitempty" xml:"GbId,omitempty"`
+	StartTimeStamp *int64                 `json:"StartTimeStamp,omitempty" xml:"StartTimeStamp,omitempty" require:"true"`
+	EndTimeStamp   *int64                 `json:"EndTimeStamp,omitempty" xml:"EndTimeStamp,omitempty" require:"true"`
+	PageNo         *int                   `json:"PageNo,omitempty" xml:"PageNo,omitempty" require:"true"`
+	PageSize       *int                   `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	OptionList     map[string]interface{} `json:"OptionList,omitempty" xml:"OptionList,omitempty"`
 }
 
 func (s SearchBodyRequest) String() string {
@@ -322,10 +2538,10 @@ func (s *SearchBodyRequest) SetOptionList(v map[string]interface{}) *SearchBodyR
 }
 
 type SearchBodyResponse struct {
-	Code      *string                 `json:"Code" xml:"Code" require:"true"`
-	Message   *string                 `json:"Message" xml:"Message" require:"true"`
-	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *SearchBodyResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	Code      *string                 `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                 `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SearchBodyResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SearchBodyResponse) String() string {
@@ -357,11 +2573,11 @@ func (s *SearchBodyResponse) SetData(v *SearchBodyResponseData) *SearchBodyRespo
 }
 
 type SearchBodyResponseData struct {
-	PageNo     *int                             `json:"PageNo" xml:"PageNo" require:"true"`
-	PageSize   *int                             `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount *int                             `json:"TotalCount" xml:"TotalCount" require:"true"`
-	TotalPage  *int                             `json:"TotalPage" xml:"TotalPage" require:"true"`
-	Records    []*SearchBodyResponseDataRecords `json:"Records" xml:"Records" require:"true" type:"Repeated"`
+	PageNo     *int                             `json:"PageNo,omitempty" xml:"PageNo,omitempty" require:"true"`
+	PageSize   *int                             `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *int                             `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	TotalPage  *int                             `json:"TotalPage,omitempty" xml:"TotalPage,omitempty" require:"true"`
+	Records    []*SearchBodyResponseDataRecords `json:"Records,omitempty" xml:"Records,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SearchBodyResponseData) String() string {
@@ -398,14 +2614,14 @@ func (s *SearchBodyResponseData) SetRecords(v []*SearchBodyResponseDataRecords) 
 }
 
 type SearchBodyResponseDataRecords struct {
-	GbId           *string  `json:"GbId" xml:"GbId" require:"true"`
-	ImageUrl       *string  `json:"ImageUrl" xml:"ImageUrl" require:"true"`
-	LeftTopX       *float32 `json:"LeftTopX" xml:"LeftTopX" require:"true"`
-	LeftTopY       *float32 `json:"LeftTopY" xml:"LeftTopY" require:"true"`
-	RightBottomX   *float32 `json:"RightBottomX" xml:"RightBottomX" require:"true"`
-	RightBottomY   *float32 `json:"RightBottomY" xml:"RightBottomY" require:"true"`
-	Score          *float32 `json:"Score" xml:"Score" require:"true"`
-	TargetImageUrl *string  `json:"TargetImageUrl" xml:"TargetImageUrl" require:"true"`
+	GbId           *string  `json:"GbId,omitempty" xml:"GbId,omitempty" require:"true"`
+	ImageUrl       *string  `json:"ImageUrl,omitempty" xml:"ImageUrl,omitempty" require:"true"`
+	LeftTopX       *float32 `json:"LeftTopX,omitempty" xml:"LeftTopX,omitempty" require:"true"`
+	LeftTopY       *float32 `json:"LeftTopY,omitempty" xml:"LeftTopY,omitempty" require:"true"`
+	RightBottomX   *float32 `json:"RightBottomX,omitempty" xml:"RightBottomX,omitempty" require:"true"`
+	RightBottomY   *float32 `json:"RightBottomY,omitempty" xml:"RightBottomY,omitempty" require:"true"`
+	Score          *float32 `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	TargetImageUrl *string  `json:"TargetImageUrl,omitempty" xml:"TargetImageUrl,omitempty" require:"true"`
 }
 
 func (s SearchBodyResponseDataRecords) String() string {
@@ -457,10 +2673,11 @@ func (s *SearchBodyResponseDataRecords) SetTargetImageUrl(v string) *SearchBodyR
 }
 
 type AddMonitorRequest struct {
-	CorpId         *string `json:"CorpId" xml:"CorpId"`
-	MonitorType    *string `json:"MonitorType" xml:"MonitorType"`
-	Description    *string `json:"Description" xml:"Description"`
-	BatchIndicator *int    `json:"BatchIndicator" xml:"BatchIndicator"`
+	CorpId          *string `json:"CorpId,omitempty" xml:"CorpId,omitempty"`
+	MonitorType     *string `json:"MonitorType,omitempty" xml:"MonitorType,omitempty"`
+	Description     *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	BatchIndicator  *int    `json:"BatchIndicator,omitempty" xml:"BatchIndicator,omitempty"`
+	AlgorithmVendor *string `json:"AlgorithmVendor,omitempty" xml:"AlgorithmVendor,omitempty"`
 }
 
 func (s AddMonitorRequest) String() string {
@@ -491,11 +2708,16 @@ func (s *AddMonitorRequest) SetBatchIndicator(v int) *AddMonitorRequest {
 	return s
 }
 
+func (s *AddMonitorRequest) SetAlgorithmVendor(v string) *AddMonitorRequest {
+	s.AlgorithmVendor = &v
+	return s
+}
+
 type AddMonitorResponse struct {
-	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	Code      *string                 `json:"Code" xml:"Code" require:"true"`
-	Message   *string                 `json:"Message" xml:"Message" require:"true"`
-	Data      *AddMonitorResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Code      *string                 `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                 `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *AddMonitorResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s AddMonitorResponse) String() string {
@@ -527,7 +2749,7 @@ func (s *AddMonitorResponse) SetData(v *AddMonitorResponseData) *AddMonitorRespo
 }
 
 type AddMonitorResponseData struct {
-	TaskId *string `json:"TaskId" xml:"TaskId" require:"true"`
+	TaskId *string `json:"TaskId,omitempty" xml:"TaskId,omitempty" require:"true"`
 }
 
 func (s AddMonitorResponseData) String() string {
@@ -544,11 +2766,12 @@ func (s *AddMonitorResponseData) SetTaskId(v string) *AddMonitorResponseData {
 }
 
 type GetMonitorResultRequest struct {
-	CorpId      *string `json:"CorpId" xml:"CorpId" require:"true"`
-	TaskId      *string `json:"TaskId" xml:"TaskId" require:"true"`
-	MinRecordId *string `json:"MinRecordId" xml:"MinRecordId"`
-	StartTime   *int64  `json:"StartTime" xml:"StartTime"`
-	EndTime     *int64  `json:"EndTime" xml:"EndTime"`
+	CorpId          *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	TaskId          *string `json:"TaskId,omitempty" xml:"TaskId,omitempty" require:"true"`
+	MinRecordId     *string `json:"MinRecordId,omitempty" xml:"MinRecordId,omitempty"`
+	StartTime       *int64  `json:"StartTime,omitempty" xml:"StartTime,omitempty"`
+	EndTime         *int64  `json:"EndTime,omitempty" xml:"EndTime,omitempty"`
+	AlgorithmVendor *string `json:"AlgorithmVendor,omitempty" xml:"AlgorithmVendor,omitempty"`
 }
 
 func (s GetMonitorResultRequest) String() string {
@@ -584,11 +2807,16 @@ func (s *GetMonitorResultRequest) SetEndTime(v int64) *GetMonitorResultRequest {
 	return s
 }
 
+func (s *GetMonitorResultRequest) SetAlgorithmVendor(v string) *GetMonitorResultRequest {
+	s.AlgorithmVendor = &v
+	return s
+}
+
 type GetMonitorResultResponse struct {
-	Code      *string                       `json:"Code" xml:"Code" require:"true"`
-	Message   *string                       `json:"Message" xml:"Message" require:"true"`
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *GetMonitorResultResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	Code      *string                       `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                       `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *GetMonitorResultResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetMonitorResultResponse) String() string {
@@ -620,8 +2848,8 @@ func (s *GetMonitorResultResponse) SetData(v *GetMonitorResultResponseData) *Get
 }
 
 type GetMonitorResultResponseData struct {
-	MaxId   *string                                `json:"MaxId" xml:"MaxId" require:"true"`
-	Records []*GetMonitorResultResponseDataRecords `json:"Records" xml:"Records" require:"true" type:"Repeated"`
+	MaxId   *string                                `json:"MaxId,omitempty" xml:"MaxId,omitempty" require:"true"`
+	Records []*GetMonitorResultResponseDataRecords `json:"Records,omitempty" xml:"Records,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetMonitorResultResponseData) String() string {
@@ -643,15 +2871,15 @@ func (s *GetMonitorResultResponseData) SetRecords(v []*GetMonitorResultResponseD
 }
 
 type GetMonitorResultResponseDataRecords struct {
-	RightBottomY  *string `json:"RightBottomY" xml:"RightBottomY" require:"true"`
-	RightBottomX  *string `json:"RightBottomX" xml:"RightBottomX" require:"true"`
-	LeftUpY       *string `json:"LeftUpY" xml:"LeftUpY" require:"true"`
-	LeftUpX       *string `json:"LeftUpX" xml:"LeftUpX" require:"true"`
-	GbId          *string `json:"GbId" xml:"GbId" require:"true"`
-	Score         *string `json:"Score" xml:"Score" require:"true"`
-	PicUrl        *string `json:"PicUrl" xml:"PicUrl" require:"true"`
-	ShotTime      *string `json:"ShotTime" xml:"ShotTime" require:"true"`
-	MonitorPicUrl *string `json:"MonitorPicUrl" xml:"MonitorPicUrl" require:"true"`
+	RightBottomY  *string `json:"RightBottomY,omitempty" xml:"RightBottomY,omitempty" require:"true"`
+	RightBottomX  *string `json:"RightBottomX,omitempty" xml:"RightBottomX,omitempty" require:"true"`
+	LeftUpY       *string `json:"LeftUpY,omitempty" xml:"LeftUpY,omitempty" require:"true"`
+	LeftUpX       *string `json:"LeftUpX,omitempty" xml:"LeftUpX,omitempty" require:"true"`
+	GbId          *string `json:"GbId,omitempty" xml:"GbId,omitempty" require:"true"`
+	Score         *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	PicUrl        *string `json:"PicUrl,omitempty" xml:"PicUrl,omitempty" require:"true"`
+	ShotTime      *string `json:"ShotTime,omitempty" xml:"ShotTime,omitempty" require:"true"`
+	MonitorPicUrl *string `json:"MonitorPicUrl,omitempty" xml:"MonitorPicUrl,omitempty" require:"true"`
 }
 
 func (s GetMonitorResultResponseDataRecords) String() string {
@@ -708,18 +2936,19 @@ func (s *GetMonitorResultResponseDataRecords) SetMonitorPicUrl(v string) *GetMon
 }
 
 type UpdateMonitorRequest struct {
-	CorpId               *string `json:"CorpId" xml:"CorpId"`
-	TaskId               *string `json:"TaskId" xml:"TaskId"`
-	RuleName             *string `json:"RuleName" xml:"RuleName"`
-	DeviceOperateType    *string `json:"DeviceOperateType" xml:"DeviceOperateType"`
-	DeviceList           *string `json:"DeviceList" xml:"DeviceList"`
-	PicOperateType       *string `json:"PicOperateType" xml:"PicOperateType"`
-	PicList              *string `json:"PicList" xml:"PicList"`
-	AttributeOperateType *string `json:"AttributeOperateType" xml:"AttributeOperateType"`
-	AttributeName        *string `json:"AttributeName" xml:"AttributeName"`
-	AttributeValueList   *string `json:"AttributeValueList" xml:"AttributeValueList"`
-	Description          *string `json:"Description" xml:"Description"`
-	RuleExpression       *string `json:"RuleExpression" xml:"RuleExpression"`
+	CorpId               *string `json:"CorpId,omitempty" xml:"CorpId,omitempty"`
+	TaskId               *string `json:"TaskId,omitempty" xml:"TaskId,omitempty"`
+	RuleName             *string `json:"RuleName,omitempty" xml:"RuleName,omitempty"`
+	DeviceOperateType    *string `json:"DeviceOperateType,omitempty" xml:"DeviceOperateType,omitempty"`
+	DeviceList           *string `json:"DeviceList,omitempty" xml:"DeviceList,omitempty"`
+	PicOperateType       *string `json:"PicOperateType,omitempty" xml:"PicOperateType,omitempty"`
+	PicList              *string `json:"PicList,omitempty" xml:"PicList,omitempty"`
+	AttributeOperateType *string `json:"AttributeOperateType,omitempty" xml:"AttributeOperateType,omitempty"`
+	AttributeName        *string `json:"AttributeName,omitempty" xml:"AttributeName,omitempty"`
+	AttributeValueList   *string `json:"AttributeValueList,omitempty" xml:"AttributeValueList,omitempty"`
+	Description          *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	RuleExpression       *string `json:"RuleExpression,omitempty" xml:"RuleExpression,omitempty"`
+	AlgorithmVendor      *string `json:"AlgorithmVendor,omitempty" xml:"AlgorithmVendor,omitempty"`
 }
 
 func (s UpdateMonitorRequest) String() string {
@@ -790,11 +3019,16 @@ func (s *UpdateMonitorRequest) SetRuleExpression(v string) *UpdateMonitorRequest
 	return s
 }
 
+func (s *UpdateMonitorRequest) SetAlgorithmVendor(v string) *UpdateMonitorRequest {
+	s.AlgorithmVendor = &v
+	return s
+}
+
 type UpdateMonitorResponse struct {
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Data      *string `json:"Data" xml:"Data" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Data      *string `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateMonitorResponse) String() string {
@@ -826,10 +3060,10 @@ func (s *UpdateMonitorResponse) SetRequestId(v string) *UpdateMonitorResponse {
 }
 
 type GetDeviceVideoUrlRequest struct {
-	CorpId    *string `json:"CorpId" xml:"CorpId" require:"true"`
-	GbId      *string `json:"GbId" xml:"GbId"`
-	StartTime *int64  `json:"StartTime" xml:"StartTime"`
-	EndTime   *int64  `json:"EndTime" xml:"EndTime"`
+	CorpId    *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	GbId      *string `json:"GbId,omitempty" xml:"GbId,omitempty"`
+	StartTime *int64  `json:"StartTime,omitempty" xml:"StartTime,omitempty"`
+	EndTime   *int64  `json:"EndTime,omitempty" xml:"EndTime,omitempty"`
 }
 
 func (s GetDeviceVideoUrlRequest) String() string {
@@ -861,10 +3095,10 @@ func (s *GetDeviceVideoUrlRequest) SetEndTime(v int64) *GetDeviceVideoUrlRequest
 }
 
 type GetDeviceVideoUrlResponse struct {
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Url       *string `json:"Url" xml:"Url" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Url       *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s GetDeviceVideoUrlResponse) String() string {
@@ -896,7 +3130,7 @@ func (s *GetDeviceVideoUrlResponse) SetUrl(v string) *GetDeviceVideoUrlResponse 
 }
 
 type GetInventoryRequest struct {
-	CommodityCode *string `json:"CommodityCode" xml:"CommodityCode"`
+	CommodityCode *string `json:"CommodityCode,omitempty" xml:"CommodityCode,omitempty"`
 }
 
 func (s GetInventoryRequest) String() string {
@@ -913,8 +3147,8 @@ func (s *GetInventoryRequest) SetCommodityCode(v string) *GetInventoryRequest {
 }
 
 type GetInventoryResponse struct {
-	Success *bool                     `json:"Success" xml:"Success" require:"true"`
-	Data    *GetInventoryResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	Success *bool                     `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Data    *GetInventoryResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetInventoryResponse) String() string {
@@ -936,7 +3170,7 @@ func (s *GetInventoryResponse) SetData(v *GetInventoryResponseData) *GetInventor
 }
 
 type GetInventoryResponseData struct {
-	ResultObject []*GetInventoryResponseDataResultObject `json:"ResultObject" xml:"ResultObject" require:"true" type:"Repeated"`
+	ResultObject []*GetInventoryResponseDataResultObject `json:"ResultObject,omitempty" xml:"ResultObject,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetInventoryResponseData) String() string {
@@ -953,13 +3187,13 @@ func (s *GetInventoryResponseData) SetResultObject(v []*GetInventoryResponseData
 }
 
 type GetInventoryResponseDataResultObject struct {
-	BuyerId          *string `json:"BuyerId" xml:"BuyerId" require:"true"`
-	CommodityCode    *string `json:"CommodityCode" xml:"CommodityCode" require:"true"`
-	CurrentInventory *string `json:"CurrentInventory" xml:"CurrentInventory" require:"true"`
-	ValidEndTime     *string `json:"ValidEndTime" xml:"ValidEndTime" require:"true"`
-	ValidStartTime   *string `json:"ValidStartTime" xml:"ValidStartTime" require:"true"`
-	InstanceId       *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	InventoryId      *string `json:"InventoryId" xml:"InventoryId" require:"true"`
+	BuyerId          *string `json:"BuyerId,omitempty" xml:"BuyerId,omitempty" require:"true"`
+	CommodityCode    *string `json:"CommodityCode,omitempty" xml:"CommodityCode,omitempty" require:"true"`
+	CurrentInventory *string `json:"CurrentInventory,omitempty" xml:"CurrentInventory,omitempty" require:"true"`
+	ValidEndTime     *string `json:"ValidEndTime,omitempty" xml:"ValidEndTime,omitempty" require:"true"`
+	ValidStartTime   *string `json:"ValidStartTime,omitempty" xml:"ValidStartTime,omitempty" require:"true"`
+	InstanceId       *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	InventoryId      *string `json:"InventoryId,omitempty" xml:"InventoryId,omitempty" require:"true"`
 }
 
 func (s GetInventoryResponseDataResultObject) String() string {
@@ -1006,9 +3240,10 @@ func (s *GetInventoryResponseDataResultObject) SetInventoryId(v string) *GetInve
 }
 
 type RecognizeImageRequest struct {
-	CorpId     *string `json:"CorpId" xml:"CorpId" require:"true"`
-	PicContent *string `json:"PicContent" xml:"PicContent" require:"true"`
-	PicFormat  *string `json:"PicFormat" xml:"PicFormat" require:"true"`
+	CorpId     *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	PicContent *string `json:"PicContent,omitempty" xml:"PicContent,omitempty"`
+	PicFormat  *string `json:"PicFormat,omitempty" xml:"PicFormat,omitempty" require:"true"`
+	PicUrl     *string `json:"PicUrl,omitempty" xml:"PicUrl,omitempty"`
 }
 
 func (s RecognizeImageRequest) String() string {
@@ -1034,11 +3269,16 @@ func (s *RecognizeImageRequest) SetPicFormat(v string) *RecognizeImageRequest {
 	return s
 }
 
+func (s *RecognizeImageRequest) SetPicUrl(v string) *RecognizeImageRequest {
+	s.PicUrl = &v
+	return s
+}
+
 type RecognizeImageResponse struct {
-	Code      *string                     `json:"Code" xml:"Code" require:"true"`
-	Message   *string                     `json:"Message" xml:"Message" require:"true"`
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeImageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	Code      *string                     `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                     `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeImageResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeImageResponse) String() string {
@@ -1070,8 +3310,8 @@ func (s *RecognizeImageResponse) SetData(v *RecognizeImageResponseData) *Recogni
 }
 
 type RecognizeImageResponseData struct {
-	BodyList []*RecognizeImageResponseDataBodyList `json:"BodyList" xml:"BodyList" require:"true" type:"Repeated"`
-	FaceList []*RecognizeImageResponseDataFaceList `json:"FaceList" xml:"FaceList" require:"true" type:"Repeated"`
+	BodyList []*RecognizeImageResponseDataBodyList `json:"BodyList,omitempty" xml:"BodyList,omitempty" require:"true" type:"Repeated"`
+	FaceList []*RecognizeImageResponseDataFaceList `json:"FaceList,omitempty" xml:"FaceList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeImageResponseData) String() string {
@@ -1093,15 +3333,15 @@ func (s *RecognizeImageResponseData) SetFaceList(v []*RecognizeImageResponseData
 }
 
 type RecognizeImageResponseDataBodyList struct {
-	Feature          *string `json:"Feature" xml:"Feature" require:"true"`
-	FileName         *string `json:"FileName" xml:"FileName" require:"true"`
-	ImageBaseSixFour *string `json:"ImageBaseSixFour" xml:"ImageBaseSixFour" require:"true"`
-	LeftTopX         *string `json:"LeftTopX" xml:"LeftTopX" require:"true"`
-	LeftTopY         *string `json:"LeftTopY" xml:"LeftTopY" require:"true"`
-	LocalFeature     *string `json:"LocalFeature" xml:"LocalFeature" require:"true"`
-	RespiratorColor  *string `json:"RespiratorColor" xml:"RespiratorColor" require:"true"`
-	RightBottomX     *string `json:"RightBottomX" xml:"RightBottomX" require:"true"`
-	RightBottomY     *string `json:"RightBottomY" xml:"RightBottomY" require:"true"`
+	Feature          *string `json:"Feature,omitempty" xml:"Feature,omitempty" require:"true"`
+	FileName         *string `json:"FileName,omitempty" xml:"FileName,omitempty" require:"true"`
+	ImageBaseSixFour *string `json:"ImageBaseSixFour,omitempty" xml:"ImageBaseSixFour,omitempty" require:"true"`
+	LeftTopX         *string `json:"LeftTopX,omitempty" xml:"LeftTopX,omitempty" require:"true"`
+	LeftTopY         *string `json:"LeftTopY,omitempty" xml:"LeftTopY,omitempty" require:"true"`
+	LocalFeature     *string `json:"LocalFeature,omitempty" xml:"LocalFeature,omitempty" require:"true"`
+	RespiratorColor  *string `json:"RespiratorColor,omitempty" xml:"RespiratorColor,omitempty" require:"true"`
+	RightBottomX     *string `json:"RightBottomX,omitempty" xml:"RightBottomX,omitempty" require:"true"`
+	RightBottomY     *string `json:"RightBottomY,omitempty" xml:"RightBottomY,omitempty" require:"true"`
 }
 
 func (s RecognizeImageResponseDataBodyList) String() string {
@@ -1158,15 +3398,15 @@ func (s *RecognizeImageResponseDataBodyList) SetRightBottomY(v string) *Recogniz
 }
 
 type RecognizeImageResponseDataFaceList struct {
-	Feature          *string `json:"Feature" xml:"Feature" require:"true"`
-	FileName         *string `json:"FileName" xml:"FileName" require:"true"`
-	ImageBaseSixFour *string `json:"ImageBaseSixFour" xml:"ImageBaseSixFour" require:"true"`
-	LeftTopX         *string `json:"LeftTopX" xml:"LeftTopX" require:"true"`
-	LeftTopY         *string `json:"LeftTopY" xml:"LeftTopY" require:"true"`
-	LocalFeature     *string `json:"LocalFeature" xml:"LocalFeature" require:"true"`
-	RespiratorColor  *string `json:"RespiratorColor" xml:"RespiratorColor" require:"true"`
-	RightBottomX     *string `json:"RightBottomX" xml:"RightBottomX" require:"true"`
-	RightBottomY     *string `json:"RightBottomY" xml:"RightBottomY" require:"true"`
+	Feature          *string `json:"Feature,omitempty" xml:"Feature,omitempty" require:"true"`
+	FileName         *string `json:"FileName,omitempty" xml:"FileName,omitempty" require:"true"`
+	ImageBaseSixFour *string `json:"ImageBaseSixFour,omitempty" xml:"ImageBaseSixFour,omitempty" require:"true"`
+	LeftTopX         *string `json:"LeftTopX,omitempty" xml:"LeftTopX,omitempty" require:"true"`
+	LeftTopY         *string `json:"LeftTopY,omitempty" xml:"LeftTopY,omitempty" require:"true"`
+	LocalFeature     *string `json:"LocalFeature,omitempty" xml:"LocalFeature,omitempty" require:"true"`
+	RespiratorColor  *string `json:"RespiratorColor,omitempty" xml:"RespiratorColor,omitempty" require:"true"`
+	RightBottomX     *string `json:"RightBottomX,omitempty" xml:"RightBottomX,omitempty" require:"true"`
+	RightBottomY     *string `json:"RightBottomY,omitempty" xml:"RightBottomY,omitempty" require:"true"`
 }
 
 func (s RecognizeImageResponseDataFaceList) String() string {
@@ -1223,8 +3463,8 @@ func (s *RecognizeImageResponseDataFaceList) SetRightBottomY(v string) *Recogniz
 }
 
 type ListCorpsRequest struct {
-	PageNumber *int `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int `json:"PageSize" xml:"PageSize" require:"true"`
+	PageNumber *int `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
 }
 
 func (s ListCorpsRequest) String() string {
@@ -1246,10 +3486,10 @@ func (s *ListCorpsRequest) SetPageSize(v int) *ListCorpsRequest {
 }
 
 type ListCorpsResponse struct {
-	Code      *string                `json:"Code" xml:"Code" require:"true"`
-	Message   *string                `json:"Message" xml:"Message" require:"true"`
-	RequestId *string                `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *ListCorpsResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	Code      *string                `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ListCorpsResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListCorpsResponse) String() string {
@@ -1281,11 +3521,11 @@ func (s *ListCorpsResponse) SetData(v *ListCorpsResponseData) *ListCorpsResponse
 }
 
 type ListCorpsResponseData struct {
-	PageNumber *int                            `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int                            `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount *int                            `json:"TotalCount" xml:"TotalCount" require:"true"`
-	TotalPage  *int                            `json:"TotalPage" xml:"TotalPage" require:"true"`
-	Records    []*ListCorpsResponseDataRecords `json:"Records" xml:"Records" require:"true" type:"Repeated"`
+	PageNumber *int                            `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int                            `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *int                            `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	TotalPage  *int                            `json:"TotalPage,omitempty" xml:"TotalPage,omitempty" require:"true"`
+	Records    []*ListCorpsResponseDataRecords `json:"Records,omitempty" xml:"Records,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListCorpsResponseData) String() string {
@@ -1322,13 +3562,13 @@ func (s *ListCorpsResponseData) SetRecords(v []*ListCorpsResponseDataRecords) *L
 }
 
 type ListCorpsResponseDataRecords struct {
-	CorpId       *string `json:"CorpId" xml:"CorpId" require:"true"`
-	CorpName     *string `json:"CorpName" xml:"CorpName" require:"true"`
-	Description  *string `json:"Description" xml:"Description" require:"true"`
-	CreateDate   *string `json:"CreateDate" xml:"CreateDate" require:"true"`
-	ParentCorpId *string `json:"ParentCorpId" xml:"ParentCorpId" require:"true"`
-	AppName      *string `json:"AppName" xml:"AppName" require:"true"`
-	DeviceCount  *int    `json:"DeviceCount" xml:"DeviceCount" require:"true"`
+	CorpId       *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	CorpName     *string `json:"CorpName,omitempty" xml:"CorpName,omitempty" require:"true"`
+	Description  *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreateDate   *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
+	ParentCorpId *string `json:"ParentCorpId,omitempty" xml:"ParentCorpId,omitempty" require:"true"`
+	AppName      *string `json:"AppName,omitempty" xml:"AppName,omitempty" require:"true"`
+	DeviceCount  *int    `json:"DeviceCount,omitempty" xml:"DeviceCount,omitempty" require:"true"`
 }
 
 func (s ListCorpsResponseDataRecords) String() string {
@@ -1375,11 +3615,11 @@ func (s *ListCorpsResponseDataRecords) SetDeviceCount(v int) *ListCorpsResponseD
 }
 
 type UpdateCorpRequest struct {
-	CorpId       *string `json:"CorpId" xml:"CorpId"`
-	CorpName     *string `json:"CorpName" xml:"CorpName"`
-	AppName      *string `json:"AppName" xml:"AppName"`
-	ParentCorpId *string `json:"ParentCorpId" xml:"ParentCorpId"`
-	Description  *string `json:"Description" xml:"Description"`
+	CorpId       *string `json:"CorpId,omitempty" xml:"CorpId,omitempty"`
+	CorpName     *string `json:"CorpName,omitempty" xml:"CorpName,omitempty"`
+	AppName      *string `json:"AppName,omitempty" xml:"AppName,omitempty"`
+	ParentCorpId *string `json:"ParentCorpId,omitempty" xml:"ParentCorpId,omitempty"`
+	Description  *string `json:"Description,omitempty" xml:"Description,omitempty"`
 }
 
 func (s UpdateCorpRequest) String() string {
@@ -1416,10 +3656,10 @@ func (s *UpdateCorpRequest) SetDescription(v string) *UpdateCorpRequest {
 }
 
 type UpdateCorpResponse struct {
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *string `json:"Data" xml:"Data" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *string `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
 }
 
 func (s UpdateCorpResponse) String() string {
@@ -1451,16 +3691,16 @@ func (s *UpdateCorpResponse) SetData(v string) *UpdateCorpResponse {
 }
 
 type UpdateDeviceRequest struct {
-	GbId             *string `json:"GbId" xml:"GbId"`
-	DeviceName       *string `json:"DeviceName" xml:"DeviceName"`
-	DeviceType       *string `json:"DeviceType" xml:"DeviceType"`
-	DeviceAddress    *string `json:"DeviceAddress" xml:"DeviceAddress"`
-	DeviceSite       *string `json:"DeviceSite" xml:"DeviceSite"`
-	DeviceDirection  *string `json:"DeviceDirection" xml:"DeviceDirection"`
-	DeviceResolution *string `json:"DeviceResolution" xml:"DeviceResolution"`
-	BitRate          *string `json:"BitRate" xml:"BitRate"`
-	CorpId           *string `json:"CorpId" xml:"CorpId"`
-	Vendor           *string `json:"Vendor" xml:"Vendor"`
+	GbId             *string `json:"GbId,omitempty" xml:"GbId,omitempty"`
+	DeviceName       *string `json:"DeviceName,omitempty" xml:"DeviceName,omitempty"`
+	DeviceType       *string `json:"DeviceType,omitempty" xml:"DeviceType,omitempty"`
+	DeviceAddress    *string `json:"DeviceAddress,omitempty" xml:"DeviceAddress,omitempty"`
+	DeviceSite       *string `json:"DeviceSite,omitempty" xml:"DeviceSite,omitempty"`
+	DeviceDirection  *string `json:"DeviceDirection,omitempty" xml:"DeviceDirection,omitempty"`
+	DeviceResolution *string `json:"DeviceResolution,omitempty" xml:"DeviceResolution,omitempty"`
+	BitRate          *string `json:"BitRate,omitempty" xml:"BitRate,omitempty"`
+	CorpId           *string `json:"CorpId,omitempty" xml:"CorpId,omitempty"`
+	Vendor           *string `json:"Vendor,omitempty" xml:"Vendor,omitempty"`
 }
 
 func (s UpdateDeviceRequest) String() string {
@@ -1522,10 +3762,10 @@ func (s *UpdateDeviceRequest) SetVendor(v string) *UpdateDeviceRequest {
 }
 
 type UpdateDeviceResponse struct {
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *string `json:"Data" xml:"Data" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *string `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
 }
 
 func (s UpdateDeviceResponse) String() string {
@@ -1557,11 +3797,11 @@ func (s *UpdateDeviceResponse) SetData(v string) *UpdateDeviceResponse {
 }
 
 type ListDevicesRequest struct {
-	CorpId     *string `json:"CorpId" xml:"CorpId"`
-	GbId       *string `json:"GbId" xml:"GbId"`
-	DeviceName *string `json:"DeviceName" xml:"DeviceName"`
-	PageNumber *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize   *int    `json:"PageSize" xml:"PageSize"`
+	CorpId     *string `json:"CorpId,omitempty" xml:"CorpId,omitempty"`
+	GbId       *string `json:"GbId,omitempty" xml:"GbId,omitempty"`
+	DeviceName *string `json:"DeviceName,omitempty" xml:"DeviceName,omitempty"`
+	PageNumber *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize   *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s ListDevicesRequest) String() string {
@@ -1598,10 +3838,10 @@ func (s *ListDevicesRequest) SetPageSize(v int) *ListDevicesRequest {
 }
 
 type ListDevicesResponse struct {
-	Code      *string                  `json:"Code" xml:"Code" require:"true"`
-	Message   *string                  `json:"Message" xml:"Message" require:"true"`
-	RequestId *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *ListDevicesResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	Code      *string                  `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                  `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ListDevicesResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListDevicesResponse) String() string {
@@ -1633,11 +3873,11 @@ func (s *ListDevicesResponse) SetData(v *ListDevicesResponseData) *ListDevicesRe
 }
 
 type ListDevicesResponseData struct {
-	PageNumber *int                              `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int                              `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount *int                              `json:"TotalCount" xml:"TotalCount" require:"true"`
-	TotalPage  *int                              `json:"TotalPage" xml:"TotalPage" require:"true"`
-	Records    []*ListDevicesResponseDataRecords `json:"Records" xml:"Records" require:"true" type:"Repeated"`
+	PageNumber *int                              `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int                              `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *int                              `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	TotalPage  *int                              `json:"TotalPage,omitempty" xml:"TotalPage,omitempty" require:"true"`
+	Records    []*ListDevicesResponseDataRecords `json:"Records,omitempty" xml:"Records,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListDevicesResponseData) String() string {
@@ -1674,25 +3914,25 @@ func (s *ListDevicesResponseData) SetRecords(v []*ListDevicesResponseDataRecords
 }
 
 type ListDevicesResponseDataRecords struct {
-	AccessProtocolType *string `json:"AccessProtocolType" xml:"AccessProtocolType" require:"true"`
-	BitRate            *string `json:"BitRate" xml:"BitRate" require:"true"`
-	CoverImageUrl      *string `json:"CoverImageUrl" xml:"CoverImageUrl" require:"true"`
-	GbId               *string `json:"GbId" xml:"GbId" require:"true"`
-	DeviceAddress      *string `json:"DeviceAddress" xml:"DeviceAddress" require:"true"`
-	DeviceDirection    *string `json:"DeviceDirection" xml:"DeviceDirection" require:"true"`
-	DeviceSite         *string `json:"DeviceSite" xml:"DeviceSite" require:"true"`
-	Latitude           *string `json:"Latitude" xml:"Latitude" require:"true"`
-	Longitude          *string `json:"Longitude" xml:"Longitude" require:"true"`
-	DeviceName         *string `json:"DeviceName" xml:"DeviceName" require:"true"`
-	Resolution         *string `json:"Resolution" xml:"Resolution" require:"true"`
-	SipGBId            *string `json:"SipGBId" xml:"SipGBId" require:"true"`
-	SipPassword        *string `json:"SipPassword" xml:"SipPassword" require:"true"`
-	SipServerIp        *string `json:"SipServerIp" xml:"SipServerIp" require:"true"`
-	SipServerPort      *string `json:"SipServerPort" xml:"SipServerPort" require:"true"`
-	Status             *int    `json:"Status" xml:"Status" require:"true"`
-	DeviceType         *string `json:"DeviceType" xml:"DeviceType" require:"true"`
-	Vendor             *string `json:"Vendor" xml:"Vendor" require:"true"`
-	CreateTime         *string `json:"CreateTime" xml:"CreateTime" require:"true"`
+	AccessProtocolType *string `json:"AccessProtocolType,omitempty" xml:"AccessProtocolType,omitempty" require:"true"`
+	BitRate            *string `json:"BitRate,omitempty" xml:"BitRate,omitempty" require:"true"`
+	CoverImageUrl      *string `json:"CoverImageUrl,omitempty" xml:"CoverImageUrl,omitempty" require:"true"`
+	GbId               *string `json:"GbId,omitempty" xml:"GbId,omitempty" require:"true"`
+	DeviceAddress      *string `json:"DeviceAddress,omitempty" xml:"DeviceAddress,omitempty" require:"true"`
+	DeviceDirection    *string `json:"DeviceDirection,omitempty" xml:"DeviceDirection,omitempty" require:"true"`
+	DeviceSite         *string `json:"DeviceSite,omitempty" xml:"DeviceSite,omitempty" require:"true"`
+	Latitude           *string `json:"Latitude,omitempty" xml:"Latitude,omitempty" require:"true"`
+	Longitude          *string `json:"Longitude,omitempty" xml:"Longitude,omitempty" require:"true"`
+	DeviceName         *string `json:"DeviceName,omitempty" xml:"DeviceName,omitempty" require:"true"`
+	Resolution         *string `json:"Resolution,omitempty" xml:"Resolution,omitempty" require:"true"`
+	SipGBId            *string `json:"SipGBId,omitempty" xml:"SipGBId,omitempty" require:"true"`
+	SipPassword        *string `json:"SipPassword,omitempty" xml:"SipPassword,omitempty" require:"true"`
+	SipServerIp        *string `json:"SipServerIp,omitempty" xml:"SipServerIp,omitempty" require:"true"`
+	SipServerPort      *string `json:"SipServerPort,omitempty" xml:"SipServerPort,omitempty" require:"true"`
+	Status             *int    `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	DeviceType         *string `json:"DeviceType,omitempty" xml:"DeviceType,omitempty" require:"true"`
+	Vendor             *string `json:"Vendor,omitempty" xml:"Vendor,omitempty" require:"true"`
+	CreateTime         *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
 }
 
 func (s ListDevicesResponseDataRecords) String() string {
@@ -1799,8 +4039,8 @@ func (s *ListDevicesResponseDataRecords) SetCreateTime(v string) *ListDevicesRes
 }
 
 type GetDeviceLiveUrlRequest struct {
-	CorpId *string `json:"CorpId" xml:"CorpId" require:"true"`
-	GbId   *string `json:"GbId" xml:"GbId"`
+	CorpId *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	GbId   *string `json:"GbId,omitempty" xml:"GbId,omitempty"`
 }
 
 func (s GetDeviceLiveUrlRequest) String() string {
@@ -1822,10 +4062,10 @@ func (s *GetDeviceLiveUrlRequest) SetGbId(v string) *GetDeviceLiveUrlRequest {
 }
 
 type GetDeviceLiveUrlResponse struct {
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Url       *string `json:"Url" xml:"Url" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Url       *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s GetDeviceLiveUrlResponse) String() string {
@@ -1857,13 +4097,13 @@ func (s *GetDeviceLiveUrlResponse) SetRequestId(v string) *GetDeviceLiveUrlRespo
 }
 
 type SearchFaceRequest struct {
-	CorpId         *string                `json:"CorpId" xml:"CorpId" require:"true"`
-	GbId           *string                `json:"GbId" xml:"GbId"`
-	StartTimeStamp *int64                 `json:"StartTimeStamp" xml:"StartTimeStamp" require:"true"`
-	EndTimeStamp   *int64                 `json:"EndTimeStamp" xml:"EndTimeStamp" require:"true"`
-	PageNo         *int                   `json:"PageNo" xml:"PageNo" require:"true"`
-	PageSize       *int                   `json:"PageSize" xml:"PageSize" require:"true"`
-	OptionList     map[string]interface{} `json:"OptionList" xml:"OptionList"`
+	CorpId         *string                `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
+	GbId           *string                `json:"GbId,omitempty" xml:"GbId,omitempty"`
+	StartTimeStamp *int64                 `json:"StartTimeStamp,omitempty" xml:"StartTimeStamp,omitempty" require:"true"`
+	EndTimeStamp   *int64                 `json:"EndTimeStamp,omitempty" xml:"EndTimeStamp,omitempty" require:"true"`
+	PageNo         *int                   `json:"PageNo,omitempty" xml:"PageNo,omitempty" require:"true"`
+	PageSize       *int                   `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	OptionList     map[string]interface{} `json:"OptionList,omitempty" xml:"OptionList,omitempty"`
 }
 
 func (s SearchFaceRequest) String() string {
@@ -1910,10 +4150,10 @@ func (s *SearchFaceRequest) SetOptionList(v map[string]interface{}) *SearchFaceR
 }
 
 type SearchFaceResponse struct {
-	Code      *string                 `json:"Code" xml:"Code" require:"true"`
-	Message   *string                 `json:"Message" xml:"Message" require:"true"`
-	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *SearchFaceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	Code      *string                 `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                 `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SearchFaceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SearchFaceResponse) String() string {
@@ -1945,11 +4185,11 @@ func (s *SearchFaceResponse) SetData(v *SearchFaceResponseData) *SearchFaceRespo
 }
 
 type SearchFaceResponseData struct {
-	PageNo     *int                             `json:"PageNo" xml:"PageNo" require:"true"`
-	PageSize   *int                             `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount *int                             `json:"TotalCount" xml:"TotalCount" require:"true"`
-	TotalPage  *int                             `json:"TotalPage" xml:"TotalPage" require:"true"`
-	Records    []*SearchFaceResponseDataRecords `json:"Records" xml:"Records" require:"true" type:"Repeated"`
+	PageNo     *int                             `json:"PageNo,omitempty" xml:"PageNo,omitempty" require:"true"`
+	PageSize   *int                             `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *int                             `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	TotalPage  *int                             `json:"TotalPage,omitempty" xml:"TotalPage,omitempty" require:"true"`
+	Records    []*SearchFaceResponseDataRecords `json:"Records,omitempty" xml:"Records,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SearchFaceResponseData) String() string {
@@ -1986,14 +4226,15 @@ func (s *SearchFaceResponseData) SetRecords(v []*SearchFaceResponseDataRecords) 
 }
 
 type SearchFaceResponseDataRecords struct {
-	GbId           *string  `json:"GbId" xml:"GbId" require:"true"`
-	ImageUrl       *string  `json:"ImageUrl" xml:"ImageUrl" require:"true"`
-	LeftTopX       *float32 `json:"LeftTopX" xml:"LeftTopX" require:"true"`
-	LeftTopY       *float32 `json:"LeftTopY" xml:"LeftTopY" require:"true"`
-	RightBottomX   *float32 `json:"RightBottomX" xml:"RightBottomX" require:"true"`
-	RightBottomY   *float32 `json:"RightBottomY" xml:"RightBottomY" require:"true"`
-	Score          *float32 `json:"Score" xml:"Score" require:"true"`
-	TargetImageUrl *string  `json:"TargetImageUrl" xml:"TargetImageUrl" require:"true"`
+	GbId            *string  `json:"GbId,omitempty" xml:"GbId,omitempty" require:"true"`
+	ImageUrl        *string  `json:"ImageUrl,omitempty" xml:"ImageUrl,omitempty" require:"true"`
+	LeftTopX        *float32 `json:"LeftTopX,omitempty" xml:"LeftTopX,omitempty" require:"true"`
+	LeftTopY        *float32 `json:"LeftTopY,omitempty" xml:"LeftTopY,omitempty" require:"true"`
+	RightBottomX    *float32 `json:"RightBottomX,omitempty" xml:"RightBottomX,omitempty" require:"true"`
+	RightBottomY    *float32 `json:"RightBottomY,omitempty" xml:"RightBottomY,omitempty" require:"true"`
+	Score           *float32 `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	TargetImageUrl  *string  `json:"TargetImageUrl,omitempty" xml:"TargetImageUrl,omitempty" require:"true"`
+	MatchSuggestion *string  `json:"MatchSuggestion,omitempty" xml:"MatchSuggestion,omitempty" require:"true"`
 }
 
 func (s SearchFaceResponseDataRecords) String() string {
@@ -2044,17 +4285,22 @@ func (s *SearchFaceResponseDataRecords) SetTargetImageUrl(v string) *SearchFaceR
 	return s
 }
 
+func (s *SearchFaceResponseDataRecords) SetMatchSuggestion(v string) *SearchFaceResponseDataRecords {
+	s.MatchSuggestion = &v
+	return s
+}
+
 type AddDeviceRequest struct {
-	GbId             *string `json:"GbId" xml:"GbId"`
-	DeviceName       *string `json:"DeviceName" xml:"DeviceName"`
-	DeviceType       *string `json:"DeviceType" xml:"DeviceType"`
-	DeviceAddress    *string `json:"DeviceAddress" xml:"DeviceAddress"`
-	DeviceSite       *string `json:"DeviceSite" xml:"DeviceSite"`
-	DeviceDirection  *string `json:"DeviceDirection" xml:"DeviceDirection"`
-	DeviceResolution *string `json:"DeviceResolution" xml:"DeviceResolution"`
-	BitRate          *string `json:"BitRate" xml:"BitRate"`
-	CorpId           *string `json:"CorpId" xml:"CorpId"`
-	Vendor           *string `json:"Vendor" xml:"Vendor"`
+	GbId             *string `json:"GbId,omitempty" xml:"GbId,omitempty"`
+	DeviceName       *string `json:"DeviceName,omitempty" xml:"DeviceName,omitempty"`
+	DeviceType       *string `json:"DeviceType,omitempty" xml:"DeviceType,omitempty"`
+	DeviceAddress    *string `json:"DeviceAddress,omitempty" xml:"DeviceAddress,omitempty"`
+	DeviceSite       *string `json:"DeviceSite,omitempty" xml:"DeviceSite,omitempty"`
+	DeviceDirection  *string `json:"DeviceDirection,omitempty" xml:"DeviceDirection,omitempty"`
+	DeviceResolution *string `json:"DeviceResolution,omitempty" xml:"DeviceResolution,omitempty"`
+	BitRate          *string `json:"BitRate,omitempty" xml:"BitRate,omitempty"`
+	CorpId           *string `json:"CorpId,omitempty" xml:"CorpId,omitempty"`
+	Vendor           *string `json:"Vendor,omitempty" xml:"Vendor,omitempty"`
 }
 
 func (s AddDeviceRequest) String() string {
@@ -2116,10 +4362,10 @@ func (s *AddDeviceRequest) SetVendor(v string) *AddDeviceRequest {
 }
 
 type AddDeviceResponse struct {
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *string `json:"Data" xml:"Data" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *string `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
 }
 
 func (s AddDeviceResponse) String() string {
@@ -2151,10 +4397,10 @@ func (s *AddDeviceResponse) SetData(v string) *AddDeviceResponse {
 }
 
 type CreateCorpRequest struct {
-	CorpName     *string `json:"CorpName" xml:"CorpName" require:"true"`
-	AppName      *string `json:"AppName" xml:"AppName" require:"true"`
-	ParentCorpId *string `json:"ParentCorpId" xml:"ParentCorpId"`
-	Description  *string `json:"Description" xml:"Description"`
+	CorpName     *string `json:"CorpName,omitempty" xml:"CorpName,omitempty" require:"true"`
+	AppName      *string `json:"AppName,omitempty" xml:"AppName,omitempty" require:"true"`
+	ParentCorpId *string `json:"ParentCorpId,omitempty" xml:"ParentCorpId,omitempty"`
+	Description  *string `json:"Description,omitempty" xml:"Description,omitempty"`
 }
 
 func (s CreateCorpRequest) String() string {
@@ -2186,10 +4432,10 @@ func (s *CreateCorpRequest) SetDescription(v string) *CreateCorpRequest {
 }
 
 type CreateCorpResponse struct {
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	CorpId    *string `json:"CorpId" xml:"CorpId" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	CorpId    *string `json:"CorpId,omitempty" xml:"CorpId,omitempty" require:"true"`
 }
 
 func (s CreateCorpResponse) String() string {
@@ -2221,8 +4467,8 @@ func (s *CreateCorpResponse) SetCorpId(v string) *CreateCorpResponse {
 }
 
 type DeleteDeviceRequest struct {
-	CorpId *string `json:"CorpId" xml:"CorpId"`
-	GbId   *string `json:"GbId" xml:"GbId"`
+	CorpId *string `json:"CorpId,omitempty" xml:"CorpId,omitempty"`
+	GbId   *string `json:"GbId,omitempty" xml:"GbId,omitempty"`
 }
 
 func (s DeleteDeviceRequest) String() string {
@@ -2244,10 +4490,10 @@ func (s *DeleteDeviceRequest) SetGbId(v string) *DeleteDeviceRequest {
 }
 
 type DeleteDeviceResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Data      *string `json:"Data" xml:"Data" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Data      *string `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
 }
 
 func (s DeleteDeviceResponse) String() string {
@@ -2304,6 +4550,431 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	}
 
 	return nil
+}
+
+func (client *Client) ListBodyAlgorithmResultsWithOptions(request *ListBodyAlgorithmResultsRequest, runtime *util.RuntimeOptions) (_result *ListBodyAlgorithmResultsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &ListBodyAlgorithmResultsResponse{}
+	_body, _err := client.DoRequest(tea.String("ListBodyAlgorithmResults"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-15"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ListBodyAlgorithmResults(request *ListBodyAlgorithmResultsRequest) (_result *ListBodyAlgorithmResultsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ListBodyAlgorithmResultsResponse{}
+	_body, _err := client.ListBodyAlgorithmResultsWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) AddDataSourceWithOptions(request *AddDataSourceRequest, runtime *util.RuntimeOptions) (_result *AddDataSourceResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &AddDataSourceResponse{}
+	_body, _err := client.DoRequest(tea.String("AddDataSource"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-15"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) AddDataSource(request *AddDataSourceRequest) (_result *AddDataSourceResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &AddDataSourceResponse{}
+	_body, _err := client.AddDataSourceWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) GetVideoComposeResultWithOptions(request *GetVideoComposeResultRequest, runtime *util.RuntimeOptions) (_result *GetVideoComposeResultResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &GetVideoComposeResultResponse{}
+	_body, _err := client.DoRequest(tea.String("GetVideoComposeResult"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-15"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) GetVideoComposeResult(request *GetVideoComposeResultRequest) (_result *GetVideoComposeResultResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &GetVideoComposeResultResponse{}
+	_body, _err := client.GetVideoComposeResultWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) CreateVideoComposeTaskWithOptions(request *CreateVideoComposeTaskRequest, runtime *util.RuntimeOptions) (_result *CreateVideoComposeTaskResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &CreateVideoComposeTaskResponse{}
+	_body, _err := client.DoRequest(tea.String("CreateVideoComposeTask"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-15"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) CreateVideoComposeTask(request *CreateVideoComposeTaskRequest) (_result *CreateVideoComposeTaskResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &CreateVideoComposeTaskResponse{}
+	_body, _err := client.CreateVideoComposeTaskWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DeleteDataSourceWithOptions(request *DeleteDataSourceRequest, runtime *util.RuntimeOptions) (_result *DeleteDataSourceResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DeleteDataSourceResponse{}
+	_body, _err := client.DoRequest(tea.String("DeleteDataSource"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-15"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DeleteDataSource(request *DeleteDataSourceRequest) (_result *DeleteDataSourceResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DeleteDataSourceResponse{}
+	_body, _err := client.DeleteDataSourceWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) UploadFileWithOptions(request *UploadFileRequest, runtime *util.RuntimeOptions) (_result *UploadFileResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &UploadFileResponse{}
+	_body, _err := client.DoRequest(tea.String("UploadFile"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-15"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) UploadFile(request *UploadFileRequest) (_result *UploadFileResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &UploadFileResponse{}
+	_body, _err := client.UploadFileWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) ListEventAlgorithmResultsWithOptions(request *ListEventAlgorithmResultsRequest, runtime *util.RuntimeOptions) (_result *ListEventAlgorithmResultsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &ListEventAlgorithmResultsResponse{}
+	_body, _err := client.DoRequest(tea.String("ListEventAlgorithmResults"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-15"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ListEventAlgorithmResults(request *ListEventAlgorithmResultsRequest) (_result *ListEventAlgorithmResultsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ListEventAlgorithmResultsResponse{}
+	_body, _err := client.ListEventAlgorithmResultsWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DeleteVideoSummaryTaskWithOptions(request *DeleteVideoSummaryTaskRequest, runtime *util.RuntimeOptions) (_result *DeleteVideoSummaryTaskResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DeleteVideoSummaryTaskResponse{}
+	_body, _err := client.DoRequest(tea.String("DeleteVideoSummaryTask"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-15"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DeleteVideoSummaryTask(request *DeleteVideoSummaryTaskRequest) (_result *DeleteVideoSummaryTaskResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DeleteVideoSummaryTaskResponse{}
+	_body, _err := client.DeleteVideoSummaryTaskWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) GetVideoSummaryTaskResultWithOptions(request *GetVideoSummaryTaskResultRequest, runtime *util.RuntimeOptions) (_result *GetVideoSummaryTaskResultResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &GetVideoSummaryTaskResultResponse{}
+	_body, _err := client.DoRequest(tea.String("GetVideoSummaryTaskResult"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-15"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) GetVideoSummaryTaskResult(request *GetVideoSummaryTaskResultRequest) (_result *GetVideoSummaryTaskResultResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &GetVideoSummaryTaskResultResponse{}
+	_body, _err := client.GetVideoSummaryTaskResultWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) CreateVideoSummaryTaskWithOptions(request *CreateVideoSummaryTaskRequest, runtime *util.RuntimeOptions) (_result *CreateVideoSummaryTaskResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &CreateVideoSummaryTaskResponse{}
+	_body, _err := client.DoRequest(tea.String("CreateVideoSummaryTask"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-15"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) CreateVideoSummaryTask(request *CreateVideoSummaryTaskRequest) (_result *CreateVideoSummaryTaskResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &CreateVideoSummaryTaskResponse{}
+	_body, _err := client.CreateVideoSummaryTaskWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) ListMotorAlgorithmResultsWithOptions(request *ListMotorAlgorithmResultsRequest, runtime *util.RuntimeOptions) (_result *ListMotorAlgorithmResultsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &ListMotorAlgorithmResultsResponse{}
+	_body, _err := client.DoRequest(tea.String("ListMotorAlgorithmResults"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-15"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ListMotorAlgorithmResults(request *ListMotorAlgorithmResultsRequest) (_result *ListMotorAlgorithmResultsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ListMotorAlgorithmResultsResponse{}
+	_body, _err := client.ListMotorAlgorithmResultsWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) ListFaceAlgorithmResultsWithOptions(request *ListFaceAlgorithmResultsRequest, runtime *util.RuntimeOptions) (_result *ListFaceAlgorithmResultsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &ListFaceAlgorithmResultsResponse{}
+	_body, _err := client.DoRequest(tea.String("ListFaceAlgorithmResults"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-15"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ListFaceAlgorithmResults(request *ListFaceAlgorithmResultsRequest) (_result *ListFaceAlgorithmResultsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ListFaceAlgorithmResultsResponse{}
+	_body, _err := client.ListFaceAlgorithmResultsWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) ListMetricsWithOptions(request *ListMetricsRequest, runtime *util.RuntimeOptions) (_result *ListMetricsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &ListMetricsResponse{}
+	_body, _err := client.DoRequest(tea.String("ListMetrics"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-15"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ListMetrics(request *ListMetricsRequest) (_result *ListMetricsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ListMetricsResponse{}
+	_body, _err := client.ListMetricsWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DeleteRecordsWithOptions(request *DeleteRecordsRequest, runtime *util.RuntimeOptions) (_result *DeleteRecordsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DeleteRecordsResponse{}
+	_body, _err := client.DoRequest(tea.String("DeleteRecords"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-15"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DeleteRecords(request *DeleteRecordsRequest) (_result *DeleteRecordsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DeleteRecordsResponse{}
+	_body, _err := client.DeleteRecordsWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) RecognizeFaceQualityWithOptions(request *RecognizeFaceQualityRequest, runtime *util.RuntimeOptions) (_result *RecognizeFaceQualityResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &RecognizeFaceQualityResponse{}
+	_body, _err := client.DoRequest(tea.String("RecognizeFaceQuality"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-15"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeFaceQuality(request *RecognizeFaceQualityRequest) (_result *RecognizeFaceQualityResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &RecognizeFaceQualityResponse{}
+	_body, _err := client.RecognizeFaceQualityWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) ListPersonsWithOptions(request *ListPersonsRequest, runtime *util.RuntimeOptions) (_result *ListPersonsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &ListPersonsResponse{}
+	_body, _err := client.DoRequest(tea.String("ListPersons"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-15"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ListPersons(request *ListPersonsRequest) (_result *ListPersonsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ListPersonsResponse{}
+	_body, _err := client.ListPersonsWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) GetPersonDetailWithOptions(request *GetPersonDetailRequest, runtime *util.RuntimeOptions) (_result *GetPersonDetailResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &GetPersonDetailResponse{}
+	_body, _err := client.DoRequest(tea.String("GetPersonDetail"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-15"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) GetPersonDetail(request *GetPersonDetailRequest) (_result *GetPersonDetailResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &GetPersonDetailResponse{}
+	_body, _err := client.GetPersonDetailWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
 }
 
 func (client *Client) GetFaceOptionsWithOptions(request *GetFaceOptionsRequest, runtime *util.RuntimeOptions) (_result *GetFaceOptionsResponse, _err error) {
