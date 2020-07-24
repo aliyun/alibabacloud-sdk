@@ -6,7 +6,7 @@ namespace AlibabaCloud\SDK\CS\V20151215\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class ModifyClusterRequest extends Model
+class CreateKubernetesTriggerRequest extends Model
 {
     /**
      * @description headers
@@ -18,7 +18,7 @@ class ModifyClusterRequest extends Model
     /**
      * @description body
      *
-     * @var ModifyClusterBody
+     * @var CreateKubernetesTriggerBody
      */
     public $body;
     protected $_name = [
@@ -28,6 +28,7 @@ class ModifyClusterRequest extends Model
 
     public function validate()
     {
+        Model::validateRequired('body', $this->body, true);
     }
 
     public function toMap()
@@ -46,7 +47,7 @@ class ModifyClusterRequest extends Model
     /**
      * @param array $map
      *
-     * @return ModifyClusterRequest
+     * @return CreateKubernetesTriggerRequest
      */
     public static function fromMap($map = [])
     {
@@ -55,7 +56,7 @@ class ModifyClusterRequest extends Model
             $model->headers = $map['headers'];
         }
         if (isset($map['body'])) {
-            $model->body = ModifyClusterBody::fromMap($map['body']);
+            $model->body = CreateKubernetesTriggerBody::fromMap($map['body']);
         }
 
         return $model;

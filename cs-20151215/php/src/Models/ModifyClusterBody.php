@@ -60,12 +60,6 @@ class ModifyClusterBody extends Model
 
     public function validate()
     {
-        Model::validateRequired('deletionProtection', $this->deletionProtection, true);
-        Model::validateRequired('ingressLoadbalancerId', $this->ingressLoadbalancerId, true);
-        Model::validateRequired('apiServerEip', $this->apiServerEip, true);
-        Model::validateRequired('apiServerEipId', $this->apiServerEipId, true);
-        Model::validateRequired('resourceGroupId', $this->resourceGroupId, true);
-        Model::validateRequired('ingressDomainRebinding', $this->ingressDomainRebinding, true);
     }
 
     public function toMap()

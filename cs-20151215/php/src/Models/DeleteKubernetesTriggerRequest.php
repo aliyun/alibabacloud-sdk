@@ -6,7 +6,7 @@ namespace AlibabaCloud\SDK\CS\V20151215\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class ModifyClusterRequest extends Model
+class DeleteKubernetesTriggerRequest extends Model
 {
     /**
      * @description headers
@@ -14,16 +14,8 @@ class ModifyClusterRequest extends Model
      * @var array
      */
     public $headers;
-
-    /**
-     * @description body
-     *
-     * @var ModifyClusterBody
-     */
-    public $body;
     protected $_name = [
         'headers' => 'headers',
-        'body'    => 'body',
     ];
 
     public function validate()
@@ -36,9 +28,6 @@ class ModifyClusterRequest extends Model
         if (null !== $this->headers) {
             $res['headers'] = $this->headers;
         }
-        if (null !== $this->body) {
-            $res['body'] = null !== $this->body ? $this->body->toMap() : null;
-        }
 
         return $res;
     }
@@ -46,16 +35,13 @@ class ModifyClusterRequest extends Model
     /**
      * @param array $map
      *
-     * @return ModifyClusterRequest
+     * @return DeleteKubernetesTriggerRequest
      */
     public static function fromMap($map = [])
     {
         $model = new self();
         if (isset($map['headers'])) {
             $model->headers = $map['headers'];
-        }
-        if (isset($map['body'])) {
-            $model->body = ModifyClusterBody::fromMap($map['body']);
         }
 
         return $model;

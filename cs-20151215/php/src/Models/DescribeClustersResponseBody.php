@@ -10,6 +10,13 @@ use AlibabaCloud\Tea\Model;
 class DescribeClustersResponseBody extends Model
 {
     /**
+     * @description RequestId
+     *
+     * @var string
+     */
+    public $requestId;
+
+    /**
      * @description name
      *
      * @var string
@@ -166,7 +173,7 @@ class DescribeClustersResponseBody extends Model
     /**
      * @description size
      *
-     * @var string
+     * @var int
      */
     public $size;
 
@@ -177,6 +184,7 @@ class DescribeClustersResponseBody extends Model
      */
     public $tags;
     protected $_name = [
+        'requestId'              => 'RequestId',
         'name'                   => 'name',
         'clusterId'              => 'cluster_id',
         'regionId'               => 'region_id',
@@ -205,6 +213,7 @@ class DescribeClustersResponseBody extends Model
 
     public function validate()
     {
+        Model::validateRequired('requestId', $this->requestId, true);
         Model::validateRequired('name', $this->name, true);
         Model::validateRequired('clusterId', $this->clusterId, true);
         Model::validateRequired('regionId', $this->regionId, true);
@@ -234,6 +243,9 @@ class DescribeClustersResponseBody extends Model
     public function toMap()
     {
         $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
         if (null !== $this->name) {
             $res['name'] = $this->name;
         }
@@ -324,6 +336,9 @@ class DescribeClustersResponseBody extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
+        if (isset($map['RequestId'])) {
+            $model->requestId = $map['RequestId'];
+        }
         if (isset($map['name'])) {
             $model->name = $map['name'];
         }

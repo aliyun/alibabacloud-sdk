@@ -16,7 +16,7 @@ class ModifyClusterResponseBody extends Model
     public $clusterId;
 
     /**
-     * @description request_id
+     * @description RequestId
      *
      * @var string
      */
@@ -30,7 +30,7 @@ class ModifyClusterResponseBody extends Model
     public $taskId;
     protected $_name = [
         'clusterId' => 'cluster_id',
-        'requestId' => 'request_id',
+        'requestId' => 'RequestId',
         'taskId'    => 'task_id',
     ];
 
@@ -48,7 +48,7 @@ class ModifyClusterResponseBody extends Model
             $res['cluster_id'] = $this->clusterId;
         }
         if (null !== $this->requestId) {
-            $res['request_id'] = $this->requestId;
+            $res['RequestId'] = $this->requestId;
         }
         if (null !== $this->taskId) {
             $res['task_id'] = $this->taskId;
@@ -68,8 +68,8 @@ class ModifyClusterResponseBody extends Model
         if (isset($map['cluster_id'])) {
             $model->clusterId = $map['cluster_id'];
         }
-        if (isset($map['request_id'])) {
-            $model->requestId = $map['request_id'];
+        if (isset($map['RequestId'])) {
+            $model->requestId = $map['RequestId'];
         }
         if (isset($map['task_id'])) {
             $model->taskId = $map['task_id'];

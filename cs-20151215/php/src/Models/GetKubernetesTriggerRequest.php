@@ -6,7 +6,7 @@ namespace AlibabaCloud\SDK\CS\V20151215\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class ModifyClusterRequest extends Model
+class GetKubernetesTriggerRequest extends Model
 {
     /**
      * @description headers
@@ -16,18 +16,19 @@ class ModifyClusterRequest extends Model
     public $headers;
 
     /**
-     * @description body
+     * @description query
      *
-     * @var ModifyClusterBody
+     * @var GetKubernetesTriggerQuery
      */
-    public $body;
+    public $query;
     protected $_name = [
         'headers' => 'headers',
-        'body'    => 'body',
+        'query'   => 'query',
     ];
 
     public function validate()
     {
+        Model::validateRequired('query', $this->query, true);
     }
 
     public function toMap()
@@ -36,8 +37,8 @@ class ModifyClusterRequest extends Model
         if (null !== $this->headers) {
             $res['headers'] = $this->headers;
         }
-        if (null !== $this->body) {
-            $res['body'] = null !== $this->body ? $this->body->toMap() : null;
+        if (null !== $this->query) {
+            $res['query'] = null !== $this->query ? $this->query->toMap() : null;
         }
 
         return $res;
@@ -46,7 +47,7 @@ class ModifyClusterRequest extends Model
     /**
      * @param array $map
      *
-     * @return ModifyClusterRequest
+     * @return GetKubernetesTriggerRequest
      */
     public static function fromMap($map = [])
     {
@@ -54,8 +55,8 @@ class ModifyClusterRequest extends Model
         if (isset($map['headers'])) {
             $model->headers = $map['headers'];
         }
-        if (isset($map['body'])) {
-            $model->body = ModifyClusterBody::fromMap($map['body']);
+        if (isset($map['query'])) {
+            $model->query = GetKubernetesTriggerQuery::fromMap($map['query']);
         }
 
         return $model;

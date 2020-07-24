@@ -300,6 +300,41 @@ class CreateClusterBody extends Model
     public $timeoutMins;
 
     /**
+     * @description vswitch_ids
+     *
+     * @var string
+     */
+    public $vswitchIds;
+
+    /**
+     * @description private_zone
+     *
+     * @var string
+     */
+    public $privateZone;
+
+    /**
+     * @description zone_id
+     *
+     * @var string
+     */
+    public $zoneId;
+
+    /**
+     * @description profile
+     *
+     * @var string
+     */
+    public $profile;
+
+    /**
+     * @description is_enterprise_security_group
+     *
+     * @var bool
+     */
+    public $isEnterpriseSecurityGroup;
+
+    /**
      * @description tags
      *
      * @var array
@@ -362,56 +397,61 @@ class CreateClusterBody extends Model
      */
     public $podVswitchIds;
     protected $_name = [
-        'clusterType'              => 'cluster_type',
-        'name'                     => 'name',
-        'regionId'                 => 'region_id',
-        'kubernetesVersion'        => 'kubernetes_version',
-        'snatEntry'                => 'snat_entry',
-        'endpointPublicAccess'     => 'endpoint_public_access',
-        'sshFlags'                 => 'ssh_flags',
-        'cloudMonitorFlags'        => 'cloud_monitor_flags',
-        'deletionProtection'       => 'deletion_protection',
-        'nodeCidrMask'             => 'node_cidr_mask',
-        'proxyMode'                => 'proxy_mode',
-        'osType'                   => 'os_type',
-        'platform'                 => 'platform',
-        'nodePortRange'            => 'node_port_range',
-        'keyPair'                  => 'key_pair',
-        'loginPassword'            => 'login_password',
-        'masterInstanceChargeType' => 'master_instance_charge_type',
-        'workerInstanceChargeType' => 'worker_instance_charge_type',
-        'masterPeriod'             => 'master_period',
-        'workerPeriod'             => 'worker_period',
-        'masterPeriodUnit'         => 'master_period_unit',
-        'workerPeriodUnit'         => 'worker_period_unit',
-        'masterAutoRenew'          => 'master_auto_renew',
-        'masterAutoRenewPeriod'    => 'master_auto_renew_period',
-        'workerAutoRenew'          => 'worker_auto_renew',
-        'workerAutoRenewPeriod'    => 'worker_auto_renew_period',
-        'cpuPolicy'                => 'cpu_policy',
-        'masterCount'              => 'master_count',
-        'masterSystemDiskCategory' => 'master_system_disk_category',
-        'masterSystemDiskSize'     => 'master_system_disk_size',
-        'runtime'                  => 'runtime',
-        'numOfNodes'               => 'num_of_nodes',
-        'workerSystemDiskCategory' => 'worker_system_disk_category',
-        'workerSystemDiskSize'     => 'worker_system_disk_size',
-        'workerDataDisk'           => 'worker_data_disk',
-        'vpcid'                    => 'vpcid',
-        'securityGroupId'          => 'security_group_id',
-        'containerCidr'            => 'container_cidr',
-        'serviceCidr'              => 'service_cidr',
-        'disableRollback'          => 'disable_rollback',
-        'timeoutMins'              => 'timeout_mins',
-        'tags'                     => 'tags',
-        'addons'                   => 'addons',
-        'taints'                   => 'taints',
-        'workerDataDisks'          => 'worker_data_disks',
-        'masterVswitchIds'         => 'master_vswitch_ids',
-        'masterInstanceTypes'      => 'master_instance_types',
-        'workerInstanceTypes'      => 'worker_instance_types',
-        'workerVswitchIds'         => 'worker_vswitch_ids',
-        'podVswitchIds'            => 'pod_vswitch_ids',
+        'clusterType'               => 'cluster_type',
+        'name'                      => 'name',
+        'regionId'                  => 'region_id',
+        'kubernetesVersion'         => 'kubernetes_version',
+        'snatEntry'                 => 'snat_entry',
+        'endpointPublicAccess'      => 'endpoint_public_access',
+        'sshFlags'                  => 'ssh_flags',
+        'cloudMonitorFlags'         => 'cloud_monitor_flags',
+        'deletionProtection'        => 'deletion_protection',
+        'nodeCidrMask'              => 'node_cidr_mask',
+        'proxyMode'                 => 'proxy_mode',
+        'osType'                    => 'os_type',
+        'platform'                  => 'platform',
+        'nodePortRange'             => 'node_port_range',
+        'keyPair'                   => 'key_pair',
+        'loginPassword'             => 'login_password',
+        'masterInstanceChargeType'  => 'master_instance_charge_type',
+        'workerInstanceChargeType'  => 'worker_instance_charge_type',
+        'masterPeriod'              => 'master_period',
+        'workerPeriod'              => 'worker_period',
+        'masterPeriodUnit'          => 'master_period_unit',
+        'workerPeriodUnit'          => 'worker_period_unit',
+        'masterAutoRenew'           => 'master_auto_renew',
+        'masterAutoRenewPeriod'     => 'master_auto_renew_period',
+        'workerAutoRenew'           => 'worker_auto_renew',
+        'workerAutoRenewPeriod'     => 'worker_auto_renew_period',
+        'cpuPolicy'                 => 'cpu_policy',
+        'masterCount'               => 'master_count',
+        'masterSystemDiskCategory'  => 'master_system_disk_category',
+        'masterSystemDiskSize'      => 'master_system_disk_size',
+        'runtime'                   => 'runtime',
+        'numOfNodes'                => 'num_of_nodes',
+        'workerSystemDiskCategory'  => 'worker_system_disk_category',
+        'workerSystemDiskSize'      => 'worker_system_disk_size',
+        'workerDataDisk'            => 'worker_data_disk',
+        'vpcid'                     => 'vpcid',
+        'securityGroupId'           => 'security_group_id',
+        'containerCidr'             => 'container_cidr',
+        'serviceCidr'               => 'service_cidr',
+        'disableRollback'           => 'disable_rollback',
+        'timeoutMins'               => 'timeout_mins',
+        'vswitchIds'                => 'vswitch_ids',
+        'privateZone'               => 'private_zone',
+        'zoneId'                    => 'zone_id',
+        'profile'                   => 'profile',
+        'isEnterpriseSecurityGroup' => 'is_enterprise_security_group',
+        'tags'                      => 'tags',
+        'addons'                    => 'addons',
+        'taints'                    => 'taints',
+        'workerDataDisks'           => 'worker_data_disks',
+        'masterVswitchIds'          => 'master_vswitch_ids',
+        'masterInstanceTypes'       => 'master_instance_types',
+        'workerInstanceTypes'       => 'worker_instance_types',
+        'workerVswitchIds'          => 'worker_vswitch_ids',
+        'podVswitchIds'             => 'pod_vswitch_ids',
     ];
 
     public function validate()
@@ -554,6 +594,21 @@ class CreateClusterBody extends Model
         }
         if (null !== $this->timeoutMins) {
             $res['timeout_mins'] = $this->timeoutMins;
+        }
+        if (null !== $this->vswitchIds) {
+            $res['vswitch_ids'] = $this->vswitchIds;
+        }
+        if (null !== $this->privateZone) {
+            $res['private_zone'] = $this->privateZone;
+        }
+        if (null !== $this->zoneId) {
+            $res['zone_id'] = $this->zoneId;
+        }
+        if (null !== $this->profile) {
+            $res['profile'] = $this->profile;
+        }
+        if (null !== $this->isEnterpriseSecurityGroup) {
+            $res['is_enterprise_security_group'] = $this->isEnterpriseSecurityGroup;
         }
         if (null !== $this->tags) {
             $res['tags'] = [];
@@ -755,6 +810,21 @@ class CreateClusterBody extends Model
         }
         if (isset($map['timeout_mins'])) {
             $model->timeoutMins = $map['timeout_mins'];
+        }
+        if (isset($map['vswitch_ids'])) {
+            $model->vswitchIds = $map['vswitch_ids'];
+        }
+        if (isset($map['private_zone'])) {
+            $model->privateZone = $map['private_zone'];
+        }
+        if (isset($map['zone_id'])) {
+            $model->zoneId = $map['zone_id'];
+        }
+        if (isset($map['profile'])) {
+            $model->profile = $map['profile'];
+        }
+        if (isset($map['is_enterprise_security_group'])) {
+            $model->isEnterpriseSecurityGroup = $map['is_enterprise_security_group'];
         }
         if (isset($map['tags'])) {
             if (!empty($map['tags'])) {

@@ -15,12 +15,16 @@ use AlibabaCloud\SDK\CS\V20151215\Models\CancelWorkflowRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\CancelWorkflowResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\CreateClusterRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\CreateClusterResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\CreateKubernetesTriggerRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\CreateKubernetesTriggerResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\CreateTemplateRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\CreateTemplateResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DeleteClusterNodesRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DeleteClusterNodesResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DeleteClusterRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DeleteClusterResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DeleteKubernetesTriggerRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DeleteKubernetesTriggerResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DeleteTemplateRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DeleteTemplateResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescirbeWorkflowRequest;
@@ -57,6 +61,8 @@ use AlibabaCloud\SDK\CS\V20151215\Models\DescribeUserQuotaRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeUserQuotaResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeWorkflowsRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeWorkflowsResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\GetKubernetesTriggerRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\GetKubernetesTriggerResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\GetUpgradeStatusRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\GetUpgradeStatusResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\InstallClusterAddonsRequest;
@@ -145,11 +151,91 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param string                         $id
+     * @param DeleteKubernetesTriggerRequest $request
+     * @param RuntimeOptions                 $runtime
+     *
+     * @return DeleteKubernetesTriggerResponse
+     */
+    public function deleteKubernetesTriggerWithOptions($id, $request, $runtime)
+    {
+        Utils::validateModel($request);
+
+        return DeleteKubernetesTriggerResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'DELETE', 'AK', '/triggers/revoke/' . $id . '', null, $request->headers, null, $runtime));
+    }
+
+    /**
+     * @param string                         $id
+     * @param DeleteKubernetesTriggerRequest $request
+     *
+     * @return DeleteKubernetesTriggerResponse
+     */
+    public function deleteKubernetesTrigger($id, $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->deleteKubernetesTriggerWithOptions($id, $request, $runtime);
+    }
+
+    /**
+     * @param CreateKubernetesTriggerRequest $request
+     * @param RuntimeOptions                 $runtime
+     *
+     * @return CreateKubernetesTriggerResponse
+     */
+    public function createKubernetesTriggerWithOptions($request, $runtime)
+    {
+        Utils::validateModel($request);
+
+        return CreateKubernetesTriggerResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/triggers', null, $request->headers, $request->body, $runtime));
+    }
+
+    /**
+     * @param CreateKubernetesTriggerRequest $request
+     *
+     * @return CreateKubernetesTriggerResponse
+     */
+    public function createKubernetesTrigger($request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->createKubernetesTriggerWithOptions($request, $runtime);
+    }
+
+    /**
+     * @param string                      $clusterId
+     * @param GetKubernetesTriggerRequest $request
+     * @param RuntimeOptions              $runtime
+     *
+     * @return GetKubernetesTriggerResponse
+     */
+    public function getKubernetesTriggerWithOptions($clusterId, $request, $runtime)
+    {
+        Utils::validateModel($request);
+
+        return GetKubernetesTriggerResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/triggers/' . $clusterId . '', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime));
+    }
+
+    /**
+     * @param string                      $clusterId
+     * @param GetKubernetesTriggerRequest $request
+     *
+     * @return GetKubernetesTriggerResponse
+     */
+    public function getKubernetesTrigger($clusterId, $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->getKubernetesTriggerWithOptions($clusterId, $request, $runtime);
+    }
+
+    /**
+     * @param ListTagResourcesRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return ListTagResourcesResponse
      */
-    public function listTagResourcesWithOptions(ListTagResourcesRequest $request, RuntimeOptions $runtime)
+    public function listTagResourcesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -157,11 +243,11 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param ListTagResourcesRequest $request
      *
      * @return ListTagResourcesResponse
      */
-    public function listTagResources(ListTagResourcesRequest $request)
+    public function listTagResources($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -169,14 +255,14 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterid
-     * @param string $componentid
-     *
-     * @throws \Exception
+     * @param string                        $clusterid
+     * @param string                        $componentid
+     * @param ResumeComponentUpgradeRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return ResumeComponentUpgradeResponse
      */
-    public function resumeComponentUpgradeWithOptions($clusterid, $componentid, ResumeComponentUpgradeRequest $request, RuntimeOptions $runtime)
+    public function resumeComponentUpgradeWithOptions($clusterid, $componentid, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -184,14 +270,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterid
-     * @param string $componentid
-     *
-     * @throws \Exception
+     * @param string                        $clusterid
+     * @param string                        $componentid
+     * @param ResumeComponentUpgradeRequest $request
      *
      * @return ResumeComponentUpgradeResponse
      */
-    public function resumeComponentUpgrade($clusterid, $componentid, ResumeComponentUpgradeRequest $request)
+    public function resumeComponentUpgrade($clusterid, $componentid, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -199,14 +284,14 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterid
-     * @param string $componentid
-     *
-     * @throws \Exception
+     * @param string                       $clusterid
+     * @param string                       $componentid
+     * @param PauseComponentUpgradeRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return PauseComponentUpgradeResponse
      */
-    public function pauseComponentUpgradeWithOptions($clusterid, $componentid, PauseComponentUpgradeRequest $request, RuntimeOptions $runtime)
+    public function pauseComponentUpgradeWithOptions($clusterid, $componentid, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -214,14 +299,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterid
-     * @param string $componentid
-     *
-     * @throws \Exception
+     * @param string                       $clusterid
+     * @param string                       $componentid
+     * @param PauseComponentUpgradeRequest $request
      *
      * @return PauseComponentUpgradeResponse
      */
-    public function pauseComponentUpgrade($clusterid, $componentid, PauseComponentUpgradeRequest $request)
+    public function pauseComponentUpgrade($clusterid, $componentid, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -229,14 +313,14 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterid
-     * @param string $componentid
-     *
-     * @throws \Exception
+     * @param string                        $clusterid
+     * @param string                        $componentid
+     * @param CancelComponentUpgradeRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return CancelComponentUpgradeResponse
      */
-    public function cancelComponentUpgradeWithOptions($clusterid, $componentid, CancelComponentUpgradeRequest $request, RuntimeOptions $runtime)
+    public function cancelComponentUpgradeWithOptions($clusterid, $componentid, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -244,14 +328,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterid
-     * @param string $componentid
-     *
-     * @throws \Exception
+     * @param string                        $clusterid
+     * @param string                        $componentid
+     * @param CancelComponentUpgradeRequest $request
      *
      * @return CancelComponentUpgradeResponse
      */
-    public function cancelComponentUpgrade($clusterid, $componentid, CancelComponentUpgradeRequest $request)
+    public function cancelComponentUpgrade($clusterid, $componentid, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -259,13 +342,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $workflowName
-     *
-     * @throws \Exception
+     * @param string                $workflowName
+     * @param CancelWorkflowRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return CancelWorkflowResponse
      */
-    public function cancelWorkflowWithOptions($workflowName, CancelWorkflowRequest $request, RuntimeOptions $runtime)
+    public function cancelWorkflowWithOptions($workflowName, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -273,13 +356,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $workflowName
-     *
-     * @throws \Exception
+     * @param string                $workflowName
+     * @param CancelWorkflowRequest $request
      *
      * @return CancelWorkflowResponse
      */
-    public function cancelWorkflow($workflowName, CancelWorkflowRequest $request)
+    public function cancelWorkflow($workflowName, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -287,13 +369,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $workflowName
-     *
-     * @throws \Exception
+     * @param string                  $workflowName
+     * @param DescirbeWorkflowRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DescirbeWorkflowResponse
      */
-    public function descirbeWorkflowWithOptions($workflowName, DescirbeWorkflowRequest $request, RuntimeOptions $runtime)
+    public function descirbeWorkflowWithOptions($workflowName, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -301,13 +383,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $workflowName
-     *
-     * @throws \Exception
+     * @param string                  $workflowName
+     * @param DescirbeWorkflowRequest $request
      *
      * @return DescirbeWorkflowResponse
      */
-    public function descirbeWorkflow($workflowName, DescirbeWorkflowRequest $request)
+    public function descirbeWorkflow($workflowName, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -315,13 +396,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $workflowName
-     *
-     * @throws \Exception
+     * @param string                $workflowName
+     * @param RemoveWorkflowRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return RemoveWorkflowResponse
      */
-    public function removeWorkflowWithOptions($workflowName, RemoveWorkflowRequest $request, RuntimeOptions $runtime)
+    public function removeWorkflowWithOptions($workflowName, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -329,13 +410,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $workflowName
-     *
-     * @throws \Exception
+     * @param string                $workflowName
+     * @param RemoveWorkflowRequest $request
      *
      * @return RemoveWorkflowResponse
      */
-    public function removeWorkflow($workflowName, RemoveWorkflowRequest $request)
+    public function removeWorkflow($workflowName, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -343,11 +423,12 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeWorkflowsRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return DescribeWorkflowsResponse
      */
-    public function describeWorkflowsWithOptions(DescribeWorkflowsRequest $request, RuntimeOptions $runtime)
+    public function describeWorkflowsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -355,11 +436,11 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeWorkflowsRequest $request
      *
      * @return DescribeWorkflowsResponse
      */
-    public function describeWorkflows(DescribeWorkflowsRequest $request)
+    public function describeWorkflows($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -367,11 +448,12 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param StartWorkflowRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return StartWorkflowResponse
      */
-    public function startWorkflowWithOptions(StartWorkflowRequest $request, RuntimeOptions $runtime)
+    public function startWorkflowWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -379,11 +461,11 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param StartWorkflowRequest $request
      *
      * @return StartWorkflowResponse
      */
-    public function startWorkflow(StartWorkflowRequest $request)
+    public function startWorkflow($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -391,13 +473,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                        $clusterId
+     * @param UnInstallClusterAddonsRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return UnInstallClusterAddonsResponse
      */
-    public function unInstallClusterAddonsWithOptions($clusterId, UnInstallClusterAddonsRequest $request, RuntimeOptions $runtime)
+    public function unInstallClusterAddonsWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -405,13 +487,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                        $clusterId
+     * @param UnInstallClusterAddonsRequest $request
      *
      * @return UnInstallClusterAddonsResponse
      */
-    public function unInstallClusterAddons($clusterId, UnInstallClusterAddonsRequest $request)
+    public function unInstallClusterAddons($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -419,11 +500,12 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAddonsRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return DescribeAddonsResponse
      */
-    public function describeAddonsWithOptions(DescribeAddonsRequest $request, RuntimeOptions $runtime)
+    public function describeAddonsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -431,11 +513,11 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAddonsRequest $request
      *
      * @return DescribeAddonsResponse
      */
-    public function describeAddons(DescribeAddonsRequest $request)
+    public function describeAddons($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -443,13 +525,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                                  $clusterId
+     * @param UpdateK8sClusterUserConfigExpireRequest $request
+     * @param RuntimeOptions                          $runtime
      *
      * @return UpdateK8sClusterUserConfigExpireResponse
      */
-    public function updateK8sClusterUserConfigExpireWithOptions($clusterId, UpdateK8sClusterUserConfigExpireRequest $request, RuntimeOptions $runtime)
+    public function updateK8sClusterUserConfigExpireWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -457,13 +539,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                                  $clusterId
+     * @param UpdateK8sClusterUserConfigExpireRequest $request
      *
      * @return UpdateK8sClusterUserConfigExpireResponse
      */
-    public function updateK8sClusterUserConfigExpire($clusterId, UpdateK8sClusterUserConfigExpireRequest $request)
+    public function updateK8sClusterUserConfigExpire($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -471,13 +552,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                      $clusterId
+     * @param CancelClusterUpgradeRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return CancelClusterUpgradeResponse
      */
-    public function cancelClusterUpgradeWithOptions($clusterId, CancelClusterUpgradeRequest $request, RuntimeOptions $runtime)
+    public function cancelClusterUpgradeWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -485,13 +566,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                      $clusterId
+     * @param CancelClusterUpgradeRequest $request
      *
      * @return CancelClusterUpgradeResponse
      */
-    public function cancelClusterUpgrade($clusterId, CancelClusterUpgradeRequest $request)
+    public function cancelClusterUpgrade($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -499,11 +579,12 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeUserQuotaRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return DescribeUserQuotaResponse
      */
-    public function describeUserQuotaWithOptions(DescribeUserQuotaRequest $request, RuntimeOptions $runtime)
+    public function describeUserQuotaWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -511,11 +592,11 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeUserQuotaRequest $request
      *
      * @return DescribeUserQuotaResponse
      */
-    public function describeUserQuota(DescribeUserQuotaRequest $request)
+    public function describeUserQuota($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -523,13 +604,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                                 $clusterId
+     * @param DescribeClusterV2UserKubeconfigRequest $request
+     * @param RuntimeOptions                         $runtime
      *
      * @return DescribeClusterV2UserKubeconfigResponse
      */
-    public function describeClusterV2UserKubeconfigWithOptions($clusterId, DescribeClusterV2UserKubeconfigRequest $request, RuntimeOptions $runtime)
+    public function describeClusterV2UserKubeconfigWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -537,13 +618,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                                 $clusterId
+     * @param DescribeClusterV2UserKubeconfigRequest $request
      *
      * @return DescribeClusterV2UserKubeconfigResponse
      */
-    public function describeClusterV2UserKubeconfig($clusterId, DescribeClusterV2UserKubeconfigRequest $request)
+    public function describeClusterV2UserKubeconfig($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -551,13 +631,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                    $clusterId
+     * @param RemoveClusterNodesRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return RemoveClusterNodesResponse
      */
-    public function removeClusterNodesWithOptions($clusterId, RemoveClusterNodesRequest $request, RuntimeOptions $runtime)
+    public function removeClusterNodesWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -565,13 +645,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                    $clusterId
+     * @param RemoveClusterNodesRequest $request
      *
      * @return RemoveClusterNodesResponse
      */
-    public function removeClusterNodes($clusterId, RemoveClusterNodesRequest $request)
+    public function removeClusterNodes($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -579,13 +658,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                $clusterId
+     * @param UpgradeClusterRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return UpgradeClusterResponse
      */
-    public function upgradeClusterWithOptions($clusterId, UpgradeClusterRequest $request, RuntimeOptions $runtime)
+    public function upgradeClusterWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -593,13 +672,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                $clusterId
+     * @param UpgradeClusterRequest $request
      *
      * @return UpgradeClusterResponse
      */
-    public function upgradeCluster($clusterId, UpgradeClusterRequest $request)
+    public function upgradeCluster($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -607,13 +685,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                     $clusterId
+     * @param PauseClusterUpgradeRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return PauseClusterUpgradeResponse
      */
-    public function pauseClusterUpgradeWithOptions($clusterId, PauseClusterUpgradeRequest $request, RuntimeOptions $runtime)
+    public function pauseClusterUpgradeWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -621,13 +699,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                     $clusterId
+     * @param PauseClusterUpgradeRequest $request
      *
      * @return PauseClusterUpgradeResponse
      */
-    public function pauseClusterUpgrade($clusterId, PauseClusterUpgradeRequest $request)
+    public function pauseClusterUpgrade($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -635,13 +712,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                      $clusterId
+     * @param ResumeUpgradeClusterRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return ResumeUpgradeClusterResponse
      */
-    public function resumeUpgradeClusterWithOptions($clusterId, ResumeUpgradeClusterRequest $request, RuntimeOptions $runtime)
+    public function resumeUpgradeClusterWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -649,13 +726,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                      $clusterId
+     * @param ResumeUpgradeClusterRequest $request
      *
      * @return ResumeUpgradeClusterResponse
      */
-    public function resumeUpgradeCluster($clusterId, ResumeUpgradeClusterRequest $request)
+    public function resumeUpgradeCluster($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -663,13 +739,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                  $clusterId
+     * @param GetUpgradeStatusRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return GetUpgradeStatusResponse
      */
-    public function getUpgradeStatusWithOptions($clusterId, GetUpgradeStatusRequest $request, RuntimeOptions $runtime)
+    public function getUpgradeStatusWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -677,13 +753,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                  $clusterId
+     * @param GetUpgradeStatusRequest $request
      *
      * @return GetUpgradeStatusResponse
      */
-    public function getUpgradeStatus($clusterId, GetUpgradeStatusRequest $request)
+    public function getUpgradeStatus($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -691,13 +766,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string               $clusterId
+     * @param ModifyClusterRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return ModifyClusterResponse
      */
-    public function modifyClusterWithOptions($clusterId, ModifyClusterRequest $request, RuntimeOptions $runtime)
+    public function modifyClusterWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -705,13 +780,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string               $clusterId
+     * @param ModifyClusterRequest $request
      *
      * @return ModifyClusterResponse
      */
-    public function modifyCluster($clusterId, ModifyClusterRequest $request)
+    public function modifyCluster($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -719,13 +793,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                      $clusterId
+     * @param InstallClusterAddonsRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return InstallClusterAddonsResponse
      */
-    public function installClusterAddonsWithOptions($clusterId, InstallClusterAddonsRequest $request, RuntimeOptions $runtime)
+    public function installClusterAddonsWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -733,13 +807,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                      $clusterId
+     * @param InstallClusterAddonsRequest $request
      *
      * @return InstallClusterAddonsResponse
      */
-    public function installClusterAddons($clusterId, InstallClusterAddonsRequest $request)
+    public function installClusterAddons($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -747,13 +820,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                   $clusterId
+     * @param ModifyClusterTagsRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return ModifyClusterTagsResponse
      */
-    public function modifyClusterTagsWithOptions($clusterId, ModifyClusterTagsRequest $request, RuntimeOptions $runtime)
+    public function modifyClusterTagsWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -761,13 +834,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                   $clusterId
+     * @param ModifyClusterTagsRequest $request
      *
      * @return ModifyClusterTagsResponse
      */
-    public function modifyClusterTags($clusterId, ModifyClusterTagsRequest $request)
+    public function modifyClusterTags($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -775,13 +847,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                       $clusterId
+     * @param DescribeExternalAgentRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return DescribeExternalAgentResponse
      */
-    public function describeExternalAgentWithOptions($clusterId, DescribeExternalAgentRequest $request, RuntimeOptions $runtime)
+    public function describeExternalAgentWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -789,13 +861,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                       $clusterId
+     * @param DescribeExternalAgentRequest $request
      *
      * @return DescribeExternalAgentResponse
      */
-    public function describeExternalAgent($clusterId, DescribeExternalAgentRequest $request)
+    public function describeExternalAgent($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -803,13 +874,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                              $clusterId
+     * @param DescribeClusterAttachScriptsRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return DescribeClusterAttachScriptsResponse
      */
-    public function describeClusterAttachScriptsWithOptions($clusterId, DescribeClusterAttachScriptsRequest $request, RuntimeOptions $runtime)
+    public function describeClusterAttachScriptsWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -817,13 +888,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                              $clusterId
+     * @param DescribeClusterAttachScriptsRequest $request
      *
      * @return DescribeClusterAttachScriptsResponse
      */
-    public function describeClusterAttachScripts($clusterId, DescribeClusterAttachScriptsRequest $request)
+    public function describeClusterAttachScripts($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -831,13 +901,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                 $clusterId
+     * @param ScaleOutClusterRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return ScaleOutClusterResponse
      */
-    public function scaleOutClusterWithOptions($clusterId, ScaleOutClusterRequest $request, RuntimeOptions $runtime)
+    public function scaleOutClusterWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -845,13 +915,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                 $clusterId
+     * @param ScaleOutClusterRequest $request
      *
      * @return ScaleOutClusterResponse
      */
-    public function scaleOutCluster($clusterId, ScaleOutClusterRequest $request)
+    public function scaleOutCluster($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -859,13 +928,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                          $clusterId
+     * @param DescribeClusterResourcesRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return DescribeClusterResourcesResponse
      */
-    public function describeClusterResourcesWithOptions($clusterId, DescribeClusterResourcesRequest $request, RuntimeOptions $runtime)
+    public function describeClusterResourcesWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -873,13 +942,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                          $clusterId
+     * @param DescribeClusterResourcesRequest $request
      *
      * @return DescribeClusterResourcesResponse
      */
-    public function describeClusterResources($clusterId, DescribeClusterResourcesRequest $request)
+    public function describeClusterResources($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -887,13 +955,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                      $clusterId
+     * @param UpgradeClusterAddonsRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return UpgradeClusterAddonsResponse
      */
-    public function upgradeClusterAddonsWithOptions($clusterId, UpgradeClusterAddonsRequest $request, RuntimeOptions $runtime)
+    public function upgradeClusterAddonsWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -901,13 +969,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                      $clusterId
+     * @param UpgradeClusterAddonsRequest $request
      *
      * @return UpgradeClusterAddonsResponse
      */
-    public function upgradeClusterAddons($clusterId, UpgradeClusterAddonsRequest $request)
+    public function upgradeClusterAddons($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -915,13 +982,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                              $clusterId
+     * @param DescribeClusterAddonsVersionRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return DescribeClusterAddonsVersionResponse
      */
-    public function describeClusterAddonsVersionWithOptions($clusterId, DescribeClusterAddonsVersionRequest $request, RuntimeOptions $runtime)
+    public function describeClusterAddonsVersionWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -929,13 +996,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                              $clusterId
+     * @param DescribeClusterAddonsVersionRequest $request
      *
      * @return DescribeClusterAddonsVersionResponse
      */
-    public function describeClusterAddonsVersion($clusterId, DescribeClusterAddonsVersionRequest $request)
+    public function describeClusterAddonsVersion($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -943,14 +1009,14 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     * @param string $componentId
-     *
-     * @throws \Exception
+     * @param string                                   $clusterId
+     * @param string                                   $componentId
+     * @param DescribeClusterAddonUpgradeStatusRequest $request
+     * @param RuntimeOptions                           $runtime
      *
      * @return DescribeClusterAddonUpgradeStatusResponse
      */
-    public function describeClusterAddonUpgradeStatusWithOptions($clusterId, $componentId, DescribeClusterAddonUpgradeStatusRequest $request, RuntimeOptions $runtime)
+    public function describeClusterAddonUpgradeStatusWithOptions($clusterId, $componentId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -958,14 +1024,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     * @param string $componentId
-     *
-     * @throws \Exception
+     * @param string                                   $clusterId
+     * @param string                                   $componentId
+     * @param DescribeClusterAddonUpgradeStatusRequest $request
      *
      * @return DescribeClusterAddonUpgradeStatusResponse
      */
-    public function describeClusterAddonUpgradeStatus($clusterId, $componentId, DescribeClusterAddonUpgradeStatusRequest $request)
+    public function describeClusterAddonUpgradeStatus($clusterId, $componentId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -973,13 +1038,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                    $clusterId
+     * @param DeleteClusterNodesRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return DeleteClusterNodesResponse
      */
-    public function deleteClusterNodesWithOptions($clusterId, DeleteClusterNodesRequest $request, RuntimeOptions $runtime)
+    public function deleteClusterNodesWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -987,13 +1052,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                    $clusterId
+     * @param DeleteClusterNodesRequest $request
      *
      * @return DeleteClusterNodesResponse
      */
-    public function deleteClusterNodes($clusterId, DeleteClusterNodesRequest $request)
+    public function deleteClusterNodes($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1001,13 +1065,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $templateId
-     *
-     * @throws \Exception
+     * @param string                $templateId
+     * @param DeleteTemplateRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return DeleteTemplateResponse
      */
-    public function deleteTemplateWithOptions($templateId, DeleteTemplateRequest $request, RuntimeOptions $runtime)
+    public function deleteTemplateWithOptions($templateId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1015,13 +1079,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $templateId
-     *
-     * @throws \Exception
+     * @param string                $templateId
+     * @param DeleteTemplateRequest $request
      *
      * @return DeleteTemplateResponse
      */
-    public function deleteTemplate($templateId, DeleteTemplateRequest $request)
+    public function deleteTemplate($templateId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1029,13 +1092,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                               $clusterId
+     * @param DescribeClusterUserKubeconfigRequest $request
+     * @param RuntimeOptions                       $runtime
      *
      * @return DescribeClusterUserKubeconfigResponse
      */
-    public function describeClusterUserKubeconfigWithOptions($clusterId, DescribeClusterUserKubeconfigRequest $request, RuntimeOptions $runtime)
+    public function describeClusterUserKubeconfigWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1043,13 +1106,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                               $clusterId
+     * @param DescribeClusterUserKubeconfigRequest $request
      *
      * @return DescribeClusterUserKubeconfigResponse
      */
-    public function describeClusterUserKubeconfig($clusterId, DescribeClusterUserKubeconfigRequest $request)
+    public function describeClusterUserKubeconfig($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1057,13 +1119,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                      $clusterId
+     * @param DescribeClusterNodesRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return DescribeClusterNodesResponse
      */
-    public function describeClusterNodesWithOptions($clusterId, DescribeClusterNodesRequest $request, RuntimeOptions $runtime)
+    public function describeClusterNodesWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1071,13 +1133,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                      $clusterId
+     * @param DescribeClusterNodesRequest $request
      *
      * @return DescribeClusterNodesResponse
      */
-    public function describeClusterNodes($clusterId, DescribeClusterNodesRequest $request)
+    public function describeClusterNodes($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1085,13 +1146,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                     $clusterId
+     * @param DescribeClusterLogsRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return DescribeClusterLogsResponse
      */
-    public function describeClusterLogsWithOptions($clusterId, DescribeClusterLogsRequest $request, RuntimeOptions $runtime)
+    public function describeClusterLogsWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1099,13 +1160,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                     $clusterId
+     * @param DescribeClusterLogsRequest $request
      *
      * @return DescribeClusterLogsResponse
      */
-    public function describeClusterLogs($clusterId, DescribeClusterLogsRequest $request)
+    public function describeClusterLogs($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1113,13 +1173,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                 $clusterId
+     * @param AttachInstancesRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return AttachInstancesResponse
      */
-    public function attachInstancesWithOptions($clusterId, AttachInstancesRequest $request, RuntimeOptions $runtime)
+    public function attachInstancesWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1127,13 +1187,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                 $clusterId
+     * @param AttachInstancesRequest $request
      *
      * @return AttachInstancesResponse
      */
-    public function attachInstances($clusterId, AttachInstancesRequest $request)
+    public function attachInstances($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1141,11 +1200,12 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeTemplatesRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return DescribeTemplatesResponse
      */
-    public function describeTemplatesWithOptions(DescribeTemplatesRequest $request, RuntimeOptions $runtime)
+    public function describeTemplatesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1153,11 +1213,11 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeTemplatesRequest $request
      *
      * @return DescribeTemplatesResponse
      */
-    public function describeTemplates(DescribeTemplatesRequest $request)
+    public function describeTemplates($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1165,11 +1225,12 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param CreateTemplateRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return CreateTemplateResponse
      */
-    public function createTemplateWithOptions(CreateTemplateRequest $request, RuntimeOptions $runtime)
+    public function createTemplateWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1177,11 +1238,11 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param CreateTemplateRequest $request
      *
      * @return CreateTemplateResponse
      */
-    public function createTemplate(CreateTemplateRequest $request)
+    public function createTemplate($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1189,11 +1250,12 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param CreateClusterRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return CreateClusterResponse
      */
-    public function createClusterWithOptions(CreateClusterRequest $request, RuntimeOptions $runtime)
+    public function createClusterWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1201,11 +1263,11 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param CreateClusterRequest $request
      *
      * @return CreateClusterResponse
      */
-    public function createCluster(CreateClusterRequest $request)
+    public function createCluster($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1213,13 +1275,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string              $clusterId
+     * @param ScaleClusterRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return ScaleClusterResponse
      */
-    public function scaleClusterWithOptions($clusterId, ScaleClusterRequest $request, RuntimeOptions $runtime)
+    public function scaleClusterWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1227,13 +1289,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string              $clusterId
+     * @param ScaleClusterRequest $request
      *
      * @return ScaleClusterResponse
      */
-    public function scaleCluster($clusterId, ScaleClusterRequest $request)
+    public function scaleCluster($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1241,11 +1302,12 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeClustersRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DescribeClustersResponse
      */
-    public function describeClustersWithOptions(DescribeClustersRequest $request, RuntimeOptions $runtime)
+    public function describeClustersWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1253,11 +1315,11 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeClustersRequest $request
      *
      * @return DescribeClustersResponse
      */
-    public function describeClusters(DescribeClustersRequest $request)
+    public function describeClusters($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1265,13 +1327,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                       $clusterId
+     * @param DescribeClusterDetailRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return DescribeClusterDetailResponse
      */
-    public function describeClusterDetailWithOptions($clusterId, DescribeClusterDetailRequest $request, RuntimeOptions $runtime)
+    public function describeClusterDetailWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1279,13 +1341,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string                       $clusterId
+     * @param DescribeClusterDetailRequest $request
      *
      * @return DescribeClusterDetailResponse
      */
-    public function describeClusterDetail($clusterId, DescribeClusterDetailRequest $request)
+    public function describeClusterDetail($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1293,13 +1354,13 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string               $clusterId
+     * @param DeleteClusterRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return DeleteClusterResponse
      */
-    public function deleteClusterWithOptions($clusterId, DeleteClusterRequest $request, RuntimeOptions $runtime)
+    public function deleteClusterWithOptions($clusterId, $request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1307,13 +1368,12 @@ class CS extends Roa
     }
 
     /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
+     * @param string               $clusterId
+     * @param DeleteClusterRequest $request
      *
      * @return DeleteClusterResponse
      */
-    public function deleteCluster($clusterId, DeleteClusterRequest $request)
+    public function deleteCluster($clusterId, $request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1321,11 +1381,12 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeApiVersionRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return DescribeApiVersionResponse
      */
-    public function describeApiVersionWithOptions(DescribeApiVersionRequest $request, RuntimeOptions $runtime)
+    public function describeApiVersionWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1333,11 +1394,11 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeApiVersionRequest $request
      *
      * @return DescribeApiVersionResponse
      */
-    public function describeApiVersion(DescribeApiVersionRequest $request)
+    public function describeApiVersion($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1352,8 +1413,6 @@ class CS extends Roa
      * @param string $suffix
      * @param array  $endpointMap
      * @param string $endpoint
-     *
-     * @throws \Exception
      *
      * @return string
      */

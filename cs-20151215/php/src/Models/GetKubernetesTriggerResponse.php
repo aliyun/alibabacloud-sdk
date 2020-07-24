@@ -6,7 +6,7 @@ namespace AlibabaCloud\SDK\CS\V20151215\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class ModifyClusterRequest extends Model
+class GetKubernetesTriggerResponse extends Model
 {
     /**
      * @description headers
@@ -18,7 +18,7 @@ class ModifyClusterRequest extends Model
     /**
      * @description body
      *
-     * @var ModifyClusterBody
+     * @var array
      */
     public $body;
     protected $_name = [
@@ -28,6 +28,8 @@ class ModifyClusterRequest extends Model
 
     public function validate()
     {
+        Model::validateRequired('headers', $this->headers, true);
+        Model::validateRequired('body', $this->body, true);
     }
 
     public function toMap()
@@ -37,7 +39,13 @@ class ModifyClusterRequest extends Model
             $res['headers'] = $this->headers;
         }
         if (null !== $this->body) {
-            $res['body'] = null !== $this->body ? $this->body->toMap() : null;
+            $res['body'] = [];
+            if (null !== $this->body && \is_array($this->body)) {
+                $n = 0;
+                foreach ($this->body as $item) {
+                    $res['body'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
+            }
         }
 
         return $res;
@@ -46,7 +54,7 @@ class ModifyClusterRequest extends Model
     /**
      * @param array $map
      *
-     * @return ModifyClusterRequest
+     * @return GetKubernetesTriggerResponse
      */
     public static function fromMap($map = [])
     {
@@ -55,7 +63,13 @@ class ModifyClusterRequest extends Model
             $model->headers = $map['headers'];
         }
         if (isset($map['body'])) {
-            $model->body = ModifyClusterBody::fromMap($map['body']);
+            if (!empty($map['body'])) {
+                $model->body = [];
+                $n           = 0;
+                foreach ($map['body'] as $item) {
+                    $model->body[$n++] = null !== $item ? GetKubernetesTriggerResponseBody::fromMap($item) : $item;
+                }
+            }
         }
 
         return $model;

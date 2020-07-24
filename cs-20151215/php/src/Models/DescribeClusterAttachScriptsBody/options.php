@@ -49,6 +49,13 @@ class options extends Model
      * @var string
      */
     public $nodeNamePrefix;
+
+    /**
+     * @description enabledAddons
+     *
+     * @var array
+     */
+    public $enabledAddons;
     protected $_name = [
         'flannelIface'     => 'flannelIface',
         'enableIptables'   => 'enableIptables',
@@ -56,6 +63,7 @@ class options extends Model
         'nodeNameStrategy' => 'nodeNameStrategy',
         'nodeName'         => 'nodeName',
         'nodeNamePrefix'   => 'nodeNamePrefix',
+        'enabledAddons'    => 'enabledAddons',
     ];
 
     public function validate()
@@ -82,6 +90,12 @@ class options extends Model
         }
         if (null !== $this->nodeNamePrefix) {
             $res['nodeNamePrefix'] = $this->nodeNamePrefix;
+        }
+        if (null !== $this->enabledAddons) {
+            $res['enabledAddons'] = [];
+            if (null !== $this->enabledAddons) {
+                $res['enabledAddons'] = $this->enabledAddons;
+            }
         }
 
         return $res;
@@ -112,6 +126,12 @@ class options extends Model
         }
         if (isset($map['nodeNamePrefix'])) {
             $model->nodeNamePrefix = $map['nodeNamePrefix'];
+        }
+        if (isset($map['enabledAddons'])) {
+            if (!empty($map['enabledAddons'])) {
+                $model->enabledAddons = [];
+                $model->enabledAddons = $map['enabledAddons'];
+            }
         }
 
         return $model;
