@@ -126,6 +126,10 @@ public class DescribeReportChainSummaryResponse extends TeaModel {
         @Validation(required = true)
         public Double averageConcurrency;
 
+        @NameInMap("Exceptions")
+        @Validation(required = true)
+        public String exceptions;
+
         public static DescribeReportChainSummaryResponseChainSummary build(java.util.Map<String, ?> map) throws Exception {
             DescribeReportChainSummaryResponseChainSummary self = new DescribeReportChainSummaryResponseChainSummary();
             return TeaModel.build(map, self);

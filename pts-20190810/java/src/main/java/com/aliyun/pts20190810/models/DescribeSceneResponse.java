@@ -34,21 +34,25 @@ public class DescribeSceneResponse extends TeaModel {
     }
 
     public static class DescribeSceneResponseSceneRelationsNodes extends TeaModel {
-        @NameInMap("Id")
+        @NameInMap("NodeId")
         @Validation(required = true)
-        public Long id;
+        public Long nodeId;
 
         @NameInMap("Name")
         @Validation(required = true)
         public String name;
 
-        @NameInMap("Type")
+        @NameInMap("NodeType")
         @Validation(required = true)
-        public String type;
+        public String nodeType;
 
         @NameInMap("Config")
         @Validation(required = true)
-        public java.util.Map<String, ?> config;
+        public String config;
+
+        @NameInMap("Params")
+        @Validation(required = true)
+        public String params;
 
         public static DescribeSceneResponseSceneRelationsNodes build(java.util.Map<String, ?> map) throws Exception {
             DescribeSceneResponseSceneRelationsNodes self = new DescribeSceneResponseSceneRelationsNodes();
@@ -160,11 +164,51 @@ public class DescribeSceneResponse extends TeaModel {
 
         @NameInMap("PreviewData")
         @Validation(required = true)
-        public java.util.Map<String, ?> previewData;
+        public String previewData;
 
         @NameInMap("RemoteUrl")
         @Validation(required = true)
         public String remoteUrl;
+
+        @NameInMap("OssUrl")
+        @Validation(required = true)
+        public String ossUrl;
+
+        @NameInMap("Columns")
+        @Validation(required = true)
+        public String columns;
+
+        @NameInMap("ProcessedLineCount")
+        @Validation(required = true)
+        public Long processedLineCount;
+
+        @NameInMap("BizType")
+        @Validation(required = true)
+        public String bizType;
+
+        @NameInMap("Exports")
+        @Validation(required = true)
+        public String exports;
+
+        @NameInMap("CreateTime")
+        @Validation(required = true)
+        public Long createTime;
+
+        @NameInMap("UseOnce")
+        @Validation(required = true)
+        public Boolean useOnce;
+
+        @NameInMap("Delimiter")
+        @Validation(required = true)
+        public String delimiter;
+
+        @NameInMap("Length")
+        @Validation(required = true)
+        public Long length;
+
+        @NameInMap("LineCount")
+        @Validation(required = true)
+        public Long lineCount;
 
         @NameInMap("ExportedParams")
         @Validation(required = true)
@@ -213,6 +257,26 @@ public class DescribeSceneResponse extends TeaModel {
 
     }
 
+    public static class DescribeSceneResponseSceneTestConfigConditions extends TeaModel {
+        @NameInMap("Region")
+        @Validation(required = true)
+        public String region;
+
+        @NameInMap("Isp")
+        @Validation(required = true)
+        public String isp;
+
+        @NameInMap("Amount")
+        @Validation(required = true)
+        public Integer amount;
+
+        public static DescribeSceneResponseSceneTestConfigConditions build(java.util.Map<String, ?> map) throws Exception {
+            DescribeSceneResponseSceneTestConfigConditions self = new DescribeSceneResponseSceneTestConfigConditions();
+            return TeaModel.build(map, self);
+        }
+
+    }
+
     public static class DescribeSceneResponseSceneTestConfigVpcConfig extends TeaModel {
         @NameInMap("RegionId")
         @Validation(required = true)
@@ -220,7 +284,7 @@ public class DescribeSceneResponse extends TeaModel {
 
         @NameInMap("VSwitchId")
         @Validation(required = true)
-        public String VSwitchId;
+        public String vSwitchId;
 
         @NameInMap("SecurityGroupId")
         @Validation(required = true)
@@ -261,6 +325,38 @@ public class DescribeSceneResponse extends TeaModel {
         @NameInMap("AgentPool")
         @Validation(required = true)
         public String agentPool;
+
+        @NameInMap("ConcurrencyLimit")
+        @Validation(required = true)
+        public String concurrencyLimit;
+
+        @NameInMap("CustomTraffic")
+        @Validation(required = true)
+        public Boolean customTraffic;
+
+        @NameInMap("CustomConfig")
+        @Validation(required = true)
+        public String customConfig;
+
+        @NameInMap("IntelligentTest")
+        @Validation(required = true)
+        public Boolean intelligentTest;
+
+        @NameInMap("AgentCount")
+        @Validation(required = true)
+        public Integer agentCount;
+
+        @NameInMap("TpsLimit")
+        @Validation(required = true)
+        public Integer tpsLimit;
+
+        @NameInMap("ConditionSatisfiedExactly")
+        @Validation(required = true)
+        public String conditionSatisfiedExactly;
+
+        @NameInMap("Conditions")
+        @Validation(required = true)
+        public java.util.List<DescribeSceneResponseSceneTestConfigConditions> conditions;
 
         @NameInMap("VpcConfig")
         @Validation(required = true)
@@ -309,6 +405,10 @@ public class DescribeSceneResponse extends TeaModel {
         @NameInMap("ModifyTime")
         @Validation(required = true)
         public Long modifyTime;
+
+        @NameInMap("Sla")
+        @Validation(required = true)
+        public String sla;
 
         @NameInMap("Relations")
         @Validation(required = true)

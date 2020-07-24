@@ -100,9 +100,21 @@ public class DescribeSceneRunningStatusResponse extends TeaModel {
     @Validation(required = true)
     public String requestId;
 
-    @NameInMap("AgentsLocation")
+    @NameInMap("Status")
     @Validation(required = true)
-    public java.util.List<DescribeSceneRunningStatusResponseAgentsLocation> agentsLocation;
+    public Integer status;
+
+    @NameInMap("HasReport")
+    @Validation(required = true)
+    public Boolean hasReport;
+
+    @NameInMap("HasError")
+    @Validation(required = true)
+    public Boolean hasError;
+
+    @NameInMap("AgentLocation")
+    @Validation(required = true)
+    public String agentLocation;
 
     @NameInMap("ChainMonitorDataList")
     @Validation(required = true)
@@ -111,30 +123,6 @@ public class DescribeSceneRunningStatusResponse extends TeaModel {
     public static DescribeSceneRunningStatusResponse build(java.util.Map<String, ?> map) throws Exception {
         DescribeSceneRunningStatusResponse self = new DescribeSceneRunningStatusResponse();
         return TeaModel.build(map, self);
-    }
-
-    public static class DescribeSceneRunningStatusResponseAgentsLocation extends TeaModel {
-        @NameInMap("Region")
-        @Validation(required = true)
-        public String region;
-
-        @NameInMap("Province")
-        @Validation(required = true)
-        public String province;
-
-        @NameInMap("Isp")
-        @Validation(required = true)
-        public String isp;
-
-        @NameInMap("Count")
-        @Validation(required = true)
-        public Integer count;
-
-        public static DescribeSceneRunningStatusResponseAgentsLocation build(java.util.Map<String, ?> map) throws Exception {
-            DescribeSceneRunningStatusResponseAgentsLocation self = new DescribeSceneRunningStatusResponseAgentsLocation();
-            return TeaModel.build(map, self);
-        }
-
     }
 
     public static class DescribeSceneRunningStatusResponseChainMonitorDataListQpsSummary extends TeaModel {

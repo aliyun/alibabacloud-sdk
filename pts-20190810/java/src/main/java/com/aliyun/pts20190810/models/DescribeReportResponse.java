@@ -8,21 +8,21 @@ public class DescribeReportResponse extends TeaModel {
     @Validation(required = true)
     public Integer averageConcurrency;
 
-    @NameInMap("AverageBandWidth")
+    @NameInMap("AvgBw")
     @Validation(required = true)
-    public Long averageBandWidth;
+    public Long avgBw;
 
-    @NameInMap("SucceedRequestRatio")
+    @NameInMap("SuccessRateReq")
     @Validation(required = true)
-    public Double succeedRequestRatio;
+    public Double successRateReq;
 
-    @NameInMap("EndTime")
+    @NameInMap("EndTimeTS")
     @Validation(required = true)
-    public Long endTime;
+    public Long endTimeTS;
 
-    @NameInMap("BeginTime")
+    @NameInMap("StartTimeTS")
     @Validation(required = true)
-    public Long beginTime;
+    public Long startTimeTS;
 
     @NameInMap("TotalAgents")
     @Validation(required = true)
@@ -34,7 +34,7 @@ public class DescribeReportResponse extends TeaModel {
 
     @NameInMap("RpsLimit")
     @Validation(required = true)
-    public Integer rpsLimit;
+    public Long rpsLimit;
 
     @NameInMap("AliveAgents")
     @Validation(required = true)
@@ -42,15 +42,15 @@ public class DescribeReportResponse extends TeaModel {
 
     @NameInMap("MaxTps")
     @Validation(required = true)
-    public Integer maxTps;
+    public Long maxTps;
 
     @NameInMap("ConcurrencyLimit")
     @Validation(required = true)
-    public Integer concurrencyLimit;
+    public Long concurrencyLimit;
 
     @NameInMap("MaxConcurrency")
     @Validation(required = true)
-    public Integer maxConcurrency;
+    public Long maxConcurrency;
 
     @NameInMap("SceneDeleted")
     @Validation(required = true)
@@ -60,25 +60,25 @@ public class DescribeReportResponse extends TeaModel {
     @Validation(required = true)
     public String duration;
 
-    @NameInMap("MaxBandWidth")
+    @NameInMap("MaxBw")
     @Validation(required = true)
-    public Long maxBandWidth;
+    public Long maxBw;
 
     @NameInMap("Vum")
     @Validation(required = true)
     public Long vum;
 
-    @NameInMap("FailedBusinessCount")
+    @NameInMap("FailCountBiz")
     @Validation(required = true)
-    public Long failedBusinessCount;
+    public Long failCountBiz;
 
-    @NameInMap("FailedRequestCount")
+    @NameInMap("FailCountReq")
     @Validation(required = true)
-    public Long failedRequestCount;
+    public Long failCountReq;
 
-    @NameInMap("BusinessRequestRatio")
+    @NameInMap("SuccessRateBiz")
     @Validation(required = true)
-    public Double businessRequestRatio;
+    public Double successRateBiz;
 
     @NameInMap("RequestId")
     @Validation(required = true)
@@ -100,41 +100,29 @@ public class DescribeReportResponse extends TeaModel {
     @Validation(required = true)
     public Boolean success;
 
-    @NameInMap("AgentsLocation")
+    @NameInMap("ReportView")
     @Validation(required = true)
-    public java.util.List<DescribeReportResponseAgentsLocation> agentsLocation;
+    public String reportView;
+
+    @NameInMap("ChargeType")
+    @Validation(required = true)
+    public String chargeType;
+
+    @NameInMap("AgentsLocations")
+    @Validation(required = true)
+    public String agentsLocations;
 
     @NameInMap("Relations")
     @Validation(required = true)
     public java.util.List<DescribeReportResponseRelations> relations;
 
+    @NameInMap("SceneSnapshot")
+    @Validation(required = true)
+    public DescribeReportResponseSceneSnapshot sceneSnapshot;
+
     public static DescribeReportResponse build(java.util.Map<String, ?> map) throws Exception {
         DescribeReportResponse self = new DescribeReportResponse();
         return TeaModel.build(map, self);
-    }
-
-    public static class DescribeReportResponseAgentsLocation extends TeaModel {
-        @NameInMap("Region")
-        @Validation(required = true)
-        public String region;
-
-        @NameInMap("Province")
-        @Validation(required = true)
-        public String province;
-
-        @NameInMap("Isp")
-        @Validation(required = true)
-        public String isp;
-
-        @NameInMap("Count")
-        @Validation(required = true)
-        public Integer count;
-
-        public static DescribeReportResponseAgentsLocation build(java.util.Map<String, ?> map) throws Exception {
-            DescribeReportResponseAgentsLocation self = new DescribeReportResponseAgentsLocation();
-            return TeaModel.build(map, self);
-        }
-
     }
 
     public static class DescribeReportResponseRelationsNodes extends TeaModel {
@@ -188,6 +176,34 @@ public class DescribeReportResponse extends TeaModel {
 
         public static DescribeReportResponseRelations build(java.util.Map<String, ?> map) throws Exception {
             DescribeReportResponseRelations self = new DescribeReportResponseRelations();
+            return TeaModel.build(map, self);
+        }
+
+    }
+
+    public static class DescribeReportResponseSceneSnapshot extends TeaModel {
+        @NameInMap("Type")
+        @Validation(required = true)
+        public String type;
+
+        @NameInMap("SceneName")
+        @Validation(required = true)
+        public String sceneName;
+
+        @NameInMap("TestConfig")
+        @Validation(required = true)
+        public String testConfig;
+
+        @NameInMap("Status")
+        @Validation(required = true)
+        public Integer status;
+
+        @NameInMap("ExecStatus")
+        @Validation(required = true)
+        public String execStatus;
+
+        public static DescribeReportResponseSceneSnapshot build(java.util.Map<String, ?> map) throws Exception {
+            DescribeReportResponseSceneSnapshot self = new DescribeReportResponseSceneSnapshot();
             return TeaModel.build(map, self);
         }
 

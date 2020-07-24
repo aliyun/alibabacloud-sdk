@@ -4,8 +4,8 @@ package com.aliyun.pts20190810.models;
 import com.aliyun.tea.*;
 
 public class ListScenesRequest extends TeaModel {
-    @NameInMap("Keyword")
-    public String keyword;
+    @NameInMap("Keywords")
+    public String keywords;
 
     @NameInMap("PageNumber")
     @Validation(required = true)

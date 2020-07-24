@@ -66,9 +66,21 @@ public class ListScenesResponse extends TeaModel {
         @Validation(required = true)
         public Boolean cronable;
 
+        @NameInMap("ExecStatus")
+        @Validation(required = true)
+        public String execStatus;
+
         @NameInMap("Status")
         @Validation(required = true)
-        public String status;
+        public Integer status;
+
+        @NameInMap("AllsparkId")
+        @Validation(required = true)
+        public String allsparkId;
+
+        @NameInMap("AgentPool")
+        @Validation(required = true)
+        public String agentPool;
 
         public static ListScenesResponseScenes build(java.util.Map<String, ?> map) throws Exception {
             ListScenesResponseScenes self = new ListScenesResponseScenes();

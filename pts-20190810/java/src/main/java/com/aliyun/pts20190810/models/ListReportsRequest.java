@@ -24,6 +24,9 @@ public class ListReportsRequest extends TeaModel {
     @Validation(required = true)
     public Integer pageNumber;
 
+    @NameInMap("SceneId")
+    public String sceneId;
+
     public static ListReportsRequest build(java.util.Map<String, ?> map) throws Exception {
         ListReportsRequest self = new ListReportsRequest();
         return TeaModel.build(map, self);

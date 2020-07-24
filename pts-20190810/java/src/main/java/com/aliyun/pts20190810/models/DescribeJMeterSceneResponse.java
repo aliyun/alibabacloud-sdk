@@ -156,7 +156,7 @@ public class DescribeJMeterSceneResponse extends TeaModel {
 
         @NameInMap("VSwitchId")
         @Validation(required = true)
-        public String VSwitchId;
+        public String vSwitchId;
 
         @NameInMap("SceneId")
         @Validation(required = true)
@@ -177,6 +177,10 @@ public class DescribeJMeterSceneResponse extends TeaModel {
         @NameInMap("ConstantThroughputTimerType")
         @Validation(required = true)
         public String constantThroughputTimerType;
+
+        @NameInMap("EnvironmentId")
+        @Validation(required = true)
+        public String environmentId;
 
         @NameInMap("Condition")
         @Validation(required = true)

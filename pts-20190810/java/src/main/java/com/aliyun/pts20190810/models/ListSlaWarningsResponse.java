@@ -3,7 +3,7 @@ package com.aliyun.pts20190810.models;
 
 import com.aliyun.tea.*;
 
-public class StartDebuggingResponse extends TeaModel {
+public class ListSlaWarningsResponse extends TeaModel {
     @NameInMap("RequestId")
     @Validation(required = true)
     public String requestId;
@@ -24,12 +24,24 @@ public class StartDebuggingResponse extends TeaModel {
     @Validation(required = true)
     public Boolean success;
 
-    @NameInMap("ReportId")
+    @NameInMap("Warnings")
     @Validation(required = true)
-    public String reportId;
+    public String warnings;
 
-    public static StartDebuggingResponse build(java.util.Map<String, ?> map) throws Exception {
-        StartDebuggingResponse self = new StartDebuggingResponse();
+    @NameInMap("PageNumber")
+    @Validation(required = true)
+    public Integer pageNumber;
+
+    @NameInMap("PageSize")
+    @Validation(required = true)
+    public Integer pageSize;
+
+    @NameInMap("TotalCount")
+    @Validation(required = true)
+    public Long totalCount;
+
+    public static ListSlaWarningsResponse build(java.util.Map<String, ?> map) throws Exception {
+        ListSlaWarningsResponse self = new ListSlaWarningsResponse();
         return TeaModel.build(map, self);
     }
 

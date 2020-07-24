@@ -3,10 +3,14 @@ package com.aliyun.pts20190810.models;
 
 import com.aliyun.tea.*;
 
-public class StopDebuggingResponse extends TeaModel {
+public class StartSceneTestingResponse extends TeaModel {
     @NameInMap("RequestId")
     @Validation(required = true)
     public String requestId;
+
+    @NameInMap("Success")
+    @Validation(required = true)
+    public Boolean success;
 
     @NameInMap("Code")
     @Validation(required = true)
@@ -20,12 +24,12 @@ public class StopDebuggingResponse extends TeaModel {
     @Validation(required = true)
     public Integer httpStatusCode;
 
-    @NameInMap("Success")
+    @NameInMap("PlanId")
     @Validation(required = true)
-    public Boolean success;
+    public String planId;
 
-    public static StopDebuggingResponse build(java.util.Map<String, ?> map) throws Exception {
-        StopDebuggingResponse self = new StopDebuggingResponse();
+    public static StartSceneTestingResponse build(java.util.Map<String, ?> map) throws Exception {
+        StartSceneTestingResponse self = new StartSceneTestingResponse();
         return TeaModel.build(map, self);
     }
 

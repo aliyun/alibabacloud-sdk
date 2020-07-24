@@ -114,6 +114,26 @@ public class DescribeReportChainDetailResponse extends TeaModel {
         @Validation(required = true)
         public Double qps5XX;
 
+        @NameInMap("Qps3XX")
+        @Validation(required = true)
+        public Double qps3XX;
+
+        @NameInMap("QpsHit")
+        @Validation(required = true)
+        public Double qpsHit;
+
+        @NameInMap("QpsMiss")
+        @Validation(required = true)
+        public Double qpsMiss;
+
+        @NameInMap("TotalHit")
+        @Validation(required = true)
+        public Long totalHit;
+
+        @NameInMap("TotalMiss")
+        @Validation(required = true)
+        public Long totalMiss;
+
         public static DescribeReportChainDetailResponseChainDetails build(java.util.Map<String, ?> map) throws Exception {
             DescribeReportChainDetailResponseChainDetails self = new DescribeReportChainDetailResponseChainDetails();
             return TeaModel.build(map, self);

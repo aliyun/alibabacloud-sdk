@@ -3,7 +3,11 @@ package com.aliyun.pts20190810.models;
 
 import com.aliyun.tea.*;
 
-public class ListReceiversRequest extends TeaModel {
+public class ListSlaWarningsRequest extends TeaModel {
+    @NameInMap("PlanId")
+    @Validation(required = true)
+    public String planId;
+
     @NameInMap("PageNumber")
     @Validation(required = true)
     public Integer pageNumber;
@@ -12,8 +16,8 @@ public class ListReceiversRequest extends TeaModel {
     @Validation(required = true)
     public Integer pageSize;
 
-    public static ListReceiversRequest build(java.util.Map<String, ?> map) throws Exception {
-        ListReceiversRequest self = new ListReceiversRequest();
+    public static ListSlaWarningsRequest build(java.util.Map<String, ?> map) throws Exception {
+        ListSlaWarningsRequest self = new ListSlaWarningsRequest();
         return TeaModel.build(map, self);
     }
 

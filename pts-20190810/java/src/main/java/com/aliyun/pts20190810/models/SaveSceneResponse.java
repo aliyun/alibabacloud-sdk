@@ -3,7 +3,15 @@ package com.aliyun.pts20190810.models;
 
 import com.aliyun.tea.*;
 
-public class RemoveReportsResponse extends TeaModel {
+public class SaveSceneResponse extends TeaModel {
+    @NameInMap("RequestId")
+    @Validation(required = true)
+    public String requestId;
+
+    @NameInMap("SceneId")
+    @Validation(required = true)
+    public String sceneId;
+
     @NameInMap("Message")
     @Validation(required = true)
     public String message;
@@ -16,16 +24,16 @@ public class RemoveReportsResponse extends TeaModel {
     @Validation(required = true)
     public Boolean success;
 
-    @NameInMap("RequestId")
-    @Validation(required = true)
-    public String requestId;
-
     @NameInMap("HttpStatusCode")
     @Validation(required = true)
     public Integer httpStatusCode;
 
-    public static RemoveReportsResponse build(java.util.Map<String, ?> map) throws Exception {
-        RemoveReportsResponse self = new RemoveReportsResponse();
+    @NameInMap("CodeKey")
+    @Validation(required = true)
+    public String codeKey;
+
+    public static SaveSceneResponse build(java.util.Map<String, ?> map) throws Exception {
+        SaveSceneResponse self = new SaveSceneResponse();
         return TeaModel.build(map, self);
     }
 
