@@ -4,6 +4,275 @@ import ROA, * as $ROA from '@alicloud/roa-client';
 import EndpointUtil from '@alicloud/endpoint-util';
 import * as $tea from '@alicloud/tea-typescript';
 
+export class DeleteKubernetesTriggerRequest extends $tea.Model {
+  headers?: { [key: string]: string };
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DeleteKubernetesTriggerResponseBody extends $tea.Model {
+  requestId: string;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DeleteKubernetesTriggerResponse extends $tea.Model {
+  headers: { [key: string]: string };
+  body: DeleteKubernetesTriggerResponseBody;
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      body: 'body',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      body: DeleteKubernetesTriggerResponseBody,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class CreateKubernetesTriggerBody extends $tea.Model {
+  regionId?: string;
+  clusterId: string;
+  projectId: string;
+  type: string;
+  triggerUrl?: string;
+  static names(): { [key: string]: string } {
+    return {
+      regionId: 'RegionId',
+      clusterId: 'ClusterId',
+      projectId: 'ProjectId',
+      type: 'Type',
+      triggerUrl: 'TriggerUrl',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      regionId: 'string',
+      clusterId: 'string',
+      projectId: 'string',
+      type: 'string',
+      triggerUrl: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class CreateKubernetesTriggerRequest extends $tea.Model {
+  headers?: { [key: string]: string };
+  body: CreateKubernetesTriggerBody;
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      body: 'body',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      body: CreateKubernetesTriggerBody,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class CreateKubernetesTriggerResponseBody extends $tea.Model {
+  id: string;
+  clusterId: string;
+  projectId: string;
+  action: string;
+  requestId: string;
+  static names(): { [key: string]: string } {
+    return {
+      id: 'id',
+      clusterId: 'cluster_id',
+      projectId: 'project_id',
+      action: 'action',
+      requestId: 'RequestId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      id: 'string',
+      clusterId: 'string',
+      projectId: 'string',
+      action: 'string',
+      requestId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class CreateKubernetesTriggerResponse extends $tea.Model {
+  headers: { [key: string]: string };
+  body: CreateKubernetesTriggerResponseBody;
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      body: 'body',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      body: CreateKubernetesTriggerResponseBody,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class GetKubernetesTriggerQuery extends $tea.Model {
+  namespace: string;
+  type: string;
+  name: string;
+  static names(): { [key: string]: string } {
+    return {
+      namespace: 'Namespace',
+      type: 'Type',
+      name: 'Name',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      namespace: 'string',
+      type: 'string',
+      name: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class GetKubernetesTriggerRequest extends $tea.Model {
+  headers?: { [key: string]: string };
+  query: GetKubernetesTriggerQuery;
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      query: 'query',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      query: GetKubernetesTriggerQuery,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class GetKubernetesTriggerResponseBody extends $tea.Model {
+  requestId: string;
+  id: string;
+  clusterId: string;
+  projectId: string;
+  action: string;
+  token: string;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      id: 'id',
+      clusterId: 'cluster_id',
+      projectId: 'project_id',
+      action: 'action',
+      token: 'token',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      id: 'string',
+      clusterId: 'string',
+      projectId: 'string',
+      action: 'string',
+      token: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class GetKubernetesTriggerResponse extends $tea.Model {
+  headers: { [key: string]: string };
+  body: GetKubernetesTriggerResponseBody[];
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      body: 'body',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      body: { 'type': 'array', 'itemType': GetKubernetesTriggerResponseBody },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class ListTagResourcesQuery extends $tea.Model {
   nextToken?: string;
   resourceIds?: string;
@@ -1134,12 +1403,12 @@ export class GetUpgradeStatusResponse extends $tea.Model {
 }
 
 export class ModifyClusterBody extends $tea.Model {
-  deletionProtection: boolean;
-  ingressLoadbalancerId: string;
-  apiServerEip: boolean;
-  apiServerEipId: string;
-  resourceGroupId: string;
-  ingressDomainRebinding: string;
+  deletionProtection?: boolean;
+  ingressLoadbalancerId?: string;
+  apiServerEip?: boolean;
+  apiServerEipId?: string;
+  resourceGroupId?: string;
+  ingressDomainRebinding?: string;
   static names(): { [key: string]: string } {
     return {
       deletionProtection: 'deletion_protection',
@@ -1169,7 +1438,7 @@ export class ModifyClusterBody extends $tea.Model {
 
 export class ModifyClusterRequest extends $tea.Model {
   headers?: { [key: string]: string };
-  body: ModifyClusterBody;
+  body?: ModifyClusterBody;
   static names(): { [key: string]: string } {
     return {
       headers: 'headers',
@@ -1196,7 +1465,7 @@ export class ModifyClusterResponseBody extends $tea.Model {
   static names(): { [key: string]: string } {
     return {
       clusterId: 'cluster_id',
-      requestId: 'request_id',
+      requestId: 'RequestId',
       taskId: 'task_id',
     };
   }
@@ -2638,6 +2907,11 @@ export class CreateClusterBody extends $tea.Model {
   serviceCidr?: string;
   disableRollback?: boolean;
   timeoutMins?: number;
+  vswitchIds?: string;
+  privateZone?: string;
+  zoneId?: string;
+  profile?: string;
+  isEnterpriseSecurityGroup?: boolean;
   tags?: CreateClusterBodyTags[];
   addons?: CreateClusterBodyAddons[];
   taints?: CreateClusterBodyTaints[];
@@ -2690,6 +2964,11 @@ export class CreateClusterBody extends $tea.Model {
       serviceCidr: 'service_cidr',
       disableRollback: 'disable_rollback',
       timeoutMins: 'timeout_mins',
+      vswitchIds: 'vswitch_ids',
+      privateZone: 'private_zone',
+      zoneId: 'zone_id',
+      profile: 'profile',
+      isEnterpriseSecurityGroup: 'is_enterprise_security_group',
       tags: 'tags',
       addons: 'addons',
       taints: 'taints',
@@ -2745,6 +3024,11 @@ export class CreateClusterBody extends $tea.Model {
       serviceCidr: 'string',
       disableRollback: 'boolean',
       timeoutMins: 'number',
+      vswitchIds: 'string',
+      privateZone: 'string',
+      zoneId: 'string',
+      profile: 'string',
+      isEnterpriseSecurityGroup: 'boolean',
       tags: { 'type': 'array', 'itemType': CreateClusterBodyTags },
       addons: { 'type': 'array', 'itemType': CreateClusterBodyAddons },
       taints: { 'type': 'array', 'itemType': CreateClusterBodyTaints },
@@ -2791,7 +3075,7 @@ export class CreateClusterResponseBody extends $tea.Model {
   static names(): { [key: string]: string } {
     return {
       clusterId: 'cluster_id',
-      requestId: 'request_id',
+      requestId: 'RequestId',
       taskId: 'task_id',
     };
   }
@@ -2936,6 +3220,7 @@ export class DescribeClustersRequest extends $tea.Model {
 }
 
 export class DescribeClustersResponseBody extends $tea.Model {
+  requestId: string;
   name: string;
   clusterId: string;
   regionId: string;
@@ -2958,10 +3243,11 @@ export class DescribeClustersResponseBody extends $tea.Model {
   externalLoadbalancerId: string;
   created: string;
   updated: string;
-  size: string;
+  size: number;
   tags: DescribeClustersResponseBodyTags[];
   static names(): { [key: string]: string } {
     return {
+      requestId: 'RequestId',
       name: 'name',
       clusterId: 'cluster_id',
       regionId: 'region_id',
@@ -2991,6 +3277,7 @@ export class DescribeClustersResponseBody extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
+      requestId: 'string',
       name: 'string',
       clusterId: 'string',
       regionId: 'string',
@@ -3013,7 +3300,7 @@ export class DescribeClustersResponseBody extends $tea.Model {
       externalLoadbalancerId: 'string',
       created: 'string',
       updated: 'string',
-      size: 'string',
+      size: 'number',
       tags: { 'type': 'array', 'itemType': DescribeClustersResponseBodyTags },
     };
   }
@@ -3417,6 +3704,7 @@ export class DescribeClusterAttachScriptsBodyOptions extends $tea.Model {
   nodeNameStrategy?: string;
   nodeName?: string;
   nodeNamePrefix?: string;
+  enabledAddons?: string[];
   static names(): { [key: string]: string } {
     return {
       flannelIface: 'flannelIface',
@@ -3425,6 +3713,7 @@ export class DescribeClusterAttachScriptsBodyOptions extends $tea.Model {
       nodeNameStrategy: 'nodeNameStrategy',
       nodeName: 'nodeName',
       nodeNamePrefix: 'nodeNamePrefix',
+      enabledAddons: 'enabledAddons',
     };
   }
 
@@ -3436,6 +3725,7 @@ export class DescribeClusterAttachScriptsBodyOptions extends $tea.Model {
       nodeNameStrategy: 'string',
       nodeName: 'string',
       nodeNamePrefix: 'string',
+      enabledAddons: { 'type': 'array', 'itemType': 'string' },
     };
   }
 
@@ -3880,6 +4170,36 @@ export default class Client extends ROA {
     this._endpointHost = this.getEndpoint("cs", this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpointHost);
   }
 
+
+  async deleteKubernetesTriggerWithOptions(id: string, request: DeleteKubernetesTriggerRequest, runtime: $Util.RuntimeOptions): Promise<DeleteKubernetesTriggerResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DeleteKubernetesTriggerResponse>(await this.doRequest("2015-12-15", "HTTPS", "DELETE", "AK", `/triggers/revoke/${id}`, null, request.headers, null, runtime), new DeleteKubernetesTriggerResponse({}));
+  }
+
+  async deleteKubernetesTrigger(id: string, request: DeleteKubernetesTriggerRequest): Promise<DeleteKubernetesTriggerResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.deleteKubernetesTriggerWithOptions(id, request, runtime);
+  }
+
+  async createKubernetesTriggerWithOptions(request: CreateKubernetesTriggerRequest, runtime: $Util.RuntimeOptions): Promise<CreateKubernetesTriggerResponse> {
+    Util.validateModel(request);
+    return $tea.cast<CreateKubernetesTriggerResponse>(await this.doRequest("2015-12-15", "HTTPS", "POST", "AK", `/triggers`, null, request.headers, $tea.toMap(request.body), runtime), new CreateKubernetesTriggerResponse({}));
+  }
+
+  async createKubernetesTrigger(request: CreateKubernetesTriggerRequest): Promise<CreateKubernetesTriggerResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.createKubernetesTriggerWithOptions(request, runtime);
+  }
+
+  async getKubernetesTriggerWithOptions(clusterId: string, request: GetKubernetesTriggerRequest, runtime: $Util.RuntimeOptions): Promise<GetKubernetesTriggerResponse> {
+    Util.validateModel(request);
+    return $tea.cast<GetKubernetesTriggerResponse>(await this.doRequest("2015-12-15", "HTTPS", "GET", "AK", `/triggers/${clusterId}`, Util.stringifyMapValue($tea.toMap(request.query)), request.headers, null, runtime), new GetKubernetesTriggerResponse({}));
+  }
+
+  async getKubernetesTrigger(clusterId: string, request: GetKubernetesTriggerRequest): Promise<GetKubernetesTriggerResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.getKubernetesTriggerWithOptions(clusterId, request, runtime);
+  }
 
   async listTagResourcesWithOptions(request: ListTagResourcesRequest, runtime: $Util.RuntimeOptions): Promise<ListTagResourcesResponse> {
     Util.validateModel(request);
