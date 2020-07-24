@@ -50,6 +50,39 @@ class Client(ROAClient):
         self.check_config(config)
         self._endpoint_host = self.get_endpoint("cs", self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint_host)
 
+    def delete_kubernetes_trigger_with_options(self, id, request, runtime):
+        UtilClient.validate_model(request)
+        return _cs20151215_models.DeleteKubernetesTriggerResponse().from_map(self.do_request("2015-12-15", "HTTPS", "DELETE", "AK", "/triggers/revoke/" + str(id) + "", None, request.headers, None, runtime))
+
+
+    def delete_kubernetes_trigger(self, id, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.delete_kubernetes_trigger_with_options(id, request, runtime)
+
+    def create_kubernetes_trigger_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return _cs20151215_models.CreateKubernetesTriggerResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/triggers", None, request.headers, request.body.to_map(), runtime))
+
+
+    def create_kubernetes_trigger(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.create_kubernetes_trigger_with_options(request, runtime)
+
+    def get_kubernetes_trigger_with_options(self, cluster_id, request, runtime):
+        UtilClient.validate_model(request)
+        return _cs20151215_models.GetKubernetesTriggerResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/triggers/" + str(cluster_id) + "", UtilClient.stringify_map_value(request.query.to_map()), request.headers, None, runtime))
+
+
+    def get_kubernetes_trigger(self, cluster_id, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.get_kubernetes_trigger_with_options(cluster_id, request, runtime)
+
     def list_tag_resources_with_options(self, request, runtime):
         UtilClient.validate_model(request)
         return _cs20151215_models.ListTagResourcesResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/tags", UtilClient.stringify_map_value(request.query.to_map()), request.headers, None, runtime))
