@@ -138,6 +138,21 @@ public class CreateClusterBody extends TeaModel {
     @NameInMap("timeout_mins")
     public Integer timeoutMins;
 
+    @NameInMap("vswitch_ids")
+    public String vswitchIds;
+
+    @NameInMap("private_zone")
+    public String privateZone;
+
+    @NameInMap("zone_id")
+    public String zoneId;
+
+    @NameInMap("profile")
+    public String profile;
+
+    @NameInMap("is_enterprise_security_group")
+    public Boolean isEnterpriseSecurityGroup;
+
     @NameInMap("tags")
     public java.util.List<CreateClusterBodyTags> tags;
 

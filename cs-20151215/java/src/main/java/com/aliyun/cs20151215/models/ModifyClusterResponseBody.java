@@ -8,7 +8,7 @@ public class ModifyClusterResponseBody extends TeaModel {
     @Validation(required = true)
     public String clusterId;
 
-    @NameInMap("request_id")
+    @NameInMap("RequestId")
     @Validation(required = true)
     public String requestId;
 

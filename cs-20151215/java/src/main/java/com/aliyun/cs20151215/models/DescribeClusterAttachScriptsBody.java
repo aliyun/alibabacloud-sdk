@@ -31,6 +31,9 @@ public class DescribeClusterAttachScriptsBody extends TeaModel {
         @NameInMap("nodeNamePrefix")
         public String nodeNamePrefix;
 
+        @NameInMap("enabledAddons")
+        public java.util.List<String> enabledAddons;
+
         public static DescribeClusterAttachScriptsBodyOptions build(java.util.Map<String, ?> map) throws Exception {
             DescribeClusterAttachScriptsBodyOptions self = new DescribeClusterAttachScriptsBodyOptions();
             return TeaModel.build(map, self);

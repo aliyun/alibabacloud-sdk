@@ -8,7 +8,6 @@ public class ModifyClusterRequest extends TeaModel {
     public java.util.Map<String, String> headers;
 
     @NameInMap("body")
-    @Validation(required = true)
     public ModifyClusterBody body;
 
     public static ModifyClusterRequest build(java.util.Map<String, ?> map) throws Exception {

@@ -50,6 +50,36 @@ public class Client extends com.aliyun.tearoa.Client {
     }
 
 
+    public DeleteKubernetesTriggerResponse deleteKubernetesTriggerWithOptions(String id, DeleteKubernetesTriggerRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("2015-12-15", "HTTPS", "DELETE", "AK", "/triggers/revoke/" + id + "", null, request.headers, null, runtime), new DeleteKubernetesTriggerResponse());
+    }
+
+    public DeleteKubernetesTriggerResponse deleteKubernetesTrigger(String id, DeleteKubernetesTriggerRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.deleteKubernetesTriggerWithOptions(id, request, runtime);
+    }
+
+    public CreateKubernetesTriggerResponse createKubernetesTriggerWithOptions(CreateKubernetesTriggerRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("2015-12-15", "HTTPS", "POST", "AK", "/triggers", null, request.headers, TeaModel.buildMap(request.body), runtime), new CreateKubernetesTriggerResponse());
+    }
+
+    public CreateKubernetesTriggerResponse createKubernetesTrigger(CreateKubernetesTriggerRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.createKubernetesTriggerWithOptions(request, runtime);
+    }
+
+    public GetKubernetesTriggerResponse getKubernetesTriggerWithOptions(String clusterId, GetKubernetesTriggerRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("2015-12-15", "HTTPS", "GET", "AK", "/triggers/" + clusterId + "", com.aliyun.teautil.Common.stringifyMapValue(TeaModel.buildMap(request.query)), request.headers, null, runtime), new GetKubernetesTriggerResponse());
+    }
+
+    public GetKubernetesTriggerResponse getKubernetesTrigger(String clusterId, GetKubernetesTriggerRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.getKubernetesTriggerWithOptions(clusterId, request, runtime);
+    }
+
     public ListTagResourcesResponse listTagResourcesWithOptions(ListTagResourcesRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
         return TeaModel.toModel(this.doRequest("2015-12-15", "HTTPS", "GET", "AK", "/tags", com.aliyun.teautil.Common.stringifyMapValue(TeaModel.buildMap(request.query)), request.headers, null, runtime), new ListTagResourcesResponse());

@@ -4,6 +4,10 @@ package com.aliyun.cs20151215.models;
 import com.aliyun.tea.*;
 
 public class DescribeClustersResponseBody extends TeaModel {
+    @NameInMap("RequestId")
+    @Validation(required = true)
+    public String requestId;
+
     @NameInMap("name")
     @Validation(required = true)
     public String name;
@@ -94,7 +98,7 @@ public class DescribeClustersResponseBody extends TeaModel {
 
     @NameInMap("size")
     @Validation(required = true)
-    public String size;
+    public Integer size;
 
     @NameInMap("tags")
     @Validation(required = true)

@@ -5,27 +5,21 @@ import com.aliyun.tea.*;
 
 public class ModifyClusterBody extends TeaModel {
     @NameInMap("deletion_protection")
-    @Validation(required = true)
     public Boolean deletionProtection;
 
     @NameInMap("ingress_loadbalancer_id")
-    @Validation(required = true)
     public String ingressLoadbalancerId;
 
     @NameInMap("api_server_eip")
-    @Validation(required = true)
     public Boolean apiServerEip;
 
     @NameInMap("api_server_eip_id")
-    @Validation(required = true)
     public String apiServerEipId;
 
     @NameInMap("resource_group_id")
-    @Validation(required = true)
     public String resourceGroupId;
 
     @NameInMap("ingress_domain_rebinding")
-    @Validation(required = true)
     public String ingressDomainRebinding;
 
     public static ModifyClusterBody build(java.util.Map<String, ?> map) throws Exception {
