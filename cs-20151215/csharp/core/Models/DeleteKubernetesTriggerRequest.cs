@@ -8,14 +8,10 @@ using Tea;
 
 namespace AlibabaCloud.SDK.CS20151215.Models
 {
-    public class ModifyClusterRequest : TeaModel {
+    public class DeleteKubernetesTriggerRequest : TeaModel {
         [NameInMap("headers")]
         [Validation(Required=false)]
         public Dictionary<string, string> Headers { get; set; }
-
-        [NameInMap("body")]
-        [Validation(Required=false)]
-        public ModifyClusterBody Body { get; set; }
 
     }
 

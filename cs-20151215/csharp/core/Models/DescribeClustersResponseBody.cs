@@ -9,6 +9,10 @@ using Tea;
 namespace AlibabaCloud.SDK.CS20151215.Models
 {
     public class DescribeClustersResponseBody : TeaModel {
+        [NameInMap("RequestId")]
+        [Validation(Required=true)]
+        public string RequestId { get; set; }
+
         [NameInMap("name")]
         [Validation(Required=true)]
         public string Name { get; set; }
@@ -99,7 +103,7 @@ namespace AlibabaCloud.SDK.CS20151215.Models
 
         [NameInMap("size")]
         [Validation(Required=true)]
-        public string Size { get; set; }
+        public int? Size { get; set; }
 
         [NameInMap("tags")]
         [Validation(Required=true)]

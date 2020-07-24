@@ -173,6 +173,26 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         [Validation(Required=false)]
         public int? TimeoutMins { get; set; }
 
+        [NameInMap("vswitch_ids")]
+        [Validation(Required=false)]
+        public string VswitchIds { get; set; }
+
+        [NameInMap("private_zone")]
+        [Validation(Required=false)]
+        public string PrivateZone { get; set; }
+
+        [NameInMap("zone_id")]
+        [Validation(Required=false)]
+        public string ZoneId { get; set; }
+
+        [NameInMap("profile")]
+        [Validation(Required=false)]
+        public string Profile { get; set; }
+
+        [NameInMap("is_enterprise_security_group")]
+        [Validation(Required=false)]
+        public bool? IsEnterpriseSecurityGroup { get; set; }
+
         [NameInMap("tags")]
         [Validation(Required=false)]
         public List<CreateClusterBodyTags> Tags { get; set; }

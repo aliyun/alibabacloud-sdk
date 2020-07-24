@@ -31,6 +31,9 @@ namespace AlibabaCloud.SDK.CS20151215.Models
             [NameInMap("nodeNamePrefix")]
             [Validation(Required=false)]
             public string NodeNamePrefix { get; set; }
+            [NameInMap("enabledAddons")]
+            [Validation(Required=false)]
+            public List<string> EnabledAddons { get; set; }
         };
 
     }

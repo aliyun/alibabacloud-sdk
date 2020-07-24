@@ -13,7 +13,7 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         [Validation(Required=true)]
         public string ClusterId { get; set; }
 
-        [NameInMap("request_id")]
+        [NameInMap("RequestId")]
         [Validation(Required=true)]
         public string RequestId { get; set; }
 

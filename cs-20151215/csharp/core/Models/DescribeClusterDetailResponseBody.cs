@@ -91,7 +91,7 @@ namespace AlibabaCloud.SDK.CS20151215.Models
 
         [NameInMap("size")]
         [Validation(Required=true)]
-        public string Size { get; set; }
+        public int? Size { get; set; }
 
         [NameInMap("tags")]
         [Validation(Required=true)]

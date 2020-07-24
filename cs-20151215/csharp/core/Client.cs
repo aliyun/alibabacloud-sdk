@@ -62,6 +62,78 @@ namespace AlibabaCloud.SDK.CS20151215
         }
 
 
+        public DeleteKubernetesTriggerResponse DeleteKubernetesTriggerWithOptions(string id, DeleteKubernetesTriggerRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<DeleteKubernetesTriggerResponse>(DoRequest("2015-12-15", "HTTPS", "DELETE", "AK", "/triggers/revoke/" + id, null, request.Headers, null, runtime));
+        }
+
+        public async Task<DeleteKubernetesTriggerResponse> DeleteKubernetesTriggerWithOptionsAsync(string id, DeleteKubernetesTriggerRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<DeleteKubernetesTriggerResponse>(await DoRequestAsync("2015-12-15", "HTTPS", "DELETE", "AK", "/triggers/revoke/" + id, null, request.Headers, null, runtime));
+        }
+
+        public DeleteKubernetesTriggerResponse DeleteKubernetesTrigger(string id, DeleteKubernetesTriggerRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return DeleteKubernetesTriggerWithOptions(id, request, runtime);
+        }
+
+        public async Task<DeleteKubernetesTriggerResponse> DeleteKubernetesTriggerAsync(string id, DeleteKubernetesTriggerRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await DeleteKubernetesTriggerWithOptionsAsync(id, request, runtime);
+        }
+
+        public CreateKubernetesTriggerResponse CreateKubernetesTriggerWithOptions(CreateKubernetesTriggerRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<CreateKubernetesTriggerResponse>(DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/triggers", null, request.Headers, request.Body.ToMap(), runtime));
+        }
+
+        public async Task<CreateKubernetesTriggerResponse> CreateKubernetesTriggerWithOptionsAsync(CreateKubernetesTriggerRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<CreateKubernetesTriggerResponse>(await DoRequestAsync("2015-12-15", "HTTPS", "POST", "AK", "/triggers", null, request.Headers, request.Body.ToMap(), runtime));
+        }
+
+        public CreateKubernetesTriggerResponse CreateKubernetesTrigger(CreateKubernetesTriggerRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return CreateKubernetesTriggerWithOptions(request, runtime);
+        }
+
+        public async Task<CreateKubernetesTriggerResponse> CreateKubernetesTriggerAsync(CreateKubernetesTriggerRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await CreateKubernetesTriggerWithOptionsAsync(request, runtime);
+        }
+
+        public GetKubernetesTriggerResponse GetKubernetesTriggerWithOptions(string clusterId, GetKubernetesTriggerRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<GetKubernetesTriggerResponse>(DoRequest("2015-12-15", "HTTPS", "GET", "AK", "/triggers/" + clusterId, AlibabaCloud.TeaUtil.Common.StringifyMapValue(request.Query.ToMap()), request.Headers, null, runtime));
+        }
+
+        public async Task<GetKubernetesTriggerResponse> GetKubernetesTriggerWithOptionsAsync(string clusterId, GetKubernetesTriggerRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<GetKubernetesTriggerResponse>(await DoRequestAsync("2015-12-15", "HTTPS", "GET", "AK", "/triggers/" + clusterId, AlibabaCloud.TeaUtil.Common.StringifyMapValue(request.Query.ToMap()), request.Headers, null, runtime));
+        }
+
+        public GetKubernetesTriggerResponse GetKubernetesTrigger(string clusterId, GetKubernetesTriggerRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return GetKubernetesTriggerWithOptions(clusterId, request, runtime);
+        }
+
+        public async Task<GetKubernetesTriggerResponse> GetKubernetesTriggerAsync(string clusterId, GetKubernetesTriggerRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await GetKubernetesTriggerWithOptionsAsync(clusterId, request, runtime);
+        }
+
         public ListTagResourcesResponse ListTagResourcesWithOptions(ListTagResourcesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);

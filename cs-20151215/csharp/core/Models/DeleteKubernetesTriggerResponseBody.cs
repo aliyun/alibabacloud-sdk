@@ -8,18 +8,10 @@ using Tea;
 
 namespace AlibabaCloud.SDK.CS20151215.Models
 {
-    public class ModifyClusterResponseBody : TeaModel {
-        [NameInMap("cluster_id")]
-        [Validation(Required=true)]
-        public string ClusterId { get; set; }
-
+    public class DeleteKubernetesTriggerResponseBody : TeaModel {
         [NameInMap("RequestId")]
         [Validation(Required=true)]
         public string RequestId { get; set; }
-
-        [NameInMap("task_id")]
-        [Validation(Required=true)]
-        public string TaskId { get; set; }
 
     }
 

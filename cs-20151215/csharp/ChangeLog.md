@@ -1,3 +1,6 @@
+2020-07-24 Version: 0.3.2
+- Add param is_enterprise_security_group for CreateCluster.
+
 2020-07-06 Version: 0.3.0
 - Generated csharp 2015-12-15 for CS.
 

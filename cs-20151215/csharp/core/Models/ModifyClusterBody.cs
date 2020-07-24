@@ -10,27 +10,27 @@ namespace AlibabaCloud.SDK.CS20151215.Models
 {
     public class ModifyClusterBody : TeaModel {
         [NameInMap("deletion_protection")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public bool? DeletionProtection { get; set; }
 
         [NameInMap("ingress_loadbalancer_id")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string IngressLoadbalancerId { get; set; }
 
         [NameInMap("api_server_eip")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public bool? ApiServerEip { get; set; }
 
         [NameInMap("api_server_eip_id")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string ApiServerEipId { get; set; }
 
         [NameInMap("resource_group_id")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string ResourceGroupId { get; set; }
 
         [NameInMap("ingress_domain_rebinding")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string IngressDomainRebinding { get; set; }
 
     }
