@@ -80,8 +80,6 @@ class GetAsyncJobResultResponseData(TeaModel):
         self.result = map.get('Result')
         self.status = map.get('Status')
         return self
-
-
 class TrimDocumentRequest(TeaModel):
     def __init__(self, file_url=None, file_type=None, output_type=None):
         self.file_url = file_url
@@ -152,8 +150,6 @@ class TrimDocumentResponseData(TeaModel):
     def from_map(self, map={}):
         self.content = map.get('Content')
         return self
-
-
 class TrimDocumentAdvanceRequest(TeaModel):
     def __init__(self, file_urlobject=None, file_type=None, output_type=None):
         self.file_urlobject = file_urlobject
@@ -325,8 +321,6 @@ class RecognizeChinapassportResponseData(TeaModel):
         self.success = map.get('Success')
         self.type = map.get('Type')
         return self
-
-
 class RecognizeChinapassportAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -406,8 +400,6 @@ class RecognizeVerificationcodeResponseData(TeaModel):
     def from_map(self, map={}):
         self.content = map.get('Content')
         return self
-
-
 class RecognizeVerificationcodeAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -546,8 +538,6 @@ class RecognizePassportMRZResponseData(TeaModel):
         else:
             self.regions = None
         return self
-
-
 class RecognizePassportMRZAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -682,8 +672,6 @@ class RecognizeTakeoutOrderResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class RecognizeTakeoutOrderAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -749,8 +737,6 @@ class RecognizeQrCodeRequestTasks(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class RecognizeQrCodeResponse(TeaModel):
     def __init__(self, request_id=None, data=None):
         self.request_id = request_id
@@ -892,8 +878,6 @@ class RecognizeQrCodeResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class RecognizeVATInvoiceRequest(TeaModel):
     def __init__(self, file_url=None, file_type=None):
         self.file_url = file_url
@@ -1350,8 +1334,6 @@ class RecognizeVATInvoiceResponseData(TeaModel):
         else:
             self.box = None
         return self
-
-
 class RecognizeVATInvoiceAdvanceRequest(TeaModel):
     def __init__(self, file_urlobject=None, file_type=None):
         self.file_urlobject = file_urlobject
@@ -1526,8 +1508,6 @@ class RecognizeCharacterResponseData(TeaModel):
         else:
             self.results = None
         return self
-
-
 class RecognizeCharacterAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None, min_height=None, output_probability=None):
         self.image_urlobject = image_urlobject
@@ -1825,8 +1805,6 @@ class RecognizeTaxiInvoiceResponseData(TeaModel):
         else:
             self.invoices = None
         return self
-
-
 class RecognizeTaxiInvoiceAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -2174,8 +2152,6 @@ class RecognizeIdentityCardResponseData(TeaModel):
         else:
             self.back_result = None
         return self
-
-
 class RecognizeIdentityCardAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None, side=None):
         self.image_urlobject = image_urlobject
@@ -2346,8 +2322,6 @@ class RecognizeLicensePlateResponseData(TeaModel):
         else:
             self.plates = None
         return self
-
-
 class RecognizeLicensePlateAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -2592,8 +2566,6 @@ class RecognizeTableResponseData(TeaModel):
         else:
             self.tables = None
         return self
-
-
 class RecognizeTableAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None, output_format=None, use_finance_model=None, assure_direction=None, has_line=None, skip_detection=None):
         self.image_urlobject = image_urlobject
@@ -2825,8 +2797,6 @@ class RecognizeDrivingLicenseResponseData(TeaModel):
         else:
             self.back_result = None
         return self
-
-
 class RecognizeDrivingLicenseAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None, side=None):
         self.image_urlobject = image_urlobject
@@ -2918,8 +2888,6 @@ class RecognizeBankCardResponseData(TeaModel):
         self.card_number = map.get('CardNumber')
         self.valid_date = map.get('ValidDate')
         return self
-
-
 class RecognizeBankCardAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -3027,8 +2995,6 @@ class RecognizeTrainTicketResponseData(TeaModel):
         self.seat = map.get('Seat')
         self.price = map.get('Price')
         return self
-
-
 class RecognizeTrainTicketAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -3196,8 +3162,6 @@ class RecognizeDriverLicenseResponseData(TeaModel):
         else:
             self.back_result = None
         return self
-
-
 class RecognizeDriverLicenseAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None, side=None):
         self.image_urlobject = image_urlobject
@@ -3551,8 +3515,6 @@ class RecognizeAccountPageResponseData(TeaModel):
         else:
             self.title_area = None
         return self
-
-
 class RecognizeAccountPageAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -3778,8 +3740,6 @@ class RecognizeStampResponseData(TeaModel):
         else:
             self.results = None
         return self
-
-
 class RecognizeStampAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -3957,8 +3917,6 @@ class RecognizeBusinessCardResponseData(TeaModel):
         else:
             self.emails = None
         return self
-
-
 class RecognizeBusinessCardAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -4038,8 +3996,6 @@ class RecognizeVINCodeResponseData(TeaModel):
     def from_map(self, map={}):
         self.vin_code = map.get('VinCode')
         return self
-
-
 class RecognizeVINCodeAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -4323,8 +4279,6 @@ class RecognizeBusinessLicenseResponseData(TeaModel):
         else:
             self.qrcode = None
         return self
-
-
 class RecognizeBusinessLicenseAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
