@@ -13,6 +13,39 @@ class Client(RPCClient):
         self.check_config(config)
         self._endpoint = self.get_endpoint("kms", self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint)
 
+    def generate_and_export_data_key_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return kms_20160120_models.GenerateAndExportDataKeyResponse().from_map(self.do_request("GenerateAndExportDataKey", "HTTPS", "POST", "2016-01-20", "AK", None, request.to_map(), runtime))
+
+
+    def generate_and_export_data_key(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.generate_and_export_data_key_with_options(request, runtime)
+
+    def export_data_key_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return kms_20160120_models.ExportDataKeyResponse().from_map(self.do_request("ExportDataKey", "HTTPS", "POST", "2016-01-20", "AK", None, request.to_map(), runtime))
+
+
+    def export_data_key(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.export_data_key_with_options(request, runtime)
+
+    def re_encrypt_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return kms_20160120_models.ReEncryptResponse().from_map(self.do_request("ReEncrypt", "HTTPS", "POST", "2016-01-20", "AK", None, request.to_map(), runtime))
+
+
+    def re_encrypt(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.re_encrypt_with_options(request, runtime)
+
     def list_secrets_with_options(self, request, runtime):
         UtilClient.validate_model(request)
         return kms_20160120_models.ListSecretsResponse().from_map(self.do_request("ListSecrets", "HTTPS", "POST", "2016-01-20", "AK", None, request.to_map(), runtime))

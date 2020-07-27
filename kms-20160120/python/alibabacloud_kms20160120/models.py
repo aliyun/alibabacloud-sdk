@@ -2,6 +2,203 @@
 from Tea.model import TeaModel
 
 
+class GenerateAndExportDataKeyRequest(TeaModel):
+    def __init__(self, key_id=None, key_spec=None, number_of_bytes=None, encryption_context=None, public_key_blob=None, wrapping_key_spec=None, wrapping_algorithm=None):
+        self.key_id = key_id
+        self.key_spec = key_spec
+        self.number_of_bytes = number_of_bytes
+        self.encryption_context = {}
+        self.public_key_blob = public_key_blob
+        self.wrapping_key_spec = wrapping_key_spec
+        self.wrapping_algorithm = wrapping_algorithm
+
+    def validate(self):
+        self.validate_required(self.key_id, 'key_id')
+        self.validate_required(self.public_key_blob, 'public_key_blob')
+        self.validate_required(self.wrapping_key_spec, 'wrapping_key_spec')
+        self.validate_required(self.wrapping_algorithm, 'wrapping_algorithm')
+
+    def to_map(self):
+        result = {}
+        result['KeyId'] = self.key_id
+        result['KeySpec'] = self.key_spec
+        result['NumberOfBytes'] = self.number_of_bytes
+        result['EncryptionContext'] = self.encryption_context
+        result['PublicKeyBlob'] = self.public_key_blob
+        result['WrappingKeySpec'] = self.wrapping_key_spec
+        result['WrappingAlgorithm'] = self.wrapping_algorithm
+        return result
+
+    def from_map(self, map={}):
+        self.key_id = map.get('KeyId')
+        self.key_spec = map.get('KeySpec')
+        self.number_of_bytes = map.get('NumberOfBytes')
+        self.encryption_context = map.get('EncryptionContext')
+        self.public_key_blob = map.get('PublicKeyBlob')
+        self.wrapping_key_spec = map.get('WrappingKeySpec')
+        self.wrapping_algorithm = map.get('WrappingAlgorithm')
+        return self
+
+
+class GenerateAndExportDataKeyResponse(TeaModel):
+    def __init__(self, ciphertext_blob=None, key_id=None, exported_data_key=None, request_id=None, key_version_id=None):
+        self.ciphertext_blob = ciphertext_blob
+        self.key_id = key_id
+        self.exported_data_key = exported_data_key
+        self.request_id = request_id
+        self.key_version_id = key_version_id
+
+    def validate(self):
+        self.validate_required(self.ciphertext_blob, 'ciphertext_blob')
+        self.validate_required(self.key_id, 'key_id')
+        self.validate_required(self.exported_data_key, 'exported_data_key')
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.key_version_id, 'key_version_id')
+
+    def to_map(self):
+        result = {}
+        result['CiphertextBlob'] = self.ciphertext_blob
+        result['KeyId'] = self.key_id
+        result['ExportedDataKey'] = self.exported_data_key
+        result['RequestId'] = self.request_id
+        result['KeyVersionId'] = self.key_version_id
+        return result
+
+    def from_map(self, map={}):
+        self.ciphertext_blob = map.get('CiphertextBlob')
+        self.key_id = map.get('KeyId')
+        self.exported_data_key = map.get('ExportedDataKey')
+        self.request_id = map.get('RequestId')
+        self.key_version_id = map.get('KeyVersionId')
+        return self
+
+
+class ExportDataKeyRequest(TeaModel):
+    def __init__(self, ciphertext_blob=None, encryption_context=None, public_key_blob=None, wrapping_key_spec=None, wrapping_algorithm=None):
+        self.ciphertext_blob = ciphertext_blob
+        self.encryption_context = {}
+        self.public_key_blob = public_key_blob
+        self.wrapping_key_spec = wrapping_key_spec
+        self.wrapping_algorithm = wrapping_algorithm
+
+    def validate(self):
+        self.validate_required(self.ciphertext_blob, 'ciphertext_blob')
+        self.validate_required(self.public_key_blob, 'public_key_blob')
+        self.validate_required(self.wrapping_key_spec, 'wrapping_key_spec')
+        self.validate_required(self.wrapping_algorithm, 'wrapping_algorithm')
+
+    def to_map(self):
+        result = {}
+        result['CiphertextBlob'] = self.ciphertext_blob
+        result['EncryptionContext'] = self.encryption_context
+        result['PublicKeyBlob'] = self.public_key_blob
+        result['WrappingKeySpec'] = self.wrapping_key_spec
+        result['WrappingAlgorithm'] = self.wrapping_algorithm
+        return result
+
+    def from_map(self, map={}):
+        self.ciphertext_blob = map.get('CiphertextBlob')
+        self.encryption_context = map.get('EncryptionContext')
+        self.public_key_blob = map.get('PublicKeyBlob')
+        self.wrapping_key_spec = map.get('WrappingKeySpec')
+        self.wrapping_algorithm = map.get('WrappingAlgorithm')
+        return self
+
+
+class ExportDataKeyResponse(TeaModel):
+    def __init__(self, exported_data_key=None, key_id=None, request_id=None, key_version_id=None):
+        self.exported_data_key = exported_data_key
+        self.key_id = key_id
+        self.request_id = request_id
+        self.key_version_id = key_version_id
+
+    def validate(self):
+        self.validate_required(self.exported_data_key, 'exported_data_key')
+        self.validate_required(self.key_id, 'key_id')
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.key_version_id, 'key_version_id')
+
+    def to_map(self):
+        result = {}
+        result['ExportedDataKey'] = self.exported_data_key
+        result['KeyId'] = self.key_id
+        result['RequestId'] = self.request_id
+        result['KeyVersionId'] = self.key_version_id
+        return result
+
+    def from_map(self, map={}):
+        self.exported_data_key = map.get('ExportedDataKey')
+        self.key_id = map.get('KeyId')
+        self.request_id = map.get('RequestId')
+        self.key_version_id = map.get('KeyVersionId')
+        return self
+
+
+class ReEncryptRequest(TeaModel):
+    def __init__(self, ciphertext_blob=None, source_key_id=None, source_key_version_id=None, source_encryption_algorithm=None, source_encryption_context=None, destination_key_id=None, destination_encryption_context=None):
+        self.ciphertext_blob = ciphertext_blob
+        self.source_key_id = source_key_id
+        self.source_key_version_id = source_key_version_id
+        self.source_encryption_algorithm = source_encryption_algorithm
+        self.source_encryption_context = {}
+        self.destination_key_id = destination_key_id
+        self.destination_encryption_context = {}
+
+    def validate(self):
+        self.validate_required(self.ciphertext_blob, 'ciphertext_blob')
+        self.validate_required(self.destination_key_id, 'destination_key_id')
+
+    def to_map(self):
+        result = {}
+        result['CiphertextBlob'] = self.ciphertext_blob
+        result['SourceKeyId'] = self.source_key_id
+        result['SourceKeyVersionId'] = self.source_key_version_id
+        result['SourceEncryptionAlgorithm'] = self.source_encryption_algorithm
+        result['SourceEncryptionContext'] = self.source_encryption_context
+        result['DestinationKeyId'] = self.destination_key_id
+        result['DestinationEncryptionContext'] = self.destination_encryption_context
+        return result
+
+    def from_map(self, map={}):
+        self.ciphertext_blob = map.get('CiphertextBlob')
+        self.source_key_id = map.get('SourceKeyId')
+        self.source_key_version_id = map.get('SourceKeyVersionId')
+        self.source_encryption_algorithm = map.get('SourceEncryptionAlgorithm')
+        self.source_encryption_context = map.get('SourceEncryptionContext')
+        self.destination_key_id = map.get('DestinationKeyId')
+        self.destination_encryption_context = map.get('DestinationEncryptionContext')
+        return self
+
+
+class ReEncryptResponse(TeaModel):
+    def __init__(self, request_id=None, key_id=None, key_version_id=None, ciphertext_blob=None):
+        self.request_id = request_id
+        self.key_id = key_id
+        self.key_version_id = key_version_id
+        self.ciphertext_blob = ciphertext_blob
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.key_id, 'key_id')
+        self.validate_required(self.key_version_id, 'key_version_id')
+        self.validate_required(self.ciphertext_blob, 'ciphertext_blob')
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        result['KeyId'] = self.key_id
+        result['KeyVersionId'] = self.key_version_id
+        result['CiphertextBlob'] = self.ciphertext_blob
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        self.key_id = map.get('KeyId')
+        self.key_version_id = map.get('KeyVersionId')
+        self.ciphertext_blob = map.get('CiphertextBlob')
+        return self
+
+
 class ListSecretsRequest(TeaModel):
     def __init__(self, fetch_tags=None, page_number=None, page_size=None):
         self.fetch_tags = fetch_tags
@@ -194,8 +391,6 @@ class ListSecretsResponseSecretList(TeaModel):
         else:
             self.secret = None
         return self
-
-
 class ListSecretVersionIdsRequest(TeaModel):
     def __init__(self, secret_name=None, include_deprecated=None, page_number=None, page_size=None):
         self.secret_name = secret_name
@@ -360,8 +555,6 @@ class ListSecretVersionIdsResponseVersionIds(TeaModel):
         else:
             self.version_id = None
         return self
-
-
 class DescribeSecretRequest(TeaModel):
     def __init__(self, secret_name=None, fetch_tags=None):
         self.secret_name = secret_name
@@ -492,8 +685,6 @@ class DescribeSecretResponseTags(TeaModel):
         else:
             self.tag = None
         return self
-
-
 class UpdateSecretRequest(TeaModel):
     def __init__(self, secret_name=None, description=None):
         self.secret_name = secret_name
@@ -633,8 +824,6 @@ class GetSecretValueResponseVersionStages(TeaModel):
         else:
             self.version_stage = None
         return self
-
-
 class GetRandomPasswordRequest(TeaModel):
     def __init__(self, password_length=None, exclude_characters=None, exclude_lowercase=None, exclude_uppercase=None, exclude_numbers=None, exclude_punctuation=None, require_each_included_type=None):
         self.password_length = password_length
@@ -889,8 +1078,6 @@ class PutSecretValueResponseVersionStages(TeaModel):
         else:
             self.version_stage = None
         return self
-
-
 class DeleteSecretRequest(TeaModel):
     def __init__(self, secret_name=None, force_delete_without_recovery=None, recovery_window_in_days=None):
         self.secret_name = secret_name
@@ -1440,8 +1627,6 @@ class DescribeKeyVersionResponseKeyVersion(TeaModel):
         self.key_version_id = map.get('KeyVersionId')
         self.creation_date = map.get('CreationDate')
         return self
-
-
 class UpdateRotationPolicyRequest(TeaModel):
     def __init__(self, key_id=None, enable_automatic_rotation=None, rotation_interval=None):
         self.key_id = key_id
@@ -1604,8 +1789,6 @@ class ListKeyVersionsResponseKeyVersions(TeaModel):
         else:
             self.key_version = None
         return self
-
-
 class CreateKeyVersionRequest(TeaModel):
     def __init__(self, key_id=None):
         self.key_id = key_id
@@ -1676,8 +1859,6 @@ class CreateKeyVersionResponseKeyVersion(TeaModel):
         self.key_version_id = map.get('KeyVersionId')
         self.creation_date = map.get('CreationDate')
         return self
-
-
 class DescribeServiceRequest(TeaModel):
     def __init__(self):
         pass
@@ -1914,8 +2095,6 @@ class DescribeServiceResponseKeySpecs(TeaModel):
         else:
             self.key_spec = None
         return self
-
-
 class UpdateAliasRequest(TeaModel):
     def __init__(self, key_id=None, alias_name=None):
         self.key_id = key_id
@@ -2174,8 +2353,6 @@ class ListResourceTagsResponseTags(TeaModel):
         else:
             self.tag = None
         return self
-
-
 class ListKeysRequest(TeaModel):
     def __init__(self, page_number=None, page_size=None):
         self.page_number = page_number
@@ -2197,17 +2374,21 @@ class ListKeysRequest(TeaModel):
 
 
 class ListKeysResponse(TeaModel):
-    def __init__(self, total_count=None, page_number=None, page_size=None, request_id=None):
+    def __init__(self, total_count=None, page_number=None, page_size=None, request_id=None, keys=None):
         self.total_count = total_count
         self.page_number = page_number
         self.page_size = page_size
         self.request_id = request_id
+        self.keys = keys
 
     def validate(self):
         self.validate_required(self.total_count, 'total_count')
         self.validate_required(self.page_number, 'page_number')
         self.validate_required(self.page_size, 'page_size')
         self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.keys, 'keys')
+        if self.keys:
+            self.keys.validate()
 
     def to_map(self):
         result = {}
@@ -2215,6 +2396,10 @@ class ListKeysResponse(TeaModel):
         result['PageNumber'] = self.page_number
         result['PageSize'] = self.page_size
         result['RequestId'] = self.request_id
+        if self.keys is not None:
+            result['Keys'] = self.keys.to_map()
+        else:
+            result['Keys'] = None
         return result
 
     def from_map(self, map={}):
@@ -2222,9 +2407,66 @@ class ListKeysResponse(TeaModel):
         self.page_number = map.get('PageNumber')
         self.page_size = map.get('PageSize')
         self.request_id = map.get('RequestId')
+        if map.get('Keys') is not None:
+            temp_model = ListKeysResponseKeys()
+            self.keys = temp_model.from_map(map['Keys'])
+        else:
+            self.keys = None
         return self
 
 
+class ListKeysResponseKeysKey(TeaModel):
+    def __init__(self, key_id=None, key_arn=None):
+        self.key_id = key_id
+        self.key_arn = key_arn
+
+    def validate(self):
+        self.validate_required(self.key_id, 'key_id')
+        self.validate_required(self.key_arn, 'key_arn')
+
+    def to_map(self):
+        result = {}
+        result['KeyId'] = self.key_id
+        result['KeyArn'] = self.key_arn
+        return result
+
+    def from_map(self, map={}):
+        self.key_id = map.get('KeyId')
+        self.key_arn = map.get('KeyArn')
+        return self
+
+
+class ListKeysResponseKeys(TeaModel):
+    def __init__(self, key=None):
+        self.key = []
+
+    def validate(self):
+        self.validate_required(self.key, 'key')
+        if self.key:
+            for k in self.key:
+                if k :
+                    k.validate()
+
+    def to_map(self):
+        result = {}
+        result['Key'] = []
+        if self.key is not None:
+            for k in self.key:
+                result['Key'].append(k.to_map() if k else None)
+        else:
+            result['Key'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.key = []
+        if map.get('Key') is not None:
+            for k in map.get('Key'):
+                temp_model = ListKeysResponseKeysKey()
+                temp_model = temp_model.from_map(k)
+                self.key.append(temp_model)
+        else:
+            self.key = None
+        return self
 class ListAliasesByKeyIdRequest(TeaModel):
     def __init__(self, key_id=None, page_number=None, page_size=None):
         self.key_id = key_id
@@ -2346,8 +2588,6 @@ class ListAliasesByKeyIdResponseAliases(TeaModel):
         else:
             self.alias = None
         return self
-
-
 class ListAliasesRequest(TeaModel):
     def __init__(self, page_number=None, page_size=None):
         self.page_number = page_number
@@ -2466,8 +2706,6 @@ class ListAliasesResponseAliases(TeaModel):
         else:
             self.alias = None
         return self
-
-
 class ImportKeyMaterialRequest(TeaModel):
     def __init__(self, key_id=None, encrypted_key_material=None, import_token=None, key_material_expire_unix=None):
         self.key_id = key_id
@@ -2845,8 +3083,6 @@ class DescribeRegionsResponseRegions(TeaModel):
         else:
             self.region = None
         return self
-
-
 class DescribeKeyRequest(TeaModel):
     def __init__(self, key_id=None):
         self.key_id = key_id
@@ -2973,8 +3209,6 @@ class DescribeKeyResponseKeyMetadata(TeaModel):
         self.next_rotation_date = map.get('NextRotationDate')
         self.key_spec = map.get('KeySpec')
         return self
-
-
 class DeleteKeyMaterialRequest(TeaModel):
     def __init__(self, key_id=None):
         self.key_id = key_id
@@ -3236,8 +3470,6 @@ class CreateKeyResponseKeyMetadata(TeaModel):
         self.next_rotation_date = map.get('NextRotationDate')
         self.key_spec = map.get('KeySpec')
         return self
-
-
 class CreateAliasRequest(TeaModel):
     def __init__(self, key_id=None, alias_name=None):
         self.key_id = key_id
