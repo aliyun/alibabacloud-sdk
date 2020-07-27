@@ -89,8 +89,6 @@ class DescribeRegionsResponseRegions(TeaModel):
         else:
             self.zones = None
         return self
-
-
 class DescribeImageCachesRequest(TeaModel):
     def __init__(self, region_id=None, image_cache_id=None, image_cache_name=None, snapshot_id=None, image=None):
         self.region_id = region_id
@@ -275,8 +273,6 @@ class DescribeImageCachesResponseImageCaches(TeaModel):
         else:
             self.images = None
         return self
-
-
 class DeleteImageCacheRequest(TeaModel):
     def __init__(self, region_id=None, image_cache_id=None, client_token=None):
         self.region_id = region_id
@@ -421,8 +417,6 @@ class CreateImageCacheRequestImageRegistryCredential(TeaModel):
         self.user_name = map.get('UserName')
         self.password = map.get('Password')
         return self
-
-
 class CreateImageCacheResponse(TeaModel):
     def __init__(self, request_id=None, image_cache_id=None, container_group_id=None):
         self.request_id = request_id
@@ -2337,8 +2331,6 @@ class DescribeMultiContainerGroupMetricResponseMonitorDatas(TeaModel):
         else:
             self.container_infos = None
         return self
-
-
 class DescribeContainerGroupMetricRequest(TeaModel):
     def __init__(self, region_id=None, container_group_id=None, start_time=None, end_time=None, period=None):
         self.region_id = region_id
@@ -2717,8 +2709,6 @@ class DescribeContainerGroupMetricResponseRecords(TeaModel):
         else:
             self.network = None
         return self
-
-
 class UpdateContainerGroupByTemplateRequest(TeaModel):
     def __init__(self, region_id=None, template=None, client_token=None):
         self.region_id = region_id
@@ -4419,8 +4409,6 @@ class ExportContainerGroupTemplateResponseTemplate(TeaModel):
         else:
             self.spec = None
         return self
-
-
 class RestartContainerGroupRequest(TeaModel):
     def __init__(self, region_id=None, container_group_id=None, client_token=None):
         self.region_id = region_id
@@ -5706,8 +5694,6 @@ class UpdateContainerGroupRequestImageRegistryCredential(TeaModel):
         self.user_name = map.get('UserName')
         self.password = map.get('Password')
         return self
-
-
 class UpdateContainerGroupResponse(TeaModel):
     def __init__(self, request_id=None):
         self.request_id = request_id
@@ -6127,8 +6113,6 @@ class DescribeContainerGroupPriceResponsePriceInfo(TeaModel):
         else:
             self.price = None
         return self
-
-
 class ExecContainerCommandRequest(TeaModel):
     def __init__(self, region_id=None, container_group_id=None, container_name=None, command=None, _tty=None, stdin=None):
         self.region_id = region_id
@@ -8039,8 +8023,6 @@ class CreateContainerGroupRequestSecurityContext(TeaModel):
         else:
             self.sysctl = None
         return self
-
-
 class CreateContainerGroupResponse(TeaModel):
     def __init__(self, request_id=None, container_group_id=None):
         self.request_id = request_id
@@ -8144,8 +8126,6 @@ class DescribeContainerGroupsRequestTag(TeaModel):
         self.key = map.get('Key')
         self.value = map.get('Value')
         return self
-
-
 class DescribeContainerGroupsResponse(TeaModel):
     def __init__(self, request_id=None, next_token=None, total_count=None, container_groups=None):
         self.request_id = request_id
@@ -9955,8 +9935,6 @@ class DescribeContainerGroupsResponseContainerGroups(TeaModel):
         else:
             self.eci_security_context = None
         return self
-
-
 class DeleteContainerGroupRequest(TeaModel):
     def __init__(self, region_id=None, container_group_id=None, client_token=None):
         self.region_id = region_id
