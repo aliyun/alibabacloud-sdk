@@ -23,7 +23,7 @@ import os
 """
 setup module for alibabacloud_objectdet20191230.
 
-Created on 05/06/2020
+Created on 27/07/2020
 
 @author: Alibaba Cloud SDK
 """
@@ -37,7 +37,7 @@ URL = "https://github.com/aliyun/alibabacloud-sdk"
 
 TOPDIR = os.path.dirname(__file__) or "."
 VERSION = __import__(PACKAGE).__version__
-REQUIRES = ["alibabacloud_oss_sdk>=0.0.2","alibabacloud_openplatform20191219>=1.0.2","alibabacloud_rpc_util>=0.0.2","alibabacloud_tea_rpc>=0.0.1","alibabacloud_oss_util>=0.0.1","alibabacloud_tea_util>=0.0.2","alibabacloud_tea_fileform>=0.0.1","alibabacloud_endpoint_util>=0.0.2"]
+REQUIRES = ["alibabacloud_oss_sdk==0.0.2","alibabacloud_openplatform20191219==1.0.2","alibabacloud_rpc_util==0.0.3","alibabacloud_tea_rpc==0.0.3","alibabacloud_oss_util==0.0.1","alibabacloud_tea_util==0.1.2","alibabacloud_tea_fileform==0.0.1","alibabacloud_endpoint_util==0.0.2"]
 
 desc_file = open("README.md", encoding='utf-8')
 try:

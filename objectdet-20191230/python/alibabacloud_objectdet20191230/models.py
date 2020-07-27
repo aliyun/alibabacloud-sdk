@@ -54,8 +54,6 @@ class GenerateVehicleRepairPlanRequestDamageImageList(TeaModel):
         self.image_url = map.get('ImageUrl')
         self.create_time_stamp = map.get('CreateTimeStamp')
         return self
-
-
 class GenerateVehicleRepairPlanResponse(TeaModel):
     def __init__(self, request_id=None, http_code=None, code=None, error_message=None, success=None, data=None):
         self.request_id = request_id
@@ -117,8 +115,6 @@ class GenerateVehicleRepairPlanResponseData(TeaModel):
     def from_map(self, map={}):
         self.task_id = map.get('TaskId')
         return self
-
-
 class GetVehicleRepairPlanRequest(TeaModel):
     def __init__(self, task_id=None, car_number_image=None, vin_code_image=None):
         self.task_id = task_id
@@ -280,8 +276,6 @@ class GetVehicleRepairPlanResponseData(TeaModel):
         else:
             self.repair_parts = None
         return self
-
-
 class DetectTransparentImageRequest(TeaModel):
     def __init__(self, image_url=None):
         self.image_url = image_url
@@ -377,8 +371,6 @@ class DetectTransparentImageResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class DetectTransparentImageAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -517,8 +509,6 @@ class DetectObjectResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class DetectObjectAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -631,8 +621,6 @@ class DetectWhiteBaseImageResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class DetectWhiteBaseImageAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -753,8 +741,6 @@ class ClassifyVehicleInsuranceResponseData(TeaModel):
         else:
             self.labels = None
         return self
-
-
 class ClassifyVehicleInsuranceAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -889,8 +875,6 @@ class RecognizeVehicleDashboardResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class RecognizeVehicleDashboardAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -1035,8 +1019,6 @@ class RecognizeVehicleDamageResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class RecognizeVehicleDamageAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -1181,8 +1163,6 @@ class RecognizeVehiclePartsResponseData(TeaModel):
         else:
             self.origin_shapes = None
         return self
-
-
 class RecognizeVehiclePartsAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -1325,8 +1305,6 @@ class DetectVehicleResponseData(TeaModel):
         else:
             self.detect_object_info_list = None
         return self
-
-
 class DetectVehicleAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -1444,8 +1422,6 @@ class DetectMainBodyResponseData(TeaModel):
         else:
             self.location = None
         return self
-
-
 class DetectMainBodyAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
