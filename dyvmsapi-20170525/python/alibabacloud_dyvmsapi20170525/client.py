@@ -11,7 +11,7 @@ class Client(RPCClient):
         super().__init__(config)
         self._endpoint_rule = "central"
         self.check_config(config)
-        self._endpoint = self.get_endpoint(self._product_id, self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint)
+        self._endpoint = self.get_endpoint("dyvmsapi", self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint)
 
     def list_robot_task_calls_with_options(self, request, runtime):
         UtilClient.validate_model(request)

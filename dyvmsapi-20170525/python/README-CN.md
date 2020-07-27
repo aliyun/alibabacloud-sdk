@@ -2,7 +2,7 @@
 
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
-## Alibaba Cloud ${productId} SDK for Python
+## Alibaba Cloud Dyvmsapi SDK for Python
 
 ## 安装
 

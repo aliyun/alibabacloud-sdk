@@ -3,11 +3,7 @@ from Tea.model import TeaModel
 
 
 class ListRobotTaskCallsRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, page_no=None, page_size=None, task_id=None, duration_from=None, duration_to=None, dialog_count_from=None, dialog_count_to=None, hangup_direction=None, call_result=None, called=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, page_no=None, page_size=None, task_id=None, duration_from=None, duration_to=None, dialog_count_from=None, dialog_count_to=None, hangup_direction=None, call_result=None, called=None):
         self.page_no = page_no
         self.page_size = page_size
         self.task_id = task_id
@@ -24,10 +20,6 @@ class ListRobotTaskCallsRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['PageNo'] = self.page_no
         result['PageSize'] = self.page_size
         result['TaskId'] = self.task_id
@@ -41,10 +33,6 @@ class ListRobotTaskCallsRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.page_no = map.get('PageNo')
         self.page_size = map.get('PageSize')
         self.task_id = map.get('TaskId')
@@ -100,11 +88,7 @@ class ListRobotTaskCallsResponse(TeaModel):
 
 
 class DoRtcNumberAuthRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, phone_number=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, phone_number=None):
         self.phone_number = phone_number
 
     def validate(self):
@@ -112,18 +96,10 @@ class DoRtcNumberAuthRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['PhoneNumber'] = self.phone_number
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.phone_number = map.get('PhoneNumber')
         return self
 
@@ -158,11 +134,7 @@ class DoRtcNumberAuthResponse(TeaModel):
 
 
 class UndoRtcNumberAuthRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, phone_number=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, phone_number=None):
         self.phone_number = phone_number
 
     def validate(self):
@@ -170,18 +142,10 @@ class UndoRtcNumberAuthRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['PhoneNumber'] = self.phone_number
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.phone_number = map.get('PhoneNumber')
         return self
 
@@ -216,11 +180,7 @@ class UndoRtcNumberAuthResponse(TeaModel):
 
 
 class QueryRtcNumberAuthStatusRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, phone_number=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, phone_number=None):
         self.phone_number = phone_number
 
     def validate(self):
@@ -228,18 +188,10 @@ class QueryRtcNumberAuthStatusRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['PhoneNumber'] = self.phone_number
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.phone_number = map.get('PhoneNumber')
         return self
 
@@ -274,11 +226,7 @@ class QueryRtcNumberAuthStatusResponse(TeaModel):
 
 
 class ListOrderedNumbersRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, prod_code=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, prod_code=None):
         self.prod_code = prod_code
 
     def validate(self):
@@ -286,18 +234,10 @@ class ListOrderedNumbersRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['ProdCode'] = self.prod_code
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.prod_code = map.get('ProdCode')
         return self
 
@@ -342,11 +282,7 @@ class ListOrderedNumbersResponse(TeaModel):
 
 
 class StartMicroOutboundRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, prod_code=None, account_type=None, account_id=None, command_code=None, calling_number=None, called_number=None, ext_info=None, app_name=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, prod_code=None, account_type=None, account_id=None, command_code=None, calling_number=None, called_number=None, ext_info=None, app_name=None):
         self.prod_code = prod_code
         self.account_type = account_type
         self.account_id = account_id
@@ -361,10 +297,6 @@ class StartMicroOutboundRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['ProdCode'] = self.prod_code
         result['AccountType'] = self.account_type
         result['AccountId'] = self.account_id
@@ -376,10 +308,6 @@ class StartMicroOutboundRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.prod_code = map.get('ProdCode')
         self.account_type = map.get('AccountType')
         self.account_id = map.get('AccountId')
@@ -429,11 +357,7 @@ class StartMicroOutboundResponse(TeaModel):
 
 
 class ListOutboundStrategiesRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, prod_code=None, bu_id=None, keyword=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, prod_code=None, bu_id=None, keyword=None):
         self.prod_code = prod_code
         self.bu_id = bu_id
         self.keyword = keyword
@@ -443,20 +367,12 @@ class ListOutboundStrategiesRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['ProdCode'] = self.prod_code
         result['BuId'] = self.bu_id
         result['Keyword'] = self.keyword
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.prod_code = map.get('ProdCode')
         self.bu_id = map.get('BuId')
         self.keyword = map.get('Keyword')
@@ -607,14 +523,8 @@ class ListOutboundStrategiesResponseOutboundStrategies(TeaModel):
         self.process = map.get('Process')
         self.success_rate = map.get('SuccessRate')
         return self
-
-
 class DescribeRecordDataRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, prod_code=None, account_type=None, account_id=None, acid=None, sec_level=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, prod_code=None, account_type=None, account_id=None, acid=None, sec_level=None):
         self.prod_code = prod_code
         self.account_type = account_type
         self.account_id = account_id
@@ -626,10 +536,6 @@ class DescribeRecordDataRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['ProdCode'] = self.prod_code
         result['AccountType'] = self.account_type
         result['AccountId'] = self.account_id
@@ -638,10 +544,6 @@ class DescribeRecordDataRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.prod_code = map.get('ProdCode')
         self.account_type = map.get('AccountType')
         self.account_id = map.get('AccountId')
@@ -688,11 +590,7 @@ class DescribeRecordDataResponse(TeaModel):
 
 
 class QueryVoipNumberBindInfosRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, phone_number=None, voip_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, phone_number=None, voip_id=None):
         self.phone_number = phone_number
         self.voip_id = voip_id
 
@@ -701,19 +599,11 @@ class QueryVoipNumberBindInfosRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['PhoneNumber'] = self.phone_number
         result['VoipId'] = self.voip_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.phone_number = map.get('PhoneNumber')
         self.voip_id = map.get('VoipId')
         return self
@@ -749,11 +639,7 @@ class QueryVoipNumberBindInfosResponse(TeaModel):
 
 
 class ReportVoipProblemsRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, channel_id=None, voip_id=None, title=None, desc=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, channel_id=None, voip_id=None, title=None, desc=None):
         self.channel_id = channel_id
         self.voip_id = voip_id
         self.title = title
@@ -766,10 +652,6 @@ class ReportVoipProblemsRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['ChannelId'] = self.channel_id
         result['VoipId'] = self.voip_id
         result['Title'] = self.title
@@ -777,10 +659,6 @@ class ReportVoipProblemsRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.channel_id = map.get('ChannelId')
         self.voip_id = map.get('VoipId')
         self.title = map.get('Title')
@@ -818,11 +696,7 @@ class ReportVoipProblemsResponse(TeaModel):
 
 
 class UnbindNumberAndVoipIdRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, phone_number=None, voip_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, phone_number=None, voip_id=None):
         self.phone_number = phone_number
         self.voip_id = voip_id
 
@@ -832,19 +706,11 @@ class UnbindNumberAndVoipIdRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['PhoneNumber'] = self.phone_number
         result['VoipId'] = self.voip_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.phone_number = map.get('PhoneNumber')
         self.voip_id = map.get('VoipId')
         return self
@@ -880,11 +746,7 @@ class UnbindNumberAndVoipIdResponse(TeaModel):
 
 
 class BindNumberAndVoipIdRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, phone_number=None, voip_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, phone_number=None, voip_id=None):
         self.phone_number = phone_number
         self.voip_id = voip_id
 
@@ -894,19 +756,11 @@ class BindNumberAndVoipIdRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['PhoneNumber'] = self.phone_number
         result['VoipId'] = self.voip_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.phone_number = map.get('PhoneNumber')
         self.voip_id = map.get('VoipId')
         return self
@@ -942,11 +796,7 @@ class BindNumberAndVoipIdResponse(TeaModel):
 
 
 class CancelRobotTaskRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, task_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, task_id=None):
         self.task_id = task_id
 
     def validate(self):
@@ -954,18 +804,10 @@ class CancelRobotTaskRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['TaskId'] = self.task_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.task_id = map.get('TaskId')
         return self
 
@@ -1000,11 +842,7 @@ class CancelRobotTaskResponse(TeaModel):
 
 
 class UploadRobotTaskCalledFileRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, id=None, called_number=None, tts_param=None, tts_param_head=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, id=None, called_number=None, tts_param=None, tts_param_head=None):
         self.id = id
         self.called_number = called_number
         self.tts_param = tts_param
@@ -1016,10 +854,6 @@ class UploadRobotTaskCalledFileRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['Id'] = self.id
         result['CalledNumber'] = self.called_number
         result['TtsParam'] = self.tts_param
@@ -1027,10 +861,6 @@ class UploadRobotTaskCalledFileRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.id = map.get('Id')
         self.called_number = map.get('CalledNumber')
         self.tts_param = map.get('TtsParam')
@@ -1068,11 +898,7 @@ class UploadRobotTaskCalledFileResponse(TeaModel):
 
 
 class DeleteRobotTaskRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, task_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, task_id=None):
         self.task_id = task_id
 
     def validate(self):
@@ -1080,18 +906,10 @@ class DeleteRobotTaskRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['TaskId'] = self.task_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.task_id = map.get('TaskId')
         return self
 
@@ -1126,11 +944,7 @@ class DeleteRobotTaskResponse(TeaModel):
 
 
 class StopRobotTaskRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, task_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, task_id=None):
         self.task_id = task_id
 
     def validate(self):
@@ -1138,18 +952,10 @@ class StopRobotTaskRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['TaskId'] = self.task_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.task_id = map.get('TaskId')
         return self
 
@@ -1184,11 +990,7 @@ class StopRobotTaskResponse(TeaModel):
 
 
 class QueryRobotTaskCallDetailRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, task_id=None, callee=None, query_date=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, task_id=None, callee=None, query_date=None):
         self.task_id = task_id
         self.callee = callee
         self.query_date = query_date
@@ -1200,20 +1002,12 @@ class QueryRobotTaskCallDetailRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['TaskId'] = self.task_id
         result['Callee'] = self.callee
         result['QueryDate'] = self.query_date
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.task_id = map.get('TaskId')
         self.callee = map.get('Callee')
         self.query_date = map.get('QueryDate')
@@ -1250,28 +1044,17 @@ class QueryRobotTaskCallDetailResponse(TeaModel):
 
 
 class QueryRobotv2AllListRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self):
+        pass
 
     def validate(self):
         pass
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         return self
 
 
@@ -1305,11 +1088,7 @@ class QueryRobotv2AllListResponse(TeaModel):
 
 
 class QueryRobotTaskDetailRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, id=None):
         self.id = id
 
     def validate(self):
@@ -1317,18 +1096,10 @@ class QueryRobotTaskDetailRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['Id'] = self.id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.id = map.get('Id')
         return self
 
@@ -1363,11 +1134,7 @@ class QueryRobotTaskDetailResponse(TeaModel):
 
 
 class QueryRobotTaskCallListRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, page_no=None, page_size=None, task_id=None, duration_from=None, duration_to=None, dialog_count_from=None, dialog_count_to=None, hangup_direction=None, call_result=None, called=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, page_no=None, page_size=None, task_id=None, duration_from=None, duration_to=None, dialog_count_from=None, dialog_count_to=None, hangup_direction=None, call_result=None, called=None):
         self.page_no = page_no
         self.page_size = page_size
         self.task_id = task_id
@@ -1384,10 +1151,6 @@ class QueryRobotTaskCallListRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['PageNo'] = self.page_no
         result['PageSize'] = self.page_size
         result['TaskId'] = self.task_id
@@ -1401,10 +1164,6 @@ class QueryRobotTaskCallListRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.page_no = map.get('PageNo')
         self.page_size = map.get('PageSize')
         self.task_id = map.get('TaskId')
@@ -1448,11 +1207,7 @@ class QueryRobotTaskCallListResponse(TeaModel):
 
 
 class StartRobotTaskRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, task_id=None, schedule_time=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, task_id=None, schedule_time=None):
         self.task_id = task_id
         self.schedule_time = schedule_time
 
@@ -1461,19 +1216,11 @@ class StartRobotTaskRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['TaskId'] = self.task_id
         result['ScheduleTime'] = self.schedule_time
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.task_id = map.get('TaskId')
         self.schedule_time = map.get('ScheduleTime')
         return self
@@ -1509,11 +1256,7 @@ class StartRobotTaskResponse(TeaModel):
 
 
 class QueryRobotTaskListRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, task_name=None, status=None, time=None, page_size=None, page_no=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, task_name=None, status=None, time=None, page_size=None, page_no=None):
         self.task_name = task_name
         self.status = status
         self.time = time
@@ -1525,10 +1268,6 @@ class QueryRobotTaskListRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['TaskName'] = self.task_name
         result['Status'] = self.status
         result['Time'] = self.time
@@ -1537,10 +1276,6 @@ class QueryRobotTaskListRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.task_name = map.get('TaskName')
         self.status = map.get('Status')
         self.time = map.get('Time')
@@ -1591,11 +1326,7 @@ class QueryRobotTaskListResponse(TeaModel):
 
 
 class CreateRobotTaskRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, task_name=None, dialog_id=None, corp_name=None, caller=None, number_status_ident=None, retry_type=None, recall_state_codes=None, recall_times=None, recall_interval=None, is_self_line=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, task_name=None, dialog_id=None, corp_name=None, caller=None, number_status_ident=None, retry_type=None, recall_state_codes=None, recall_times=None, recall_interval=None, is_self_line=None):
         self.task_name = task_name
         self.dialog_id = dialog_id
         self.corp_name = corp_name
@@ -1616,10 +1347,6 @@ class CreateRobotTaskRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['TaskName'] = self.task_name
         result['DialogId'] = self.dialog_id
         result['CorpName'] = self.corp_name
@@ -1633,10 +1360,6 @@ class CreateRobotTaskRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.task_name = map.get('TaskName')
         self.dialog_id = map.get('DialogId')
         self.corp_name = map.get('CorpName')
@@ -1680,11 +1403,7 @@ class CreateRobotTaskResponse(TeaModel):
 
 
 class CancelOrderRobotTaskRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, task_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, task_id=None):
         self.task_id = task_id
 
     def validate(self):
@@ -1692,18 +1411,10 @@ class CancelOrderRobotTaskRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['TaskId'] = self.task_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.task_id = map.get('TaskId')
         return self
 
@@ -1738,11 +1449,7 @@ class CancelOrderRobotTaskResponse(TeaModel):
 
 
 class SmartCallOperateRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, call_id=None, command=None, param=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, call_id=None, command=None, param=None):
         self.call_id = call_id
         self.command = command
         self.param = param
@@ -1753,20 +1460,12 @@ class SmartCallOperateRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['CallId'] = self.call_id
         result['Command'] = self.command
         result['Param'] = self.param
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.call_id = map.get('CallId')
         self.command = map.get('Command')
         self.param = map.get('Param')
@@ -1803,11 +1502,7 @@ class SmartCallOperateResponse(TeaModel):
 
 
 class QueryRobotInfoListRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, audit_status=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, audit_status=None):
         self.audit_status = audit_status
 
     def validate(self):
@@ -1815,18 +1510,10 @@ class QueryRobotInfoListRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['AuditStatus'] = self.audit_status
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.audit_status = map.get('AuditStatus')
         return self
 
@@ -1861,11 +1548,7 @@ class QueryRobotInfoListResponse(TeaModel):
 
 
 class BatchRobotSmartCallRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, called_show_number=None, corp_name=None, called_number=None, dialog_id=None, early_media_asr=None, task_name=None, schedule_time=None, schedule_call=None, tts_param=None, tts_param_head=None, is_self_line=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, called_show_number=None, corp_name=None, called_number=None, dialog_id=None, early_media_asr=None, task_name=None, schedule_time=None, schedule_call=None, tts_param=None, tts_param_head=None, is_self_line=None):
         self.called_show_number = called_show_number
         self.corp_name = corp_name
         self.called_number = called_number
@@ -1886,10 +1569,6 @@ class BatchRobotSmartCallRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['CalledShowNumber'] = self.called_show_number
         result['CorpName'] = self.corp_name
         result['CalledNumber'] = self.called_number
@@ -1904,10 +1583,6 @@ class BatchRobotSmartCallRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.called_show_number = map.get('CalledShowNumber')
         self.corp_name = map.get('CorpName')
         self.called_number = map.get('CalledNumber')
@@ -1952,11 +1627,7 @@ class BatchRobotSmartCallResponse(TeaModel):
 
 
 class QueryCallDetailByTaskIdRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, task_id=None, query_date=None, callee=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, task_id=None, query_date=None, callee=None):
         self.task_id = task_id
         self.query_date = query_date
         self.callee = callee
@@ -1968,20 +1639,12 @@ class QueryCallDetailByTaskIdRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['TaskId'] = self.task_id
         result['QueryDate'] = self.query_date
         result['Callee'] = self.callee
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.task_id = map.get('TaskId')
         self.query_date = map.get('QueryDate')
         self.callee = map.get('Callee')
@@ -2018,11 +1681,7 @@ class QueryCallDetailByTaskIdResponse(TeaModel):
 
 
 class GetRtcTokenRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, user_id=None, device_id=None, is_custom_account=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, user_id=None, device_id=None, is_custom_account=None):
         self.user_id = user_id
         self.device_id = device_id
         self.is_custom_account = is_custom_account
@@ -2033,20 +1692,12 @@ class GetRtcTokenRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['UserId'] = self.user_id
         result['DeviceId'] = self.device_id
         result['IsCustomAccount'] = self.is_custom_account
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.user_id = map.get('UserId')
         self.device_id = map.get('DeviceId')
         self.is_custom_account = map.get('IsCustomAccount')
@@ -2083,11 +1734,7 @@ class GetRtcTokenResponse(TeaModel):
 
 
 class AddRtcAccountRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, device_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, device_id=None):
         self.device_id = device_id
 
     def validate(self):
@@ -2095,18 +1742,10 @@ class AddRtcAccountRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['DeviceId'] = self.device_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.device_id = map.get('DeviceId')
         return self
 
@@ -2141,11 +1780,7 @@ class AddRtcAccountResponse(TeaModel):
 
 
 class VoipAddAccountRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, device_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, device_id=None):
         self.device_id = device_id
 
     def validate(self):
@@ -2153,18 +1788,10 @@ class VoipAddAccountRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['DeviceId'] = self.device_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.device_id = map.get('DeviceId')
         return self
 
@@ -2199,11 +1826,7 @@ class VoipAddAccountResponse(TeaModel):
 
 
 class VoipGetTokenRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, voip_id=None, device_id=None, is_custom_account=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, voip_id=None, device_id=None, is_custom_account=None):
         self.voip_id = voip_id
         self.device_id = device_id
         self.is_custom_account = is_custom_account
@@ -2214,20 +1837,12 @@ class VoipGetTokenRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['VoipId'] = self.voip_id
         result['DeviceId'] = self.device_id
         result['IsCustomAccount'] = self.is_custom_account
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.voip_id = map.get('VoipId')
         self.device_id = map.get('DeviceId')
         self.is_custom_account = map.get('IsCustomAccount')
@@ -2264,11 +1879,7 @@ class VoipGetTokenResponse(TeaModel):
 
 
 class SmartCallRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, called_show_number=None, called_number=None, voice_code=None, record_flag=None, volume=None, speed=None, asr_model_id=None, pause_time=None, mute_time=None, action_code_break=None, out_id=None, dynamic_id=None, early_media_asr=None, voice_code_param=None, session_timeout=None, action_code_time_break=None, tts_style=None, tts_volume=None, tts_speed=None, tts_conf=None, asr_base_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, called_show_number=None, called_number=None, voice_code=None, record_flag=None, volume=None, speed=None, asr_model_id=None, pause_time=None, mute_time=None, action_code_break=None, out_id=None, dynamic_id=None, early_media_asr=None, voice_code_param=None, session_timeout=None, action_code_time_break=None, tts_style=None, tts_volume=None, tts_speed=None, tts_conf=None, asr_base_id=None):
         self.called_show_number = called_show_number
         self.called_number = called_number
         self.voice_code = voice_code
@@ -2298,10 +1909,6 @@ class SmartCallRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['CalledShowNumber'] = self.called_show_number
         result['CalledNumber'] = self.called_number
         result['VoiceCode'] = self.voice_code
@@ -2326,10 +1933,6 @@ class SmartCallRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.called_show_number = map.get('CalledShowNumber')
         self.called_number = map.get('CalledNumber')
         self.voice_code = map.get('VoiceCode')
@@ -2384,11 +1987,7 @@ class SmartCallResponse(TeaModel):
 
 
 class QueryCallDetailByCallIdRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, call_id=None, prod_id=None, query_date=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, call_id=None, prod_id=None, query_date=None):
         self.call_id = call_id
         self.prod_id = prod_id
         self.query_date = query_date
@@ -2400,20 +1999,12 @@ class QueryCallDetailByCallIdRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['CallId'] = self.call_id
         result['ProdId'] = self.prod_id
         result['QueryDate'] = self.query_date
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.call_id = map.get('CallId')
         self.prod_id = map.get('ProdId')
         self.query_date = map.get('QueryDate')
@@ -2450,11 +2041,7 @@ class QueryCallDetailByCallIdResponse(TeaModel):
 
 
 class CancelCallRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, call_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, call_id=None):
         self.call_id = call_id
 
     def validate(self):
@@ -2462,18 +2049,10 @@ class CancelCallRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['CallId'] = self.call_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.call_id = map.get('CallId')
         return self
 
@@ -2508,11 +2087,7 @@ class CancelCallResponse(TeaModel):
 
 
 class ClickToDialRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, caller_show_number=None, caller_number=None, called_show_number=None, called_number=None, record_flag=None, asr_flag=None, session_timeout=None, asr_model_id=None, out_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, caller_show_number=None, caller_number=None, called_show_number=None, called_number=None, record_flag=None, asr_flag=None, session_timeout=None, asr_model_id=None, out_id=None):
         self.caller_show_number = caller_show_number
         self.caller_number = caller_number
         self.called_show_number = called_show_number
@@ -2531,10 +2106,6 @@ class ClickToDialRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['CallerShowNumber'] = self.caller_show_number
         result['CallerNumber'] = self.caller_number
         result['CalledShowNumber'] = self.called_show_number
@@ -2547,10 +2118,6 @@ class ClickToDialRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.caller_show_number = map.get('CallerShowNumber')
         self.caller_number = map.get('CallerNumber')
         self.called_show_number = map.get('CalledShowNumber')
@@ -2593,11 +2160,7 @@ class ClickToDialResponse(TeaModel):
 
 
 class IvrCallRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, called_show_number=None, called_number=None, start_code=None, start_tts_params=None, menu_key_map=None, play_times=None, bye_code=None, bye_tts_params=None, timeout=None, out_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, called_show_number=None, called_number=None, start_code=None, start_tts_params=None, menu_key_map=None, play_times=None, bye_code=None, bye_tts_params=None, timeout=None, out_id=None):
         self.called_show_number = called_show_number
         self.called_number = called_number
         self.start_code = start_code
@@ -2620,10 +2183,6 @@ class IvrCallRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['CalledShowNumber'] = self.called_show_number
         result['CalledNumber'] = self.called_number
         result['StartCode'] = self.start_code
@@ -2642,10 +2201,6 @@ class IvrCallRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.called_show_number = map.get('CalledShowNumber')
         self.called_number = map.get('CalledNumber')
         self.start_code = map.get('StartCode')
@@ -2689,8 +2244,6 @@ class IvrCallRequestMenuKeyMap(TeaModel):
         self.code = map.get('Code')
         self.tts_params = map.get('TtsParams')
         return self
-
-
 class IvrCallResponse(TeaModel):
     def __init__(self, request_id=None, call_id=None, code=None, message=None):
         self.request_id = request_id
@@ -2721,11 +2274,7 @@ class IvrCallResponse(TeaModel):
 
 
 class SingleCallByVoiceRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, called_show_number=None, called_number=None, voice_code=None, play_times=None, volume=None, speed=None, out_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, called_show_number=None, called_number=None, voice_code=None, play_times=None, volume=None, speed=None, out_id=None):
         self.called_show_number = called_show_number
         self.called_number = called_number
         self.voice_code = voice_code
@@ -2735,16 +2284,11 @@ class SingleCallByVoiceRequest(TeaModel):
         self.out_id = out_id
 
     def validate(self):
-        self.validate_required(self.called_show_number, 'called_show_number')
         self.validate_required(self.called_number, 'called_number')
         self.validate_required(self.voice_code, 'voice_code')
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['CalledShowNumber'] = self.called_show_number
         result['CalledNumber'] = self.called_number
         result['VoiceCode'] = self.voice_code
@@ -2755,10 +2299,6 @@ class SingleCallByVoiceRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.called_show_number = map.get('CalledShowNumber')
         self.called_number = map.get('CalledNumber')
         self.voice_code = map.get('VoiceCode')
@@ -2799,11 +2339,7 @@ class SingleCallByVoiceResponse(TeaModel):
 
 
 class SingleCallByTtsRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, called_show_number=None, called_number=None, tts_code=None, tts_param=None, play_times=None, volume=None, speed=None, out_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, called_show_number=None, called_number=None, tts_code=None, tts_param=None, play_times=None, volume=None, speed=None, out_id=None):
         self.called_show_number = called_show_number
         self.called_number = called_number
         self.tts_code = tts_code
@@ -2814,16 +2350,11 @@ class SingleCallByTtsRequest(TeaModel):
         self.out_id = out_id
 
     def validate(self):
-        self.validate_required(self.called_show_number, 'called_show_number')
         self.validate_required(self.called_number, 'called_number')
         self.validate_required(self.tts_code, 'tts_code')
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['CalledShowNumber'] = self.called_show_number
         result['CalledNumber'] = self.called_number
         result['TtsCode'] = self.tts_code
@@ -2835,10 +2366,6 @@ class SingleCallByTtsRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.called_show_number = map.get('CalledShowNumber')
         self.called_number = map.get('CalledNumber')
         self.tts_code = map.get('TtsCode')
