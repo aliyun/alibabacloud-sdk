@@ -1,3 +1,6 @@
+2020-07-27 Version: 1.0.3
+- Generated  imagerecog-20190930 for Python.
+
 2020-07-10 Version: 1.0.2
 - Sdk for 026.
 

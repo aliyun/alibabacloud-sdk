@@ -115,8 +115,6 @@ class DetectFruitsResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class DetectFruitsAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -245,8 +243,6 @@ class ClassifyingRubbishResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class ClassifyingRubbishAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -367,8 +363,6 @@ class RecognizeVehicleTypeResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class RecognizeVehicleTypeAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -434,8 +428,6 @@ class RecognizeLogoRequestTasks(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class RecognizeLogoResponse(TeaModel):
     def __init__(self, request_id=None, data=None):
         self.request_id = request_id
@@ -620,8 +612,6 @@ class RecognizeLogoResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class TaggingImageRequest(TeaModel):
     def __init__(self, image_url=None):
         self.image_url = image_url
@@ -721,8 +711,6 @@ class TaggingImageResponseData(TeaModel):
         else:
             self.tags = None
         return self
-
-
 class TaggingImageAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -839,8 +827,6 @@ class RecognizeSceneResponseData(TeaModel):
         else:
             self.tags = None
         return self
-
-
 class RecognizeSceneAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -964,8 +950,6 @@ class RecognizeImageColorResponseData(TeaModel):
         else:
             self.color_template_list = None
         return self
-
-
 class RecognizeImageColorAdvanceRequest(TeaModel):
     def __init__(self, url_object=None, color_count=None):
         self.url_object = url_object
@@ -1101,8 +1085,6 @@ class DetectImageElementsResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class DetectImageElementsAdvanceRequest(TeaModel):
     def __init__(self, url_object=None):
         self.url_object = url_object
@@ -1192,8 +1174,6 @@ class RecognizeImageStyleResponseData(TeaModel):
         else:
             self.styles = None
         return self
-
-
 class RecognizeImageStyleAdvanceRequest(TeaModel):
     def __init__(self, url_object=None):
         self.url_object = url_object
