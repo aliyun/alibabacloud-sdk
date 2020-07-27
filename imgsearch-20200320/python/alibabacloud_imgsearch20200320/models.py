@@ -95,8 +95,6 @@ class ListImageDbsResponseData(TeaModel):
         else:
             self.db_list = None
         return self
-
-
 class ListImagesRequest(TeaModel):
     def __init__(self, db_name=None, token=None, offset=None, limit=None, order=None, entity_id_prefix=None):
         self.db_name = db_name
@@ -231,8 +229,6 @@ class ListImagesResponseData(TeaModel):
         else:
             self.image_list = None
         return self
-
-
 class SearchImageRequest(TeaModel):
     def __init__(self, db_name=None, image_url=None, limit=None):
         self.db_name = db_name
@@ -344,8 +340,6 @@ class SearchImageResponseData(TeaModel):
         else:
             self.match_list = None
         return self
-
-
 class SearchImageAdvanceRequest(TeaModel):
     def __init__(self, image_url_object=None, db_name=None, limit=None):
         self.image_url_object = image_url_object
@@ -444,8 +438,6 @@ class AddImageResponseData(TeaModel):
     def from_map(self, map={}):
         self.data_id = map.get('DataId')
         return self
-
-
 class AddImageAdvanceRequest(TeaModel):
     def __init__(self, image_url_object=None, db_name=None, extra_data=None, entity_id=None):
         self.image_url_object = image_url_object
