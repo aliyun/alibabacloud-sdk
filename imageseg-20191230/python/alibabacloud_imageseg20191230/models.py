@@ -64,8 +64,6 @@ class SegmentFoodResponseData(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class SegmentFoodAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -178,8 +176,6 @@ class SegmentClothResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class SegmentClothAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -259,8 +255,6 @@ class SegmentAnimalResponseData(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class SegmentAnimalAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -340,8 +334,6 @@ class SegmentHDBodyResponseData(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class SegmentHDBodyAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -421,8 +413,6 @@ class SegmentSkyResponseData(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class SegmentSkyAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -518,8 +508,6 @@ class GetAsyncJobResultResponseData(TeaModel):
         self.result = map.get('Result')
         self.status = map.get('Status')
         return self
-
-
 class SegmentFurnitureRequest(TeaModel):
     def __init__(self, image_url=None):
         self.image_url = image_url
@@ -615,8 +603,6 @@ class SegmentFurnitureResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class SegmentFurnitureAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -733,8 +719,6 @@ class RefineMaskResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class RefineMaskAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None, mask_image_url=None):
         self.image_urlobject = image_urlobject
@@ -859,8 +843,6 @@ class ParseFaceResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class ParseFaceAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -977,8 +959,6 @@ class SegmentVehicleResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class SegmentVehicleAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -1107,8 +1087,6 @@ class SegmentHairResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class SegmentHairAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -1237,8 +1215,6 @@ class SegmentFaceResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class SegmentFaceAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -1367,8 +1343,6 @@ class SegmentHeadResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class SegmentHeadAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -1448,8 +1422,6 @@ class SegmentCommodityResponseData(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class SegmentCommodityAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -1532,8 +1504,6 @@ class SegmentBodyResponseData(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class SegmentBodyAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None, async=None):
         self.image_urlobject = image_urlobject
@@ -1616,8 +1586,6 @@ class SegmentCommonImageResponseData(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class SegmentCommonImageAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
