@@ -87,8 +87,6 @@ class ScanTextRequestLabels(TeaModel):
     def from_map(self, map={}):
         self.label = map.get('Label')
         return self
-
-
 class ScanTextResponse(TeaModel):
     def __init__(self, request_id=None, data=None):
         self.request_id = request_id
@@ -286,8 +284,6 @@ class ScanTextResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class ScanImageRequest(TeaModel):
     def __init__(self, task=None, scene=None):
         self.task = []
@@ -362,8 +358,6 @@ class ScanImageRequestTask(TeaModel):
         self.interval = map.get('Interval')
         self.max_frames = map.get('MaxFrames')
         return self
-
-
 class ScanImageResponse(TeaModel):
     def __init__(self, request_id=None, data=None):
         self.request_id = request_id
