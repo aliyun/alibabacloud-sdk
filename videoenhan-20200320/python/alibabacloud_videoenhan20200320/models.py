@@ -88,8 +88,6 @@ class GenerateVideoRequestFileList(TeaModel):
         self.file_name = map.get('FileName')
         self.type = map.get('Type')
         return self
-
-
 class GenerateVideoResponse(TeaModel):
     def __init__(self, request_id=None, data=None):
         self.request_id = request_id
@@ -139,8 +137,6 @@ class GenerateVideoResponseData(TeaModel):
         self.video_url = map.get('VideoUrl')
         self.video_cover_url = map.get('VideoCoverUrl')
         return self
-
-
 class GetAsyncJobResultRequest(TeaModel):
     def __init__(self, job_id=None):
         self.job_id = job_id
@@ -219,8 +215,6 @@ class GetAsyncJobResultResponseData(TeaModel):
         self.error_code = map.get('ErrorCode')
         self.error_message = map.get('ErrorMessage')
         return self
-
-
 class SuperResolveVideoRequest(TeaModel):
     def __init__(self, video_url=None, bit_rate=None):
         self.video_url = video_url
@@ -286,8 +280,6 @@ class SuperResolveVideoResponseData(TeaModel):
     def from_map(self, map={}):
         self.video_url = map.get('VideoUrl')
         return self
-
-
 class SuperResolveVideoAdvanceRequest(TeaModel):
     def __init__(self, video_url_object=None, bit_rate=None):
         self.video_url_object = video_url_object
@@ -368,8 +360,6 @@ class EraseVideoLogoRequestBoxes(TeaModel):
         self.x = map.get('X')
         self.y = map.get('Y')
         return self
-
-
 class EraseVideoLogoResponse(TeaModel):
     def __init__(self, request_id=None, data=None):
         self.request_id = request_id
@@ -415,8 +405,6 @@ class EraseVideoLogoResponseData(TeaModel):
     def from_map(self, map={}):
         self.video_url = map.get('VideoUrl')
         return self
-
-
 class EraseVideoLogoAdvanceRequest(TeaModel):
     def __init__(self, video_url_object=None, boxes=None):
         self.video_url_object = video_url_object
@@ -477,8 +465,6 @@ class EraseVideoLogoAdvanceRequestBoxes(TeaModel):
         self.x = map.get('X')
         self.y = map.get('Y')
         return self
-
-
 class EraseVideoSubtitlesRequest(TeaModel):
     def __init__(self, video_url=None, _bx=None, _by=None, _bw=None, _bh=None):
         self.video_url = video_url
@@ -553,8 +539,6 @@ class EraseVideoSubtitlesResponseData(TeaModel):
     def from_map(self, map={}):
         self.video_url = map.get('VideoUrl')
         return self
-
-
 class EraseVideoSubtitlesAdvanceRequest(TeaModel):
     def __init__(self, video_url_object=None, _bx=None, _by=None, _bw=None, _bh=None):
         self.video_url_object = video_url_object
@@ -660,8 +644,6 @@ class AbstractEcommerceVideoResponseData(TeaModel):
         self.video_url = map.get('VideoUrl')
         self.video_cover_url = map.get('VideoCoverUrl')
         return self
-
-
 class AbstractEcommerceVideoAdvanceRequest(TeaModel):
     def __init__(self, video_url_object=None, duration=None, width=None, height=None):
         self.video_url_object = video_url_object
@@ -755,8 +737,6 @@ class AbstractFilmVideoResponseData(TeaModel):
     def from_map(self, map={}):
         self.video_url = map.get('VideoUrl')
         return self
-
-
 class AbstractFilmVideoAdvanceRequest(TeaModel):
     def __init__(self, video_url_object=None, length=None):
         self.video_url_object = video_url_object
@@ -853,8 +833,6 @@ class AdjustVideoColorResponseData(TeaModel):
     def from_map(self, map={}):
         self.video_url = map.get('VideoUrl')
         return self
-
-
 class AdjustVideoColorAdvanceRequest(TeaModel):
     def __init__(self, video_url_object=None, video_bitrate=None, video_codec=None, video_format=None, mode=None):
         self.video_url_object = video_url_object
