@@ -1,3 +1,6 @@
+2020-07-27 Version: 1.0.2
+- Generated facebody-20191230 for Python.
+
 2020-07-02 Version: 1.0.1
 - Sdk for 006.
 

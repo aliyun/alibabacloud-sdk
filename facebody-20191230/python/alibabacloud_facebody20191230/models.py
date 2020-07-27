@@ -118,8 +118,6 @@ class VerifyFaceMaskResponseData(TeaModel):
         else:
             self.thresholds = None
         return self
-
-
 class VerifyFaceMaskAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None, ref_url=None):
         self.image_urlobject = image_urlobject
@@ -195,8 +193,6 @@ class RecognizeActionRequestURLList(TeaModel):
     def from_map(self, map={}):
         self._url = map.get('URL')
         return self
-
-
 class RecognizeActionResponse(TeaModel):
     def __init__(self, request_id=None, data=None):
         self.request_id = request_id
@@ -350,8 +346,6 @@ class RecognizeActionResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class DetectVideoLivingFaceRequest(TeaModel):
     def __init__(self, video_url=None):
         self.video_url = video_url
@@ -465,8 +459,6 @@ class DetectVideoLivingFaceResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class DetectVideoLivingFaceAdvanceRequest(TeaModel):
     def __init__(self, video_url_object=None):
         self.video_url_object = video_url_object
@@ -554,8 +546,6 @@ class SwapFacialFeaturesResponseData(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class SwapFacialFeaturesAdvanceRequest(TeaModel):
     def __init__(self, source_image_urlobject=None, edit_part=None, target_image_url=None):
         self.source_image_urlobject = source_image_urlobject
@@ -801,8 +791,6 @@ class ListFaceEntitiesResponseData(TeaModel):
         else:
             self.entities = None
         return self
-
-
 class GetFaceEntityRequest(TeaModel):
     def __init__(self, db_name=None, entity_id=None):
         self.db_name = db_name
@@ -914,8 +902,6 @@ class GetFaceEntityResponseData(TeaModel):
         else:
             self.faces = None
         return self
-
-
 class UpdateFaceEntityRequest(TeaModel):
     def __init__(self, db_name=None, entity_id=None, labels=None):
         self.db_name = db_name
@@ -1031,8 +1017,6 @@ class FaceMakeupResponseData(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class FaceMakeupAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None, makeup_type=None, resource_type=None, strength=None):
         self.image_urlobject = image_urlobject
@@ -1415,8 +1399,6 @@ class HandPostureResponseData(TeaModel):
         else:
             self.meta_object = None
         return self
-
-
 class HandPostureAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -1684,8 +1666,6 @@ class BodyPostureResponseData(TeaModel):
         else:
             self.meta_object = None
         return self
-
-
 class BodyPostureAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -1824,8 +1804,6 @@ class DetectPedestrianResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class DetectPedestrianAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -1917,8 +1895,6 @@ class FaceBeautyResponseData(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class FaceBeautyAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None, sharp=None, smooth=None, white=None):
         self.image_urlobject = image_urlobject
@@ -2018,8 +1994,6 @@ class FaceFilterResponseData(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class FaceFilterAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None, resource_type=None, strength=None):
         self.image_urlobject = image_urlobject
@@ -2107,8 +2081,6 @@ class EnhanceFaceResponseData(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class EnhanceFaceAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -2196,8 +2168,6 @@ class FaceTidyupResponseData(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class FaceTidyupAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None, shape_type=None, strength=None):
         self.image_urlobject = image_urlobject
@@ -2413,8 +2383,6 @@ class SearchFaceResponseData(TeaModel):
         else:
             self.match_list = None
         return self
-
-
 class SearchFaceAdvanceRequest(TeaModel):
     def __init__(self, image_url_object=None, db_name=None, limit=None):
         self.image_url_object = image_url_object
@@ -2533,8 +2501,6 @@ class ListFaceDbsResponseData(TeaModel):
         else:
             self.db_list = None
         return self
-
-
 class CreateFaceDbRequest(TeaModel):
     def __init__(self, name=None):
         self.name = name
@@ -2714,8 +2680,6 @@ class AddFaceResponseData(TeaModel):
     def from_map(self, map={}):
         self.face_id = map.get('FaceId')
         return self
-
-
 class AddFaceAdvanceRequest(TeaModel):
     def __init__(self, image_url_object=None, db_name=None, entity_id=None, extra_data=None):
         self.image_url_object = image_url_object
@@ -2885,8 +2849,6 @@ class RecognizeExpressionResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class RecognizeExpressionAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -2952,8 +2914,6 @@ class RecognizePublicFaceRequestTask(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class RecognizePublicFaceResponse(TeaModel):
     def __init__(self, request_id=None, data=None):
         self.request_id = request_id
@@ -3175,8 +3135,6 @@ class RecognizePublicFaceResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class DetectLivingFaceRequest(TeaModel):
     def __init__(self, tasks=None):
         self.tasks = []
@@ -3225,8 +3183,6 @@ class DetectLivingFaceRequestTasks(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class DetectLivingFaceResponse(TeaModel):
     def __init__(self, request_id=None, data=None):
         self.request_id = request_id
@@ -3395,8 +3351,6 @@ class DetectLivingFaceResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class DetectBodyCountRequest(TeaModel):
     def __init__(self, image_url=None):
         self.image_url = image_url
@@ -3459,8 +3413,6 @@ class DetectBodyCountResponseData(TeaModel):
     def from_map(self, map={}):
         self.person_number = map.get('PersonNumber')
         return self
-
-
 class DetectBodyCountAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -3544,8 +3496,6 @@ class DetectMaskResponseData(TeaModel):
         self.mask = map.get('Mask')
         self.face_probability = map.get('FaceProbability')
         return self
-
-
 class DetectMaskAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -3773,8 +3723,6 @@ class RecognizeFaceResponseData(TeaModel):
         else:
             self.dense_features = None
         return self
-
-
 class RecognizeFaceAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -3900,8 +3848,6 @@ class CompareFaceResponseData(TeaModel):
         else:
             self.rect_blist = None
         return self
-
-
 class DetectFaceRequest(TeaModel):
     def __init__(self, image_url=None):
         self.image_url = image_url
@@ -4038,8 +3984,6 @@ class DetectFaceResponseData(TeaModel):
         else:
             self.pupils = None
         return self
-
-
 class DetectFaceAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
