@@ -80,8 +80,6 @@ class GetAsyncJobResultResponseData(TeaModel):
         self.error_code = map.get('ErrorCode')
         self.error_message = map.get('ErrorMessage')
         return self
-
-
 class ImitatePhotoStyleRequest(TeaModel):
     def __init__(self, style_url=None, image_url=None):
         self.style_url = style_url
@@ -148,8 +146,6 @@ class ImitatePhotoStyleResponseData(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class ImitatePhotoStyleAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None, style_url=None):
         self.image_urlobject = image_urlobject
@@ -241,8 +237,6 @@ class EnhanceImageColorResponseData(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class EnhanceImageColorAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None, output_format=None, mode=None):
         self.image_urlobject = image_urlobject
@@ -332,8 +326,6 @@ class RecolorHDImageRequestColorTemplate(TeaModel):
     def from_map(self, map={}):
         self.color = map.get('Color')
         return self
-
-
 class RecolorHDImageResponse(TeaModel):
     def __init__(self, request_id=None, data=None):
         self.request_id = request_id
@@ -389,8 +381,6 @@ class RecolorHDImageResponseData(TeaModel):
         else:
             self.image_list = None
         return self
-
-
 class RecolorHDImageAdvanceRequest(TeaModel):
     def __init__(self, url_object=None, mode=None, ref_url=None, color_count=None, color_template=None, degree=None):
         self.url_object = url_object
@@ -455,8 +445,6 @@ class RecolorHDImageAdvanceRequestColorTemplate(TeaModel):
     def from_map(self, map={}):
         self.color = map.get('Color')
         return self
-
-
 class AssessCompositionRequest(TeaModel):
     def __init__(self, image_url=None):
         self.image_url = image_url
@@ -519,8 +507,6 @@ class AssessCompositionResponseData(TeaModel):
     def from_map(self, map={}):
         self.score = map.get('Score')
         return self
-
-
 class AssessCompositionAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -600,8 +586,6 @@ class AssessSharpnessResponseData(TeaModel):
     def from_map(self, map={}):
         self.sharpness = map.get('Sharpness')
         return self
-
-
 class AssessSharpnessAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -681,8 +665,6 @@ class AssessExposureResponseData(TeaModel):
     def from_map(self, map={}):
         self.exposure = map.get('Exposure')
         return self
-
-
 class AssessExposureAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -783,8 +765,6 @@ class ImageBlindCharacterWatermarkResponseData(TeaModel):
         self.watermark_image_url = map.get('WatermarkImageURL')
         self.text_image_url = map.get('TextImageURL')
         return self
-
-
 class ImageBlindCharacterWatermarkAdvanceRequest(TeaModel):
     def __init__(self, origin_image_urlobject=None, function_type=None, text=None, watermark_image_url=None, output_file_type=None, quality_factor=None):
         self.origin_image_urlobject = origin_image_urlobject
@@ -893,8 +873,6 @@ class RemoveImageSubtitlesResponseData(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class RemoveImageSubtitlesAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None, _bx=None, _by=None, _bw=None, _bh=None):
         self.image_urlobject = image_urlobject
@@ -986,8 +964,6 @@ class RemoveImageWatermarkResponseData(TeaModel):
     def from_map(self, map={}):
         self.image_url = map.get('ImageURL')
         return self
-
-
 class RemoveImageWatermarkAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -1088,8 +1064,6 @@ class ImageBlindPicWatermarkResponseData(TeaModel):
         self.watermark_image_url = map.get('WatermarkImageURL')
         self.logo_url = map.get('LogoURL')
         return self
-
-
 class ImageBlindPicWatermarkAdvanceRequest(TeaModel):
     def __init__(self, origin_image_urlobject=None, function_type=None, logo_url=None, watermark_image_url=None, output_file_type=None, quality_factor=None):
         self.origin_image_urlobject = origin_image_urlobject
@@ -1238,8 +1212,6 @@ class IntelligentCompositionResponseData(TeaModel):
         else:
             self.elements = None
         return self
-
-
 class IntelligentCompositionAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None, num_boxes=None):
         self.image_urlobject = image_urlobject
@@ -1372,8 +1344,6 @@ class ChangeImageSizeResponseData(TeaModel):
         else:
             self.retain_location = None
         return self
-
-
 class ChangeImageSizeAdvanceRequest(TeaModel):
     def __init__(self, url_object=None, width=None, height=None):
         self.url_object = url_object
@@ -1469,8 +1439,6 @@ class ExtendImageStyleResponseData(TeaModel):
         self.url = map.get('Url')
         self.major_url = map.get('MajorUrl')
         return self
-
-
 class MakeSuperResolutionImageRequest(TeaModel):
     def __init__(self, url=None):
         self.url = url
@@ -1533,8 +1501,6 @@ class MakeSuperResolutionImageResponseData(TeaModel):
     def from_map(self, map={}):
         self.url = map.get('Url')
         return self
-
-
 class MakeSuperResolutionImageAdvanceRequest(TeaModel):
     def __init__(self, url_object=None):
         self.url_object = url_object
@@ -1612,8 +1578,6 @@ class RecolorImageRequestColorTemplate(TeaModel):
     def from_map(self, map={}):
         self.color = map.get('Color')
         return self
-
-
 class RecolorImageResponse(TeaModel):
     def __init__(self, request_id=None, data=None):
         self.request_id = request_id
