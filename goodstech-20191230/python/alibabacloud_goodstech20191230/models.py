@@ -72,8 +72,6 @@ class RecognizeFurnitureAttributeResponseData(TeaModel):
         self.pred_style = map.get('PredStyle')
         self.pred_probability = map.get('PredProbability')
         return self
-
-
 class RecognizeFurnitureAttributeAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
@@ -173,8 +171,6 @@ class RecognizeFurnitureSpuResponseData(TeaModel):
         self.pred_cate = map.get('PredCate')
         self.pred_probability = map.get('PredProbability')
         return self
-
-
 class RecognizeFurnitureSpuAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None, xlength=None, ylength=None, zlength=None):
         self.image_urlobject = image_urlobject
@@ -307,8 +303,6 @@ class ClassifyCommodityResponseData(TeaModel):
         else:
             self.categories = None
         return self
-
-
 class ClassifyCommodityAdvanceRequest(TeaModel):
     def __init__(self, image_urlobject=None):
         self.image_urlobject = image_urlobject
