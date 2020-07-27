@@ -3,11 +3,7 @@ from Tea.model import TeaModel
 
 
 class QuerySmsTemplateRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, template_code=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, template_code=None):
         self.template_code = template_code
 
     def validate(self):
@@ -15,18 +11,10 @@ class QuerySmsTemplateRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['TemplateCode'] = self.template_code
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.template_code = map.get('TemplateCode')
         return self
 
@@ -85,11 +73,7 @@ class QuerySmsTemplateResponse(TeaModel):
 
 
 class QuerySmsSignRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, sign_name=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, sign_name=None):
         self.sign_name = sign_name
 
     def validate(self):
@@ -97,18 +81,10 @@ class QuerySmsSignRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['SignName'] = self.sign_name
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.sign_name = map.get('SignName')
         return self
 
@@ -155,11 +131,7 @@ class QuerySmsSignResponse(TeaModel):
 
 
 class ModifySmsTemplateRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, template_type=None, template_name=None, template_code=None, template_content=None, remark=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, template_type=None, template_name=None, template_code=None, template_content=None, remark=None):
         self.template_type = template_type
         self.template_name = template_name
         self.template_code = template_code
@@ -175,10 +147,6 @@ class ModifySmsTemplateRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['TemplateType'] = self.template_type
         result['TemplateName'] = self.template_name
         result['TemplateCode'] = self.template_code
@@ -187,10 +155,6 @@ class ModifySmsTemplateRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.template_type = map.get('TemplateType')
         self.template_name = map.get('TemplateName')
         self.template_code = map.get('TemplateCode')
@@ -229,11 +193,7 @@ class ModifySmsTemplateResponse(TeaModel):
 
 
 class ModifySmsSignRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, sign_name=None, sign_source=None, sign_file_list=None, remark=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, sign_name=None, sign_source=None, sign_file_list=None, remark=None):
         self.sign_name = sign_name
         self.sign_source = sign_source
         self.sign_file_list = []
@@ -251,10 +211,6 @@ class ModifySmsSignRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['SignName'] = self.sign_name
         result['SignSource'] = self.sign_source
         result['SignFileList'] = []
@@ -267,10 +223,6 @@ class ModifySmsSignRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.sign_name = map.get('SignName')
         self.sign_source = map.get('SignSource')
         self.sign_file_list = []
@@ -304,8 +256,6 @@ class ModifySmsSignRequestSignFileList(TeaModel):
         self.file_suffix = map.get('FileSuffix')
         self.file_contents = map.get('FileContents')
         return self
-
-
 class ModifySmsSignResponse(TeaModel):
     def __init__(self, request_id=None, sign_name=None, code=None, message=None):
         self.request_id = request_id
@@ -336,11 +286,7 @@ class ModifySmsSignResponse(TeaModel):
 
 
 class DeleteSmsTemplateRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, template_code=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, template_code=None):
         self.template_code = template_code
 
     def validate(self):
@@ -348,18 +294,10 @@ class DeleteSmsTemplateRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['TemplateCode'] = self.template_code
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.template_code = map.get('TemplateCode')
         return self
 
@@ -394,11 +332,7 @@ class DeleteSmsTemplateResponse(TeaModel):
 
 
 class DeleteSmsSignRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, sign_name=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, sign_name=None):
         self.sign_name = sign_name
 
     def validate(self):
@@ -406,18 +340,10 @@ class DeleteSmsSignRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['SignName'] = self.sign_name
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.sign_name = map.get('SignName')
         return self
 
@@ -452,11 +378,7 @@ class DeleteSmsSignResponse(TeaModel):
 
 
 class AddSmsTemplateRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, template_type=None, template_name=None, template_content=None, remark=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, template_type=None, template_name=None, template_content=None, remark=None):
         self.template_type = template_type
         self.template_name = template_name
         self.template_content = template_content
@@ -470,10 +392,6 @@ class AddSmsTemplateRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['TemplateType'] = self.template_type
         result['TemplateName'] = self.template_name
         result['TemplateContent'] = self.template_content
@@ -481,10 +399,6 @@ class AddSmsTemplateRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.template_type = map.get('TemplateType')
         self.template_name = map.get('TemplateName')
         self.template_content = map.get('TemplateContent')
@@ -522,11 +436,7 @@ class AddSmsTemplateResponse(TeaModel):
 
 
 class AddSmsSignRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, sign_name=None, sign_source=None, sign_file_list=None, remark=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, sign_name=None, sign_source=None, sign_file_list=None, remark=None):
         self.sign_name = sign_name
         self.sign_source = sign_source
         self.sign_file_list = []
@@ -544,10 +454,6 @@ class AddSmsSignRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['SignName'] = self.sign_name
         result['SignSource'] = self.sign_source
         result['SignFileList'] = []
@@ -560,10 +466,6 @@ class AddSmsSignRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.sign_name = map.get('SignName')
         self.sign_source = map.get('SignSource')
         self.sign_file_list = []
@@ -597,8 +499,6 @@ class AddSmsSignRequestSignFileList(TeaModel):
         self.file_suffix = map.get('FileSuffix')
         self.file_contents = map.get('FileContents')
         return self
-
-
 class AddSmsSignResponse(TeaModel):
     def __init__(self, request_id=None, sign_name=None, code=None, message=None):
         self.request_id = request_id
@@ -629,11 +529,7 @@ class AddSmsSignResponse(TeaModel):
 
 
 class SendBatchSmsRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, phone_number_json=None, sign_name_json=None, template_code=None, template_param_json=None, sms_up_extend_code_json=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, phone_number_json=None, sign_name_json=None, template_code=None, template_param_json=None, sms_up_extend_code_json=None):
         self.phone_number_json = phone_number_json
         self.sign_name_json = sign_name_json
         self.template_code = template_code
@@ -647,10 +543,6 @@ class SendBatchSmsRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['PhoneNumberJson'] = self.phone_number_json
         result['SignNameJson'] = self.sign_name_json
         result['TemplateCode'] = self.template_code
@@ -659,10 +551,6 @@ class SendBatchSmsRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.phone_number_json = map.get('PhoneNumberJson')
         self.sign_name_json = map.get('SignNameJson')
         self.template_code = map.get('TemplateCode')
@@ -701,11 +589,7 @@ class SendBatchSmsResponse(TeaModel):
 
 
 class SendSmsRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, phone_numbers=None, sign_name=None, template_code=None, template_param=None, sms_up_extend_code=None, out_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, phone_numbers=None, sign_name=None, template_code=None, template_param=None, sms_up_extend_code=None, out_id=None):
         self.phone_numbers = phone_numbers
         self.sign_name = sign_name
         self.template_code = template_code
@@ -720,10 +604,6 @@ class SendSmsRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['PhoneNumbers'] = self.phone_numbers
         result['SignName'] = self.sign_name
         result['TemplateCode'] = self.template_code
@@ -733,10 +613,6 @@ class SendSmsRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.phone_numbers = map.get('PhoneNumbers')
         self.sign_name = map.get('SignName')
         self.template_code = map.get('TemplateCode')
@@ -776,11 +652,7 @@ class SendSmsResponse(TeaModel):
 
 
 class QuerySendDetailsRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, phone_number=None, biz_id=None, send_date=None, page_size=None, current_page=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, phone_number=None, biz_id=None, send_date=None, page_size=None, current_page=None):
         self.phone_number = phone_number
         self.biz_id = biz_id
         self.send_date = send_date
@@ -795,10 +667,6 @@ class QuerySendDetailsRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['PhoneNumber'] = self.phone_number
         result['BizId'] = self.biz_id
         result['SendDate'] = self.send_date
@@ -807,10 +675,6 @@ class QuerySendDetailsRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.phone_number = map.get('PhoneNumber')
         self.biz_id = map.get('BizId')
         self.send_date = map.get('SendDate')
