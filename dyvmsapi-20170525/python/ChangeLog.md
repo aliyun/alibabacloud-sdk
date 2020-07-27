@@ -1,3 +1,6 @@
+2020-07-27 Version: 1.0.2
+- Generated dyvmsapi-20170525 for Python.
+
 2020-07-27 Version: 1.0.1
 - Generated dyvmsapi-20170525 for Python.
 
