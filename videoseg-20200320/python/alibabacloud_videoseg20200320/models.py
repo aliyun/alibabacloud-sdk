@@ -64,8 +64,6 @@ class SegmentVideoBodyResponseData(TeaModel):
     def from_map(self, map={}):
         self.video_url = map.get('VideoUrl')
         return self
-
-
 class SegmentVideoBodyAdvanceRequest(TeaModel):
     def __init__(self, video_url_object=None):
         self.video_url_object = video_url_object
