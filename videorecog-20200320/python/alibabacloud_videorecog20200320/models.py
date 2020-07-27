@@ -74,8 +74,6 @@ class DetectVideoShotResponseData(TeaModel):
         else:
             self.shot_frame_ids = None
         return self
-
-
 class DetectVideoShotAdvanceRequest(TeaModel):
     def __init__(self, video_url_object=None):
         self.video_url_object = video_url_object
@@ -196,8 +194,6 @@ class GenerateVideoCoverResponseData(TeaModel):
         else:
             self.outputs = None
         return self
-
-
 class GenerateVideoCoverAdvanceRequest(TeaModel):
     def __init__(self, video_url_object=None, is_gif=None):
         self.video_url_object = video_url_object
