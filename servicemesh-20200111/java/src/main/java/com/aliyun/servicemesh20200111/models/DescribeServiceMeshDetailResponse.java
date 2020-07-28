@@ -178,6 +178,10 @@ public class DescribeServiceMeshDetailResponse extends TeaModel {
         @Validation(required = true)
         public Boolean tracing;
 
+        @NameInMap("CustomizedZipkin")
+        @Validation(required = true)
+        public Boolean customizedZipkin;
+
         @NameInMap("Pilot")
         @Validation(required = true)
         public DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigPilot pilot;

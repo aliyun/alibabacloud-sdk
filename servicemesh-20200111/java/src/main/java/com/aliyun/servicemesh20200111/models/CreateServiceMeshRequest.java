@@ -63,6 +63,30 @@ public class CreateServiceMeshRequest extends TeaModel {
     @NameInMap("AuditProject")
     public String auditProject;
 
+    @NameInMap("ProxyRequestCPU")
+    public String proxyRequestCPU;
+
+    @NameInMap("ProxyRequestMemory")
+    public String proxyRequestMemory;
+
+    @NameInMap("ProxyLimitCPU")
+    public String proxyLimitCPU;
+
+    @NameInMap("ProxyLimitMemory")
+    public String proxyLimitMemory;
+
+    @NameInMap("IncludeIPRanges")
+    public String includeIPRanges;
+
+    @NameInMap("ExcludeIPRanges")
+    public String excludeIPRanges;
+
+    @NameInMap("ExcludeOutboundPorts")
+    public String excludeOutboundPorts;
+
+    @NameInMap("ExcludeInboundPorts")
+    public String excludeInboundPorts;
+
     public static CreateServiceMeshRequest build(java.util.Map<String, ?> map) throws Exception {
         CreateServiceMeshRequest self = new CreateServiceMeshRequest();
         return TeaModel.build(map, self);

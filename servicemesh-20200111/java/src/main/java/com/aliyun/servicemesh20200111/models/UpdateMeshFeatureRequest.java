@@ -47,6 +47,9 @@ public class UpdateMeshFeatureRequest extends TeaModel {
     @NameInMap("ClusterDomain")
     public String clusterDomain;
 
+    @NameInMap("CustomizedZipkin")
+    public Boolean customizedZipkin;
+
     public static UpdateMeshFeatureRequest build(java.util.Map<String, ?> map) throws Exception {
         UpdateMeshFeatureRequest self = new UpdateMeshFeatureRequest();
         return TeaModel.build(map, self);
