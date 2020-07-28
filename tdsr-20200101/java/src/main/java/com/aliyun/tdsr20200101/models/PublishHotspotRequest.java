@@ -7,8 +7,8 @@ public class PublishHotspotRequest extends TeaModel {
     @NameInMap("ParamTag")
     public String paramTag;
 
-    @NameInMap("AccountId")
-    public String accountId;
+    @NameInMap("SubSceneUuid")
+    public String subSceneUuid;
 
     public static PublishHotspotRequest build(java.util.Map<String, ?> map) throws Exception {
         PublishHotspotRequest self = new PublishHotspotRequest();

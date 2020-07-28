@@ -7,8 +7,8 @@ public class SaveFileRequest extends TeaModel {
     @NameInMap("ParamFile")
     public String paramFile;
 
-    @NameInMap("AccountId")
-    public String accountId;
+    @NameInMap("SubSceneUuid")
+    public String subSceneUuid;
 
     public static SaveFileRequest build(java.util.Map<String, ?> map) throws Exception {
         SaveFileRequest self = new SaveFileRequest();

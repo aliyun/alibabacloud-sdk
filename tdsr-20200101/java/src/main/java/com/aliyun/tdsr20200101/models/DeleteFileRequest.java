@@ -7,8 +7,8 @@ public class DeleteFileRequest extends TeaModel {
     @NameInMap("ParamFile")
     public String paramFile;
 
-    @NameInMap("AccountId")
-    public String accountId;
+    @NameInMap("SubSceneUuid")
+    public String subSceneUuid;
 
     public static DeleteFileRequest build(java.util.Map<String, ?> map) throws Exception {
         DeleteFileRequest self = new DeleteFileRequest();

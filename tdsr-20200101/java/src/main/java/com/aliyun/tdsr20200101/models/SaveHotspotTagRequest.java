@@ -7,8 +7,8 @@ public class SaveHotspotTagRequest extends TeaModel {
     @NameInMap("ParamTag")
     public String paramTag;
 
-    @NameInMap("AccountId")
-    public String accountId;
+    @NameInMap("SubSceneUuid")
+    public String subSceneUuid;
 
     public static SaveHotspotTagRequest build(java.util.Map<String, ?> map) throws Exception {
         SaveHotspotTagRequest self = new SaveHotspotTagRequest();

@@ -16,6 +16,16 @@ public class Client extends com.aliyun.tearpc.Client {
     }
 
 
+    public ListMainScenesResponse listMainScenesWithOptions(ListMainScenesRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("ListMainScenes", "HTTPS", "POST", "2020-01-01", "AK,APP,PrivateKey,BearerToken", null, TeaModel.buildMap(request), runtime), new ListMainScenesResponse());
+    }
+
+    public ListMainScenesResponse listMainScenes(ListMainScenesRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.listMainScenesWithOptions(request, runtime);
+    }
+
     public SaveHotspotTagResponse saveHotspotTagWithOptions(SaveHotspotTagRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
         return TeaModel.toModel(this.doRequest("SaveHotspotTag", "HTTPS", "POST", "2020-01-01", "AK,APP,PrivateKey,BearerToken", null, TeaModel.buildMap(request), runtime), new SaveHotspotTagResponse());

@@ -7,8 +7,8 @@ public class GetHotspotTagRequest extends TeaModel {
     @NameInMap("PreviewToken")
     public String previewToken;
 
-    @NameInMap("SubSceneId")
-    public String subSceneId;
+    @NameInMap("SubSceneUuid")
+    public String subSceneUuid;
 
     @NameInMap("Type")
     public String type;
