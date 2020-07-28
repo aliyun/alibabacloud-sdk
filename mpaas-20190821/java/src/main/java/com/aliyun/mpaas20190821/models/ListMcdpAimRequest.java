@@ -22,6 +22,9 @@ public class ListMcdpAimRequest extends TeaModel {
     @NameInMap("PageSize")
     public Long pageSize;
 
+    @NameInMap("Sort")
+    public String sort;
+
     @NameInMap("SortField")
     public String sortField;
 

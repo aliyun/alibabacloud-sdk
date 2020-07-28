@@ -69,6 +69,86 @@ public class Client extends com.aliyun.tearpc.Client {
     }
 
 
+    public QueryMPaaSMasTinyAppDailyDataResponse queryMPaaSMasTinyAppDailyDataWithOptions(QueryMPaaSMasTinyAppDailyDataRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("QueryMPaaSMasTinyAppDailyData", "HTTPS", "POST", "2019-08-21", "AK", null, TeaModel.buildMap(request), runtime), new QueryMPaaSMasTinyAppDailyDataResponse());
+    }
+
+    public QueryMPaaSMasTinyAppDailyDataResponse queryMPaaSMasTinyAppDailyData(QueryMPaaSMasTinyAppDailyDataRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.queryMPaaSMasTinyAppDailyDataWithOptions(request, runtime);
+    }
+
+    public QueryMPaaSMasTinyAppHistoryDataResponse queryMPaaSMasTinyAppHistoryDataWithOptions(QueryMPaaSMasTinyAppHistoryDataRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("QueryMPaaSMasTinyAppHistoryData", "HTTPS", "POST", "2019-08-21", "AK", null, TeaModel.buildMap(request), runtime), new QueryMPaaSMasTinyAppHistoryDataResponse());
+    }
+
+    public QueryMPaaSMasTinyAppHistoryDataResponse queryMPaaSMasTinyAppHistoryData(QueryMPaaSMasTinyAppHistoryDataRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.queryMPaaSMasTinyAppHistoryDataWithOptions(request, runtime);
+    }
+
+    public QueryMPaaSMasTinyAppDailyPageViewResponse queryMPaaSMasTinyAppDailyPageViewWithOptions(QueryMPaaSMasTinyAppDailyPageViewRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("QueryMPaaSMasTinyAppDailyPageView", "HTTPS", "POST", "2019-08-21", "AK", null, TeaModel.buildMap(request), runtime), new QueryMPaaSMasTinyAppDailyPageViewResponse());
+    }
+
+    public QueryMPaaSMasTinyAppDailyPageViewResponse queryMPaaSMasTinyAppDailyPageView(QueryMPaaSMasTinyAppDailyPageViewRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.queryMPaaSMasTinyAppDailyPageViewWithOptions(request, runtime);
+    }
+
+    public ListMPaaSMasTinyAppResponse listMPaaSMasTinyAppWithOptions(ListMPaaSMasTinyAppRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("ListMPaaSMasTinyApp", "HTTPS", "POST", "2019-08-21", "AK", null, TeaModel.buildMap(request), runtime), new ListMPaaSMasTinyAppResponse());
+    }
+
+    public ListMPaaSMasTinyAppResponse listMPaaSMasTinyApp(ListMPaaSMasTinyAppRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.listMPaaSMasTinyAppWithOptions(request, runtime);
+    }
+
+    public ListMappCenterAppsResponse listMappCenterAppsWithOptions(ListMappCenterAppsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("ListMappCenterApps", "HTTPS", "POST", "2019-08-21", "AK", null, TeaModel.buildMap(request), runtime), new ListMappCenterAppsResponse());
+    }
+
+    public ListMappCenterAppsResponse listMappCenterApps(ListMappCenterAppsRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.listMappCenterAppsWithOptions(request, runtime);
+    }
+
+    public ListMappCenterWorkspacesResponse listMappCenterWorkspacesWithOptions(ListMappCenterWorkspacesRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("ListMappCenterWorkspaces", "HTTPS", "POST", "2019-08-21", "AK", null, TeaModel.buildMap(request), runtime), new ListMappCenterWorkspacesResponse());
+    }
+
+    public ListMappCenterWorkspacesResponse listMappCenterWorkspaces(ListMappCenterWorkspacesRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.listMappCenterWorkspacesWithOptions(request, runtime);
+    }
+
+    public QueryMappCenterAppResponse queryMappCenterAppWithOptions(QueryMappCenterAppRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("QueryMappCenterApp", "HTTPS", "POST", "2019-08-21", "AK", null, TeaModel.buildMap(request), runtime), new QueryMappCenterAppResponse());
+    }
+
+    public QueryMappCenterAppResponse queryMappCenterApp(QueryMappCenterAppRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.queryMappCenterAppWithOptions(request, runtime);
+    }
+
+    public ExportMappCenterAppConfigResponse exportMappCenterAppConfigWithOptions(ExportMappCenterAppConfigRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("ExportMappCenterAppConfig", "HTTPS", "POST", "2019-08-21", "AK", null, TeaModel.buildMap(request), runtime), new ExportMappCenterAppConfigResponse());
+    }
+
+    public ExportMappCenterAppConfigResponse exportMappCenterAppConfig(ExportMappCenterAppConfigRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.exportMappCenterAppConfigWithOptions(request, runtime);
+    }
+
     public DeleteMpaasMrtcArtvcRecordfileResponse deleteMpaasMrtcArtvcRecordfileWithOptions(DeleteMpaasMrtcArtvcRecordfileRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
         return TeaModel.toModel(this.doRequest("DeleteMpaasMrtcArtvcRecordfile", "HTTPS", "POST", "2019-08-21", "AK", null, TeaModel.buildMap(request), runtime), new DeleteMpaasMrtcArtvcRecordfileResponse());
@@ -359,13 +439,63 @@ public class Client extends com.aliyun.tearpc.Client {
         return this.listMcdpAimWithOptions(request, runtime);
     }
 
+    public SaveMgsApirestResponse saveMgsApirestWithOptions(SaveMgsApirestRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("SaveMgsApirest", "HTTPS", "POST", "2019-08-21", "AK", null, TeaModel.buildMap(request), runtime), new SaveMgsApirestResponse());
+    }
+
+    public SaveMgsApirestResponse saveMgsApirest(SaveMgsApirestRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.saveMgsApirestWithOptions(request, runtime);
+    }
+
+    public QueryMgsTestreqbodyautogenResponse queryMgsTestreqbodyautogenWithOptions(QueryMgsTestreqbodyautogenRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("QueryMgsTestreqbodyautogen", "HTTPS", "POST", "2019-08-21", "AK", null, TeaModel.buildMap(request), runtime), new QueryMgsTestreqbodyautogenResponse());
+    }
+
+    public QueryMgsTestreqbodyautogenResponse queryMgsTestreqbodyautogen(QueryMgsTestreqbodyautogenRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.queryMgsTestreqbodyautogenWithOptions(request, runtime);
+    }
+
+    public QueryMgsApirestResponse queryMgsApirestWithOptions(QueryMgsApirestRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("QueryMgsApirest", "HTTPS", "POST", "2019-08-21", "AK", null, TeaModel.buildMap(request), runtime), new QueryMgsApirestResponse());
+    }
+
+    public QueryMgsApirestResponse queryMgsApirest(QueryMgsApirestRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.queryMgsApirestWithOptions(request, runtime);
+    }
+
+    public ListMgsApiResponse listMgsApiWithOptions(ListMgsApiRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("ListMgsApi", "HTTPS", "POST", "2019-08-21", "AK", null, TeaModel.buildMap(request), runtime), new ListMgsApiResponse());
+    }
+
+    public ListMgsApiResponse listMgsApi(ListMgsApiRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.listMgsApiWithOptions(request, runtime);
+    }
+
+    public QueryMgsApipageResponse queryMgsApipageWithOptions(QueryMgsApipageRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("QueryMgsApipage", "HTTPS", "POST", "2019-08-21", "AK", null, TeaModel.buildMap(request), runtime), new QueryMgsApipageResponse());
+    }
+
+    public QueryMgsApipageResponse queryMgsApipage(QueryMgsApipageRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.queryMgsApipageWithOptions(request, runtime);
+    }
+
     public String getEndpoint(String productId, String regionId, String endpointRule, String network, String suffix, java.util.Map<String, String> endpointMap, String endpoint) throws Exception {
         if (!com.aliyun.teautil.Common.empty(endpoint)) {
             return endpoint;
         }
 
-        if (!com.aliyun.teautil.Common.isUnset(endpointMap) && !com.aliyun.teautil.Common.empty(endpointMap.get("regionId"))) {
-            return endpointMap.get("regionId");
+        if (!com.aliyun.teautil.Common.isUnset(endpointMap) && !com.aliyun.teautil.Common.empty(endpointMap.get(regionId))) {
+            return endpointMap.get(regionId);
         }
 
         return com.aliyun.endpointutil.Client.getEndpointRules(productId, regionId, endpointRule, network, suffix);
