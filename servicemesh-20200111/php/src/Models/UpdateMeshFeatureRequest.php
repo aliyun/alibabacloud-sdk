@@ -105,6 +105,13 @@ class UpdateMeshFeatureRequest extends Model
      * @var string
      */
     public $clusterDomain;
+
+    /**
+     * @description customizedZipkin
+     *
+     * @var bool
+     */
+    public $customizedZipkin;
     protected $_name = [
         'serviceMeshId'         => 'ServiceMeshId',
         'tracing'               => 'Tracing',
@@ -120,6 +127,7 @@ class UpdateMeshFeatureRequest extends Model
         'enableAudit'           => 'EnableAudit',
         'auditProject'          => 'AuditProject',
         'clusterDomain'         => 'ClusterDomain',
+        'customizedZipkin'      => 'CustomizedZipkin',
     ];
 
     public function validate()
@@ -171,6 +179,9 @@ class UpdateMeshFeatureRequest extends Model
         }
         if (null !== $this->clusterDomain) {
             $res['ClusterDomain'] = $this->clusterDomain;
+        }
+        if (null !== $this->customizedZipkin) {
+            $res['CustomizedZipkin'] = $this->customizedZipkin;
         }
 
         return $res;
@@ -225,6 +236,9 @@ class UpdateMeshFeatureRequest extends Model
         }
         if (isset($map['ClusterDomain'])) {
             $model->clusterDomain = $map['ClusterDomain'];
+        }
+        if (isset($map['CustomizedZipkin'])) {
+            $model->customizedZipkin = $map['CustomizedZipkin'];
         }
 
         return $model;

@@ -140,6 +140,62 @@ class CreateServiceMeshRequest extends Model
      * @var string
      */
     public $auditProject;
+
+    /**
+     * @description proxyRequestCPU
+     *
+     * @var string
+     */
+    public $proxyRequestCPU;
+
+    /**
+     * @description proxyRequestMemory
+     *
+     * @var string
+     */
+    public $proxyRequestMemory;
+
+    /**
+     * @description proxyLimitCPU
+     *
+     * @var string
+     */
+    public $proxyLimitCPU;
+
+    /**
+     * @description proxyLimitMemory
+     *
+     * @var string
+     */
+    public $proxyLimitMemory;
+
+    /**
+     * @description includeIPRanges
+     *
+     * @var string
+     */
+    public $includeIPRanges;
+
+    /**
+     * @description excludeIPRanges
+     *
+     * @var string
+     */
+    public $excludeIPRanges;
+
+    /**
+     * @description excludeOutboundPorts
+     *
+     * @var string
+     */
+    public $excludeOutboundPorts;
+
+    /**
+     * @description excludeInboundPorts
+     *
+     * @var string
+     */
+    public $excludeInboundPorts;
     protected $_name = [
         'regionId'              => 'RegionId',
         'istioVersion'          => 'IstioVersion',
@@ -160,6 +216,14 @@ class CreateServiceMeshRequest extends Model
         'OPALimitMemory'        => 'OPALimitMemory',
         'enableAudit'           => 'EnableAudit',
         'auditProject'          => 'AuditProject',
+        'proxyRequestCPU'       => 'ProxyRequestCPU',
+        'proxyRequestMemory'    => 'ProxyRequestMemory',
+        'proxyLimitCPU'         => 'ProxyLimitCPU',
+        'proxyLimitMemory'      => 'ProxyLimitMemory',
+        'includeIPRanges'       => 'IncludeIPRanges',
+        'excludeIPRanges'       => 'ExcludeIPRanges',
+        'excludeOutboundPorts'  => 'ExcludeOutboundPorts',
+        'excludeInboundPorts'   => 'ExcludeInboundPorts',
     ];
 
     public function validate()
@@ -227,6 +291,30 @@ class CreateServiceMeshRequest extends Model
         }
         if (null !== $this->auditProject) {
             $res['AuditProject'] = $this->auditProject;
+        }
+        if (null !== $this->proxyRequestCPU) {
+            $res['ProxyRequestCPU'] = $this->proxyRequestCPU;
+        }
+        if (null !== $this->proxyRequestMemory) {
+            $res['ProxyRequestMemory'] = $this->proxyRequestMemory;
+        }
+        if (null !== $this->proxyLimitCPU) {
+            $res['ProxyLimitCPU'] = $this->proxyLimitCPU;
+        }
+        if (null !== $this->proxyLimitMemory) {
+            $res['ProxyLimitMemory'] = $this->proxyLimitMemory;
+        }
+        if (null !== $this->includeIPRanges) {
+            $res['IncludeIPRanges'] = $this->includeIPRanges;
+        }
+        if (null !== $this->excludeIPRanges) {
+            $res['ExcludeIPRanges'] = $this->excludeIPRanges;
+        }
+        if (null !== $this->excludeOutboundPorts) {
+            $res['ExcludeOutboundPorts'] = $this->excludeOutboundPorts;
+        }
+        if (null !== $this->excludeInboundPorts) {
+            $res['ExcludeInboundPorts'] = $this->excludeInboundPorts;
         }
 
         return $res;
@@ -296,6 +384,30 @@ class CreateServiceMeshRequest extends Model
         }
         if (isset($map['AuditProject'])) {
             $model->auditProject = $map['AuditProject'];
+        }
+        if (isset($map['ProxyRequestCPU'])) {
+            $model->proxyRequestCPU = $map['ProxyRequestCPU'];
+        }
+        if (isset($map['ProxyRequestMemory'])) {
+            $model->proxyRequestMemory = $map['ProxyRequestMemory'];
+        }
+        if (isset($map['ProxyLimitCPU'])) {
+            $model->proxyLimitCPU = $map['ProxyLimitCPU'];
+        }
+        if (isset($map['ProxyLimitMemory'])) {
+            $model->proxyLimitMemory = $map['ProxyLimitMemory'];
+        }
+        if (isset($map['IncludeIPRanges'])) {
+            $model->includeIPRanges = $map['IncludeIPRanges'];
+        }
+        if (isset($map['ExcludeIPRanges'])) {
+            $model->excludeIPRanges = $map['ExcludeIPRanges'];
+        }
+        if (isset($map['ExcludeOutboundPorts'])) {
+            $model->excludeOutboundPorts = $map['ExcludeOutboundPorts'];
+        }
+        if (isset($map['ExcludeInboundPorts'])) {
+            $model->excludeInboundPorts = $map['ExcludeInboundPorts'];
         }
 
         return $model;

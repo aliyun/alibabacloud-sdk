@@ -33,6 +33,13 @@ class meshConfig extends Model
     public $tracing;
 
     /**
+     * @description customizedZipkin
+     *
+     * @var bool
+     */
+    public $customizedZipkin;
+
+    /**
      * @description pilot
      *
      * @var pilot
@@ -56,6 +63,7 @@ class meshConfig extends Model
         'enableLocalityLB' => 'EnableLocalityLB',
         'telemetry'        => 'Telemetry',
         'tracing'          => 'Tracing',
+        'customizedZipkin' => 'CustomizedZipkin',
         'pilot'            => 'Pilot',
         'OPA'              => 'OPA',
         'audit'            => 'Audit',
@@ -66,6 +74,7 @@ class meshConfig extends Model
         Model::validateRequired('enableLocalityLB', $this->enableLocalityLB, true);
         Model::validateRequired('telemetry', $this->telemetry, true);
         Model::validateRequired('tracing', $this->tracing, true);
+        Model::validateRequired('customizedZipkin', $this->customizedZipkin, true);
         Model::validateRequired('pilot', $this->pilot, true);
         Model::validateRequired('OPA', $this->OPA, true);
         Model::validateRequired('audit', $this->audit, true);
@@ -82,6 +91,9 @@ class meshConfig extends Model
         }
         if (null !== $this->tracing) {
             $res['Tracing'] = $this->tracing;
+        }
+        if (null !== $this->customizedZipkin) {
+            $res['CustomizedZipkin'] = $this->customizedZipkin;
         }
         if (null !== $this->pilot) {
             $res['Pilot'] = null !== $this->pilot ? $this->pilot->toMap() : null;
@@ -112,6 +124,9 @@ class meshConfig extends Model
         }
         if (isset($map['Tracing'])) {
             $model->tracing = $map['Tracing'];
+        }
+        if (isset($map['CustomizedZipkin'])) {
+            $model->customizedZipkin = $map['CustomizedZipkin'];
         }
         if (isset($map['Pilot'])) {
             $model->pilot = pilot::fromMap($map['Pilot']);
