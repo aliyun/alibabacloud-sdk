@@ -13,6 +13,72 @@ class Client(RPCClient):
         self.check_config(config)
         self._endpoint = self.get_endpoint("servicemesh", self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint)
 
+    def get_registered_service_endpoints_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return servicemesh_20200111_models.GetRegisteredServiceEndpointsResponse().from_map(self.do_request("GetRegisteredServiceEndpoints", "HTTPS", "POST", "2020-01-11", "AK", None, request.to_map(), runtime))
+
+
+    def get_registered_service_endpoints(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.get_registered_service_endpoints_with_options(request, runtime)
+
+    def get_service_mesh_slb_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return servicemesh_20200111_models.GetServiceMeshSlbResponse().from_map(self.do_request("GetServiceMeshSlb", "HTTPS", "POST", "2020-01-11", "AK", None, request.to_map(), runtime))
+
+
+    def get_service_mesh_slb(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.get_service_mesh_slb_with_options(request, runtime)
+
+    def get_registered_services_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return servicemesh_20200111_models.GetRegisteredServicesResponse().from_map(self.do_request("GetRegisteredServices", "HTTPS", "POST", "2020-01-11", "AK", None, request.to_map(), runtime))
+
+
+    def get_registered_services(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.get_registered_services_with_options(request, runtime)
+
+    def get_diagnosis_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return servicemesh_20200111_models.GetDiagnosisResponse().from_map(self.do_request("GetDiagnosis", "HTTPS", "POST", "2020-01-11", "AK", None, request.to_map(), runtime))
+
+
+    def get_diagnosis(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.get_diagnosis_with_options(request, runtime)
+
+    def get_registered_service_namespaces_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return servicemesh_20200111_models.GetRegisteredServiceNamespacesResponse().from_map(self.do_request("GetRegisteredServiceNamespaces", "HTTPS", "POST", "2020-01-11", "AK", None, request.to_map(), runtime))
+
+
+    def get_registered_service_namespaces(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.get_registered_service_namespaces_with_options(request, runtime)
+
+    def run_diagnosis_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return servicemesh_20200111_models.RunDiagnosisResponse().from_map(self.do_request("RunDiagnosis", "HTTPS", "POST", "2020-01-11", "AK", None, request.to_map(), runtime))
+
+
+    def run_diagnosis(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.run_diagnosis_with_options(request, runtime)
+
     def remove_cluster_from_service_mesh_with_options(self, request, runtime):
         UtilClient.validate_model(request)
         return servicemesh_20200111_models.RemoveClusterFromServiceMeshResponse().from_map(self.do_request("RemoveClusterFromServiceMesh", "HTTPS", "POST", "2020-01-11", "AK", None, request.to_map(), runtime))
@@ -57,17 +123,6 @@ class Client(RPCClient):
         )
         return self.describe_guest_cluster_access_log_dashboards_with_options(request, runtime)
 
-    def describe_reusable_slb_with_options(self, request, runtime):
-        UtilClient.validate_model(request)
-        return servicemesh_20200111_models.DescribeReusableSlbResponse().from_map(self.do_request("DescribeReusableSlb", "HTTPS", "POST", "2020-01-11", "AK", None, request.to_map(), runtime))
-
-
-    def describe_reusable_slb(self, request):
-        runtime = util_models.RuntimeOptions(
-
-        )
-        return self.describe_reusable_slb_with_options(request, runtime)
-
     def describe_cluster_prometheus_with_options(self, request, runtime):
         UtilClient.validate_model(request)
         return servicemesh_20200111_models.DescribeClusterPrometheusResponse().from_map(self.do_request("DescribeClusterPrometheus", "HTTPS", "POST", "2020-01-11", "AK", None, request.to_map(), runtime))
@@ -89,17 +144,6 @@ class Client(RPCClient):
 
         )
         return self.describe_cluster_grafana_with_options(request, runtime)
-
-    def describe_related_resources_reuse_with_options(self, request, runtime):
-        UtilClient.validate_model(request)
-        return servicemesh_20200111_models.DescribeRelatedResourcesReuseResponse().from_map(self.do_request("DescribeRelatedResourcesReuse", "HTTPS", "POST", "2020-01-11", "AK", None, request.to_map(), runtime))
-
-
-    def describe_related_resources_reuse(self, request):
-        runtime = util_models.RuntimeOptions(
-
-        )
-        return self.describe_related_resources_reuse_with_options(request, runtime)
 
     def describe_regions_with_options(self, request, runtime):
         UtilClient.validate_model(request)
