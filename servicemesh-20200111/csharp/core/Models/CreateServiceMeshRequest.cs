@@ -85,6 +85,38 @@ namespace AlibabaCloud.SDK.Servicemesh20200111.Models
         [Validation(Required=false)]
         public string AuditProject { get; set; }
 
+        [NameInMap("ProxyRequestCPU")]
+        [Validation(Required=false)]
+        public string ProxyRequestCPU { get; set; }
+
+        [NameInMap("ProxyRequestMemory")]
+        [Validation(Required=false)]
+        public string ProxyRequestMemory { get; set; }
+
+        [NameInMap("ProxyLimitCPU")]
+        [Validation(Required=false)]
+        public string ProxyLimitCPU { get; set; }
+
+        [NameInMap("ProxyLimitMemory")]
+        [Validation(Required=false)]
+        public string ProxyLimitMemory { get; set; }
+
+        [NameInMap("IncludeIPRanges")]
+        [Validation(Required=false)]
+        public string IncludeIPRanges { get; set; }
+
+        [NameInMap("ExcludeIPRanges")]
+        [Validation(Required=false)]
+        public string ExcludeIPRanges { get; set; }
+
+        [NameInMap("ExcludeOutboundPorts")]
+        [Validation(Required=false)]
+        public string ExcludeOutboundPorts { get; set; }
+
+        [NameInMap("ExcludeInboundPorts")]
+        [Validation(Required=false)]
+        public string ExcludeInboundPorts { get; set; }
+
     }
 
 }

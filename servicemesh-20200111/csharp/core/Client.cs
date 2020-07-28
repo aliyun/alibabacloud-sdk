@@ -24,6 +24,150 @@ namespace AlibabaCloud.SDK.Servicemesh20200111
         }
 
 
+        public GetRegisteredServiceEndpointsResponse GetRegisteredServiceEndpointsWithOptions(GetRegisteredServiceEndpointsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<GetRegisteredServiceEndpointsResponse>(DoRequest("GetRegisteredServiceEndpoints", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
+        }
+
+        public async Task<GetRegisteredServiceEndpointsResponse> GetRegisteredServiceEndpointsWithOptionsAsync(GetRegisteredServiceEndpointsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<GetRegisteredServiceEndpointsResponse>(await DoRequestAsync("GetRegisteredServiceEndpoints", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
+        }
+
+        public GetRegisteredServiceEndpointsResponse GetRegisteredServiceEndpoints(GetRegisteredServiceEndpointsRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return GetRegisteredServiceEndpointsWithOptions(request, runtime);
+        }
+
+        public async Task<GetRegisteredServiceEndpointsResponse> GetRegisteredServiceEndpointsAsync(GetRegisteredServiceEndpointsRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await GetRegisteredServiceEndpointsWithOptionsAsync(request, runtime);
+        }
+
+        public GetServiceMeshSlbResponse GetServiceMeshSlbWithOptions(GetServiceMeshSlbRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<GetServiceMeshSlbResponse>(DoRequest("GetServiceMeshSlb", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
+        }
+
+        public async Task<GetServiceMeshSlbResponse> GetServiceMeshSlbWithOptionsAsync(GetServiceMeshSlbRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<GetServiceMeshSlbResponse>(await DoRequestAsync("GetServiceMeshSlb", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
+        }
+
+        public GetServiceMeshSlbResponse GetServiceMeshSlb(GetServiceMeshSlbRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return GetServiceMeshSlbWithOptions(request, runtime);
+        }
+
+        public async Task<GetServiceMeshSlbResponse> GetServiceMeshSlbAsync(GetServiceMeshSlbRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await GetServiceMeshSlbWithOptionsAsync(request, runtime);
+        }
+
+        public GetRegisteredServicesResponse GetRegisteredServicesWithOptions(GetRegisteredServicesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<GetRegisteredServicesResponse>(DoRequest("GetRegisteredServices", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
+        }
+
+        public async Task<GetRegisteredServicesResponse> GetRegisteredServicesWithOptionsAsync(GetRegisteredServicesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<GetRegisteredServicesResponse>(await DoRequestAsync("GetRegisteredServices", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
+        }
+
+        public GetRegisteredServicesResponse GetRegisteredServices(GetRegisteredServicesRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return GetRegisteredServicesWithOptions(request, runtime);
+        }
+
+        public async Task<GetRegisteredServicesResponse> GetRegisteredServicesAsync(GetRegisteredServicesRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await GetRegisteredServicesWithOptionsAsync(request, runtime);
+        }
+
+        public GetDiagnosisResponse GetDiagnosisWithOptions(GetDiagnosisRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<GetDiagnosisResponse>(DoRequest("GetDiagnosis", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
+        }
+
+        public async Task<GetDiagnosisResponse> GetDiagnosisWithOptionsAsync(GetDiagnosisRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<GetDiagnosisResponse>(await DoRequestAsync("GetDiagnosis", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
+        }
+
+        public GetDiagnosisResponse GetDiagnosis(GetDiagnosisRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return GetDiagnosisWithOptions(request, runtime);
+        }
+
+        public async Task<GetDiagnosisResponse> GetDiagnosisAsync(GetDiagnosisRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await GetDiagnosisWithOptionsAsync(request, runtime);
+        }
+
+        public GetRegisteredServiceNamespacesResponse GetRegisteredServiceNamespacesWithOptions(GetRegisteredServiceNamespacesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<GetRegisteredServiceNamespacesResponse>(DoRequest("GetRegisteredServiceNamespaces", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
+        }
+
+        public async Task<GetRegisteredServiceNamespacesResponse> GetRegisteredServiceNamespacesWithOptionsAsync(GetRegisteredServiceNamespacesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<GetRegisteredServiceNamespacesResponse>(await DoRequestAsync("GetRegisteredServiceNamespaces", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
+        }
+
+        public GetRegisteredServiceNamespacesResponse GetRegisteredServiceNamespaces(GetRegisteredServiceNamespacesRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return GetRegisteredServiceNamespacesWithOptions(request, runtime);
+        }
+
+        public async Task<GetRegisteredServiceNamespacesResponse> GetRegisteredServiceNamespacesAsync(GetRegisteredServiceNamespacesRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await GetRegisteredServiceNamespacesWithOptionsAsync(request, runtime);
+        }
+
+        public RunDiagnosisResponse RunDiagnosisWithOptions(RunDiagnosisRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<RunDiagnosisResponse>(DoRequest("RunDiagnosis", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
+        }
+
+        public async Task<RunDiagnosisResponse> RunDiagnosisWithOptionsAsync(RunDiagnosisRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<RunDiagnosisResponse>(await DoRequestAsync("RunDiagnosis", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
+        }
+
+        public RunDiagnosisResponse RunDiagnosis(RunDiagnosisRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return RunDiagnosisWithOptions(request, runtime);
+        }
+
+        public async Task<RunDiagnosisResponse> RunDiagnosisAsync(RunDiagnosisRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await RunDiagnosisWithOptionsAsync(request, runtime);
+        }
+
         public RemoveClusterFromServiceMeshResponse RemoveClusterFromServiceMeshWithOptions(RemoveClusterFromServiceMeshRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);

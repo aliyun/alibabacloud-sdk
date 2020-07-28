@@ -65,6 +65,10 @@ namespace AlibabaCloud.SDK.Servicemesh20200111.Models
         [Validation(Required=false)]
         public string ClusterDomain { get; set; }
 
+        [NameInMap("CustomizedZipkin")]
+        [Validation(Required=false)]
+        public bool? CustomizedZipkin { get; set; }
+
     }
 
 }

@@ -110,6 +110,9 @@ namespace AlibabaCloud.SDK.Servicemesh20200111.Models
                     [NameInMap("Tracing")]
                     [Validation(Required=true)]
                     public bool? Tracing { get; set; }
+                    [NameInMap("CustomizedZipkin")]
+                    [Validation(Required=true)]
+                    public bool? CustomizedZipkin { get; set; }
                     [NameInMap("Pilot")]
                     [Validation(Required=true)]
                     public DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigPilot Pilot { get; set; }
