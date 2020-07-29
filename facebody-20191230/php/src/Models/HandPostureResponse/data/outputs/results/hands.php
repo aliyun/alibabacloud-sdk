@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class hands extends Model
 {
     /**
-     * @description confident
-     *
      * @var float
      */
     public $confident;
 
     /**
-     * @description keypoints
-     *
      * @var array
      */
     public $keyPoints;

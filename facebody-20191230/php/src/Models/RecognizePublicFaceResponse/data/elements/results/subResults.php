@@ -10,36 +10,26 @@ use AlibabaCloud\Tea\Model;
 class subResults extends Model
 {
     /**
-     * @description h
-     *
      * @var float
      */
     public $h;
 
     /**
-     * @description w
-     *
      * @var float
      */
     public $w;
 
     /**
-     * @description x
-     *
      * @var float
      */
     public $x;
 
     /**
-     * @description h
-     *
      * @var float
      */
     public $y;
 
     /**
-     * @description faces
-     *
      * @var array
      */
     public $faces;

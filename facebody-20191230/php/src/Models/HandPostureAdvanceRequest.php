@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class HandPostureAdvanceRequest extends Model
 {
     /**
-     * @description ImageURLObject
-     *
      * @var Stream
      */
     public $imageURLObject;

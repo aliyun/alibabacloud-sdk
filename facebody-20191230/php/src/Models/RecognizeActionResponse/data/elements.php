@@ -10,29 +10,21 @@ use AlibabaCloud\Tea\Model;
 class elements extends Model
 {
     /**
-     * @description timestamp
-     *
      * @var int
      */
     public $timestamp;
 
     /**
-     * @description boxes
-     *
      * @var array
      */
     public $boxes;
 
     /**
-     * @description scores
-     *
      * @var array
      */
     public $scores;
 
     /**
-     * @description labels
-     *
      * @var array
      */
     public $labels;

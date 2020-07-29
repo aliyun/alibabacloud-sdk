@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class AddFaceAdvanceRequest extends Model
 {
     /**
-     * @description ImageUrlObject
-     *
      * @var Stream
      */
     public $imageUrlObject;
 
     /**
-     * @description dbName
-     *
      * @var string
      */
     public $dbName;
 
     /**
-     * @description entityId
-     *
      * @var string
      */
     public $entityId;
 
     /**
-     * @description extraData
-     *
      * @var string
      */
     public $extraData;

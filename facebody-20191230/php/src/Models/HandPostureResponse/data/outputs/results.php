@@ -11,15 +11,11 @@ use AlibabaCloud\Tea\Model;
 class results extends Model
 {
     /**
-     * @description box
-     *
      * @var box
      */
     public $box;
 
     /**
-     * @description hands
-     *
      * @var hands
      */
     public $hands;

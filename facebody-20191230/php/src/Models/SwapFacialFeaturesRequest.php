@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class SwapFacialFeaturesRequest extends Model
 {
     /**
-     * @description sourceImageUrl
-     *
      * @var string
      */
     public $sourceImageURL;
 
     /**
-     * @description editPart
-     *
      * @var string
      */
     public $editPart;
 
     /**
-     * @description targetImageUrl
-     *
      * @var string
      */
     public $targetImageURL;

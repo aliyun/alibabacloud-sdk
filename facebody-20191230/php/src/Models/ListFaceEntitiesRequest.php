@@ -9,50 +9,36 @@ use AlibabaCloud\Tea\Model;
 class ListFaceEntitiesRequest extends Model
 {
     /**
-     * @description dbName
-     *
      * @var string
      */
     public $dbName;
 
     /**
-     * @description offset
-     *
      * @var int
      */
     public $offset;
 
     /**
-     * @description limit
-     *
      * @var int
      */
     public $limit;
 
     /**
-     * @description token
-     *
      * @var string
      */
     public $token;
 
     /**
-     * @description labels
-     *
      * @var string
      */
     public $labels;
 
     /**
-     * @description entityIdPrefix
-     *
      * @var string
      */
     public $entityIdPrefix;
 
     /**
-     * @description order
-     *
      * @var string
      */
     public $order;

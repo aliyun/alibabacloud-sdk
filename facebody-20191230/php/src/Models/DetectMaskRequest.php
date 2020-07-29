@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class DetectMaskRequest extends Model
 {
     /**
-     * @description imageUrl
-     *
      * @var string
      */
     public $imageURL;

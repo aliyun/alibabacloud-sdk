@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class outputs extends Model
 {
     /**
-     * @description handCount
-     *
      * @var int
      */
     public $handCount;
 
     /**
-     * @description results
-     *
      * @var array
      */
     public $results;

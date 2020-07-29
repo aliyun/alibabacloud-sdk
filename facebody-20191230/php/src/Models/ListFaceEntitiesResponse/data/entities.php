@@ -9,43 +9,31 @@ use AlibabaCloud\Tea\Model;
 class entities extends Model
 {
     /**
-     * @description dbName
-     *
      * @var string
      */
     public $dbName;
 
     /**
-     * @description entityId
-     *
      * @var string
      */
     public $entityId;
 
     /**
-     * @description faceCount
-     *
      * @var int
      */
     public $faceCount;
 
     /**
-     * @description labels
-     *
      * @var string
      */
     public $labels;
 
     /**
-     * @description createdAt
-     *
      * @var int
      */
     public $createdAt;
 
     /**
-     * @description updatedAt
-     *
      * @var int
      */
     public $updatedAt;

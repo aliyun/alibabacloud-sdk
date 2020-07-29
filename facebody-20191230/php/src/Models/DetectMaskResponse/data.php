@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description mask
-     *
      * @var int
      */
     public $mask;
 
     /**
-     * @description faceProbability
-     *
      * @var float
      */
     public $faceProbability;

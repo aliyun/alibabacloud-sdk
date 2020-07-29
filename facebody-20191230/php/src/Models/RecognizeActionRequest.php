@@ -10,22 +10,16 @@ use AlibabaCloud\Tea\Model;
 class RecognizeActionRequest extends Model
 {
     /**
-     * @description urlList
-     *
      * @var array
      */
     public $URLList;
 
     /**
-     * @description type
-     *
      * @var int
      */
     public $type;
 
     /**
-     * @description videoUrl
-     *
      * @var string
      */
     public $videoUrl;

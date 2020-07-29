@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class box extends Model
 {
     /**
-     * @description confident
-     *
      * @var float
      */
     public $confident;
 
     /**
-     * @description positions
-     *
      * @var array
      */
     public $positions;

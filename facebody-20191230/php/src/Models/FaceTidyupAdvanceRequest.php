@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class FaceTidyupAdvanceRequest extends Model
 {
     /**
-     * @description ImageURLObject
-     *
      * @var Stream
      */
     public $imageURLObject;
 
     /**
-     * @description shapeType
-     *
      * @var int
      */
     public $shapeType;
 
     /**
-     * @description strength
-     *
      * @var float
      */
     public $strength;

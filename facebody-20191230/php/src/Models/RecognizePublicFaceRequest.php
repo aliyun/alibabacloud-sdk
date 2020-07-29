@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class RecognizePublicFaceRequest extends Model
 {
     /**
-     * @description tasks
-     *
      * @var array
      */
     public $task;

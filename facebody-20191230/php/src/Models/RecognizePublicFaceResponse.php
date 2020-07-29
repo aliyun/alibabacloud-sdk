@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class RecognizePublicFaceResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var data
      */
     public $data;

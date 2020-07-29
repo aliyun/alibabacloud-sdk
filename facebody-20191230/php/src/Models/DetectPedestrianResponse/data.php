@@ -10,22 +10,16 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description width
-     *
      * @var int
      */
     public $width;
 
     /**
-     * @description height
-     *
      * @var int
      */
     public $height;
 
     /**
-     * @description elements
-     *
      * @var array
      */
     public $elements;

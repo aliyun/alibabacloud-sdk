@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class FaceMakeupRequest extends Model
 {
     /**
-     * @description imageUrl
-     *
      * @var string
      */
     public $imageURL;
 
     /**
-     * @description makeupType
-     *
      * @var string
      */
     public $makeupType;
 
     /**
-     * @description resourceType
-     *
      * @var string
      */
     public $resourceType;
 
     /**
-     * @description strength
-     *
      * @var float
      */
     public $strength;

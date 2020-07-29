@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class DetectVideoLivingFaceRequest extends Model
 {
     /**
-     * @description videoUrl
-     *
      * @var string
      */
     public $videoUrl;

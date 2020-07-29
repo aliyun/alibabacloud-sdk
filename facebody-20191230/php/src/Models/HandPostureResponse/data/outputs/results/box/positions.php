@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class positions extends Model
 {
     /**
-     * @description points
-     *
      * @var array
      */
     public $points;

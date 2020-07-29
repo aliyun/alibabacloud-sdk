@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class VerifyFaceMaskRequest extends Model
 {
     /**
-     * @description imageUrl
-     *
      * @var string
      */
     public $imageURL;
 
     /**
-     * @description refUrl
-     *
      * @var string
      */
     public $refUrl;

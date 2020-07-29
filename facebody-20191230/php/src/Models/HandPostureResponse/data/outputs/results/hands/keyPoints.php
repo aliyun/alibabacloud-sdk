@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class keyPoints extends Model
 {
     /**
-     * @description label
-     *
      * @var string
      */
     public $label;
 
     /**
-     * @description positions
-     *
      * @var array
      */
     public $positions;

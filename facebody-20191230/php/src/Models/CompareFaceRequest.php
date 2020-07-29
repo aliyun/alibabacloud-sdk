@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class CompareFaceRequest extends Model
 {
     /**
-     * @description imageUrlA
-     *
      * @var string
      */
     public $imageURLA;
 
     /**
-     * @description imageUrlB
-     *
      * @var string
      */
     public $imageURLB;

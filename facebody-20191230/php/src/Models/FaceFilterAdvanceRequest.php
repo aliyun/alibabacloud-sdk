@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class FaceFilterAdvanceRequest extends Model
 {
     /**
-     * @description ImageURLObject
-     *
      * @var Stream
      */
     public $imageURLObject;
 
     /**
-     * @description resourceType
-     *
      * @var string
      */
     public $resourceType;
 
     /**
-     * @description strength
-     *
      * @var float
      */
     public $strength;

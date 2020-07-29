@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description confidence
-     *
      * @var float
      */
     public $confidence;
 
     /**
-     * @description thresholds
-     *
      * @var array
      */
     public $thresholds;
 
     /**
-     * @description rectAList
-     *
      * @var array
      */
     public $rectAList;
 
     /**
-     * @description rectBList
-     *
      * @var array
      */
     public $rectBList;

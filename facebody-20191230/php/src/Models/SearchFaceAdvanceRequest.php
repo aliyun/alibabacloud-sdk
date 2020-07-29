@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class SearchFaceAdvanceRequest extends Model
 {
     /**
-     * @description ImageUrlObject
-     *
      * @var Stream
      */
     public $imageUrlObject;
 
     /**
-     * @description dbName
-     *
      * @var string
      */
     public $dbName;
 
     /**
-     * @description limit
-     *
      * @var int
      */
     public $limit;

@@ -11,15 +11,11 @@ use AlibabaCloud\Tea\Model;
 class matchList extends Model
 {
     /**
-     * @description faceItems
-     *
      * @var array
      */
     public $faceItems;
 
     /**
-     * @description location
-     *
      * @var location
      */
     public $location;

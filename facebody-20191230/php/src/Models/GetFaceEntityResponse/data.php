@@ -10,29 +10,21 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description dbName
-     *
      * @var string
      */
     public $dbName;
 
     /**
-     * @description entityId
-     *
      * @var string
      */
     public $entityId;
 
     /**
-     * @description labels
-     *
      * @var string
      */
     public $labels;
 
     /**
-     * @description faces
-     *
      * @var array
      */
     public $faces;

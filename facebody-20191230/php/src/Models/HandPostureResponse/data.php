@@ -11,15 +11,11 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description outputs
-     *
      * @var array
      */
     public $outputs;
 
     /**
-     * @description meta
-     *
      * @var metaObject
      */
     public $metaObject;

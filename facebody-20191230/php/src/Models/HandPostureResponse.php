@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class HandPostureResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var data
      */
     public $data;

@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class boxes extends Model
 {
     /**
-     * @description box
-     *
      * @var array
      */
     public $box;

@@ -108,11 +108,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param VerifyFaceMaskRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return VerifyFaceMaskResponse
      */
-    public function verifyFaceMask(VerifyFaceMaskRequest $request, RuntimeOptions $runtime)
+    public function verifyFaceMask($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -120,11 +121,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param VerifyFaceMaskAdvanceRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return VerifyFaceMaskResponse
      */
-    public function verifyFaceMaskAdvance(VerifyFaceMaskAdvanceRequest $request, RuntimeOptions $runtime)
+    public function verifyFaceMaskAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -182,11 +184,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeActionRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return RecognizeActionResponse
      */
-    public function recognizeAction(RecognizeActionRequest $request, RuntimeOptions $runtime)
+    public function recognizeAction($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -194,11 +197,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetectVideoLivingFaceRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return DetectVideoLivingFaceResponse
      */
-    public function detectVideoLivingFace(DetectVideoLivingFaceRequest $request, RuntimeOptions $runtime)
+    public function detectVideoLivingFace($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -206,11 +210,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetectVideoLivingFaceAdvanceRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return DetectVideoLivingFaceResponse
      */
-    public function detectVideoLivingFaceAdvance(DetectVideoLivingFaceAdvanceRequest $request, RuntimeOptions $runtime)
+    public function detectVideoLivingFaceAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -268,11 +273,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SwapFacialFeaturesRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return SwapFacialFeaturesResponse
      */
-    public function swapFacialFeatures(SwapFacialFeaturesRequest $request, RuntimeOptions $runtime)
+    public function swapFacialFeatures($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -280,11 +286,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SwapFacialFeaturesAdvanceRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return SwapFacialFeaturesResponse
      */
-    public function swapFacialFeaturesAdvance(SwapFacialFeaturesAdvanceRequest $request, RuntimeOptions $runtime)
+    public function swapFacialFeaturesAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -342,11 +349,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AddFaceEntityRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return AddFaceEntityResponse
      */
-    public function addFaceEntity(AddFaceEntityRequest $request, RuntimeOptions $runtime)
+    public function addFaceEntity($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -354,11 +362,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteFaceEntityRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DeleteFaceEntityResponse
      */
-    public function deleteFaceEntity(DeleteFaceEntityRequest $request, RuntimeOptions $runtime)
+    public function deleteFaceEntity($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -366,11 +375,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListFaceEntitiesRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return ListFaceEntitiesResponse
      */
-    public function listFaceEntities(ListFaceEntitiesRequest $request, RuntimeOptions $runtime)
+    public function listFaceEntities($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -378,11 +388,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetFaceEntityRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return GetFaceEntityResponse
      */
-    public function getFaceEntity(GetFaceEntityRequest $request, RuntimeOptions $runtime)
+    public function getFaceEntity($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -390,11 +401,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UpdateFaceEntityRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return UpdateFaceEntityResponse
      */
-    public function updateFaceEntity(UpdateFaceEntityRequest $request, RuntimeOptions $runtime)
+    public function updateFaceEntity($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -402,11 +414,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param FaceMakeupRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return FaceMakeupResponse
      */
-    public function faceMakeup(FaceMakeupRequest $request, RuntimeOptions $runtime)
+    public function faceMakeup($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -414,11 +427,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param FaceMakeupAdvanceRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return FaceMakeupResponse
      */
-    public function faceMakeupAdvance(FaceMakeupAdvanceRequest $request, RuntimeOptions $runtime)
+    public function faceMakeupAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -476,11 +490,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param HandPostureRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return HandPostureResponse
      */
-    public function handPosture(HandPostureRequest $request, RuntimeOptions $runtime)
+    public function handPosture($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -488,11 +503,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param HandPostureAdvanceRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return HandPostureResponse
      */
-    public function handPostureAdvance(HandPostureAdvanceRequest $request, RuntimeOptions $runtime)
+    public function handPostureAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -550,11 +566,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param BodyPostureRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return BodyPostureResponse
      */
-    public function bodyPosture(BodyPostureRequest $request, RuntimeOptions $runtime)
+    public function bodyPosture($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -562,11 +579,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param BodyPostureAdvanceRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return BodyPostureResponse
      */
-    public function bodyPostureAdvance(BodyPostureAdvanceRequest $request, RuntimeOptions $runtime)
+    public function bodyPostureAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -624,11 +642,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetectPedestrianRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DetectPedestrianResponse
      */
-    public function detectPedestrian(DetectPedestrianRequest $request, RuntimeOptions $runtime)
+    public function detectPedestrian($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -636,11 +655,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetectPedestrianAdvanceRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return DetectPedestrianResponse
      */
-    public function detectPedestrianAdvance(DetectPedestrianAdvanceRequest $request, RuntimeOptions $runtime)
+    public function detectPedestrianAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -698,11 +718,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param FaceBeautyRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return FaceBeautyResponse
      */
-    public function faceBeauty(FaceBeautyRequest $request, RuntimeOptions $runtime)
+    public function faceBeauty($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -710,11 +731,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param FaceBeautyAdvanceRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return FaceBeautyResponse
      */
-    public function faceBeautyAdvance(FaceBeautyAdvanceRequest $request, RuntimeOptions $runtime)
+    public function faceBeautyAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -772,11 +794,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param FaceFilterRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return FaceFilterResponse
      */
-    public function faceFilter(FaceFilterRequest $request, RuntimeOptions $runtime)
+    public function faceFilter($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -784,11 +807,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param FaceFilterAdvanceRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return FaceFilterResponse
      */
-    public function faceFilterAdvance(FaceFilterAdvanceRequest $request, RuntimeOptions $runtime)
+    public function faceFilterAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -846,11 +870,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param EnhanceFaceRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return EnhanceFaceResponse
      */
-    public function enhanceFace(EnhanceFaceRequest $request, RuntimeOptions $runtime)
+    public function enhanceFace($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -858,11 +883,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param EnhanceFaceAdvanceRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return EnhanceFaceResponse
      */
-    public function enhanceFaceAdvance(EnhanceFaceAdvanceRequest $request, RuntimeOptions $runtime)
+    public function enhanceFaceAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -920,11 +946,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param FaceTidyupRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return FaceTidyupResponse
      */
-    public function faceTidyup(FaceTidyupRequest $request, RuntimeOptions $runtime)
+    public function faceTidyup($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -932,11 +959,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param FaceTidyupAdvanceRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return FaceTidyupResponse
      */
-    public function faceTidyupAdvance(FaceTidyupAdvanceRequest $request, RuntimeOptions $runtime)
+    public function faceTidyupAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -994,11 +1022,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SearchFaceRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return SearchFaceResponse
      */
-    public function searchFace(SearchFaceRequest $request, RuntimeOptions $runtime)
+    public function searchFace($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1006,11 +1035,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SearchFaceAdvanceRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return SearchFaceResponse
      */
-    public function searchFaceAdvance(SearchFaceAdvanceRequest $request, RuntimeOptions $runtime)
+    public function searchFaceAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1068,11 +1098,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListFaceDbsRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return ListFaceDbsResponse
      */
-    public function listFaceDbs(ListFaceDbsRequest $request, RuntimeOptions $runtime)
+    public function listFaceDbs($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1080,11 +1111,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateFaceDbRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return CreateFaceDbResponse
      */
-    public function createFaceDb(CreateFaceDbRequest $request, RuntimeOptions $runtime)
+    public function createFaceDb($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1092,11 +1124,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteFaceRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return DeleteFaceResponse
      */
-    public function deleteFace(DeleteFaceRequest $request, RuntimeOptions $runtime)
+    public function deleteFace($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1104,11 +1137,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteFaceDbRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return DeleteFaceDbResponse
      */
-    public function deleteFaceDb(DeleteFaceDbRequest $request, RuntimeOptions $runtime)
+    public function deleteFaceDb($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1116,11 +1150,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AddFaceRequest $request
+     * @param RuntimeOptions $runtime
      *
      * @return AddFaceResponse
      */
-    public function addFace(AddFaceRequest $request, RuntimeOptions $runtime)
+    public function addFace($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1128,11 +1163,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AddFaceAdvanceRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return AddFaceResponse
      */
-    public function addFaceAdvance(AddFaceAdvanceRequest $request, RuntimeOptions $runtime)
+    public function addFaceAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1190,11 +1226,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeExpressionRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return RecognizeExpressionResponse
      */
-    public function recognizeExpression(RecognizeExpressionRequest $request, RuntimeOptions $runtime)
+    public function recognizeExpression($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1202,11 +1239,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeExpressionAdvanceRequest $request
+     * @param RuntimeOptions                    $runtime
      *
      * @return RecognizeExpressionResponse
      */
-    public function recognizeExpressionAdvance(RecognizeExpressionAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeExpressionAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1264,11 +1302,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizePublicFaceRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return RecognizePublicFaceResponse
      */
-    public function recognizePublicFace(RecognizePublicFaceRequest $request, RuntimeOptions $runtime)
+    public function recognizePublicFace($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1276,11 +1315,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetectLivingFaceRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DetectLivingFaceResponse
      */
-    public function detectLivingFace(DetectLivingFaceRequest $request, RuntimeOptions $runtime)
+    public function detectLivingFace($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1288,11 +1328,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetectBodyCountRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return DetectBodyCountResponse
      */
-    public function detectBodyCount(DetectBodyCountRequest $request, RuntimeOptions $runtime)
+    public function detectBodyCount($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1300,11 +1341,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetectBodyCountAdvanceRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return DetectBodyCountResponse
      */
-    public function detectBodyCountAdvance(DetectBodyCountAdvanceRequest $request, RuntimeOptions $runtime)
+    public function detectBodyCountAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1362,11 +1404,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetectMaskRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return DetectMaskResponse
      */
-    public function detectMask(DetectMaskRequest $request, RuntimeOptions $runtime)
+    public function detectMask($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1374,11 +1417,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetectMaskAdvanceRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return DetectMaskResponse
      */
-    public function detectMaskAdvance(DetectMaskAdvanceRequest $request, RuntimeOptions $runtime)
+    public function detectMaskAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1436,11 +1480,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeFaceRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return RecognizeFaceResponse
      */
-    public function recognizeFace(RecognizeFaceRequest $request, RuntimeOptions $runtime)
+    public function recognizeFace($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1448,11 +1493,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeFaceAdvanceRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return RecognizeFaceResponse
      */
-    public function recognizeFaceAdvance(RecognizeFaceAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeFaceAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1510,11 +1556,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CompareFaceRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return CompareFaceResponse
      */
-    public function compareFace(CompareFaceRequest $request, RuntimeOptions $runtime)
+    public function compareFace($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1522,11 +1569,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetectFaceRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return DetectFaceResponse
      */
-    public function detectFace(DetectFaceRequest $request, RuntimeOptions $runtime)
+    public function detectFace($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1534,11 +1582,12 @@ class Facebody extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetectFaceAdvanceRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return DetectFaceResponse
      */
-    public function detectFaceAdvance(DetectFaceAdvanceRequest $request, RuntimeOptions $runtime)
+    public function detectFaceAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1603,8 +1652,6 @@ class Facebody extends Rpc
      * @param string $suffix
      * @param array  $endpointMap
      * @param string $endpoint
-     *
-     * @throws \Exception
      *
      * @return string
      */
