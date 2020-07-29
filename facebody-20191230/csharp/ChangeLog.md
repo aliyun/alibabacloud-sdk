@@ -1,3 +1,6 @@
+2020-07-29 Version: 0.0.6
+- Add DetectCelebrity.
+
 2020-07-02 Version: 0.0.5
 - Sdk for 026.
 

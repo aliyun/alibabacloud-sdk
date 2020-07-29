@@ -8,10 +8,14 @@ using Tea;
 
 namespace AlibabaCloud.SDK.Facebody20191230.Models
 {
-    public class EnhanceFaceAdvanceRequest : TeaModel {
+    public class VerifyFaceMaskAdvanceRequest : TeaModel {
         [NameInMap("ImageURLObject")]
         [Validation(Required=true)]
         public Stream ImageURLObject { get; set; }
+
+        [NameInMap("RefUrl")]
+        [Validation(Required=true)]
+        public string RefUrl { get; set; }
 
     }
 

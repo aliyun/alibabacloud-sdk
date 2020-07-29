@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Facebody20191230.Models
+namespace AlibabaCloud.SDK.Facebody20191230.Models
 {
     public class HandPostureResponse : TeaModel {
         [NameInMap("RequestId")]
