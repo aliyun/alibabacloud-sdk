@@ -1,3 +1,6 @@
+2020-07-29 Version: 1.0.3
+- Add DetectCelebrity.
+
 2020-07-27 Version: 1.0.2
 - Generated facebody-20191230 for Python.
 
