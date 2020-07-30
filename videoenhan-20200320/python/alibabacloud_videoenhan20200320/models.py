@@ -2,6 +2,141 @@
 from Tea.model import TeaModel
 
 
+class ChangeVideoSizeRequest(TeaModel):
+    def __init__(self, video_url=None, width=None, height=None, crop_type=None, fill_type=None, tightness=None, r=None, g=None, b=None):
+        self.video_url = video_url
+        self.width = width
+        self.height = height
+        self.crop_type = crop_type
+        self.fill_type = fill_type
+        self.tightness = tightness
+        self.r = r
+        self.g = g
+        self.b = b
+
+    def validate(self):
+        self.validate_required(self.video_url, 'video_url')
+        self.validate_required(self.width, 'width')
+        self.validate_required(self.height, 'height')
+
+    def to_map(self):
+        result = {}
+        result['VideoUrl'] = self.video_url
+        result['Width'] = self.width
+        result['Height'] = self.height
+        result['CropType'] = self.crop_type
+        result['FillType'] = self.fill_type
+        result['Tightness'] = self.tightness
+        result['R'] = self.r
+        result['G'] = self.g
+        result['B'] = self.b
+        return result
+
+    def from_map(self, map={}):
+        self.video_url = map.get('VideoUrl')
+        self.width = map.get('Width')
+        self.height = map.get('Height')
+        self.crop_type = map.get('CropType')
+        self.fill_type = map.get('FillType')
+        self.tightness = map.get('Tightness')
+        self.r = map.get('R')
+        self.g = map.get('G')
+        self.b = map.get('B')
+        return self
+
+
+class ChangeVideoSizeResponse(TeaModel):
+    def __init__(self, request_id=None, data=None):
+        self.request_id = request_id
+        self.data = data
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.data, 'data')
+        if self.data:
+            self.data.validate()
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        if self.data is not None:
+            result['Data'] = self.data.to_map()
+        else:
+            result['Data'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        if map.get('Data') is not None:
+            temp_model = ChangeVideoSizeResponseData()
+            self.data = temp_model.from_map(map['Data'])
+        else:
+            self.data = None
+        return self
+
+
+class ChangeVideoSizeResponseData(TeaModel):
+    def __init__(self, video_url=None, video_cover_url=None):
+        self.video_url = video_url
+        self.video_cover_url = video_cover_url
+
+    def validate(self):
+        self.validate_required(self.video_url, 'video_url')
+        self.validate_required(self.video_cover_url, 'video_cover_url')
+
+    def to_map(self):
+        result = {}
+        result['VideoUrl'] = self.video_url
+        result['VideoCoverUrl'] = self.video_cover_url
+        return result
+
+    def from_map(self, map={}):
+        self.video_url = map.get('VideoUrl')
+        self.video_cover_url = map.get('VideoCoverUrl')
+        return self
+class ChangeVideoSizeAdvanceRequest(TeaModel):
+    def __init__(self, video_url_object=None, width=None, height=None, crop_type=None, fill_type=None, tightness=None, r=None, g=None, b=None):
+        self.video_url_object = video_url_object
+        self.width = width
+        self.height = height
+        self.crop_type = crop_type
+        self.fill_type = fill_type
+        self.tightness = tightness
+        self.r = r
+        self.g = g
+        self.b = b
+
+    def validate(self):
+        self.validate_required(self.video_url_object, 'video_url_object')
+        self.validate_required(self.width, 'width')
+        self.validate_required(self.height, 'height')
+
+    def to_map(self):
+        result = {}
+        result['VideoUrlObject'] = self.video_url_object
+        result['Width'] = self.width
+        result['Height'] = self.height
+        result['CropType'] = self.crop_type
+        result['FillType'] = self.fill_type
+        result['Tightness'] = self.tightness
+        result['R'] = self.r
+        result['G'] = self.g
+        result['B'] = self.b
+        return result
+
+    def from_map(self, map={}):
+        self.video_url_object = map.get('VideoUrlObject')
+        self.width = map.get('Width')
+        self.height = map.get('Height')
+        self.crop_type = map.get('CropType')
+        self.fill_type = map.get('FillType')
+        self.tightness = map.get('Tightness')
+        self.r = map.get('R')
+        self.g = map.get('G')
+        self.b = map.get('B')
+        return self
+
+
 class GenerateVideoRequest(TeaModel):
     def __init__(self, file_list=None, scene=None, width=None, height=None, style=None, duration=None, duration_adaption=None, transition_style=None, smart_effect=None, puzzle_effect=None, mute=None):
         self.file_list = []

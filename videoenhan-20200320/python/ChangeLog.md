@@ -1,3 +1,6 @@
+2020-07-30 Version: 1.0.2
+- Add ChangeVideoSize.
+
 2020-07-27 Version: 1.0.1
 - Generated videoenhan-20200320 for Python.
 
