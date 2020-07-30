@@ -2,6 +2,140 @@
 from Tea.model import TeaModel
 
 
+class DetectCelebrityRequest(TeaModel):
+    def __init__(self, image_url=None):
+        self.image_url = image_url
+
+    def validate(self):
+        self.validate_required(self.image_url, 'image_url')
+
+    def to_map(self):
+        result = {}
+        result['ImageURL'] = self.image_url
+        return result
+
+    def from_map(self, map={}):
+        self.image_url = map.get('ImageURL')
+        return self
+
+
+class DetectCelebrityResponse(TeaModel):
+    def __init__(self, request_id=None, data=None):
+        self.request_id = request_id
+        self.data = data
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.data, 'data')
+        if self.data:
+            self.data.validate()
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        if self.data is not None:
+            result['Data'] = self.data.to_map()
+        else:
+            result['Data'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        if map.get('Data') is not None:
+            temp_model = DetectCelebrityResponseData()
+            self.data = temp_model.from_map(map['Data'])
+        else:
+            self.data = None
+        return self
+
+
+class DetectCelebrityResponseDataFaceRecognizeResults(TeaModel):
+    def __init__(self, name=None, face_boxes=None):
+        self.name = name
+        self.face_boxes = []
+
+    def validate(self):
+        self.validate_required(self.name, 'name')
+        self.validate_required(self.face_boxes, 'face_boxes')
+
+    def to_map(self):
+        result = {}
+        result['Name'] = self.name
+        result['FaceBoxes'] = []
+        if self.face_boxes is not None:
+            for k in self.face_boxes:
+                result['FaceBoxes'].append(k)
+        else:
+            result['FaceBoxes'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.name = map.get('Name')
+        self.face_boxes = []
+        if map.get('FaceBoxes') is not None:
+            for k in map.get('FaceBoxes'):
+                self.face_boxes.append(k)
+        else:
+            self.face_boxes = None
+        return self
+
+
+class DetectCelebrityResponseData(TeaModel):
+    def __init__(self, width=None, height=None, face_recognize_results=None):
+        self.width = width
+        self.height = height
+        self.face_recognize_results = []
+
+    def validate(self):
+        self.validate_required(self.width, 'width')
+        self.validate_required(self.height, 'height')
+        self.validate_required(self.face_recognize_results, 'face_recognize_results')
+        if self.face_recognize_results:
+            for k in self.face_recognize_results:
+                if k :
+                    k.validate()
+
+    def to_map(self):
+        result = {}
+        result['Width'] = self.width
+        result['Height'] = self.height
+        result['FaceRecognizeResults'] = []
+        if self.face_recognize_results is not None:
+            for k in self.face_recognize_results:
+                result['FaceRecognizeResults'].append(k.to_map() if k else None)
+        else:
+            result['FaceRecognizeResults'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.width = map.get('Width')
+        self.height = map.get('Height')
+        self.face_recognize_results = []
+        if map.get('FaceRecognizeResults') is not None:
+            for k in map.get('FaceRecognizeResults'):
+                temp_model = DetectCelebrityResponseDataFaceRecognizeResults()
+                temp_model = temp_model.from_map(k)
+                self.face_recognize_results.append(temp_model)
+        else:
+            self.face_recognize_results = None
+        return self
+class DetectCelebrityAdvanceRequest(TeaModel):
+    def __init__(self, image_urlobject=None):
+        self.image_urlobject = image_urlobject
+
+    def validate(self):
+        self.validate_required(self.image_urlobject, 'image_urlobject')
+
+    def to_map(self):
+        result = {}
+        result['ImageURLObject'] = self.image_urlobject
+        return result
+
+    def from_map(self, map={}):
+        self.image_urlobject = map.get('ImageURLObject')
+        return self
+
+
 class VerifyFaceMaskRequest(TeaModel):
     def __init__(self, image_url=None, ref_url=None):
         self.image_url = image_url
