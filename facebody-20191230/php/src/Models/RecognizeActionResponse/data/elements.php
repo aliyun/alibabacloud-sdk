@@ -59,16 +59,10 @@ class elements extends Model
             }
         }
         if (null !== $this->scores) {
-            $res['Scores'] = [];
-            if (null !== $this->scores) {
-                $res['Scores'] = $this->scores;
-            }
+            $res['Scores'] = $this->scores;
         }
         if (null !== $this->labels) {
-            $res['Labels'] = [];
-            if (null !== $this->labels) {
-                $res['Labels'] = $this->labels;
-            }
+            $res['Labels'] = $this->labels;
         }
 
         return $res;
@@ -96,13 +90,11 @@ class elements extends Model
         }
         if (isset($map['Scores'])) {
             if (!empty($map['Scores'])) {
-                $model->scores = [];
                 $model->scores = $map['Scores'];
             }
         }
         if (isset($map['Labels'])) {
             if (!empty($map['Labels'])) {
-                $model->labels = [];
                 $model->labels = $map['Labels'];
             }
         }

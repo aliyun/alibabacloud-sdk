@@ -69,22 +69,13 @@ class data extends Model
             $res['MaskRef'] = $this->maskRef;
         }
         if (null !== $this->rectangle) {
-            $res['Rectangle'] = [];
-            if (null !== $this->rectangle) {
-                $res['Rectangle'] = $this->rectangle;
-            }
+            $res['Rectangle'] = $this->rectangle;
         }
         if (null !== $this->rectangleRef) {
-            $res['RectangleRef'] = [];
-            if (null !== $this->rectangleRef) {
-                $res['RectangleRef'] = $this->rectangleRef;
-            }
+            $res['RectangleRef'] = $this->rectangleRef;
         }
         if (null !== $this->thresholds) {
-            $res['Thresholds'] = [];
-            if (null !== $this->thresholds) {
-                $res['Thresholds'] = $this->thresholds;
-            }
+            $res['Thresholds'] = $this->thresholds;
         }
 
         return $res;
@@ -109,19 +100,16 @@ class data extends Model
         }
         if (isset($map['Rectangle'])) {
             if (!empty($map['Rectangle'])) {
-                $model->rectangle = [];
                 $model->rectangle = $map['Rectangle'];
             }
         }
         if (isset($map['RectangleRef'])) {
             if (!empty($map['RectangleRef'])) {
-                $model->rectangleRef = [];
                 $model->rectangleRef = $map['RectangleRef'];
             }
         }
         if (isset($map['Thresholds'])) {
             if (!empty($map['Thresholds'])) {
-                $model->thresholds = [];
                 $model->thresholds = $map['Thresholds'];
             }
         }

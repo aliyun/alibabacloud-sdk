@@ -45,10 +45,7 @@ class elements extends Model
             $res['Type'] = $this->type;
         }
         if (null !== $this->boxes) {
-            $res['Boxes'] = [];
-            if (null !== $this->boxes) {
-                $res['Boxes'] = $this->boxes;
-            }
+            $res['Boxes'] = $this->boxes;
         }
 
         return $res;
@@ -70,7 +67,6 @@ class elements extends Model
         }
         if (isset($map['Boxes'])) {
             if (!empty($map['Boxes'])) {
-                $model->boxes = [];
                 $model->boxes = $map['Boxes'];
             }
         }

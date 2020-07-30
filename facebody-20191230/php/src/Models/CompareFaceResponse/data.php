@@ -49,22 +49,13 @@ class data extends Model
             $res['Confidence'] = $this->confidence;
         }
         if (null !== $this->thresholds) {
-            $res['Thresholds'] = [];
-            if (null !== $this->thresholds) {
-                $res['Thresholds'] = $this->thresholds;
-            }
+            $res['Thresholds'] = $this->thresholds;
         }
         if (null !== $this->rectAList) {
-            $res['RectAList'] = [];
-            if (null !== $this->rectAList) {
-                $res['RectAList'] = $this->rectAList;
-            }
+            $res['RectAList'] = $this->rectAList;
         }
         if (null !== $this->rectBList) {
-            $res['RectBList'] = [];
-            if (null !== $this->rectBList) {
-                $res['RectBList'] = $this->rectBList;
-            }
+            $res['RectBList'] = $this->rectBList;
         }
 
         return $res;
@@ -83,19 +74,16 @@ class data extends Model
         }
         if (isset($map['Thresholds'])) {
             if (!empty($map['Thresholds'])) {
-                $model->thresholds = [];
                 $model->thresholds = $map['Thresholds'];
             }
         }
         if (isset($map['RectAList'])) {
             if (!empty($map['RectAList'])) {
-                $model->rectAList = [];
                 $model->rectAList = $map['RectAList'];
             }
         }
         if (isset($map['RectBList'])) {
             if (!empty($map['RectBList'])) {
-                $model->rectBList = [];
                 $model->rectBList = $map['RectBList'];
             }
         }

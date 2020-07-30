@@ -45,10 +45,7 @@ class elements extends Model
             $res['FaceConfidence'] = $this->faceConfidence;
         }
         if (null !== $this->rect) {
-            $res['Rect'] = [];
-            if (null !== $this->rect) {
-                $res['Rect'] = $this->rect;
-            }
+            $res['Rect'] = $this->rect;
         }
 
         return $res;
@@ -70,7 +67,6 @@ class elements extends Model
         }
         if (isset($map['Rect'])) {
             if (!empty($map['Rect'])) {
-                $model->rect = [];
                 $model->rect = $map['Rect'];
             }
         }

@@ -25,10 +25,7 @@ class boxes extends Model
     {
         $res = [];
         if (null !== $this->box) {
-            $res['Box'] = [];
-            if (null !== $this->box) {
-                $res['Box'] = $this->box;
-            }
+            $res['Box'] = $this->box;
         }
 
         return $res;
@@ -44,7 +41,6 @@ class boxes extends Model
         $model = new self();
         if (isset($map['Box'])) {
             if (!empty($map['Box'])) {
-                $model->box = [];
                 $model->box = $map['Box'];
             }
         }

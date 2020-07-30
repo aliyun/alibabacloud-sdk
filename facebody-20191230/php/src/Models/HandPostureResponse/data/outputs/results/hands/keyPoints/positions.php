@@ -25,10 +25,7 @@ class positions extends Model
     {
         $res = [];
         if (null !== $this->points) {
-            $res['Points'] = [];
-            if (null !== $this->points) {
-                $res['Points'] = $this->points;
-            }
+            $res['Points'] = $this->points;
         }
 
         return $res;
@@ -44,7 +41,6 @@ class positions extends Model
         $model = new self();
         if (isset($map['Points'])) {
             if (!empty($map['Points'])) {
-                $model->points = [];
                 $model->points = $map['Points'];
             }
         }

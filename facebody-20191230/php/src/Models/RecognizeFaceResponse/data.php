@@ -118,64 +118,34 @@ class data extends Model
             $res['DenseFeatureLength'] = $this->denseFeatureLength;
         }
         if (null !== $this->faceRectangles) {
-            $res['FaceRectangles'] = [];
-            if (null !== $this->faceRectangles) {
-                $res['FaceRectangles'] = $this->faceRectangles;
-            }
+            $res['FaceRectangles'] = $this->faceRectangles;
         }
         if (null !== $this->faceProbabilityList) {
-            $res['FaceProbabilityList'] = [];
-            if (null !== $this->faceProbabilityList) {
-                $res['FaceProbabilityList'] = $this->faceProbabilityList;
-            }
+            $res['FaceProbabilityList'] = $this->faceProbabilityList;
         }
         if (null !== $this->poseList) {
-            $res['PoseList'] = [];
-            if (null !== $this->poseList) {
-                $res['PoseList'] = $this->poseList;
-            }
+            $res['PoseList'] = $this->poseList;
         }
         if (null !== $this->landmarks) {
-            $res['Landmarks'] = [];
-            if (null !== $this->landmarks) {
-                $res['Landmarks'] = $this->landmarks;
-            }
+            $res['Landmarks'] = $this->landmarks;
         }
         if (null !== $this->pupils) {
-            $res['Pupils'] = [];
-            if (null !== $this->pupils) {
-                $res['Pupils'] = $this->pupils;
-            }
+            $res['Pupils'] = $this->pupils;
         }
         if (null !== $this->genderList) {
-            $res['GenderList'] = [];
-            if (null !== $this->genderList) {
-                $res['GenderList'] = $this->genderList;
-            }
+            $res['GenderList'] = $this->genderList;
         }
         if (null !== $this->ageList) {
-            $res['AgeList'] = [];
-            if (null !== $this->ageList) {
-                $res['AgeList'] = $this->ageList;
-            }
+            $res['AgeList'] = $this->ageList;
         }
         if (null !== $this->expressions) {
-            $res['Expressions'] = [];
-            if (null !== $this->expressions) {
-                $res['Expressions'] = $this->expressions;
-            }
+            $res['Expressions'] = $this->expressions;
         }
         if (null !== $this->glasses) {
-            $res['Glasses'] = [];
-            if (null !== $this->glasses) {
-                $res['Glasses'] = $this->glasses;
-            }
+            $res['Glasses'] = $this->glasses;
         }
         if (null !== $this->denseFeatures) {
-            $res['DenseFeatures'] = [];
-            if (null !== $this->denseFeatures) {
-                $res['DenseFeatures'] = $this->denseFeatures;
-            }
+            $res['DenseFeatures'] = $this->denseFeatures;
         }
 
         return $res;
@@ -200,61 +170,51 @@ class data extends Model
         }
         if (isset($map['FaceRectangles'])) {
             if (!empty($map['FaceRectangles'])) {
-                $model->faceRectangles = [];
                 $model->faceRectangles = $map['FaceRectangles'];
             }
         }
         if (isset($map['FaceProbabilityList'])) {
             if (!empty($map['FaceProbabilityList'])) {
-                $model->faceProbabilityList = [];
                 $model->faceProbabilityList = $map['FaceProbabilityList'];
             }
         }
         if (isset($map['PoseList'])) {
             if (!empty($map['PoseList'])) {
-                $model->poseList = [];
                 $model->poseList = $map['PoseList'];
             }
         }
         if (isset($map['Landmarks'])) {
             if (!empty($map['Landmarks'])) {
-                $model->landmarks = [];
                 $model->landmarks = $map['Landmarks'];
             }
         }
         if (isset($map['Pupils'])) {
             if (!empty($map['Pupils'])) {
-                $model->pupils = [];
                 $model->pupils = $map['Pupils'];
             }
         }
         if (isset($map['GenderList'])) {
             if (!empty($map['GenderList'])) {
-                $model->genderList = [];
                 $model->genderList = $map['GenderList'];
             }
         }
         if (isset($map['AgeList'])) {
             if (!empty($map['AgeList'])) {
-                $model->ageList = [];
                 $model->ageList = $map['AgeList'];
             }
         }
         if (isset($map['Expressions'])) {
             if (!empty($map['Expressions'])) {
-                $model->expressions = [];
                 $model->expressions = $map['Expressions'];
             }
         }
         if (isset($map['Glasses'])) {
             if (!empty($map['Glasses'])) {
-                $model->glasses = [];
                 $model->glasses = $map['Glasses'];
             }
         }
         if (isset($map['DenseFeatures'])) {
             if (!empty($map['DenseFeatures'])) {
-                $model->denseFeatures = [];
                 $model->denseFeatures = $map['DenseFeatures'];
             }
         }

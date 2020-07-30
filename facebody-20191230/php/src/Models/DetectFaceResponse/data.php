@@ -73,34 +73,19 @@ class data extends Model
             $res['LandmarkCount'] = $this->landmarkCount;
         }
         if (null !== $this->faceRectangles) {
-            $res['FaceRectangles'] = [];
-            if (null !== $this->faceRectangles) {
-                $res['FaceRectangles'] = $this->faceRectangles;
-            }
+            $res['FaceRectangles'] = $this->faceRectangles;
         }
         if (null !== $this->faceProbabilityList) {
-            $res['FaceProbabilityList'] = [];
-            if (null !== $this->faceProbabilityList) {
-                $res['FaceProbabilityList'] = $this->faceProbabilityList;
-            }
+            $res['FaceProbabilityList'] = $this->faceProbabilityList;
         }
         if (null !== $this->poseList) {
-            $res['PoseList'] = [];
-            if (null !== $this->poseList) {
-                $res['PoseList'] = $this->poseList;
-            }
+            $res['PoseList'] = $this->poseList;
         }
         if (null !== $this->landmarks) {
-            $res['Landmarks'] = [];
-            if (null !== $this->landmarks) {
-                $res['Landmarks'] = $this->landmarks;
-            }
+            $res['Landmarks'] = $this->landmarks;
         }
         if (null !== $this->pupils) {
-            $res['Pupils'] = [];
-            if (null !== $this->pupils) {
-                $res['Pupils'] = $this->pupils;
-            }
+            $res['Pupils'] = $this->pupils;
         }
 
         return $res;
@@ -122,31 +107,26 @@ class data extends Model
         }
         if (isset($map['FaceRectangles'])) {
             if (!empty($map['FaceRectangles'])) {
-                $model->faceRectangles = [];
                 $model->faceRectangles = $map['FaceRectangles'];
             }
         }
         if (isset($map['FaceProbabilityList'])) {
             if (!empty($map['FaceProbabilityList'])) {
-                $model->faceProbabilityList = [];
                 $model->faceProbabilityList = $map['FaceProbabilityList'];
             }
         }
         if (isset($map['PoseList'])) {
             if (!empty($map['PoseList'])) {
-                $model->poseList = [];
                 $model->poseList = $map['PoseList'];
             }
         }
         if (isset($map['Landmarks'])) {
             if (!empty($map['Landmarks'])) {
-                $model->landmarks = [];
                 $model->landmarks = $map['Landmarks'];
             }
         }
         if (isset($map['Pupils'])) {
             if (!empty($map['Pupils'])) {
-                $model->pupils = [];
                 $model->pupils = $map['Pupils'];
             }
         }
