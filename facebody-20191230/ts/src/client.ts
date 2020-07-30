@@ -3279,7 +3279,7 @@ export default class Client extends RPC {
 
   async detectCelebrity(request: DetectCelebrityRequest, runtime: $Util.RuntimeOptions): Promise<DetectCelebrityResponse> {
     Util.validateModel(request);
-    return $tea.cast<DetectCelebrityResponse>(await this.doRequest("DetectCelebrity", "HTTPS", "GET", "2019-12-30", "AK", $tea.toMap(request), null, runtime), new DetectCelebrityResponse({}));
+    return $tea.cast<DetectCelebrityResponse>(await this.doRequest("DetectCelebrity", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new DetectCelebrityResponse({}));
   }
 
   async detectCelebrityAdvance(request: DetectCelebrityAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<DetectCelebrityResponse> {
