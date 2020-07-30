@@ -10,6 +10,66 @@ import EndpointUtil from '@alicloud/endpoint-util';
 import { Readable } from 'stream';
 import * as $tea from '@alicloud/tea-typescript';
 
+export class DetectCelebrityRequest extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectCelebrityResponse extends $tea.Model {
+  requestId: string;
+  data: DetectCelebrityResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: DetectCelebrityResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectCelebrityAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class VerifyFaceMaskRequest extends $tea.Model {
   imageURL: string;
   refUrl: string;
@@ -1758,6 +1818,53 @@ export class DetectFaceAdvanceRequest extends $tea.Model {
   }
 }
 
+export class DetectCelebrityResponseDataFaceRecognizeResults extends $tea.Model {
+  name: string;
+  faceBoxes: number[];
+  static names(): { [key: string]: string } {
+    return {
+      name: 'Name',
+      faceBoxes: 'FaceBoxes',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      name: 'string',
+      faceBoxes: { 'type': 'array', 'itemType': 'float' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectCelebrityResponseData extends $tea.Model {
+  width: number;
+  height: number;
+  faceRecognizeResults: DetectCelebrityResponseDataFaceRecognizeResults[];
+  static names(): { [key: string]: string } {
+    return {
+      width: 'Width',
+      height: 'Height',
+      faceRecognizeResults: 'FaceRecognizeResults',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      width: 'number',
+      height: 'number',
+      faceRecognizeResults: { 'type': 'array', 'itemType': DetectCelebrityResponseDataFaceRecognizeResults },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class VerifyFaceMaskResponseData extends $tea.Model {
   confidence: number;
   mask: number;
@@ -3169,6 +3276,67 @@ export default class Client extends RPC {
     this._endpoint = this.getEndpoint("facebody", this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
   }
 
+
+  async detectCelebrity(request: DetectCelebrityRequest, runtime: $Util.RuntimeOptions): Promise<DetectCelebrityResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DetectCelebrityResponse>(await this.doRequest("DetectCelebrity", "HTTPS", "GET", "2019-12-30", "AK", $tea.toMap(request), null, runtime), new DetectCelebrityResponse({}));
+  }
+
+  async detectCelebrityAdvance(request: DetectCelebrityAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<DetectCelebrityResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "facebody",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let detectCelebrityreq = new DetectCelebrityRequest({ });
+    RPCUtil.convert(request, detectCelebrityreq);
+    detectCelebrityreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let detectCelebrityResp = await this.detectCelebrity(detectCelebrityreq, runtime);
+    return detectCelebrityResp;
+  }
 
   async verifyFaceMask(request: VerifyFaceMaskRequest, runtime: $Util.RuntimeOptions): Promise<VerifyFaceMaskResponse> {
     Util.validateModel(request);
