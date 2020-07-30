@@ -14,6 +14,115 @@ import (
 	"io"
 )
 
+type DetectCelebrityRequest struct {
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+}
+
+func (s DetectCelebrityRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectCelebrityRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectCelebrityRequest) SetImageURL(v string) *DetectCelebrityRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type DetectCelebrityResponse struct {
+	RequestId *string                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *DetectCelebrityResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s DetectCelebrityResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectCelebrityResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DetectCelebrityResponse) SetRequestId(v string) *DetectCelebrityResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DetectCelebrityResponse) SetData(v *DetectCelebrityResponseData) *DetectCelebrityResponse {
+	s.Data = v
+	return s
+}
+
+type DetectCelebrityResponseData struct {
+	Width                *int                                               `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height               *int                                               `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	FaceRecognizeResults []*DetectCelebrityResponseDataFaceRecognizeResults `json:"FaceRecognizeResults,omitempty" xml:"FaceRecognizeResults,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DetectCelebrityResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectCelebrityResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *DetectCelebrityResponseData) SetWidth(v int) *DetectCelebrityResponseData {
+	s.Width = &v
+	return s
+}
+
+func (s *DetectCelebrityResponseData) SetHeight(v int) *DetectCelebrityResponseData {
+	s.Height = &v
+	return s
+}
+
+func (s *DetectCelebrityResponseData) SetFaceRecognizeResults(v []*DetectCelebrityResponseDataFaceRecognizeResults) *DetectCelebrityResponseData {
+	s.FaceRecognizeResults = v
+	return s
+}
+
+type DetectCelebrityResponseDataFaceRecognizeResults struct {
+	Name      *string    `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	FaceBoxes []*float32 `json:"FaceBoxes,omitempty" xml:"FaceBoxes,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DetectCelebrityResponseDataFaceRecognizeResults) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectCelebrityResponseDataFaceRecognizeResults) GoString() string {
+	return s.String()
+}
+
+func (s *DetectCelebrityResponseDataFaceRecognizeResults) SetName(v string) *DetectCelebrityResponseDataFaceRecognizeResults {
+	s.Name = &v
+	return s
+}
+
+func (s *DetectCelebrityResponseDataFaceRecognizeResults) SetFaceBoxes(v []*float32) *DetectCelebrityResponseDataFaceRecognizeResults {
+	s.FaceBoxes = v
+	return s
+}
+
+type DetectCelebrityAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+}
+
+func (s DetectCelebrityAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectCelebrityAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectCelebrityAdvanceRequest) SetImageURLObject(v io.Reader) *DetectCelebrityAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
 type VerifyFaceMaskRequest struct {
 	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 	RefUrl   *string `json:"RefUrl,omitempty" xml:"RefUrl,omitempty" require:"true"`
@@ -3398,6 +3507,104 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	}
 
 	return nil
+}
+
+func (client *Client) DetectCelebrity(request *DetectCelebrityRequest, runtime *util.RuntimeOptions) (_result *DetectCelebrityResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DetectCelebrityResponse{}
+	_body, _err := client.DoRequest(tea.String("DetectCelebrity"), tea.String("HTTPS"), tea.String("GET"), tea.String("2019-12-30"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DetectCelebrityAdvance(request *DetectCelebrityAdvanceRequest, runtime *util.RuntimeOptions) (_result *DetectCelebrityResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return _result, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return _result, _err
+	}
+
+	authConfig := &rpc.Config{
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("facebody"),
+		RegionId: client.RegionId,
+	}
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return _result, _err
+	}
+	// Step 2: request final api
+	detectCelebrityreq := &DetectCelebrityRequest{}
+	rpcutil.Convert(request, detectCelebrityreq)
+	detectCelebrityreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	detectCelebrityResp, _err := client.DetectCelebrity(detectCelebrityreq, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	_result = detectCelebrityResp
+	return _result, _err
 }
 
 func (client *Client) VerifyFaceMask(request *VerifyFaceMaskRequest, runtime *util.RuntimeOptions) (_result *VerifyFaceMaskResponse, _err error) {
