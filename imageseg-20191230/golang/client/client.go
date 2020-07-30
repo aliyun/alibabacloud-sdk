@@ -14,6 +14,154 @@ import (
 	"io"
 )
 
+type SegmentLogoRequest struct {
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+}
+
+func (s SegmentLogoRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentLogoRequest) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentLogoRequest) SetImageURL(v string) *SegmentLogoRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type SegmentLogoResponse struct {
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SegmentLogoResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s SegmentLogoResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentLogoResponse) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentLogoResponse) SetRequestId(v string) *SegmentLogoResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *SegmentLogoResponse) SetData(v *SegmentLogoResponseData) *SegmentLogoResponse {
+	s.Data = v
+	return s
+}
+
+type SegmentLogoResponseData struct {
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+}
+
+func (s SegmentLogoResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentLogoResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentLogoResponseData) SetImageURL(v string) *SegmentLogoResponseData {
+	s.ImageURL = &v
+	return s
+}
+
+type SegmentLogoAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+}
+
+func (s SegmentLogoAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentLogoAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentLogoAdvanceRequest) SetImageURLObject(v io.Reader) *SegmentLogoAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+type SegmentSceneRequest struct {
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+}
+
+func (s SegmentSceneRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentSceneRequest) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentSceneRequest) SetImageURL(v string) *SegmentSceneRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type SegmentSceneResponse struct {
+	RequestId *string                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SegmentSceneResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s SegmentSceneResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentSceneResponse) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentSceneResponse) SetRequestId(v string) *SegmentSceneResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *SegmentSceneResponse) SetData(v *SegmentSceneResponseData) *SegmentSceneResponse {
+	s.Data = v
+	return s
+}
+
+type SegmentSceneResponseData struct {
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+}
+
+func (s SegmentSceneResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentSceneResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentSceneResponseData) SetImageURL(v string) *SegmentSceneResponseData {
+	s.ImageURL = &v
+	return s
+}
+
+type SegmentSceneAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+}
+
+func (s SegmentSceneAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentSceneAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentSceneAdvanceRequest) SetImageURLObject(v io.Reader) *SegmentSceneAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
 type SegmentFoodRequest struct {
 	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
@@ -1481,6 +1629,202 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	}
 
 	return nil
+}
+
+func (client *Client) SegmentLogo(request *SegmentLogoRequest, runtime *util.RuntimeOptions) (_result *SegmentLogoResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &SegmentLogoResponse{}
+	_body, _err := client.DoRequest(tea.String("SegmentLogo"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) SegmentLogoAdvance(request *SegmentLogoAdvanceRequest, runtime *util.RuntimeOptions) (_result *SegmentLogoResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return _result, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return _result, _err
+	}
+
+	authConfig := &rpc.Config{
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("imageseg"),
+		RegionId: client.RegionId,
+	}
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return _result, _err
+	}
+	// Step 2: request final api
+	segmentLogoreq := &SegmentLogoRequest{}
+	rpcutil.Convert(request, segmentLogoreq)
+	segmentLogoreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	segmentLogoResp, _err := client.SegmentLogo(segmentLogoreq, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	_result = segmentLogoResp
+	return _result, _err
+}
+
+func (client *Client) SegmentScene(request *SegmentSceneRequest, runtime *util.RuntimeOptions) (_result *SegmentSceneResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &SegmentSceneResponse{}
+	_body, _err := client.DoRequest(tea.String("SegmentScene"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) SegmentSceneAdvance(request *SegmentSceneAdvanceRequest, runtime *util.RuntimeOptions) (_result *SegmentSceneResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return _result, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return _result, _err
+	}
+
+	authConfig := &rpc.Config{
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("imageseg"),
+		RegionId: client.RegionId,
+	}
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return _result, _err
+	}
+	// Step 2: request final api
+	segmentScenereq := &SegmentSceneRequest{}
+	rpcutil.Convert(request, segmentScenereq)
+	segmentScenereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	segmentSceneResp, _err := client.SegmentScene(segmentScenereq, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	_result = segmentSceneResp
+	return _result, _err
 }
 
 func (client *Client) SegmentFood(request *SegmentFoodRequest, runtime *util.RuntimeOptions) (_result *SegmentFoodResponse, _err error) {
