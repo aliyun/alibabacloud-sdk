@@ -3515,7 +3515,7 @@ func (client *Client) DetectCelebrity(request *DetectCelebrityRequest, runtime *
 		return _result, _err
 	}
 	_result = &DetectCelebrityResponse{}
-	_body, _err := client.DoRequest(tea.String("DetectCelebrity"), tea.String("HTTPS"), tea.String("GET"), tea.String("2019-12-30"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DetectCelebrity"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
