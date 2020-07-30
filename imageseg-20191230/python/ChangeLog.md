@@ -1,3 +1,6 @@
+2020-07-30 Version: 1.0.4
+- Add SegmentLogo SegmentScene.
+
 2020-07-27 Version: 1.0.3
 - Generated imageseg-20191230 for Python.
 
