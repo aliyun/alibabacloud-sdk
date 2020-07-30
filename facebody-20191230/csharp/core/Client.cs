@@ -27,13 +27,13 @@ namespace AlibabaCloud.SDK.Facebody20191230
         public DetectCelebrityResponse DetectCelebrity(DetectCelebrityRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DetectCelebrityResponse>(DoRequest("DetectCelebrity", "HTTPS", "GET", "2019-12-30", "AK", request.ToMap(), null, runtime));
+            return TeaModel.ToObject<DetectCelebrityResponse>(DoRequest("DetectCelebrity", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<DetectCelebrityResponse> DetectCelebrityAsync(DetectCelebrityRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DetectCelebrityResponse>(await DoRequestAsync("DetectCelebrity", "HTTPS", "GET", "2019-12-30", "AK", request.ToMap(), null, runtime));
+            return TeaModel.ToObject<DetectCelebrityResponse>(await DoRequestAsync("DetectCelebrity", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public DetectCelebrityResponse DetectCelebrityAdvance(DetectCelebrityAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
