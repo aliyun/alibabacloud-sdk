@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class RefineMaskRequest extends Model
 {
     /**
-     * @description maskImageUrl
-     *
      * @var string
      */
     public $maskImageURL;
 
     /**
-     * @description imageUrl
-     *
      * @var string
      */
     public $imageURL;

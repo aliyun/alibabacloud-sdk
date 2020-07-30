@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class SegmentAnimalAdvanceRequest extends Model
 {
     /**
-     * @description ImageURLObject
-     *
      * @var Stream
      */
     public $imageURLObject;

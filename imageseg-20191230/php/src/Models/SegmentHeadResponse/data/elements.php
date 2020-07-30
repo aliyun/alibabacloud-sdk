@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class elements extends Model
 {
     /**
-     * @description uri
-     *
      * @var string
      */
     public $imageURL;
 
     /**
-     * @description x
-     *
      * @var int
      */
     public $x;
 
     /**
-     * @description y
-     *
      * @var int
      */
     public $y;
 
     /**
-     * @description w
-     *
      * @var int
      */
     public $width;
 
     /**
-     * @description h
-     *
      * @var int
      */
     public $height;

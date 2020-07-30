@@ -5,8 +5,9 @@
 namespace AlibabaCloud\SDK\Imageseg\V20191230\Models;
 
 use AlibabaCloud\Tea\Model;
+use GuzzleHttp\Psr7\Stream;
 
-class SegmentClothAdvanceRequest extends Model
+class SegmentLogoAdvanceRequest extends Model
 {
     /**
      * @var Stream
@@ -34,7 +35,7 @@ class SegmentClothAdvanceRequest extends Model
     /**
      * @param array $map
      *
-     * @return SegmentClothAdvanceRequest
+     * @return SegmentLogoAdvanceRequest
      */
     public static function fromMap($map = [])
     {

@@ -4,10 +4,10 @@
 
 namespace AlibabaCloud\SDK\Imageseg\V20191230\Models;
 
-use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentAnimalResponse\data;
+use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentLogoResponse\data;
 use AlibabaCloud\Tea\Model;
 
-class SegmentAnimalResponse extends Model
+class SegmentLogoResponse extends Model
 {
     /**
      * @var string
@@ -45,7 +45,7 @@ class SegmentAnimalResponse extends Model
     /**
      * @param array $map
      *
-     * @return SegmentAnimalResponse
+     * @return SegmentLogoResponse
      */
     public static function fromMap($map = [])
     {

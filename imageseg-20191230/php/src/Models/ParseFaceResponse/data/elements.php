@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class elements extends Model
 {
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description imageUrl
-     *
      * @var string
      */
     public $imageURL;

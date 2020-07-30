@@ -46,6 +46,12 @@ use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentHDBodyResponse;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentHeadAdvanceRequest;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentHeadRequest;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentHeadResponse;
+use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentLogoAdvanceRequest;
+use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentLogoRequest;
+use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentLogoResponse;
+use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentSceneAdvanceRequest;
+use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentSceneRequest;
+use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentSceneResponse;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentSkyAdvanceRequest;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentSkyRequest;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentSkyResponse;
@@ -75,11 +81,164 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentLogoRequest $request
+     * @param RuntimeOptions     $runtime
+     *
+     * @return SegmentLogoResponse
+     */
+    public function segmentLogo($request, $runtime)
+    {
+        Utils::validateModel($request);
+
+        return SegmentLogoResponse::fromMap($this->doRequest('SegmentLogo', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
+    }
+
+    /**
+     * @param SegmentLogoAdvanceRequest $request
+     * @param RuntimeOptions            $runtime
+     *
+     * @return SegmentLogoResponse
+     */
+    public function segmentLogoAdvance($request, $runtime)
+    {
+        // Step 0: init client
+        $accessKeyId     = $this->_credential->getAccessKeyId();
+        $accessKeySecret = $this->_credential->getAccessKeySecret();
+        $authConfig      = new Config([
+            'accessKeyId'     => $accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => 'openplatform.aliyuncs.com',
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $authClient  = new OpenPlatform($authConfig);
+        $authRequest = new AuthorizeFileUploadRequest([
+            'product'  => 'imageseg',
+            'regionId' => $this->_regionId,
+        ]);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
+            'accessKeyId'     => $authResponse->accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => RpcUtils::getEndpoint($authResponse->endpoint, $authResponse->useAccelerate, $this->_endpointType),
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $ossClient = new OSS($ossConfig);
+        $fileObj   = new FileField([
+            'filename'    => $authResponse->objectKey,
+            'content'     => $request->imageURLObject,
+            'contentType' => '',
+        ]);
+        $ossHeader = new header([
+            'accessKeyId'         => $authResponse->accessKeyId,
+            'policy'              => $authResponse->encodedPolicy,
+            'signature'           => $authResponse->signature,
+            'key'                 => $authResponse->objectKey,
+            'file'                => $fileObj,
+            'successActionStatus' => '201',
+        ]);
+        $uploadRequest = new PostObjectRequest([
+            'bucketName' => $authResponse->bucket,
+            'header'     => $ossHeader,
+        ]);
+        $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
+        RpcUtils::convert($runtime, $ossRuntime);
+        $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
+        $segmentLogoreq = new SegmentLogoRequest([]);
+        RpcUtils::convert($request, $segmentLogoreq);
+        $segmentLogoreq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
+
+        return $this->segmentLogo($segmentLogoreq, $runtime);
+    }
+
+    /**
+     * @param SegmentSceneRequest $request
+     * @param RuntimeOptions      $runtime
+     *
+     * @return SegmentSceneResponse
+     */
+    public function segmentScene($request, $runtime)
+    {
+        Utils::validateModel($request);
+
+        return SegmentSceneResponse::fromMap($this->doRequest('SegmentScene', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
+    }
+
+    /**
+     * @param SegmentSceneAdvanceRequest $request
+     * @param RuntimeOptions             $runtime
+     *
+     * @return SegmentSceneResponse
+     */
+    public function segmentSceneAdvance($request, $runtime)
+    {
+        // Step 0: init client
+        $accessKeyId     = $this->_credential->getAccessKeyId();
+        $accessKeySecret = $this->_credential->getAccessKeySecret();
+        $authConfig      = new Config([
+            'accessKeyId'     => $accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => 'openplatform.aliyuncs.com',
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $authClient  = new OpenPlatform($authConfig);
+        $authRequest = new AuthorizeFileUploadRequest([
+            'product'  => 'imageseg',
+            'regionId' => $this->_regionId,
+        ]);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
+            'accessKeyId'     => $authResponse->accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => RpcUtils::getEndpoint($authResponse->endpoint, $authResponse->useAccelerate, $this->_endpointType),
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $ossClient = new OSS($ossConfig);
+        $fileObj   = new FileField([
+            'filename'    => $authResponse->objectKey,
+            'content'     => $request->imageURLObject,
+            'contentType' => '',
+        ]);
+        $ossHeader = new header([
+            'accessKeyId'         => $authResponse->accessKeyId,
+            'policy'              => $authResponse->encodedPolicy,
+            'signature'           => $authResponse->signature,
+            'key'                 => $authResponse->objectKey,
+            'file'                => $fileObj,
+            'successActionStatus' => '201',
+        ]);
+        $uploadRequest = new PostObjectRequest([
+            'bucketName' => $authResponse->bucket,
+            'header'     => $ossHeader,
+        ]);
+        $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
+        RpcUtils::convert($runtime, $ossRuntime);
+        $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
+        $segmentScenereq = new SegmentSceneRequest([]);
+        RpcUtils::convert($request, $segmentScenereq);
+        $segmentScenereq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
+
+        return $this->segmentScene($segmentScenereq, $runtime);
+    }
+
+    /**
+     * @param SegmentFoodRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return SegmentFoodResponse
      */
-    public function segmentFood(SegmentFoodRequest $request, RuntimeOptions $runtime)
+    public function segmentFood($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -87,11 +246,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentFoodAdvanceRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return SegmentFoodResponse
      */
-    public function segmentFoodAdvance(SegmentFoodAdvanceRequest $request, RuntimeOptions $runtime)
+    public function segmentFoodAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -149,11 +309,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentClothRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return SegmentClothResponse
      */
-    public function segmentCloth(SegmentClothRequest $request, RuntimeOptions $runtime)
+    public function segmentCloth($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -161,11 +322,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentClothAdvanceRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return SegmentClothResponse
      */
-    public function segmentClothAdvance(SegmentClothAdvanceRequest $request, RuntimeOptions $runtime)
+    public function segmentClothAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -223,11 +385,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentAnimalRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return SegmentAnimalResponse
      */
-    public function segmentAnimal(SegmentAnimalRequest $request, RuntimeOptions $runtime)
+    public function segmentAnimal($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -235,11 +398,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentAnimalAdvanceRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return SegmentAnimalResponse
      */
-    public function segmentAnimalAdvance(SegmentAnimalAdvanceRequest $request, RuntimeOptions $runtime)
+    public function segmentAnimalAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -297,11 +461,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentHDBodyRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return SegmentHDBodyResponse
      */
-    public function segmentHDBody(SegmentHDBodyRequest $request, RuntimeOptions $runtime)
+    public function segmentHDBody($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -309,11 +474,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentHDBodyAdvanceRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return SegmentHDBodyResponse
      */
-    public function segmentHDBodyAdvance(SegmentHDBodyAdvanceRequest $request, RuntimeOptions $runtime)
+    public function segmentHDBodyAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -371,11 +537,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentSkyRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return SegmentSkyResponse
      */
-    public function segmentSky(SegmentSkyRequest $request, RuntimeOptions $runtime)
+    public function segmentSky($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -383,11 +550,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentSkyAdvanceRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return SegmentSkyResponse
      */
-    public function segmentSkyAdvance(SegmentSkyAdvanceRequest $request, RuntimeOptions $runtime)
+    public function segmentSkyAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -445,11 +613,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetAsyncJobResultRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return GetAsyncJobResultResponse
      */
-    public function getAsyncJobResult(GetAsyncJobResultRequest $request, RuntimeOptions $runtime)
+    public function getAsyncJobResult($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -457,11 +626,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentFurnitureRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return SegmentFurnitureResponse
      */
-    public function segmentFurniture(SegmentFurnitureRequest $request, RuntimeOptions $runtime)
+    public function segmentFurniture($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -469,11 +639,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentFurnitureAdvanceRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return SegmentFurnitureResponse
      */
-    public function segmentFurnitureAdvance(SegmentFurnitureAdvanceRequest $request, RuntimeOptions $runtime)
+    public function segmentFurnitureAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -531,11 +702,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RefineMaskRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return RefineMaskResponse
      */
-    public function refineMask(RefineMaskRequest $request, RuntimeOptions $runtime)
+    public function refineMask($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -543,11 +715,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RefineMaskAdvanceRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return RefineMaskResponse
      */
-    public function refineMaskAdvance(RefineMaskAdvanceRequest $request, RuntimeOptions $runtime)
+    public function refineMaskAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -605,11 +778,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ParseFaceRequest $request
+     * @param RuntimeOptions   $runtime
      *
      * @return ParseFaceResponse
      */
-    public function parseFace(ParseFaceRequest $request, RuntimeOptions $runtime)
+    public function parseFace($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -617,11 +791,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ParseFaceAdvanceRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return ParseFaceResponse
      */
-    public function parseFaceAdvance(ParseFaceAdvanceRequest $request, RuntimeOptions $runtime)
+    public function parseFaceAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -679,11 +854,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentVehicleRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return SegmentVehicleResponse
      */
-    public function segmentVehicle(SegmentVehicleRequest $request, RuntimeOptions $runtime)
+    public function segmentVehicle($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -691,11 +867,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentVehicleAdvanceRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return SegmentVehicleResponse
      */
-    public function segmentVehicleAdvance(SegmentVehicleAdvanceRequest $request, RuntimeOptions $runtime)
+    public function segmentVehicleAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -753,11 +930,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentHairRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return SegmentHairResponse
      */
-    public function segmentHair(SegmentHairRequest $request, RuntimeOptions $runtime)
+    public function segmentHair($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -765,11 +943,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentHairAdvanceRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return SegmentHairResponse
      */
-    public function segmentHairAdvance(SegmentHairAdvanceRequest $request, RuntimeOptions $runtime)
+    public function segmentHairAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -827,11 +1006,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentFaceRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return SegmentFaceResponse
      */
-    public function segmentFace(SegmentFaceRequest $request, RuntimeOptions $runtime)
+    public function segmentFace($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -839,11 +1019,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentFaceAdvanceRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return SegmentFaceResponse
      */
-    public function segmentFaceAdvance(SegmentFaceAdvanceRequest $request, RuntimeOptions $runtime)
+    public function segmentFaceAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -901,11 +1082,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentHeadRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return SegmentHeadResponse
      */
-    public function segmentHead(SegmentHeadRequest $request, RuntimeOptions $runtime)
+    public function segmentHead($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -913,11 +1095,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentHeadAdvanceRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return SegmentHeadResponse
      */
-    public function segmentHeadAdvance(SegmentHeadAdvanceRequest $request, RuntimeOptions $runtime)
+    public function segmentHeadAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -975,11 +1158,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentCommodityRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return SegmentCommodityResponse
      */
-    public function segmentCommodity(SegmentCommodityRequest $request, RuntimeOptions $runtime)
+    public function segmentCommodity($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -987,11 +1171,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentCommodityAdvanceRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return SegmentCommodityResponse
      */
-    public function segmentCommodityAdvance(SegmentCommodityAdvanceRequest $request, RuntimeOptions $runtime)
+    public function segmentCommodityAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1049,11 +1234,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentBodyRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return SegmentBodyResponse
      */
-    public function segmentBody(SegmentBodyRequest $request, RuntimeOptions $runtime)
+    public function segmentBody($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1061,11 +1247,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentBodyAdvanceRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return SegmentBodyResponse
      */
-    public function segmentBodyAdvance(SegmentBodyAdvanceRequest $request, RuntimeOptions $runtime)
+    public function segmentBodyAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1123,11 +1310,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentCommonImageRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return SegmentCommonImageResponse
      */
-    public function segmentCommonImage(SegmentCommonImageRequest $request, RuntimeOptions $runtime)
+    public function segmentCommonImage($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1135,11 +1323,12 @@ class Imageseg extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SegmentCommonImageAdvanceRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return SegmentCommonImageResponse
      */
-    public function segmentCommonImageAdvance(SegmentCommonImageAdvanceRequest $request, RuntimeOptions $runtime)
+    public function segmentCommonImageAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1204,8 +1393,6 @@ class Imageseg extends Rpc
      * @param string $suffix
      * @param array  $endpointMap
      * @param string $endpoint
-     *
-     * @throws \Exception
      *
      * @return string
      */

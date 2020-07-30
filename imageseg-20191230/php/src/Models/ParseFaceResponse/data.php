@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description originImageUrl
-     *
      * @var string
      */
     public $originImageURL;
 
     /**
-     * @description elements
-     *
      * @var array
      */
     public $elements;

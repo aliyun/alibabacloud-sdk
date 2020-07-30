@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class SegmentBodyAdvanceRequest extends Model
 {
     /**
-     * @description ImageURLObject
-     *
      * @var Stream
      */
     public $imageURLObject;
 
     /**
-     * @description async
-     *
      * @var bool
      */
     public $async;

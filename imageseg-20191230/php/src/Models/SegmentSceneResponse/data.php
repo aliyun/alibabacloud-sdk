@@ -2,11 +2,11 @@
 
 // This file is auto-generated, don't edit it. Thanks.
 
-namespace AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentClothResponse\data;
+namespace AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentSceneResponse;
 
 use AlibabaCloud\Tea\Model;
 
-class elements extends Model
+class data extends Model
 {
     /**
      * @var string
@@ -34,7 +34,7 @@ class elements extends Model
     /**
      * @param array $map
      *
-     * @return elements
+     * @return data
      */
     public static function fromMap($map = [])
     {

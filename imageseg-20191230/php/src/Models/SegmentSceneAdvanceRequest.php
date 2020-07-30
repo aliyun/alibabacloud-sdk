@@ -6,7 +6,7 @@ namespace AlibabaCloud\SDK\Imageseg\V20191230\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class SegmentClothAdvanceRequest extends Model
+class SegmentSceneAdvanceRequest extends Model
 {
     /**
      * @var Stream
@@ -34,7 +34,7 @@ class SegmentClothAdvanceRequest extends Model
     /**
      * @param array $map
      *
-     * @return SegmentClothAdvanceRequest
+     * @return SegmentSceneAdvanceRequest
      */
     public static function fromMap($map = [])
     {
