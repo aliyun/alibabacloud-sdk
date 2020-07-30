@@ -17,15 +17,171 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('imageseg', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model SegmentLogoRequest = {
+  imageURL: string(name='ImageURL'),
+}
+
+model SegmentLogoResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    imageURL: string(name='ImageURL'),
+  }(name='Data'),
+}
+
+async function segmentLogo(request: SegmentLogoRequest, runtime: Util.RuntimeOptions): SegmentLogoResponse {
+  Util.validateModel(request);
+  return doRequest('SegmentLogo', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
+}
+
+model SegmentLogoAdvanceRequest = {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+async function segmentLogoAdvance(request: SegmentLogoAdvanceRequest, runtime: Util.RuntimeOptions): SegmentLogoResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageseg',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var segmentLogoreq = new SegmentLogoRequest{};
+  RPCUtil.convert(request, segmentLogoreq);
+  segmentLogoreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var segmentLogoResp = segmentLogo(segmentLogoreq, runtime);
+  return segmentLogoResp;
+}
+
+model SegmentSceneRequest = {
+  imageURL: string(name='ImageURL'),
+}
+
+model SegmentSceneResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    imageURL: string(name='ImageURL'),
+  }(name='Data'),
+}
+
+async function segmentScene(request: SegmentSceneRequest, runtime: Util.RuntimeOptions): SegmentSceneResponse {
+  Util.validateModel(request);
+  return doRequest('SegmentScene', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
+}
+
+model SegmentSceneAdvanceRequest = {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+async function segmentSceneAdvance(request: SegmentSceneAdvanceRequest, runtime: Util.RuntimeOptions): SegmentSceneResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageseg',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var segmentScenereq = new SegmentSceneRequest{};
+  RPCUtil.convert(request, segmentScenereq);
+  segmentScenereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var segmentSceneResp = segmentScene(segmentScenereq, runtime);
+  return segmentSceneResp;
+}
+
 model SegmentFoodRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
+  imageURL: string(name='ImageURL'),
 }
 
 model SegmentFoodResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    imageURL: string(name='ImageURL', description='imageUrl'),
-  }(name='Data', description='data'),
+    imageURL: string(name='ImageURL'),
+  }(name='Data'),
 }
 
 async function segmentFood(request: SegmentFoodRequest, runtime: Util.RuntimeOptions): SegmentFoodResponse {
@@ -34,7 +190,7 @@ async function segmentFood(request: SegmentFoodRequest, runtime: Util.RuntimeOpt
 }
 
 model SegmentFoodAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  imageURLObject: readable(name='ImageURLObject'),
 }
 
 async function segmentFoodAdvance(request: SegmentFoodAdvanceRequest, runtime: Util.RuntimeOptions): SegmentFoodResponse {
@@ -96,18 +252,18 @@ async function segmentFoodAdvance(request: SegmentFoodAdvanceRequest, runtime: U
 }
 
 model SegmentClothRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
+  imageURL: string(name='ImageURL'),
 }
 
 model SegmentClothResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
     elements: [
       {
-        imageURL: string(name='ImageURL', description='imageUrl'),
+        imageURL: string(name='ImageURL'),
       }
-    ](name='Elements', description='elements'),
-  }(name='Data', description='data'),
+    ](name='Elements'),
+  }(name='Data'),
 }
 
 async function segmentCloth(request: SegmentClothRequest, runtime: Util.RuntimeOptions): SegmentClothResponse {
@@ -116,7 +272,7 @@ async function segmentCloth(request: SegmentClothRequest, runtime: Util.RuntimeO
 }
 
 model SegmentClothAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  imageURLObject: readable(name='ImageURLObject'),
 }
 
 async function segmentClothAdvance(request: SegmentClothAdvanceRequest, runtime: Util.RuntimeOptions): SegmentClothResponse {
@@ -178,14 +334,14 @@ async function segmentClothAdvance(request: SegmentClothAdvanceRequest, runtime:
 }
 
 model SegmentAnimalRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
+  imageURL: string(name='ImageURL'),
 }
 
 model SegmentAnimalResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    imageURL: string(name='ImageURL', description='imageUrl'),
-  }(name='Data', description='data'),
+    imageURL: string(name='ImageURL'),
+  }(name='Data'),
 }
 
 async function segmentAnimal(request: SegmentAnimalRequest, runtime: Util.RuntimeOptions): SegmentAnimalResponse {
@@ -194,7 +350,7 @@ async function segmentAnimal(request: SegmentAnimalRequest, runtime: Util.Runtim
 }
 
 model SegmentAnimalAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  imageURLObject: readable(name='ImageURLObject'),
 }
 
 async function segmentAnimalAdvance(request: SegmentAnimalAdvanceRequest, runtime: Util.RuntimeOptions): SegmentAnimalResponse {
@@ -256,14 +412,14 @@ async function segmentAnimalAdvance(request: SegmentAnimalAdvanceRequest, runtim
 }
 
 model SegmentHDBodyRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
+  imageURL: string(name='ImageURL'),
 }
 
 model SegmentHDBodyResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    imageURL: string(name='ImageURL', description='imageUrl'),
-  }(name='Data', description='data'),
+    imageURL: string(name='ImageURL'),
+  }(name='Data'),
 }
 
 async function segmentHDBody(request: SegmentHDBodyRequest, runtime: Util.RuntimeOptions): SegmentHDBodyResponse {
@@ -272,7 +428,7 @@ async function segmentHDBody(request: SegmentHDBodyRequest, runtime: Util.Runtim
 }
 
 model SegmentHDBodyAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  imageURLObject: readable(name='ImageURLObject'),
 }
 
 async function segmentHDBodyAdvance(request: SegmentHDBodyAdvanceRequest, runtime: Util.RuntimeOptions): SegmentHDBodyResponse {
@@ -334,14 +490,14 @@ async function segmentHDBodyAdvance(request: SegmentHDBodyAdvanceRequest, runtim
 }
 
 model SegmentSkyRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
+  imageURL: string(name='ImageURL'),
 }
 
 model SegmentSkyResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    imageURL: string(name='ImageURL', description='imageUrl'),
-  }(name='Data', description='data'),
+    imageURL: string(name='ImageURL'),
+  }(name='Data'),
 }
 
 async function segmentSky(request: SegmentSkyRequest, runtime: Util.RuntimeOptions): SegmentSkyResponse {
@@ -350,7 +506,7 @@ async function segmentSky(request: SegmentSkyRequest, runtime: Util.RuntimeOptio
 }
 
 model SegmentSkyAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  imageURLObject: readable(name='ImageURLObject'),
 }
 
 async function segmentSkyAdvance(request: SegmentSkyAdvanceRequest, runtime: Util.RuntimeOptions): SegmentSkyResponse {
@@ -412,18 +568,18 @@ async function segmentSkyAdvance(request: SegmentSkyAdvanceRequest, runtime: Uti
 }
 
 model GetAsyncJobResultRequest = {
-  jobId: string(name='JobId', description='jobId'),
+  jobId: string(name='JobId'),
 }
 
 model GetAsyncJobResultResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    errorCode: string(name='ErrorCode', description='errorCode'),
-    errorMessage: string(name='ErrorMessage', description='errorMessage'),
-    jobId: string(name='JobId', description='jobId'),
-    result: string(name='Result', description='result'),
-    status: string(name='Status', description='status'),
-  }(name='Data', description='data'),
+    errorCode: string(name='ErrorCode'),
+    errorMessage: string(name='ErrorMessage'),
+    jobId: string(name='JobId'),
+    result: string(name='Result'),
+    status: string(name='Status'),
+  }(name='Data'),
 }
 
 async function getAsyncJobResult(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
@@ -432,18 +588,18 @@ async function getAsyncJobResult(request: GetAsyncJobResultRequest, runtime: Uti
 }
 
 model SegmentFurnitureRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
+  imageURL: string(name='ImageURL'),
 }
 
 model SegmentFurnitureResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
     elements: [
       {
-        imageURL: string(name='ImageURL', description='imageUrl'),
+        imageURL: string(name='ImageURL'),
       }
-    ](name='Elements', description='elements'),
-  }(name='Data', description='data'),
+    ](name='Elements'),
+  }(name='Data'),
 }
 
 async function segmentFurniture(request: SegmentFurnitureRequest, runtime: Util.RuntimeOptions): SegmentFurnitureResponse {
@@ -452,7 +608,7 @@ async function segmentFurniture(request: SegmentFurnitureRequest, runtime: Util.
 }
 
 model SegmentFurnitureAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  imageURLObject: readable(name='ImageURLObject'),
 }
 
 async function segmentFurnitureAdvance(request: SegmentFurnitureAdvanceRequest, runtime: Util.RuntimeOptions): SegmentFurnitureResponse {
@@ -514,19 +670,19 @@ async function segmentFurnitureAdvance(request: SegmentFurnitureAdvanceRequest, 
 }
 
 model RefineMaskRequest = {
-  maskImageURL: string(name='MaskImageURL', description='maskImageUrl'),
-  imageURL: string(name='ImageURL', description='imageUrl'),
+  maskImageURL: string(name='MaskImageURL'),
+  imageURL: string(name='ImageURL'),
 }
 
 model RefineMaskResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
     elements: [
       {
-        imageURL: string(name='ImageURL', description='imageUrl'),
+        imageURL: string(name='ImageURL'),
       }
-    ](name='Elements', description='elements'),
-  }(name='Data', description='data'),
+    ](name='Elements'),
+  }(name='Data'),
 }
 
 async function refineMask(request: RefineMaskRequest, runtime: Util.RuntimeOptions): RefineMaskResponse {
@@ -535,8 +691,8 @@ async function refineMask(request: RefineMaskRequest, runtime: Util.RuntimeOptio
 }
 
 model RefineMaskAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
-  maskImageURL: string(name='MaskImageURL', description='maskImageUrl'),
+  imageURLObject: readable(name='ImageURLObject'),
+  maskImageURL: string(name='MaskImageURL'),
 }
 
 async function refineMaskAdvance(request: RefineMaskAdvanceRequest, runtime: Util.RuntimeOptions): RefineMaskResponse {
@@ -598,20 +754,20 @@ async function refineMaskAdvance(request: RefineMaskAdvanceRequest, runtime: Uti
 }
 
 model ParseFaceRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
+  imageURL: string(name='ImageURL'),
 }
 
 model ParseFaceResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    originImageURL: string(name='OriginImageURL', description='originImageUrl'),
+    originImageURL: string(name='OriginImageURL'),
     elements: [
       {
-        name: string(name='Name', description='name'),
-        imageURL: string(name='ImageURL', description='imageUrl'),
+        name: string(name='Name'),
+        imageURL: string(name='ImageURL'),
       }
-    ](name='Elements', description='elements'),
-  }(name='Data', description='data'),
+    ](name='Elements'),
+  }(name='Data'),
 }
 
 async function parseFace(request: ParseFaceRequest, runtime: Util.RuntimeOptions): ParseFaceResponse {
@@ -620,7 +776,7 @@ async function parseFace(request: ParseFaceRequest, runtime: Util.RuntimeOptions
 }
 
 model ParseFaceAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  imageURLObject: readable(name='ImageURLObject'),
 }
 
 async function parseFaceAdvance(request: ParseFaceAdvanceRequest, runtime: Util.RuntimeOptions): ParseFaceResponse {
@@ -682,19 +838,19 @@ async function parseFaceAdvance(request: ParseFaceAdvanceRequest, runtime: Util.
 }
 
 model SegmentVehicleRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
+  imageURL: string(name='ImageURL'),
 }
 
 model SegmentVehicleResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
     elements: [
       {
-        originImageURL: string(name='OriginImageURL', description='originImageUrl'),
-        imageURL: string(name='ImageURL', description='imageUrl'),
+        originImageURL: string(name='OriginImageURL'),
+        imageURL: string(name='ImageURL'),
       }
-    ](name='Elements', description='elements'),
-  }(name='Data', description='data'),
+    ](name='Elements'),
+  }(name='Data'),
 }
 
 async function segmentVehicle(request: SegmentVehicleRequest, runtime: Util.RuntimeOptions): SegmentVehicleResponse {
@@ -703,7 +859,7 @@ async function segmentVehicle(request: SegmentVehicleRequest, runtime: Util.Runt
 }
 
 model SegmentVehicleAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  imageURLObject: readable(name='ImageURLObject'),
 }
 
 async function segmentVehicleAdvance(request: SegmentVehicleAdvanceRequest, runtime: Util.RuntimeOptions): SegmentVehicleResponse {
@@ -765,22 +921,22 @@ async function segmentVehicleAdvance(request: SegmentVehicleAdvanceRequest, runt
 }
 
 model SegmentHairRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
+  imageURL: string(name='ImageURL'),
 }
 
 model SegmentHairResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
     elements: [
       {
-        imageURL: string(name='ImageURL', description='uri'),
-        x: integer(name='X', description='x'),
-        y: integer(name='Y', description='y'),
-        width: integer(name='Width', description='w'),
-        height: integer(name='Height', description='h'),
+        imageURL: string(name='ImageURL'),
+        x: integer(name='X'),
+        y: integer(name='Y'),
+        width: integer(name='Width'),
+        height: integer(name='Height'),
       }
-    ](name='Elements', description='elements'),
-  }(name='Data', description='data'),
+    ](name='Elements'),
+  }(name='Data'),
 }
 
 async function segmentHair(request: SegmentHairRequest, runtime: Util.RuntimeOptions): SegmentHairResponse {
@@ -789,7 +945,7 @@ async function segmentHair(request: SegmentHairRequest, runtime: Util.RuntimeOpt
 }
 
 model SegmentHairAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  imageURLObject: readable(name='ImageURLObject'),
 }
 
 async function segmentHairAdvance(request: SegmentHairAdvanceRequest, runtime: Util.RuntimeOptions): SegmentHairResponse {
@@ -851,22 +1007,22 @@ async function segmentHairAdvance(request: SegmentHairAdvanceRequest, runtime: U
 }
 
 model SegmentFaceRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
+  imageURL: string(name='ImageURL'),
 }
 
 model SegmentFaceResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
     elements: [
       {
-        imageURL: string(name='ImageURL', description='uri'),
-        x: integer(name='X', description='x'),
-        y: integer(name='Y', description='y'),
-        width: integer(name='Width', description='w'),
-        height: integer(name='Height', description='h'),
+        imageURL: string(name='ImageURL'),
+        x: integer(name='X'),
+        y: integer(name='Y'),
+        width: integer(name='Width'),
+        height: integer(name='Height'),
       }
-    ](name='Elements', description='elements'),
-  }(name='Data', description='data'),
+    ](name='Elements'),
+  }(name='Data'),
 }
 
 async function segmentFace(request: SegmentFaceRequest, runtime: Util.RuntimeOptions): SegmentFaceResponse {
@@ -875,7 +1031,7 @@ async function segmentFace(request: SegmentFaceRequest, runtime: Util.RuntimeOpt
 }
 
 model SegmentFaceAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  imageURLObject: readable(name='ImageURLObject'),
 }
 
 async function segmentFaceAdvance(request: SegmentFaceAdvanceRequest, runtime: Util.RuntimeOptions): SegmentFaceResponse {
@@ -937,22 +1093,22 @@ async function segmentFaceAdvance(request: SegmentFaceAdvanceRequest, runtime: U
 }
 
 model SegmentHeadRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
+  imageURL: string(name='ImageURL'),
 }
 
 model SegmentHeadResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
     elements: [
       {
-        imageURL: string(name='ImageURL', description='uri'),
-        x: integer(name='X', description='x'),
-        y: integer(name='Y', description='y'),
-        width: integer(name='Width', description='w'),
-        height: integer(name='Height', description='h'),
+        imageURL: string(name='ImageURL'),
+        x: integer(name='X'),
+        y: integer(name='Y'),
+        width: integer(name='Width'),
+        height: integer(name='Height'),
       }
-    ](name='Elements', description='elements'),
-  }(name='Data', description='data'),
+    ](name='Elements'),
+  }(name='Data'),
 }
 
 async function segmentHead(request: SegmentHeadRequest, runtime: Util.RuntimeOptions): SegmentHeadResponse {
@@ -961,7 +1117,7 @@ async function segmentHead(request: SegmentHeadRequest, runtime: Util.RuntimeOpt
 }
 
 model SegmentHeadAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  imageURLObject: readable(name='ImageURLObject'),
 }
 
 async function segmentHeadAdvance(request: SegmentHeadAdvanceRequest, runtime: Util.RuntimeOptions): SegmentHeadResponse {
@@ -1023,14 +1179,14 @@ async function segmentHeadAdvance(request: SegmentHeadAdvanceRequest, runtime: U
 }
 
 model SegmentCommodityRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
+  imageURL: string(name='ImageURL'),
 }
 
 model SegmentCommodityResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    imageURL: string(name='ImageURL', description='imageUrl'),
-  }(name='Data', description='data'),
+    imageURL: string(name='ImageURL'),
+  }(name='Data'),
 }
 
 async function segmentCommodity(request: SegmentCommodityRequest, runtime: Util.RuntimeOptions): SegmentCommodityResponse {
@@ -1039,7 +1195,7 @@ async function segmentCommodity(request: SegmentCommodityRequest, runtime: Util.
 }
 
 model SegmentCommodityAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  imageURLObject: readable(name='ImageURLObject'),
 }
 
 async function segmentCommodityAdvance(request: SegmentCommodityAdvanceRequest, runtime: Util.RuntimeOptions): SegmentCommodityResponse {
@@ -1101,15 +1257,15 @@ async function segmentCommodityAdvance(request: SegmentCommodityAdvanceRequest, 
 }
 
 model SegmentBodyRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
-  async?: boolean(name='Async', description='async'),
+  imageURL: string(name='ImageURL'),
+  async?: boolean(name='Async'),
 }
 
 model SegmentBodyResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    imageURL: string(name='ImageURL', description='imageUrl'),
-  }(name='Data', description='data'),
+    imageURL: string(name='ImageURL'),
+  }(name='Data'),
 }
 
 async function segmentBody(request: SegmentBodyRequest, runtime: Util.RuntimeOptions): SegmentBodyResponse {
@@ -1118,8 +1274,8 @@ async function segmentBody(request: SegmentBodyRequest, runtime: Util.RuntimeOpt
 }
 
 model SegmentBodyAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
-  async?: boolean(name='Async', description='async'),
+  imageURLObject: readable(name='ImageURLObject'),
+  async?: boolean(name='Async'),
 }
 
 async function segmentBodyAdvance(request: SegmentBodyAdvanceRequest, runtime: Util.RuntimeOptions): SegmentBodyResponse {
@@ -1181,14 +1337,14 @@ async function segmentBodyAdvance(request: SegmentBodyAdvanceRequest, runtime: U
 }
 
 model SegmentCommonImageRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
+  imageURL: string(name='ImageURL'),
 }
 
 model SegmentCommonImageResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    imageURL: string(name='ImageURL', description='imageUrl'),
-  }(name='Data', description='data'),
+    imageURL: string(name='ImageURL'),
+  }(name='Data'),
 }
 
 async function segmentCommonImage(request: SegmentCommonImageRequest, runtime: Util.RuntimeOptions): SegmentCommonImageResponse {
@@ -1197,7 +1353,7 @@ async function segmentCommonImage(request: SegmentCommonImageRequest, runtime: U
 }
 
 model SegmentCommonImageAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  imageURLObject: readable(name='ImageURLObject'),
 }
 
 async function segmentCommonImageAdvance(request: SegmentCommonImageAdvanceRequest, runtime: Util.RuntimeOptions): SegmentCommonImageResponse {
