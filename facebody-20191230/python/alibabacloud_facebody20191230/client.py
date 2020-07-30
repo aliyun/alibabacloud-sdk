@@ -23,7 +23,7 @@ class Client(RPCClient):
 
     def detect_celebrity(self, request, runtime):
         UtilClient.validate_model(request)
-        return facebody_20191230_models.DetectCelebrityResponse().from_map(self.do_request("DetectCelebrity", "HTTPS", "GET", "2019-12-30", "AK", request.to_map(), None, runtime))
+        return facebody_20191230_models.DetectCelebrityResponse().from_map(self.do_request("DetectCelebrity", "HTTPS", "POST", "2019-12-30", "AK", None, request.to_map(), runtime))
 
 
     def detect_celebrity_advance(self, request, runtime):
