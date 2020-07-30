@@ -14,6 +14,182 @@ import (
 	"io"
 )
 
+type ChangeVideoSizeRequest struct {
+	VideoUrl  *string  `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
+	Width     *int     `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height    *int     `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	CropType  *string  `json:"CropType,omitempty" xml:"CropType,omitempty"`
+	FillType  *string  `json:"FillType,omitempty" xml:"FillType,omitempty"`
+	Tightness *float32 `json:"Tightness,omitempty" xml:"Tightness,omitempty"`
+	R         *int     `json:"R,omitempty" xml:"R,omitempty"`
+	G         *int     `json:"G,omitempty" xml:"G,omitempty"`
+	B         *int     `json:"B,omitempty" xml:"B,omitempty"`
+}
+
+func (s ChangeVideoSizeRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ChangeVideoSizeRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ChangeVideoSizeRequest) SetVideoUrl(v string) *ChangeVideoSizeRequest {
+	s.VideoUrl = &v
+	return s
+}
+
+func (s *ChangeVideoSizeRequest) SetWidth(v int) *ChangeVideoSizeRequest {
+	s.Width = &v
+	return s
+}
+
+func (s *ChangeVideoSizeRequest) SetHeight(v int) *ChangeVideoSizeRequest {
+	s.Height = &v
+	return s
+}
+
+func (s *ChangeVideoSizeRequest) SetCropType(v string) *ChangeVideoSizeRequest {
+	s.CropType = &v
+	return s
+}
+
+func (s *ChangeVideoSizeRequest) SetFillType(v string) *ChangeVideoSizeRequest {
+	s.FillType = &v
+	return s
+}
+
+func (s *ChangeVideoSizeRequest) SetTightness(v float32) *ChangeVideoSizeRequest {
+	s.Tightness = &v
+	return s
+}
+
+func (s *ChangeVideoSizeRequest) SetR(v int) *ChangeVideoSizeRequest {
+	s.R = &v
+	return s
+}
+
+func (s *ChangeVideoSizeRequest) SetG(v int) *ChangeVideoSizeRequest {
+	s.G = &v
+	return s
+}
+
+func (s *ChangeVideoSizeRequest) SetB(v int) *ChangeVideoSizeRequest {
+	s.B = &v
+	return s
+}
+
+type ChangeVideoSizeResponse struct {
+	RequestId *string                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ChangeVideoSizeResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s ChangeVideoSizeResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ChangeVideoSizeResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ChangeVideoSizeResponse) SetRequestId(v string) *ChangeVideoSizeResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *ChangeVideoSizeResponse) SetData(v *ChangeVideoSizeResponseData) *ChangeVideoSizeResponse {
+	s.Data = v
+	return s
+}
+
+type ChangeVideoSizeResponseData struct {
+	VideoUrl      *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
+	VideoCoverUrl *string `json:"VideoCoverUrl,omitempty" xml:"VideoCoverUrl,omitempty" require:"true"`
+}
+
+func (s ChangeVideoSizeResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ChangeVideoSizeResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *ChangeVideoSizeResponseData) SetVideoUrl(v string) *ChangeVideoSizeResponseData {
+	s.VideoUrl = &v
+	return s
+}
+
+func (s *ChangeVideoSizeResponseData) SetVideoCoverUrl(v string) *ChangeVideoSizeResponseData {
+	s.VideoCoverUrl = &v
+	return s
+}
+
+type ChangeVideoSizeAdvanceRequest struct {
+	VideoUrlObject io.Reader `json:"VideoUrlObject,omitempty" xml:"VideoUrlObject,omitempty" require:"true"`
+	Width          *int      `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height         *int      `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	CropType       *string   `json:"CropType,omitempty" xml:"CropType,omitempty"`
+	FillType       *string   `json:"FillType,omitempty" xml:"FillType,omitempty"`
+	Tightness      *float32  `json:"Tightness,omitempty" xml:"Tightness,omitempty"`
+	R              *int      `json:"R,omitempty" xml:"R,omitempty"`
+	G              *int      `json:"G,omitempty" xml:"G,omitempty"`
+	B              *int      `json:"B,omitempty" xml:"B,omitempty"`
+}
+
+func (s ChangeVideoSizeAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ChangeVideoSizeAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ChangeVideoSizeAdvanceRequest) SetVideoUrlObject(v io.Reader) *ChangeVideoSizeAdvanceRequest {
+	s.VideoUrlObject = v
+	return s
+}
+
+func (s *ChangeVideoSizeAdvanceRequest) SetWidth(v int) *ChangeVideoSizeAdvanceRequest {
+	s.Width = &v
+	return s
+}
+
+func (s *ChangeVideoSizeAdvanceRequest) SetHeight(v int) *ChangeVideoSizeAdvanceRequest {
+	s.Height = &v
+	return s
+}
+
+func (s *ChangeVideoSizeAdvanceRequest) SetCropType(v string) *ChangeVideoSizeAdvanceRequest {
+	s.CropType = &v
+	return s
+}
+
+func (s *ChangeVideoSizeAdvanceRequest) SetFillType(v string) *ChangeVideoSizeAdvanceRequest {
+	s.FillType = &v
+	return s
+}
+
+func (s *ChangeVideoSizeAdvanceRequest) SetTightness(v float32) *ChangeVideoSizeAdvanceRequest {
+	s.Tightness = &v
+	return s
+}
+
+func (s *ChangeVideoSizeAdvanceRequest) SetR(v int) *ChangeVideoSizeAdvanceRequest {
+	s.R = &v
+	return s
+}
+
+func (s *ChangeVideoSizeAdvanceRequest) SetG(v int) *ChangeVideoSizeAdvanceRequest {
+	s.G = &v
+	return s
+}
+
+func (s *ChangeVideoSizeAdvanceRequest) SetB(v int) *ChangeVideoSizeAdvanceRequest {
+	s.B = &v
+	return s
+}
+
 type GenerateVideoRequest struct {
 	FileList         []*GenerateVideoRequestFileList `json:"FileList,omitempty" xml:"FileList,omitempty" require:"true" type:"Repeated"`
 	Scene            *string                         `json:"Scene,omitempty" xml:"Scene,omitempty"`
@@ -961,6 +1137,104 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	}
 
 	return nil
+}
+
+func (client *Client) ChangeVideoSize(request *ChangeVideoSizeRequest, runtime *util.RuntimeOptions) (_result *ChangeVideoSizeResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &ChangeVideoSizeResponse{}
+	_body, _err := client.DoRequest(tea.String("ChangeVideoSize"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-03-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ChangeVideoSizeAdvance(request *ChangeVideoSizeAdvanceRequest, runtime *util.RuntimeOptions) (_result *ChangeVideoSizeResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return _result, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return _result, _err
+	}
+
+	authConfig := &rpc.Config{
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("videoenhan"),
+		RegionId: client.RegionId,
+	}
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.VideoUrlObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return _result, _err
+	}
+	// Step 2: request final api
+	changeVideoSizereq := &ChangeVideoSizeRequest{}
+	rpcutil.Convert(request, changeVideoSizereq)
+	changeVideoSizereq.VideoUrl = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	changeVideoSizeResp, _err := client.ChangeVideoSize(changeVideoSizereq, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	_result = changeVideoSizeResp
+	return _result, _err
 }
 
 func (client *Client) GenerateVideo(request *GenerateVideoRequest, runtime *util.RuntimeOptions) (_result *GenerateVideoResponse, _err error) {
