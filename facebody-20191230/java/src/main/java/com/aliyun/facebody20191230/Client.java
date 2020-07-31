@@ -15,7 +15,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public DetectCelebrityResponse detectCelebrity(DetectCelebrityRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DetectCelebrity", "HTTPS", "GET", "2019-12-30", "AK", TeaModel.buildMap(request), null, runtime), new DetectCelebrityResponse());
+        return TeaModel.toModel(this.doRequest("DetectCelebrity", "HTTPS", "POST", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new DetectCelebrityResponse());
     }
 
     public DetectCelebrityResponse detectCelebrityAdvance(DetectCelebrityAdvanceRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
