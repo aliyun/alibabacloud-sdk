@@ -17,32 +17,127 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('videoenhan', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model ChangeVideoSizeRequest = {
+  videoUrl: string(name='VideoUrl'),
+  width: integer(name='Width'),
+  height: integer(name='Height'),
+  cropType?: string(name='CropType'),
+  fillType?: string(name='FillType'),
+  tightness?: float(name='Tightness'),
+  r?: integer(name='R'),
+  g?: integer(name='G'),
+  b?: integer(name='B'),
+}
+
+model ChangeVideoSizeResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    videoUrl: string(name='VideoUrl'),
+    videoCoverUrl: string(name='VideoCoverUrl'),
+  }(name='Data'),
+}
+
+async function changeVideoSize(request: ChangeVideoSizeRequest, runtime: Util.RuntimeOptions): ChangeVideoSizeResponse {
+  Util.validateModel(request);
+  return doRequest('ChangeVideoSize', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
+}
+
+model ChangeVideoSizeAdvanceRequest = {
+  videoUrlObject: readable(name='VideoUrlObject'),
+  width: integer(name='Width'),
+  height: integer(name='Height'),
+  cropType?: string(name='CropType'),
+  fillType?: string(name='FillType'),
+  tightness?: float(name='Tightness'),
+  r?: integer(name='R'),
+  g?: integer(name='G'),
+  b?: integer(name='B'),
+}
+
+async function changeVideoSizeAdvance(request: ChangeVideoSizeAdvanceRequest, runtime: Util.RuntimeOptions): ChangeVideoSizeResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'videoenhan',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.videoUrlObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var changeVideoSizereq = new ChangeVideoSizeRequest{};
+  RPCUtil.convert(request, changeVideoSizereq);
+  changeVideoSizereq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var changeVideoSizeResp = changeVideoSize(changeVideoSizereq, runtime);
+  return changeVideoSizeResp;
+}
+
 model GenerateVideoRequest = {
   fileList: [
     {
-      fileUrl: string(name='FileUrl', description='fileUrl'),
-      fileName: string(name='FileName', description='fileName'),
-      type: string(name='Type', description='type'),
+      fileUrl: string(name='FileUrl'),
+      fileName: string(name='FileName'),
+      type: string(name='Type'),
     }
-  ](name='FileList', description='fileList'),
-  scene?: string(name='Scene', description='scene'),
-  width?: integer(name='Width', description='width'),
-  height?: integer(name='Height', description='height'),
-  style?: string(name='Style', description='style'),
-  duration?: float(name='Duration', description='duration'),
-  durationAdaption?: boolean(name='DurationAdaption', description='durationAdaption'),
-  transitionStyle?: string(name='TransitionStyle', description='transitionStyle'),
-  smartEffect?: boolean(name='SmartEffect', description='smartEffect'),
-  puzzleEffect?: boolean(name='PuzzleEffect', description='puzzleEffect'),
-  mute?: boolean(name='Mute', description='mute'),
+  ](name='FileList'),
+  scene?: string(name='Scene'),
+  width?: integer(name='Width'),
+  height?: integer(name='Height'),
+  style?: string(name='Style'),
+  duration?: float(name='Duration'),
+  durationAdaption?: boolean(name='DurationAdaption'),
+  transitionStyle?: string(name='TransitionStyle'),
+  smartEffect?: boolean(name='SmartEffect'),
+  puzzleEffect?: boolean(name='PuzzleEffect'),
+  mute?: boolean(name='Mute'),
 }
 
 model GenerateVideoResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    videoUrl: string(name='VideoUrl', description='VideoUrl'),
-    videoCoverUrl: string(name='VideoCoverUrl', description='VideoCoverUrl'),
-  }(name='Data', description='data'),
+    videoUrl: string(name='VideoUrl'),
+    videoCoverUrl: string(name='VideoCoverUrl'),
+  }(name='Data'),
 }
 
 async function generateVideo(request: GenerateVideoRequest, runtime: Util.RuntimeOptions): GenerateVideoResponse {
@@ -51,18 +146,18 @@ async function generateVideo(request: GenerateVideoRequest, runtime: Util.Runtim
 }
 
 model GetAsyncJobResultRequest = {
-  jobId: string(name='JobId', description='jobId'),
+  jobId: string(name='JobId'),
 }
 
 model GetAsyncJobResultResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    jobId: string(name='JobId', description='jobId'),
-    status: string(name='Status', description='status'),
-    result: string(name='Result', description='result'),
-    errorCode: string(name='ErrorCode', description='errorCode'),
-    errorMessage: string(name='ErrorMessage', description='errorMessage'),
-  }(name='Data', description='data'),
+    jobId: string(name='JobId'),
+    status: string(name='Status'),
+    result: string(name='Result'),
+    errorCode: string(name='ErrorCode'),
+    errorMessage: string(name='ErrorMessage'),
+  }(name='Data'),
 }
 
 async function getAsyncJobResult(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
@@ -71,15 +166,15 @@ async function getAsyncJobResult(request: GetAsyncJobResultRequest, runtime: Uti
 }
 
 model SuperResolveVideoRequest = {
-  videoUrl: string(name='VideoUrl', description='videoUrl'),
-  bitRate?: integer(name='BitRate', description='bitRate'),
+  videoUrl: string(name='VideoUrl'),
+  bitRate?: integer(name='BitRate'),
 }
 
 model SuperResolveVideoResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    videoUrl: string(name='VideoUrl', description='VideoUrl'),
-  }(name='Data', description='data'),
+    videoUrl: string(name='VideoUrl'),
+  }(name='Data'),
 }
 
 async function superResolveVideo(request: SuperResolveVideoRequest, runtime: Util.RuntimeOptions): SuperResolveVideoResponse {
@@ -88,8 +183,8 @@ async function superResolveVideo(request: SuperResolveVideoRequest, runtime: Uti
 }
 
 model SuperResolveVideoAdvanceRequest = {
-  videoUrlObject: readable(description='VideoUrlObject', name='VideoUrlObject'),
-  bitRate?: integer(name='BitRate', description='bitRate'),
+  videoUrlObject: readable(name='VideoUrlObject'),
+  bitRate?: integer(name='BitRate'),
 }
 
 async function superResolveVideoAdvance(request: SuperResolveVideoAdvanceRequest, runtime: Util.RuntimeOptions): SuperResolveVideoResponse {
@@ -151,22 +246,22 @@ async function superResolveVideoAdvance(request: SuperResolveVideoAdvanceRequest
 }
 
 model EraseVideoLogoRequest = {
-  videoUrl: string(name='VideoUrl', description='videoUrl'),
+  videoUrl: string(name='VideoUrl'),
   boxes?: [
     {
-      h?: float(name='H', description='h'),
-      w?: float(name='W', description='w'),
-      x?: float(name='X', description='x'),
-      y?: float(name='Y', description='y'),
+      h?: float(name='H'),
+      w?: float(name='W'),
+      x?: float(name='X'),
+      y?: float(name='Y'),
     }
-  ](name='Boxes', description='boxes'),
+  ](name='Boxes'),
 }
 
 model EraseVideoLogoResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    videoUrl: string(name='VideoUrl', description='VideoUrl'),
-  }(name='Data', description='data'),
+    videoUrl: string(name='VideoUrl'),
+  }(name='Data'),
 }
 
 async function eraseVideoLogo(request: EraseVideoLogoRequest, runtime: Util.RuntimeOptions): EraseVideoLogoResponse {
@@ -175,15 +270,15 @@ async function eraseVideoLogo(request: EraseVideoLogoRequest, runtime: Util.Runt
 }
 
 model EraseVideoLogoAdvanceRequest = {
-  videoUrlObject: readable(description='VideoUrlObject', name='VideoUrlObject'),
+  videoUrlObject: readable(name='VideoUrlObject'),
   boxes?: [
     {
-      h?: float(name='H', description='h'),
-      w?: float(name='W', description='w'),
-      x?: float(name='X', description='x'),
-      y?: float(name='Y', description='y'),
+      h?: float(name='H'),
+      w?: float(name='W'),
+      x?: float(name='X'),
+      y?: float(name='Y'),
     }
-  ](name='Boxes', description='boxes'),
+  ](name='Boxes'),
 }
 
 async function eraseVideoLogoAdvance(request: EraseVideoLogoAdvanceRequest, runtime: Util.RuntimeOptions): EraseVideoLogoResponse {
@@ -245,18 +340,18 @@ async function eraseVideoLogoAdvance(request: EraseVideoLogoAdvanceRequest, runt
 }
 
 model EraseVideoSubtitlesRequest = {
-  videoUrl: string(name='VideoUrl', description='videoUrl'),
-  BX?: float(name='BX', description='bx'),
-  BY?: float(name='BY', description='by'),
-  BW?: float(name='BW', description='bw'),
-  BH?: float(name='BH', description='bh'),
+  videoUrl: string(name='VideoUrl'),
+  BX?: float(name='BX'),
+  BY?: float(name='BY'),
+  BW?: float(name='BW'),
+  BH?: float(name='BH'),
 }
 
 model EraseVideoSubtitlesResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    videoUrl: string(name='VideoUrl', description='VideoUrl'),
-  }(name='Data', description='data'),
+    videoUrl: string(name='VideoUrl'),
+  }(name='Data'),
 }
 
 async function eraseVideoSubtitles(request: EraseVideoSubtitlesRequest, runtime: Util.RuntimeOptions): EraseVideoSubtitlesResponse {
@@ -265,11 +360,11 @@ async function eraseVideoSubtitles(request: EraseVideoSubtitlesRequest, runtime:
 }
 
 model EraseVideoSubtitlesAdvanceRequest = {
-  videoUrlObject: readable(description='VideoUrlObject', name='VideoUrlObject'),
-  BX?: float(name='BX', description='bx'),
-  BY?: float(name='BY', description='by'),
-  BW?: float(name='BW', description='bw'),
-  BH?: float(name='BH', description='bh'),
+  videoUrlObject: readable(name='VideoUrlObject'),
+  BX?: float(name='BX'),
+  BY?: float(name='BY'),
+  BW?: float(name='BW'),
+  BH?: float(name='BH'),
 }
 
 async function eraseVideoSubtitlesAdvance(request: EraseVideoSubtitlesAdvanceRequest, runtime: Util.RuntimeOptions): EraseVideoSubtitlesResponse {
@@ -331,18 +426,18 @@ async function eraseVideoSubtitlesAdvance(request: EraseVideoSubtitlesAdvanceReq
 }
 
 model AbstractEcommerceVideoRequest = {
-  videoUrl: string(name='VideoUrl', description='videoUrl'),
-  duration: float(name='Duration', description='duration'),
-  width?: integer(name='Width', description='width'),
-  height?: integer(name='Height', description='height'),
+  videoUrl: string(name='VideoUrl'),
+  duration: float(name='Duration'),
+  width?: integer(name='Width'),
+  height?: integer(name='Height'),
 }
 
 model AbstractEcommerceVideoResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    videoUrl: string(name='VideoUrl', description='VideoUrl'),
-    videoCoverUrl: string(name='VideoCoverUrl', description='VideoCoverUrl'),
-  }(name='Data', description='data'),
+    videoUrl: string(name='VideoUrl'),
+    videoCoverUrl: string(name='VideoCoverUrl'),
+  }(name='Data'),
 }
 
 async function abstractEcommerceVideo(request: AbstractEcommerceVideoRequest, runtime: Util.RuntimeOptions): AbstractEcommerceVideoResponse {
@@ -351,10 +446,10 @@ async function abstractEcommerceVideo(request: AbstractEcommerceVideoRequest, ru
 }
 
 model AbstractEcommerceVideoAdvanceRequest = {
-  videoUrlObject: readable(description='VideoUrlObject', name='VideoUrlObject'),
-  duration: float(name='Duration', description='duration'),
-  width?: integer(name='Width', description='width'),
-  height?: integer(name='Height', description='height'),
+  videoUrlObject: readable(name='VideoUrlObject'),
+  duration: float(name='Duration'),
+  width?: integer(name='Width'),
+  height?: integer(name='Height'),
 }
 
 async function abstractEcommerceVideoAdvance(request: AbstractEcommerceVideoAdvanceRequest, runtime: Util.RuntimeOptions): AbstractEcommerceVideoResponse {
@@ -416,15 +511,15 @@ async function abstractEcommerceVideoAdvance(request: AbstractEcommerceVideoAdva
 }
 
 model AbstractFilmVideoRequest = {
-  videoUrl: string(name='VideoUrl', description='videoUrl'),
-  length: integer(name='Length', description='length'),
+  videoUrl: string(name='VideoUrl'),
+  length: integer(name='Length'),
 }
 
 model AbstractFilmVideoResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    videoUrl: string(name='VideoUrl', description='VideoUrl'),
-  }(name='Data', description='data'),
+    videoUrl: string(name='VideoUrl'),
+  }(name='Data'),
 }
 
 async function abstractFilmVideo(request: AbstractFilmVideoRequest, runtime: Util.RuntimeOptions): AbstractFilmVideoResponse {
@@ -433,8 +528,8 @@ async function abstractFilmVideo(request: AbstractFilmVideoRequest, runtime: Uti
 }
 
 model AbstractFilmVideoAdvanceRequest = {
-  videoUrlObject: readable(description='VideoUrlObject', name='VideoUrlObject'),
-  length: integer(name='Length', description='length'),
+  videoUrlObject: readable(name='VideoUrlObject'),
+  length: integer(name='Length'),
 }
 
 async function abstractFilmVideoAdvance(request: AbstractFilmVideoAdvanceRequest, runtime: Util.RuntimeOptions): AbstractFilmVideoResponse {
@@ -496,18 +591,18 @@ async function abstractFilmVideoAdvance(request: AbstractFilmVideoAdvanceRequest
 }
 
 model AdjustVideoColorRequest = {
-  videoUrl: string(name='VideoUrl', description='videoUrl'),
-  videoBitrate?: string(name='VideoBitrate', description='videoBitrate'),
-  videoCodec?: string(name='VideoCodec', description='videoCodec'),
-  videoFormat?: string(name='VideoFormat', description='videoFormat'),
-  mode: string(name='Mode', description='mode'),
+  videoUrl: string(name='VideoUrl'),
+  videoBitrate?: string(name='VideoBitrate'),
+  videoCodec?: string(name='VideoCodec'),
+  videoFormat?: string(name='VideoFormat'),
+  mode: string(name='Mode'),
 }
 
 model AdjustVideoColorResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    videoUrl: string(name='VideoUrl', description='VideoUrl'),
-  }(name='Data', description='data'),
+    videoUrl: string(name='VideoUrl'),
+  }(name='Data'),
 }
 
 async function adjustVideoColor(request: AdjustVideoColorRequest, runtime: Util.RuntimeOptions): AdjustVideoColorResponse {
@@ -516,11 +611,11 @@ async function adjustVideoColor(request: AdjustVideoColorRequest, runtime: Util.
 }
 
 model AdjustVideoColorAdvanceRequest = {
-  videoUrlObject: readable(description='VideoUrlObject', name='VideoUrlObject'),
-  videoBitrate?: string(name='VideoBitrate', description='videoBitrate'),
-  videoCodec?: string(name='VideoCodec', description='videoCodec'),
-  videoFormat?: string(name='VideoFormat', description='videoFormat'),
-  mode: string(name='Mode', description='mode'),
+  videoUrlObject: readable(name='VideoUrlObject'),
+  videoBitrate?: string(name='VideoBitrate'),
+  videoCodec?: string(name='VideoCodec'),
+  videoFormat?: string(name='VideoFormat'),
+  mode: string(name='Mode'),
 }
 
 async function adjustVideoColorAdvance(request: AdjustVideoColorAdvanceRequest, runtime: Util.RuntimeOptions): AdjustVideoColorResponse {
