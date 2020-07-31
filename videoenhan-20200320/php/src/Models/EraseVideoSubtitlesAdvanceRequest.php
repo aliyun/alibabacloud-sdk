@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class EraseVideoSubtitlesAdvanceRequest extends Model
 {
     /**
-     * @description VideoUrlObject
-     *
      * @var Stream
      */
     public $videoUrlObject;
 
     /**
-     * @description bx
-     *
      * @var float
      */
     public $BX;
 
     /**
-     * @description by
-     *
      * @var float
      */
     public $BY;
 
     /**
-     * @description bw
-     *
      * @var float
      */
     public $BW;
 
     /**
-     * @description bh
-     *
      * @var float
      */
     public $BH;

@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class EraseVideoLogoRequest extends Model
 {
     /**
-     * @description videoUrl
-     *
      * @var string
      */
     public $videoUrl;
 
     /**
-     * @description boxes
-     *
      * @var array
      */
     public $boxes;

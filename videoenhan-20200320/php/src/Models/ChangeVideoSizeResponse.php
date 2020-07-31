@@ -4,10 +4,10 @@
 
 namespace AlibabaCloud\SDK\Videoenhan\V20200320\Models;
 
-use AlibabaCloud\SDK\Videoenhan\V20200320\Models\GenerateVideoResponse\data;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\ChangeVideoSizeResponse\data;
 use AlibabaCloud\Tea\Model;
 
-class GenerateVideoResponse extends Model
+class ChangeVideoSizeResponse extends Model
 {
     /**
      * @var string
@@ -45,7 +45,7 @@ class GenerateVideoResponse extends Model
     /**
      * @param array $map
      *
-     * @return GenerateVideoResponse
+     * @return ChangeVideoSizeResponse
      */
     public static function fromMap($map = [])
     {

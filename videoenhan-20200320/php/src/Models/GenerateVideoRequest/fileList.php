@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class fileList extends Model
 {
     /**
-     * @description fileUrl
-     *
      * @var string
      */
     public $fileUrl;
 
     /**
-     * @description fileName
-     *
      * @var string
      */
     public $fileName;
 
     /**
-     * @description type
-     *
      * @var string
      */
     public $type;

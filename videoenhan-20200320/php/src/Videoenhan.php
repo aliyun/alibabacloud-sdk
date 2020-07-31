@@ -19,6 +19,9 @@ use AlibabaCloud\SDK\Videoenhan\V20200320\Models\AbstractFilmVideoResponse;
 use AlibabaCloud\SDK\Videoenhan\V20200320\Models\AdjustVideoColorAdvanceRequest;
 use AlibabaCloud\SDK\Videoenhan\V20200320\Models\AdjustVideoColorRequest;
 use AlibabaCloud\SDK\Videoenhan\V20200320\Models\AdjustVideoColorResponse;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\ChangeVideoSizeAdvanceRequest;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\ChangeVideoSizeRequest;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\ChangeVideoSizeResponse;
 use AlibabaCloud\SDK\Videoenhan\V20200320\Models\EraseVideoLogoAdvanceRequest;
 use AlibabaCloud\SDK\Videoenhan\V20200320\Models\EraseVideoLogoRequest;
 use AlibabaCloud\SDK\Videoenhan\V20200320\Models\EraseVideoLogoResponse;
@@ -50,11 +53,88 @@ class Videoenhan extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ChangeVideoSizeRequest $request
+     * @param RuntimeOptions         $runtime
+     *
+     * @return ChangeVideoSizeResponse
+     */
+    public function changeVideoSize($request, $runtime)
+    {
+        Utils::validateModel($request);
+
+        return ChangeVideoSizeResponse::fromMap($this->doRequest('ChangeVideoSize', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
+    }
+
+    /**
+     * @param ChangeVideoSizeAdvanceRequest $request
+     * @param RuntimeOptions                $runtime
+     *
+     * @return ChangeVideoSizeResponse
+     */
+    public function changeVideoSizeAdvance($request, $runtime)
+    {
+        // Step 0: init client
+        $accessKeyId     = $this->_credential->getAccessKeyId();
+        $accessKeySecret = $this->_credential->getAccessKeySecret();
+        $authConfig      = new Config([
+            'accessKeyId'     => $accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => 'openplatform.aliyuncs.com',
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $authClient  = new OpenPlatform($authConfig);
+        $authRequest = new AuthorizeFileUploadRequest([
+            'product'  => 'videoenhan',
+            'regionId' => $this->_regionId,
+        ]);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
+            'accessKeyId'     => $authResponse->accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => RpcUtils::getEndpoint($authResponse->endpoint, $authResponse->useAccelerate, $this->_endpointType),
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $ossClient = new OSS($ossConfig);
+        $fileObj   = new FileField([
+            'filename'    => $authResponse->objectKey,
+            'content'     => $request->videoUrlObject,
+            'contentType' => '',
+        ]);
+        $ossHeader = new header([
+            'accessKeyId'         => $authResponse->accessKeyId,
+            'policy'              => $authResponse->encodedPolicy,
+            'signature'           => $authResponse->signature,
+            'key'                 => $authResponse->objectKey,
+            'file'                => $fileObj,
+            'successActionStatus' => '201',
+        ]);
+        $uploadRequest = new PostObjectRequest([
+            'bucketName' => $authResponse->bucket,
+            'header'     => $ossHeader,
+        ]);
+        $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
+        RpcUtils::convert($runtime, $ossRuntime);
+        $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
+        $changeVideoSizereq = new ChangeVideoSizeRequest([]);
+        RpcUtils::convert($request, $changeVideoSizereq);
+        $changeVideoSizereq->videoUrl = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
+
+        return $this->changeVideoSize($changeVideoSizereq, $runtime);
+    }
+
+    /**
+     * @param GenerateVideoRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return GenerateVideoResponse
      */
-    public function generateVideo(GenerateVideoRequest $request, RuntimeOptions $runtime)
+    public function generateVideo($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -62,11 +142,12 @@ class Videoenhan extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetAsyncJobResultRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return GetAsyncJobResultResponse
      */
-    public function getAsyncJobResult(GetAsyncJobResultRequest $request, RuntimeOptions $runtime)
+    public function getAsyncJobResult($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -74,11 +155,12 @@ class Videoenhan extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SuperResolveVideoRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return SuperResolveVideoResponse
      */
-    public function superResolveVideo(SuperResolveVideoRequest $request, RuntimeOptions $runtime)
+    public function superResolveVideo($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -86,11 +168,12 @@ class Videoenhan extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SuperResolveVideoAdvanceRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return SuperResolveVideoResponse
      */
-    public function superResolveVideoAdvance(SuperResolveVideoAdvanceRequest $request, RuntimeOptions $runtime)
+    public function superResolveVideoAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -148,11 +231,12 @@ class Videoenhan extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param EraseVideoLogoRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return EraseVideoLogoResponse
      */
-    public function eraseVideoLogo(EraseVideoLogoRequest $request, RuntimeOptions $runtime)
+    public function eraseVideoLogo($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -160,11 +244,12 @@ class Videoenhan extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param EraseVideoLogoAdvanceRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return EraseVideoLogoResponse
      */
-    public function eraseVideoLogoAdvance(EraseVideoLogoAdvanceRequest $request, RuntimeOptions $runtime)
+    public function eraseVideoLogoAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -222,11 +307,12 @@ class Videoenhan extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param EraseVideoSubtitlesRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return EraseVideoSubtitlesResponse
      */
-    public function eraseVideoSubtitles(EraseVideoSubtitlesRequest $request, RuntimeOptions $runtime)
+    public function eraseVideoSubtitles($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -234,11 +320,12 @@ class Videoenhan extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param EraseVideoSubtitlesAdvanceRequest $request
+     * @param RuntimeOptions                    $runtime
      *
      * @return EraseVideoSubtitlesResponse
      */
-    public function eraseVideoSubtitlesAdvance(EraseVideoSubtitlesAdvanceRequest $request, RuntimeOptions $runtime)
+    public function eraseVideoSubtitlesAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -296,11 +383,12 @@ class Videoenhan extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AbstractEcommerceVideoRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return AbstractEcommerceVideoResponse
      */
-    public function abstractEcommerceVideo(AbstractEcommerceVideoRequest $request, RuntimeOptions $runtime)
+    public function abstractEcommerceVideo($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -308,11 +396,12 @@ class Videoenhan extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AbstractEcommerceVideoAdvanceRequest $request
+     * @param RuntimeOptions                       $runtime
      *
      * @return AbstractEcommerceVideoResponse
      */
-    public function abstractEcommerceVideoAdvance(AbstractEcommerceVideoAdvanceRequest $request, RuntimeOptions $runtime)
+    public function abstractEcommerceVideoAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -370,11 +459,12 @@ class Videoenhan extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AbstractFilmVideoRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return AbstractFilmVideoResponse
      */
-    public function abstractFilmVideo(AbstractFilmVideoRequest $request, RuntimeOptions $runtime)
+    public function abstractFilmVideo($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -382,11 +472,12 @@ class Videoenhan extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AbstractFilmVideoAdvanceRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return AbstractFilmVideoResponse
      */
-    public function abstractFilmVideoAdvance(AbstractFilmVideoAdvanceRequest $request, RuntimeOptions $runtime)
+    public function abstractFilmVideoAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -444,11 +535,12 @@ class Videoenhan extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AdjustVideoColorRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return AdjustVideoColorResponse
      */
-    public function adjustVideoColor(AdjustVideoColorRequest $request, RuntimeOptions $runtime)
+    public function adjustVideoColor($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -456,11 +548,12 @@ class Videoenhan extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AdjustVideoColorAdvanceRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return AdjustVideoColorResponse
      */
-    public function adjustVideoColorAdvance(AdjustVideoColorAdvanceRequest $request, RuntimeOptions $runtime)
+    public function adjustVideoColorAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -525,8 +618,6 @@ class Videoenhan extends Rpc
      * @param string $suffix
      * @param array  $endpointMap
      * @param string $endpoint
-     *
-     * @throws \Exception
      *
      * @return string
      */

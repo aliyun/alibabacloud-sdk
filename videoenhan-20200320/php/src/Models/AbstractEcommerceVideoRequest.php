@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class AbstractEcommerceVideoRequest extends Model
 {
     /**
-     * @description videoUrl
-     *
      * @var string
      */
     public $videoUrl;
 
     /**
-     * @description duration
-     *
      * @var float
      */
     public $duration;
 
     /**
-     * @description width
-     *
      * @var int
      */
     public $width;
 
     /**
-     * @description height
-     *
      * @var int
      */
     public $height;

@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class SuperResolveVideoRequest extends Model
 {
     /**
-     * @description videoUrl
-     *
      * @var string
      */
     public $videoUrl;
 
     /**
-     * @description bitRate
-     *
      * @var int
      */
     public $bitRate;

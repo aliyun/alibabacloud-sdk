@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description VideoUrl
-     *
      * @var string
      */
     public $videoUrl;
 
     /**
-     * @description VideoCoverUrl
-     *
      * @var string
      */
     public $videoCoverUrl;

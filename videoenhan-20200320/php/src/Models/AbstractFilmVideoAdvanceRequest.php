@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class AbstractFilmVideoAdvanceRequest extends Model
 {
     /**
-     * @description VideoUrlObject
-     *
      * @var Stream
      */
     public $videoUrlObject;
 
     /**
-     * @description length
-     *
      * @var int
      */
     public $length;
