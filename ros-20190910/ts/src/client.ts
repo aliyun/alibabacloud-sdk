@@ -4,6 +4,65 @@ import RPC, * as $RPC from '@alicloud/rpc-client';
 import EndpointUtil from '@alicloud/endpoint-util';
 import * as $tea from '@alicloud/tea-typescript';
 
+export class ListStackOperationRisksRequest extends $tea.Model {
+  regionId: string;
+  stackId: string;
+  operationType?: string;
+  clientToken?: string;
+  ramRoleName?: string;
+  retainAllResources?: boolean;
+  retainResources?: string[];
+  static names(): { [key: string]: string } {
+    return {
+      regionId: 'RegionId',
+      stackId: 'StackId',
+      operationType: 'OperationType',
+      clientToken: 'ClientToken',
+      ramRoleName: 'RamRoleName',
+      retainAllResources: 'RetainAllResources',
+      retainResources: 'RetainResources',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      regionId: 'string',
+      stackId: 'string',
+      operationType: 'string',
+      clientToken: 'string',
+      ramRoleName: 'string',
+      retainAllResources: 'boolean',
+      retainResources: { 'type': 'array', 'itemType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ListStackOperationRisksResponse extends $tea.Model {
+  requestId: string;
+  riskResources: ListStackOperationRisksResponseRiskResources[];
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      riskResources: 'RiskResources',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      riskResources: { 'type': 'array', 'itemType': ListStackOperationRisksResponseRiskResources },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class GetTemplateSummaryRequest extends $tea.Model {
   stackId?: string;
   templateBody?: string;
@@ -106,10 +165,12 @@ export class ListTagValuesRequest extends $tea.Model {
 export class ListTagValuesResponse extends $tea.Model {
   requestId: string;
   nextToken: string;
+  values: string[];
   static names(): { [key: string]: string } {
     return {
       requestId: 'RequestId',
       nextToken: 'NextToken',
+      values: 'Values',
     };
   }
 
@@ -117,6 +178,7 @@ export class ListTagValuesResponse extends $tea.Model {
     return {
       requestId: 'string',
       nextToken: 'string',
+      values: { 'type': 'array', 'itemType': 'string' },
     };
   }
 
@@ -153,10 +215,12 @@ export class ListTagKeysRequest extends $tea.Model {
 export class ListTagKeysResponse extends $tea.Model {
   requestId: string;
   nextToken: string;
+  keys: string[];
   static names(): { [key: string]: string } {
     return {
       requestId: 'RequestId',
       nextToken: 'NextToken',
+      keys: 'Keys',
     };
   }
 
@@ -164,6 +228,7 @@ export class ListTagKeysResponse extends $tea.Model {
     return {
       requestId: 'string',
       nextToken: 'string',
+      keys: { 'type': 'array', 'itemType': 'string' },
     };
   }
 
@@ -1831,6 +1896,7 @@ export class GetStackResponse extends $tea.Model {
   ramRoleName: string;
   deletionProtection: string;
   rootStackId: string;
+  stackType: string;
   parameters: GetStackResponseParameters[];
   outputs: { [key: string]: any }[];
   notificationURLs: string[];
@@ -1854,6 +1920,7 @@ export class GetStackResponse extends $tea.Model {
       ramRoleName: 'RamRoleName',
       deletionProtection: 'DeletionProtection',
       rootStackId: 'RootStackId',
+      stackType: 'StackType',
       parameters: 'Parameters',
       outputs: 'Outputs',
       notificationURLs: 'NotificationURLs',
@@ -1880,6 +1947,7 @@ export class GetStackResponse extends $tea.Model {
       ramRoleName: 'string',
       deletionProtection: 'string',
       rootStackId: 'string',
+      stackType: 'string',
       parameters: { 'type': 'array', 'itemType': GetStackResponseParameters },
       outputs: { 'type': 'array', 'itemType': { 'type': 'map', 'keyType': 'string', 'valueType': 'any' } },
       notificationURLs: { 'type': 'array', 'itemType': 'string' },
@@ -3295,6 +3363,46 @@ export class CreateChangeSetResponse extends $tea.Model {
   }
 }
 
+export class ListStackOperationRisksResponseRiskResources extends $tea.Model {
+  logicalResourceId: string;
+  physicalResourceId: string;
+  resourceType: string;
+  reason: string;
+  riskType: string;
+  code: string;
+  message: string;
+  requestId: string;
+  static names(): { [key: string]: string } {
+    return {
+      logicalResourceId: 'LogicalResourceId',
+      physicalResourceId: 'PhysicalResourceId',
+      resourceType: 'ResourceType',
+      reason: 'Reason',
+      riskType: 'RiskType',
+      code: 'Code',
+      message: 'Message',
+      requestId: 'RequestId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      logicalResourceId: 'string',
+      physicalResourceId: 'string',
+      resourceType: 'string',
+      reason: 'string',
+      riskType: 'string',
+      code: 'string',
+      message: 'string',
+      requestId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class GetTemplateSummaryResponseResourceIdentifierSummaries extends $tea.Model {
   resourceType: string;
   logicalResourceIds: string[];
@@ -4632,6 +4740,16 @@ export default class Client extends RPC {
     this._endpoint = this.getEndpoint("ros", this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
   }
 
+
+  async listStackOperationRisksWithOptions(request: ListStackOperationRisksRequest, runtime: $Util.RuntimeOptions): Promise<ListStackOperationRisksResponse> {
+    Util.validateModel(request);
+    return $tea.cast<ListStackOperationRisksResponse>(await this.doRequest("ListStackOperationRisks", "HTTPS", "POST", "2019-09-10", "AK", null, $tea.toMap(request), runtime), new ListStackOperationRisksResponse({}));
+  }
+
+  async listStackOperationRisks(request: ListStackOperationRisksRequest): Promise<ListStackOperationRisksResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.listStackOperationRisksWithOptions(request, runtime);
+  }
 
   async getTemplateSummaryWithOptions(request: GetTemplateSummaryRequest, runtime: $Util.RuntimeOptions): Promise<GetTemplateSummaryResponse> {
     Util.validateModel(request);
