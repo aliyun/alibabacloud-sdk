@@ -76,6 +76,10 @@ public class GetStackResponse extends TeaModel {
     @Validation(required = true)
     public String rootStackId;
 
+    @NameInMap("StackType")
+    @Validation(required = true)
+    public String stackType;
+
     @NameInMap("Parameters")
     @Validation(required = true)
     public java.util.List<GetStackResponseParameters> parameters;

@@ -9,9 +9,49 @@ public class Client extends com.aliyun.tearpc.Client {
         super(config);
         this._endpointRule = "central";
         this.checkConfig(config);
-        this._endpoint = this.getEndpoint(_productId, _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
+        this._endpoint = this.getEndpoint("ros", _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
     }
 
+
+    public ListStackOperationRisksResponse listStackOperationRisksWithOptions(ListStackOperationRisksRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("ListStackOperationRisks", "HTTPS", "POST", "2019-09-10", "AK", null, TeaModel.buildMap(request), runtime), new ListStackOperationRisksResponse());
+    }
+
+    public ListStackOperationRisksResponse listStackOperationRisks(ListStackOperationRisksRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.listStackOperationRisksWithOptions(request, runtime);
+    }
+
+    public GetTemplateSummaryResponse getTemplateSummaryWithOptions(GetTemplateSummaryRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("GetTemplateSummary", "HTTPS", "POST", "2019-09-10", "AK", null, TeaModel.buildMap(request), runtime), new GetTemplateSummaryResponse());
+    }
+
+    public GetTemplateSummaryResponse getTemplateSummary(GetTemplateSummaryRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.getTemplateSummaryWithOptions(request, runtime);
+    }
+
+    public ListTagValuesResponse listTagValuesWithOptions(ListTagValuesRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("ListTagValues", "HTTPS", "POST", "2019-09-10", "AK", null, TeaModel.buildMap(request), runtime), new ListTagValuesResponse());
+    }
+
+    public ListTagValuesResponse listTagValues(ListTagValuesRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.listTagValuesWithOptions(request, runtime);
+    }
+
+    public ListTagKeysResponse listTagKeysWithOptions(ListTagKeysRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("ListTagKeys", "HTTPS", "POST", "2019-09-10", "AK", null, TeaModel.buildMap(request), runtime), new ListTagKeysResponse());
+    }
+
+    public ListTagKeysResponse listTagKeys(ListTagKeysRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.listTagKeysWithOptions(request, runtime);
+    }
 
     public SetDeletionProtectionResponse setDeletionProtectionWithOptions(SetDeletionProtectionRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
@@ -558,8 +598,8 @@ public class Client extends com.aliyun.tearpc.Client {
             return endpoint;
         }
 
-        if (!com.aliyun.teautil.Common.isUnset(endpointMap) && !com.aliyun.teautil.Common.empty(endpointMap.get("regionId"))) {
-            return endpointMap.get("regionId");
+        if (!com.aliyun.teautil.Common.isUnset(endpointMap) && !com.aliyun.teautil.Common.empty(endpointMap.get(regionId))) {
+            return endpointMap.get(regionId);
         }
 
         return com.aliyun.endpointutil.Client.getEndpointRules(productId, regionId, endpointRule, network, suffix);

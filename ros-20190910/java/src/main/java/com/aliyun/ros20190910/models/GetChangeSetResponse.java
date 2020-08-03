@@ -60,6 +60,10 @@ public class GetChangeSetResponse extends TeaModel {
     @Validation(required = true)
     public Integer timeoutInMinutes;
 
+    @NameInMap("StatusReason")
+    @Validation(required = true)
+    public String statusReason;
+
     @NameInMap("Parameters")
     @Validation(required = true)
     public java.util.List<GetChangeSetResponseParameters> parameters;

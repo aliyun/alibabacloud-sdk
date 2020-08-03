@@ -48,6 +48,9 @@ public class UpdateStackRequest extends TeaModel {
     @NameInMap("RamRoleName")
     public String ramRoleName;
 
+    @NameInMap("ReplacementOption")
+    public String replacementOption;
+
     public static UpdateStackRequest build(java.util.Map<String, ?> map) throws Exception {
         UpdateStackRequest self = new UpdateStackRequest();
         return TeaModel.build(map, self);

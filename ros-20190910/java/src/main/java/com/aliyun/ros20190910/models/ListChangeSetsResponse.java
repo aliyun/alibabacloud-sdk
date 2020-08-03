@@ -70,6 +70,10 @@ public class ListChangeSetsResponse extends TeaModel {
         @Validation(required = true)
         public String status;
 
+        @NameInMap("StatusReason")
+        @Validation(required = true)
+        public String statusReason;
+
         public static ListChangeSetsResponseChangeSets build(java.util.Map<String, ?> map) throws Exception {
             ListChangeSetsResponseChangeSets self = new ListChangeSetsResponseChangeSets();
             return TeaModel.build(map, self);

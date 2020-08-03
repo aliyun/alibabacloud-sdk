@@ -63,6 +63,12 @@ public class CreateChangeSetRequest extends TeaModel {
     @NameInMap("RamRoleName")
     public String ramRoleName;
 
+    @NameInMap("ReplacementOption")
+    public String replacementOption;
+
+    @NameInMap("ResourcesToImport")
+    public java.util.List<CreateChangeSetRequestResourcesToImport> resourcesToImport;
+
     public static CreateChangeSetRequest build(java.util.Map<String, ?> map) throws Exception {
         CreateChangeSetRequest self = new CreateChangeSetRequest();
         return TeaModel.build(map, self);
@@ -79,6 +85,26 @@ public class CreateChangeSetRequest extends TeaModel {
 
         public static CreateChangeSetRequestParameters build(java.util.Map<String, ?> map) throws Exception {
             CreateChangeSetRequestParameters self = new CreateChangeSetRequestParameters();
+            return TeaModel.build(map, self);
+        }
+
+    }
+
+    public static class CreateChangeSetRequestResourcesToImport extends TeaModel {
+        @NameInMap("LogicalResourceId")
+        @Validation(required = true)
+        public String logicalResourceId;
+
+        @NameInMap("ResourceType")
+        @Validation(required = true)
+        public String resourceType;
+
+        @NameInMap("ResourceIdentifier")
+        @Validation(required = true)
+        public String resourceIdentifier;
+
+        public static CreateChangeSetRequestResourcesToImport build(java.util.Map<String, ?> map) throws Exception {
+            CreateChangeSetRequestResourcesToImport self = new CreateChangeSetRequestResourcesToImport();
             return TeaModel.build(map, self);
         }
 
