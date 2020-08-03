@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class ListStackResourcesRequest extends Model
 {
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;

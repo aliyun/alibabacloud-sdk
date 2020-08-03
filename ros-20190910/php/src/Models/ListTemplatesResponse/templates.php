@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class templates extends Model
 {
     /**
-     * @description CreateTime
-     *
      * @var string
      */
     public $createTime;
 
     /**
-     * @description Description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description TemplateId
-     *
      * @var string
      */
     public $templateId;
 
     /**
-     * @description TemplateName
-     *
      * @var string
      */
     public $templateName;
 
     /**
-     * @description UpdateTime
-     *
      * @var string
      */
     public $updateTime;

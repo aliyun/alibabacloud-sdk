@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class GetResourceTypeTemplateResponse extends Model
 {
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description TemplateBody
-     *
      * @var array
      */
     public $templateBody;

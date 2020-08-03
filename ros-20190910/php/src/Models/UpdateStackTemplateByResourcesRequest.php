@@ -9,43 +9,31 @@ use AlibabaCloud\Tea\Model;
 class UpdateStackTemplateByResourcesRequest extends Model
 {
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description DryRun
-     *
      * @var bool
      */
     public $dryRun;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description ClientToken
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description TemplateFormat
-     *
      * @var string
      */
     public $templateFormat;
 
     /**
-     * @description LogicalResourceId
-     *
      * @var array
      */
     public $logicalResourceId;
@@ -83,10 +71,7 @@ class UpdateStackTemplateByResourcesRequest extends Model
             $res['TemplateFormat'] = $this->templateFormat;
         }
         if (null !== $this->logicalResourceId) {
-            $res['LogicalResourceId'] = [];
-            if (null !== $this->logicalResourceId) {
-                $res['LogicalResourceId'] = $this->logicalResourceId;
-            }
+            $res['LogicalResourceId'] = $this->logicalResourceId;
         }
 
         return $res;
@@ -117,7 +102,6 @@ class UpdateStackTemplateByResourcesRequest extends Model
         }
         if (isset($map['LogicalResourceId'])) {
             if (!empty($map['LogicalResourceId'])) {
-                $model->logicalResourceId = [];
                 $model->logicalResourceId = $map['LogicalResourceId'];
             }
         }

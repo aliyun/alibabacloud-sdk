@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class ListStackResourcesResponse extends Model
 {
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description Resources
-     *
      * @var array
      */
     public $resources;

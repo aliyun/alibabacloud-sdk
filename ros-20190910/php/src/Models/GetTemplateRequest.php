@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class GetTemplateRequest extends Model
 {
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description ChangeSetId
-     *
      * @var string
      */
     public $changeSetId;
 
     /**
-     * @description TemplateId
-     *
      * @var string
      */
     public $templateId;

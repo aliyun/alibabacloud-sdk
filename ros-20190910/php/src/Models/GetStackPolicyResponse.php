@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class GetStackPolicyResponse extends Model
 {
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description StackPolicyBody
-     *
      * @var array
      */
     public $stackPolicyBody;

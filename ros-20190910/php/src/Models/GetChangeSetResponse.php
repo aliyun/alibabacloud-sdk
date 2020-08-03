@@ -10,113 +10,86 @@ use AlibabaCloud\Tea\Model;
 class GetChangeSetResponse extends Model
 {
     /**
-     * @description ChangeSetId
-     *
      * @var string
      */
     public $changeSetId;
 
     /**
-     * @description ChangeSetName
-     *
      * @var string
      */
     public $changeSetName;
 
     /**
-     * @description ChangeSetType
-     *
      * @var string
      */
     public $changeSetType;
 
     /**
-     * @description CreateTime
-     *
      * @var string
      */
     public $createTime;
 
     /**
-     * @description Description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description DisableRollback
-     *
      * @var bool
      */
     public $disableRollback;
 
     /**
-     * @description ExecutionStatus
-     *
      * @var string
      */
     public $executionStatus;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description StackName
-     *
      * @var string
      */
     public $stackName;
 
     /**
-     * @description Status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description TemplateBody
-     *
      * @var string
      */
     public $templateBody;
 
     /**
-     * @description TimeoutInMinutes
-     *
      * @var int
      */
     public $timeoutInMinutes;
 
     /**
-     * @description Parameters
-     *
+     * @var string
+     */
+    public $statusReason;
+
+    /**
      * @var array
      */
     public $parameters;
 
     /**
-     * @description Changes
-     *
      * @var array
      */
     public $changes;
@@ -135,6 +108,7 @@ class GetChangeSetResponse extends Model
         'status'           => 'Status',
         'templateBody'     => 'TemplateBody',
         'timeoutInMinutes' => 'TimeoutInMinutes',
+        'statusReason'     => 'StatusReason',
         'parameters'       => 'Parameters',
         'changes'          => 'Changes',
     ];
@@ -155,6 +129,7 @@ class GetChangeSetResponse extends Model
         Model::validateRequired('status', $this->status, true);
         Model::validateRequired('templateBody', $this->templateBody, true);
         Model::validateRequired('timeoutInMinutes', $this->timeoutInMinutes, true);
+        Model::validateRequired('statusReason', $this->statusReason, true);
         Model::validateRequired('parameters', $this->parameters, true);
         Model::validateRequired('changes', $this->changes, true);
     }
@@ -204,6 +179,9 @@ class GetChangeSetResponse extends Model
         if (null !== $this->timeoutInMinutes) {
             $res['TimeoutInMinutes'] = $this->timeoutInMinutes;
         }
+        if (null !== $this->statusReason) {
+            $res['StatusReason'] = $this->statusReason;
+        }
         if (null !== $this->parameters) {
             $res['Parameters'] = [];
             if (null !== $this->parameters && \is_array($this->parameters)) {
@@ -214,10 +192,7 @@ class GetChangeSetResponse extends Model
             }
         }
         if (null !== $this->changes) {
-            $res['Changes'] = [];
-            if (null !== $this->changes) {
-                $res['Changes'] = $this->changes;
-            }
+            $res['Changes'] = $this->changes;
         }
 
         return $res;
@@ -273,6 +248,9 @@ class GetChangeSetResponse extends Model
         if (isset($map['TimeoutInMinutes'])) {
             $model->timeoutInMinutes = $map['TimeoutInMinutes'];
         }
+        if (isset($map['StatusReason'])) {
+            $model->statusReason = $map['StatusReason'];
+        }
         if (isset($map['Parameters'])) {
             if (!empty($map['Parameters'])) {
                 $model->parameters = [];
@@ -284,7 +262,6 @@ class GetChangeSetResponse extends Model
         }
         if (isset($map['Changes'])) {
             if (!empty($map['Changes'])) {
-                $model->changes = [];
                 $model->changes = $map['Changes'];
             }
         }

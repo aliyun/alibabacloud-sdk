@@ -63,6 +63,8 @@ use AlibabaCloud\SDK\ROS\V20190910\Models\GetTemplateEstimateCostRequest;
 use AlibabaCloud\SDK\ROS\V20190910\Models\GetTemplateEstimateCostResponse;
 use AlibabaCloud\SDK\ROS\V20190910\Models\GetTemplateRequest;
 use AlibabaCloud\SDK\ROS\V20190910\Models\GetTemplateResponse;
+use AlibabaCloud\SDK\ROS\V20190910\Models\GetTemplateSummaryRequest;
+use AlibabaCloud\SDK\ROS\V20190910\Models\GetTemplateSummaryResponse;
 use AlibabaCloud\SDK\ROS\V20190910\Models\ListChangeSetsRequest;
 use AlibabaCloud\SDK\ROS\V20190910\Models\ListChangeSetsResponse;
 use AlibabaCloud\SDK\ROS\V20190910\Models\ListResourceTypesRequest;
@@ -77,14 +79,20 @@ use AlibabaCloud\SDK\ROS\V20190910\Models\ListStackGroupsRequest;
 use AlibabaCloud\SDK\ROS\V20190910\Models\ListStackGroupsResponse;
 use AlibabaCloud\SDK\ROS\V20190910\Models\ListStackInstancesRequest;
 use AlibabaCloud\SDK\ROS\V20190910\Models\ListStackInstancesResponse;
+use AlibabaCloud\SDK\ROS\V20190910\Models\ListStackOperationRisksRequest;
+use AlibabaCloud\SDK\ROS\V20190910\Models\ListStackOperationRisksResponse;
 use AlibabaCloud\SDK\ROS\V20190910\Models\ListStackResourceDriftsRequest;
 use AlibabaCloud\SDK\ROS\V20190910\Models\ListStackResourceDriftsResponse;
 use AlibabaCloud\SDK\ROS\V20190910\Models\ListStackResourcesRequest;
 use AlibabaCloud\SDK\ROS\V20190910\Models\ListStackResourcesResponse;
 use AlibabaCloud\SDK\ROS\V20190910\Models\ListStacksRequest;
 use AlibabaCloud\SDK\ROS\V20190910\Models\ListStacksResponse;
+use AlibabaCloud\SDK\ROS\V20190910\Models\ListTagKeysRequest;
+use AlibabaCloud\SDK\ROS\V20190910\Models\ListTagKeysResponse;
 use AlibabaCloud\SDK\ROS\V20190910\Models\ListTagResourcesRequest;
 use AlibabaCloud\SDK\ROS\V20190910\Models\ListTagResourcesResponse;
+use AlibabaCloud\SDK\ROS\V20190910\Models\ListTagValuesRequest;
+use AlibabaCloud\SDK\ROS\V20190910\Models\ListTagValuesResponse;
 use AlibabaCloud\SDK\ROS\V20190910\Models\ListTemplatesRequest;
 use AlibabaCloud\SDK\ROS\V20190910\Models\ListTemplatesResponse;
 use AlibabaCloud\SDK\ROS\V20190910\Models\PreviewStackRequest;
@@ -128,11 +136,112 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListStackOperationRisksRequest $request
+     * @param RuntimeOptions                 $runtime
+     *
+     * @return ListStackOperationRisksResponse
+     */
+    public function listStackOperationRisksWithOptions($request, $runtime)
+    {
+        Utils::validateModel($request);
+
+        return ListStackOperationRisksResponse::fromMap($this->doRequest('ListStackOperationRisks', 'HTTPS', 'POST', '2019-09-10', 'AK', null, $request, $runtime));
+    }
+
+    /**
+     * @param ListStackOperationRisksRequest $request
+     *
+     * @return ListStackOperationRisksResponse
+     */
+    public function listStackOperationRisks($request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->listStackOperationRisksWithOptions($request, $runtime);
+    }
+
+    /**
+     * @param GetTemplateSummaryRequest $request
+     * @param RuntimeOptions            $runtime
+     *
+     * @return GetTemplateSummaryResponse
+     */
+    public function getTemplateSummaryWithOptions($request, $runtime)
+    {
+        Utils::validateModel($request);
+
+        return GetTemplateSummaryResponse::fromMap($this->doRequest('GetTemplateSummary', 'HTTPS', 'POST', '2019-09-10', 'AK', null, $request, $runtime));
+    }
+
+    /**
+     * @param GetTemplateSummaryRequest $request
+     *
+     * @return GetTemplateSummaryResponse
+     */
+    public function getTemplateSummary($request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->getTemplateSummaryWithOptions($request, $runtime);
+    }
+
+    /**
+     * @param ListTagValuesRequest $request
+     * @param RuntimeOptions       $runtime
+     *
+     * @return ListTagValuesResponse
+     */
+    public function listTagValuesWithOptions($request, $runtime)
+    {
+        Utils::validateModel($request);
+
+        return ListTagValuesResponse::fromMap($this->doRequest('ListTagValues', 'HTTPS', 'POST', '2019-09-10', 'AK', null, $request, $runtime));
+    }
+
+    /**
+     * @param ListTagValuesRequest $request
+     *
+     * @return ListTagValuesResponse
+     */
+    public function listTagValues($request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->listTagValuesWithOptions($request, $runtime);
+    }
+
+    /**
+     * @param ListTagKeysRequest $request
+     * @param RuntimeOptions     $runtime
+     *
+     * @return ListTagKeysResponse
+     */
+    public function listTagKeysWithOptions($request, $runtime)
+    {
+        Utils::validateModel($request);
+
+        return ListTagKeysResponse::fromMap($this->doRequest('ListTagKeys', 'HTTPS', 'POST', '2019-09-10', 'AK', null, $request, $runtime));
+    }
+
+    /**
+     * @param ListTagKeysRequest $request
+     *
+     * @return ListTagKeysResponse
+     */
+    public function listTagKeys($request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->listTagKeysWithOptions($request, $runtime);
+    }
+
+    /**
+     * @param SetDeletionProtectionRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return SetDeletionProtectionResponse
      */
-    public function setDeletionProtectionWithOptions(SetDeletionProtectionRequest $request, RuntimeOptions $runtime)
+    public function setDeletionProtectionWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -140,11 +249,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SetDeletionProtectionRequest $request
      *
      * @return SetDeletionProtectionResponse
      */
-    public function setDeletionProtection(SetDeletionProtectionRequest $request)
+    public function setDeletionProtection($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -152,11 +261,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UpdateStackTemplateByResourcesRequest $request
+     * @param RuntimeOptions                        $runtime
      *
      * @return UpdateStackTemplateByResourcesResponse
      */
-    public function updateStackTemplateByResourcesWithOptions(UpdateStackTemplateByResourcesRequest $request, RuntimeOptions $runtime)
+    public function updateStackTemplateByResourcesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -164,11 +274,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UpdateStackTemplateByResourcesRequest $request
      *
      * @return UpdateStackTemplateByResourcesResponse
      */
-    public function updateStackTemplateByResources(UpdateStackTemplateByResourcesRequest $request)
+    public function updateStackTemplateByResources($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -176,11 +286,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetStackDriftDetectionStatusRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return GetStackDriftDetectionStatusResponse
      */
-    public function getStackDriftDetectionStatusWithOptions(GetStackDriftDetectionStatusRequest $request, RuntimeOptions $runtime)
+    public function getStackDriftDetectionStatusWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -188,11 +299,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetStackDriftDetectionStatusRequest $request
      *
      * @return GetStackDriftDetectionStatusResponse
      */
-    public function getStackDriftDetectionStatus(GetStackDriftDetectionStatusRequest $request)
+    public function getStackDriftDetectionStatus($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -200,11 +311,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetectStackGroupDriftRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return DetectStackGroupDriftResponse
      */
-    public function detectStackGroupDriftWithOptions(DetectStackGroupDriftRequest $request, RuntimeOptions $runtime)
+    public function detectStackGroupDriftWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -212,11 +324,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetectStackGroupDriftRequest $request
      *
      * @return DetectStackGroupDriftResponse
      */
-    public function detectStackGroupDrift(DetectStackGroupDriftRequest $request)
+    public function detectStackGroupDrift($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -224,11 +336,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListStackResourceDriftsRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return ListStackResourceDriftsResponse
      */
-    public function listStackResourceDriftsWithOptions(ListStackResourceDriftsRequest $request, RuntimeOptions $runtime)
+    public function listStackResourceDriftsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -236,11 +349,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListStackResourceDriftsRequest $request
      *
      * @return ListStackResourceDriftsResponse
      */
-    public function listStackResourceDrifts(ListStackResourceDriftsRequest $request)
+    public function listStackResourceDrifts($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -248,11 +361,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetectStackResourceDriftRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return DetectStackResourceDriftResponse
      */
-    public function detectStackResourceDriftWithOptions(DetectStackResourceDriftRequest $request, RuntimeOptions $runtime)
+    public function detectStackResourceDriftWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -260,11 +374,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetectStackResourceDriftRequest $request
      *
      * @return DetectStackResourceDriftResponse
      */
-    public function detectStackResourceDrift(DetectStackResourceDriftRequest $request)
+    public function detectStackResourceDrift($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -272,11 +386,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetectStackDriftRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DetectStackDriftResponse
      */
-    public function detectStackDriftWithOptions(DetectStackDriftRequest $request, RuntimeOptions $runtime)
+    public function detectStackDriftWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -284,11 +399,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetectStackDriftRequest $request
      *
      * @return DetectStackDriftResponse
      */
-    public function detectStackDrift(DetectStackDriftRequest $request)
+    public function detectStackDrift($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -296,11 +411,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UpdateStackInstancesRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return UpdateStackInstancesResponse
      */
-    public function updateStackInstancesWithOptions(UpdateStackInstancesRequest $request, RuntimeOptions $runtime)
+    public function updateStackInstancesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -308,11 +424,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UpdateStackInstancesRequest $request
      *
      * @return UpdateStackInstancesResponse
      */
-    public function updateStackInstances(UpdateStackInstancesRequest $request)
+    public function updateStackInstances($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -320,11 +436,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListStackGroupOperationsRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return ListStackGroupOperationsResponse
      */
-    public function listStackGroupOperationsWithOptions(ListStackGroupOperationsRequest $request, RuntimeOptions $runtime)
+    public function listStackGroupOperationsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -332,11 +449,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListStackGroupOperationsRequest $request
      *
      * @return ListStackGroupOperationsResponse
      */
-    public function listStackGroupOperations(ListStackGroupOperationsRequest $request)
+    public function listStackGroupOperations($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -344,11 +461,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetStackGroupRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return GetStackGroupResponse
      */
-    public function getStackGroupWithOptions(GetStackGroupRequest $request, RuntimeOptions $runtime)
+    public function getStackGroupWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -356,11 +474,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetStackGroupRequest $request
      *
      * @return GetStackGroupResponse
      */
-    public function getStackGroup(GetStackGroupRequest $request)
+    public function getStackGroup($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -368,11 +486,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetStackGroupOperationRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return GetStackGroupOperationResponse
      */
-    public function getStackGroupOperationWithOptions(GetStackGroupOperationRequest $request, RuntimeOptions $runtime)
+    public function getStackGroupOperationWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -380,11 +499,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetStackGroupOperationRequest $request
      *
      * @return GetStackGroupOperationResponse
      */
-    public function getStackGroupOperation(GetStackGroupOperationRequest $request)
+    public function getStackGroupOperation($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -392,11 +511,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListStackGroupsRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return ListStackGroupsResponse
      */
-    public function listStackGroupsWithOptions(ListStackGroupsRequest $request, RuntimeOptions $runtime)
+    public function listStackGroupsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -404,11 +524,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListStackGroupsRequest $request
      *
      * @return ListStackGroupsResponse
      */
-    public function listStackGroups(ListStackGroupsRequest $request)
+    public function listStackGroups($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -416,11 +536,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateStackInstancesRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return CreateStackInstancesResponse
      */
-    public function createStackInstancesWithOptions(CreateStackInstancesRequest $request, RuntimeOptions $runtime)
+    public function createStackInstancesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -428,11 +549,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateStackInstancesRequest $request
      *
      * @return CreateStackInstancesResponse
      */
-    public function createStackInstances(CreateStackInstancesRequest $request)
+    public function createStackInstances($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -440,11 +561,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateStackGroupRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return CreateStackGroupResponse
      */
-    public function createStackGroupWithOptions(CreateStackGroupRequest $request, RuntimeOptions $runtime)
+    public function createStackGroupWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -452,11 +574,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateStackGroupRequest $request
      *
      * @return CreateStackGroupResponse
      */
-    public function createStackGroup(CreateStackGroupRequest $request)
+    public function createStackGroup($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -464,11 +586,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetStackInstanceRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return GetStackInstanceResponse
      */
-    public function getStackInstanceWithOptions(GetStackInstanceRequest $request, RuntimeOptions $runtime)
+    public function getStackInstanceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -476,11 +599,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetStackInstanceRequest $request
      *
      * @return GetStackInstanceResponse
      */
-    public function getStackInstance(GetStackInstanceRequest $request)
+    public function getStackInstance($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -488,11 +611,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UpdateStackGroupRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return UpdateStackGroupResponse
      */
-    public function updateStackGroupWithOptions(UpdateStackGroupRequest $request, RuntimeOptions $runtime)
+    public function updateStackGroupWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -500,11 +624,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UpdateStackGroupRequest $request
      *
      * @return UpdateStackGroupResponse
      */
-    public function updateStackGroup(UpdateStackGroupRequest $request)
+    public function updateStackGroup($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -512,11 +636,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListStackInstancesRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return ListStackInstancesResponse
      */
-    public function listStackInstancesWithOptions(ListStackInstancesRequest $request, RuntimeOptions $runtime)
+    public function listStackInstancesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -524,11 +649,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListStackInstancesRequest $request
      *
      * @return ListStackInstancesResponse
      */
-    public function listStackInstances(ListStackInstancesRequest $request)
+    public function listStackInstances($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -536,11 +661,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListStackGroupOperationResultsRequest $request
+     * @param RuntimeOptions                        $runtime
      *
      * @return ListStackGroupOperationResultsResponse
      */
-    public function listStackGroupOperationResultsWithOptions(ListStackGroupOperationResultsRequest $request, RuntimeOptions $runtime)
+    public function listStackGroupOperationResultsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -548,11 +674,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListStackGroupOperationResultsRequest $request
      *
      * @return ListStackGroupOperationResultsResponse
      */
-    public function listStackGroupOperationResults(ListStackGroupOperationResultsRequest $request)
+    public function listStackGroupOperationResults($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -560,11 +686,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param StopStackGroupOperationRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return StopStackGroupOperationResponse
      */
-    public function stopStackGroupOperationWithOptions(StopStackGroupOperationRequest $request, RuntimeOptions $runtime)
+    public function stopStackGroupOperationWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -572,11 +699,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param StopStackGroupOperationRequest $request
      *
      * @return StopStackGroupOperationResponse
      */
-    public function stopStackGroupOperation(StopStackGroupOperationRequest $request)
+    public function stopStackGroupOperation($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -584,11 +711,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteStackGroupRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DeleteStackGroupResponse
      */
-    public function deleteStackGroupWithOptions(DeleteStackGroupRequest $request, RuntimeOptions $runtime)
+    public function deleteStackGroupWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -596,11 +724,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteStackGroupRequest $request
      *
      * @return DeleteStackGroupResponse
      */
-    public function deleteStackGroup(DeleteStackGroupRequest $request)
+    public function deleteStackGroup($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -608,11 +736,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteStackInstancesRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return DeleteStackInstancesResponse
      */
-    public function deleteStackInstancesWithOptions(DeleteStackInstancesRequest $request, RuntimeOptions $runtime)
+    public function deleteStackInstancesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -620,11 +749,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteStackInstancesRequest $request
      *
      * @return DeleteStackInstancesResponse
      */
-    public function deleteStackInstances(DeleteStackInstancesRequest $request)
+    public function deleteStackInstances($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -632,11 +761,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListTagResourcesRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return ListTagResourcesResponse
      */
-    public function listTagResourcesWithOptions(ListTagResourcesRequest $request, RuntimeOptions $runtime)
+    public function listTagResourcesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -644,11 +774,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListTagResourcesRequest $request
      *
      * @return ListTagResourcesResponse
      */
-    public function listTagResources(ListTagResourcesRequest $request)
+    public function listTagResources($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -656,11 +786,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UntagResourcesRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return UntagResourcesResponse
      */
-    public function untagResourcesWithOptions(UntagResourcesRequest $request, RuntimeOptions $runtime)
+    public function untagResourcesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -668,11 +799,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UntagResourcesRequest $request
      *
      * @return UntagResourcesResponse
      */
-    public function untagResources(UntagResourcesRequest $request)
+    public function untagResources($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -680,11 +811,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param TagResourcesRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return TagResourcesResponse
      */
-    public function tagResourcesWithOptions(TagResourcesRequest $request, RuntimeOptions $runtime)
+    public function tagResourcesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -692,11 +824,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param TagResourcesRequest $request
      *
      * @return TagResourcesResponse
      */
-    public function tagResources(TagResourcesRequest $request)
+    public function tagResources($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -704,11 +836,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteTemplateRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return DeleteTemplateResponse
      */
-    public function deleteTemplateWithOptions(DeleteTemplateRequest $request, RuntimeOptions $runtime)
+    public function deleteTemplateWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -716,11 +849,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteTemplateRequest $request
      *
      * @return DeleteTemplateResponse
      */
-    public function deleteTemplate(DeleteTemplateRequest $request)
+    public function deleteTemplate($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -728,11 +861,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UpdateTemplateRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return UpdateTemplateResponse
      */
-    public function updateTemplateWithOptions(UpdateTemplateRequest $request, RuntimeOptions $runtime)
+    public function updateTemplateWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -740,11 +874,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UpdateTemplateRequest $request
      *
      * @return UpdateTemplateResponse
      */
-    public function updateTemplate(UpdateTemplateRequest $request)
+    public function updateTemplate($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -752,11 +886,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListTemplatesRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return ListTemplatesResponse
      */
-    public function listTemplatesWithOptions(ListTemplatesRequest $request, RuntimeOptions $runtime)
+    public function listTemplatesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -764,11 +899,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListTemplatesRequest $request
      *
      * @return ListTemplatesResponse
      */
-    public function listTemplates(ListTemplatesRequest $request)
+    public function listTemplates($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -776,11 +911,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateTemplateRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return CreateTemplateResponse
      */
-    public function createTemplateWithOptions(CreateTemplateRequest $request, RuntimeOptions $runtime)
+    public function createTemplateWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -788,11 +924,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateTemplateRequest $request
      *
      * @return CreateTemplateResponse
      */
-    public function createTemplate(CreateTemplateRequest $request)
+    public function createTemplate($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -800,11 +936,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateStackRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return CreateStackResponse
      */
-    public function createStackWithOptions(CreateStackRequest $request, RuntimeOptions $runtime)
+    public function createStackWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -812,11 +949,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateStackRequest $request
      *
      * @return CreateStackResponse
      */
-    public function createStack(CreateStackRequest $request)
+    public function createStack($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -824,11 +961,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetStackRequest $request
+     * @param RuntimeOptions  $runtime
      *
      * @return GetStackResponse
      */
-    public function getStackWithOptions(GetStackRequest $request, RuntimeOptions $runtime)
+    public function getStackWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -836,11 +974,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetStackRequest $request
      *
      * @return GetStackResponse
      */
-    public function getStack(GetStackRequest $request)
+    public function getStack($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -848,11 +986,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteStackRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return DeleteStackResponse
      */
-    public function deleteStackWithOptions(DeleteStackRequest $request, RuntimeOptions $runtime)
+    public function deleteStackWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -860,11 +999,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteStackRequest $request
      *
      * @return DeleteStackResponse
      */
-    public function deleteStack(DeleteStackRequest $request)
+    public function deleteStack($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -872,11 +1011,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UpdateStackRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return UpdateStackResponse
      */
-    public function updateStackWithOptions(UpdateStackRequest $request, RuntimeOptions $runtime)
+    public function updateStackWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -884,11 +1024,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UpdateStackRequest $request
      *
      * @return UpdateStackResponse
      */
-    public function updateStack(UpdateStackRequest $request)
+    public function updateStack($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -896,11 +1036,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListStacksRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return ListStacksResponse
      */
-    public function listStacksWithOptions(ListStacksRequest $request, RuntimeOptions $runtime)
+    public function listStacksWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -908,11 +1049,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListStacksRequest $request
      *
      * @return ListStacksResponse
      */
-    public function listStacks(ListStacksRequest $request)
+    public function listStacks($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -920,11 +1061,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param PreviewStackRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return PreviewStackResponse
      */
-    public function previewStackWithOptions(PreviewStackRequest $request, RuntimeOptions $runtime)
+    public function previewStackWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -932,11 +1074,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param PreviewStackRequest $request
      *
      * @return PreviewStackResponse
      */
-    public function previewStack(PreviewStackRequest $request)
+    public function previewStack($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -944,11 +1086,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetTemplateEstimateCostRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return GetTemplateEstimateCostResponse
      */
-    public function getTemplateEstimateCostWithOptions(GetTemplateEstimateCostRequest $request, RuntimeOptions $runtime)
+    public function getTemplateEstimateCostWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -956,11 +1099,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetTemplateEstimateCostRequest $request
      *
      * @return GetTemplateEstimateCostResponse
      */
-    public function getTemplateEstimateCost(GetTemplateEstimateCostRequest $request)
+    public function getTemplateEstimateCost($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -968,11 +1111,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CancelUpdateStackRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return CancelUpdateStackResponse
      */
-    public function cancelUpdateStackWithOptions(CancelUpdateStackRequest $request, RuntimeOptions $runtime)
+    public function cancelUpdateStackWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -980,11 +1124,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CancelUpdateStackRequest $request
      *
      * @return CancelUpdateStackResponse
      */
-    public function cancelUpdateStack(CancelUpdateStackRequest $request)
+    public function cancelUpdateStack($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -992,11 +1136,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ContinueCreateStackRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return ContinueCreateStackResponse
      */
-    public function continueCreateStackWithOptions(ContinueCreateStackRequest $request, RuntimeOptions $runtime)
+    public function continueCreateStackWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1004,11 +1149,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ContinueCreateStackRequest $request
      *
      * @return ContinueCreateStackResponse
      */
-    public function continueCreateStack(ContinueCreateStackRequest $request)
+    public function continueCreateStack($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1016,11 +1161,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SetStackPolicyRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return SetStackPolicyResponse
      */
-    public function setStackPolicyWithOptions(SetStackPolicyRequest $request, RuntimeOptions $runtime)
+    public function setStackPolicyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1028,11 +1174,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SetStackPolicyRequest $request
      *
      * @return SetStackPolicyResponse
      */
-    public function setStackPolicy(SetStackPolicyRequest $request)
+    public function setStackPolicy($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1040,11 +1186,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetStackPolicyRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return GetStackPolicyResponse
      */
-    public function getStackPolicyWithOptions(GetStackPolicyRequest $request, RuntimeOptions $runtime)
+    public function getStackPolicyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1052,11 +1199,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetStackPolicyRequest $request
      *
      * @return GetStackPolicyResponse
      */
-    public function getStackPolicy(GetStackPolicyRequest $request)
+    public function getStackPolicy($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1064,11 +1211,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ValidateTemplateRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return ValidateTemplateResponse
      */
-    public function validateTemplateWithOptions(ValidateTemplateRequest $request, RuntimeOptions $runtime)
+    public function validateTemplateWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1076,11 +1224,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ValidateTemplateRequest $request
      *
      * @return ValidateTemplateResponse
      */
-    public function validateTemplate(ValidateTemplateRequest $request)
+    public function validateTemplate($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1088,11 +1236,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetTemplateRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return GetTemplateResponse
      */
-    public function getTemplateWithOptions(GetTemplateRequest $request, RuntimeOptions $runtime)
+    public function getTemplateWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1100,11 +1249,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetTemplateRequest $request
      *
      * @return GetTemplateResponse
      */
-    public function getTemplate(GetTemplateRequest $request)
+    public function getTemplate($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1112,11 +1261,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetChangeSetRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return GetChangeSetResponse
      */
-    public function getChangeSetWithOptions(GetChangeSetRequest $request, RuntimeOptions $runtime)
+    public function getChangeSetWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1124,11 +1274,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetChangeSetRequest $request
      *
      * @return GetChangeSetResponse
      */
-    public function getChangeSet(GetChangeSetRequest $request)
+    public function getChangeSet($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1136,11 +1286,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListChangeSetsRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return ListChangeSetsResponse
      */
-    public function listChangeSetsWithOptions(ListChangeSetsRequest $request, RuntimeOptions $runtime)
+    public function listChangeSetsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1148,11 +1299,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListChangeSetsRequest $request
      *
      * @return ListChangeSetsResponse
      */
-    public function listChangeSets(ListChangeSetsRequest $request)
+    public function listChangeSets($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1160,11 +1311,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ExecuteChangeSetRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return ExecuteChangeSetResponse
      */
-    public function executeChangeSetWithOptions(ExecuteChangeSetRequest $request, RuntimeOptions $runtime)
+    public function executeChangeSetWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1172,11 +1324,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ExecuteChangeSetRequest $request
      *
      * @return ExecuteChangeSetResponse
      */
-    public function executeChangeSet(ExecuteChangeSetRequest $request)
+    public function executeChangeSet($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1184,11 +1336,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteChangeSetRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return DeleteChangeSetResponse
      */
-    public function deleteChangeSetWithOptions(DeleteChangeSetRequest $request, RuntimeOptions $runtime)
+    public function deleteChangeSetWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1196,11 +1349,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteChangeSetRequest $request
      *
      * @return DeleteChangeSetResponse
      */
-    public function deleteChangeSet(DeleteChangeSetRequest $request)
+    public function deleteChangeSet($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1208,11 +1361,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListStackEventsRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return ListStackEventsResponse
      */
-    public function listStackEventsWithOptions(ListStackEventsRequest $request, RuntimeOptions $runtime)
+    public function listStackEventsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1220,11 +1374,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListStackEventsRequest $request
      *
      * @return ListStackEventsResponse
      */
-    public function listStackEvents(ListStackEventsRequest $request)
+    public function listStackEvents($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1232,11 +1386,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListStackResourcesRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return ListStackResourcesResponse
      */
-    public function listStackResourcesWithOptions(ListStackResourcesRequest $request, RuntimeOptions $runtime)
+    public function listStackResourcesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1244,11 +1399,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListStackResourcesRequest $request
      *
      * @return ListStackResourcesResponse
      */
-    public function listStackResources(ListStackResourcesRequest $request)
+    public function listStackResources($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1256,11 +1411,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetStackResourceRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return GetStackResourceResponse
      */
-    public function getStackResourceWithOptions(GetStackResourceRequest $request, RuntimeOptions $runtime)
+    public function getStackResourceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1268,11 +1424,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetStackResourceRequest $request
      *
      * @return GetStackResourceResponse
      */
-    public function getStackResource(GetStackResourceRequest $request)
+    public function getStackResource($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1280,11 +1436,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetResourceTypeTemplateRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return GetResourceTypeTemplateResponse
      */
-    public function getResourceTypeTemplateWithOptions(GetResourceTypeTemplateRequest $request, RuntimeOptions $runtime)
+    public function getResourceTypeTemplateWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1292,11 +1449,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetResourceTypeTemplateRequest $request
      *
      * @return GetResourceTypeTemplateResponse
      */
-    public function getResourceTypeTemplate(GetResourceTypeTemplateRequest $request)
+    public function getResourceTypeTemplate($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1304,11 +1461,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetResourceTypeRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return GetResourceTypeResponse
      */
-    public function getResourceTypeWithOptions(GetResourceTypeRequest $request, RuntimeOptions $runtime)
+    public function getResourceTypeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1316,11 +1474,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetResourceTypeRequest $request
      *
      * @return GetResourceTypeResponse
      */
-    public function getResourceType(GetResourceTypeRequest $request)
+    public function getResourceType($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1328,11 +1486,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListResourceTypesRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return ListResourceTypesResponse
      */
-    public function listResourceTypesWithOptions(ListResourceTypesRequest $request, RuntimeOptions $runtime)
+    public function listResourceTypesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1340,11 +1499,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListResourceTypesRequest $request
      *
      * @return ListResourceTypesResponse
      */
-    public function listResourceTypes(ListResourceTypesRequest $request)
+    public function listResourceTypes($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1352,11 +1511,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SignalResourceRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return SignalResourceResponse
      */
-    public function signalResourceWithOptions(SignalResourceRequest $request, RuntimeOptions $runtime)
+    public function signalResourceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1364,11 +1524,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SignalResourceRequest $request
      *
      * @return SignalResourceResponse
      */
-    public function signalResource(SignalResourceRequest $request)
+    public function signalResource($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1376,11 +1536,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeRegionsRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return DescribeRegionsResponse
      */
-    public function describeRegionsWithOptions(DescribeRegionsRequest $request, RuntimeOptions $runtime)
+    public function describeRegionsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1388,11 +1549,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeRegionsRequest $request
      *
      * @return DescribeRegionsResponse
      */
-    public function describeRegions(DescribeRegionsRequest $request)
+    public function describeRegions($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1400,11 +1561,12 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateChangeSetRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return CreateChangeSetResponse
      */
-    public function createChangeSetWithOptions(CreateChangeSetRequest $request, RuntimeOptions $runtime)
+    public function createChangeSetWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1412,11 +1574,11 @@ class ROS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateChangeSetRequest $request
      *
      * @return CreateChangeSetResponse
      */
-    public function createChangeSet(CreateChangeSetRequest $request)
+    public function createChangeSet($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1431,8 +1593,6 @@ class ROS extends Rpc
      * @param string $suffix
      * @param array  $endpointMap
      * @param string $endpoint
-     *
-     * @throws \Exception
      *
      * @return string
      */

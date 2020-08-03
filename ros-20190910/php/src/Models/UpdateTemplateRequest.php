@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class UpdateTemplateRequest extends Model
 {
     /**
-     * @description TemplateURL
-     *
      * @var string
      */
     public $templateURL;
 
     /**
-     * @description TemplateName
-     *
      * @var string
      */
     public $templateName;
 
     /**
-     * @description Description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description TemplateBody
-     *
      * @var string
      */
     public $templateBody;
 
     /**
-     * @description TemplateId
-     *
      * @var string
      */
     public $templateId;

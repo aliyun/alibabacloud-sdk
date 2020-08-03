@@ -9,50 +9,36 @@ use AlibabaCloud\Tea\Model;
 class ListStackEventsRequest extends Model
 {
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description Status
-     *
      * @var array
      */
     public $status;
 
     /**
-     * @description PageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description ResourceType
-     *
      * @var array
      */
     public $resourceType;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description PageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description LogicalResourceId
-     *
      * @var array
      */
     public $logicalResourceId;
@@ -79,19 +65,13 @@ class ListStackEventsRequest extends Model
             $res['StackId'] = $this->stackId;
         }
         if (null !== $this->status) {
-            $res['Status'] = [];
-            if (null !== $this->status) {
-                $res['Status'] = $this->status;
-            }
+            $res['Status'] = $this->status;
         }
         if (null !== $this->pageSize) {
             $res['PageSize'] = $this->pageSize;
         }
         if (null !== $this->resourceType) {
-            $res['ResourceType'] = [];
-            if (null !== $this->resourceType) {
-                $res['ResourceType'] = $this->resourceType;
-            }
+            $res['ResourceType'] = $this->resourceType;
         }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
@@ -100,10 +80,7 @@ class ListStackEventsRequest extends Model
             $res['PageNumber'] = $this->pageNumber;
         }
         if (null !== $this->logicalResourceId) {
-            $res['LogicalResourceId'] = [];
-            if (null !== $this->logicalResourceId) {
-                $res['LogicalResourceId'] = $this->logicalResourceId;
-            }
+            $res['LogicalResourceId'] = $this->logicalResourceId;
         }
 
         return $res;
@@ -122,7 +99,6 @@ class ListStackEventsRequest extends Model
         }
         if (isset($map['Status'])) {
             if (!empty($map['Status'])) {
-                $model->status = [];
                 $model->status = $map['Status'];
             }
         }
@@ -131,7 +107,6 @@ class ListStackEventsRequest extends Model
         }
         if (isset($map['ResourceType'])) {
             if (!empty($map['ResourceType'])) {
-                $model->resourceType = [];
                 $model->resourceType = $map['ResourceType'];
             }
         }
@@ -143,7 +118,6 @@ class ListStackEventsRequest extends Model
         }
         if (isset($map['LogicalResourceId'])) {
             if (!empty($map['LogicalResourceId'])) {
-                $model->logicalResourceId = [];
                 $model->logicalResourceId = $map['LogicalResourceId'];
             }
         }

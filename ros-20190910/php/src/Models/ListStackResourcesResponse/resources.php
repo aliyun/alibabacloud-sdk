@@ -9,78 +9,56 @@ use AlibabaCloud\Tea\Model;
 class resources extends Model
 {
     /**
-     * @description CreateTime
-     *
      * @var string
      */
     public $createTime;
 
     /**
-     * @description LogicalResourceId
-     *
      * @var string
      */
     public $logicalResourceId;
 
     /**
-     * @description PhysicalResourceId
-     *
      * @var string
      */
     public $physicalResourceId;
 
     /**
-     * @description ResourceType
-     *
      * @var string
      */
     public $resourceType;
 
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description StackName
-     *
      * @var string
      */
     public $stackName;
 
     /**
-     * @description Status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description StatusReason
-     *
      * @var string
      */
     public $statusReason;
 
     /**
-     * @description UpdateTime
-     *
      * @var string
      */
     public $updateTime;
 
     /**
-     * @description ResourceDriftStatus
-     *
      * @var string
      */
     public $resourceDriftStatus;
 
     /**
-     * @description DriftDetectionTime
-     *
      * @var string
      */
     public $driftDetectionTime;

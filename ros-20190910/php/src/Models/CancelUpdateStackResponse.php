@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class CancelUpdateStackResponse extends Model
 {
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;

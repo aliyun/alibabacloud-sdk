@@ -9,43 +9,31 @@ use AlibabaCloud\Tea\Model;
 class stackGroups extends Model
 {
     /**
-     * @description StackGroupName
-     *
      * @var string
      */
     public $stackGroupName;
 
     /**
-     * @description StackGroupId
-     *
      * @var string
      */
     public $stackGroupId;
 
     /**
-     * @description Status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description Description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description DriftDetectionTime
-     *
      * @var string
      */
     public $driftDetectionTime;
 
     /**
-     * @description StackGroupDriftStatus
-     *
      * @var string
      */
     public $stackGroupDriftStatus;

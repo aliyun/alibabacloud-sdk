@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class CancelUpdateStackRequest extends Model
 {
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description CancelType
-     *
      * @var string
      */
     public $cancelType;

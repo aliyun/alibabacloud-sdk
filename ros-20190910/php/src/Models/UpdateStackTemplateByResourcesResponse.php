@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class UpdateStackTemplateByResourcesResponse extends Model
 {
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description OldTemplateBody
-     *
      * @var string
      */
     public $oldTemplateBody;
 
     /**
-     * @description NewTemplateBody
-     *
      * @var string
      */
     public $newTemplateBody;

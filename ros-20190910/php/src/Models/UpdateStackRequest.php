@@ -10,106 +10,76 @@ use AlibabaCloud\Tea\Model;
 class UpdateStackRequest extends Model
 {
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description ClientToken
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description StackPolicyDuringUpdateBody
-     *
      * @var string
      */
     public $stackPolicyDuringUpdateBody;
 
     /**
-     * @description TimeoutInMinutes
-     *
      * @var int
      */
     public $timeoutInMinutes;
 
     /**
-     * @description TemplateBody
-     *
      * @var string
      */
     public $templateBody;
 
     /**
-     * @description Parameters
-     *
      * @var array
      */
     public $parameters;
 
     /**
-     * @description StackPolicyURL
-     *
      * @var string
      */
     public $stackPolicyURL;
 
     /**
-     * @description StackPolicyDuringUpdateURL
-     *
      * @var string
      */
     public $stackPolicyDuringUpdateURL;
 
     /**
-     * @description StackPolicyBody
-     *
      * @var string
      */
     public $stackPolicyBody;
 
     /**
-     * @description UsePreviousParameters
-     *
      * @var bool
      */
     public $usePreviousParameters;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description DisableRollback
-     *
      * @var bool
      */
     public $disableRollback;
 
     /**
-     * @description TemplateURL
-     *
      * @var string
      */
     public $templateURL;
 
     /**
-     * @description RoleName
-     *
      * @var string
      */
     public $ramRoleName;
 
     /**
-     * @description ReplacementOption
-     *
      * @var string
      */
     public $replacementOption;

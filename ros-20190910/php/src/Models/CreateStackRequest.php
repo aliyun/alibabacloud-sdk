@@ -10,92 +10,66 @@ use AlibabaCloud\Tea\Model;
 class CreateStackRequest extends Model
 {
     /**
-     * @description DisableRollback
-     *
      * @var bool
      */
     public $disableRollback;
 
     /**
-     * @description TemplateBody
-     *
      * @var string
      */
     public $templateBody;
 
     /**
-     * @description Parameters
-     *
      * @var array
      */
     public $parameters;
 
     /**
-     * @description StackPolicyURL
-     *
      * @var string
      */
     public $stackPolicyURL;
 
     /**
-     * @description TimeoutInMinutes
-     *
      * @var int
      */
     public $timeoutInMinutes;
 
     /**
-     * @description StackPolicyBody
-     *
      * @var string
      */
     public $stackPolicyBody;
 
     /**
-     * @description StackName
-     *
      * @var string
      */
     public $stackName;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description ClientToken
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description TemplateURL
-     *
      * @var string
      */
     public $templateURL;
 
     /**
-     * @description NotificationURLs
-     *
      * @var array
      */
     public $notificationURLs;
 
     /**
-     * @description RoleName
-     *
      * @var string
      */
     public $ramRoleName;
 
     /**
-     * @description DeletionProtection
-     *
      * @var string
      */
     public $deletionProtection;
@@ -161,10 +135,7 @@ class CreateStackRequest extends Model
             $res['TemplateURL'] = $this->templateURL;
         }
         if (null !== $this->notificationURLs) {
-            $res['NotificationURLs'] = [];
-            if (null !== $this->notificationURLs) {
-                $res['NotificationURLs'] = $this->notificationURLs;
-            }
+            $res['NotificationURLs'] = $this->notificationURLs;
         }
         if (null !== $this->ramRoleName) {
             $res['RamRoleName'] = $this->ramRoleName;
@@ -222,7 +193,6 @@ class CreateStackRequest extends Model
         }
         if (isset($map['NotificationURLs'])) {
             if (!empty($map['NotificationURLs'])) {
-                $model->notificationURLs = [];
                 $model->notificationURLs = $map['NotificationURLs'];
             }
         }

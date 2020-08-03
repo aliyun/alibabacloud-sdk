@@ -10,64 +10,46 @@ use AlibabaCloud\Tea\Model;
 class ListStacksRequest extends Model
 {
     /**
-     * @description Status
-     *
      * @var array
      */
     public $status;
 
     /**
-     * @description PageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description ParentStackId
-     *
      * @var string
      */
     public $parentStackId;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description StackName
-     *
      * @var array
      */
     public $stackName;
 
     /**
-     * @description PageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description ShowNestedStack
-     *
      * @var bool
      */
     public $showNestedStack;
 
     /**
-     * @description Tags
-     *
      * @var array
      */
     public $tag;
 
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
@@ -92,10 +74,7 @@ class ListStacksRequest extends Model
     {
         $res = [];
         if (null !== $this->status) {
-            $res['Status'] = [];
-            if (null !== $this->status) {
-                $res['Status'] = $this->status;
-            }
+            $res['Status'] = $this->status;
         }
         if (null !== $this->pageSize) {
             $res['PageSize'] = $this->pageSize;
@@ -107,10 +86,7 @@ class ListStacksRequest extends Model
             $res['RegionId'] = $this->regionId;
         }
         if (null !== $this->stackName) {
-            $res['StackName'] = [];
-            if (null !== $this->stackName) {
-                $res['StackName'] = $this->stackName;
-            }
+            $res['StackName'] = $this->stackName;
         }
         if (null !== $this->pageNumber) {
             $res['PageNumber'] = $this->pageNumber;
@@ -144,7 +120,6 @@ class ListStacksRequest extends Model
         $model = new self();
         if (isset($map['Status'])) {
             if (!empty($map['Status'])) {
-                $model->status = [];
                 $model->status = $map['Status'];
             }
         }
@@ -159,7 +134,6 @@ class ListStacksRequest extends Model
         }
         if (isset($map['StackName'])) {
             if (!empty($map['StackName'])) {
-                $model->stackName = [];
                 $model->stackName = $map['StackName'];
             }
         }

@@ -10,92 +10,66 @@ use AlibabaCloud\Tea\Model;
 class UpdateStackGroupRequest extends Model
 {
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description StackGroupName
-     *
      * @var string
      */
     public $stackGroupName;
 
     /**
-     * @description Description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description Parameters
-     *
      * @var array
      */
     public $parameters;
 
     /**
-     * @description AccountIds
-     *
      * @var array
      */
     public $accountIds;
 
     /**
-     * @description RegionIds
-     *
      * @var array
      */
     public $regionIds;
 
     /**
-     * @description TemplateBody
-     *
      * @var string
      */
     public $templateBody;
 
     /**
-     * @description TemplateURL
-     *
      * @var string
      */
     public $templateURL;
 
     /**
-     * @description ClientToken
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description OperationDescription
-     *
      * @var string
      */
     public $operationDescription;
 
     /**
-     * @description OperationPreferences
-     *
      * @var array
      */
     public $operationPreferences;
 
     /**
-     * @description AdministrationRoleName
-     *
      * @var string
      */
     public $administrationRoleName;
 
     /**
-     * @description ExecutionRoleName
-     *
      * @var string
      */
     public $executionRoleName;

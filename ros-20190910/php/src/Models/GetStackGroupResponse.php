@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class GetStackGroupResponse extends Model
 {
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description StackGroup
-     *
      * @var stackGroup
      */
     public $stackGroup;

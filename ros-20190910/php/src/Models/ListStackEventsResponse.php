@@ -10,36 +10,26 @@ use AlibabaCloud\Tea\Model;
 class ListStackEventsResponse extends Model
 {
     /**
-     * @description PageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description PageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description TotalCount
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description Events
-     *
      * @var array
      */
     public $events;

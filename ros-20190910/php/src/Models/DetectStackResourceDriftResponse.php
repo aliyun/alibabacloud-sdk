@@ -10,71 +10,51 @@ use AlibabaCloud\Tea\Model;
 class DetectStackResourceDriftResponse extends Model
 {
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description DriftDetectionTime
-     *
      * @var string
      */
     public $driftDetectionTime;
 
     /**
-     * @description ResourceDriftStatus
-     *
      * @var string
      */
     public $resourceDriftStatus;
 
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description ResourceType
-     *
      * @var string
      */
     public $resourceType;
 
     /**
-     * @description PhysicalResourceId
-     *
      * @var string
      */
     public $physicalResourceId;
 
     /**
-     * @description LogicalResourceId
-     *
      * @var string
      */
     public $logicalResourceId;
 
     /**
-     * @description ActualProperties
-     *
      * @var string
      */
     public $actualProperties;
 
     /**
-     * @description ExpectedProperties
-     *
      * @var string
      */
     public $expectedProperties;
 
     /**
-     * @description PropertyDifferences
-     *
      * @var array
      */
     public $propertyDifferences;

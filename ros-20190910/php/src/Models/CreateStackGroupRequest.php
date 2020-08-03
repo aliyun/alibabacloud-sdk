@@ -10,64 +10,46 @@ use AlibabaCloud\Tea\Model;
 class CreateStackGroupRequest extends Model
 {
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description StackGroupName
-     *
      * @var string
      */
     public $stackGroupName;
 
     /**
-     * @description Description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description Parameters
-     *
      * @var array
      */
     public $parameters;
 
     /**
-     * @description TemplateBody
-     *
      * @var string
      */
     public $templateBody;
 
     /**
-     * @description TemplateURL
-     *
      * @var string
      */
     public $templateURL;
 
     /**
-     * @description ClientToken
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description AdministrationRoleName
-     *
      * @var string
      */
     public $administrationRoleName;
 
     /**
-     * @description ExecutionRoleName
-     *
      * @var string
      */
     public $executionRoleName;

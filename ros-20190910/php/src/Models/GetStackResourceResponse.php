@@ -9,106 +9,76 @@ use AlibabaCloud\Tea\Model;
 class GetStackResourceResponse extends Model
 {
     /**
-     * @description CreateTime
-     *
      * @var string
      */
     public $createTime;
 
     /**
-     * @description Description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description LogicalResourceId
-     *
      * @var string
      */
     public $logicalResourceId;
 
     /**
-     * @description Metadata
-     *
      * @var array
      */
     public $metadata;
 
     /**
-     * @description PhysicalResourceId
-     *
      * @var string
      */
     public $physicalResourceId;
 
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description ResourceType
-     *
      * @var string
      */
     public $resourceType;
 
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description StackName
-     *
      * @var string
      */
     public $stackName;
 
     /**
-     * @description Status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description StatusReason
-     *
      * @var string
      */
     public $statusReason;
 
     /**
-     * @description UpdateTime
-     *
      * @var string
      */
     public $updateTime;
 
     /**
-     * @description ResourceDriftStatus
-     *
      * @var string
      */
     public $resourceDriftStatus;
 
     /**
-     * @description DriftDetectionTime
-     *
      * @var string
      */
     public $driftDetectionTime;
 
     /**
-     * @description ResourceAttributes
-     *
      * @var array
      */
     public $resourceAttributes;
@@ -195,10 +165,7 @@ class GetStackResourceResponse extends Model
             $res['DriftDetectionTime'] = $this->driftDetectionTime;
         }
         if (null !== $this->resourceAttributes) {
-            $res['ResourceAttributes'] = [];
-            if (null !== $this->resourceAttributes) {
-                $res['ResourceAttributes'] = $this->resourceAttributes;
-            }
+            $res['ResourceAttributes'] = $this->resourceAttributes;
         }
 
         return $res;
@@ -256,7 +223,6 @@ class GetStackResourceResponse extends Model
         }
         if (isset($map['ResourceAttributes'])) {
             if (!empty($map['ResourceAttributes'])) {
-                $model->resourceAttributes = [];
                 $model->resourceAttributes = $map['ResourceAttributes'];
             }
         }

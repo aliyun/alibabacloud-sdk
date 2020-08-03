@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class ListStackResourceDriftsRequest extends Model
 {
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description MaxResults
-     *
      * @var int
      */
     public $maxResults;
 
     /**
-     * @description ResourceDriftStatus
-     *
      * @var array
      */
     public $resourceDriftStatus;
 
     /**
-     * @description NextToken
-     *
      * @var string
      */
     public $nextToken;
@@ -69,10 +59,7 @@ class ListStackResourceDriftsRequest extends Model
             $res['MaxResults'] = $this->maxResults;
         }
         if (null !== $this->resourceDriftStatus) {
-            $res['ResourceDriftStatus'] = [];
-            if (null !== $this->resourceDriftStatus) {
-                $res['ResourceDriftStatus'] = $this->resourceDriftStatus;
-            }
+            $res['ResourceDriftStatus'] = $this->resourceDriftStatus;
         }
         if (null !== $this->nextToken) {
             $res['NextToken'] = $this->nextToken;
@@ -100,7 +87,6 @@ class ListStackResourceDriftsRequest extends Model
         }
         if (isset($map['ResourceDriftStatus'])) {
             if (!empty($map['ResourceDriftStatus'])) {
-                $model->resourceDriftStatus = [];
                 $model->resourceDriftStatus = $map['ResourceDriftStatus'];
             }
         }

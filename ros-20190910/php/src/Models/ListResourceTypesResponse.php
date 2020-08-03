@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class ListResourceTypesResponse extends Model
 {
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description ResourceTypes
-     *
      * @var array
      */
     public $resourceTypes;
@@ -39,10 +35,7 @@ class ListResourceTypesResponse extends Model
             $res['RequestId'] = $this->requestId;
         }
         if (null !== $this->resourceTypes) {
-            $res['ResourceTypes'] = [];
-            if (null !== $this->resourceTypes) {
-                $res['ResourceTypes'] = $this->resourceTypes;
-            }
+            $res['ResourceTypes'] = $this->resourceTypes;
         }
 
         return $res;
@@ -61,7 +54,6 @@ class ListResourceTypesResponse extends Model
         }
         if (isset($map['ResourceTypes'])) {
             if (!empty($map['ResourceTypes'])) {
-                $model->resourceTypes = [];
                 $model->resourceTypes = $map['ResourceTypes'];
             }
         }

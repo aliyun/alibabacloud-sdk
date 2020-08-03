@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class DeleteStackRequest extends Model
 {
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description RetainAllResources
-     *
      * @var bool
      */
     public $retainAllResources;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description RetainResources
-     *
      * @var array
      */
     public $retainResources;
 
     /**
-     * @description RoleName
-     *
      * @var string
      */
     public $ramRoleName;
@@ -69,10 +59,7 @@ class DeleteStackRequest extends Model
             $res['RegionId'] = $this->regionId;
         }
         if (null !== $this->retainResources) {
-            $res['RetainResources'] = [];
-            if (null !== $this->retainResources) {
-                $res['RetainResources'] = $this->retainResources;
-            }
+            $res['RetainResources'] = $this->retainResources;
         }
         if (null !== $this->ramRoleName) {
             $res['RamRoleName'] = $this->ramRoleName;
@@ -100,7 +87,6 @@ class DeleteStackRequest extends Model
         }
         if (isset($map['RetainResources'])) {
             if (!empty($map['RetainResources'])) {
-                $model->retainResources = [];
                 $model->retainResources = $map['RetainResources'];
             }
         }

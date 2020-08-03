@@ -10,22 +10,16 @@ use AlibabaCloud\Tea\Model;
 class ListTagResourcesResponse extends Model
 {
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description NextToken
-     *
      * @var string
      */
     public $nextToken;
 
     /**
-     * @description TagResources
-     *
      * @var array
      */
     public $tagResources;

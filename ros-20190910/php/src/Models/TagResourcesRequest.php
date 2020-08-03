@@ -10,29 +10,21 @@ use AlibabaCloud\Tea\Model;
 class TagResourcesRequest extends Model
 {
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description ResourceIds
-     *
      * @var array
      */
     public $resourceId;
 
     /**
-     * @description ResourceType
-     *
      * @var string
      */
     public $resourceType;
 
     /**
-     * @description Tags
-     *
      * @var array
      */
     public $tag;
@@ -58,10 +50,7 @@ class TagResourcesRequest extends Model
             $res['RegionId'] = $this->regionId;
         }
         if (null !== $this->resourceId) {
-            $res['ResourceId'] = [];
-            if (null !== $this->resourceId) {
-                $res['ResourceId'] = $this->resourceId;
-            }
+            $res['ResourceId'] = $this->resourceId;
         }
         if (null !== $this->resourceType) {
             $res['ResourceType'] = $this->resourceType;
@@ -92,7 +81,6 @@ class TagResourcesRequest extends Model
         }
         if (isset($map['ResourceId'])) {
             if (!empty($map['ResourceId'])) {
-                $model->resourceId = [];
                 $model->resourceId = $map['ResourceId'];
             }
         }

@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class CreateTemplateResponse extends Model
 {
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description TemplateId
-     *
      * @var string
      */
     public $templateId;

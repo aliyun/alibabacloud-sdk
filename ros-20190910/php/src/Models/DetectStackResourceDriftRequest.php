@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class DetectStackResourceDriftRequest extends Model
 {
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description ClientToken
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description LogicalResourceId
-     *
      * @var string
      */
     public $logicalResourceId;

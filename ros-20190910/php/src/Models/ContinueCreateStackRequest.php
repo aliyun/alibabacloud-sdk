@@ -10,64 +10,46 @@ use AlibabaCloud\Tea\Model;
 class ContinueCreateStackRequest extends Model
 {
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description RecreatingResources
-     *
      * @var array
      */
     public $recreatingResources;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description RoleName
-     *
      * @var string
      */
     public $ramRoleName;
 
     /**
-     * @description Mode
-     *
      * @var string
      */
     public $mode;
 
     /**
-     * @description TemplateBody
-     *
      * @var string
      */
     public $templateBody;
 
     /**
-     * @description TemplateURL
-     *
      * @var string
      */
     public $templateURL;
 
     /**
-     * @description Parameters
-     *
      * @var array
      */
     public $parameters;
 
     /**
-     * @description DryRun
-     *
      * @var bool
      */
     public $dryRun;
@@ -96,10 +78,7 @@ class ContinueCreateStackRequest extends Model
             $res['StackId'] = $this->stackId;
         }
         if (null !== $this->recreatingResources) {
-            $res['RecreatingResources'] = [];
-            if (null !== $this->recreatingResources) {
-                $res['RecreatingResources'] = $this->recreatingResources;
-            }
+            $res['RecreatingResources'] = $this->recreatingResources;
         }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
@@ -145,7 +124,6 @@ class ContinueCreateStackRequest extends Model
         }
         if (isset($map['RecreatingResources'])) {
             if (!empty($map['RecreatingResources'])) {
-                $model->recreatingResources = [];
                 $model->recreatingResources = $map['RecreatingResources'];
             }
         }

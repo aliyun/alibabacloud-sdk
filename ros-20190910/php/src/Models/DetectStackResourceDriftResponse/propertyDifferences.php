@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class propertyDifferences extends Model
 {
     /**
-     * @description PropertyPath
-     *
      * @var string
      */
     public $propertyPath;
 
     /**
-     * @description ActualValue
-     *
      * @var string
      */
     public $actualValue;
 
     /**
-     * @description ExpectedValue
-     *
      * @var string
      */
     public $expectedValue;
 
     /**
-     * @description DifferenceType
-     *
      * @var string
      */
     public $differenceType;

@@ -9,64 +9,46 @@ use AlibabaCloud\Tea\Model;
 class events extends Model
 {
     /**
-     * @description CreateTime
-     *
      * @var string
      */
     public $createTime;
 
     /**
-     * @description EventId
-     *
      * @var string
      */
     public $eventId;
 
     /**
-     * @description LogicalResourceId
-     *
      * @var string
      */
     public $logicalResourceId;
 
     /**
-     * @description PhysicalResourceId
-     *
      * @var string
      */
     public $physicalResourceId;
 
     /**
-     * @description ResourceType
-     *
      * @var string
      */
     public $resourceType;
 
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description StackName
-     *
      * @var string
      */
     public $stackName;
 
     /**
-     * @description Status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description StatusReason
-     *
      * @var string
      */
     public $statusReason;

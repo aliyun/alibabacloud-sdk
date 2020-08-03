@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class ListStackGroupOperationResultsRequest extends Model
 {
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description OperationId
-     *
      * @var string
      */
     public $operationId;
 
     /**
-     * @description PageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description PageNumber
-     *
      * @var int
      */
     public $pageNumber;

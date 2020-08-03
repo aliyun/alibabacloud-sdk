@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class DetectStackGroupDriftRequest extends Model
 {
     /**
-     * @description ClientToken
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description StackGroupName
-     *
      * @var string
      */
     public $stackGroupName;
 
     /**
-     * @description OperationPreferences
-     *
      * @var array
      */
     public $operationPreferences;

@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class GetStackResourceRequest extends Model
 {
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description ClientToken
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description ShowResourceAttributes
-     *
      * @var bool
      */
     public $showResourceAttributes;
 
     /**
-     * @description LogicalResourceId
-     *
      * @var string
      */
     public $logicalResourceId;

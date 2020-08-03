@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class PreviewStackResponse extends Model
 {
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description Stack
-     *
      * @var stack
      */
     public $stack;

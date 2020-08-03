@@ -10,36 +10,26 @@ use AlibabaCloud\Tea\Model;
 class ListStackGroupOperationResultsResponse extends Model
 {
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description PageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description PageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description TotalCount
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description StackGroupOperationResults
-     *
      * @var array
      */
     public $stackGroupOperationResults;

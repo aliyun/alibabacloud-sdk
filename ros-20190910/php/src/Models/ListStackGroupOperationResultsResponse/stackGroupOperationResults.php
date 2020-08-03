@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class stackGroupOperationResults extends Model
 {
     /**
-     * @description AccountId
-     *
      * @var string
      */
     public $accountId;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description Status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description StatusReason
-     *
      * @var string
      */
     public $statusReason;

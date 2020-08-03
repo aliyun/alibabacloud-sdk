@@ -10,148 +10,111 @@ use AlibabaCloud\Tea\Model;
 class GetStackResponse extends Model
 {
     /**
-     * @description CreateTime
-     *
      * @var string
      */
     public $createTime;
 
     /**
-     * @description Description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description DisableRollback
-     *
      * @var bool
      */
     public $disableRollback;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description StackName
-     *
      * @var string
      */
     public $stackName;
 
     /**
-     * @description Status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description StatusReason
-     *
      * @var string
      */
     public $statusReason;
 
     /**
-     * @description TemplateDescription
-     *
      * @var string
      */
     public $templateDescription;
 
     /**
-     * @description TimeoutInMinutes
-     *
      * @var int
      */
     public $timeoutInMinutes;
 
     /**
-     * @description UpdateTime
-     *
      * @var string
      */
     public $updateTime;
 
     /**
-     * @description ParentStackId
-     *
      * @var string
      */
     public $parentStackId;
 
     /**
-     * @description StackDriftStatus
-     *
      * @var string
      */
     public $stackDriftStatus;
 
     /**
-     * @description DriftDetectionTime
-     *
      * @var string
      */
     public $driftDetectionTime;
 
     /**
-     * @description RoleName
-     *
      * @var string
      */
     public $ramRoleName;
 
     /**
-     * @description DeletionProtection
-     *
      * @var string
      */
     public $deletionProtection;
 
     /**
-     * @description RootStackId
-     *
      * @var string
      */
     public $rootStackId;
 
     /**
-     * @description Parameters
-     *
+     * @var string
+     */
+    public $stackType;
+
+    /**
      * @var array
      */
     public $parameters;
 
     /**
-     * @description Outputs
-     *
      * @var array
      */
     public $outputs;
 
     /**
-     * @description NotificationURLs
-     *
      * @var array
      */
     public $notificationURLs;
@@ -174,6 +137,7 @@ class GetStackResponse extends Model
         'ramRoleName'         => 'RamRoleName',
         'deletionProtection'  => 'DeletionProtection',
         'rootStackId'         => 'RootStackId',
+        'stackType'           => 'StackType',
         'parameters'          => 'Parameters',
         'outputs'             => 'Outputs',
         'notificationURLs'    => 'NotificationURLs',
@@ -199,6 +163,7 @@ class GetStackResponse extends Model
         Model::validateRequired('ramRoleName', $this->ramRoleName, true);
         Model::validateRequired('deletionProtection', $this->deletionProtection, true);
         Model::validateRequired('rootStackId', $this->rootStackId, true);
+        Model::validateRequired('stackType', $this->stackType, true);
         Model::validateRequired('parameters', $this->parameters, true);
         Model::validateRequired('outputs', $this->outputs, true);
         Model::validateRequired('notificationURLs', $this->notificationURLs, true);
@@ -261,6 +226,9 @@ class GetStackResponse extends Model
         if (null !== $this->rootStackId) {
             $res['RootStackId'] = $this->rootStackId;
         }
+        if (null !== $this->stackType) {
+            $res['StackType'] = $this->stackType;
+        }
         if (null !== $this->parameters) {
             $res['Parameters'] = [];
             if (null !== $this->parameters && \is_array($this->parameters)) {
@@ -271,16 +239,10 @@ class GetStackResponse extends Model
             }
         }
         if (null !== $this->outputs) {
-            $res['Outputs'] = [];
-            if (null !== $this->outputs) {
-                $res['Outputs'] = $this->outputs;
-            }
+            $res['Outputs'] = $this->outputs;
         }
         if (null !== $this->notificationURLs) {
-            $res['NotificationURLs'] = [];
-            if (null !== $this->notificationURLs) {
-                $res['NotificationURLs'] = $this->notificationURLs;
-            }
+            $res['NotificationURLs'] = $this->notificationURLs;
         }
 
         return $res;
@@ -348,6 +310,9 @@ class GetStackResponse extends Model
         if (isset($map['RootStackId'])) {
             $model->rootStackId = $map['RootStackId'];
         }
+        if (isset($map['StackType'])) {
+            $model->stackType = $map['StackType'];
+        }
         if (isset($map['Parameters'])) {
             if (!empty($map['Parameters'])) {
                 $model->parameters = [];
@@ -359,13 +324,11 @@ class GetStackResponse extends Model
         }
         if (isset($map['Outputs'])) {
             if (!empty($map['Outputs'])) {
-                $model->outputs = [];
                 $model->outputs = $map['Outputs'];
             }
         }
         if (isset($map['NotificationURLs'])) {
             if (!empty($map['NotificationURLs'])) {
-                $model->notificationURLs = [];
                 $model->notificationURLs = $map['NotificationURLs'];
             }
         }

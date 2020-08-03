@@ -9,74 +9,59 @@ use AlibabaCloud\Tea\Model;
 class changeSets extends Model
 {
     /**
-     * @description ChangeSetId
-     *
      * @var string
      */
     public $changeSetId;
 
     /**
-     * @description ChangeSetName
-     *
      * @var string
      */
     public $changeSetName;
 
     /**
-     * @description ChangeSetType
-     *
      * @var string
      */
     public $changeSetType;
 
     /**
-     * @description CreateTime
-     *
      * @var string
      */
     public $createTime;
 
     /**
-     * @description Description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description ExecutionStatus
-     *
      * @var string
      */
     public $executionStatus;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description StackName
-     *
      * @var string
      */
     public $stackName;
 
     /**
-     * @description Status
-     *
      * @var string
      */
     public $status;
+
+    /**
+     * @var string
+     */
+    public $statusReason;
     protected $_name = [
         'changeSetId'     => 'ChangeSetId',
         'changeSetName'   => 'ChangeSetName',
@@ -88,6 +73,7 @@ class changeSets extends Model
         'stackId'         => 'StackId',
         'stackName'       => 'StackName',
         'status'          => 'Status',
+        'statusReason'    => 'StatusReason',
     ];
 
     public function validate()
@@ -102,6 +88,7 @@ class changeSets extends Model
         Model::validateRequired('stackId', $this->stackId, true);
         Model::validateRequired('stackName', $this->stackName, true);
         Model::validateRequired('status', $this->status, true);
+        Model::validateRequired('statusReason', $this->statusReason, true);
     }
 
     public function toMap()
@@ -136,6 +123,9 @@ class changeSets extends Model
         }
         if (null !== $this->status) {
             $res['Status'] = $this->status;
+        }
+        if (null !== $this->statusReason) {
+            $res['StatusReason'] = $this->statusReason;
         }
 
         return $res;
@@ -178,6 +168,9 @@ class changeSets extends Model
         }
         if (isset($map['Status'])) {
             $model->status = $map['Status'];
+        }
+        if (isset($map['StatusReason'])) {
+            $model->statusReason = $map['StatusReason'];
         }
 
         return $model;

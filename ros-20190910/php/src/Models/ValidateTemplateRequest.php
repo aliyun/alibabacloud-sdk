@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class ValidateTemplateRequest extends Model
 {
     /**
-     * @description TemplateURL
-     *
      * @var string
      */
     public $templateURL;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description TemplateBody
-     *
      * @var string
      */
     public $templateBody;

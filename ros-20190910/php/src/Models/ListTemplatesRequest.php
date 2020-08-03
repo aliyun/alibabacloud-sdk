@@ -10,29 +10,21 @@ use AlibabaCloud\Tea\Model;
 class ListTemplatesRequest extends Model
 {
     /**
-     * @description PageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description PageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description TemplateName
-     *
      * @var string
      */
     public $templateName;
 
     /**
-     * @description Tags
-     *
      * @var array
      */
     public $tag;

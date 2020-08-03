@@ -10,71 +10,51 @@ use AlibabaCloud\Tea\Model;
 class PreviewStackRequest extends Model
 {
     /**
-     * @description DisableRollback
-     *
      * @var bool
      */
     public $disableRollback;
 
     /**
-     * @description TimeoutInMinutes
-     *
      * @var int
      */
     public $timeoutInMinutes;
 
     /**
-     * @description Parameters
-     *
      * @var array
      */
     public $parameters;
 
     /**
-     * @description TemplateBody
-     *
      * @var string
      */
     public $templateBody;
 
     /**
-     * @description StackPolicyURL
-     *
      * @var string
      */
     public $stackPolicyURL;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description StackPolicyBody
-     *
      * @var string
      */
     public $stackPolicyBody;
 
     /**
-     * @description StackName
-     *
      * @var string
      */
     public $stackName;
 
     /**
-     * @description ClientToken
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description TemplateURL
-     *
      * @var string
      */
     public $templateURL;

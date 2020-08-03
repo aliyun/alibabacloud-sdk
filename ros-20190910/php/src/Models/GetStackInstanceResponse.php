@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class GetStackInstanceResponse extends Model
 {
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description StackInstance
-     *
      * @var stackInstance
      */
     public $stackInstance;

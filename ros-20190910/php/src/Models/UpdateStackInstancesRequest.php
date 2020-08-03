@@ -10,57 +10,41 @@ use AlibabaCloud\Tea\Model;
 class UpdateStackInstancesRequest extends Model
 {
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description StackGroupName
-     *
      * @var string
      */
     public $stackGroupName;
 
     /**
-     * @description ParameterOverrides
-     *
      * @var array
      */
     public $parameterOverrides;
 
     /**
-     * @description AccountIds
-     *
      * @var array
      */
     public $accountIds;
 
     /**
-     * @description RegionIds
-     *
      * @var array
      */
     public $regionIds;
 
     /**
-     * @description ClientToken
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description OperationDescription
-     *
      * @var string
      */
     public $operationDescription;
 
     /**
-     * @description OperationPreferences
-     *
      * @var array
      */
     public $operationPreferences;

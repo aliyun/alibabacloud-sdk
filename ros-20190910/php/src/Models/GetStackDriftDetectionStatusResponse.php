@@ -9,57 +9,41 @@ use AlibabaCloud\Tea\Model;
 class GetStackDriftDetectionStatusResponse extends Model
 {
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description DriftDetectionId
-     *
      * @var string
      */
     public $driftDetectionId;
 
     /**
-     * @description DriftDetectionTime
-     *
      * @var string
      */
     public $driftDetectionTime;
 
     /**
-     * @description DriftDetectionStatus
-     *
      * @var string
      */
     public $driftDetectionStatus;
 
     /**
-     * @description DriftDetectionStatusReason
-     *
      * @var string
      */
     public $driftDetectionStatusReason;
 
     /**
-     * @description StackDriftStatus
-     *
      * @var string
      */
     public $stackDriftStatus;
 
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description DriftedStackResourceCount
-     *
      * @var int
      */
     public $driftedStackResourceCount;

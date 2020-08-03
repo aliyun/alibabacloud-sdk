@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class GetStackInstanceRequest extends Model
 {
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description StackGroupName
-     *
      * @var string
      */
     public $stackGroupName;
 
     /**
-     * @description StackInstanceAccountId
-     *
      * @var string
      */
     public $stackInstanceAccountId;
 
     /**
-     * @description StackInstanceRegionId
-     *
      * @var string
      */
     public $stackInstanceRegionId;

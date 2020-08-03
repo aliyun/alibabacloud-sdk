@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class GetResourceTypeResponse extends Model
 {
     /**
-     * @description Attributes
-     *
      * @var array
      */
     public $attributes;
 
     /**
-     * @description Properties
-     *
      * @var array
      */
     public $properties;
 
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description ResourceType
-     *
      * @var string
      */
     public $resourceType;
 
     /**
-     * @description SupportDriftDetection
-     *
      * @var bool
      */
     public $supportDriftDetection;

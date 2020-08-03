@@ -11,64 +11,46 @@ use AlibabaCloud\Tea\Model;
 class stackGroup extends Model
 {
     /**
-     * @description StackGroupName
-     *
      * @var string
      */
     public $stackGroupName;
 
     /**
-     * @description StackGroupId
-     *
      * @var string
      */
     public $stackGroupId;
 
     /**
-     * @description Status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description Description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description TemplateBody
-     *
      * @var string
      */
     public $templateBody;
 
     /**
-     * @description ExecutionRoleName
-     *
      * @var string
      */
     public $executionRoleName;
 
     /**
-     * @description AdministrationRoleName
-     *
      * @var string
      */
     public $administrationRoleName;
 
     /**
-     * @description Parameters
-     *
      * @var array
      */
     public $parameters;
 
     /**
-     * @description StackGroupDriftDetectionDetail
-     *
      * @var stackGroupDriftDetectionDetail
      */
     public $stackGroupDriftDetectionDetail;

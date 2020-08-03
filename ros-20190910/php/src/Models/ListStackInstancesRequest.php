@@ -9,43 +9,31 @@ use AlibabaCloud\Tea\Model;
 class ListStackInstancesRequest extends Model
 {
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description StackGroupName
-     *
      * @var string
      */
     public $stackGroupName;
 
     /**
-     * @description StackInstanceAccountId
-     *
      * @var string
      */
     public $stackInstanceAccountId;
 
     /**
-     * @description StackInstanceRegionId
-     *
      * @var string
      */
     public $stackInstanceRegionId;
 
     /**
-     * @description PageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description PageNumber
-     *
      * @var int
      */
     public $pageNumber;

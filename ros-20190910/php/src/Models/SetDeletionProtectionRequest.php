@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class SetDeletionProtectionRequest extends Model
 {
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description DeletionProtection
-     *
      * @var string
      */
     public $deletionProtection;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;

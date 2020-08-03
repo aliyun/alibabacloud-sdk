@@ -9,43 +9,31 @@ use AlibabaCloud\Tea\Model;
 class resources extends Model
 {
     /**
-     * @description Description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description LogicalResourceId
-     *
      * @var string
      */
     public $logicalResourceId;
 
     /**
-     * @description Properties
-     *
      * @var array
      */
     public $properties;
 
     /**
-     * @description ResourceType
-     *
      * @var string
      */
     public $resourceType;
 
     /**
-     * @description Stack
-     *
      * @var array
      */
     public $stack;
 
     /**
-     * @description RequiredBy
-     *
      * @var array
      */
     public $requiredBy;
@@ -87,10 +75,7 @@ class resources extends Model
             $res['Stack'] = $this->stack;
         }
         if (null !== $this->requiredBy) {
-            $res['RequiredBy'] = [];
-            if (null !== $this->requiredBy) {
-                $res['RequiredBy'] = $this->requiredBy;
-            }
+            $res['RequiredBy'] = $this->requiredBy;
         }
 
         return $res;
@@ -121,7 +106,6 @@ class resources extends Model
         }
         if (isset($map['RequiredBy'])) {
             if (!empty($map['RequiredBy'])) {
-                $model->requiredBy = [];
                 $model->requiredBy = $map['RequiredBy'];
             }
         }

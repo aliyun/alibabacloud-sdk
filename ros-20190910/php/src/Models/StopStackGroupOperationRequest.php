@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class StopStackGroupOperationRequest extends Model
 {
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description OperationId
-     *
      * @var string
      */
     public $operationId;

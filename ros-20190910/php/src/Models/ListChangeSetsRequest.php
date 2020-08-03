@@ -9,57 +9,41 @@ use AlibabaCloud\Tea\Model;
 class ListChangeSetsRequest extends Model
 {
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description Status
-     *
      * @var array
      */
     public $status;
 
     /**
-     * @description ChangeSetName
-     *
      * @var array
      */
     public $changeSetName;
 
     /**
-     * @description PageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description PageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description ExecutionStatus
-     *
      * @var array
      */
     public $executionStatus;
 
     /**
-     * @description ChangeSetId
-     *
      * @var string
      */
     public $changeSetId;
@@ -87,16 +71,10 @@ class ListChangeSetsRequest extends Model
             $res['StackId'] = $this->stackId;
         }
         if (null !== $this->status) {
-            $res['Status'] = [];
-            if (null !== $this->status) {
-                $res['Status'] = $this->status;
-            }
+            $res['Status'] = $this->status;
         }
         if (null !== $this->changeSetName) {
-            $res['ChangeSetName'] = [];
-            if (null !== $this->changeSetName) {
-                $res['ChangeSetName'] = $this->changeSetName;
-            }
+            $res['ChangeSetName'] = $this->changeSetName;
         }
         if (null !== $this->pageSize) {
             $res['PageSize'] = $this->pageSize;
@@ -108,10 +86,7 @@ class ListChangeSetsRequest extends Model
             $res['PageNumber'] = $this->pageNumber;
         }
         if (null !== $this->executionStatus) {
-            $res['ExecutionStatus'] = [];
-            if (null !== $this->executionStatus) {
-                $res['ExecutionStatus'] = $this->executionStatus;
-            }
+            $res['ExecutionStatus'] = $this->executionStatus;
         }
         if (null !== $this->changeSetId) {
             $res['ChangeSetId'] = $this->changeSetId;
@@ -133,13 +108,11 @@ class ListChangeSetsRequest extends Model
         }
         if (isset($map['Status'])) {
             if (!empty($map['Status'])) {
-                $model->status = [];
                 $model->status = $map['Status'];
             }
         }
         if (isset($map['ChangeSetName'])) {
             if (!empty($map['ChangeSetName'])) {
-                $model->changeSetName = [];
                 $model->changeSetName = $map['ChangeSetName'];
             }
         }
@@ -154,7 +127,6 @@ class ListChangeSetsRequest extends Model
         }
         if (isset($map['ExecutionStatus'])) {
             if (!empty($map['ExecutionStatus'])) {
-                $model->executionStatus = [];
                 $model->executionStatus = $map['ExecutionStatus'];
             }
         }

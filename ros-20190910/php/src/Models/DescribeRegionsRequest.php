@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class DescribeRegionsRequest extends Model
 {
     /**
-     * @description AcceptLanguage
-     *
      * @var string
      */
     public $acceptLanguage;

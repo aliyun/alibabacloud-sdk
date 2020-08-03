@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class operationPreferences extends Model
 {
     /**
-     * @description FailureToleranceCount
-     *
      * @var int
      */
     public $failureToleranceCount;
 
     /**
-     * @description FailureTolerancePercentage
-     *
      * @var int
      */
     public $failureTolerancePercentage;
 
     /**
-     * @description MaxConcurrentCount
-     *
      * @var int
      */
     public $maxConcurrentCount;
 
     /**
-     * @description MaxConcurrentPercentage
-     *
      * @var int
      */
     public $maxConcurrentPercentage;
 
     /**
-     * @description RegionIdsOrder
-     *
      * @var array
      */
     public $regionIdsOrder;
@@ -75,10 +65,7 @@ class operationPreferences extends Model
             $res['MaxConcurrentPercentage'] = $this->maxConcurrentPercentage;
         }
         if (null !== $this->regionIdsOrder) {
-            $res['RegionIdsOrder'] = [];
-            if (null !== $this->regionIdsOrder) {
-                $res['RegionIdsOrder'] = $this->regionIdsOrder;
-            }
+            $res['RegionIdsOrder'] = $this->regionIdsOrder;
         }
 
         return $res;
@@ -106,7 +93,6 @@ class operationPreferences extends Model
         }
         if (isset($map['RegionIdsOrder'])) {
             if (!empty($map['RegionIdsOrder'])) {
-                $model->regionIdsOrder = [];
                 $model->regionIdsOrder = $map['RegionIdsOrder'];
             }
         }

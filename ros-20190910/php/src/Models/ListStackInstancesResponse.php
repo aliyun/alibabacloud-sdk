@@ -10,36 +10,26 @@ use AlibabaCloud\Tea\Model;
 class ListStackInstancesResponse extends Model
 {
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description PageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description PageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description TotalCount
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description StackInstances
-     *
      * @var array
      */
     public $stackInstances;

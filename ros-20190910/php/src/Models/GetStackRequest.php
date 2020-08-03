@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class GetStackRequest extends Model
 {
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description ClientToken
-     *
      * @var string
      */
     public $clientToken;

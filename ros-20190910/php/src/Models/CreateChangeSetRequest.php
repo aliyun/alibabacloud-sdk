@@ -5,149 +5,115 @@
 namespace AlibabaCloud\SDK\ROS\V20190910\Models;
 
 use AlibabaCloud\SDK\ROS\V20190910\Models\CreateChangeSetRequest\parameters;
+use AlibabaCloud\SDK\ROS\V20190910\Models\CreateChangeSetRequest\resourcesToImport;
 use AlibabaCloud\Tea\Model;
 
 class CreateChangeSetRequest extends Model
 {
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description Parameters
-     *
      * @var array
      */
     public $parameters;
 
     /**
-     * @description StackPolicyURL
-     *
      * @var string
      */
     public $stackPolicyURL;
 
     /**
-     * @description StackPolicyBody
-     *
      * @var string
      */
     public $stackPolicyBody;
 
     /**
-     * @description StackName
-     *
      * @var string
      */
     public $stackName;
 
     /**
-     * @description UsePreviousParameters
-     *
      * @var bool
      */
     public $usePreviousParameters;
 
     /**
-     * @description ChangeSetType
-     *
      * @var string
      */
     public $changeSetType;
 
     /**
-     * @description Description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description ClientToken
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description TemplateURL
-     *
      * @var string
      */
     public $templateURL;
 
     /**
-     * @description StackPolicyDuringUpdateURL
-     *
      * @var string
      */
     public $stackPolicyDuringUpdateURL;
 
     /**
-     * @description TemplateBody
-     *
      * @var string
      */
     public $templateBody;
 
     /**
-     * @description TimeoutInMinutes
-     *
      * @var int
      */
     public $timeoutInMinutes;
 
     /**
-     * @description DisableRollback
-     *
      * @var bool
      */
     public $disableRollback;
 
     /**
-     * @description ChangeSetName
-     *
      * @var string
      */
     public $changeSetName;
 
     /**
-     * @description StackPolicyDuringUpdateBody
-     *
      * @var string
      */
     public $stackPolicyDuringUpdateBody;
 
     /**
-     * @description NotificationURLs
-     *
      * @var array
      */
     public $notificationURLs;
 
     /**
-     * @description RoleName
-     *
      * @var string
      */
     public $ramRoleName;
 
     /**
-     * @description ReplacementOption
-     *
      * @var string
      */
     public $replacementOption;
+
+    /**
+     * @var array
+     */
+    public $resourcesToImport;
     protected $_name = [
         'stackId'                     => 'StackId',
         'parameters'                  => 'Parameters',
@@ -169,6 +135,7 @@ class CreateChangeSetRequest extends Model
         'notificationURLs'            => 'NotificationURLs',
         'ramRoleName'                 => 'RamRoleName',
         'replacementOption'           => 'ReplacementOption',
+        'resourcesToImport'           => 'ResourcesToImport',
     ];
 
     public function validate()
@@ -238,16 +205,22 @@ class CreateChangeSetRequest extends Model
             $res['StackPolicyDuringUpdateBody'] = $this->stackPolicyDuringUpdateBody;
         }
         if (null !== $this->notificationURLs) {
-            $res['NotificationURLs'] = [];
-            if (null !== $this->notificationURLs) {
-                $res['NotificationURLs'] = $this->notificationURLs;
-            }
+            $res['NotificationURLs'] = $this->notificationURLs;
         }
         if (null !== $this->ramRoleName) {
             $res['RamRoleName'] = $this->ramRoleName;
         }
         if (null !== $this->replacementOption) {
             $res['ReplacementOption'] = $this->replacementOption;
+        }
+        if (null !== $this->resourcesToImport) {
+            $res['ResourcesToImport'] = [];
+            if (null !== $this->resourcesToImport && \is_array($this->resourcesToImport)) {
+                $n = 0;
+                foreach ($this->resourcesToImport as $item) {
+                    $res['ResourcesToImport'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
+            }
         }
 
         return $res;
@@ -320,7 +293,6 @@ class CreateChangeSetRequest extends Model
         }
         if (isset($map['NotificationURLs'])) {
             if (!empty($map['NotificationURLs'])) {
-                $model->notificationURLs = [];
                 $model->notificationURLs = $map['NotificationURLs'];
             }
         }
@@ -329,6 +301,15 @@ class CreateChangeSetRequest extends Model
         }
         if (isset($map['ReplacementOption'])) {
             $model->replacementOption = $map['ReplacementOption'];
+        }
+        if (isset($map['ResourcesToImport'])) {
+            if (!empty($map['ResourcesToImport'])) {
+                $model->resourcesToImport = [];
+                $n                        = 0;
+                foreach ($map['ResourcesToImport'] as $item) {
+                    $model->resourcesToImport[$n++] = null !== $item ? resourcesToImport::fromMap($item) : $item;
+                }
+            }
         }
 
         return $model;

@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class DetectStackDriftRequest extends Model
 {
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description LogicalResourceId
-     *
      * @var array
      */
     public $logicalResourceId;
 
     /**
-     * @description ClientToken
-     *
      * @var string
      */
     public $clientToken;
@@ -58,10 +50,7 @@ class DetectStackDriftRequest extends Model
             $res['RegionId'] = $this->regionId;
         }
         if (null !== $this->logicalResourceId) {
-            $res['LogicalResourceId'] = [];
-            if (null !== $this->logicalResourceId) {
-                $res['LogicalResourceId'] = $this->logicalResourceId;
-            }
+            $res['LogicalResourceId'] = $this->logicalResourceId;
         }
         if (null !== $this->clientToken) {
             $res['ClientToken'] = $this->clientToken;
@@ -86,7 +75,6 @@ class DetectStackDriftRequest extends Model
         }
         if (isset($map['LogicalResourceId'])) {
             if (!empty($map['LogicalResourceId'])) {
-                $model->logicalResourceId = [];
                 $model->logicalResourceId = $map['LogicalResourceId'];
             }
         }

@@ -11,64 +11,46 @@ use AlibabaCloud\Tea\Model;
 class stack extends Model
 {
     /**
-     * @description Description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description DisableRollback
-     *
      * @var bool
      */
     public $disableRollback;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description StackName
-     *
      * @var string
      */
     public $stackName;
 
     /**
-     * @description StackPolicyBody
-     *
      * @var array
      */
     public $stackPolicyBody;
 
     /**
-     * @description TemplateDescription
-     *
      * @var string
      */
     public $templateDescription;
 
     /**
-     * @description TimeoutInMinutes
-     *
      * @var int
      */
     public $timeoutInMinutes;
 
     /**
-     * @description Parameters
-     *
      * @var array
      */
     public $parameters;
 
     /**
-     * @description Resources
-     *
      * @var array
      */
     public $resources;

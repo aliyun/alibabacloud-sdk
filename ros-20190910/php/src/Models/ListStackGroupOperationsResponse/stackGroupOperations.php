@@ -9,57 +9,41 @@ use AlibabaCloud\Tea\Model;
 class stackGroupOperations extends Model
 {
     /**
-     * @description StackGroupName
-     *
      * @var string
      */
     public $stackGroupName;
 
     /**
-     * @description StackGroupId
-     *
      * @var string
      */
     public $stackGroupId;
 
     /**
-     * @description OperationId
-     *
      * @var string
      */
     public $operationId;
 
     /**
-     * @description OperationDescription
-     *
      * @var string
      */
     public $operationDescription;
 
     /**
-     * @description CreateTime
-     *
      * @var string
      */
     public $createTime;
 
     /**
-     * @description EndTime
-     *
      * @var string
      */
     public $endTime;
 
     /**
-     * @description Action
-     *
      * @var string
      */
     public $action;
 
     /**
-     * @description Status
-     *
      * @var string
      */
     public $status;

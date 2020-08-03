@@ -10,36 +10,26 @@ use AlibabaCloud\Tea\Model;
 class GetTemplateEstimateCostRequest extends Model
 {
     /**
-     * @description TemplateURL
-     *
      * @var string
      */
     public $templateURL;
 
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description Parameters
-     *
      * @var array
      */
     public $parameters;
 
     /**
-     * @description TemplateBody
-     *
      * @var string
      */
     public $templateBody;
 
     /**
-     * @description ClientToken
-     *
      * @var string
      */
     public $clientToken;

@@ -9,57 +9,41 @@ use AlibabaCloud\Tea\Model;
 class DeleteStackInstancesRequest extends Model
 {
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description StackGroupName
-     *
      * @var string
      */
     public $stackGroupName;
 
     /**
-     * @description AccountIds
-     *
      * @var array
      */
     public $accountIds;
 
     /**
-     * @description RegionIds
-     *
      * @var array
      */
     public $regionIds;
 
     /**
-     * @description RetainStacks
-     *
      * @var bool
      */
     public $retainStacks;
 
     /**
-     * @description ClientToken
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description OperationDescription
-     *
      * @var string
      */
     public $operationDescription;
 
     /**
-     * @description OperationPreferences
-     *
      * @var array
      */
     public $operationPreferences;

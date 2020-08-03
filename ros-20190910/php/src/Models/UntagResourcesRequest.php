@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class UntagResourcesRequest extends Model
 {
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description ResourceIds
-     *
      * @var array
      */
     public $resourceId;
 
     /**
-     * @description ResourceType
-     *
      * @var string
      */
     public $resourceType;
 
     /**
-     * @description TagKeys
-     *
      * @var array
      */
     public $tagKey;
 
     /**
-     * @description All
-     *
      * @var bool
      */
     public $all;
@@ -64,19 +54,13 @@ class UntagResourcesRequest extends Model
             $res['RegionId'] = $this->regionId;
         }
         if (null !== $this->resourceId) {
-            $res['ResourceId'] = [];
-            if (null !== $this->resourceId) {
-                $res['ResourceId'] = $this->resourceId;
-            }
+            $res['ResourceId'] = $this->resourceId;
         }
         if (null !== $this->resourceType) {
             $res['ResourceType'] = $this->resourceType;
         }
         if (null !== $this->tagKey) {
-            $res['TagKey'] = [];
-            if (null !== $this->tagKey) {
-                $res['TagKey'] = $this->tagKey;
-            }
+            $res['TagKey'] = $this->tagKey;
         }
         if (null !== $this->all) {
             $res['All'] = $this->all;
@@ -98,7 +82,6 @@ class UntagResourcesRequest extends Model
         }
         if (isset($map['ResourceId'])) {
             if (!empty($map['ResourceId'])) {
-                $model->resourceId = [];
                 $model->resourceId = $map['ResourceId'];
             }
         }
@@ -107,7 +90,6 @@ class UntagResourcesRequest extends Model
         }
         if (isset($map['TagKey'])) {
             if (!empty($map['TagKey'])) {
-                $model->tagKey = [];
                 $model->tagKey = $map['TagKey'];
             }
         }

@@ -10,64 +10,46 @@ use AlibabaCloud\Tea\Model;
 class resourceDrifts extends Model
 {
     /**
-     * @description DriftDetectionTime
-     *
      * @var string
      */
     public $driftDetectionTime;
 
     /**
-     * @description ResourceDriftStatus
-     *
      * @var string
      */
     public $resourceDriftStatus;
 
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;
 
     /**
-     * @description ResourceType
-     *
      * @var string
      */
     public $resourceType;
 
     /**
-     * @description PhysicalResourceId
-     *
      * @var string
      */
     public $physicalResourceId;
 
     /**
-     * @description LogicalResourceId
-     *
      * @var string
      */
     public $logicalResourceId;
 
     /**
-     * @description ActualProperties
-     *
      * @var string
      */
     public $actualProperties;
 
     /**
-     * @description ExpectedProperties
-     *
      * @var string
      */
     public $expectedProperties;
 
     /**
-     * @description PropertyDifferences
-     *
      * @var array
      */
     public $propertyDifferences;

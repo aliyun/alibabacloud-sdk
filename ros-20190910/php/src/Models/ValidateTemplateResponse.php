@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class ValidateTemplateResponse extends Model
 {
     /**
-     * @description Description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description Parameters
-     *
      * @var array
      */
     public $parameters;
@@ -51,10 +45,7 @@ class ValidateTemplateResponse extends Model
             $res['RequestId'] = $this->requestId;
         }
         if (null !== $this->parameters) {
-            $res['Parameters'] = [];
-            if (null !== $this->parameters) {
-                $res['Parameters'] = $this->parameters;
-            }
+            $res['Parameters'] = $this->parameters;
         }
 
         return $res;
@@ -76,7 +67,6 @@ class ValidateTemplateResponse extends Model
         }
         if (isset($map['Parameters'])) {
             if (!empty($map['Parameters'])) {
-                $model->parameters = [];
                 $model->parameters = $map['Parameters'];
             }
         }

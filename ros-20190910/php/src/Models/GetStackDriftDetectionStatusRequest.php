@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class GetStackDriftDetectionStatusRequest extends Model
 {
     /**
-     * @description RegionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description DriftDetectionId
-     *
      * @var string
      */
     public $driftDetectionId;

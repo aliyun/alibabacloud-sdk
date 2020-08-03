@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class UpdateStackResponse extends Model
 {
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description StackId
-     *
      * @var string
      */
     public $stackId;

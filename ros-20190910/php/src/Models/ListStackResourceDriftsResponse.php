@@ -10,22 +10,16 @@ use AlibabaCloud\Tea\Model;
 class ListStackResourceDriftsResponse extends Model
 {
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description NextToken
-     *
      * @var string
      */
     public $nextToken;
 
     /**
-     * @description ResourceDrifts
-     *
      * @var array
      */
     public $resourceDrifts;
