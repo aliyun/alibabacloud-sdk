@@ -10,6 +10,66 @@ import EndpointUtil from '@alicloud/endpoint-util';
 import { Readable } from 'stream';
 import * as $tea from '@alicloud/tea-typescript';
 
+export class ExtractPedestrianFeatureAttributeRequest extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ExtractPedestrianFeatureAttributeResponse extends $tea.Model {
+  requestId: string;
+  data: ExtractPedestrianFeatureAttributeResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: ExtractPedestrianFeatureAttributeResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ExtractPedestrianFeatureAttributeAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class DetectCelebrityRequest extends $tea.Model {
   imageURL: string;
   static names(): { [key: string]: string } {
@@ -1818,6 +1878,76 @@ export class DetectFaceAdvanceRequest extends $tea.Model {
   }
 }
 
+export class ExtractPedestrianFeatureAttributeResponseData extends $tea.Model {
+  objType: string;
+  objTypeScore: number;
+  feature: string;
+  qualityScore: number;
+  upperColor: string;
+  upperColorScore: number;
+  upperType: string;
+  upperTypeScore: number;
+  lowerColor: string;
+  lowerColorScore: number;
+  lowerType: string;
+  lowerTypeScore: number;
+  gender: string;
+  genderScore: number;
+  hair: string;
+  hairScore: number;
+  age: string;
+  ageScore: number;
+  static names(): { [key: string]: string } {
+    return {
+      objType: 'ObjType',
+      objTypeScore: 'ObjTypeScore',
+      feature: 'Feature',
+      qualityScore: 'QualityScore',
+      upperColor: 'UpperColor',
+      upperColorScore: 'UpperColorScore',
+      upperType: 'UpperType',
+      upperTypeScore: 'UpperTypeScore',
+      lowerColor: 'LowerColor',
+      lowerColorScore: 'LowerColorScore',
+      lowerType: 'LowerType',
+      lowerTypeScore: 'LowerTypeScore',
+      gender: 'Gender',
+      genderScore: 'GenderScore',
+      hair: 'Hair',
+      hairScore: 'HairScore',
+      age: 'Age',
+      ageScore: 'AgeScore',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      objType: 'string',
+      objTypeScore: 'number',
+      feature: 'string',
+      qualityScore: 'number',
+      upperColor: 'string',
+      upperColorScore: 'number',
+      upperType: 'string',
+      upperTypeScore: 'number',
+      lowerColor: 'string',
+      lowerColorScore: 'number',
+      lowerType: 'string',
+      lowerTypeScore: 'number',
+      gender: 'string',
+      genderScore: 'number',
+      hair: 'string',
+      hairScore: 'number',
+      age: 'string',
+      ageScore: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class DetectCelebrityResponseDataFaceRecognizeResults extends $tea.Model {
   name: string;
   faceBoxes: number[];
@@ -3276,6 +3406,67 @@ export default class Client extends RPC {
     this._endpoint = this.getEndpoint("facebody", this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
   }
 
+
+  async extractPedestrianFeatureAttribute(request: ExtractPedestrianFeatureAttributeRequest, runtime: $Util.RuntimeOptions): Promise<ExtractPedestrianFeatureAttributeResponse> {
+    Util.validateModel(request);
+    return $tea.cast<ExtractPedestrianFeatureAttributeResponse>(await this.doRequest("ExtractPedestrianFeatureAttribute", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new ExtractPedestrianFeatureAttributeResponse({}));
+  }
+
+  async extractPedestrianFeatureAttributeAdvance(request: ExtractPedestrianFeatureAttributeAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<ExtractPedestrianFeatureAttributeResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "facebody",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let extractPedestrianFeatureAttributereq = new ExtractPedestrianFeatureAttributeRequest({ });
+    RPCUtil.convert(request, extractPedestrianFeatureAttributereq);
+    extractPedestrianFeatureAttributereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let extractPedestrianFeatureAttributeResp = await this.extractPedestrianFeatureAttribute(extractPedestrianFeatureAttributereq, runtime);
+    return extractPedestrianFeatureAttributeResp;
+  }
 
   async detectCelebrity(request: DetectCelebrityRequest, runtime: $Util.RuntimeOptions): Promise<DetectCelebrityResponse> {
     Util.validateModel(request);
