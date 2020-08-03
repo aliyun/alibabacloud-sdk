@@ -13,6 +13,50 @@ class Client(RPCClient):
         self.check_config(config)
         self._endpoint = self.get_endpoint("ros", self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint)
 
+    def list_stack_operation_risks_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return _ros20190910_models.ListStackOperationRisksResponse().from_map(self.do_request("ListStackOperationRisks", "HTTPS", "POST", "2019-09-10", "AK", None, request.to_map(), runtime))
+
+
+    def list_stack_operation_risks(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.list_stack_operation_risks_with_options(request, runtime)
+
+    def get_template_summary_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return _ros20190910_models.GetTemplateSummaryResponse().from_map(self.do_request("GetTemplateSummary", "HTTPS", "POST", "2019-09-10", "AK", None, request.to_map(), runtime))
+
+
+    def get_template_summary(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.get_template_summary_with_options(request, runtime)
+
+    def list_tag_values_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return _ros20190910_models.ListTagValuesResponse().from_map(self.do_request("ListTagValues", "HTTPS", "POST", "2019-09-10", "AK", None, request.to_map(), runtime))
+
+
+    def list_tag_values(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.list_tag_values_with_options(request, runtime)
+
+    def list_tag_keys_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return _ros20190910_models.ListTagKeysResponse().from_map(self.do_request("ListTagKeys", "HTTPS", "POST", "2019-09-10", "AK", None, request.to_map(), runtime))
+
+
+    def list_tag_keys(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.list_tag_keys_with_options(request, runtime)
+
     def set_deletion_protection_with_options(self, request, runtime):
         UtilClient.validate_model(request)
         return _ros20190910_models.SetDeletionProtectionResponse().from_map(self.do_request("SetDeletionProtection", "HTTPS", "POST", "2019-09-10", "AK", None, request.to_map(), runtime))

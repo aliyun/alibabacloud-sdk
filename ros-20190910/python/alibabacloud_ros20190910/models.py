@@ -2,6 +2,412 @@
 from Tea.model import TeaModel
 
 
+class ListStackOperationRisksRequest(TeaModel):
+    def __init__(self, region_id=None, stack_id=None, operation_type=None, client_token=None, ram_role_name=None, retain_all_resources=None, retain_resources=None):
+        self.region_id = region_id
+        self.stack_id = stack_id
+        self.operation_type = operation_type
+        self.client_token = client_token
+        self.ram_role_name = ram_role_name
+        self.retain_all_resources = retain_all_resources
+        self.retain_resources = []
+
+    def validate(self):
+        self.validate_required(self.region_id, 'region_id')
+        self.validate_required(self.stack_id, 'stack_id')
+
+    def to_map(self):
+        result = {}
+        result['RegionId'] = self.region_id
+        result['StackId'] = self.stack_id
+        result['OperationType'] = self.operation_type
+        result['ClientToken'] = self.client_token
+        result['RamRoleName'] = self.ram_role_name
+        result['RetainAllResources'] = self.retain_all_resources
+        result['RetainResources'] = []
+        if self.retain_resources is not None:
+            for k in self.retain_resources:
+                result['RetainResources'].append(k)
+        else:
+            result['RetainResources'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.region_id = map.get('RegionId')
+        self.stack_id = map.get('StackId')
+        self.operation_type = map.get('OperationType')
+        self.client_token = map.get('ClientToken')
+        self.ram_role_name = map.get('RamRoleName')
+        self.retain_all_resources = map.get('RetainAllResources')
+        self.retain_resources = []
+        if map.get('RetainResources') is not None:
+            for k in map.get('RetainResources'):
+                self.retain_resources.append(k)
+        else:
+            self.retain_resources = None
+        return self
+
+
+class ListStackOperationRisksResponse(TeaModel):
+    def __init__(self, request_id=None, risk_resources=None):
+        self.request_id = request_id
+        self.risk_resources = []
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.risk_resources, 'risk_resources')
+        if self.risk_resources:
+            for k in self.risk_resources:
+                if k :
+                    k.validate()
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        result['RiskResources'] = []
+        if self.risk_resources is not None:
+            for k in self.risk_resources:
+                result['RiskResources'].append(k.to_map() if k else None)
+        else:
+            result['RiskResources'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        self.risk_resources = []
+        if map.get('RiskResources') is not None:
+            for k in map.get('RiskResources'):
+                temp_model = ListStackOperationRisksResponseRiskResources()
+                temp_model = temp_model.from_map(k)
+                self.risk_resources.append(temp_model)
+        else:
+            self.risk_resources = None
+        return self
+
+
+class ListStackOperationRisksResponseRiskResources(TeaModel):
+    def __init__(self, logical_resource_id=None, physical_resource_id=None, resource_type=None, reason=None, risk_type=None, code=None, message=None, request_id=None):
+        self.logical_resource_id = logical_resource_id
+        self.physical_resource_id = physical_resource_id
+        self.resource_type = resource_type
+        self.reason = reason
+        self.risk_type = risk_type
+        self.code = code
+        self.message = message
+        self.request_id = request_id
+
+    def validate(self):
+        self.validate_required(self.logical_resource_id, 'logical_resource_id')
+        self.validate_required(self.physical_resource_id, 'physical_resource_id')
+        self.validate_required(self.resource_type, 'resource_type')
+        self.validate_required(self.reason, 'reason')
+        self.validate_required(self.risk_type, 'risk_type')
+        self.validate_required(self.code, 'code')
+        self.validate_required(self.message, 'message')
+        self.validate_required(self.request_id, 'request_id')
+
+    def to_map(self):
+        result = {}
+        result['LogicalResourceId'] = self.logical_resource_id
+        result['PhysicalResourceId'] = self.physical_resource_id
+        result['ResourceType'] = self.resource_type
+        result['Reason'] = self.reason
+        result['RiskType'] = self.risk_type
+        result['Code'] = self.code
+        result['Message'] = self.message
+        result['RequestId'] = self.request_id
+        return result
+
+    def from_map(self, map={}):
+        self.logical_resource_id = map.get('LogicalResourceId')
+        self.physical_resource_id = map.get('PhysicalResourceId')
+        self.resource_type = map.get('ResourceType')
+        self.reason = map.get('Reason')
+        self.risk_type = map.get('RiskType')
+        self.code = map.get('Code')
+        self.message = map.get('Message')
+        self.request_id = map.get('RequestId')
+        return self
+class GetTemplateSummaryRequest(TeaModel):
+    def __init__(self, stack_id=None, template_body=None, region_id=None, template_id=None, template_url=None, change_set_id=None):
+        self.stack_id = stack_id
+        self.template_body = template_body
+        self.region_id = region_id
+        self.template_id = template_id
+        self.template_url = template_url
+        self.change_set_id = change_set_id
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['StackId'] = self.stack_id
+        result['TemplateBody'] = self.template_body
+        result['RegionId'] = self.region_id
+        result['TemplateId'] = self.template_id
+        result['TemplateURL'] = self.template_url
+        result['ChangeSetId'] = self.change_set_id
+        return result
+
+    def from_map(self, map={}):
+        self.stack_id = map.get('StackId')
+        self.template_body = map.get('TemplateBody')
+        self.region_id = map.get('RegionId')
+        self.template_id = map.get('TemplateId')
+        self.template_url = map.get('TemplateURL')
+        self.change_set_id = map.get('ChangeSetId')
+        return self
+
+
+class GetTemplateSummaryResponse(TeaModel):
+    def __init__(self, request_id=None, description=None, metadata=None, version=None, resource_identifier_summaries=None, parameters=None, resource_types=None):
+        self.request_id = request_id
+        self.description = description
+        self.metadata = {}
+        self.version = version
+        self.resource_identifier_summaries = []
+        self.parameters = []
+        self.resource_types = []
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.description, 'description')
+        self.validate_required(self.metadata, 'metadata')
+        self.validate_required(self.version, 'version')
+        self.validate_required(self.resource_identifier_summaries, 'resource_identifier_summaries')
+        if self.resource_identifier_summaries:
+            for k in self.resource_identifier_summaries:
+                if k :
+                    k.validate()
+        self.validate_required(self.parameters, 'parameters')
+        if self.parameters:
+            for k in self.parameters:
+                if k :
+                    k.validate()
+        self.validate_required(self.resource_types, 'resource_types')
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        result['Description'] = self.description
+        result['Metadata'] = self.metadata
+        result['Version'] = self.version
+        result['ResourceIdentifierSummaries'] = []
+        if self.resource_identifier_summaries is not None:
+            for k in self.resource_identifier_summaries:
+                result['ResourceIdentifierSummaries'].append(k.to_map() if k else None)
+        else:
+            result['ResourceIdentifierSummaries'] = None
+        result['Parameters'] = []
+        if self.parameters is not None:
+            for k in self.parameters:
+                result['Parameters'].append(k.to_map() if k else None)
+        else:
+            result['Parameters'] = None
+        result['ResourceTypes'] = []
+        if self.resource_types is not None:
+            for k in self.resource_types:
+                result['ResourceTypes'].append(k)
+        else:
+            result['ResourceTypes'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        self.description = map.get('Description')
+        self.metadata = map.get('Metadata')
+        self.version = map.get('Version')
+        self.resource_identifier_summaries = []
+        if map.get('ResourceIdentifierSummaries') is not None:
+            for k in map.get('ResourceIdentifierSummaries'):
+                temp_model = GetTemplateSummaryResponseResourceIdentifierSummaries()
+                temp_model = temp_model.from_map(k)
+                self.resource_identifier_summaries.append(temp_model)
+        else:
+            self.resource_identifier_summaries = None
+        self.parameters = []
+        if map.get('Parameters') is not None:
+            for k in map.get('Parameters'):
+                temp_model = map()
+                temp_model = temp_model.from_map(k)
+                self.parameters.append(temp_model)
+        else:
+            self.parameters = None
+        self.resource_types = []
+        if map.get('ResourceTypes') is not None:
+            for k in map.get('ResourceTypes'):
+                self.resource_types.append(k)
+        else:
+            self.resource_types = None
+        return self
+
+
+class GetTemplateSummaryResponseResourceIdentifierSummaries(TeaModel):
+    def __init__(self, resource_type=None, logical_resource_ids=None, resource_identifiers=None):
+        self.resource_type = resource_type
+        self.logical_resource_ids = []
+        self.resource_identifiers = []
+
+    def validate(self):
+        self.validate_required(self.resource_type, 'resource_type')
+        self.validate_required(self.logical_resource_ids, 'logical_resource_ids')
+        self.validate_required(self.resource_identifiers, 'resource_identifiers')
+
+    def to_map(self):
+        result = {}
+        result['ResourceType'] = self.resource_type
+        result['LogicalResourceIds'] = []
+        if self.logical_resource_ids is not None:
+            for k in self.logical_resource_ids:
+                result['LogicalResourceIds'].append(k)
+        else:
+            result['LogicalResourceIds'] = None
+        result['ResourceIdentifiers'] = []
+        if self.resource_identifiers is not None:
+            for k in self.resource_identifiers:
+                result['ResourceIdentifiers'].append(k)
+        else:
+            result['ResourceIdentifiers'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.resource_type = map.get('ResourceType')
+        self.logical_resource_ids = []
+        if map.get('LogicalResourceIds') is not None:
+            for k in map.get('LogicalResourceIds'):
+                self.logical_resource_ids.append(k)
+        else:
+            self.logical_resource_ids = None
+        self.resource_identifiers = []
+        if map.get('ResourceIdentifiers') is not None:
+            for k in map.get('ResourceIdentifiers'):
+                self.resource_identifiers.append(k)
+        else:
+            self.resource_identifiers = None
+        return self
+class ListTagValuesRequest(TeaModel):
+    def __init__(self, region_id=None, resource_type=None, next_token=None, key=None):
+        self.region_id = region_id
+        self.resource_type = resource_type
+        self.next_token = next_token
+        self.key = key
+
+    def validate(self):
+        self.validate_required(self.region_id, 'region_id')
+        self.validate_required(self.resource_type, 'resource_type')
+        self.validate_required(self.key, 'key')
+
+    def to_map(self):
+        result = {}
+        result['RegionId'] = self.region_id
+        result['ResourceType'] = self.resource_type
+        result['NextToken'] = self.next_token
+        result['Key'] = self.key
+        return result
+
+    def from_map(self, map={}):
+        self.region_id = map.get('RegionId')
+        self.resource_type = map.get('ResourceType')
+        self.next_token = map.get('NextToken')
+        self.key = map.get('Key')
+        return self
+
+
+class ListTagValuesResponse(TeaModel):
+    def __init__(self, request_id=None, next_token=None, values=None):
+        self.request_id = request_id
+        self.next_token = next_token
+        self.values = []
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.next_token, 'next_token')
+        self.validate_required(self.values, 'values')
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        result['NextToken'] = self.next_token
+        result['Values'] = []
+        if self.values is not None:
+            for k in self.values:
+                result['Values'].append(k)
+        else:
+            result['Values'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        self.next_token = map.get('NextToken')
+        self.values = []
+        if map.get('Values') is not None:
+            for k in map.get('Values'):
+                self.values.append(k)
+        else:
+            self.values = None
+        return self
+
+
+class ListTagKeysRequest(TeaModel):
+    def __init__(self, region_id=None, resource_type=None, next_token=None):
+        self.region_id = region_id
+        self.resource_type = resource_type
+        self.next_token = next_token
+
+    def validate(self):
+        self.validate_required(self.region_id, 'region_id')
+        self.validate_required(self.resource_type, 'resource_type')
+
+    def to_map(self):
+        result = {}
+        result['RegionId'] = self.region_id
+        result['ResourceType'] = self.resource_type
+        result['NextToken'] = self.next_token
+        return result
+
+    def from_map(self, map={}):
+        self.region_id = map.get('RegionId')
+        self.resource_type = map.get('ResourceType')
+        self.next_token = map.get('NextToken')
+        return self
+
+
+class ListTagKeysResponse(TeaModel):
+    def __init__(self, request_id=None, next_token=None, keys=None):
+        self.request_id = request_id
+        self.next_token = next_token
+        self.keys = []
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.next_token, 'next_token')
+        self.validate_required(self.keys, 'keys')
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        result['NextToken'] = self.next_token
+        result['Keys'] = []
+        if self.keys is not None:
+            for k in self.keys:
+                result['Keys'].append(k)
+        else:
+            result['Keys'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        self.next_token = map.get('NextToken')
+        self.keys = []
+        if map.get('Keys') is not None:
+            for k in map.get('Keys'):
+                self.keys.append(k)
+        else:
+            self.keys = None
+        return self
+
+
 class SetDeletionProtectionRequest(TeaModel):
     def __init__(self, stack_id=None, deletion_protection=None, region_id=None):
         self.stack_id = stack_id
@@ -399,8 +805,6 @@ class ListStackResourceDriftsResponseResourceDrifts(TeaModel):
         else:
             self.property_differences = None
         return self
-
-
 class DetectStackResourceDriftRequest(TeaModel):
     def __init__(self, stack_id=None, client_token=None, region_id=None, logical_resource_id=None):
         self.stack_id = stack_id
@@ -525,8 +929,6 @@ class DetectStackResourceDriftResponsePropertyDifferences(TeaModel):
         self.expected_value = map.get('ExpectedValue')
         self.difference_type = map.get('DifferenceType')
         return self
-
-
 class DetectStackDriftRequest(TeaModel):
     def __init__(self, stack_id=None, region_id=None, logical_resource_id=None, client_token=None):
         self.stack_id = stack_id
@@ -661,8 +1063,6 @@ class UpdateStackInstancesRequestParameterOverrides(TeaModel):
         self.parameter_value = map.get('ParameterValue')
         self.parameter_key = map.get('ParameterKey')
         return self
-
-
 class UpdateStackInstancesResponse(TeaModel):
     def __init__(self, request_id=None, operation_id=None):
         self.request_id = request_id
@@ -803,8 +1203,6 @@ class ListStackGroupOperationsResponseStackGroupOperations(TeaModel):
         self.action = map.get('Action')
         self.status = map.get('Status')
         return self
-
-
 class GetStackGroupRequest(TeaModel):
     def __init__(self, region_id=None, stack_group_name=None):
         self.region_id = region_id
@@ -998,8 +1396,6 @@ class GetStackGroupResponseStackGroup(TeaModel):
         else:
             self.stack_group_drift_detection_detail = None
         return self
-
-
 class GetStackGroupOperationRequest(TeaModel):
     def __init__(self, region_id=None, operation_id=None):
         self.region_id = region_id
@@ -1224,8 +1620,6 @@ class GetStackGroupOperationResponseStackGroupOperation(TeaModel):
         else:
             self.stack_group_drift_detection_detail = None
         return self
-
-
 class ListStackGroupsRequest(TeaModel):
     def __init__(self, region_id=None, status=None, page_size=None, page_number=None):
         self.region_id = region_id
@@ -1336,8 +1730,6 @@ class ListStackGroupsResponseStackGroups(TeaModel):
         self.drift_detection_time = map.get('DriftDetectionTime')
         self.stack_group_drift_status = map.get('StackGroupDriftStatus')
         return self
-
-
 class CreateStackInstancesRequest(TeaModel):
     def __init__(self, region_id=None, stack_group_name=None, parameter_overrides=None, account_ids=None, region_ids=None, client_token=None, operation_description=None, operation_preferences=None):
         self.region_id = region_id
@@ -1414,8 +1806,6 @@ class CreateStackInstancesRequestParameterOverrides(TeaModel):
         self.parameter_value = map.get('ParameterValue')
         self.parameter_key = map.get('ParameterKey')
         return self
-
-
 class CreateStackInstancesResponse(TeaModel):
     def __init__(self, request_id=None, operation_id=None):
         self.request_id = request_id
@@ -1514,8 +1904,6 @@ class CreateStackGroupRequestParameters(TeaModel):
         self.parameter_value = map.get('ParameterValue')
         self.parameter_key = map.get('ParameterKey')
         return self
-
-
 class CreateStackGroupResponse(TeaModel):
     def __init__(self, request_id=None, stack_group_id=None):
         self.request_id = request_id
@@ -1684,8 +2072,6 @@ class GetStackInstanceResponseStackInstance(TeaModel):
         else:
             self.parameter_overrides = None
         return self
-
-
 class UpdateStackGroupRequest(TeaModel):
     def __init__(self, region_id=None, stack_group_name=None, description=None, parameters=None, account_ids=None, region_ids=None, template_body=None, template_url=None, client_token=None, operation_description=None, operation_preferences=None, administration_role_name=None, execution_role_name=None):
         self.region_id = region_id
@@ -1775,8 +2161,6 @@ class UpdateStackGroupRequestParameters(TeaModel):
         self.parameter_value = map.get('ParameterValue')
         self.parameter_key = map.get('ParameterKey')
         return self
-
-
 class UpdateStackGroupResponse(TeaModel):
     def __init__(self, request_id=None, operation_id=None):
         self.request_id = request_id
@@ -1927,8 +2311,6 @@ class ListStackInstancesResponseStackInstances(TeaModel):
         self.stack_drift_status = map.get('StackDriftStatus')
         self.drift_detection_time = map.get('DriftDetectionTime')
         return self
-
-
 class ListStackGroupOperationResultsRequest(TeaModel):
     def __init__(self, region_id=None, operation_id=None, page_size=None, page_number=None):
         self.region_id = region_id
@@ -2032,8 +2414,6 @@ class ListStackGroupOperationResultsResponseStackGroupOperationResults(TeaModel)
         self.status = map.get('Status')
         self.status_reason = map.get('StatusReason')
         return self
-
-
 class StopStackGroupOperationRequest(TeaModel):
     def __init__(self, region_id=None, operation_id=None):
         self.region_id = region_id
@@ -2247,8 +2627,6 @@ class ListTagResourcesRequestTag(TeaModel):
         self.key = map.get('Key')
         self.value = map.get('Value')
         return self
-
-
 class ListTagResourcesResponse(TeaModel):
     def __init__(self, request_id=None, next_token=None, tag_resources=None):
         self.request_id = request_id
@@ -2317,8 +2695,6 @@ class ListTagResourcesResponseTagResources(TeaModel):
         self.tag_key = map.get('TagKey')
         self.tag_value = map.get('TagValue')
         return self
-
-
 class UntagResourcesRequest(TeaModel):
     def __init__(self, region_id=None, resource_id=None, resource_type=None, tag_key=None, all=None):
         self.region_id = region_id
@@ -2461,8 +2837,6 @@ class TagResourcesRequestTag(TeaModel):
         self.key = map.get('Key')
         self.value = map.get('Value')
         return self
-
-
 class TagResourcesResponse(TeaModel):
     def __init__(self, request_id=None):
         self.request_id = request_id
@@ -2623,8 +2997,6 @@ class ListTemplatesRequestTag(TeaModel):
         self.key = map.get('Key')
         self.value = map.get('Value')
         return self
-
-
 class ListTemplatesResponse(TeaModel):
     def __init__(self, page_number=None, page_size=None, request_id=None, total_count=None, templates=None):
         self.page_number = page_number
@@ -2705,8 +3077,6 @@ class ListTemplatesResponseTemplates(TeaModel):
         self.template_name = map.get('TemplateName')
         self.update_time = map.get('UpdateTime')
         return self
-
-
 class CreateTemplateRequest(TeaModel):
     def __init__(self, template_url=None, description=None, template_body=None, template_name=None):
         self.template_url = template_url
@@ -2853,8 +3223,6 @@ class CreateStackRequestParameters(TeaModel):
         self.parameter_value = map.get('ParameterValue')
         self.parameter_key = map.get('ParameterKey')
         return self
-
-
 class CreateStackResponse(TeaModel):
     def __init__(self, request_id=None, stack_id=None):
         self.request_id = request_id
@@ -2901,7 +3269,7 @@ class GetStackRequest(TeaModel):
 
 
 class GetStackResponse(TeaModel):
-    def __init__(self, create_time=None, description=None, disable_rollback=None, region_id=None, request_id=None, stack_id=None, stack_name=None, status=None, status_reason=None, template_description=None, timeout_in_minutes=None, update_time=None, parent_stack_id=None, stack_drift_status=None, drift_detection_time=None, ram_role_name=None, deletion_protection=None, root_stack_id=None, parameters=None, outputs=None, notification_urls=None):
+    def __init__(self, create_time=None, description=None, disable_rollback=None, region_id=None, request_id=None, stack_id=None, stack_name=None, status=None, status_reason=None, template_description=None, timeout_in_minutes=None, update_time=None, parent_stack_id=None, stack_drift_status=None, drift_detection_time=None, ram_role_name=None, deletion_protection=None, root_stack_id=None, stack_type=None, parameters=None, outputs=None, notification_urls=None):
         self.create_time = create_time
         self.description = description
         self.disable_rollback = disable_rollback
@@ -2920,6 +3288,7 @@ class GetStackResponse(TeaModel):
         self.ram_role_name = ram_role_name
         self.deletion_protection = deletion_protection
         self.root_stack_id = root_stack_id
+        self.stack_type = stack_type
         self.parameters = []
         self.outputs = []
         self.notification_urls = []
@@ -2943,6 +3312,7 @@ class GetStackResponse(TeaModel):
         self.validate_required(self.ram_role_name, 'ram_role_name')
         self.validate_required(self.deletion_protection, 'deletion_protection')
         self.validate_required(self.root_stack_id, 'root_stack_id')
+        self.validate_required(self.stack_type, 'stack_type')
         self.validate_required(self.parameters, 'parameters')
         if self.parameters:
             for k in self.parameters:
@@ -2975,6 +3345,7 @@ class GetStackResponse(TeaModel):
         result['RamRoleName'] = self.ram_role_name
         result['DeletionProtection'] = self.deletion_protection
         result['RootStackId'] = self.root_stack_id
+        result['StackType'] = self.stack_type
         result['Parameters'] = []
         if self.parameters is not None:
             for k in self.parameters:
@@ -3014,6 +3385,7 @@ class GetStackResponse(TeaModel):
         self.ram_role_name = map.get('RamRoleName')
         self.deletion_protection = map.get('DeletionProtection')
         self.root_stack_id = map.get('RootStackId')
+        self.stack_type = map.get('StackType')
         self.parameters = []
         if map.get('Parameters') is not None:
             for k in map.get('Parameters'):
@@ -3025,7 +3397,7 @@ class GetStackResponse(TeaModel):
         self.outputs = []
         if map.get('Outputs') is not None:
             for k in map.get('Outputs'):
-                temp_model = map[string,any]()
+                temp_model = map()
                 temp_model = temp_model.from_map(k)
                 self.outputs.append(temp_model)
         else:
@@ -3058,8 +3430,6 @@ class GetStackResponseParameters(TeaModel):
         self.parameter_key = map.get('ParameterKey')
         self.parameter_value = map.get('ParameterValue')
         return self
-
-
 class DeleteStackRequest(TeaModel):
     def __init__(self, stack_id=None, retain_all_resources=None, region_id=None, retain_resources=None, ram_role_name=None):
         self.stack_id = stack_id
@@ -3212,8 +3582,6 @@ class UpdateStackRequestParameters(TeaModel):
         self.parameter_value = map.get('ParameterValue')
         self.parameter_key = map.get('ParameterKey')
         return self
-
-
 class UpdateStackResponse(TeaModel):
     def __init__(self, request_id=None, stack_id=None):
         self.request_id = request_id
@@ -3330,8 +3698,6 @@ class ListStacksRequestTag(TeaModel):
         self.key = map.get('Key')
         self.value = map.get('Value')
         return self
-
-
 class ListStacksResponse(TeaModel):
     def __init__(self, page_number=None, page_size=None, request_id=None, total_count=None, stacks=None):
         self.page_number = page_number
@@ -3440,8 +3806,6 @@ class ListStacksResponseStacks(TeaModel):
         self.stack_drift_status = map.get('StackDriftStatus')
         self.drift_detection_time = map.get('DriftDetectionTime')
         return self
-
-
 class PreviewStackRequest(TeaModel):
     def __init__(self, disable_rollback=None, timeout_in_minutes=None, parameters=None, template_body=None, stack_policy_url=None, region_id=None, stack_policy_body=None, stack_name=None, client_token=None, template_url=None):
         self.disable_rollback = disable_rollback
@@ -3522,8 +3886,6 @@ class PreviewStackRequestParameters(TeaModel):
         self.parameter_value = map.get('ParameterValue')
         self.parameter_key = map.get('ParameterKey')
         return self
-
-
 class PreviewStackResponse(TeaModel):
     def __init__(self, request_id=None, stack=None):
         self.request_id = request_id
@@ -3701,8 +4063,6 @@ class PreviewStackResponseStack(TeaModel):
         else:
             self.resources = None
         return self
-
-
 class GetTemplateEstimateCostRequest(TeaModel):
     def __init__(self, template_url=None, region_id=None, parameters=None, template_body=None, client_token=None):
         self.template_url = template_url
@@ -3767,8 +4127,6 @@ class GetTemplateEstimateCostRequestParameters(TeaModel):
         self.parameter_value = map.get('ParameterValue')
         self.parameter_key = map.get('ParameterKey')
         return self
-
-
 class GetTemplateEstimateCostResponse(TeaModel):
     def __init__(self, request_id=None, resources=None):
         self.request_id = request_id
@@ -3918,8 +4276,6 @@ class ContinueCreateStackRequestParameters(TeaModel):
         self.parameter_key = map.get('ParameterKey')
         self.parameter_value = map.get('ParameterValue')
         return self
-
-
 class ContinueCreateStackResponse(TeaModel):
     def __init__(self, request_id=None, stack_id=None):
         self.request_id = request_id
@@ -4083,7 +4439,7 @@ class ValidateTemplateResponse(TeaModel):
         self.parameters = []
         if map.get('Parameters') is not None:
             for k in map.get('Parameters'):
-                temp_model = map[string,any]()
+                temp_model = map()
                 temp_model = temp_model.from_map(k)
                 self.parameters.append(temp_model)
         else:
@@ -4163,7 +4519,7 @@ class GetChangeSetRequest(TeaModel):
 
 
 class GetChangeSetResponse(TeaModel):
-    def __init__(self, change_set_id=None, change_set_name=None, change_set_type=None, create_time=None, description=None, disable_rollback=None, execution_status=None, region_id=None, request_id=None, stack_id=None, stack_name=None, status=None, template_body=None, timeout_in_minutes=None, parameters=None, changes=None):
+    def __init__(self, change_set_id=None, change_set_name=None, change_set_type=None, create_time=None, description=None, disable_rollback=None, execution_status=None, region_id=None, request_id=None, stack_id=None, stack_name=None, status=None, template_body=None, timeout_in_minutes=None, status_reason=None, parameters=None, changes=None):
         self.change_set_id = change_set_id
         self.change_set_name = change_set_name
         self.change_set_type = change_set_type
@@ -4178,6 +4534,7 @@ class GetChangeSetResponse(TeaModel):
         self.status = status
         self.template_body = template_body
         self.timeout_in_minutes = timeout_in_minutes
+        self.status_reason = status_reason
         self.parameters = []
         self.changes = []
 
@@ -4196,6 +4553,7 @@ class GetChangeSetResponse(TeaModel):
         self.validate_required(self.status, 'status')
         self.validate_required(self.template_body, 'template_body')
         self.validate_required(self.timeout_in_minutes, 'timeout_in_minutes')
+        self.validate_required(self.status_reason, 'status_reason')
         self.validate_required(self.parameters, 'parameters')
         if self.parameters:
             for k in self.parameters:
@@ -4223,6 +4581,7 @@ class GetChangeSetResponse(TeaModel):
         result['Status'] = self.status
         result['TemplateBody'] = self.template_body
         result['TimeoutInMinutes'] = self.timeout_in_minutes
+        result['StatusReason'] = self.status_reason
         result['Parameters'] = []
         if self.parameters is not None:
             for k in self.parameters:
@@ -4252,6 +4611,7 @@ class GetChangeSetResponse(TeaModel):
         self.status = map.get('Status')
         self.template_body = map.get('TemplateBody')
         self.timeout_in_minutes = map.get('TimeoutInMinutes')
+        self.status_reason = map.get('StatusReason')
         self.parameters = []
         if map.get('Parameters') is not None:
             for k in map.get('Parameters'):
@@ -4263,7 +4623,7 @@ class GetChangeSetResponse(TeaModel):
         self.changes = []
         if map.get('Changes') is not None:
             for k in map.get('Changes'):
-                temp_model = map[string,any]()
+                temp_model = map()
                 temp_model = temp_model.from_map(k)
                 self.changes.append(temp_model)
         else:
@@ -4290,8 +4650,6 @@ class GetChangeSetResponseParameters(TeaModel):
         self.parameter_key = map.get('ParameterKey')
         self.parameter_value = map.get('ParameterValue')
         return self
-
-
 class ListChangeSetsRequest(TeaModel):
     def __init__(self, stack_id=None, status=None, change_set_name=None, page_size=None, region_id=None, page_number=None, execution_status=None, change_set_id=None):
         self.stack_id = stack_id
@@ -4411,7 +4769,7 @@ class ListChangeSetsResponse(TeaModel):
 
 
 class ListChangeSetsResponseChangeSets(TeaModel):
-    def __init__(self, change_set_id=None, change_set_name=None, change_set_type=None, create_time=None, description=None, execution_status=None, region_id=None, stack_id=None, stack_name=None, status=None):
+    def __init__(self, change_set_id=None, change_set_name=None, change_set_type=None, create_time=None, description=None, execution_status=None, region_id=None, stack_id=None, stack_name=None, status=None, status_reason=None):
         self.change_set_id = change_set_id
         self.change_set_name = change_set_name
         self.change_set_type = change_set_type
@@ -4422,6 +4780,7 @@ class ListChangeSetsResponseChangeSets(TeaModel):
         self.stack_id = stack_id
         self.stack_name = stack_name
         self.status = status
+        self.status_reason = status_reason
 
     def validate(self):
         self.validate_required(self.change_set_id, 'change_set_id')
@@ -4434,6 +4793,7 @@ class ListChangeSetsResponseChangeSets(TeaModel):
         self.validate_required(self.stack_id, 'stack_id')
         self.validate_required(self.stack_name, 'stack_name')
         self.validate_required(self.status, 'status')
+        self.validate_required(self.status_reason, 'status_reason')
 
     def to_map(self):
         result = {}
@@ -4447,6 +4807,7 @@ class ListChangeSetsResponseChangeSets(TeaModel):
         result['StackId'] = self.stack_id
         result['StackName'] = self.stack_name
         result['Status'] = self.status
+        result['StatusReason'] = self.status_reason
         return result
 
     def from_map(self, map={}):
@@ -4460,9 +4821,8 @@ class ListChangeSetsResponseChangeSets(TeaModel):
         self.stack_id = map.get('StackId')
         self.stack_name = map.get('StackName')
         self.status = map.get('Status')
+        self.status_reason = map.get('StatusReason')
         return self
-
-
 class ExecuteChangeSetRequest(TeaModel):
     def __init__(self, region_id=None, change_set_id=None):
         self.region_id = region_id
@@ -4701,8 +5061,6 @@ class ListStackEventsResponseEvents(TeaModel):
         self.status = map.get('Status')
         self.status_reason = map.get('StatusReason')
         return self
-
-
 class ListStackResourcesRequest(TeaModel):
     def __init__(self, stack_id=None, region_id=None):
         self.stack_id = stack_id
@@ -4816,8 +5174,6 @@ class ListStackResourcesResponseResources(TeaModel):
         self.resource_drift_status = map.get('ResourceDriftStatus')
         self.drift_detection_time = map.get('DriftDetectionTime')
         return self
-
-
 class GetStackResourceRequest(TeaModel):
     def __init__(self, stack_id=None, client_token=None, region_id=None, show_resource_attributes=None, logical_resource_id=None):
         self.stack_id = stack_id
@@ -4930,7 +5286,7 @@ class GetStackResourceResponse(TeaModel):
         self.resource_attributes = []
         if map.get('ResourceAttributes') is not None:
             for k in map.get('ResourceAttributes'):
-                temp_model = map[string,any]()
+                temp_model = map()
                 temp_model = temp_model.from_map(k)
                 self.resource_attributes.append(temp_model)
         else:
@@ -5202,10 +5558,8 @@ class DescribeRegionsResponseRegions(TeaModel):
         self.local_name = map.get('LocalName')
         self.region_endpoint = map.get('RegionEndpoint')
         return self
-
-
 class CreateChangeSetRequest(TeaModel):
-    def __init__(self, stack_id=None, parameters=None, stack_policy_url=None, stack_policy_body=None, stack_name=None, use_previous_parameters=None, change_set_type=None, description=None, region_id=None, client_token=None, template_url=None, stack_policy_during_update_url=None, template_body=None, timeout_in_minutes=None, disable_rollback=None, change_set_name=None, stack_policy_during_update_body=None, notification_urls=None, ram_role_name=None, replacement_option=None):
+    def __init__(self, stack_id=None, parameters=None, stack_policy_url=None, stack_policy_body=None, stack_name=None, use_previous_parameters=None, change_set_type=None, description=None, region_id=None, client_token=None, template_url=None, stack_policy_during_update_url=None, template_body=None, timeout_in_minutes=None, disable_rollback=None, change_set_name=None, stack_policy_during_update_body=None, notification_urls=None, ram_role_name=None, replacement_option=None, resources_to_import=None):
         self.stack_id = stack_id
         self.parameters = []
         self.stack_policy_url = stack_policy_url
@@ -5226,6 +5580,7 @@ class CreateChangeSetRequest(TeaModel):
         self.notification_urls = []
         self.ram_role_name = ram_role_name
         self.replacement_option = replacement_option
+        self.resources_to_import = []
 
     def validate(self):
         if self.parameters:
@@ -5234,6 +5589,10 @@ class CreateChangeSetRequest(TeaModel):
                     k.validate()
         self.validate_required(self.region_id, 'region_id')
         self.validate_required(self.change_set_name, 'change_set_name')
+        if self.resources_to_import:
+            for k in self.resources_to_import:
+                if k :
+                    k.validate()
 
     def to_map(self):
         result = {}
@@ -5267,6 +5626,12 @@ class CreateChangeSetRequest(TeaModel):
             result['NotificationURLs'] = None
         result['RamRoleName'] = self.ram_role_name
         result['ReplacementOption'] = self.replacement_option
+        result['ResourcesToImport'] = []
+        if self.resources_to_import is not None:
+            for k in self.resources_to_import:
+                result['ResourcesToImport'].append(k.to_map() if k else None)
+        else:
+            result['ResourcesToImport'] = None
         return result
 
     def from_map(self, map={}):
@@ -5302,6 +5667,14 @@ class CreateChangeSetRequest(TeaModel):
             self.notification_urls = None
         self.ram_role_name = map.get('RamRoleName')
         self.replacement_option = map.get('ReplacementOption')
+        self.resources_to_import = []
+        if map.get('ResourcesToImport') is not None:
+            for k in map.get('ResourcesToImport'):
+                temp_model = CreateChangeSetRequestResourcesToImport()
+                temp_model = temp_model.from_map(k)
+                self.resources_to_import.append(temp_model)
+        else:
+            self.resources_to_import = None
         return self
 
 
@@ -5326,6 +5699,29 @@ class CreateChangeSetRequestParameters(TeaModel):
         return self
 
 
+class CreateChangeSetRequestResourcesToImport(TeaModel):
+    def __init__(self, logical_resource_id=None, resource_type=None, resource_identifier=None):
+        self.logical_resource_id = logical_resource_id
+        self.resource_type = resource_type
+        self.resource_identifier = resource_identifier
+
+    def validate(self):
+        self.validate_required(self.logical_resource_id, 'logical_resource_id')
+        self.validate_required(self.resource_type, 'resource_type')
+        self.validate_required(self.resource_identifier, 'resource_identifier')
+
+    def to_map(self):
+        result = {}
+        result['LogicalResourceId'] = self.logical_resource_id
+        result['ResourceType'] = self.resource_type
+        result['ResourceIdentifier'] = self.resource_identifier
+        return result
+
+    def from_map(self, map={}):
+        self.logical_resource_id = map.get('LogicalResourceId')
+        self.resource_type = map.get('ResourceType')
+        self.resource_identifier = map.get('ResourceIdentifier')
+        return self
 class CreateChangeSetResponse(TeaModel):
     def __init__(self, change_set_id=None, request_id=None, stack_id=None):
         self.change_set_id = change_set_id
