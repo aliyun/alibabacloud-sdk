@@ -65,6 +65,10 @@ namespace AlibabaCloud.SDK.ROS20190910.Models
         [Validation(Required=true)]
         public int? TimeoutInMinutes { get; set; }
 
+        [NameInMap("StatusReason")]
+        [Validation(Required=true)]
+        public string StatusReason { get; set; }
+
         [NameInMap("Parameters")]
         [Validation(Required=true)]
         public List<GetChangeSetResponseParameters> Parameters { get; set; }

@@ -95,6 +95,28 @@ namespace AlibabaCloud.SDK.ROS20190910.Models
         [Validation(Required=false)]
         public string RamRoleName { get; set; }
 
+        [NameInMap("ReplacementOption")]
+        [Validation(Required=false)]
+        public string ReplacementOption { get; set; }
+
+        [NameInMap("ResourcesToImport")]
+        [Validation(Required=false)]
+        public List<CreateChangeSetRequestResourcesToImport> ResourcesToImport { get; set; }
+        public class CreateChangeSetRequestResourcesToImport : TeaModel {
+            [NameInMap("LogicalResourceId")]
+            [Validation(Required=true)]
+            public string LogicalResourceId { get; set; }
+
+            [NameInMap("ResourceType")]
+            [Validation(Required=true)]
+            public string ResourceType { get; set; }
+
+            [NameInMap("ResourceIdentifier")]
+            [Validation(Required=true)]
+            public string ResourceIdentifier { get; set; }
+
+        }
+
     }
 
 }

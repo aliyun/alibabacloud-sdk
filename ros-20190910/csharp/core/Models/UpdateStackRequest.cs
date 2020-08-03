@@ -75,6 +75,10 @@ namespace AlibabaCloud.SDK.ROS20190910.Models
         [Validation(Required=false)]
         public string RamRoleName { get; set; }
 
+        [NameInMap("ReplacementOption")]
+        [Validation(Required=false)]
+        public string ReplacementOption { get; set; }
+
     }
 
 }

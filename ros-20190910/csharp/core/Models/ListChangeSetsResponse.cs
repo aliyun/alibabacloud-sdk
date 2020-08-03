@@ -69,6 +69,10 @@ namespace AlibabaCloud.SDK.ROS20190910.Models
             [Validation(Required=true)]
             public string Status { get; set; }
 
+            [NameInMap("StatusReason")]
+            [Validation(Required=true)]
+            public string StatusReason { get; set; }
+
         }
 
     }

@@ -81,6 +81,10 @@ namespace AlibabaCloud.SDK.ROS20190910.Models
         [Validation(Required=true)]
         public string RootStackId { get; set; }
 
+        [NameInMap("StackType")]
+        [Validation(Required=true)]
+        public string StackType { get; set; }
+
         [NameInMap("Parameters")]
         [Validation(Required=true)]
         public List<GetStackResponseParameters> Parameters { get; set; }

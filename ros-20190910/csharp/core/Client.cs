@@ -20,9 +20,105 @@ namespace AlibabaCloud.SDK.ROS20190910
         {
             this._endpointRule = "central";
             CheckConfig(config);
-            this._endpoint = GetEndpoint(_productId, _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
+            this._endpoint = GetEndpoint("ros", _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
         }
 
+
+        public ListStackOperationRisksResponse ListStackOperationRisksWithOptions(ListStackOperationRisksRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<ListStackOperationRisksResponse>(DoRequest("ListStackOperationRisks", "HTTPS", "POST", "2019-09-10", "AK", null, request.ToMap(), runtime));
+        }
+
+        public async Task<ListStackOperationRisksResponse> ListStackOperationRisksWithOptionsAsync(ListStackOperationRisksRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<ListStackOperationRisksResponse>(await DoRequestAsync("ListStackOperationRisks", "HTTPS", "POST", "2019-09-10", "AK", null, request.ToMap(), runtime));
+        }
+
+        public ListStackOperationRisksResponse ListStackOperationRisks(ListStackOperationRisksRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return ListStackOperationRisksWithOptions(request, runtime);
+        }
+
+        public async Task<ListStackOperationRisksResponse> ListStackOperationRisksAsync(ListStackOperationRisksRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await ListStackOperationRisksWithOptionsAsync(request, runtime);
+        }
+
+        public GetTemplateSummaryResponse GetTemplateSummaryWithOptions(GetTemplateSummaryRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<GetTemplateSummaryResponse>(DoRequest("GetTemplateSummary", "HTTPS", "POST", "2019-09-10", "AK", null, request.ToMap(), runtime));
+        }
+
+        public async Task<GetTemplateSummaryResponse> GetTemplateSummaryWithOptionsAsync(GetTemplateSummaryRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<GetTemplateSummaryResponse>(await DoRequestAsync("GetTemplateSummary", "HTTPS", "POST", "2019-09-10", "AK", null, request.ToMap(), runtime));
+        }
+
+        public GetTemplateSummaryResponse GetTemplateSummary(GetTemplateSummaryRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return GetTemplateSummaryWithOptions(request, runtime);
+        }
+
+        public async Task<GetTemplateSummaryResponse> GetTemplateSummaryAsync(GetTemplateSummaryRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await GetTemplateSummaryWithOptionsAsync(request, runtime);
+        }
+
+        public ListTagValuesResponse ListTagValuesWithOptions(ListTagValuesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<ListTagValuesResponse>(DoRequest("ListTagValues", "HTTPS", "POST", "2019-09-10", "AK", null, request.ToMap(), runtime));
+        }
+
+        public async Task<ListTagValuesResponse> ListTagValuesWithOptionsAsync(ListTagValuesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<ListTagValuesResponse>(await DoRequestAsync("ListTagValues", "HTTPS", "POST", "2019-09-10", "AK", null, request.ToMap(), runtime));
+        }
+
+        public ListTagValuesResponse ListTagValues(ListTagValuesRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return ListTagValuesWithOptions(request, runtime);
+        }
+
+        public async Task<ListTagValuesResponse> ListTagValuesAsync(ListTagValuesRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await ListTagValuesWithOptionsAsync(request, runtime);
+        }
+
+        public ListTagKeysResponse ListTagKeysWithOptions(ListTagKeysRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<ListTagKeysResponse>(DoRequest("ListTagKeys", "HTTPS", "POST", "2019-09-10", "AK", null, request.ToMap(), runtime));
+        }
+
+        public async Task<ListTagKeysResponse> ListTagKeysWithOptionsAsync(ListTagKeysRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<ListTagKeysResponse>(await DoRequestAsync("ListTagKeys", "HTTPS", "POST", "2019-09-10", "AK", null, request.ToMap(), runtime));
+        }
+
+        public ListTagKeysResponse ListTagKeys(ListTagKeysRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return ListTagKeysWithOptions(request, runtime);
+        }
+
+        public async Task<ListTagKeysResponse> ListTagKeysAsync(ListTagKeysRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await ListTagKeysWithOptionsAsync(request, runtime);
+        }
 
         public SetDeletionProtectionResponse SetDeletionProtectionWithOptions(SetDeletionProtectionRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
