@@ -23,7 +23,7 @@ import os
 """
 setup module for alibabacloud_facebody20191230.
 
-Created on 30/07/2020
+Created on 03/08/2020
 
 @author: Alibaba Cloud SDK
 """
