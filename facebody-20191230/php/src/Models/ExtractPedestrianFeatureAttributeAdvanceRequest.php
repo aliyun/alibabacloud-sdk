@@ -5,8 +5,9 @@
 namespace AlibabaCloud\SDK\Facebody\V20191230\Models;
 
 use AlibabaCloud\Tea\Model;
+use GuzzleHttp\Psr7\Stream;
 
-class DetectCelebrityAdvanceRequest extends Model
+class ExtractPedestrianFeatureAttributeAdvanceRequest extends Model
 {
     /**
      * @var Stream
@@ -34,7 +35,7 @@ class DetectCelebrityAdvanceRequest extends Model
     /**
      * @param array $map
      *
-     * @return DetectCelebrityAdvanceRequest
+     * @return ExtractPedestrianFeatureAttributeAdvanceRequest
      */
     public static function fromMap($map = [])
     {

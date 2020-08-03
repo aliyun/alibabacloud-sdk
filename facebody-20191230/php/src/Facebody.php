@@ -46,6 +46,9 @@ use AlibabaCloud\SDK\Facebody\V20191230\Models\DetectVideoLivingFaceResponse;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\EnhanceFaceAdvanceRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\EnhanceFaceRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\EnhanceFaceResponse;
+use AlibabaCloud\SDK\Facebody\V20191230\Models\ExtractPedestrianFeatureAttributeAdvanceRequest;
+use AlibabaCloud\SDK\Facebody\V20191230\Models\ExtractPedestrianFeatureAttributeRequest;
+use AlibabaCloud\SDK\Facebody\V20191230\Models\ExtractPedestrianFeatureAttributeResponse;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\FaceBeautyAdvanceRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\FaceBeautyRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\FaceBeautyResponse;
@@ -108,6 +111,82 @@ class Facebody extends Rpc
         $this->_endpointRule = 'regional';
         $this->checkConfig($config);
         $this->_endpoint = $this->getEndpoint('facebody', $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
+    }
+
+    /**
+     * @param ExtractPedestrianFeatureAttributeRequest $request
+     * @param RuntimeOptions                           $runtime
+     *
+     * @return ExtractPedestrianFeatureAttributeResponse
+     */
+    public function extractPedestrianFeatureAttribute($request, $runtime)
+    {
+        Utils::validateModel($request);
+
+        return ExtractPedestrianFeatureAttributeResponse::fromMap($this->doRequest('ExtractPedestrianFeatureAttribute', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
+    }
+
+    /**
+     * @param ExtractPedestrianFeatureAttributeAdvanceRequest $request
+     * @param RuntimeOptions                                  $runtime
+     *
+     * @return ExtractPedestrianFeatureAttributeResponse
+     */
+    public function extractPedestrianFeatureAttributeAdvance($request, $runtime)
+    {
+        // Step 0: init client
+        $accessKeyId     = $this->_credential->getAccessKeyId();
+        $accessKeySecret = $this->_credential->getAccessKeySecret();
+        $authConfig      = new Config([
+            'accessKeyId'     => $accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => 'openplatform.aliyuncs.com',
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $authClient  = new OpenPlatform($authConfig);
+        $authRequest = new AuthorizeFileUploadRequest([
+            'product'  => 'facebody',
+            'regionId' => $this->_regionId,
+        ]);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
+            'accessKeyId'     => $authResponse->accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => RpcUtils::getEndpoint($authResponse->endpoint, $authResponse->useAccelerate, $this->_endpointType),
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $ossClient = new OSS($ossConfig);
+        $fileObj   = new FileField([
+            'filename'    => $authResponse->objectKey,
+            'content'     => $request->imageURLObject,
+            'contentType' => '',
+        ]);
+        $ossHeader = new header([
+            'accessKeyId'         => $authResponse->accessKeyId,
+            'policy'              => $authResponse->encodedPolicy,
+            'signature'           => $authResponse->signature,
+            'key'                 => $authResponse->objectKey,
+            'file'                => $fileObj,
+            'successActionStatus' => '201',
+        ]);
+        $uploadRequest = new PostObjectRequest([
+            'bucketName' => $authResponse->bucket,
+            'header'     => $ossHeader,
+        ]);
+        $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
+        RpcUtils::convert($runtime, $ossRuntime);
+        $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
+        $extractPedestrianFeatureAttributereq = new ExtractPedestrianFeatureAttributeRequest([]);
+        RpcUtils::convert($request, $extractPedestrianFeatureAttributereq);
+        $extractPedestrianFeatureAttributereq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
+
+        return $this->extractPedestrianFeatureAttribute($extractPedestrianFeatureAttributereq, $runtime);
     }
 
     /**
