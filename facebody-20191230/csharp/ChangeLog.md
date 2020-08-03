@@ -1,3 +1,6 @@
+2020-08-03 Version: 0.0.9
+- Add ExtractPedestrianFeatureAttribute.
+
 2020-07-30 Version: 0.0.8
 - Update DetectCelebrity.
 
