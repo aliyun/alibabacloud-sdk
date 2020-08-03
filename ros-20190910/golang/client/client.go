@@ -8,6 +8,141 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 )
 
+type ListStackOperationRisksRequest struct {
+	RegionId           *string   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	StackId            *string   `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	OperationType      *string   `json:"OperationType,omitempty" xml:"OperationType,omitempty"`
+	ClientToken        *string   `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	RamRoleName        *string   `json:"RamRoleName,omitempty" xml:"RamRoleName,omitempty"`
+	RetainAllResources *bool     `json:"RetainAllResources,omitempty" xml:"RetainAllResources,omitempty"`
+	RetainResources    []*string `json:"RetainResources,omitempty" xml:"RetainResources,omitempty" type:"Repeated"`
+}
+
+func (s ListStackOperationRisksRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListStackOperationRisksRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ListStackOperationRisksRequest) SetRegionId(v string) *ListStackOperationRisksRequest {
+	s.RegionId = &v
+	return s
+}
+
+func (s *ListStackOperationRisksRequest) SetStackId(v string) *ListStackOperationRisksRequest {
+	s.StackId = &v
+	return s
+}
+
+func (s *ListStackOperationRisksRequest) SetOperationType(v string) *ListStackOperationRisksRequest {
+	s.OperationType = &v
+	return s
+}
+
+func (s *ListStackOperationRisksRequest) SetClientToken(v string) *ListStackOperationRisksRequest {
+	s.ClientToken = &v
+	return s
+}
+
+func (s *ListStackOperationRisksRequest) SetRamRoleName(v string) *ListStackOperationRisksRequest {
+	s.RamRoleName = &v
+	return s
+}
+
+func (s *ListStackOperationRisksRequest) SetRetainAllResources(v bool) *ListStackOperationRisksRequest {
+	s.RetainAllResources = &v
+	return s
+}
+
+func (s *ListStackOperationRisksRequest) SetRetainResources(v []*string) *ListStackOperationRisksRequest {
+	s.RetainResources = v
+	return s
+}
+
+type ListStackOperationRisksResponse struct {
+	RequestId     *string                                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RiskResources []*ListStackOperationRisksResponseRiskResources `json:"RiskResources,omitempty" xml:"RiskResources,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s ListStackOperationRisksResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListStackOperationRisksResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ListStackOperationRisksResponse) SetRequestId(v string) *ListStackOperationRisksResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *ListStackOperationRisksResponse) SetRiskResources(v []*ListStackOperationRisksResponseRiskResources) *ListStackOperationRisksResponse {
+	s.RiskResources = v
+	return s
+}
+
+type ListStackOperationRisksResponseRiskResources struct {
+	LogicalResourceId  *string `json:"LogicalResourceId,omitempty" xml:"LogicalResourceId,omitempty" require:"true"`
+	PhysicalResourceId *string `json:"PhysicalResourceId,omitempty" xml:"PhysicalResourceId,omitempty" require:"true"`
+	ResourceType       *string `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	Reason             *string `json:"Reason,omitempty" xml:"Reason,omitempty" require:"true"`
+	RiskType           *string `json:"RiskType,omitempty" xml:"RiskType,omitempty" require:"true"`
+	Code               *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message            *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	RequestId          *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+}
+
+func (s ListStackOperationRisksResponseRiskResources) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListStackOperationRisksResponseRiskResources) GoString() string {
+	return s.String()
+}
+
+func (s *ListStackOperationRisksResponseRiskResources) SetLogicalResourceId(v string) *ListStackOperationRisksResponseRiskResources {
+	s.LogicalResourceId = &v
+	return s
+}
+
+func (s *ListStackOperationRisksResponseRiskResources) SetPhysicalResourceId(v string) *ListStackOperationRisksResponseRiskResources {
+	s.PhysicalResourceId = &v
+	return s
+}
+
+func (s *ListStackOperationRisksResponseRiskResources) SetResourceType(v string) *ListStackOperationRisksResponseRiskResources {
+	s.ResourceType = &v
+	return s
+}
+
+func (s *ListStackOperationRisksResponseRiskResources) SetReason(v string) *ListStackOperationRisksResponseRiskResources {
+	s.Reason = &v
+	return s
+}
+
+func (s *ListStackOperationRisksResponseRiskResources) SetRiskType(v string) *ListStackOperationRisksResponseRiskResources {
+	s.RiskType = &v
+	return s
+}
+
+func (s *ListStackOperationRisksResponseRiskResources) SetCode(v string) *ListStackOperationRisksResponseRiskResources {
+	s.Code = &v
+	return s
+}
+
+func (s *ListStackOperationRisksResponseRiskResources) SetMessage(v string) *ListStackOperationRisksResponseRiskResources {
+	s.Message = &v
+	return s
+}
+
+func (s *ListStackOperationRisksResponseRiskResources) SetRequestId(v string) *ListStackOperationRisksResponseRiskResources {
+	s.RequestId = &v
+	return s
+}
+
 type GetTemplateSummaryRequest struct {
 	StackId      *string `json:"StackId,omitempty" xml:"StackId,omitempty"`
 	TemplateBody *string `json:"TemplateBody,omitempty" xml:"TemplateBody,omitempty"`
@@ -173,8 +308,9 @@ func (s *ListTagValuesRequest) SetKey(v string) *ListTagValuesRequest {
 }
 
 type ListTagValuesResponse struct {
-	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
-	NextToken *string `json:"NextToken,omitempty" xml:"NextToken,omitempty" require:"true"`
+	RequestId *string   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NextToken *string   `json:"NextToken,omitempty" xml:"NextToken,omitempty" require:"true"`
+	Values    []*string `json:"Values,omitempty" xml:"Values,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListTagValuesResponse) String() string {
@@ -192,6 +328,11 @@ func (s *ListTagValuesResponse) SetRequestId(v string) *ListTagValuesResponse {
 
 func (s *ListTagValuesResponse) SetNextToken(v string) *ListTagValuesResponse {
 	s.NextToken = &v
+	return s
+}
+
+func (s *ListTagValuesResponse) SetValues(v []*string) *ListTagValuesResponse {
+	s.Values = v
 	return s
 }
 
@@ -225,8 +366,9 @@ func (s *ListTagKeysRequest) SetNextToken(v string) *ListTagKeysRequest {
 }
 
 type ListTagKeysResponse struct {
-	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
-	NextToken *string `json:"NextToken,omitempty" xml:"NextToken,omitempty" require:"true"`
+	RequestId *string   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NextToken *string   `json:"NextToken,omitempty" xml:"NextToken,omitempty" require:"true"`
+	Keys      []*string `json:"Keys,omitempty" xml:"Keys,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListTagKeysResponse) String() string {
@@ -244,6 +386,11 @@ func (s *ListTagKeysResponse) SetRequestId(v string) *ListTagKeysResponse {
 
 func (s *ListTagKeysResponse) SetNextToken(v string) *ListTagKeysResponse {
 	s.NextToken = &v
+	return s
+}
+
+func (s *ListTagKeysResponse) SetKeys(v []*string) *ListTagKeysResponse {
+	s.Keys = v
 	return s
 }
 
@@ -3350,6 +3497,7 @@ type GetStackResponse struct {
 	RamRoleName         *string                       `json:"RamRoleName,omitempty" xml:"RamRoleName,omitempty" require:"true"`
 	DeletionProtection  *string                       `json:"DeletionProtection,omitempty" xml:"DeletionProtection,omitempty" require:"true"`
 	RootStackId         *string                       `json:"RootStackId,omitempty" xml:"RootStackId,omitempty" require:"true"`
+	StackType           *string                       `json:"StackType,omitempty" xml:"StackType,omitempty" require:"true"`
 	Parameters          []*GetStackResponseParameters `json:"Parameters,omitempty" xml:"Parameters,omitempty" require:"true" type:"Repeated"`
 	Outputs             []map[string]interface{}      `json:"Outputs,omitempty" xml:"Outputs,omitempty" require:"true" type:"Repeated"`
 	NotificationURLs    []*string                     `json:"NotificationURLs,omitempty" xml:"NotificationURLs,omitempty" require:"true" type:"Repeated"`
@@ -3450,6 +3598,11 @@ func (s *GetStackResponse) SetDeletionProtection(v string) *GetStackResponse {
 
 func (s *GetStackResponse) SetRootStackId(v string) *GetStackResponse {
 	s.RootStackId = &v
+	return s
+}
+
+func (s *GetStackResponse) SetStackType(v string) *GetStackResponse {
+	s.StackType = &v
 	return s
 }
 
@@ -5973,6 +6126,31 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	}
 
 	return nil
+}
+
+func (client *Client) ListStackOperationRisksWithOptions(request *ListStackOperationRisksRequest, runtime *util.RuntimeOptions) (_result *ListStackOperationRisksResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &ListStackOperationRisksResponse{}
+	_body, _err := client.DoRequest(tea.String("ListStackOperationRisks"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-10"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ListStackOperationRisks(request *ListStackOperationRisksRequest) (_result *ListStackOperationRisksResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ListStackOperationRisksResponse{}
+	_body, _err := client.ListStackOperationRisksWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
 }
 
 func (client *Client) GetTemplateSummaryWithOptions(request *GetTemplateSummaryRequest, runtime *util.RuntimeOptions) (_result *GetTemplateSummaryResponse, _err error) {
