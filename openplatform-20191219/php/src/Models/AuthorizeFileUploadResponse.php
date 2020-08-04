@@ -2,7 +2,7 @@
 
 // This file is auto-generated, don't edit it. Thanks.
 
-namespace AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
+namespace AlibabaCloud\SDK\OpenPlatform\V20191219\Models;
 
 use AlibabaCloud\Tea\Model;
 
