@@ -1543,7 +1543,7 @@ export class RecognizePassportMRZResponseDataRegions extends $tea.Model {
       recognitionScore: 'number',
       content: 'string',
       detectionScore: 'number',
-      bandBoxes: { 'type': 'array', 'itemType': 'float' },
+      bandBoxes: { 'type': 'array', 'itemType': 'number' },
     };
   }
 
@@ -1590,7 +1590,7 @@ export class RecognizeTakeoutOrderResponseDataElements extends $tea.Model {
       score: 'number',
       name: 'string',
       value: 'string',
-      boxes: { 'type': 'array', 'itemType': 'integer' },
+      boxes: { 'type': 'array', 'itemType': 'number' },
     };
   }
 
@@ -1828,25 +1828,25 @@ export class RecognizeVATInvoiceResponseDataBox extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      invoiceCodes: { 'type': 'array', 'itemType': 'float' },
-      invoiceNoes: { 'type': 'array', 'itemType': 'float' },
-      invoiceDates: { 'type': 'array', 'itemType': 'float' },
-      invoiceFakeCodes: { 'type': 'array', 'itemType': 'float' },
-      payerNames: { 'type': 'array', 'itemType': 'float' },
-      payerRegisterNoes: { 'type': 'array', 'itemType': 'float' },
-      payerAddresses: { 'type': 'array', 'itemType': 'float' },
-      payerBankNames: { 'type': 'array', 'itemType': 'float' },
-      withoutTaxAmounts: { 'type': 'array', 'itemType': 'float' },
-      taxAmounts: { 'type': 'array', 'itemType': 'float' },
-      sumAmounts: { 'type': 'array', 'itemType': 'float' },
-      invoiceAmounts: { 'type': 'array', 'itemType': 'float' },
-      payeeNames: { 'type': 'array', 'itemType': 'float' },
-      payeeRegisterNoes: { 'type': 'array', 'itemType': 'float' },
-      payeeAddresses: { 'type': 'array', 'itemType': 'float' },
-      payeeBankNames: { 'type': 'array', 'itemType': 'float' },
-      payees: { 'type': 'array', 'itemType': 'float' },
-      checkers: { 'type': 'array', 'itemType': 'float' },
-      clerks: { 'type': 'array', 'itemType': 'float' },
+      invoiceCodes: { 'type': 'array', 'itemType': 'number' },
+      invoiceNoes: { 'type': 'array', 'itemType': 'number' },
+      invoiceDates: { 'type': 'array', 'itemType': 'number' },
+      invoiceFakeCodes: { 'type': 'array', 'itemType': 'number' },
+      payerNames: { 'type': 'array', 'itemType': 'number' },
+      payerRegisterNoes: { 'type': 'array', 'itemType': 'number' },
+      payerAddresses: { 'type': 'array', 'itemType': 'number' },
+      payerBankNames: { 'type': 'array', 'itemType': 'number' },
+      withoutTaxAmounts: { 'type': 'array', 'itemType': 'number' },
+      taxAmounts: { 'type': 'array', 'itemType': 'number' },
+      sumAmounts: { 'type': 'array', 'itemType': 'number' },
+      invoiceAmounts: { 'type': 'array', 'itemType': 'number' },
+      payeeNames: { 'type': 'array', 'itemType': 'number' },
+      payeeRegisterNoes: { 'type': 'array', 'itemType': 'number' },
+      payeeAddresses: { 'type': 'array', 'itemType': 'number' },
+      payeeBankNames: { 'type': 'array', 'itemType': 'number' },
+      payees: { 'type': 'array', 'itemType': 'number' },
+      checkers: { 'type': 'array', 'itemType': 'number' },
+      clerks: { 'type': 'array', 'itemType': 'number' },
     };
   }
 
@@ -2453,22 +2453,22 @@ export class RecognizeTableResponseDataTablesTableRows extends $tea.Model {
 }
 
 export class RecognizeTableResponseDataTables extends $tea.Model {
-  head: string;
-  tail: string;
   tableRows: RecognizeTableResponseDataTablesTableRows[];
+  head: string[];
+  tail: string[];
   static names(): { [key: string]: string } {
     return {
+      tableRows: 'TableRows',
       head: 'Head',
       tail: 'Tail',
-      tableRows: 'TableRows',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      head: 'string',
-      tail: 'string',
       tableRows: { 'type': 'array', 'itemType': RecognizeTableResponseDataTablesTableRows },
+      head: { 'type': 'array', 'itemType': 'string' },
+      tail: { 'type': 'array', 'itemType': 'string' },
     };
   }
 
@@ -3309,7 +3309,7 @@ export default class Client extends RPC {
     super(config);
     this._endpointRule = "regional";
     this.checkConfig(config);
-    this._endpoint = this.getEndpoint(this._productId, this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
+    this._endpoint = this.getEndpoint("ocr", this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
   }
 
 
@@ -3340,7 +3340,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3401,7 +3401,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3462,7 +3462,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3523,7 +3523,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3584,7 +3584,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3650,7 +3650,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3711,7 +3711,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3772,7 +3772,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3833,7 +3833,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3894,7 +3894,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3955,7 +3955,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -4016,7 +4016,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -4077,7 +4077,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -4138,7 +4138,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -4199,7 +4199,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -4260,7 +4260,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -4321,7 +4321,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -4382,7 +4382,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -4423,7 +4423,7 @@ export default class Client extends RPC {
 
   async recognizeVINCode(request: RecognizeVINCodeRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeVINCodeResponse> {
     Util.validateModel(request);
-    return $tea.cast<RecognizeVINCodeResponse>(await this.doRequest("RecognizeVINCode", "HTTPS", "POST", "2019-12-30", "AK", $tea.toMap(request), null, runtime), new RecognizeVINCodeResponse({}));
+    return $tea.cast<RecognizeVINCodeResponse>(await this.doRequest("RecognizeVINCode", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeVINCodeResponse({}));
   }
 
   async recognizeVINCodeAdvance(request: RecognizeVINCodeAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeVINCodeResponse> {
@@ -4443,7 +4443,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -4504,7 +4504,7 @@ export default class Client extends RPC {
       product: "ocr",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
