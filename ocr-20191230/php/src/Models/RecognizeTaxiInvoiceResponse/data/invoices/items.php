@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class items extends Model
 {
     /**
-     * @description text
-     *
      * @var string
      */
     public $text;
 
     /**
-     * @description itemRoi
-     *
      * @var itemRoi
      */
     public $itemRoi;

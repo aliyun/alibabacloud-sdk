@@ -9,57 +9,41 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description company
-     *
      * @var array
      */
     public $companies;
 
     /**
-     * @description department
-     *
      * @var array
      */
     public $departments;
 
     /**
-     * @description title
-     *
      * @var array
      */
     public $titles;
 
     /**
-     * @description cellNumber
-     *
      * @var array
      */
     public $cellPhoneNumbers;
 
     /**
-     * @description officePhoneNumber
-     *
      * @var array
      */
     public $officePhoneNumbers;
 
     /**
-     * @description address
-     *
      * @var array
      */
     public $addresses;
 
     /**
-     * @description email
-     *
      * @var array
      */
     public $emails;
@@ -93,46 +77,25 @@ class data extends Model
             $res['Name'] = $this->name;
         }
         if (null !== $this->companies) {
-            $res['Companies'] = [];
-            if (null !== $this->companies) {
-                $res['Companies'] = $this->companies;
-            }
+            $res['Companies'] = $this->companies;
         }
         if (null !== $this->departments) {
-            $res['Departments'] = [];
-            if (null !== $this->departments) {
-                $res['Departments'] = $this->departments;
-            }
+            $res['Departments'] = $this->departments;
         }
         if (null !== $this->titles) {
-            $res['Titles'] = [];
-            if (null !== $this->titles) {
-                $res['Titles'] = $this->titles;
-            }
+            $res['Titles'] = $this->titles;
         }
         if (null !== $this->cellPhoneNumbers) {
-            $res['CellPhoneNumbers'] = [];
-            if (null !== $this->cellPhoneNumbers) {
-                $res['CellPhoneNumbers'] = $this->cellPhoneNumbers;
-            }
+            $res['CellPhoneNumbers'] = $this->cellPhoneNumbers;
         }
         if (null !== $this->officePhoneNumbers) {
-            $res['OfficePhoneNumbers'] = [];
-            if (null !== $this->officePhoneNumbers) {
-                $res['OfficePhoneNumbers'] = $this->officePhoneNumbers;
-            }
+            $res['OfficePhoneNumbers'] = $this->officePhoneNumbers;
         }
         if (null !== $this->addresses) {
-            $res['Addresses'] = [];
-            if (null !== $this->addresses) {
-                $res['Addresses'] = $this->addresses;
-            }
+            $res['Addresses'] = $this->addresses;
         }
         if (null !== $this->emails) {
-            $res['Emails'] = [];
-            if (null !== $this->emails) {
-                $res['Emails'] = $this->emails;
-            }
+            $res['Emails'] = $this->emails;
         }
 
         return $res;
@@ -151,43 +114,36 @@ class data extends Model
         }
         if (isset($map['Companies'])) {
             if (!empty($map['Companies'])) {
-                $model->companies = [];
                 $model->companies = $map['Companies'];
             }
         }
         if (isset($map['Departments'])) {
             if (!empty($map['Departments'])) {
-                $model->departments = [];
                 $model->departments = $map['Departments'];
             }
         }
         if (isset($map['Titles'])) {
             if (!empty($map['Titles'])) {
-                $model->titles = [];
                 $model->titles = $map['Titles'];
             }
         }
         if (isset($map['CellPhoneNumbers'])) {
             if (!empty($map['CellPhoneNumbers'])) {
-                $model->cellPhoneNumbers = [];
                 $model->cellPhoneNumbers = $map['CellPhoneNumbers'];
             }
         }
         if (isset($map['OfficePhoneNumbers'])) {
             if (!empty($map['OfficePhoneNumbers'])) {
-                $model->officePhoneNumbers = [];
                 $model->officePhoneNumbers = $map['OfficePhoneNumbers'];
             }
         }
         if (isset($map['Addresses'])) {
             if (!empty($map['Addresses'])) {
-                $model->addresses = [];
                 $model->addresses = $map['Addresses'];
             }
         }
         if (isset($map['Emails'])) {
             if (!empty($map['Emails'])) {
-                $model->emails = [];
                 $model->emails = $map['Emails'];
             }
         }

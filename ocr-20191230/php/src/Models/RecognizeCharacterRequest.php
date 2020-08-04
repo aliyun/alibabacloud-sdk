@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class RecognizeCharacterRequest extends Model
 {
     /**
-     * @description imageUrl
-     *
      * @var string
      */
     public $imageURL;
 
     /**
-     * @description minHeight
-     *
      * @var int
      */
     public $minHeight;
 
     /**
-     * @description outputProbability
-     *
      * @var bool
      */
     public $outputProbability;

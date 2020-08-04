@@ -9,43 +9,31 @@ use AlibabaCloud\Tea\Model;
 class RecognizeTableAdvanceRequest extends Model
 {
     /**
-     * @description ImageURLObject
-     *
      * @var Stream
      */
     public $imageURLObject;
 
     /**
-     * @description outputFormat
-     *
      * @var string
      */
     public $outputFormat;
 
     /**
-     * @description useFinanceModel
-     *
      * @var bool
      */
     public $useFinanceModel;
 
     /**
-     * @description assureDirection
-     *
      * @var bool
      */
     public $assureDirection;
 
     /**
-     * @description hasLine
-     *
      * @var bool
      */
     public $hasLine;
 
     /**
-     * @description skipDetection
-     *
      * @var bool
      */
     public $skipDetection;

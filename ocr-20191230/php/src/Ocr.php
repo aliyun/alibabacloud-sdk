@@ -92,11 +92,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetAsyncJobResultRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return GetAsyncJobResultResponse
      */
-    public function getAsyncJobResult(GetAsyncJobResultRequest $request, RuntimeOptions $runtime)
+    public function getAsyncJobResult($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -104,11 +105,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param TrimDocumentRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return TrimDocumentResponse
      */
-    public function trimDocument(TrimDocumentRequest $request, RuntimeOptions $runtime)
+    public function trimDocument($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -116,11 +118,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param TrimDocumentAdvanceRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return TrimDocumentResponse
      */
-    public function trimDocumentAdvance(TrimDocumentAdvanceRequest $request, RuntimeOptions $runtime)
+    public function trimDocumentAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -178,11 +181,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeChinapassportRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return RecognizeChinapassportResponse
      */
-    public function recognizeChinapassport(RecognizeChinapassportRequest $request, RuntimeOptions $runtime)
+    public function recognizeChinapassport($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -190,11 +194,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeChinapassportAdvanceRequest $request
+     * @param RuntimeOptions                       $runtime
      *
      * @return RecognizeChinapassportResponse
      */
-    public function recognizeChinapassportAdvance(RecognizeChinapassportAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeChinapassportAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -252,11 +257,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeVerificationcodeRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return RecognizeVerificationcodeResponse
      */
-    public function recognizeVerificationcode(RecognizeVerificationcodeRequest $request, RuntimeOptions $runtime)
+    public function recognizeVerificationcode($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -264,11 +270,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeVerificationcodeAdvanceRequest $request
+     * @param RuntimeOptions                          $runtime
      *
      * @return RecognizeVerificationcodeResponse
      */
-    public function recognizeVerificationcodeAdvance(RecognizeVerificationcodeAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeVerificationcodeAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -326,11 +333,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizePassportMRZRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return RecognizePassportMRZResponse
      */
-    public function recognizePassportMRZ(RecognizePassportMRZRequest $request, RuntimeOptions $runtime)
+    public function recognizePassportMRZ($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -338,11 +346,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizePassportMRZAdvanceRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return RecognizePassportMRZResponse
      */
-    public function recognizePassportMRZAdvance(RecognizePassportMRZAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizePassportMRZAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -400,11 +409,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeTakeoutOrderRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return RecognizeTakeoutOrderResponse
      */
-    public function recognizeTakeoutOrder(RecognizeTakeoutOrderRequest $request, RuntimeOptions $runtime)
+    public function recognizeTakeoutOrder($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -412,11 +422,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeTakeoutOrderAdvanceRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return RecognizeTakeoutOrderResponse
      */
-    public function recognizeTakeoutOrderAdvance(RecognizeTakeoutOrderAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeTakeoutOrderAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -474,11 +485,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeQrCodeRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return RecognizeQrCodeResponse
      */
-    public function recognizeQrCode(RecognizeQrCodeRequest $request, RuntimeOptions $runtime)
+    public function recognizeQrCode($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -486,11 +498,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeVATInvoiceRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return RecognizeVATInvoiceResponse
      */
-    public function recognizeVATInvoice(RecognizeVATInvoiceRequest $request, RuntimeOptions $runtime)
+    public function recognizeVATInvoice($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -498,11 +511,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeVATInvoiceAdvanceRequest $request
+     * @param RuntimeOptions                    $runtime
      *
      * @return RecognizeVATInvoiceResponse
      */
-    public function recognizeVATInvoiceAdvance(RecognizeVATInvoiceAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeVATInvoiceAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -560,11 +574,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeCharacterRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return RecognizeCharacterResponse
      */
-    public function recognizeCharacter(RecognizeCharacterRequest $request, RuntimeOptions $runtime)
+    public function recognizeCharacter($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -572,11 +587,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeCharacterAdvanceRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return RecognizeCharacterResponse
      */
-    public function recognizeCharacterAdvance(RecognizeCharacterAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeCharacterAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -634,11 +650,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeTaxiInvoiceRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return RecognizeTaxiInvoiceResponse
      */
-    public function recognizeTaxiInvoice(RecognizeTaxiInvoiceRequest $request, RuntimeOptions $runtime)
+    public function recognizeTaxiInvoice($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -646,11 +663,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeTaxiInvoiceAdvanceRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return RecognizeTaxiInvoiceResponse
      */
-    public function recognizeTaxiInvoiceAdvance(RecognizeTaxiInvoiceAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeTaxiInvoiceAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -708,11 +726,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeIdentityCardRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return RecognizeIdentityCardResponse
      */
-    public function recognizeIdentityCard(RecognizeIdentityCardRequest $request, RuntimeOptions $runtime)
+    public function recognizeIdentityCard($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -720,11 +739,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeIdentityCardAdvanceRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return RecognizeIdentityCardResponse
      */
-    public function recognizeIdentityCardAdvance(RecognizeIdentityCardAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeIdentityCardAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -782,11 +802,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeLicensePlateRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return RecognizeLicensePlateResponse
      */
-    public function recognizeLicensePlate(RecognizeLicensePlateRequest $request, RuntimeOptions $runtime)
+    public function recognizeLicensePlate($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -794,11 +815,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeLicensePlateAdvanceRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return RecognizeLicensePlateResponse
      */
-    public function recognizeLicensePlateAdvance(RecognizeLicensePlateAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeLicensePlateAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -856,11 +878,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeTableRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return RecognizeTableResponse
      */
-    public function recognizeTable(RecognizeTableRequest $request, RuntimeOptions $runtime)
+    public function recognizeTable($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -868,11 +891,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeTableAdvanceRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return RecognizeTableResponse
      */
-    public function recognizeTableAdvance(RecognizeTableAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeTableAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -930,11 +954,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeDrivingLicenseRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return RecognizeDrivingLicenseResponse
      */
-    public function recognizeDrivingLicense(RecognizeDrivingLicenseRequest $request, RuntimeOptions $runtime)
+    public function recognizeDrivingLicense($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -942,11 +967,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeDrivingLicenseAdvanceRequest $request
+     * @param RuntimeOptions                        $runtime
      *
      * @return RecognizeDrivingLicenseResponse
      */
-    public function recognizeDrivingLicenseAdvance(RecognizeDrivingLicenseAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeDrivingLicenseAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1004,11 +1030,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeBankCardRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return RecognizeBankCardResponse
      */
-    public function recognizeBankCard(RecognizeBankCardRequest $request, RuntimeOptions $runtime)
+    public function recognizeBankCard($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1016,11 +1043,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeBankCardAdvanceRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return RecognizeBankCardResponse
      */
-    public function recognizeBankCardAdvance(RecognizeBankCardAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeBankCardAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1078,11 +1106,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeTrainTicketRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return RecognizeTrainTicketResponse
      */
-    public function recognizeTrainTicket(RecognizeTrainTicketRequest $request, RuntimeOptions $runtime)
+    public function recognizeTrainTicket($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1090,11 +1119,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeTrainTicketAdvanceRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return RecognizeTrainTicketResponse
      */
-    public function recognizeTrainTicketAdvance(RecognizeTrainTicketAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeTrainTicketAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1152,11 +1182,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeDriverLicenseRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return RecognizeDriverLicenseResponse
      */
-    public function recognizeDriverLicense(RecognizeDriverLicenseRequest $request, RuntimeOptions $runtime)
+    public function recognizeDriverLicense($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1164,11 +1195,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeDriverLicenseAdvanceRequest $request
+     * @param RuntimeOptions                       $runtime
      *
      * @return RecognizeDriverLicenseResponse
      */
-    public function recognizeDriverLicenseAdvance(RecognizeDriverLicenseAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeDriverLicenseAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1226,11 +1258,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeAccountPageRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return RecognizeAccountPageResponse
      */
-    public function recognizeAccountPage(RecognizeAccountPageRequest $request, RuntimeOptions $runtime)
+    public function recognizeAccountPage($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1238,11 +1271,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeAccountPageAdvanceRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return RecognizeAccountPageResponse
      */
-    public function recognizeAccountPageAdvance(RecognizeAccountPageAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeAccountPageAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1300,11 +1334,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeStampRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return RecognizeStampResponse
      */
-    public function recognizeStamp(RecognizeStampRequest $request, RuntimeOptions $runtime)
+    public function recognizeStamp($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1312,11 +1347,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeStampAdvanceRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return RecognizeStampResponse
      */
-    public function recognizeStampAdvance(RecognizeStampAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeStampAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1374,11 +1410,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeBusinessCardRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return RecognizeBusinessCardResponse
      */
-    public function recognizeBusinessCard(RecognizeBusinessCardRequest $request, RuntimeOptions $runtime)
+    public function recognizeBusinessCard($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1386,11 +1423,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeBusinessCardAdvanceRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return RecognizeBusinessCardResponse
      */
-    public function recognizeBusinessCardAdvance(RecognizeBusinessCardAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeBusinessCardAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1448,11 +1486,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeVINCodeRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return RecognizeVINCodeResponse
      */
-    public function recognizeVINCode(RecognizeVINCodeRequest $request, RuntimeOptions $runtime)
+    public function recognizeVINCode($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1460,11 +1499,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeVINCodeAdvanceRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return RecognizeVINCodeResponse
      */
-    public function recognizeVINCodeAdvance(RecognizeVINCodeAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeVINCodeAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1522,11 +1562,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeBusinessLicenseRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return RecognizeBusinessLicenseResponse
      */
-    public function recognizeBusinessLicense(RecognizeBusinessLicenseRequest $request, RuntimeOptions $runtime)
+    public function recognizeBusinessLicense($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1534,11 +1575,12 @@ class Ocr extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecognizeBusinessLicenseAdvanceRequest $request
+     * @param RuntimeOptions                         $runtime
      *
      * @return RecognizeBusinessLicenseResponse
      */
-    public function recognizeBusinessLicenseAdvance(RecognizeBusinessLicenseAdvanceRequest $request, RuntimeOptions $runtime)
+    public function recognizeBusinessLicenseAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -1603,8 +1645,6 @@ class Ocr extends Rpc
      * @param string $suffix
      * @param array  $endpointMap
      * @param string $endpoint
-     *
-     * @throws \Exception
      *
      * @return string
      */

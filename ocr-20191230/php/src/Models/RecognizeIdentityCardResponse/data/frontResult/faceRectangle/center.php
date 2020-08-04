@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class center extends Model
 {
     /**
-     * @description x
-     *
      * @var float
      */
     public $x;
 
     /**
-     * @description y
-     *
      * @var float
      */
     public $y;

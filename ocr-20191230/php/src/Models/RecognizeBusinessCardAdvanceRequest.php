@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class RecognizeBusinessCardAdvanceRequest extends Model
 {
     /**
-     * @description ImageURLObject
-     *
      * @var Stream
      */
     public $imageURLObject;

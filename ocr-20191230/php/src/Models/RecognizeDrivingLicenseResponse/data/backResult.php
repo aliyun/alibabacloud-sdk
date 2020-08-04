@@ -9,71 +9,51 @@ use AlibabaCloud\Tea\Model;
 class backResult extends Model
 {
     /**
-     * @description approvedPassengerCapacity
-     *
      * @var string
      */
     public $approvedPassengerCapacity;
 
     /**
-     * @description approvedLoad
-     *
      * @var string
      */
     public $approvedLoad;
 
     /**
-     * @description fileNumber
-     *
      * @var string
      */
     public $fileNumber;
 
     /**
-     * @description grossMass
-     *
      * @var string
      */
     public $grossMass;
 
     /**
-     * @description energyType
-     *
      * @var string
      */
     public $energyType;
 
     /**
-     * @description inspectionRecord
-     *
      * @var string
      */
     public $inspectionRecord;
 
     /**
-     * @description overallDimension
-     *
      * @var string
      */
     public $overallDimension;
 
     /**
-     * @description tractionMass
-     *
      * @var string
      */
     public $tractionMass;
 
     /**
-     * @description unladenMass
-     *
      * @var string
      */
     public $unladenMass;
 
     /**
-     * @description plateNumber
-     *
      * @var string
      */
     public $plateNumber;

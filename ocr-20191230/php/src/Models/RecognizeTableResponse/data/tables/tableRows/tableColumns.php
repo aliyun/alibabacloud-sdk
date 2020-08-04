@@ -9,50 +9,36 @@ use AlibabaCloud\Tea\Model;
 class tableColumns extends Model
 {
     /**
-     * @description startColumn
-     *
      * @var int
      */
     public $startColumn;
 
     /**
-     * @description startRow
-     *
      * @var int
      */
     public $startRow;
 
     /**
-     * @description endColumn
-     *
      * @var int
      */
     public $endColumn;
 
     /**
-     * @description endRow
-     *
      * @var int
      */
     public $endRow;
 
     /**
-     * @description height
-     *
      * @var int
      */
     public $height;
 
     /**
-     * @description width
-     *
      * @var int
      */
     public $width;
 
     /**
-     * @description texts
-     *
      * @var array
      */
     public $texts;
@@ -99,10 +85,7 @@ class tableColumns extends Model
             $res['Width'] = $this->width;
         }
         if (null !== $this->texts) {
-            $res['Texts'] = [];
-            if (null !== $this->texts) {
-                $res['Texts'] = $this->texts;
-            }
+            $res['Texts'] = $this->texts;
         }
 
         return $res;
@@ -136,7 +119,6 @@ class tableColumns extends Model
         }
         if (isset($map['Texts'])) {
             if (!empty($map['Texts'])) {
-                $model->texts = [];
                 $model->texts = $map['Texts'];
             }
         }

@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class RecognizeIdentityCardAdvanceRequest extends Model
 {
     /**
-     * @description ImageURLObject
-     *
      * @var Stream
      */
     public $imageURLObject;
 
     /**
-     * @description side
-     *
      * @var string
      */
     public $side;

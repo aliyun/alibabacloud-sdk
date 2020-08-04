@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class backResult extends Model
 {
     /**
-     * @description startDate
-     *
      * @var string
      */
     public $startDate;
 
     /**
-     * @description endDate
-     *
      * @var string
      */
     public $endDate;
 
     /**
-     * @description issue
-     *
      * @var string
      */
     public $issue;

@@ -10,22 +10,16 @@ use AlibabaCloud\Tea\Model;
 class elements extends Model
 {
     /**
-     * @description taskId
-     *
      * @var string
      */
     public $taskId;
 
     /**
-     * @description imageUrl
-     *
      * @var string
      */
     public $imageURL;
 
     /**
-     * @description results
-     *
      * @var array
      */
     public $results;

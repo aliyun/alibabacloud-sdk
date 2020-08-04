@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class backResult extends Model
 {
     /**
-     * @description archiveNumber
-     *
      * @var string
      */
     public $archiveNumber;

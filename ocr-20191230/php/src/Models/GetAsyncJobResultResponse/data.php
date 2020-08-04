@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description errorCode
-     *
      * @var string
      */
     public $errorCode;
 
     /**
-     * @description errorMessage
-     *
      * @var string
      */
     public $errorMessage;
 
     /**
-     * @description jobId
-     *
      * @var string
      */
     public $jobId;
 
     /**
-     * @description result
-     *
      * @var string
      */
     public $result;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;

@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class roi extends Model
 {
     /**
-     * @description left
-     *
      * @var int
      */
     public $left;
 
     /**
-     * @description top
-     *
      * @var int
      */
     public $top;
 
     /**
-     * @description width
-     *
      * @var int
      */
     public $width;
 
     /**
-     * @description height
-     *
      * @var int
      */
     public $height;

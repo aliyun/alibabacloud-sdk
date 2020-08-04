@@ -9,134 +9,96 @@ use AlibabaCloud\Tea\Model;
 class content extends Model
 {
     /**
-     * @description invoiceCode
-     *
      * @var string
      */
     public $invoiceCode;
 
     /**
-     * @description invoiceNo
-     *
      * @var string
      */
     public $invoiceNo;
 
     /**
-     * @description invoiceDate
-     *
      * @var string
      */
     public $invoiceDate;
 
     /**
-     * @description antiFakeCode
-     *
      * @var string
      */
     public $antiFakeCode;
 
     /**
-     * @description payerName
-     *
      * @var string
      */
     public $payerName;
 
     /**
-     * @description payerRegisterNo
-     *
      * @var string
      */
     public $payerRegisterNo;
 
     /**
-     * @description payerAddress
-     *
      * @var string
      */
     public $payerAddress;
 
     /**
-     * @description payerBankName
-     *
      * @var string
      */
     public $payerBankName;
 
     /**
-     * @description withoutTaxAmount
-     *
      * @var string
      */
     public $withoutTaxAmount;
 
     /**
-     * @description taxAmount
-     *
      * @var string
      */
     public $taxAmount;
 
     /**
-     * @description sumAmount
-     *
      * @var string
      */
     public $sumAmount;
 
     /**
-     * @description invoiceAmount
-     *
      * @var string
      */
     public $invoiceAmount;
 
     /**
-     * @description payeeName
-     *
      * @var string
      */
     public $payeeName;
 
     /**
-     * @description payeeRegisterNo
-     *
      * @var string
      */
     public $payeeRegisterNo;
 
     /**
-     * @description payeeAddress
-     *
      * @var string
      */
     public $payeeAddress;
 
     /**
-     * @description payeeBankName
-     *
      * @var string
      */
     public $payeeBankName;
 
     /**
-     * @description payee
-     *
      * @var string
      */
     public $payee;
 
     /**
-     * @description checker
-     *
      * @var string
      */
     public $checker;
 
     /**
-     * @description clerk
-     *
      * @var string
      */
     public $clerk;

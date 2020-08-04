@@ -11,15 +11,11 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description frontResult
-     *
      * @var frontResult
      */
     public $frontResult;
 
     /**
-     * @description backResult
-     *
      * @var backResult
      */
     public $backResult;

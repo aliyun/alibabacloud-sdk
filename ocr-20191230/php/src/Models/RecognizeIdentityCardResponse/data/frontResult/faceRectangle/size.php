@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class size extends Model
 {
     /**
-     * @description height
-     *
      * @var float
      */
     public $height;
 
     /**
-     * @description width
-     *
      * @var float
      */
     public $width;

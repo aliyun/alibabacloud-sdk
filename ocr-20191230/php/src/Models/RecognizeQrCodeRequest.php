@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class RecognizeQrCodeRequest extends Model
 {
     /**
-     * @description tasks
-     *
      * @var array
      */
     public $tasks;

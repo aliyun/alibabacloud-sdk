@@ -11,22 +11,16 @@ use AlibabaCloud\Tea\Model;
 class invoices extends Model
 {
     /**
-     * @description rotateType
-     *
      * @var int
      */
     public $rotateType;
 
     /**
-     * @description items
-     *
      * @var array
      */
     public $items;
 
     /**
-     * @description invoiceRoi
-     *
      * @var invoiceRoi
      */
     public $invoiceRoi;

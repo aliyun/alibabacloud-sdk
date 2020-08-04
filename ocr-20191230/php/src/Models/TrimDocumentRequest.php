@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class TrimDocumentRequest extends Model
 {
     /**
-     * @description fileUrl
-     *
      * @var string
      */
     public $fileURL;
 
     /**
-     * @description fileType
-     *
      * @var string
      */
     public $fileType;
 
     /**
-     * @description outputType
-     *
      * @var string
      */
     public $outputType;

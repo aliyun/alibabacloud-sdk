@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class tableRows extends Model
 {
     /**
-     * @description tableColumns
-     *
      * @var array
      */
     public $tableColumns;

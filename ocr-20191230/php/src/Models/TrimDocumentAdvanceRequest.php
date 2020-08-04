@@ -5,26 +5,21 @@
 namespace AlibabaCloud\SDK\Ocr\V20191230\Models;
 
 use AlibabaCloud\Tea\Model;
+use GuzzleHttp\Psr7\Stream;
 
 class TrimDocumentAdvanceRequest extends Model
 {
     /**
-     * @description FileURLObject
-     *
      * @var Stream
      */
     public $fileURLObject;
 
     /**
-     * @description fileType
-     *
      * @var string
      */
     public $fileType;
 
     /**
-     * @description outputType
-     *
      * @var string
      */
     public $outputType;

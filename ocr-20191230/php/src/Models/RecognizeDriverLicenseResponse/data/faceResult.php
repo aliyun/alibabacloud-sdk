@@ -9,57 +9,41 @@ use AlibabaCloud\Tea\Model;
 class faceResult extends Model
 {
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description licenseNumber
-     *
      * @var string
      */
     public $licenseNumber;
 
     /**
-     * @description vehicleType
-     *
      * @var string
      */
     public $vehicleType;
 
     /**
-     * @description startDate
-     *
      * @var string
      */
     public $startDate;
 
     /**
-     * @description endDate
-     *
      * @var string
      */
     public $endDate;
 
     /**
-     * @description issueDate
-     *
      * @var string
      */
     public $issueDate;
 
     /**
-     * @description address
-     *
      * @var string
      */
     public $address;
 
     /**
-     * @description gender
-     *
      * @var string
      */
     public $gender;

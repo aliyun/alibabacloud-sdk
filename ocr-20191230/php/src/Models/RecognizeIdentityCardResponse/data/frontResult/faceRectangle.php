@@ -11,22 +11,16 @@ use AlibabaCloud\Tea\Model;
 class faceRectangle extends Model
 {
     /**
-     * @description angle
-     *
      * @var float
      */
     public $angle;
 
     /**
-     * @description center
-     *
      * @var center
      */
     public $center;
 
     /**
-     * @description size
-     *
      * @var size
      */
     public $size;

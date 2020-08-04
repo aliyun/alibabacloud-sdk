@@ -12,22 +12,16 @@ use AlibabaCloud\Tea\Model;
 class results extends Model
 {
     /**
-     * @description generalText
-     *
      * @var array
      */
     public $generalText;
 
     /**
-     * @description roi
-     *
      * @var roi
      */
     public $roi;
 
     /**
-     * @description text
-     *
      * @var text
      */
     public $text;

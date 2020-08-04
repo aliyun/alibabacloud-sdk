@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class results extends Model
 {
     /**
-     * @description label
-     *
      * @var string
      */
     public $label;
 
     /**
-     * @description suggestion
-     *
      * @var string
      */
     public $suggestion;
 
     /**
-     * @description rate
-     *
      * @var float
      */
     public $rate;
 
     /**
-     * @description qrCodesData
-     *
      * @var array
      */
     public $qrCodesData;
@@ -63,10 +55,7 @@ class results extends Model
             $res['Rate'] = $this->rate;
         }
         if (null !== $this->qrCodesData) {
-            $res['QrCodesData'] = [];
-            if (null !== $this->qrCodesData) {
-                $res['QrCodesData'] = $this->qrCodesData;
-            }
+            $res['QrCodesData'] = $this->qrCodesData;
         }
 
         return $res;
@@ -91,7 +80,6 @@ class results extends Model
         }
         if (isset($map['QrCodesData'])) {
             if (!empty($map['QrCodesData'])) {
-                $model->qrCodesData = [];
                 $model->qrCodesData = $map['QrCodesData'];
             }
         }

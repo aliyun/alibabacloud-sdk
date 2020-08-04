@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class elements extends Model
 {
     /**
-     * @description score
-     *
      * @var float
      */
     public $score;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description value
-     *
      * @var string
      */
     public $value;
 
     /**
-     * @description boxes
-     *
      * @var array
      */
     public $boxes;
@@ -63,10 +55,7 @@ class elements extends Model
             $res['Value'] = $this->value;
         }
         if (null !== $this->boxes) {
-            $res['Boxes'] = [];
-            if (null !== $this->boxes) {
-                $res['Boxes'] = $this->boxes;
-            }
+            $res['Boxes'] = $this->boxes;
         }
 
         return $res;
@@ -91,7 +80,6 @@ class elements extends Model
         }
         if (isset($map['Boxes'])) {
             if (!empty($map['Boxes'])) {
-                $model->boxes = [];
                 $model->boxes = $map['Boxes'];
             }
         }

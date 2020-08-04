@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class generalText extends Model
 {
     /**
-     * @description content
-     *
      * @var string
      */
     public $content;
 
     /**
-     * @description confidence
-     *
      * @var float
      */
     public $confidence;

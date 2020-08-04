@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class RecognizeDriverLicenseRequest extends Model
 {
     /**
-     * @description imageUrl
-     *
      * @var string
      */
     public $imageURL;
 
     /**
-     * @description side
-     *
      * @var string
      */
     public $side;

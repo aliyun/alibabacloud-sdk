@@ -10,22 +10,16 @@ use AlibabaCloud\Tea\Model;
 class results extends Model
 {
     /**
-     * @description probability
-     *
      * @var float
      */
     public $probability;
 
     /**
-     * @description text
-     *
      * @var string
      */
     public $text;
 
     /**
-     * @description textRectangles
-     *
      * @var textRectangles
      */
     public $textRectangles;

@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description bankName
-     *
      * @var string
      */
     public $bankName;
 
     /**
-     * @description cardNumber
-     *
      * @var string
      */
     public $cardNumber;
 
     /**
-     * @description validDate
-     *
      * @var string
      */
     public $validDate;

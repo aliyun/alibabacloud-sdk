@@ -9,155 +9,111 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description authority
-     *
      * @var string
      */
     public $authority;
 
     /**
-     * @description birthDate
-     *
      * @var string
      */
     public $birthDate;
 
     /**
-     * @description birthDay
-     *
      * @var string
      */
     public $birthDay;
 
     /**
-     * @description birthPlace
-     *
      * @var string
      */
     public $birthPlace;
 
     /**
-     * @description birthPlaceRaw
-     *
      * @var string
      */
     public $birthPlaceRaw;
 
     /**
-     * @description country
-     *
      * @var string
      */
     public $country;
 
     /**
-     * @description expiryDate
-     *
      * @var string
      */
     public $expiryDate;
 
     /**
-     * @description expiryDay
-     *
      * @var string
      */
     public $expiryDay;
 
     /**
-     * @description issueDate
-     *
      * @var string
      */
     public $issueDate;
 
     /**
-     * @description issuePlace
-     *
      * @var string
      */
     public $issuePlace;
 
     /**
-     * @description issuePlaceRaw
-     *
      * @var string
      */
     public $issuePlaceRaw;
 
     /**
-     * @description lineZero
-     *
      * @var string
      */
     public $lineZero;
 
     /**
-     * @description lineOne
-     *
      * @var string
      */
     public $lineOne;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description nameChinese
-     *
      * @var string
      */
     public $nameChinese;
 
     /**
-     * @description nameChineseRaw
-     *
      * @var string
      */
     public $nameChineseRaw;
 
     /**
-     * @description passportNo
-     *
      * @var string
      */
     public $passportNo;
 
     /**
-     * @description personId
-     *
      * @var string
      */
     public $personId;
 
     /**
-     * @description sex
-     *
      * @var string
      */
     public $sex;
 
     /**
-     * @description sourceCountry
-     *
      * @var string
      */
     public $sourceCountry;
 
     /**
-     * @description success
-     *
      * @var bool
      */
     public $success;
 
     /**
-     * @description type
-     *
      * @var string
      */
     public $type;

@@ -10,47 +10,35 @@ use AlibabaCloud\Tea\Model;
 class tables extends Model
 {
     /**
-     * @description head
-     *
-     * @var string
+     * @var array
+     */
+    public $tableRows;
+
+    /**
+     * @var array
      */
     public $head;
 
     /**
-     * @description tail
-     *
-     * @var string
-     */
-    public $tail;
-
-    /**
-     * @description tableRows
-     *
      * @var array
      */
-    public $tableRows;
+    public $tail;
     protected $_name = [
+        'tableRows' => 'TableRows',
         'head'      => 'Head',
         'tail'      => 'Tail',
-        'tableRows' => 'TableRows',
     ];
 
     public function validate()
     {
+        Model::validateRequired('tableRows', $this->tableRows, true);
         Model::validateRequired('head', $this->head, true);
         Model::validateRequired('tail', $this->tail, true);
-        Model::validateRequired('tableRows', $this->tableRows, true);
     }
 
     public function toMap()
     {
         $res = [];
-        if (null !== $this->head) {
-            $res['Head'] = $this->head;
-        }
-        if (null !== $this->tail) {
-            $res['Tail'] = $this->tail;
-        }
         if (null !== $this->tableRows) {
             $res['TableRows'] = [];
             if (null !== $this->tableRows && \is_array($this->tableRows)) {
@@ -59,6 +47,12 @@ class tables extends Model
                     $res['TableRows'][$n++] = null !== $item ? $item->toMap() : $item;
                 }
             }
+        }
+        if (null !== $this->head) {
+            $res['Head'] = $this->head;
+        }
+        if (null !== $this->tail) {
+            $res['Tail'] = $this->tail;
         }
 
         return $res;
@@ -72,12 +66,6 @@ class tables extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['Head'])) {
-            $model->head = $map['Head'];
-        }
-        if (isset($map['Tail'])) {
-            $model->tail = $map['Tail'];
-        }
         if (isset($map['TableRows'])) {
             if (!empty($map['TableRows'])) {
                 $model->tableRows = [];
@@ -85,6 +73,16 @@ class tables extends Model
                 foreach ($map['TableRows'] as $item) {
                     $model->tableRows[$n++] = null !== $item ? tableRows::fromMap($item) : $item;
                 }
+            }
+        }
+        if (isset($map['Head'])) {
+            if (!empty($map['Head'])) {
+                $model->head = $map['Head'];
+            }
+        }
+        if (isset($map['Tail'])) {
+            if (!empty($map['Tail'])) {
+                $model->tail = $map['Tail'];
             }
         }
 

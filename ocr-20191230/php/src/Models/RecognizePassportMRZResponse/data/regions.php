@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class regions extends Model
 {
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description recognitionScore
-     *
      * @var float
      */
     public $recognitionScore;
 
     /**
-     * @description content
-     *
      * @var string
      */
     public $content;
 
     /**
-     * @description detectionScore
-     *
      * @var float
      */
     public $detectionScore;
 
     /**
-     * @description bandBoxes
-     *
      * @var array
      */
     public $bandBoxes;
@@ -75,10 +65,7 @@ class regions extends Model
             $res['DetectionScore'] = $this->detectionScore;
         }
         if (null !== $this->bandBoxes) {
-            $res['BandBoxes'] = [];
-            if (null !== $this->bandBoxes) {
-                $res['BandBoxes'] = $this->bandBoxes;
-            }
+            $res['BandBoxes'] = $this->bandBoxes;
         }
 
         return $res;
@@ -106,7 +93,6 @@ class regions extends Model
         }
         if (isset($map['BandBoxes'])) {
             if (!empty($map['BandBoxes'])) {
-                $model->bandBoxes = [];
                 $model->bandBoxes = $map['BandBoxes'];
             }
         }

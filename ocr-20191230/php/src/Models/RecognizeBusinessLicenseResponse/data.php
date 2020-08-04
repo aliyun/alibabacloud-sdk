@@ -13,99 +13,71 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description angle
-     *
      * @var string
      */
     public $angle;
 
     /**
-     * @description registerNumber
-     *
      * @var string
      */
     public $registerNumber;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description type
-     *
      * @var string
      */
     public $type;
 
     /**
-     * @description legalPerson
-     *
      * @var string
      */
     public $legalPerson;
 
     /**
-     * @description establishDate
-     *
      * @var string
      */
     public $establishDate;
 
     /**
-     * @description validPeriod
-     *
      * @var string
      */
     public $validPeriod;
 
     /**
-     * @description address
-     *
      * @var string
      */
     public $address;
 
     /**
-     * @description capital
-     *
      * @var string
      */
     public $capital;
 
     /**
-     * @description business
-     *
      * @var string
      */
     public $business;
 
     /**
-     * @description emblem
-     *
      * @var emblem
      */
     public $emblem;
 
     /**
-     * @description title
-     *
      * @var title
      */
     public $title;
 
     /**
-     * @description stamp
-     *
      * @var stamp
      */
     public $stamp;
 
     /**
-     * @description qrCode
-     *
      * @var QRCode
      */
     public $QRCode;

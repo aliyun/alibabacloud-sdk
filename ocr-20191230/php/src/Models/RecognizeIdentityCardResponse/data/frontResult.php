@@ -12,64 +12,46 @@ use AlibabaCloud\Tea\Model;
 class frontResult extends Model
 {
     /**
-     * @description address
-     *
      * @var string
      */
     public $address;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description nationality
-     *
      * @var string
      */
     public $nationality;
 
     /**
-     * @description idNumber
-     *
      * @var string
      */
     public $IDNumber;
 
     /**
-     * @description gender
-     *
      * @var string
      */
     public $gender;
 
     /**
-     * @description birthDate
-     *
      * @var string
      */
     public $birthDate;
 
     /**
-     * @description cardAreas
-     *
      * @var array
      */
     public $cardAreas;
 
     /**
-     * @description faceRectVertices
-     *
      * @var array
      */
     public $faceRectVertices;
 
     /**
-     * @description faceRectangle
-     *
      * @var faceRectangle
      */
     public $faceRectangle;

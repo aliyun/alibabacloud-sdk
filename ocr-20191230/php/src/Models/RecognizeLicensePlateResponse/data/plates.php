@@ -10,36 +10,26 @@ use AlibabaCloud\Tea\Model;
 class plates extends Model
 {
     /**
-     * @description confidence
-     *
      * @var float
      */
     public $confidence;
 
     /**
-     * @description plateNumber
-     *
      * @var string
      */
     public $plateNumber;
 
     /**
-     * @description plateType
-     *
      * @var string
      */
     public $plateType;
 
     /**
-     * @description plateTypeConfidence
-     *
      * @var float
      */
     public $plateTypeConfidence;
 
     /**
-     * @description roi
-     *
      * @var roi
      */
     public $roi;

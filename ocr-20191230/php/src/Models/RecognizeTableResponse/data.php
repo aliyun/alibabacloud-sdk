@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description fileContent
-     *
      * @var string
      */
     public $fileContent;
 
     /**
-     * @description tables
-     *
      * @var array
      */
     public $tables;
