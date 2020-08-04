@@ -1,16 +1,16 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("alibabacloud-sdk-ocr")]
-[assembly: AssemblyDescription("alibabacloud sdk ocr")]
+[assembly: AssemblyTitle("alibabacloud-ocr")]
+[assembly: AssemblyDescription("Alibaba Cloud OCR (20191230) SDK Library for .NET")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Alibaba Cloud, Inc")]
-[assembly: AssemblyProduct("alibabacloud sdk ocr")]
-[assembly: AssemblyCopyright("©2009-present Alibaba Cloud")]
+[assembly: AssemblyProduct("")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("5c5a42e5-cdaa-4960-8227-7936fcdbe2a1")]
+[assembly: Guid("c1f5d190-d628-11ea-9986-bb51bc7813cc")]
 
 // Version information for an assembly consists of the following four values:
 //

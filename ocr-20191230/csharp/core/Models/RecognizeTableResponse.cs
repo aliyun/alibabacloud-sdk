@@ -24,8 +24,6 @@ namespace AlibabaCloud.SDK.Ocr20191230.Models
             [Validation(Required=true)]
             public List<RecognizeTableResponseDataTables> Tables { get; set; }
             public class RecognizeTableResponseDataTables : TeaModel {
-                    public string Head { get; set; }
-                    public string Tail { get; set; }
                     public List<RecognizeTableResponseDataTablesTableRows> TableRows { get; set; }
                     public class RecognizeTableResponseDataTablesTableRows : TeaModel {
                             public List<RecognizeTableResponseDataTablesTableRowsTableColumns> TableColumns { get; set; }
@@ -39,6 +37,8 @@ namespace AlibabaCloud.SDK.Ocr20191230.Models
                                     public List<string> Texts { get; set; }
                             }
                     }
+                    public List<string> Head { get; set; }
+                    public List<string> Tail { get; set; }
             }
         };
 

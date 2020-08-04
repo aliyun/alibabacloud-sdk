@@ -20,7 +20,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
         {
             this._endpointRule = "regional";
             CheckConfig(config);
-            this._endpoint = GetEndpoint(_productId, _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
+            this._endpoint = GetEndpoint("ocr", _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
         }
 
 
@@ -68,7 +68,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -131,7 +131,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -206,7 +206,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -269,7 +269,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -344,7 +344,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -407,7 +407,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -482,7 +482,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -545,7 +545,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -620,7 +620,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -683,7 +683,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -770,7 +770,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -833,7 +833,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -908,7 +908,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -971,7 +971,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -1046,7 +1046,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -1109,7 +1109,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -1184,7 +1184,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -1247,7 +1247,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -1322,7 +1322,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -1385,7 +1385,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -1460,7 +1460,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -1523,7 +1523,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -1598,7 +1598,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -1661,7 +1661,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -1736,7 +1736,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -1799,7 +1799,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -1874,7 +1874,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -1937,7 +1937,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -2012,7 +2012,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -2075,7 +2075,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -2150,7 +2150,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -2213,7 +2213,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -2288,7 +2288,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -2351,7 +2351,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -2426,7 +2426,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -2489,7 +2489,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -2535,13 +2535,13 @@ namespace AlibabaCloud.SDK.Ocr20191230
         public RecognizeVINCodeResponse RecognizeVINCode(RecognizeVINCodeRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<RecognizeVINCodeResponse>(DoRequest("RecognizeVINCode", "HTTPS", "POST", "2019-12-30", "AK", request.ToMap(), null, runtime));
+            return TeaModel.ToObject<RecognizeVINCodeResponse>(DoRequest("RecognizeVINCode", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<RecognizeVINCodeResponse> RecognizeVINCodeAsync(RecognizeVINCodeRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<RecognizeVINCodeResponse>(await DoRequestAsync("RecognizeVINCode", "HTTPS", "POST", "2019-12-30", "AK", request.ToMap(), null, runtime));
+            return TeaModel.ToObject<RecognizeVINCodeResponse>(await DoRequestAsync("RecognizeVINCode", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public RecognizeVINCodeResponse RecognizeVINCodeAdvance(RecognizeVINCodeAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -2564,7 +2564,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -2627,7 +2627,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -2702,7 +2702,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -2765,7 +2765,7 @@ namespace AlibabaCloud.SDK.Ocr20191230
                 Product = "ocr",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
