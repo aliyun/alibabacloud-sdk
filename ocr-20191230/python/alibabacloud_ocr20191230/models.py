@@ -2491,35 +2491,43 @@ class RecognizeTableResponseDataTablesTableRows(TeaModel):
 
 
 class RecognizeTableResponseDataTables(TeaModel):
-    def __init__(self, head=None, tail=None, table_rows=None):
-        self.head = head
-        self.tail = tail
+    def __init__(self, table_rows=None, head=None, tail=None):
         self.table_rows = []
+        self.head = []
+        self.tail = []
 
     def validate(self):
-        self.validate_required(self.head, 'head')
-        self.validate_required(self.tail, 'tail')
         self.validate_required(self.table_rows, 'table_rows')
         if self.table_rows:
             for k in self.table_rows:
                 if k :
                     k.validate()
+        self.validate_required(self.head, 'head')
+        self.validate_required(self.tail, 'tail')
 
     def to_map(self):
         result = {}
-        result['Head'] = self.head
-        result['Tail'] = self.tail
         result['TableRows'] = []
         if self.table_rows is not None:
             for k in self.table_rows:
                 result['TableRows'].append(k.to_map() if k else None)
         else:
             result['TableRows'] = None
+        result['Head'] = []
+        if self.head is not None:
+            for k in self.head:
+                result['Head'].append(k)
+        else:
+            result['Head'] = None
+        result['Tail'] = []
+        if self.tail is not None:
+            for k in self.tail:
+                result['Tail'].append(k)
+        else:
+            result['Tail'] = None
         return result
 
     def from_map(self, map={}):
-        self.head = map.get('Head')
-        self.tail = map.get('Tail')
         self.table_rows = []
         if map.get('TableRows') is not None:
             for k in map.get('TableRows'):
@@ -2528,6 +2536,18 @@ class RecognizeTableResponseDataTables(TeaModel):
                 self.table_rows.append(temp_model)
         else:
             self.table_rows = None
+        self.head = []
+        if map.get('Head') is not None:
+            for k in map.get('Head'):
+                self.head.append(k)
+        else:
+            self.head = None
+        self.tail = []
+        if map.get('Tail') is not None:
+            for k in map.get('Tail'):
+                self.tail.append(k)
+        else:
+            self.tail = None
         return self
 
 
