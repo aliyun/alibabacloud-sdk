@@ -2126,9 +2126,9 @@ func (s *RecognizeTableResponseData) SetTables(v []*RecognizeTableResponseDataTa
 }
 
 type RecognizeTableResponseDataTables struct {
-	Head      *string                                      `json:"Head,omitempty" xml:"Head,omitempty" require:"true"`
-	Tail      *string                                      `json:"Tail,omitempty" xml:"Tail,omitempty" require:"true"`
 	TableRows []*RecognizeTableResponseDataTablesTableRows `json:"TableRows,omitempty" xml:"TableRows,omitempty" require:"true" type:"Repeated"`
+	Head      []*string                                    `json:"Head,omitempty" xml:"Head,omitempty" require:"true" type:"Repeated"`
+	Tail      []*string                                    `json:"Tail,omitempty" xml:"Tail,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeTableResponseDataTables) String() string {
@@ -2139,18 +2139,18 @@ func (s RecognizeTableResponseDataTables) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeTableResponseDataTables) SetHead(v string) *RecognizeTableResponseDataTables {
-	s.Head = &v
-	return s
-}
-
-func (s *RecognizeTableResponseDataTables) SetTail(v string) *RecognizeTableResponseDataTables {
-	s.Tail = &v
-	return s
-}
-
 func (s *RecognizeTableResponseDataTables) SetTableRows(v []*RecognizeTableResponseDataTablesTableRows) *RecognizeTableResponseDataTables {
 	s.TableRows = v
+	return s
+}
+
+func (s *RecognizeTableResponseDataTables) SetHead(v []*string) *RecognizeTableResponseDataTables {
+	s.Head = v
+	return s
+}
+
+func (s *RecognizeTableResponseDataTables) SetTail(v []*string) *RecognizeTableResponseDataTables {
+	s.Tail = v
 	return s
 }
 
