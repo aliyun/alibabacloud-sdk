@@ -66,17 +66,17 @@ public class RecognizeTableResponse extends TeaModel {
     }
 
     public static class RecognizeTableResponseDataTables extends TeaModel {
-        @NameInMap("Head")
-        @Validation(required = true)
-        public String head;
-
-        @NameInMap("Tail")
-        @Validation(required = true)
-        public String tail;
-
         @NameInMap("TableRows")
         @Validation(required = true)
         public java.util.List<RecognizeTableResponseDataTablesTableRows> tableRows;
+
+        @NameInMap("Head")
+        @Validation(required = true)
+        public java.util.List<String> head;
+
+        @NameInMap("Tail")
+        @Validation(required = true)
+        public java.util.List<String> tail;
 
         public static RecognizeTableResponseDataTables build(java.util.Map<String, ?> map) throws Exception {
             RecognizeTableResponseDataTables self = new RecognizeTableResponseDataTables();
