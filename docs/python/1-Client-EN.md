@@ -170,6 +170,26 @@ cred_type = cred.get_type()
 
 ### Use the default credential provider chain
 
+```python
+from alibabacloud_credentials.client import Client as CredClient
+from alibabacloud_ocr20191230.client import Client as OcrClient
+from alibabacloud_ocr20191230.models import GetAsyncJobResultRequest
+from alibabacloud_tea_rpc.models import Config
+from alibabacloud_tea_util.models import RuntimeOptions
+
+cred = CredClient()
+config = Config(credential=cred)
+
+client = OcrClient(config)
+
+request = GetAsyncJobResultRequest(
+    job_id='<job_id>'
+)
+
+runtime_options = RuntimeOptions()
+response = client.get_async_job_result(request, runtime_options)
+```
+
 The default credential provider chain looks for available credentials, with following order:
 
 1.Environment Credentials
