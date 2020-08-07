@@ -17,15 +17,93 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('videoseg', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model SegmentHalfBodyRequest = {
+  videoUrl: string(name='VideoUrl'),
+}
+
+model SegmentHalfBodyResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    videoUrl: string(name='VideoUrl'),
+  }(name='Data'),
+}
+
+async function segmentHalfBody(request: SegmentHalfBodyRequest, runtime: Util.RuntimeOptions): SegmentHalfBodyResponse {
+  Util.validateModel(request);
+  return doRequest('SegmentHalfBody', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
+}
+
+model SegmentHalfBodyAdvanceRequest = {
+  videoUrlObject: readable(name='VideoUrlObject'),
+}
+
+async function segmentHalfBodyAdvance(request: SegmentHalfBodyAdvanceRequest, runtime: Util.RuntimeOptions): SegmentHalfBodyResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'videoseg',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.videoUrlObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var segmentHalfBodyreq = new SegmentHalfBodyRequest{};
+  RPCUtil.convert(request, segmentHalfBodyreq);
+  segmentHalfBodyreq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var segmentHalfBodyResp = segmentHalfBody(segmentHalfBodyreq, runtime);
+  return segmentHalfBodyResp;
+}
+
 model SegmentVideoBodyRequest = {
-  videoUrl: string(name='VideoUrl', description='videoUrl'),
+  videoUrl: string(name='VideoUrl'),
 }
 
 model SegmentVideoBodyResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    videoUrl: string(name='VideoUrl', description='VideoUrl'),
-  }(name='Data', description='data'),
+    videoUrl: string(name='VideoUrl'),
+  }(name='Data'),
 }
 
 async function segmentVideoBody(request: SegmentVideoBodyRequest, runtime: Util.RuntimeOptions): SegmentVideoBodyResponse {
@@ -34,7 +112,7 @@ async function segmentVideoBody(request: SegmentVideoBodyRequest, runtime: Util.
 }
 
 model SegmentVideoBodyAdvanceRequest = {
-  videoUrlObject: readable(description='VideoUrlObject', name='VideoUrlObject'),
+  videoUrlObject: readable(name='VideoUrlObject'),
 }
 
 async function segmentVideoBodyAdvance(request: SegmentVideoBodyAdvanceRequest, runtime: Util.RuntimeOptions): SegmentVideoBodyResponse {
@@ -96,18 +174,18 @@ async function segmentVideoBodyAdvance(request: SegmentVideoBodyAdvanceRequest, 
 }
 
 model GetAsyncJobResultRequest = {
-  jobId: string(name='JobId', description='jobId'),
+  jobId: string(name='JobId'),
 }
 
 model GetAsyncJobResultResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    jobId: string(name='JobId', description='jobId'),
-    status: string(name='Status', description='status'),
-    result: string(name='Result', description='result'),
-    errorCode: string(name='ErrorCode', description='errorCode'),
-    errorMessage: string(name='ErrorMessage', description='errorMessage'),
-  }(name='Data', description='data'),
+    jobId: string(name='JobId'),
+    status: string(name='Status'),
+    result: string(name='Result'),
+    errorCode: string(name='ErrorCode'),
+    errorMessage: string(name='ErrorMessage'),
+  }(name='Data'),
 }
 
 async function getAsyncJobResult(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
