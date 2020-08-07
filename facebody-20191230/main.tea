@@ -17,6 +17,84 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('facebody', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model BlurFaceRequest = {
+  imageURL: string(name='ImageURL'),
+}
+
+model BlurFaceResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    imageURL: string(name='ImageURL'),
+  }(name='Data'),
+}
+
+async function blurFace(request: BlurFaceRequest, runtime: Util.RuntimeOptions): BlurFaceResponse {
+  Util.validateModel(request);
+  return doRequest('BlurFace', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
+}
+
+model BlurFaceAdvanceRequest = {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+async function blurFaceAdvance(request: BlurFaceAdvanceRequest, runtime: Util.RuntimeOptions): BlurFaceResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var blurFacereq = new BlurFaceRequest{};
+  RPCUtil.convert(request, blurFacereq);
+  blurFacereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var blurFaceResp = blurFace(blurFacereq, runtime);
+  return blurFaceResp;
+}
+
 model ExtractPedestrianFeatureAttributeRequest = {
   imageURL: string(name='ImageURL'),
 }
