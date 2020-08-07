@@ -469,11 +469,15 @@ export class SearchImageResponseDataMatchList extends $tea.Model {
   dataId: string;
   extraData: string;
   entityId: string;
+  imageUrl: string;
+  score: number;
   static names(): { [key: string]: string } {
     return {
       dataId: 'DataId',
       extraData: 'ExtraData',
       entityId: 'EntityId',
+      imageUrl: 'ImageUrl',
+      score: 'Score',
     };
   }
 
@@ -482,6 +486,8 @@ export class SearchImageResponseDataMatchList extends $tea.Model {
       dataId: 'string',
       extraData: 'string',
       entityId: 'string',
+      imageUrl: 'string',
+      score: 'number',
     };
   }
 
@@ -535,23 +541,23 @@ export default class Client extends RPC {
     super(config);
     this._endpointRule = "regional";
     this.checkConfig(config);
-    this._endpoint = this.getEndpoint(this._productId, this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
+    this._endpoint = this.getEndpoint("imgsearch", this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
   }
 
 
   async listImageDbs(request: ListImageDbsRequest, runtime: $Util.RuntimeOptions): Promise<ListImageDbsResponse> {
     Util.validateModel(request);
-    return $tea.cast<ListImageDbsResponse>(await this.doRequest("ListImageDbs", "HTTPS", "GET", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new ListImageDbsResponse({}));
+    return $tea.cast<ListImageDbsResponse>(await this.doRequest("ListImageDbs", "HTTPS", "POST", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new ListImageDbsResponse({}));
   }
 
   async listImages(request: ListImagesRequest, runtime: $Util.RuntimeOptions): Promise<ListImagesResponse> {
     Util.validateModel(request);
-    return $tea.cast<ListImagesResponse>(await this.doRequest("ListImages", "HTTPS", "GET", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new ListImagesResponse({}));
+    return $tea.cast<ListImagesResponse>(await this.doRequest("ListImages", "HTTPS", "POST", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new ListImagesResponse({}));
   }
 
   async searchImage(request: SearchImageRequest, runtime: $Util.RuntimeOptions): Promise<SearchImageResponse> {
     Util.validateModel(request);
-    return $tea.cast<SearchImageResponse>(await this.doRequest("SearchImage", "HTTPS", "GET", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new SearchImageResponse({}));
+    return $tea.cast<SearchImageResponse>(await this.doRequest("SearchImage", "HTTPS", "POST", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new SearchImageResponse({}));
   }
 
   async searchImageAdvance(request: SearchImageAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<SearchImageResponse> {
@@ -571,7 +577,7 @@ export default class Client extends RPC {
       product: "imgsearch",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -612,7 +618,7 @@ export default class Client extends RPC {
 
   async addImage(request: AddImageRequest, runtime: $Util.RuntimeOptions): Promise<AddImageResponse> {
     Util.validateModel(request);
-    return $tea.cast<AddImageResponse>(await this.doRequest("AddImage", "HTTPS", "GET", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new AddImageResponse({}));
+    return $tea.cast<AddImageResponse>(await this.doRequest("AddImage", "HTTPS", "POST", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new AddImageResponse({}));
   }
 
   async addImageAdvance(request: AddImageAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<AddImageResponse> {
@@ -632,7 +638,7 @@ export default class Client extends RPC {
       product: "imgsearch",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -673,17 +679,17 @@ export default class Client extends RPC {
 
   async deleteImageDb(request: DeleteImageDbRequest, runtime: $Util.RuntimeOptions): Promise<DeleteImageDbResponse> {
     Util.validateModel(request);
-    return $tea.cast<DeleteImageDbResponse>(await this.doRequest("DeleteImageDb", "HTTPS", "GET", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new DeleteImageDbResponse({}));
+    return $tea.cast<DeleteImageDbResponse>(await this.doRequest("DeleteImageDb", "HTTPS", "POST", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new DeleteImageDbResponse({}));
   }
 
   async createImageDb(request: CreateImageDbRequest, runtime: $Util.RuntimeOptions): Promise<CreateImageDbResponse> {
     Util.validateModel(request);
-    return $tea.cast<CreateImageDbResponse>(await this.doRequest("CreateImageDb", "HTTPS", "GET", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new CreateImageDbResponse({}));
+    return $tea.cast<CreateImageDbResponse>(await this.doRequest("CreateImageDb", "HTTPS", "POST", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new CreateImageDbResponse({}));
   }
 
   async deleteImage(request: DeleteImageRequest, runtime: $Util.RuntimeOptions): Promise<DeleteImageResponse> {
     Util.validateModel(request);
-    return $tea.cast<DeleteImageResponse>(await this.doRequest("DeleteImage", "HTTPS", "GET", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new DeleteImageResponse({}));
+    return $tea.cast<DeleteImageResponse>(await this.doRequest("DeleteImage", "HTTPS", "POST", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new DeleteImageResponse({}));
   }
 
   getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: {[key: string ]: string}, endpoint: string): string {
@@ -691,7 +697,7 @@ export default class Client extends RPC {
       return endpoint;
     }
 
-    if (!Util.empty(endpointMap[regionId])) {
+    if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
       return endpointMap[regionId];
     }
 
