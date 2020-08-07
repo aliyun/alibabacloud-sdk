@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 using Tea;
 using Tea.Utils;
 
-using AlibabaCloud.Imgsearch20200320.Models;
+using AlibabaCloud.SDK.Imgsearch20200320.Models;
 
-namespace AlibabaCloud.Imgsearch20200320
+namespace AlibabaCloud.SDK.Imgsearch20200320
 {
     public class Client : AlibabaCloud.RPCClient.Client
     {
@@ -20,7 +20,7 @@ namespace AlibabaCloud.Imgsearch20200320
         {
             this._endpointRule = "regional";
             CheckConfig(config);
-            this._endpoint = GetEndpoint(_productId, _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
+            this._endpoint = GetEndpoint("imgsearch", _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
         }
 
 
@@ -80,7 +80,7 @@ namespace AlibabaCloud.Imgsearch20200320
                 Product = "imgsearch",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -143,7 +143,7 @@ namespace AlibabaCloud.Imgsearch20200320
                 Product = "imgsearch",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -218,7 +218,7 @@ namespace AlibabaCloud.Imgsearch20200320
                 Product = "imgsearch",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUploadWithOptions(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
@@ -281,7 +281,7 @@ namespace AlibabaCloud.Imgsearch20200320
                 Product = "imgsearch",
                 RegionId = _regionId,
             };
-            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.SDK.OpenPlatform20191219.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadWithOptionsAsync(authRequest, runtime);
             // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {

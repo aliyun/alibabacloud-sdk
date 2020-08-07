@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Imgsearch20200320.Models
+namespace AlibabaCloud.SDK.Imgsearch20200320.Models
 {
     public class AddImageRequest : TeaModel {
         [NameInMap("DbName")]
