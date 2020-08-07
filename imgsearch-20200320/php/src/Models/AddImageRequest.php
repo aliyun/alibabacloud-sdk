@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class AddImageRequest extends Model
 {
     /**
-     * @description dbName
-     *
      * @var string
      */
     public $dbName;
 
     /**
-     * @description imageUrl
-     *
      * @var string
      */
     public $imageUrl;
 
     /**
-     * @description extraData
-     *
      * @var string
      */
     public $extraData;
 
     /**
-     * @description entityId
-     *
      * @var string
      */
     public $entityId;

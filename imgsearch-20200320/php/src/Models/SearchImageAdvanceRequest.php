@@ -5,26 +5,21 @@
 namespace AlibabaCloud\SDK\Imgsearch\V20200320\Models;
 
 use AlibabaCloud\Tea\Model;
+use GuzzleHttp\Psr7\Stream;
 
 class SearchImageAdvanceRequest extends Model
 {
     /**
-     * @description ImageUrlObject
-     *
      * @var Stream
      */
     public $imageUrlObject;
 
     /**
-     * @description dbName
-     *
      * @var string
      */
     public $dbName;
 
     /**
-     * @description limit
-     *
      * @var int
      */
     public $limit;

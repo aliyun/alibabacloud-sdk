@@ -9,43 +9,31 @@ use AlibabaCloud\Tea\Model;
 class ListImagesRequest extends Model
 {
     /**
-     * @description dbName
-     *
      * @var string
      */
     public $dbName;
 
     /**
-     * @description token
-     *
      * @var string
      */
     public $token;
 
     /**
-     * @description offset
-     *
      * @var int
      */
     public $offset;
 
     /**
-     * @description limit
-     *
      * @var int
      */
     public $limit;
 
     /**
-     * @description order
-     *
      * @var string
      */
     public $order;
 
     /**
-     * @description entityIdPrefix
-     *
      * @var string
      */
     public $entityIdPrefix;

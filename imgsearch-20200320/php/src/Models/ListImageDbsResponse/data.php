@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description dbList
-     *
      * @var array
      */
     public $dbList;

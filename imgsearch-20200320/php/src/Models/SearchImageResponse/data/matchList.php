@@ -9,29 +9,35 @@ use AlibabaCloud\Tea\Model;
 class matchList extends Model
 {
     /**
-     * @description dataId
-     *
      * @var string
      */
     public $dataId;
 
     /**
-     * @description extraData
-     *
      * @var string
      */
     public $extraData;
 
     /**
-     * @description entityId
-     *
      * @var string
      */
     public $entityId;
+
+    /**
+     * @var string
+     */
+    public $imageUrl;
+
+    /**
+     * @var float
+     */
+    public $score;
     protected $_name = [
         'dataId'    => 'DataId',
         'extraData' => 'ExtraData',
         'entityId'  => 'EntityId',
+        'imageUrl'  => 'ImageUrl',
+        'score'     => 'Score',
     ];
 
     public function validate()
@@ -39,6 +45,8 @@ class matchList extends Model
         Model::validateRequired('dataId', $this->dataId, true);
         Model::validateRequired('extraData', $this->extraData, true);
         Model::validateRequired('entityId', $this->entityId, true);
+        Model::validateRequired('imageUrl', $this->imageUrl, true);
+        Model::validateRequired('score', $this->score, true);
     }
 
     public function toMap()
@@ -52,6 +60,12 @@ class matchList extends Model
         }
         if (null !== $this->entityId) {
             $res['EntityId'] = $this->entityId;
+        }
+        if (null !== $this->imageUrl) {
+            $res['ImageUrl'] = $this->imageUrl;
+        }
+        if (null !== $this->score) {
+            $res['Score'] = $this->score;
         }
 
         return $res;
@@ -73,6 +87,12 @@ class matchList extends Model
         }
         if (isset($map['EntityId'])) {
             $model->entityId = $map['EntityId'];
+        }
+        if (isset($map['ImageUrl'])) {
+            $model->imageUrl = $map['ImageUrl'];
+        }
+        if (isset($map['Score'])) {
+            $model->score = $map['Score'];
         }
 
         return $model;

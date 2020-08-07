@@ -44,11 +44,12 @@ class Imgsearch extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListImageDbsRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return ListImageDbsResponse
      */
-    public function listImageDbs(ListImageDbsRequest $request, RuntimeOptions $runtime)
+    public function listImageDbs($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -56,11 +57,12 @@ class Imgsearch extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListImagesRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return ListImagesResponse
      */
-    public function listImages(ListImagesRequest $request, RuntimeOptions $runtime)
+    public function listImages($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -68,11 +70,12 @@ class Imgsearch extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SearchImageRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return SearchImageResponse
      */
-    public function searchImage(SearchImageRequest $request, RuntimeOptions $runtime)
+    public function searchImage($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -80,11 +83,12 @@ class Imgsearch extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SearchImageAdvanceRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return SearchImageResponse
      */
-    public function searchImageAdvance(SearchImageAdvanceRequest $request, RuntimeOptions $runtime)
+    public function searchImageAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -142,11 +146,12 @@ class Imgsearch extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AddImageRequest $request
+     * @param RuntimeOptions  $runtime
      *
      * @return AddImageResponse
      */
-    public function addImage(AddImageRequest $request, RuntimeOptions $runtime)
+    public function addImage($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -154,11 +159,12 @@ class Imgsearch extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AddImageAdvanceRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return AddImageResponse
      */
-    public function addImageAdvance(AddImageAdvanceRequest $request, RuntimeOptions $runtime)
+    public function addImageAdvance($request, $runtime)
     {
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -216,11 +222,12 @@ class Imgsearch extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteImageDbRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return DeleteImageDbResponse
      */
-    public function deleteImageDb(DeleteImageDbRequest $request, RuntimeOptions $runtime)
+    public function deleteImageDb($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -228,11 +235,12 @@ class Imgsearch extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateImageDbRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return CreateImageDbResponse
      */
-    public function createImageDb(CreateImageDbRequest $request, RuntimeOptions $runtime)
+    public function createImageDb($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -240,11 +248,12 @@ class Imgsearch extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteImageRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return DeleteImageResponse
      */
-    public function deleteImage(DeleteImageRequest $request, RuntimeOptions $runtime)
+    public function deleteImage($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -259,8 +268,6 @@ class Imgsearch extends Rpc
      * @param string $suffix
      * @param array  $endpointMap
      * @param string $endpoint
-     *
-     * @throws \Exception
      *
      * @return string
      */

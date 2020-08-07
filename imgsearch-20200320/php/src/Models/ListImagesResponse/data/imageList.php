@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class imageList extends Model
 {
     /**
-     * @description dataId
-     *
      * @var string
      */
     public $dataId;
 
     /**
-     * @description extraData
-     *
      * @var string
      */
     public $extraData;
 
     /**
-     * @description entityId
-     *
      * @var string
      */
     public $entityId;
 
     /**
-     * @description updatedAt
-     *
      * @var int
      */
     public $updatedAt;
 
     /**
-     * @description createdAt
-     *
      * @var int
      */
     public $createdAt;

@@ -10,22 +10,16 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description token
-     *
      * @var string
      */
     public $token;
 
     /**
-     * @description totalCount
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description data
-     *
      * @var array
      */
     public $imageList;

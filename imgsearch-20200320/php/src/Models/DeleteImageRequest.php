@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class DeleteImageRequest extends Model
 {
     /**
-     * @description dbName
-     *
      * @var string
      */
     public $dbName;
 
     /**
-     * @description entityId
-     *
      * @var string
      */
     public $entityId;

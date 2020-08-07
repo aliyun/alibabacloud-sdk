@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class SearchImageRequest extends Model
 {
     /**
-     * @description dbName
-     *
      * @var string
      */
     public $dbName;
 
     /**
-     * @description imageUrl
-     *
      * @var string
      */
     public $imageUrl;
 
     /**
-     * @description limit
-     *
      * @var int
      */
     public $limit;
