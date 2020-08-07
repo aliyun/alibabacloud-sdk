@@ -1,3 +1,6 @@
+2020-08-07 Version: 1.0.2
+- Update SearchImage.
+
 2020-07-27 Version: 1.0.1
 - Generated imgsearch-20200320 for Python.
 

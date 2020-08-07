@@ -285,27 +285,35 @@ class SearchImageResponse(TeaModel):
 
 
 class SearchImageResponseDataMatchList(TeaModel):
-    def __init__(self, data_id=None, extra_data=None, entity_id=None):
+    def __init__(self, data_id=None, extra_data=None, entity_id=None, image_url=None, score=None):
         self.data_id = data_id
         self.extra_data = extra_data
         self.entity_id = entity_id
+        self.image_url = image_url
+        self.score = score
 
     def validate(self):
         self.validate_required(self.data_id, 'data_id')
         self.validate_required(self.extra_data, 'extra_data')
         self.validate_required(self.entity_id, 'entity_id')
+        self.validate_required(self.image_url, 'image_url')
+        self.validate_required(self.score, 'score')
 
     def to_map(self):
         result = {}
         result['DataId'] = self.data_id
         result['ExtraData'] = self.extra_data
         result['EntityId'] = self.entity_id
+        result['ImageUrl'] = self.image_url
+        result['Score'] = self.score
         return result
 
     def from_map(self, map={}):
         self.data_id = map.get('DataId')
         self.extra_data = map.get('ExtraData')
         self.entity_id = map.get('EntityId')
+        self.image_url = map.get('ImageUrl')
+        self.score = map.get('Score')
         return self
 
 
