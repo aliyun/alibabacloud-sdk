@@ -30,6 +30,14 @@ public class SearchImageResponse extends TeaModel {
         @Validation(required = true)
         public String entityId;
 
+        @NameInMap("ImageUrl")
+        @Validation(required = true)
+        public String imageUrl;
+
+        @NameInMap("Score")
+        @Validation(required = true)
+        public Double score;
+
         public static SearchImageResponseDataMatchList build(java.util.Map<String, ?> map) throws Exception {
             SearchImageResponseDataMatchList self = new SearchImageResponseDataMatchList();
             return TeaModel.build(map, self);

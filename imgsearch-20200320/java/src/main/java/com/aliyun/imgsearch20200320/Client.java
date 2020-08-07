@@ -9,7 +9,7 @@ public class Client extends com.aliyun.tearpc.Client {
         super(config);
         this._endpointRule = "regional";
         this.checkConfig(config);
-        this._endpoint = this.getEndpoint(_productId, _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
+        this._endpoint = this.getEndpoint("imgsearch", _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
     }
 
 
@@ -45,7 +45,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "imgsearch"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -106,7 +106,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "imgsearch"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -165,8 +165,8 @@ public class Client extends com.aliyun.tearpc.Client {
             return endpoint;
         }
 
-        if (!com.aliyun.teautil.Common.isUnset(endpointMap) && !com.aliyun.teautil.Common.empty(endpointMap.get("regionId"))) {
-            return endpointMap.get("regionId");
+        if (!com.aliyun.teautil.Common.isUnset(endpointMap) && !com.aliyun.teautil.Common.empty(endpointMap.get(regionId))) {
+            return endpointMap.get(regionId);
         }
 
         return com.aliyun.endpointutil.Client.getEndpointRules(productId, regionId, endpointRule, network, suffix);
