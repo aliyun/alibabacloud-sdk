@@ -1,5 +1,10 @@
-import Util;
+import OSS;
+import OpenPlatform;
+import RPCUtil;
 import RPC;
+import OSSUtil;
+import Util;
+import FileForm;
 import EndpointUtil;
 
 extends RPC;
@@ -12,99 +17,220 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('imageprocess', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model DetectKneeXRayRequest = {
+  url: string(name='Url'),
+  dataFormat: string(name='DataFormat'),
+}
+
+model DetectKneeXRayResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    KLDetections: [
+      {
+        detections: [ float ](name='Detections'),
+      }
+    ](name='KLDetections'),
+  }(name='Data'),
+}
+
+async function detectKneeXRay(request: DetectKneeXRayRequest, runtime: Util.RuntimeOptions): DetectKneeXRayResponse {
+  Util.validateModel(request);
+  return doRequest('DetectKneeXRay', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
+}
+
+model DetectKneeXRayAdvanceRequest = {
+  urlObject: readable(name='UrlObject'),
+  dataFormat: string(name='DataFormat'),
+}
+
+async function detectKneeXRayAdvance(request: DetectKneeXRayAdvanceRequest, runtime: Util.RuntimeOptions): DetectKneeXRayResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.urlObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var detectKneeXRayreq = new DetectKneeXRayRequest{};
+  RPCUtil.convert(request, detectKneeXRayreq);
+  detectKneeXRayreq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var detectKneeXRayResp = detectKneeXRay(detectKneeXRayreq, runtime);
+  return detectKneeXRayResp;
+}
+
+model DetectSpineMRIRequest = {
+  URLList: [
+    {
+      URL: string(name='URL'),
+    }
+  ](name='URLList'),
+}
+
+model DetectSpineMRIResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    discs: [
+      {
+        disease: string(name='Disease'),
+        identification: string(name='Identification'),
+        location: [ float ](name='Location'),
+      }
+    ](name='Discs'),
+    vertebras: [
+      {
+        disease: string(name='Disease'),
+        identification: string(name='Identification'),
+        location: [ float ](name='Location'),
+      }
+    ](name='Vertebras'),
+  }(name='Data'),
+}
+
+async function detectSpineMRI(request: DetectSpineMRIRequest, runtime: Util.RuntimeOptions): DetectSpineMRIResponse {
+  Util.validateModel(request);
+  return doRequest('DetectSpineMRI', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
+}
+
+model TranslateMedRequest = {
+  fromLanguage: string(name='FromLanguage'),
+  toLanguage: string(name='ToLanguage'),
+  text: string(name='Text'),
+}
+
+model TranslateMedResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    text: string(name='Text'),
+    words: long(name='Words'),
+  }(name='Data'),
+}
+
+async function translateMed(request: TranslateMedRequest, runtime: Util.RuntimeOptions): TranslateMedResponse {
+  Util.validateModel(request);
+  return doRequest('TranslateMed', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
+}
+
 model DetectLungNoduleRequest = {
   URLList: [
     {
-      URL: string(name='URL', description='url'),
+      URL: string(name='URL'),
     }
-  ](name='URLList', description='urlList'),
+  ](name='URLList'),
 }
 
 model DetectLungNoduleResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
     series: [
       {
-        seriesInstanceUid: string(name='SeriesInstanceUid', description='SeriesInstanceUid'),
+        seriesInstanceUid: string(name='SeriesInstanceUid'),
         elements: [
           {
-            category: string(name='Category', description='Category'),
-            confidence: float(name='Confidence', description='Confidence'),
-            diameter: float(name='Diameter', description='Diameter'),
-            lobe: string(name='Lobe', description='Lobe'),
-            lung: string(name='Lung', description='Lung'),
-            x: float(name='X', description='X'),
-            z: float(name='Z', description='Z'),
-            y: float(name='Y', description='Y'),
+            category: string(name='Category'),
+            confidence: float(name='Confidence'),
+            diameter: float(name='Diameter'),
+            lobe: string(name='Lobe'),
+            lung: string(name='Lung'),
+            x: float(name='X'),
+            z: float(name='Z'),
+            y: float(name='Y'),
           }
-        ](name='Elements', description='Elements'),
+        ](name='Elements'),
       }
-    ](name='Series', description='Series'),
-  }(name='Data', description='data'),
+    ](name='Series'),
+  }(name='Data'),
 }
 
-async function detectLungNoduleWithOptions(request: DetectLungNoduleRequest, runtime: Util.RuntimeOptions): DetectLungNoduleResponse {
+async function detectLungNodule(request: DetectLungNoduleRequest, runtime: Util.RuntimeOptions): DetectLungNoduleResponse {
   Util.validateModel(request);
-  return doRequest('DetectLungNodule', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function detectLungNodule(request: DetectLungNoduleRequest): DetectLungNoduleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return detectLungNoduleWithOptions(request, runtime);
+  return doRequest('DetectLungNodule', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
 }
 
 model DetectCovid19CadRequest = {
   URLList: [
     {
-      URL: string(name='URL', description='url'),
+      URL: string(name='URL'),
     }
-  ](name='URLList', description='urlList'),
+  ](name='URLList'),
 }
 
 model DetectCovid19CadResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    newProbability: string(name='NewProbability', description='NewProbability'),
-    normalProbability: string(name='NormalProbability', description='NormalProbability'),
-    otherProbability: string(name='OtherProbability', description='OtherProbability'),
-    lesionRatio: string(name='LesionRatio', description='LesionRatio'),
-    mask: string(name='Mask', description='Mask'),
-  }(name='Data', description='data'),
+    newProbability: string(name='NewProbability'),
+    normalProbability: string(name='NormalProbability'),
+    otherProbability: string(name='OtherProbability'),
+    lesionRatio: string(name='LesionRatio'),
+    mask: string(name='Mask'),
+  }(name='Data'),
 }
 
-async function detectCovid19CadWithOptions(request: DetectCovid19CadRequest, runtime: Util.RuntimeOptions): DetectCovid19CadResponse {
+async function detectCovid19Cad(request: DetectCovid19CadRequest, runtime: Util.RuntimeOptions): DetectCovid19CadResponse {
   Util.validateModel(request);
-  return doRequest('DetectCovid19Cad', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function detectCovid19Cad(request: DetectCovid19CadRequest): DetectCovid19CadResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return detectCovid19CadWithOptions(request, runtime);
+  return doRequest('DetectCovid19Cad', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
 }
 
 model GetAsyncJobResultRequest = {
-  jobId: string(name='JobId', description='jobId'),
+  jobId: string(name='JobId'),
 }
 
 model GetAsyncJobResultResponse = {
-  requestId: string(name='RequestId', description='requestId'),
+  requestId: string(name='RequestId'),
   data: {
-    jobId: string(name='JobId', description='jobId'),
-    status: string(name='Status', description='status'),
-    result: string(name='Result', description='result'),
-    errorCode: string(name='ErrorCode', description='errorCode'),
-    errorMessage: string(name='ErrorMessage', description='errorMessage'),
-  }(name='Data', description='data'),
+    jobId: string(name='JobId'),
+    status: string(name='Status'),
+    result: string(name='Result'),
+    errorCode: string(name='ErrorCode'),
+    errorMessage: string(name='ErrorMessage'),
+  }(name='Data'),
 }
 
-async function getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
+async function getAsyncJobResult(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
   Util.validateModel(request);
-  return doRequest('GetAsyncJobResult', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function getAsyncJobResult(request: GetAsyncJobResultRequest): GetAsyncJobResultResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getAsyncJobResultWithOptions(request, runtime);
+  return doRequest('GetAsyncJobResult', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
 }
 
 function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
