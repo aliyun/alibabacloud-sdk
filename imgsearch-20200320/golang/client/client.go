@@ -292,9 +292,11 @@ func (s *SearchImageResponseData) SetMatchList(v []*SearchImageResponseDataMatch
 }
 
 type SearchImageResponseDataMatchList struct {
-	DataId    *string `json:"DataId,omitempty" xml:"DataId,omitempty" require:"true"`
-	ExtraData *string `json:"ExtraData,omitempty" xml:"ExtraData,omitempty" require:"true"`
-	EntityId  *string `json:"EntityId,omitempty" xml:"EntityId,omitempty" require:"true"`
+	DataId    *string  `json:"DataId,omitempty" xml:"DataId,omitempty" require:"true"`
+	ExtraData *string  `json:"ExtraData,omitempty" xml:"ExtraData,omitempty" require:"true"`
+	EntityId  *string  `json:"EntityId,omitempty" xml:"EntityId,omitempty" require:"true"`
+	ImageUrl  *string  `json:"ImageUrl,omitempty" xml:"ImageUrl,omitempty" require:"true"`
+	Score     *float32 `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
 }
 
 func (s SearchImageResponseDataMatchList) String() string {
@@ -317,6 +319,16 @@ func (s *SearchImageResponseDataMatchList) SetExtraData(v string) *SearchImageRe
 
 func (s *SearchImageResponseDataMatchList) SetEntityId(v string) *SearchImageResponseDataMatchList {
 	s.EntityId = &v
+	return s
+}
+
+func (s *SearchImageResponseDataMatchList) SetImageUrl(v string) *SearchImageResponseDataMatchList {
+	s.ImageUrl = &v
+	return s
+}
+
+func (s *SearchImageResponseDataMatchList) SetScore(v float32) *SearchImageResponseDataMatchList {
+	s.Score = &v
 	return s
 }
 
