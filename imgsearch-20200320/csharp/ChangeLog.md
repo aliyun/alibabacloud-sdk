@@ -1,3 +1,6 @@
+2020-08-08 Version: 0.0.5
+- Update SearchImage.
+
 2020-08-07 Version: 0.0.4
 - Update SearchImage.
 
