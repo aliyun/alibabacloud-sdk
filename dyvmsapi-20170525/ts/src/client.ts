@@ -5,10 +5,6 @@ import EndpointUtil from '@alicloud/endpoint-util';
 import * as $tea from '@alicloud/tea-typescript';
 
 export class ListRobotTaskCallsRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   pageNo?: number;
   pageSize?: number;
   taskId?: string;
@@ -21,10 +17,6 @@ export class ListRobotTaskCallsRequest extends $tea.Model {
   called?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       pageNo: 'PageNo',
       pageSize: 'PageSize',
       taskId: 'TaskId',
@@ -40,10 +32,6 @@ export class ListRobotTaskCallsRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       pageNo: 'number',
       pageSize: 'number',
       taskId: 'string',
@@ -100,27 +88,15 @@ export class ListRobotTaskCallsResponse extends $tea.Model {
 }
 
 export class DoRtcNumberAuthRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   phoneNumber: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       phoneNumber: 'PhoneNumber',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       phoneNumber: 'string',
     };
   }
@@ -159,27 +135,15 @@ export class DoRtcNumberAuthResponse extends $tea.Model {
 }
 
 export class UndoRtcNumberAuthRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   phoneNumber: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       phoneNumber: 'PhoneNumber',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       phoneNumber: 'string',
     };
   }
@@ -218,27 +182,15 @@ export class UndoRtcNumberAuthResponse extends $tea.Model {
 }
 
 export class QueryRtcNumberAuthStatusRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   phoneNumber: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       phoneNumber: 'PhoneNumber',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       phoneNumber: 'string',
     };
   }
@@ -277,27 +229,15 @@ export class QueryRtcNumberAuthStatusResponse extends $tea.Model {
 }
 
 export class ListOrderedNumbersRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   prodCode?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       prodCode: 'ProdCode',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       prodCode: 'string',
     };
   }
@@ -336,10 +276,6 @@ export class ListOrderedNumbersResponse extends $tea.Model {
 }
 
 export class StartMicroOutboundRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   prodCode?: string;
   accountType?: string;
   accountId?: string;
@@ -350,10 +286,6 @@ export class StartMicroOutboundRequest extends $tea.Model {
   appName?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       prodCode: 'ProdCode',
       accountType: 'AccountType',
       accountId: 'AccountId',
@@ -367,10 +299,6 @@ export class StartMicroOutboundRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       prodCode: 'string',
       accountType: 'string',
       accountId: 'string',
@@ -422,19 +350,11 @@ export class StartMicroOutboundResponse extends $tea.Model {
 }
 
 export class ListOutboundStrategiesRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   prodCode?: string;
   buId?: number;
   keyword?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       prodCode: 'ProdCode',
       buId: 'BuId',
       keyword: 'Keyword',
@@ -443,10 +363,6 @@ export class ListOutboundStrategiesRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       prodCode: 'string',
       buId: 'number',
       keyword: 'string',
@@ -487,10 +403,6 @@ export class ListOutboundStrategiesResponse extends $tea.Model {
 }
 
 export class DescribeRecordDataRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   prodCode?: string;
   accountType?: string;
   accountId?: string;
@@ -498,10 +410,6 @@ export class DescribeRecordDataRequest extends $tea.Model {
   secLevel?: number;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       prodCode: 'ProdCode',
       accountType: 'AccountType',
       accountId: 'AccountId',
@@ -512,10 +420,6 @@ export class DescribeRecordDataRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       prodCode: 'string',
       accountType: 'string',
       accountId: 'string',
@@ -564,18 +468,10 @@ export class DescribeRecordDataResponse extends $tea.Model {
 }
 
 export class QueryVoipNumberBindInfosRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   phoneNumber?: string;
   voipId?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       phoneNumber: 'PhoneNumber',
       voipId: 'VoipId',
     };
@@ -583,10 +479,6 @@ export class QueryVoipNumberBindInfosRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       phoneNumber: 'string',
       voipId: 'string',
     };
@@ -626,20 +518,12 @@ export class QueryVoipNumberBindInfosResponse extends $tea.Model {
 }
 
 export class ReportVoipProblemsRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   channelId?: string;
   voipId: string;
   title: string;
   desc: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       channelId: 'ChannelId',
       voipId: 'VoipId',
       title: 'Title',
@@ -649,10 +533,6 @@ export class ReportVoipProblemsRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       channelId: 'string',
       voipId: 'string',
       title: 'string',
@@ -694,18 +574,10 @@ export class ReportVoipProblemsResponse extends $tea.Model {
 }
 
 export class UnbindNumberAndVoipIdRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   phoneNumber: string;
   voipId: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       phoneNumber: 'PhoneNumber',
       voipId: 'VoipId',
     };
@@ -713,10 +585,6 @@ export class UnbindNumberAndVoipIdRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       phoneNumber: 'string',
       voipId: 'string',
     };
@@ -756,18 +624,10 @@ export class UnbindNumberAndVoipIdResponse extends $tea.Model {
 }
 
 export class BindNumberAndVoipIdRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   phoneNumber: string;
   voipId: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       phoneNumber: 'PhoneNumber',
       voipId: 'VoipId',
     };
@@ -775,10 +635,6 @@ export class BindNumberAndVoipIdRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       phoneNumber: 'string',
       voipId: 'string',
     };
@@ -818,27 +674,15 @@ export class BindNumberAndVoipIdResponse extends $tea.Model {
 }
 
 export class CancelRobotTaskRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   taskId?: number;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       taskId: 'TaskId',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       taskId: 'number',
     };
   }
@@ -877,20 +721,12 @@ export class CancelRobotTaskResponse extends $tea.Model {
 }
 
 export class UploadRobotTaskCalledFileRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   id: number;
   calledNumber: string;
   ttsParam?: string;
   ttsParamHead?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       id: 'Id',
       calledNumber: 'CalledNumber',
       ttsParam: 'TtsParam',
@@ -900,10 +736,6 @@ export class UploadRobotTaskCalledFileRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       id: 'number',
       calledNumber: 'string',
       ttsParam: 'string',
@@ -945,27 +777,15 @@ export class UploadRobotTaskCalledFileResponse extends $tea.Model {
 }
 
 export class DeleteRobotTaskRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   taskId: number;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       taskId: 'TaskId',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       taskId: 'number',
     };
   }
@@ -1004,27 +824,15 @@ export class DeleteRobotTaskResponse extends $tea.Model {
 }
 
 export class StopRobotTaskRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   taskId: number;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       taskId: 'TaskId',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       taskId: 'number',
     };
   }
@@ -1063,19 +871,11 @@ export class StopRobotTaskResponse extends $tea.Model {
 }
 
 export class QueryRobotTaskCallDetailRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   taskId: number;
   callee: string;
   queryDate: number;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       taskId: 'TaskId',
       callee: 'Callee',
       queryDate: 'QueryDate',
@@ -1084,10 +884,6 @@ export class QueryRobotTaskCallDetailRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       taskId: 'number',
       callee: 'string',
       queryDate: 'number',
@@ -1128,25 +924,13 @@ export class QueryRobotTaskCallDetailResponse extends $tea.Model {
 }
 
 export class QueryRobotv2AllListRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
     };
   }
 
@@ -1184,27 +968,15 @@ export class QueryRobotv2AllListResponse extends $tea.Model {
 }
 
 export class QueryRobotTaskDetailRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   id: number;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       id: 'Id',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       id: 'number',
     };
   }
@@ -1243,10 +1015,6 @@ export class QueryRobotTaskDetailResponse extends $tea.Model {
 }
 
 export class QueryRobotTaskCallListRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   pageNo?: number;
   pageSize?: number;
   taskId: string;
@@ -1259,10 +1027,6 @@ export class QueryRobotTaskCallListRequest extends $tea.Model {
   called?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       pageNo: 'PageNo',
       pageSize: 'PageSize',
       taskId: 'TaskId',
@@ -1278,10 +1042,6 @@ export class QueryRobotTaskCallListRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       pageNo: 'number',
       pageSize: 'number',
       taskId: 'string',
@@ -1329,18 +1089,10 @@ export class QueryRobotTaskCallListResponse extends $tea.Model {
 }
 
 export class StartRobotTaskRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   taskId: number;
   scheduleTime?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       taskId: 'TaskId',
       scheduleTime: 'ScheduleTime',
     };
@@ -1348,10 +1100,6 @@ export class StartRobotTaskRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       taskId: 'number',
       scheduleTime: 'string',
     };
@@ -1391,10 +1139,6 @@ export class StartRobotTaskResponse extends $tea.Model {
 }
 
 export class QueryRobotTaskListRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   taskName?: string;
   status?: string;
   time?: string;
@@ -1402,10 +1146,6 @@ export class QueryRobotTaskListRequest extends $tea.Model {
   pageNo?: number;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       taskName: 'TaskName',
       status: 'Status',
       time: 'Time',
@@ -1416,10 +1156,6 @@ export class QueryRobotTaskListRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       taskName: 'string',
       status: 'string',
       time: 'string',
@@ -1471,10 +1207,6 @@ export class QueryRobotTaskListResponse extends $tea.Model {
 }
 
 export class CreateRobotTaskRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   taskName: string;
   dialogId: number;
   corpName?: string;
@@ -1487,10 +1219,6 @@ export class CreateRobotTaskRequest extends $tea.Model {
   isSelfLine?: boolean;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       taskName: 'TaskName',
       dialogId: 'DialogId',
       corpName: 'CorpName',
@@ -1506,10 +1234,6 @@ export class CreateRobotTaskRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       taskName: 'string',
       dialogId: 'number',
       corpName: 'string',
@@ -1557,27 +1281,15 @@ export class CreateRobotTaskResponse extends $tea.Model {
 }
 
 export class CancelOrderRobotTaskRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   taskId: number;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       taskId: 'TaskId',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       taskId: 'number',
     };
   }
@@ -1616,19 +1328,11 @@ export class CancelOrderRobotTaskResponse extends $tea.Model {
 }
 
 export class SmartCallOperateRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   callId: string;
   command: string;
   param?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       callId: 'CallId',
       command: 'Command',
       param: 'Param',
@@ -1637,10 +1341,6 @@ export class SmartCallOperateRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       callId: 'string',
       command: 'string',
       param: 'string',
@@ -1681,27 +1381,15 @@ export class SmartCallOperateResponse extends $tea.Model {
 }
 
 export class QueryRobotInfoListRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   auditStatus?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       auditStatus: 'AuditStatus',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       auditStatus: 'string',
     };
   }
@@ -1740,10 +1428,6 @@ export class QueryRobotInfoListResponse extends $tea.Model {
 }
 
 export class BatchRobotSmartCallRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   calledShowNumber: string;
   corpName?: string;
   calledNumber: string;
@@ -1757,10 +1441,6 @@ export class BatchRobotSmartCallRequest extends $tea.Model {
   isSelfLine?: boolean;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       calledShowNumber: 'CalledShowNumber',
       corpName: 'CorpName',
       calledNumber: 'CalledNumber',
@@ -1777,10 +1457,6 @@ export class BatchRobotSmartCallRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       calledShowNumber: 'string',
       corpName: 'string',
       calledNumber: 'string',
@@ -1829,19 +1505,11 @@ export class BatchRobotSmartCallResponse extends $tea.Model {
 }
 
 export class QueryCallDetailByTaskIdRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   taskId: string;
   queryDate: number;
   callee: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       taskId: 'TaskId',
       queryDate: 'QueryDate',
       callee: 'Callee',
@@ -1850,10 +1518,6 @@ export class QueryCallDetailByTaskIdRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       taskId: 'string',
       queryDate: 'number',
       callee: 'string',
@@ -1894,19 +1558,11 @@ export class QueryCallDetailByTaskIdResponse extends $tea.Model {
 }
 
 export class GetRtcTokenRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   userId: string;
   deviceId: string;
   isCustomAccount?: boolean;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       userId: 'UserId',
       deviceId: 'DeviceId',
       isCustomAccount: 'IsCustomAccount',
@@ -1915,10 +1571,6 @@ export class GetRtcTokenRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       userId: 'string',
       deviceId: 'string',
       isCustomAccount: 'boolean',
@@ -1959,27 +1611,15 @@ export class GetRtcTokenResponse extends $tea.Model {
 }
 
 export class AddRtcAccountRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   deviceId?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       deviceId: 'DeviceId',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       deviceId: 'string',
     };
   }
@@ -2018,27 +1658,15 @@ export class AddRtcAccountResponse extends $tea.Model {
 }
 
 export class VoipAddAccountRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   deviceId: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       deviceId: 'DeviceId',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       deviceId: 'string',
     };
   }
@@ -2077,19 +1705,11 @@ export class VoipAddAccountResponse extends $tea.Model {
 }
 
 export class VoipGetTokenRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   voipId: string;
   deviceId: string;
   isCustomAccount?: boolean;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       voipId: 'VoipId',
       deviceId: 'DeviceId',
       isCustomAccount: 'IsCustomAccount',
@@ -2098,10 +1718,6 @@ export class VoipGetTokenRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       voipId: 'string',
       deviceId: 'string',
       isCustomAccount: 'boolean',
@@ -2142,10 +1758,6 @@ export class VoipGetTokenResponse extends $tea.Model {
 }
 
 export class SmartCallRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   calledShowNumber: string;
   calledNumber: string;
   voiceCode: string;
@@ -2169,10 +1781,6 @@ export class SmartCallRequest extends $tea.Model {
   asrBaseId?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       calledShowNumber: 'CalledShowNumber',
       calledNumber: 'CalledNumber',
       voiceCode: 'VoiceCode',
@@ -2199,10 +1807,6 @@ export class SmartCallRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       calledShowNumber: 'string',
       calledNumber: 'string',
       voiceCode: 'string',
@@ -2261,19 +1865,11 @@ export class SmartCallResponse extends $tea.Model {
 }
 
 export class QueryCallDetailByCallIdRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   callId: string;
   prodId: number;
   queryDate: number;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       callId: 'CallId',
       prodId: 'ProdId',
       queryDate: 'QueryDate',
@@ -2282,10 +1878,6 @@ export class QueryCallDetailByCallIdRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       callId: 'string',
       prodId: 'number',
       queryDate: 'number',
@@ -2326,27 +1918,15 @@ export class QueryCallDetailByCallIdResponse extends $tea.Model {
 }
 
 export class CancelCallRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   callId: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       callId: 'CallId',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       callId: 'string',
     };
   }
@@ -2385,10 +1965,6 @@ export class CancelCallResponse extends $tea.Model {
 }
 
 export class ClickToDialRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   callerShowNumber: string;
   callerNumber: string;
   calledShowNumber: string;
@@ -2400,10 +1976,6 @@ export class ClickToDialRequest extends $tea.Model {
   outId?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       callerShowNumber: 'CallerShowNumber',
       callerNumber: 'CallerNumber',
       calledShowNumber: 'CalledShowNumber',
@@ -2418,10 +1990,6 @@ export class ClickToDialRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       callerShowNumber: 'string',
       callerNumber: 'string',
       calledShowNumber: 'string',
@@ -2468,10 +2036,6 @@ export class ClickToDialResponse extends $tea.Model {
 }
 
 export class IvrCallRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   calledShowNumber: string;
   calledNumber: string;
   startCode: string;
@@ -2484,10 +2048,6 @@ export class IvrCallRequest extends $tea.Model {
   outId?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       calledShowNumber: 'CalledShowNumber',
       calledNumber: 'CalledNumber',
       startCode: 'StartCode',
@@ -2503,10 +2063,6 @@ export class IvrCallRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       calledShowNumber: 'string',
       calledNumber: 'string',
       startCode: 'string',
@@ -2554,11 +2110,7 @@ export class IvrCallResponse extends $tea.Model {
 }
 
 export class SingleCallByVoiceRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  calledShowNumber: string;
+  calledShowNumber?: string;
   calledNumber: string;
   voiceCode: string;
   playTimes?: number;
@@ -2567,10 +2119,6 @@ export class SingleCallByVoiceRequest extends $tea.Model {
   outId?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       calledShowNumber: 'CalledShowNumber',
       calledNumber: 'CalledNumber',
       voiceCode: 'VoiceCode',
@@ -2583,10 +2131,6 @@ export class SingleCallByVoiceRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       calledShowNumber: 'string',
       calledNumber: 'string',
       voiceCode: 'string',
@@ -2631,11 +2175,7 @@ export class SingleCallByVoiceResponse extends $tea.Model {
 }
 
 export class SingleCallByTtsRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  calledShowNumber: string;
+  calledShowNumber?: string;
   calledNumber: string;
   ttsCode: string;
   ttsParam?: string;
@@ -2645,10 +2185,6 @@ export class SingleCallByTtsRequest extends $tea.Model {
   outId?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       calledShowNumber: 'CalledShowNumber',
       calledNumber: 'CalledNumber',
       ttsCode: 'TtsCode',
@@ -2662,10 +2198,6 @@ export class SingleCallByTtsRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       calledShowNumber: 'string',
       calledNumber: 'string',
       ttsCode: 'string',
