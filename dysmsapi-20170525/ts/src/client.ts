@@ -5,27 +5,15 @@ import EndpointUtil from '@alicloud/endpoint-util';
 import * as $tea from '@alicloud/tea-typescript';
 
 export class QuerySmsTemplateRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   templateCode: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       templateCode: 'TemplateCode',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       templateCode: 'string',
     };
   }
@@ -82,27 +70,15 @@ export class QuerySmsTemplateResponse extends $tea.Model {
 }
 
 export class QuerySmsSignRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   signName: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       signName: 'SignName',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       signName: 'string',
     };
   }
@@ -150,10 +126,6 @@ export class QuerySmsSignResponse extends $tea.Model {
 }
 
 export class ModifySmsTemplateRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   templateType: number;
   templateName: string;
   templateCode: string;
@@ -161,10 +133,6 @@ export class ModifySmsTemplateRequest extends $tea.Model {
   remark: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       templateType: 'TemplateType',
       templateName: 'TemplateName',
       templateCode: 'TemplateCode',
@@ -175,10 +143,6 @@ export class ModifySmsTemplateRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       templateType: 'number',
       templateName: 'string',
       templateCode: 'string',
@@ -221,20 +185,12 @@ export class ModifySmsTemplateResponse extends $tea.Model {
 }
 
 export class ModifySmsSignRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   signName: string;
   signSource: number;
   signFileList: ModifySmsSignRequestSignFileList[];
   remark: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       signName: 'SignName',
       signSource: 'SignSource',
       signFileList: 'SignFileList',
@@ -244,10 +200,6 @@ export class ModifySmsSignRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       signName: 'string',
       signSource: 'number',
       signFileList: { 'type': 'array', 'itemType': ModifySmsSignRequestSignFileList },
@@ -289,27 +241,15 @@ export class ModifySmsSignResponse extends $tea.Model {
 }
 
 export class DeleteSmsTemplateRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   templateCode: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       templateCode: 'TemplateCode',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       templateCode: 'string',
     };
   }
@@ -348,27 +288,15 @@ export class DeleteSmsTemplateResponse extends $tea.Model {
 }
 
 export class DeleteSmsSignRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   signName: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       signName: 'SignName',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       signName: 'string',
     };
   }
@@ -407,20 +335,12 @@ export class DeleteSmsSignResponse extends $tea.Model {
 }
 
 export class AddSmsTemplateRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   templateType: number;
   templateName: string;
   templateContent: string;
   remark: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       templateType: 'TemplateType',
       templateName: 'TemplateName',
       templateContent: 'TemplateContent',
@@ -430,10 +350,6 @@ export class AddSmsTemplateRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       templateType: 'number',
       templateName: 'string',
       templateContent: 'string',
@@ -475,20 +391,12 @@ export class AddSmsTemplateResponse extends $tea.Model {
 }
 
 export class AddSmsSignRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   signName: string;
   signSource: number;
   signFileList: AddSmsSignRequestSignFileList[];
   remark: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       signName: 'SignName',
       signSource: 'SignSource',
       signFileList: 'SignFileList',
@@ -498,10 +406,6 @@ export class AddSmsSignRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       signName: 'string',
       signSource: 'number',
       signFileList: { 'type': 'array', 'itemType': AddSmsSignRequestSignFileList },
@@ -543,10 +447,6 @@ export class AddSmsSignResponse extends $tea.Model {
 }
 
 export class SendBatchSmsRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   phoneNumberJson: string;
   signNameJson: string;
   templateCode: string;
@@ -554,10 +454,6 @@ export class SendBatchSmsRequest extends $tea.Model {
   smsUpExtendCodeJson?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       phoneNumberJson: 'PhoneNumberJson',
       signNameJson: 'SignNameJson',
       templateCode: 'TemplateCode',
@@ -568,10 +464,6 @@ export class SendBatchSmsRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       phoneNumberJson: 'string',
       signNameJson: 'string',
       templateCode: 'string',
@@ -614,10 +506,6 @@ export class SendBatchSmsResponse extends $tea.Model {
 }
 
 export class SendSmsRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   phoneNumbers: string;
   signName: string;
   templateCode: string;
@@ -626,10 +514,6 @@ export class SendSmsRequest extends $tea.Model {
   outId?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       phoneNumbers: 'PhoneNumbers',
       signName: 'SignName',
       templateCode: 'TemplateCode',
@@ -641,10 +525,6 @@ export class SendSmsRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       phoneNumbers: 'string',
       signName: 'string',
       templateCode: 'string',
@@ -688,10 +568,6 @@ export class SendSmsResponse extends $tea.Model {
 }
 
 export class QuerySendDetailsRequest extends $tea.Model {
-  accessKeyId?: string;
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
   phoneNumber: string;
   bizId?: string;
   sendDate: string;
@@ -699,10 +575,6 @@ export class QuerySendDetailsRequest extends $tea.Model {
   currentPage: number;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'AccessKeyId',
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
       phoneNumber: 'PhoneNumber',
       bizId: 'BizId',
       sendDate: 'SendDate',
@@ -713,10 +585,6 @@ export class QuerySendDetailsRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
       phoneNumber: 'string',
       bizId: 'string',
       sendDate: 'string',
