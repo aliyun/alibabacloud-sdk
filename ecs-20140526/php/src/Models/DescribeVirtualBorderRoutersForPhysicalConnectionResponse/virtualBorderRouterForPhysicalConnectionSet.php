@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class virtualBorderRouterForPhysicalConnectionSet extends Model
 {
     /**
-     * @description VirtualBorderRouterForPhysicalConnectionType
-     *
      * @var array
      */
     public $virtualBorderRouterForPhysicalConnectionType;

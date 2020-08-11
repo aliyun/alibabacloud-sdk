@@ -27,10 +27,7 @@ class availableResourceCreation extends Model
     {
         $res = [];
         if (null !== $this->resourceTypes) {
-            $res['ResourceTypes'] = [];
-            if (null !== $this->resourceTypes) {
-                $res['ResourceTypes'] = $this->resourceTypes;
-            }
+            $res['ResourceTypes'] = $this->resourceTypes;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class availableResourceCreation extends Model
         $model = new self();
         if (isset($map['ResourceTypes'])) {
             if (!empty($map['ResourceTypes'])) {
-                $model->resourceTypes = [];
                 $model->resourceTypes = $map['ResourceTypes'];
             }
         }

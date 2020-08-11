@@ -9,69 +9,29 @@ use AlibabaCloud\Tea\Model;
 class DescribeVRoutersRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description instanceId
-     *
      * @var string
      */
     public $VRouterId;
 
     /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description pageNo
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
     protected $_name = [
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'VRouterId'            => 'VRouterId',
-        'regionId'             => 'RegionId',
-        'pageNumber'           => 'PageNumber',
-        'pageSize'             => 'PageSize',
-        'ownerAccount'         => 'OwnerAccount',
+        'VRouterId'  => 'VRouterId',
+        'regionId'   => 'RegionId',
+        'pageNumber' => 'PageNumber',
+        'pageSize'   => 'PageSize',
     ];
 
     public function validate()
@@ -82,15 +42,6 @@ class DescribeVRoutersRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->VRouterId) {
             $res['VRouterId'] = $this->VRouterId;
         }
@@ -102,9 +53,6 @@ class DescribeVRoutersRequest extends Model
         }
         if (null !== $this->pageSize) {
             $res['PageSize'] = $this->pageSize;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
         }
 
         return $res;
@@ -118,15 +66,6 @@ class DescribeVRoutersRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['VRouterId'])) {
             $model->VRouterId = $map['VRouterId'];
         }
@@ -138,9 +77,6 @@ class DescribeVRoutersRequest extends Model
         }
         if (isset($map['PageSize'])) {
             $model->pageSize = $map['PageSize'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
         }
 
         return $model;

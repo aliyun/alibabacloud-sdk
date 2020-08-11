@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class clusters extends Model
 {
     /**
-     * @description Cluster
-     *
      * @var array
      */
     public $cluster;

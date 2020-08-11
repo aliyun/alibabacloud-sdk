@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class supplyInfos extends Model
 {
     /**
-     * @description SupplyInfo
-     *
      * @var array
      */
     public $supplyInfo;

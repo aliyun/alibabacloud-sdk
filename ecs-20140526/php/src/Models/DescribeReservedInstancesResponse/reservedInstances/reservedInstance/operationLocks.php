@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class operationLocks extends Model
 {
     /**
-     * @description OperationLock
-     *
      * @var array
      */
     public $operationLock;

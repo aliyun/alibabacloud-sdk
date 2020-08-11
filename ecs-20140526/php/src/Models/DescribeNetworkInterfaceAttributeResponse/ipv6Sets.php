@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class ipv6Sets extends Model
 {
     /**
-     * @description Ipv6Set
-     *
      * @var array
      */
     public $ipv6Set;

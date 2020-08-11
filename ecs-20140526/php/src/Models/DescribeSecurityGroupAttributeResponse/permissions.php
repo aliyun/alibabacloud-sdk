@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class permissions extends Model
 {
     /**
-     * @description Permission
-     *
      * @var array
      */
     public $permission;

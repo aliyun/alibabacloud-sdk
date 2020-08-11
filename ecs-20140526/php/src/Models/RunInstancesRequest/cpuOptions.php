@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class cpuOptions extends Model
 {
     /**
-     * @description cpuOptionsCore
-     *
      * @var int
      */
     public $core;
 
     /**
-     * @description cpuOptionsHt
-     *
      * @var int
      */
     public $threadsPerCore;
 
     /**
-     * @description cpuOptionsNuma
-     *
      * @var string
      */
     public $numa;

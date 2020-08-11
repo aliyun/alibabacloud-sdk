@@ -4,283 +4,190 @@
 
 namespace AlibabaCloud\SDK\Ecs\V20140526\Models;
 
+use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeInstancesRequest\filter;
 use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeInstancesRequest\tag;
 use AlibabaCloud\Tea\Model;
 
 class DescribeInstancesRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description vpcInstanceId
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description vswInstanceId
-     *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
 
     /**
-     * @description izNo
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description ecsNetworkType
-     *
      * @var string
      */
     public $instanceNetworkType;
 
     /**
-     * @description groupNo
-     *
      * @var string
      */
     public $securityGroupId;
 
     /**
-     * @description ecsInstanceIds
-     *
      * @var string
      */
     public $instanceIds;
 
     /**
-     * @description pageNo
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description ecsInnerIps
-     *
      * @var string
      */
     public $innerIpAddresses;
 
     /**
-     * @description ecsPrivateIps
-     *
      * @var string
      */
     public $privateIpAddresses;
 
     /**
-     * @description ecsPublicIps
-     *
      * @var string
      */
     public $publicIpAddresses;
 
     /**
-     * @description eipAddresses
-     *
      * @var string
      */
     public $eipAddresses;
 
     /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description instanceChargeType
-     *
      * @var string
      */
     public $instanceChargeType;
 
     /**
-     * @description internetChargeType
-     *
      * @var string
      */
     public $internetChargeType;
 
     /**
-     * @description instanceName
-     *
      * @var string
      */
     public $instanceName;
 
     /**
-     * @description imageId
-     *
      * @var string
      */
     public $imageId;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description lockReason
-     *
      * @var string
      */
     public $lockReason;
 
     /**
-     * @description deviceAvailable
-     *
+     * @var array
+     */
+    public $filter;
+
+    /**
      * @var bool
      */
     public $deviceAvailable;
 
     /**
-     * @description ioOptimized
-     *
      * @var bool
      */
     public $ioOptimized;
 
     /**
-     * @description needSaleCycle
-     *
      * @var bool
      */
     public $needSaleCycle;
 
     /**
-     * @description tagKeyValueParams
-     *
      * @var array
      */
     public $tag;
 
     /**
-     * @description instanceType
-     *
      * @var string
      */
     public $instanceType;
 
     /**
-     * @description instanceTypeFamily
-     *
      * @var string
      */
     public $instanceTypeFamily;
 
     /**
-     * @description keyPairName
-     *
      * @var string
      */
     public $keyPairName;
 
     /**
-     * @description resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
 
     /**
-     * @description hpcClusterId
-     *
      * @var string
      */
     public $hpcClusterId;
 
     /**
-     * @description ecsRdmaIps
-     *
      * @var string
      */
     public $rdmaIpAddresses;
 
     /**
-     * @description dryRun
-     *
      * @var bool
      */
     public $dryRun;
 
     /**
-     * @description additionalAttributes
-     *
      * @var array
      */
     public $additionalAttributes;
 
     /**
-     * @description httpEndpoint
-     *
      * @var string
      */
     public $httpEndpoint;
 
     /**
-     * @description httpTokens
-     *
      * @var string
      */
     public $httpTokens;
 
     /**
-     * @description httpPutResponseHopLimit
-     *
      * @var int
      */
     public $httpPutResponseHopLimit;
     protected $_name = [
-        'ownerId'                 => 'OwnerId',
-        'resourceOwnerAccount'    => 'ResourceOwnerAccount',
-        'resourceOwnerId'         => 'ResourceOwnerId',
         'regionId'                => 'RegionId',
         'vpcId'                   => 'VpcId',
-        'VSwitchId'               => 'VSwitchId',
+        'vSwitchId'               => 'VSwitchId',
         'zoneId'                  => 'ZoneId',
         'instanceNetworkType'     => 'InstanceNetworkType',
         'securityGroupId'         => 'SecurityGroupId',
@@ -291,13 +198,13 @@ class DescribeInstancesRequest extends Model
         'privateIpAddresses'      => 'PrivateIpAddresses',
         'publicIpAddresses'       => 'PublicIpAddresses',
         'eipAddresses'            => 'EipAddresses',
-        'ownerAccount'            => 'OwnerAccount',
         'instanceChargeType'      => 'InstanceChargeType',
         'internetChargeType'      => 'InternetChargeType',
         'instanceName'            => 'InstanceName',
         'imageId'                 => 'ImageId',
         'status'                  => 'Status',
         'lockReason'              => 'LockReason',
+        'filter'                  => 'Filter',
         'deviceAvailable'         => 'DeviceAvailable',
         'ioOptimized'             => 'IoOptimized',
         'needSaleCycle'           => 'NeedSaleCycle',
@@ -323,23 +230,14 @@ class DescribeInstancesRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
         if (null !== $this->vpcId) {
             $res['VpcId'] = $this->vpcId;
         }
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
         if (null !== $this->zoneId) {
             $res['ZoneId'] = $this->zoneId;
@@ -371,9 +269,6 @@ class DescribeInstancesRequest extends Model
         if (null !== $this->eipAddresses) {
             $res['EipAddresses'] = $this->eipAddresses;
         }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->instanceChargeType) {
             $res['InstanceChargeType'] = $this->instanceChargeType;
         }
@@ -391,6 +286,15 @@ class DescribeInstancesRequest extends Model
         }
         if (null !== $this->lockReason) {
             $res['LockReason'] = $this->lockReason;
+        }
+        if (null !== $this->filter) {
+            $res['Filter'] = [];
+            if (null !== $this->filter && \is_array($this->filter)) {
+                $n = 0;
+                foreach ($this->filter as $item) {
+                    $res['Filter'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
+            }
         }
         if (null !== $this->deviceAvailable) {
             $res['DeviceAvailable'] = $this->deviceAvailable;
@@ -432,10 +336,7 @@ class DescribeInstancesRequest extends Model
             $res['DryRun'] = $this->dryRun;
         }
         if (null !== $this->additionalAttributes) {
-            $res['AdditionalAttributes'] = [];
-            if (null !== $this->additionalAttributes) {
-                $res['AdditionalAttributes'] = $this->additionalAttributes;
-            }
+            $res['AdditionalAttributes'] = $this->additionalAttributes;
         }
         if (null !== $this->httpEndpoint) {
             $res['HttpEndpoint'] = $this->httpEndpoint;
@@ -458,15 +359,6 @@ class DescribeInstancesRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
@@ -474,7 +366,7 @@ class DescribeInstancesRequest extends Model
             $model->vpcId = $map['VpcId'];
         }
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
         if (isset($map['ZoneId'])) {
             $model->zoneId = $map['ZoneId'];
@@ -506,9 +398,6 @@ class DescribeInstancesRequest extends Model
         if (isset($map['EipAddresses'])) {
             $model->eipAddresses = $map['EipAddresses'];
         }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
         if (isset($map['InstanceChargeType'])) {
             $model->instanceChargeType = $map['InstanceChargeType'];
         }
@@ -526,6 +415,15 @@ class DescribeInstancesRequest extends Model
         }
         if (isset($map['LockReason'])) {
             $model->lockReason = $map['LockReason'];
+        }
+        if (isset($map['Filter'])) {
+            if (!empty($map['Filter'])) {
+                $model->filter = [];
+                $n             = 0;
+                foreach ($map['Filter'] as $item) {
+                    $model->filter[$n++] = null !== $item ? filter::fromMap($item) : $item;
+                }
+            }
         }
         if (isset($map['DeviceAvailable'])) {
             $model->deviceAvailable = $map['DeviceAvailable'];
@@ -568,7 +466,6 @@ class DescribeInstancesRequest extends Model
         }
         if (isset($map['AdditionalAttributes'])) {
             if (!empty($map['AdditionalAttributes'])) {
-                $model->additionalAttributes = [];
                 $model->additionalAttributes = $map['AdditionalAttributes'];
             }
         }

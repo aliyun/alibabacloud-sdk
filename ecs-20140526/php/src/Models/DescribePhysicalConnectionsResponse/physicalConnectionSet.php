@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class physicalConnectionSet extends Model
 {
     /**
-     * @description PhysicalConnectionType
-     *
      * @var array
      */
     public $physicalConnectionType;

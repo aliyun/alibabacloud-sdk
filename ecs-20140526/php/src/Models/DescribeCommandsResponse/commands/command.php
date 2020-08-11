@@ -10,78 +10,56 @@ use AlibabaCloud\Tea\Model;
 class command extends Model
 {
     /**
-     * @description commandId
-     *
      * @var string
      */
     public $commandId;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description type
-     *
      * @var string
      */
     public $type;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description commandContent
-     *
      * @var string
      */
     public $commandContent;
 
     /**
-     * @description workingDir
-     *
      * @var string
      */
     public $workingDir;
 
     /**
-     * @description timeOut
-     *
      * @var int
      */
     public $timeout;
 
     /**
-     * @description invokeTimes
-     *
      * @var int
      */
     public $invokeTimes;
 
     /**
-     * @description creationTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description enableParameter
-     *
      * @var bool
      */
     public $enableParameter;
 
     /**
-     * @description parameterNames
-     *
      * @var parameterNames
      */
     public $parameterNames;

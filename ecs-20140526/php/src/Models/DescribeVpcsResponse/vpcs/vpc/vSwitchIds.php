@@ -6,31 +6,28 @@ namespace AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeVpcsResponse\vpcs\vpc;
 
 use AlibabaCloud\Tea\Model;
 
-class VSwitchIds extends Model
+class vSwitchIds extends Model
 {
     /**
      * @description VSwitchId
      *
      * @var array
      */
-    public $VSwitchId;
+    public $vSwitchId;
     protected $_name = [
-        'VSwitchId' => 'VSwitchId',
+        'vSwitchId' => 'VSwitchId',
     ];
 
     public function validate()
     {
-        Model::validateRequired('VSwitchId', $this->VSwitchId, true);
+        Model::validateRequired('vSwitchId', $this->vSwitchId, true);
     }
 
     public function toMap()
     {
         $res = [];
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = [];
-            if (null !== $this->VSwitchId) {
-                $res['VSwitchId'] = $this->VSwitchId;
-            }
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
 
         return $res;
@@ -39,15 +36,14 @@ class VSwitchIds extends Model
     /**
      * @param array $map
      *
-     * @return VSwitchIds
+     * @return vSwitchIds
      */
     public static function fromMap($map = [])
     {
         $model = new self();
         if (isset($map['VSwitchId'])) {
             if (!empty($map['VSwitchId'])) {
-                $model->VSwitchId = [];
-                $model->VSwitchId = $map['VSwitchId'];
+                $model->vSwitchId = $map['VSwitchId'];
             }
         }
 

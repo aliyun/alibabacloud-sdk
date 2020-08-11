@@ -13,225 +13,161 @@ use AlibabaCloud\Tea\Model;
 class launchTemplateData extends Model
 {
     /**
-     * @description imageId
-     *
      * @var string
      */
     public $imageId;
 
     /**
-     * @description imageOwnerAlias
-     *
      * @var string
      */
     public $imageOwnerAlias;
 
     /**
-     * @description passwordInherit
-     *
      * @var bool
      */
     public $passwordInherit;
 
     /**
-     * @description instanceType
-     *
      * @var string
      */
     public $instanceType;
 
     /**
-     * @description securityGroupId
-     *
      * @var string
      */
     public $securityGroupId;
 
     /**
-     * @description vpcId
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description vSwitchId
-     *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
 
     /**
-     * @description instanceName
-     *
      * @var string
      */
     public $instanceName;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description internetMaxBandwidthIn
-     *
      * @var int
      */
     public $internetMaxBandwidthIn;
 
     /**
-     * @description internetMaxBandwidthOut
-     *
      * @var int
      */
     public $internetMaxBandwidthOut;
 
     /**
-     * @description hostName
-     *
      * @var string
      */
     public $hostName;
 
     /**
-     * @description izNo
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description ioOptimized
-     *
      * @var string
      */
     public $ioOptimized;
 
     /**
-     * @description instanceChargeType
-     *
      * @var string
      */
     public $instanceChargeType;
 
     /**
-     * @description period
-     *
      * @var int
      */
     public $period;
 
     /**
-     * @description internetChargeType
-     *
      * @var string
      */
     public $internetChargeType;
 
     /**
-     * @description enableVmOsConfig
-     *
      * @var bool
      */
     public $enableVmOsConfig;
 
     /**
-     * @description networkType
-     *
      * @var string
      */
     public $networkType;
 
     /**
-     * @description userData
-     *
      * @var string
      */
     public $userData;
 
     /**
-     * @description keyPairName
-     *
      * @var string
      */
     public $keyPairName;
 
     /**
-     * @description ramRoleName
-     *
      * @var string
      */
     public $ramRoleName;
 
     /**
-     * @description autoReleaseTime
-     *
      * @var string
      */
     public $autoReleaseTime;
 
     /**
-     * @description spotStrategy
-     *
      * @var string
      */
     public $spotStrategy;
 
     /**
-     * @description spotPriceLimit
-     *
      * @var float
      */
     public $spotPriceLimit;
 
     /**
-     * @description spotDuration
-     *
      * @var int
      */
     public $spotDuration;
 
     /**
-     * @description resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
 
     /**
-     * @description securityEnhancementStrategy
-     *
      * @var string
      */
     public $securityEnhancementStrategy;
 
     /**
-     * @description SystemDisk
-     *
      * @var systemDisk
      */
     public $systemDisk;
 
     /**
-     * @description dataDisks
-     *
      * @var dataDisks
      */
     public $dataDisks;
 
     /**
-     * @description enis
-     *
      * @var networkInterfaces
      */
     public $networkInterfaces;
 
     /**
-     * @description tagList
-     *
      * @var tags
      */
     public $tags;
@@ -242,7 +178,7 @@ class launchTemplateData extends Model
         'instanceType'                => 'InstanceType',
         'securityGroupId'             => 'SecurityGroupId',
         'vpcId'                       => 'VpcId',
-        'VSwitchId'                   => 'VSwitchId',
+        'vSwitchId'                   => 'VSwitchId',
         'instanceName'                => 'InstanceName',
         'description'                 => 'Description',
         'internetMaxBandwidthIn'      => 'InternetMaxBandwidthIn',
@@ -278,7 +214,7 @@ class launchTemplateData extends Model
         Model::validateRequired('instanceType', $this->instanceType, true);
         Model::validateRequired('securityGroupId', $this->securityGroupId, true);
         Model::validateRequired('vpcId', $this->vpcId, true);
-        Model::validateRequired('VSwitchId', $this->VSwitchId, true);
+        Model::validateRequired('vSwitchId', $this->vSwitchId, true);
         Model::validateRequired('instanceName', $this->instanceName, true);
         Model::validateRequired('description', $this->description, true);
         Model::validateRequired('internetMaxBandwidthIn', $this->internetMaxBandwidthIn, true);
@@ -327,8 +263,8 @@ class launchTemplateData extends Model
         if (null !== $this->vpcId) {
             $res['VpcId'] = $this->vpcId;
         }
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
         if (null !== $this->instanceName) {
             $res['InstanceName'] = $this->instanceName;
@@ -436,7 +372,7 @@ class launchTemplateData extends Model
             $model->vpcId = $map['VpcId'];
         }
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
         if (isset($map['InstanceName'])) {
             $model->instanceName = $map['InstanceName'];

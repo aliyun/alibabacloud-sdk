@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class instanceCloudAssistantStatusSet extends Model
 {
     /**
-     * @description InstanceCloudAssistantStatus
-     *
      * @var array
      */
     public $instanceCloudAssistantStatus;

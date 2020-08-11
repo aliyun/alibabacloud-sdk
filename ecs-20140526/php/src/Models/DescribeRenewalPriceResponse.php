@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeRenewalPriceResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var priceInfo
      */
     public $priceInfo;

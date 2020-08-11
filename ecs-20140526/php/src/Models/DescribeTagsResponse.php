@@ -10,36 +10,26 @@ use AlibabaCloud\Tea\Model;
 class DescribeTagsResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description data.pageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description data.totalCount
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description data.tagSet
-     *
      * @var tags
      */
     public $tags;

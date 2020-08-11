@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class relatedItem extends Model
 {
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description value
-     *
      * @var string
      */
     public $value;

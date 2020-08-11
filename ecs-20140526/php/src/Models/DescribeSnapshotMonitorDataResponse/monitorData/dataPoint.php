@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class dataPoint extends Model
 {
     /**
-     * @description timestamp
-     *
      * @var string
      */
     public $timeStamp;
 
     /**
-     * @description average
-     *
      * @var int
      */
     public $size;

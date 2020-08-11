@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class reservedInstanceIdSets extends Model
 {
     /**
-     * @description ReservedInstanceId
-     *
      * @var array
      */
     public $reservedInstanceId;
@@ -27,10 +25,7 @@ class reservedInstanceIdSets extends Model
     {
         $res = [];
         if (null !== $this->reservedInstanceId) {
-            $res['ReservedInstanceId'] = [];
-            if (null !== $this->reservedInstanceId) {
-                $res['ReservedInstanceId'] = $this->reservedInstanceId;
-            }
+            $res['ReservedInstanceId'] = $this->reservedInstanceId;
         }
 
         return $res;
@@ -46,7 +41,6 @@ class reservedInstanceIdSets extends Model
         $model = new self();
         if (isset($map['ReservedInstanceId'])) {
             if (!empty($map['ReservedInstanceId'])) {
-                $model->reservedInstanceId = [];
                 $model->reservedInstanceId = $map['ReservedInstanceId'];
             }
         }

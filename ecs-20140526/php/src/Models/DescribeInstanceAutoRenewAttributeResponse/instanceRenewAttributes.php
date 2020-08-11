@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class instanceRenewAttributes extends Model
 {
     /**
-     * @description InstanceRenewAttribute
-     *
      * @var array
      */
     public $instanceRenewAttribute;

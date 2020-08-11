@@ -11,92 +11,66 @@ use AlibabaCloud\Tea\Model;
 class dedicatedHostType extends Model
 {
     /**
-     * @description hostType
-     *
      * @var string
      */
     public $dedicatedHostType;
 
     /**
-     * @description sockets
-     *
      * @var int
      */
     public $sockets;
 
     /**
-     * @description cores
-     *
      * @var int
      */
     public $totalVcpus;
 
     /**
-     * @description vgpus
-     *
      * @var int
      */
     public $totalVgpus;
 
     /**
-     * @description physicalCores
-     *
      * @var int
      */
     public $cores;
 
     /**
-     * @description physicalGpus
-     *
      * @var int
      */
     public $physicalGpus;
 
     /**
-     * @description memGB
-     *
      * @var float
      */
     public $memorySize;
 
     /**
-     * @description diskSize
-     *
      * @var int
      */
     public $localStorageCapacity;
 
     /**
-     * @description diskNum
-     *
      * @var int
      */
     public $localStorageAmount;
 
     /**
-     * @description dataDiskCategory
-     *
      * @var string
      */
     public $localStorageCategory;
 
     /**
-     * @description gpuSpec
-     *
      * @var string
      */
     public $GPUSpec;
 
     /**
-     * @description supportInstanceTypeFamilies
-     *
      * @var supportedInstanceTypeFamilies
      */
     public $supportedInstanceTypeFamilies;
 
     /**
-     * @description supportInstanceTypesList
-     *
      * @var supportedInstanceTypesList
      */
     public $supportedInstanceTypesList;

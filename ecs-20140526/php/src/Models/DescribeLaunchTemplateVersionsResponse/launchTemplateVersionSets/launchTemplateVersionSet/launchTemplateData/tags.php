@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class tags extends Model
 {
     /**
-     * @description InstanceTag
-     *
      * @var array
      */
     public $instanceTag;

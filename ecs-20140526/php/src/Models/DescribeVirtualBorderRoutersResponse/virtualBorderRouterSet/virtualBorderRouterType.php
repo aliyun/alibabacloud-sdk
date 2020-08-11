@@ -9,141 +9,101 @@ use AlibabaCloud\Tea\Model;
 class virtualBorderRouterType extends Model
 {
     /**
-     * @description vbrId
-     *
      * @var string
      */
     public $vbrId;
 
     /**
-     * @description creationTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description activationTime
-     *
      * @var string
      */
     public $activationTime;
 
     /**
-     * @description terminationTime
-     *
      * @var string
      */
     public $terminationTime;
 
     /**
-     * @description recoveryTime
-     *
      * @var string
      */
     public $recoveryTime;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description vlanId
-     *
      * @var int
      */
     public $vlanId;
 
     /**
-     * @description circuitCode
-     *
      * @var string
      */
     public $circuitCode;
 
     /**
-     * @description routeTableId
-     *
      * @var string
      */
     public $routeTableId;
 
     /**
-     * @description vlanInterfaceId
-     *
      * @var string
      */
     public $vlanInterfaceId;
 
     /**
-     * @description localGatewayIp
-     *
      * @var string
      */
     public $localGatewayIp;
 
     /**
-     * @description peerGatewayIp
-     *
      * @var string
      */
     public $peerGatewayIp;
 
     /**
-     * @description peeringSubnetMask
-     *
      * @var string
      */
     public $peeringSubnetMask;
 
     /**
-     * @description physicalConnectionId
-     *
      * @var string
      */
     public $physicalConnectionId;
 
     /**
-     * @description physicalConnectionStatus
-     *
      * @var string
      */
     public $physicalConnectionStatus;
 
     /**
-     * @description physicalConnectionBusinessStatus
-     *
      * @var string
      */
     public $physicalConnectionBusinessStatus;
 
     /**
-     * @description physicalConnectionOwnerUid
-     *
      * @var string
      */
     public $physicalConnectionOwnerUid;
 
     /**
-     * @description accessPointId
-     *
      * @var string
      */
     public $accessPointId;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;

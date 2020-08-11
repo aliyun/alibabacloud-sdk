@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class activityDetails extends Model
 {
     /**
-     * @description ActivityDetail
-     *
      * @var array
      */
     public $activityDetail;

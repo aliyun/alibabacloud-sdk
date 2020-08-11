@@ -9,74 +9,59 @@ use AlibabaCloud\Tea\Model;
 class resourceTypeCount extends Model
 {
     /**
-     * @description instance
-     *
      * @var int
      */
     public $instance;
 
     /**
-     * @description disk
-     *
      * @var int
      */
     public $disk;
 
     /**
-     * @description volume
-     *
      * @var int
      */
     public $volume;
 
     /**
-     * @description image
-     *
      * @var int
      */
     public $image;
 
     /**
-     * @description snapshot
-     *
      * @var int
      */
     public $snapshot;
 
     /**
-     * @description securitygroup
-     *
      * @var int
      */
     public $securitygroup;
 
     /**
-     * @description launchtemplate
-     *
      * @var int
      */
     public $launchTemplate;
 
     /**
-     * @description eni
-     *
      * @var int
      */
     public $eni;
 
     /**
-     * @description ddh
-     *
      * @var int
      */
     public $ddh;
 
     /**
-     * @description keypair
-     *
      * @var int
      */
     public $keyPair;
+
+    /**
+     * @var int
+     */
+    public $snapshotPolicy;
     protected $_name = [
         'instance'       => 'Instance',
         'disk'           => 'Disk',
@@ -88,6 +73,7 @@ class resourceTypeCount extends Model
         'eni'            => 'Eni',
         'ddh'            => 'Ddh',
         'keyPair'        => 'KeyPair',
+        'snapshotPolicy' => 'SnapshotPolicy',
     ];
 
     public function validate()
@@ -102,6 +88,7 @@ class resourceTypeCount extends Model
         Model::validateRequired('eni', $this->eni, true);
         Model::validateRequired('ddh', $this->ddh, true);
         Model::validateRequired('keyPair', $this->keyPair, true);
+        Model::validateRequired('snapshotPolicy', $this->snapshotPolicy, true);
     }
 
     public function toMap()
@@ -136,6 +123,9 @@ class resourceTypeCount extends Model
         }
         if (null !== $this->keyPair) {
             $res['KeyPair'] = $this->keyPair;
+        }
+        if (null !== $this->snapshotPolicy) {
+            $res['SnapshotPolicy'] = $this->snapshotPolicy;
         }
 
         return $res;
@@ -178,6 +168,9 @@ class resourceTypeCount extends Model
         }
         if (isset($map['KeyPair'])) {
             $model->keyPair = $map['KeyPair'];
+        }
+        if (isset($map['SnapshotPolicy'])) {
+            $model->snapshotPolicy = $map['SnapshotPolicy'];
         }
 
         return $model;

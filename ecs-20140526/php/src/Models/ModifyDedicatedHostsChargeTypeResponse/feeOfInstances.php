@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class feeOfInstances extends Model
 {
     /**
-     * @description FeeOfInstance
-     *
      * @var array
      */
     public $feeOfInstance;

@@ -10,85 +10,61 @@ use AlibabaCloud\Tea\Model;
 class invocation extends Model
 {
     /**
-     * @description taskId
-     *
      * @var string
      */
     public $invokeId;
 
     /**
-     * @description createTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description commandId
-     *
      * @var string
      */
     public $commandId;
 
     /**
-     * @description commandType
-     *
      * @var string
      */
     public $commandType;
 
     /**
-     * @description commandName
-     *
      * @var string
      */
     public $commandName;
 
     /**
-     * @description commandContent
-     *
      * @var string
      */
     public $commandContent;
 
     /**
-     * @description frequency
-     *
      * @var string
      */
     public $frequency;
 
     /**
-     * @description timed
-     *
      * @var bool
      */
     public $timed;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $invokeStatus;
 
     /**
-     * @description status2
-     *
      * @var string
      */
     public $invocationStatus;
 
     /**
-     * @description parameters
-     *
      * @var string
      */
     public $parameters;
 
     /**
-     * @description itemLists
-     *
      * @var invokeInstances
      */
     public $invokeInstances;

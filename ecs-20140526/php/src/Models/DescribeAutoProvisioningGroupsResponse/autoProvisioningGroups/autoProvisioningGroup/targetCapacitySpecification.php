@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class targetCapacitySpecification extends Model
 {
     /**
-     * @description totalTargetCapacity
-     *
      * @var float
      */
     public $totalTargetCapacity;
 
     /**
-     * @description onDemandTargetCapacity
-     *
      * @var float
      */
     public $payAsYouGoTargetCapacity;
 
     /**
-     * @description spotTargetCapacity
-     *
      * @var float
      */
     public $spotTargetCapacity;
 
     /**
-     * @description defaultTargetCapacityType
-     *
      * @var string
      */
     public $defaultTargetCapacityType;

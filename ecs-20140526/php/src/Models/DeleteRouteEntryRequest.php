@@ -10,77 +10,35 @@ use AlibabaCloud\Tea\Model;
 class DeleteRouteEntryRequest extends Model
 {
     /**
-     * @description nextHopList
-     *
      * @var array
      */
     public $nextHopList;
 
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description tableInstanceId
-     *
      * @var string
      */
     public $routeTableId;
 
     /**
-     * @description destinationCidrBlock
-     *
      * @var string
      */
     public $destinationCidrBlock;
 
     /**
-     * @description nextHopId
-     *
      * @var string
      */
     public $nextHopId;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
     protected $_name = [
         'nextHopList'          => 'NextHopList',
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
         'regionId'             => 'RegionId',
         'routeTableId'         => 'RouteTableId',
         'destinationCidrBlock' => 'DestinationCidrBlock',
         'nextHopId'            => 'NextHopId',
-        'ownerAccount'         => 'OwnerAccount',
     ];
 
     public function validate()
@@ -101,15 +59,6 @@ class DeleteRouteEntryRequest extends Model
                 }
             }
         }
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
@@ -121,9 +70,6 @@ class DeleteRouteEntryRequest extends Model
         }
         if (null !== $this->nextHopId) {
             $res['NextHopId'] = $this->nextHopId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
         }
 
         return $res;
@@ -146,15 +92,6 @@ class DeleteRouteEntryRequest extends Model
                 }
             }
         }
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
@@ -166,9 +103,6 @@ class DeleteRouteEntryRequest extends Model
         }
         if (isset($map['NextHopId'])) {
             $model->nextHopId = $map['NextHopId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
         }
 
         return $model;

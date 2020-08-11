@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class CreateKeyPairResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.keyPairId
-     *
      * @var string
      */
     public $keyPairId;
 
     /**
-     * @description data.keyPairName
-     *
      * @var string
      */
     public $keyPairName;
 
     /**
-     * @description data.keyPairFingerPrint
-     *
      * @var string
      */
     public $keyPairFingerPrint;
 
     /**
-     * @description data.privateKeyBody
-     *
      * @var string
      */
     public $privateKeyBody;

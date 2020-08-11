@@ -23,407 +23,296 @@ use AlibabaCloud\Tea\Model;
 class instance extends Model
 {
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description instanceName
-     *
      * @var string
      */
     public $instanceName;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description imageId
-     *
      * @var string
      */
     public $imageId;
 
     /**
-     * @description osName
-     *
      * @var string
      */
     public $OSName;
 
     /**
-     * @description osNameEn
-     *
      * @var string
      */
     public $OSNameEn;
 
     /**
-     * @description osType
-     *
      * @var string
      */
     public $OSType;
 
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description zoneId
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description zoneNo
-     *
      * @var string
      */
     public $clusterId;
 
     /**
-     * @description instanceType
-     *
      * @var string
      */
     public $instanceType;
 
     /**
-     * @description cores
-     *
      * @var int
      */
     public $cpu;
 
     /**
-     * @description mem
-     *
      * @var int
      */
     public $memory;
 
     /**
-     * @description hostName
-     *
      * @var string
      */
     public $hostName;
 
     /**
-     * @description deploymentSetId
-     *
      * @var string
      */
     public $deploymentSetId;
 
     /**
-     * @description status
-     *
+     * @var int
+     */
+    public $deploymentSetGroupNo;
+
+    /**
      * @var string
      */
     public $status;
 
     /**
-     * @description serialNumber
-     *
      * @var string
      */
     public $serialNumber;
 
     /**
-     * @description internetChargeType
-     *
      * @var string
      */
     public $internetChargeType;
 
     /**
-     * @description internetMaxBandwidthIn
-     *
      * @var int
      */
     public $internetMaxBandwidthIn;
 
     /**
-     * @description internetMaxBandwidthOut
-     *
      * @var int
      */
     public $internetMaxBandwidthOut;
 
     /**
-     * @description vlanId
-     *
      * @var string
      */
     public $vlanId;
 
     /**
-     * @description creationTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description startTime
-     *
      * @var string
      */
     public $startTime;
 
     /**
-     * @description instanceNetWorkType
-     *
      * @var string
      */
     public $instanceNetworkType;
 
     /**
-     * @description instanceChargeType
-     *
      * @var string
      */
     public $instanceChargeType;
 
     /**
-     * @description saleCycle
-     *
      * @var string
      */
     public $saleCycle;
 
     /**
-     * @description expiredTime
-     *
      * @var string
      */
     public $expiredTime;
 
     /**
-     * @description autoReleaseTime
-     *
      * @var string
      */
     public $autoReleaseTime;
 
     /**
-     * @description ioOptimized
-     *
      * @var bool
      */
     public $ioOptimized;
 
     /**
-     * @description deviceAvailable
-     *
      * @var bool
      */
     public $deviceAvailable;
 
     /**
-     * @description instanceTypeFamily
-     *
      * @var string
      */
     public $instanceTypeFamily;
 
     /**
-     * @description localStorageCapacity
-     *
      * @var int
      */
     public $localStorageCapacity;
 
     /**
-     * @description localStorageAmount
-     *
      * @var int
      */
     public $localStorageAmount;
 
     /**
-     * @description gpuAmount
-     *
      * @var int
      */
     public $GPUAmount;
 
     /**
-     * @description gpuSpec
-     *
      * @var string
      */
     public $GPUSpec;
 
     /**
-     * @description spotStrategy
-     *
      * @var string
      */
     public $spotStrategy;
 
     /**
-     * @description spotPriceLimit
-     *
      * @var float
      */
     public $spotPriceLimit;
 
     /**
-     * @description resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
 
     /**
-     * @description keyPairName
-     *
      * @var string
      */
     public $keyPairName;
 
     /**
-     * @description recyclable
-     *
      * @var bool
      */
     public $recyclable;
 
     /**
-     * @description hpcClusterId
-     *
      * @var string
      */
     public $hpcClusterId;
 
     /**
-     * @description stopBehavior
-     *
      * @var string
      */
     public $stoppedMode;
 
     /**
-     * @description creditSpecification
-     *
      * @var string
      */
     public $creditSpecification;
 
     /**
-     * @description deletionProtection
-     *
      * @var bool
      */
     public $deletionProtection;
 
     /**
-     * @description eniList
-     *
      * @var networkInterfaces
      */
     public $networkInterfaces;
 
     /**
-     * @description operationLockTypes
-     *
      * @var operationLocks
      */
     public $operationLocks;
 
     /**
-     * @description tags
-     *
      * @var tags
      */
     public $tags;
 
     /**
-     * @description vpcAttribute
-     *
      * @var vpcAttributes
      */
     public $vpcAttributes;
 
     /**
-     * @description eipAddress
-     *
      * @var eipAddress
      */
     public $eipAddress;
 
     /**
-     * @description dedicatedHostAttribute
-     *
      * @var dedicatedHostAttribute
      */
     public $dedicatedHostAttribute;
 
     /**
-     * @description ecsCapacityReservationAttr
-     *
      * @var ecsCapacityReservationAttr
      */
     public $ecsCapacityReservationAttr;
 
     /**
-     * @description dedicatedInstanceAttribute
-     *
      * @var dedicatedInstanceAttribute
      */
     public $dedicatedInstanceAttribute;
 
     /**
-     * @description cpuOptions
-     *
      * @var cpuOptions
      */
     public $cpuOptions;
 
     /**
-     * @description ecsMetaOptionModel
-     *
      * @var metadataOptions
      */
     public $metadataOptions;
 
     /**
-     * @description securityGroupIds
-     *
      * @var securityGroupIds
      */
     public $securityGroupIds;
 
     /**
-     * @description publicIpAddress
-     *
      * @var publicIpAddress
      */
     public $publicIpAddress;
 
     /**
-     * @description innerIpAddress
-     *
      * @var innerIpAddress
      */
     public $innerIpAddress;
 
     /**
-     * @description rdmaIpAddress
-     *
      * @var rdmaIpAddress
      */
     public $rdmaIpAddress;
@@ -443,6 +332,7 @@ class instance extends Model
         'memory'                     => 'Memory',
         'hostName'                   => 'HostName',
         'deploymentSetId'            => 'DeploymentSetId',
+        'deploymentSetGroupNo'       => 'DeploymentSetGroupNo',
         'status'                     => 'Status',
         'serialNumber'               => 'SerialNumber',
         'internetChargeType'         => 'InternetChargeType',
@@ -505,6 +395,7 @@ class instance extends Model
         Model::validateRequired('memory', $this->memory, true);
         Model::validateRequired('hostName', $this->hostName, true);
         Model::validateRequired('deploymentSetId', $this->deploymentSetId, true);
+        Model::validateRequired('deploymentSetGroupNo', $this->deploymentSetGroupNo, true);
         Model::validateRequired('status', $this->status, true);
         Model::validateRequired('serialNumber', $this->serialNumber, true);
         Model::validateRequired('internetChargeType', $this->internetChargeType, true);
@@ -597,6 +488,9 @@ class instance extends Model
         }
         if (null !== $this->deploymentSetId) {
             $res['DeploymentSetId'] = $this->deploymentSetId;
+        }
+        if (null !== $this->deploymentSetGroupNo) {
+            $res['DeploymentSetGroupNo'] = $this->deploymentSetGroupNo;
         }
         if (null !== $this->status) {
             $res['Status'] = $this->status;
@@ -783,6 +677,9 @@ class instance extends Model
         }
         if (isset($map['DeploymentSetId'])) {
             $model->deploymentSetId = $map['DeploymentSetId'];
+        }
+        if (isset($map['DeploymentSetGroupNo'])) {
+            $model->deploymentSetGroupNo = $map['DeploymentSetGroupNo'];
         }
         if (isset($map['Status'])) {
             $model->status = $map['Status'];

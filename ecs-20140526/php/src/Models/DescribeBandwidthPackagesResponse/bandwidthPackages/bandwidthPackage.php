@@ -10,106 +10,76 @@ use AlibabaCloud\Tea\Model;
 class bandwidthPackage extends Model
 {
     /**
-     * @description bandwidthPackageId
-     *
      * @var string
      */
     public $bandwidthPackageId;
 
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description zoneId
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description gatewayId
-     *
      * @var string
      */
     public $natGatewayId;
 
     /**
-     * @description bandwidth
-     *
      * @var string
      */
     public $bandwidth;
 
     /**
-     * @description instanceChargeType
-     *
      * @var string
      */
     public $instanceChargeType;
 
     /**
-     * @description internetChargeType
-     *
      * @var string
      */
     public $internetChargeType;
 
     /**
-     * @description businessStatus
-     *
      * @var string
      */
     public $businessStatus;
 
     /**
-     * @description ipCount
-     *
      * @var string
      */
     public $ipCount;
 
     /**
-     * @description isp
-     *
      * @var string
      */
     public $ISP;
 
     /**
-     * @description creationTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description publicIpAddresses
-     *
      * @var publicIpAddresses
      */
     public $publicIpAddresses;

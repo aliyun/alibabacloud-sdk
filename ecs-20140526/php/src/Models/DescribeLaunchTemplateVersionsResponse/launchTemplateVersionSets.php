@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class launchTemplateVersionSets extends Model
 {
     /**
-     * @description LaunchTemplateVersionSet
-     *
      * @var array
      */
     public $launchTemplateVersionSet;

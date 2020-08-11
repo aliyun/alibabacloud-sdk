@@ -27,10 +27,7 @@ class associatedEipAddresses extends Model
     {
         $res = [];
         if (null !== $this->associatedEipAddresse) {
-            $res['associatedEipAddresse'] = [];
-            if (null !== $this->associatedEipAddresse) {
-                $res['associatedEipAddresse'] = $this->associatedEipAddresse;
-            }
+            $res['associatedEipAddresse'] = $this->associatedEipAddresse;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class associatedEipAddresses extends Model
         $model = new self();
         if (isset($map['associatedEipAddresse'])) {
             if (!empty($map['associatedEipAddresse'])) {
-                $model->associatedEipAddresse = [];
                 $model->associatedEipAddresse = $map['associatedEipAddresse'];
             }
         }

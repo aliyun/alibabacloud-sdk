@@ -10,22 +10,16 @@ use AlibabaCloud\Tea\Model;
 class privateIpSet extends Model
 {
     /**
-     * @description privateIpAddress
-     *
      * @var string
      */
     public $privateIpAddress;
 
     /**
-     * @description primary
-     *
      * @var bool
      */
     public $primary;
 
     /**
-     * @description associatedPublicIp
-     *
      * @var associatedPublicIp
      */
     public $associatedPublicIp;

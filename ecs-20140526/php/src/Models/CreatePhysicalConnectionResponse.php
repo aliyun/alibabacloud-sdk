@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class CreatePhysicalConnectionResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.physicalConnectionId
-     *
      * @var string
      */
     public $physicalConnectionId;

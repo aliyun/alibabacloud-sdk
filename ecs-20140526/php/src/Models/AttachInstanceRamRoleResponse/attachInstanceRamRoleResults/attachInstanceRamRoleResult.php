@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class attachInstanceRamRoleResult extends Model
 {
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description isSuccess
-     *
      * @var bool
      */
     public $success;
 
     /**
-     * @description code
-     *
      * @var string
      */
     public $code;
 
     /**
-     * @description message
-     *
      * @var string
      */
     public $message;

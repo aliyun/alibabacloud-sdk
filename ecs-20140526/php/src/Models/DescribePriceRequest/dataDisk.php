@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class dataDisk extends Model
 {
     /**
-     * @description dataDiskSize1
-     *
      * @var int
      */
     public $size;
 
     /**
-     * @description dataDiskCategory1
-     *
      * @var string
      */
     public $category;
 
     /**
-     * @description dataDiskPerformanceLevel1
-     *
      * @var string
      */
     public $performanceLevel;

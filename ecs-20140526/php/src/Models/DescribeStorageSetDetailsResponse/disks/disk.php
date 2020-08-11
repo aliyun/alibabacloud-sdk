@@ -9,57 +9,41 @@ use AlibabaCloud\Tea\Model;
 class disk extends Model
 {
     /**
-     * @description diskId
-     *
      * @var string
      */
     public $diskId;
 
     /**
-     * @description diskName
-     *
      * @var string
      */
     public $diskName;
 
     /**
-     * @description category
-     *
      * @var string
      */
     public $category;
 
     /**
-     * @description storageSetId
-     *
      * @var string
      */
     public $storageSetId;
 
     /**
-     * @description createTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description maxPartition
-     *
      * @var int
      */
     public $storageSetPartitionNumber;
 
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description zoneId
-     *
      * @var string
      */
     public $zoneId;

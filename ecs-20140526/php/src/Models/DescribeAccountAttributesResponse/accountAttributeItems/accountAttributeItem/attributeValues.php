@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class attributeValues extends Model
 {
     /**
-     * @description ValueItem
-     *
      * @var array
      */
     public $valueItem;

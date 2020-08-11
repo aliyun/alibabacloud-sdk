@@ -10,36 +10,26 @@ use AlibabaCloud\Tea\Model;
 class DescribeAccessPointsResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.pageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description data.pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description data.totalCount
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description data.accessPointSet
-     *
      * @var accessPointSet
      */
     public $accessPointSet;

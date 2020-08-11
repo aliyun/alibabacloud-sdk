@@ -27,10 +27,7 @@ class availableDedicatedHostTypes extends Model
     {
         $res = [];
         if (null !== $this->dedicatedHostType) {
-            $res['DedicatedHostType'] = [];
-            if (null !== $this->dedicatedHostType) {
-                $res['DedicatedHostType'] = $this->dedicatedHostType;
-            }
+            $res['DedicatedHostType'] = $this->dedicatedHostType;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class availableDedicatedHostTypes extends Model
         $model = new self();
         if (isset($map['DedicatedHostType'])) {
             if (!empty($map['DedicatedHostType'])) {
-                $model->dedicatedHostType = [];
                 $model->dedicatedHostType = $map['DedicatedHostType'];
             }
         }

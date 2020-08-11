@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class bandwidth extends Model
 {
     /**
-     * @description internetChargeType
-     *
      * @var string
      */
     public $internetChargeType;
 
     /**
-     * @description min
-     *
      * @var int
      */
     public $min;
 
     /**
-     * @description max
-     *
      * @var int
      */
     public $max;
 
     /**
-     * @description unit
-     *
      * @var string
      */
     public $unit;

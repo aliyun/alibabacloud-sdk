@@ -27,10 +27,7 @@ class supportedCustomInstanceTypeFamilies extends Model
     {
         $res = [];
         if (null !== $this->supportedCustomInstanceTypeFamily) {
-            $res['SupportedCustomInstanceTypeFamily'] = [];
-            if (null !== $this->supportedCustomInstanceTypeFamily) {
-                $res['SupportedCustomInstanceTypeFamily'] = $this->supportedCustomInstanceTypeFamily;
-            }
+            $res['SupportedCustomInstanceTypeFamily'] = $this->supportedCustomInstanceTypeFamily;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class supportedCustomInstanceTypeFamilies extends Model
         $model = new self();
         if (isset($map['SupportedCustomInstanceTypeFamily'])) {
             if (!empty($map['SupportedCustomInstanceTypeFamily'])) {
-                $model->supportedCustomInstanceTypeFamily = [];
                 $model->supportedCustomInstanceTypeFamily = $map['SupportedCustomInstanceTypeFamily'];
             }
         }

@@ -10,71 +10,56 @@ use AlibabaCloud\Tea\Model;
 class deploymentSet extends Model
 {
     /**
-     * @description deploymentSetId
-     *
      * @var string
      */
     public $deploymentSetId;
 
     /**
-     * @description deploymentSetDescription
-     *
      * @var string
      */
     public $deploymentSetDescription;
 
     /**
-     * @description deploymentSetName
-     *
      * @var string
      */
     public $deploymentSetName;
 
     /**
-     * @description strategy
-     *
      * @var string
      */
     public $strategy;
 
     /**
-     * @description deploymentStrategy
-     *
      * @var string
      */
     public $deploymentStrategy;
 
     /**
-     * @description domain
-     *
      * @var string
      */
     public $domain;
 
     /**
-     * @description granularity
-     *
      * @var string
      */
     public $granularity;
 
     /**
-     * @description instanceAmount
-     *
+     * @var int
+     */
+    public $groupCount;
+
+    /**
      * @var int
      */
     public $instanceAmount;
 
     /**
-     * @description creationTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description instanceIds
-     *
      * @var instanceIds
      */
     public $instanceIds;
@@ -86,6 +71,7 @@ class deploymentSet extends Model
         'deploymentStrategy'       => 'DeploymentStrategy',
         'domain'                   => 'Domain',
         'granularity'              => 'Granularity',
+        'groupCount'               => 'GroupCount',
         'instanceAmount'           => 'InstanceAmount',
         'creationTime'             => 'CreationTime',
         'instanceIds'              => 'InstanceIds',
@@ -100,6 +86,7 @@ class deploymentSet extends Model
         Model::validateRequired('deploymentStrategy', $this->deploymentStrategy, true);
         Model::validateRequired('domain', $this->domain, true);
         Model::validateRequired('granularity', $this->granularity, true);
+        Model::validateRequired('groupCount', $this->groupCount, true);
         Model::validateRequired('instanceAmount', $this->instanceAmount, true);
         Model::validateRequired('creationTime', $this->creationTime, true);
         Model::validateRequired('instanceIds', $this->instanceIds, true);
@@ -128,6 +115,9 @@ class deploymentSet extends Model
         }
         if (null !== $this->granularity) {
             $res['Granularity'] = $this->granularity;
+        }
+        if (null !== $this->groupCount) {
+            $res['GroupCount'] = $this->groupCount;
         }
         if (null !== $this->instanceAmount) {
             $res['InstanceAmount'] = $this->instanceAmount;
@@ -170,6 +160,9 @@ class deploymentSet extends Model
         }
         if (isset($map['Granularity'])) {
             $model->granularity = $map['Granularity'];
+        }
+        if (isset($map['GroupCount'])) {
+            $model->groupCount = $map['GroupCount'];
         }
         if (isset($map['InstanceAmount'])) {
             $model->instanceAmount = $map['InstanceAmount'];

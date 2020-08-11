@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class forwardTableEntries extends Model
 {
     /**
-     * @description ForwardTableEntry
-     *
      * @var array
      */
     public $forwardTableEntry;

@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class subRules extends Model
 {
     /**
-     * @description Rule
-     *
      * @var array
      */
     public $rule;

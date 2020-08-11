@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class link extends Model
 {
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description vpcId
-     *
      * @var string
      */
     public $vpcId;

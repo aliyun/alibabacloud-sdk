@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class invokeInstances extends Model
 {
     /**
-     * @description InvokeInstance
-     *
      * @var array
      */
     public $invokeInstance;

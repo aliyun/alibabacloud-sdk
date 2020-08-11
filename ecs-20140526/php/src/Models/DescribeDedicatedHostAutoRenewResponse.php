@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeDedicatedHostAutoRenewResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var dedicatedHostRenewAttributes
      */
     public $dedicatedHostRenewAttributes;

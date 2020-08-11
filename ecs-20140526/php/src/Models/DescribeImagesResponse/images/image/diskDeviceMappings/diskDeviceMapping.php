@@ -9,64 +9,46 @@ use AlibabaCloud\Tea\Model;
 class diskDeviceMapping extends Model
 {
     /**
-     * @description snapshotId
-     *
      * @var string
      */
     public $snapshotId;
 
     /**
-     * @description size
-     *
      * @var string
      */
     public $size;
 
     /**
-     * @description device
-     *
      * @var string
      */
     public $device;
 
     /**
-     * @description diskType
-     *
      * @var string
      */
     public $type;
 
     /**
-     * @description format
-     *
      * @var string
      */
     public $format;
 
     /**
-     * @description importOSSBucket
-     *
      * @var string
      */
     public $importOSSBucket;
 
     /**
-     * @description importOSSObject
-     *
      * @var string
      */
     public $importOSSObject;
 
     /**
-     * @description progress
-     *
      * @var string
      */
     public $progress;
 
     /**
-     * @description leftTime
-     *
      * @var int
      */
     public $remainTime;

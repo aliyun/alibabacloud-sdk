@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class AllocatePublicIpAddressResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var string
      */
     public $ipAddress;

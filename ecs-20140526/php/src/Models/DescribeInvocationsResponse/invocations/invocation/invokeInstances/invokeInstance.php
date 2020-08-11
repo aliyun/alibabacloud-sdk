@@ -9,99 +9,71 @@ use AlibabaCloud\Tea\Model;
 class invokeInstance extends Model
 {
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description repeats
-     *
      * @var int
      */
     public $repeats;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $instanceInvokeStatus;
 
     /**
-     * @description outerStatus
-     *
      * @var string
      */
     public $invocationStatus;
 
     /**
-     * @description output
-     *
      * @var string
      */
     public $output;
 
     /**
-     * @description exitCode
-     *
      * @var int
      */
     public $exitCode;
 
     /**
-     * @description dropped
-     *
      * @var int
      */
     public $dropped;
 
     /**
-     * @description errorCode
-     *
      * @var string
      */
     public $errorCode;
 
     /**
-     * @description errorDesc
-     *
      * @var string
      */
     public $errorInfo;
 
     /**
-     * @description initTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description startTime
-     *
      * @var string
      */
     public $startTime;
 
     /**
-     * @description stopTime
-     *
      * @var string
      */
     public $stopTime;
 
     /**
-     * @description finishTime
-     *
      * @var string
      */
     public $finishTime;
 
     /**
-     * @description updateTime
-     *
      * @var string
      */
     public $updateTime;

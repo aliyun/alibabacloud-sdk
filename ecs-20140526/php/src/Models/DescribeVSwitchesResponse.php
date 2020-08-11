@@ -4,51 +4,41 @@
 
 namespace AlibabaCloud\SDK\Ecs\V20140526\Models;
 
-use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeVSwitchesResponse\VSwitches;
+use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeVSwitchesResponse\vSwitches;
 use AlibabaCloud\Tea\Model;
 
 class DescribeVSwitchesResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.total
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description data.pageNo
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description data.pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description data.data
-     *
-     * @var VSwitches
+     * @var vSwitches
      */
-    public $VSwitches;
+    public $vSwitches;
     protected $_name = [
         'requestId'  => 'RequestId',
         'totalCount' => 'TotalCount',
         'pageNumber' => 'PageNumber',
         'pageSize'   => 'PageSize',
-        'VSwitches'  => 'VSwitches',
+        'vSwitches'  => 'VSwitches',
     ];
 
     public function validate()
@@ -57,7 +47,7 @@ class DescribeVSwitchesResponse extends Model
         Model::validateRequired('totalCount', $this->totalCount, true);
         Model::validateRequired('pageNumber', $this->pageNumber, true);
         Model::validateRequired('pageSize', $this->pageSize, true);
-        Model::validateRequired('VSwitches', $this->VSwitches, true);
+        Model::validateRequired('vSwitches', $this->vSwitches, true);
     }
 
     public function toMap()
@@ -75,8 +65,8 @@ class DescribeVSwitchesResponse extends Model
         if (null !== $this->pageSize) {
             $res['PageSize'] = $this->pageSize;
         }
-        if (null !== $this->VSwitches) {
-            $res['VSwitches'] = null !== $this->VSwitches ? $this->VSwitches->toMap() : null;
+        if (null !== $this->vSwitches) {
+            $res['VSwitches'] = null !== $this->vSwitches ? $this->vSwitches->toMap() : null;
         }
 
         return $res;
@@ -103,7 +93,7 @@ class DescribeVSwitchesResponse extends Model
             $model->pageSize = $map['PageSize'];
         }
         if (isset($map['VSwitches'])) {
-            $model->VSwitches = VSwitches::fromMap($map['VSwitches']);
+            $model->vSwitches = vSwitches::fromMap($map['VSwitches']);
         }
 
         return $model;

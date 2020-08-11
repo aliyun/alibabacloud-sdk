@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class CreateNetworkInterfacePermissionResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var networkInterfacePermission
      */
     public $networkInterfacePermission;

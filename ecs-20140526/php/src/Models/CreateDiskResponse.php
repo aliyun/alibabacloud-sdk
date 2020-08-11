@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class CreateDiskResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.diskId
-     *
      * @var string
      */
     public $diskId;

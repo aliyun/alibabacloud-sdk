@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class instanceResponses extends Model
 {
     /**
-     * @description InstanceResponse
-     *
      * @var array
      */
     public $instanceResponse;

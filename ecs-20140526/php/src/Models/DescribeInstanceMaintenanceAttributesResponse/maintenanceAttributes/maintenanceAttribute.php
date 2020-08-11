@@ -11,22 +11,16 @@ use AlibabaCloud\Tea\Model;
 class maintenanceAttribute extends Model
 {
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description maintenanceWindows
-     *
      * @var maintenanceWindows
      */
     public $maintenanceWindows;
 
     /**
-     * @description actionOnMaintenance
-     *
      * @var actionOnMaintenance
      */
     public $actionOnMaintenance;

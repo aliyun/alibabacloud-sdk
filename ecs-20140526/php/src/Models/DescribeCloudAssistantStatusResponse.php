@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeCloudAssistantStatusResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.instanceCloudAssistantStatusSet
-     *
      * @var instanceCloudAssistantStatusSet
      */
     public $instanceCloudAssistantStatusSet;

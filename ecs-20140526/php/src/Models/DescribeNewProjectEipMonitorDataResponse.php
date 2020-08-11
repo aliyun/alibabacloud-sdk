@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeNewProjectEipMonitorDataResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var eipMonitorDatas
      */
     public $eipMonitorDatas;

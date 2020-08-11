@@ -9,57 +9,41 @@ use AlibabaCloud\Tea\Model;
 class forwardTableEntry extends Model
 {
     /**
-     * @description forwardTableId
-     *
      * @var string
      */
     public $forwardTableId;
 
     /**
-     * @description forwardEntryId
-     *
      * @var string
      */
     public $forwardEntryId;
 
     /**
-     * @description externalIp
-     *
      * @var string
      */
     public $externalIp;
 
     /**
-     * @description externalPort
-     *
      * @var string
      */
     public $externalPort;
 
     /**
-     * @description ipProtocol
-     *
      * @var string
      */
     public $ipProtocol;
 
     /**
-     * @description internalIp
-     *
      * @var string
      */
     public $internalIp;
 
     /**
-     * @description internalPort
-     *
      * @var string
      */
     public $internalPort;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;

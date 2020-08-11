@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class dedicatedHosts extends Model
 {
     /**
-     * @description DedicatedHost
-     *
      * @var array
      */
     public $dedicatedHost;

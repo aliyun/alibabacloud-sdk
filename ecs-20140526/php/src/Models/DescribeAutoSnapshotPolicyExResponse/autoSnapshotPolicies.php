@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class autoSnapshotPolicies extends Model
 {
     /**
-     * @description AutoSnapshotPolicy
-     *
      * @var array
      */
     public $autoSnapshotPolicy;

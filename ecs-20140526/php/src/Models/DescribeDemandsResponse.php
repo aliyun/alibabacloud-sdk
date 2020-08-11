@@ -10,43 +10,31 @@ use AlibabaCloud\Tea\Model;
 class DescribeDemandsResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.total
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description data.pageNo
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description data.pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description data.regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description data.data
-     *
      * @var demands
      */
     public $demands;

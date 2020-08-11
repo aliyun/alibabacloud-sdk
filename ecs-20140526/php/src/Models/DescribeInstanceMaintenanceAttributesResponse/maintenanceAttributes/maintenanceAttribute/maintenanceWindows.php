@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class maintenanceWindows extends Model
 {
     /**
-     * @description MaintenanceWindow
-     *
      * @var array
      */
     public $maintenanceWindow;

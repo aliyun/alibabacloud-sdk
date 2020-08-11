@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class feeOfInstance extends Model
 {
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description refundFee
-     *
      * @var string
      */
     public $fee;
 
     /**
-     * @description currency
-     *
      * @var string
      */
     public $currency;

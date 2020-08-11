@@ -12,71 +12,51 @@ use AlibabaCloud\Tea\Model;
 class instanceSystemEventType extends Model
 {
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description eventId
-     *
      * @var string
      */
     public $eventId;
 
     /**
-     * @description eventPublishTimeStr
-     *
      * @var string
      */
     public $eventPublishTime;
 
     /**
-     * @description eventPlanExeTimeStr
-     *
      * @var string
      */
     public $notBefore;
 
     /**
-     * @description eventFinishTimeStr
-     *
      * @var string
      */
     public $eventFinishTime;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $reason;
 
     /**
-     * @description impactLevel
-     *
      * @var string
      */
     public $impactLevel;
 
     /**
-     * @description eventType
-     *
      * @var eventType
      */
     public $eventType;
 
     /**
-     * @description eventCycleStatus
-     *
      * @var eventCycleStatus
      */
     public $eventCycleStatus;
 
     /**
-     * @description extendedAttribute
-     *
      * @var extendedAttribute
      */
     public $extendedAttribute;

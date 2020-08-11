@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class eventPublishTime extends Model
 {
     /**
-     * @description eventPublishTimeFromStr
-     *
      * @var string
      */
     public $start;
 
     /**
-     * @description eventPublishTimeToStr
-     *
      * @var string
      */
     public $end;

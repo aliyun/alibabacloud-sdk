@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class payAsYouGoOptions extends Model
 {
     /**
-     * @description allocationStrategy
-     *
      * @var string
      */
     public $allocationStrategy;

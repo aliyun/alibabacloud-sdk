@@ -11,57 +11,41 @@ use AlibabaCloud\Tea\Model;
 class DescribeImageSharePermissionResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description data.total
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description data.pageNo
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description data.pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description data.imageNo
-     *
      * @var string
      */
     public $imageId;
 
     /**
-     * @description data.shareGroupType
-     *
      * @var shareGroups
      */
     public $shareGroups;
 
     /**
-     * @description data.data
-     *
      * @var accounts
      */
     public $accounts;

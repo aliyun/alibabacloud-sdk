@@ -10,29 +10,21 @@ use AlibabaCloud\Tea\Model;
 class DescribeSpotPriceHistoryResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.nextPageOffset
-     *
      * @var int
      */
     public $nextOffset;
 
     /**
-     * @description data.currency
-     *
      * @var string
      */
     public $currency;
 
     /**
-     * @description data.data
-     *
      * @var spotPrices
      */
     public $spotPrices;

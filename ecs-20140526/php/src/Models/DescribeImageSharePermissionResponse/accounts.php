@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class accounts extends Model
 {
     /**
-     * @description Account
-     *
      * @var array
      */
     public $account;

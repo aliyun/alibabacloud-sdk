@@ -9,42 +9,32 @@ use AlibabaCloud\Tea\Model;
 class networkInterface extends Model
 {
     /**
-     * @description primaryIpAddress
-     *
      * @var string
      */
     public $primaryIpAddress;
 
     /**
-     * @description vswitchId
-     *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
 
     /**
-     * @description securityGroupId
-     *
      * @var string
      */
     public $securityGroupId;
 
     /**
-     * @description networkInterfaceName
-     *
      * @var string
      */
     public $networkInterfaceName;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
     protected $_name = [
         'primaryIpAddress'     => 'PrimaryIpAddress',
-        'VSwitchId'            => 'VSwitchId',
+        'vSwitchId'            => 'VSwitchId',
         'securityGroupId'      => 'SecurityGroupId',
         'networkInterfaceName' => 'NetworkInterfaceName',
         'description'          => 'Description',
@@ -53,7 +43,7 @@ class networkInterface extends Model
     public function validate()
     {
         Model::validateRequired('primaryIpAddress', $this->primaryIpAddress, true);
-        Model::validateRequired('VSwitchId', $this->VSwitchId, true);
+        Model::validateRequired('vSwitchId', $this->vSwitchId, true);
         Model::validateRequired('securityGroupId', $this->securityGroupId, true);
         Model::validateRequired('networkInterfaceName', $this->networkInterfaceName, true);
         Model::validateRequired('description', $this->description, true);
@@ -65,8 +55,8 @@ class networkInterface extends Model
         if (null !== $this->primaryIpAddress) {
             $res['PrimaryIpAddress'] = $this->primaryIpAddress;
         }
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
         if (null !== $this->securityGroupId) {
             $res['SecurityGroupId'] = $this->securityGroupId;
@@ -93,7 +83,7 @@ class networkInterface extends Model
             $model->primaryIpAddress = $map['PrimaryIpAddress'];
         }
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
         if (isset($map['SecurityGroupId'])) {
             $model->securityGroupId = $map['SecurityGroupId'];

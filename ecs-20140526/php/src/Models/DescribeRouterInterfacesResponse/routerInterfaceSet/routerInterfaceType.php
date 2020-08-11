@@ -9,176 +9,126 @@ use AlibabaCloud\Tea\Model;
 class routerInterfaceType extends Model
 {
     /**
-     * @description routerInterfaceId
-     *
      * @var string
      */
     public $routerInterfaceId;
 
     /**
-     * @description oppositeRegionId
-     *
      * @var string
      */
     public $oppositeRegionId;
 
     /**
-     * @description role
-     *
      * @var string
      */
     public $role;
 
     /**
-     * @description spec
-     *
      * @var string
      */
     public $spec;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description routerId
-     *
      * @var string
      */
     public $routerId;
 
     /**
-     * @description routerType
-     *
      * @var string
      */
     public $routerType;
 
     /**
-     * @description creationTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description endTime
-     *
      * @var string
      */
     public $endTime;
 
     /**
-     * @description chargeType
-     *
      * @var string
      */
     public $chargeType;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description businessStatus
-     *
      * @var string
      */
     public $businessStatus;
 
     /**
-     * @description connectedTime
-     *
      * @var string
      */
     public $connectedTime;
 
     /**
-     * @description oppositeInterfaceId
-     *
      * @var string
      */
     public $oppositeInterfaceId;
 
     /**
-     * @description oppositeInterfaceSpec
-     *
      * @var string
      */
     public $oppositeInterfaceSpec;
 
     /**
-     * @description oppositeInterfaceStatus
-     *
      * @var string
      */
     public $oppositeInterfaceStatus;
 
     /**
-     * @description oppositeInterfaceBusinessStatus
-     *
      * @var string
      */
     public $oppositeInterfaceBusinessStatus;
 
     /**
-     * @description oppositeRouterId
-     *
      * @var string
      */
     public $oppositeRouterId;
 
     /**
-     * @description oppositeRouterType
-     *
      * @var string
      */
     public $oppositeRouterType;
 
     /**
-     * @description oppositeInterfaceOwnerId
-     *
      * @var string
      */
     public $oppositeInterfaceOwnerId;
 
     /**
-     * @description accessPointId
-     *
      * @var string
      */
     public $accessPointId;
 
     /**
-     * @description oppositeAccessPointId
-     *
      * @var string
      */
     public $oppositeAccessPointId;
 
     /**
-     * @description healthCheckSourceIp
-     *
      * @var string
      */
     public $healthCheckSourceIp;
 
     /**
-     * @description healthCheckTargetIp
-     *
      * @var string
      */
     public $healthCheckTargetIp;

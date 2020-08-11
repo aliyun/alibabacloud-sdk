@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class supplyInfo extends Model
 {
     /**
-     * @description amount
-     *
      * @var int
      */
     public $amount;
 
     /**
-     * @description supplyStatus
-     *
      * @var string
      */
     public $supplyStatus;
 
     /**
-     * @description supplyStartTime
-     *
      * @var string
      */
     public $supplyStartTime;
 
     /**
-     * @description supplyEndTime
-     *
      * @var string
      */
     public $supplyEndTime;

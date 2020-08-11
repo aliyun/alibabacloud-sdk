@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class instanceRenewAttribute extends Model
 {
     /**
-     * @description resourceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description autoRenewEnabled
-     *
      * @var bool
      */
     public $autoRenewEnabled;
 
     /**
-     * @description duration
-     *
      * @var int
      */
     public $duration;
 
     /**
-     * @description periodUnit
-     *
      * @var string
      */
     public $periodUnit;
 
     /**
-     * @description renewalStatus
-     *
      * @var string
      */
     public $renewalStatus;

@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class tagFilter extends Model
 {
     /**
-     * @description tagKey
-     *
      * @var string
      */
     public $tagKey;
 
     /**
-     * @description tagValues
-     *
      * @var array
      */
     public $tagValues;
@@ -38,10 +34,7 @@ class tagFilter extends Model
             $res['TagKey'] = $this->tagKey;
         }
         if (null !== $this->tagValues) {
-            $res['TagValues'] = [];
-            if (null !== $this->tagValues) {
-                $res['TagValues'] = $this->tagValues;
-            }
+            $res['TagValues'] = $this->tagValues;
         }
 
         return $res;
@@ -60,7 +53,6 @@ class tagFilter extends Model
         }
         if (isset($map['TagValues'])) {
             if (!empty($map['TagValues'])) {
-                $model->tagValues = [];
                 $model->tagValues = $map['TagValues'];
             }
         }

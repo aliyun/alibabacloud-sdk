@@ -27,10 +27,7 @@ class userCidrs extends Model
     {
         $res = [];
         if (null !== $this->userCidr) {
-            $res['UserCidr'] = [];
-            if (null !== $this->userCidr) {
-                $res['UserCidr'] = $this->userCidr;
-            }
+            $res['UserCidr'] = $this->userCidr;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class userCidrs extends Model
         $model = new self();
         if (isset($map['UserCidr'])) {
             if (!empty($map['UserCidr'])) {
-                $model->userCidr = [];
                 $model->userCidr = $map['UserCidr'];
             }
         }

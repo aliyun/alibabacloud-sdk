@@ -10,35 +10,27 @@ use AlibabaCloud\Tea\Model;
 class vpcAttributes extends Model
 {
     /**
-     * @description vpcId
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description vSwitchId
-     *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
 
     /**
-     * @description natIpAddress
-     *
      * @var string
      */
     public $natIpAddress;
 
     /**
-     * @description privateIpAddress
-     *
      * @var privateIpAddress
      */
     public $privateIpAddress;
     protected $_name = [
         'vpcId'            => 'VpcId',
-        'VSwitchId'        => 'VSwitchId',
+        'vSwitchId'        => 'VSwitchId',
         'natIpAddress'     => 'NatIpAddress',
         'privateIpAddress' => 'PrivateIpAddress',
     ];
@@ -46,7 +38,7 @@ class vpcAttributes extends Model
     public function validate()
     {
         Model::validateRequired('vpcId', $this->vpcId, true);
-        Model::validateRequired('VSwitchId', $this->VSwitchId, true);
+        Model::validateRequired('vSwitchId', $this->vSwitchId, true);
         Model::validateRequired('natIpAddress', $this->natIpAddress, true);
         Model::validateRequired('privateIpAddress', $this->privateIpAddress, true);
     }
@@ -57,8 +49,8 @@ class vpcAttributes extends Model
         if (null !== $this->vpcId) {
             $res['VpcId'] = $this->vpcId;
         }
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
         if (null !== $this->natIpAddress) {
             $res['NatIpAddress'] = $this->natIpAddress;
@@ -82,7 +74,7 @@ class vpcAttributes extends Model
             $model->vpcId = $map['VpcId'];
         }
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
         if (isset($map['NatIpAddress'])) {
             $model->natIpAddress = $map['NatIpAddress'];

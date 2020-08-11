@@ -13,134 +13,96 @@ use AlibabaCloud\Tea\Model;
 class autoProvisioningGroup extends Model
 {
     /**
-     * @description fleetId
-     *
      * @var string
      */
     public $autoProvisioningGroupId;
 
     /**
-     * @description fleetName
-     *
      * @var string
      */
     public $autoProvisioningGroupName;
 
     /**
-     * @description fleetType
-     *
      * @var string
      */
     public $autoProvisioningGroupType;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description state
-     *
      * @var string
      */
     public $state;
 
     /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description utcValidFrom
-     *
      * @var string
      */
     public $validFrom;
 
     /**
-     * @description utcValidUntil
-     *
      * @var string
      */
     public $validUntil;
 
     /**
-     * @description excessCapacityTerminationPolicy
-     *
      * @var string
      */
     public $excessCapacityTerminationPolicy;
 
     /**
-     * @description maxSpotPrice
-     *
      * @var float
      */
     public $maxSpotPrice;
 
     /**
-     * @description launchTemplateId
-     *
      * @var string
      */
     public $launchTemplateId;
 
     /**
-     * @description launchTemplateVersion
-     *
      * @var string
      */
     public $launchTemplateVersion;
 
     /**
-     * @description terminateInstances
-     *
      * @var bool
      */
     public $terminateInstances;
 
     /**
-     * @description terminateInstancesWithExpiration
-     *
      * @var bool
      */
     public $terminateInstancesWithExpiration;
 
     /**
-     * @description creationTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description launchTemplateConfigs
-     *
      * @var launchTemplateConfigs
      */
     public $launchTemplateConfigs;
 
     /**
-     * @description spotOptions
-     *
      * @var spotOptions
      */
     public $spotOptions;
 
     /**
-     * @description onDemandOptions
-     *
      * @var payAsYouGoOptions
      */
     public $payAsYouGoOptions;
 
     /**
-     * @description targetCapacitySpecification
-     *
      * @var targetCapacitySpecification
      */
     public $targetCapacitySpecification;

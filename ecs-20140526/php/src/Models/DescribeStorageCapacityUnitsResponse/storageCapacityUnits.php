@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class storageCapacityUnits extends Model
 {
     /**
-     * @description StorageCapacityUnit
-     *
      * @var array
      */
     public $storageCapacityUnit;

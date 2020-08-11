@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeRecommendInstanceTypeResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.productModels
-     *
      * @var data
      */
     public $data;

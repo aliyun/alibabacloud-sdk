@@ -15,162 +15,116 @@ use AlibabaCloud\Tea\Model;
 class networkInterfaceSet extends Model
 {
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $networkInterfaceId;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description type
-     *
      * @var string
      */
     public $type;
 
     /**
-     * @description vpcId
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description vswitchId
-     *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
 
     /**
-     * @description zoneId
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description primaryPrivateIpAddress
-     *
      * @var string
      */
     public $privateIpAddress;
 
     /**
-     * @description macAddress
-     *
      * @var string
      */
     public $macAddress;
 
     /**
-     * @description eniName
-     *
      * @var string
      */
     public $networkInterfaceName;
 
     /**
-     * @description eniDescription
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description ecsInstanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description uTCCreateTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
 
     /**
-     * @description serviceID
-     *
      * @var int
      */
     public $serviceID;
 
     /**
-     * @description serviceManaged
-     *
      * @var bool
      */
     public $serviceManaged;
 
     /**
-     * @description queueNumber
-     *
      * @var int
      */
     public $queueNumber;
 
     /**
-     * @description aliUid
-     *
      * @var string
      */
     public $ownerId;
 
     /**
-     * @description eniPrivateIpList
-     *
      * @var privateIpSets
      */
     public $privateIpSets;
 
     /**
-     * @description eniIpv6List
-     *
      * @var ipv6Sets
      */
     public $ipv6Sets;
 
     /**
-     * @description tags
-     *
      * @var tags
      */
     public $tags;
 
     /**
-     * @description primaryAssociatedPublicIp
-     *
      * @var associatedPublicIp
      */
     public $associatedPublicIp;
 
     /**
-     * @description attachment
-     *
      * @var attachment
      */
     public $attachment;
 
     /**
-     * @description securityGroupIds
-     *
      * @var securityGroupIds
      */
     public $securityGroupIds;
@@ -179,7 +133,7 @@ class networkInterfaceSet extends Model
         'status'               => 'Status',
         'type'                 => 'Type',
         'vpcId'                => 'VpcId',
-        'VSwitchId'            => 'VSwitchId',
+        'vSwitchId'            => 'VSwitchId',
         'zoneId'               => 'ZoneId',
         'privateIpAddress'     => 'PrivateIpAddress',
         'macAddress'           => 'MacAddress',
@@ -206,7 +160,7 @@ class networkInterfaceSet extends Model
         Model::validateRequired('status', $this->status, true);
         Model::validateRequired('type', $this->type, true);
         Model::validateRequired('vpcId', $this->vpcId, true);
-        Model::validateRequired('VSwitchId', $this->VSwitchId, true);
+        Model::validateRequired('vSwitchId', $this->vSwitchId, true);
         Model::validateRequired('zoneId', $this->zoneId, true);
         Model::validateRequired('privateIpAddress', $this->privateIpAddress, true);
         Model::validateRequired('macAddress', $this->macAddress, true);
@@ -242,8 +196,8 @@ class networkInterfaceSet extends Model
         if (null !== $this->vpcId) {
             $res['VpcId'] = $this->vpcId;
         }
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
         if (null !== $this->zoneId) {
             $res['ZoneId'] = $this->zoneId;
@@ -324,7 +278,7 @@ class networkInterfaceSet extends Model
             $model->vpcId = $map['VpcId'];
         }
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
         if (isset($map['ZoneId'])) {
             $model->zoneId = $map['ZoneId'];

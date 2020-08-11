@@ -4,82 +4,47 @@
 
 namespace AlibabaCloud\SDK\Ecs\V20140526\Models;
 
+use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribePhysicalConnectionsRequest\filter;
 use AlibabaCloud\Tea\Model;
 
 class DescribePhysicalConnectionsRequest extends Model
 {
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description pageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description ownerId
-     *
-     * @var int
+     * @var array
      */
-    public $ownerId;
+    public $filter;
 
     /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description token
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description userCidr
-     *
      * @var string
      */
     public $userCidr;
     protected $_name = [
-        'regionId'             => 'RegionId',
-        'pageNumber'           => 'PageNumber',
-        'pageSize'             => 'PageSize',
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'clientToken'          => 'ClientToken',
-        'ownerAccount'         => 'OwnerAccount',
-        'userCidr'             => 'UserCidr',
+        'regionId'    => 'RegionId',
+        'pageNumber'  => 'PageNumber',
+        'pageSize'    => 'PageSize',
+        'filter'      => 'Filter',
+        'clientToken' => 'ClientToken',
+        'userCidr'    => 'UserCidr',
     ];
 
     public function validate()
@@ -99,20 +64,17 @@ class DescribePhysicalConnectionsRequest extends Model
         if (null !== $this->pageSize) {
             $res['PageSize'] = $this->pageSize;
         }
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
+        if (null !== $this->filter) {
+            $res['Filter'] = [];
+            if (null !== $this->filter && \is_array($this->filter)) {
+                $n = 0;
+                foreach ($this->filter as $item) {
+                    $res['Filter'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
+            }
         }
         if (null !== $this->clientToken) {
             $res['ClientToken'] = $this->clientToken;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
         }
         if (null !== $this->userCidr) {
             $res['UserCidr'] = $this->userCidr;
@@ -138,20 +100,17 @@ class DescribePhysicalConnectionsRequest extends Model
         if (isset($map['PageSize'])) {
             $model->pageSize = $map['PageSize'];
         }
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
+        if (isset($map['Filter'])) {
+            if (!empty($map['Filter'])) {
+                $model->filter = [];
+                $n             = 0;
+                foreach ($map['Filter'] as $item) {
+                    $model->filter[$n++] = null !== $item ? filter::fromMap($item) : $item;
+                }
+            }
         }
         if (isset($map['ClientToken'])) {
             $model->clientToken = $map['ClientToken'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
         }
         if (isset($map['UserCidr'])) {
             $model->userCidr = $map['UserCidr'];

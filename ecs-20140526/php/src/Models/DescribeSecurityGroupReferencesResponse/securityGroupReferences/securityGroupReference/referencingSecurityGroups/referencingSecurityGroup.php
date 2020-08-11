@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class referencingSecurityGroup extends Model
 {
     /**
-     * @description aliUid
-     *
      * @var string
      */
     public $aliUid;
 
     /**
-     * @description groupNo
-     *
      * @var string
      */
     public $securityGroupId;

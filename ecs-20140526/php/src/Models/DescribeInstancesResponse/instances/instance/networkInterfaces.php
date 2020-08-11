@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class networkInterfaces extends Model
 {
     /**
-     * @description NetworkInterface
-     *
      * @var array
      */
     public $networkInterface;

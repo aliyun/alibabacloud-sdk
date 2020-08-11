@@ -11,57 +11,41 @@ use AlibabaCloud\Tea\Model;
 class recommendInstanceType extends Model
 {
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description commodityCode
-     *
      * @var string
      */
     public $commodityCode;
 
     /**
-     * @description scene
-     *
      * @var string
      */
     public $scene;
 
     /**
-     * @description chargeType
-     *
      * @var string
      */
     public $instanceChargeType;
 
     /**
-     * @description spotStrategy
-     *
      * @var string
      */
     public $spotStrategy;
 
     /**
-     * @description priority
-     *
      * @var int
      */
     public $priority;
 
     /**
-     * @description zoneIds
-     *
      * @var zones
      */
     public $zones;
 
     /**
-     * @description instanceTypeModel
-     *
      * @var instanceType
      */
     public $instanceType;

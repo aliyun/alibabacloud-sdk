@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class instanceStatuses extends Model
 {
     /**
-     * @description InstanceStatus
-     *
      * @var array
      */
     public $instanceStatus;

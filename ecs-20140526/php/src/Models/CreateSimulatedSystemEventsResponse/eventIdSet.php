@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class eventIdSet extends Model
 {
     /**
-     * @description EventId
-     *
      * @var array
      */
     public $eventId;
@@ -27,10 +25,7 @@ class eventIdSet extends Model
     {
         $res = [];
         if (null !== $this->eventId) {
-            $res['EventId'] = [];
-            if (null !== $this->eventId) {
-                $res['EventId'] = $this->eventId;
-            }
+            $res['EventId'] = $this->eventId;
         }
 
         return $res;
@@ -46,7 +41,6 @@ class eventIdSet extends Model
         $model = new self();
         if (isset($map['EventId'])) {
             if (!empty($map['EventId'])) {
-                $model->eventId = [];
                 $model->eventId = $map['EventId'];
             }
         }

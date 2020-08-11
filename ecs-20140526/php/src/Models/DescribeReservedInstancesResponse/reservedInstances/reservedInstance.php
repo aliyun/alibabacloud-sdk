@@ -10,120 +10,86 @@ use AlibabaCloud\Tea\Model;
 class reservedInstance extends Model
 {
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $reservedInstanceId;
 
     /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description izNo
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description riName
-     *
      * @var string
      */
     public $reservedInstanceName;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description instanceType
-     *
      * @var string
      */
     public $instanceType;
 
     /**
-     * @description scope
-     *
      * @var string
      */
     public $scope;
 
     /**
-     * @description offeringType
-     *
      * @var string
      */
     public $offeringType;
 
     /**
-     * @description platform
-     *
      * @var string
      */
     public $platform;
 
     /**
-     * @description instanceAmount
-     *
      * @var int
      */
     public $instanceAmount;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description createUtcTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description expireUtcTime
-     *
      * @var string
      */
     public $expiredTime;
 
     /**
-     * @description startUtcTime
-     *
      * @var string
      */
     public $startTime;
 
     /**
-     * @description resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
 
     /**
-     * @description allocationStatus
-     *
      * @var string
      */
     public $allocationStatus;
 
     /**
-     * @description operationLockTypes
-     *
      * @var operationLocks
      */
     public $operationLocks;

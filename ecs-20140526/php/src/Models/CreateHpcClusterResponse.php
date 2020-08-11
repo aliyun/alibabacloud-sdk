@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class CreateHpcClusterResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.clusterId
-     *
      * @var string
      */
     public $hpcClusterId;

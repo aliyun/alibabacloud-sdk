@@ -10,57 +10,41 @@ use AlibabaCloud\Tea\Model;
 class DescribeSecurityGroupAttributeResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description data.groupNo
-     *
      * @var string
      */
     public $securityGroupId;
 
     /**
-     * @description data.groupDesc
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description data.groupName
-     *
      * @var string
      */
     public $securityGroupName;
 
     /**
-     * @description data.vpcInstanceId
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description data.policy
-     *
      * @var string
      */
     public $innerAccessPolicy;
 
     /**
-     * @description data.permissions
-     *
      * @var permissions
      */
     public $permissions;

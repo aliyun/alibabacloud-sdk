@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class RedeployInstanceResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.taskId
-     *
      * @var string
      */
     public $taskId;

@@ -9,69 +9,29 @@ use AlibabaCloud\Tea\Model;
 class AssignIpv6AddressesRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description eniId
-     *
      * @var string
      */
     public $networkInterfaceId;
 
     /**
-     * @description ipv6Addresses
-     *
      * @var array
      */
     public $ipv6Address;
 
     /**
-     * @description ipv6AddressCount
-     *
      * @var int
      */
     public $ipv6AddressCount;
     protected $_name = [
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'ownerAccount'         => 'OwnerAccount',
-        'regionId'             => 'RegionId',
-        'networkInterfaceId'   => 'NetworkInterfaceId',
-        'ipv6Address'          => 'Ipv6Address',
-        'ipv6AddressCount'     => 'Ipv6AddressCount',
+        'regionId'           => 'RegionId',
+        'networkInterfaceId' => 'NetworkInterfaceId',
+        'ipv6Address'        => 'Ipv6Address',
+        'ipv6AddressCount'   => 'Ipv6AddressCount',
     ];
 
     public function validate()
@@ -83,18 +43,6 @@ class AssignIpv6AddressesRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
@@ -102,10 +50,7 @@ class AssignIpv6AddressesRequest extends Model
             $res['NetworkInterfaceId'] = $this->networkInterfaceId;
         }
         if (null !== $this->ipv6Address) {
-            $res['Ipv6Address'] = [];
-            if (null !== $this->ipv6Address) {
-                $res['Ipv6Address'] = $this->ipv6Address;
-            }
+            $res['Ipv6Address'] = $this->ipv6Address;
         }
         if (null !== $this->ipv6AddressCount) {
             $res['Ipv6AddressCount'] = $this->ipv6AddressCount;
@@ -122,18 +67,6 @@ class AssignIpv6AddressesRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
@@ -142,7 +75,6 @@ class AssignIpv6AddressesRequest extends Model
         }
         if (isset($map['Ipv6Address'])) {
             if (!empty($map['Ipv6Address'])) {
-                $model->ipv6Address = [];
                 $model->ipv6Address = $map['Ipv6Address'];
             }
         }

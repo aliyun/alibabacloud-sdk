@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class instanceTypes extends Model
 {
     /**
-     * @description InstanceType
-     *
      * @var array
      */
     public $instanceType;

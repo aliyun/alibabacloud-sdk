@@ -9,101 +9,53 @@ use AlibabaCloud\Tea\Model;
 class ModifyForwardEntryRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description forwardTableId
-     *
      * @var string
      */
     public $forwardTableId;
 
     /**
-     * @description forwardEntryId
-     *
      * @var string
      */
     public $forwardEntryId;
 
     /**
-     * @description externalIp
-     *
      * @var string
      */
     public $externalIp;
 
     /**
-     * @description externalPort
-     *
      * @var string
      */
     public $externalPort;
 
     /**
-     * @description internalIp
-     *
      * @var string
      */
     public $internalIp;
 
     /**
-     * @description internalPort
-     *
      * @var string
      */
     public $internalPort;
 
     /**
-     * @description ipProtocol
-     *
      * @var string
      */
     public $ipProtocol;
 
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
     protected $_name = [
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'ownerAccount'         => 'OwnerAccount',
-        'forwardTableId'       => 'ForwardTableId',
-        'forwardEntryId'       => 'ForwardEntryId',
-        'externalIp'           => 'ExternalIp',
-        'externalPort'         => 'ExternalPort',
-        'internalIp'           => 'InternalIp',
-        'internalPort'         => 'InternalPort',
-        'ipProtocol'           => 'IpProtocol',
-        'regionId'             => 'RegionId',
+        'forwardTableId' => 'ForwardTableId',
+        'forwardEntryId' => 'ForwardEntryId',
+        'externalIp'     => 'ExternalIp',
+        'externalPort'   => 'ExternalPort',
+        'internalIp'     => 'InternalIp',
+        'internalPort'   => 'InternalPort',
+        'ipProtocol'     => 'IpProtocol',
+        'regionId'       => 'RegionId',
     ];
 
     public function validate()
@@ -116,18 +68,6 @@ class ModifyForwardEntryRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->forwardTableId) {
             $res['ForwardTableId'] = $this->forwardTableId;
         }
@@ -164,18 +104,6 @@ class ModifyForwardEntryRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
         if (isset($map['ForwardTableId'])) {
             $model->forwardTableId = $map['ForwardTableId'];
         }

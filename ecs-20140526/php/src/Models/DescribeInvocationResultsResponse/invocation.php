@@ -10,29 +10,21 @@ use AlibabaCloud\Tea\Model;
 class invocation extends Model
 {
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description pageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description totalCount
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description resultLists
-     *
      * @var invocationResults
      */
     public $invocationResults;

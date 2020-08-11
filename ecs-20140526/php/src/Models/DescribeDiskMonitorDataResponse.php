@@ -10,22 +10,16 @@ use AlibabaCloud\Tea\Model;
 class DescribeDiskMonitorDataResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.count
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description data.monitorDatas
-     *
      * @var monitorData
      */
     public $monitorData;

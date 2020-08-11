@@ -27,10 +27,7 @@ class availableDiskCategories extends Model
     {
         $res = [];
         if (null !== $this->diskCategories) {
-            $res['DiskCategories'] = [];
-            if (null !== $this->diskCategories) {
-                $res['DiskCategories'] = $this->diskCategories;
-            }
+            $res['DiskCategories'] = $this->diskCategories;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class availableDiskCategories extends Model
         $model = new self();
         if (isset($map['DiskCategories'])) {
             if (!empty($map['DiskCategories'])) {
-                $model->diskCategories = [];
                 $model->diskCategories = $map['DiskCategories'];
             }
         }

@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class vpcs extends Model
 {
     /**
-     * @description Vpc
-     *
      * @var array
      */
     public $vpc;

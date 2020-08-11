@@ -27,10 +27,7 @@ class instanceTypeFamilies extends Model
     {
         $res = [];
         if (null !== $this->supportedInstanceTypeFamily) {
-            $res['supportedInstanceTypeFamily'] = [];
-            if (null !== $this->supportedInstanceTypeFamily) {
-                $res['supportedInstanceTypeFamily'] = $this->supportedInstanceTypeFamily;
-            }
+            $res['supportedInstanceTypeFamily'] = $this->supportedInstanceTypeFamily;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class instanceTypeFamilies extends Model
         $model = new self();
         if (isset($map['supportedInstanceTypeFamily'])) {
             if (!empty($map['supportedInstanceTypeFamily'])) {
-                $model->supportedInstanceTypeFamily = [];
                 $model->supportedInstanceTypeFamily = $map['supportedInstanceTypeFamily'];
             }
         }

@@ -10,155 +10,111 @@ use AlibabaCloud\Tea\Model;
 class snapshot extends Model
 {
     /**
-     * @description resourceId
-     *
      * @var string
      */
     public $snapshotId;
 
     /**
-     * @description model.snapshotHouyiNo
-     *
      * @var string
      */
     public $snapshotSN;
 
     /**
-     * @description model.snapshotNickname
-     *
      * @var string
      */
     public $snapshotName;
 
     /**
-     * @description model.snapshotProcess
-     *
      * @var string
      */
     public $progress;
 
     /**
-     * @description model.imgPc
-     *
      * @var string
      */
     public $productCode;
 
     /**
-     * @description model.diskId
-     *
      * @var string
      */
     public $sourceDiskId;
 
     /**
-     * @description model.diskType
-     *
      * @var string
      */
     public $sourceDiskType;
 
     /**
-     * @description model.retentionDays
-     *
      * @var int
      */
     public $retentionDays;
 
     /**
-     * @description model.encrypted
-     *
      * @var bool
      */
     public $encrypted;
 
     /**
-     * @description model.snapshotSize
-     *
      * @var string
      */
     public $sourceDiskSize;
 
     /**
-     * @description model.description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description gmtCreateTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description gmtModifyTime
-     *
      * @var string
      */
     public $lastModifiedTime;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description usage
-     *
      * @var string
      */
     public $usage;
 
     /**
-     * @description model.srcStorageType
-     *
      * @var string
      */
     public $sourceStorageType;
 
     /**
-     * @description model.remainTime
-     *
      * @var int
      */
     public $remainTime;
 
     /**
-     * @description resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
 
     /**
-     * @description kmsKeyId
-     *
      * @var string
      */
     public $KMSKeyId;
 
     /**
-     * @description model.category
-     *
      * @var string
      */
     public $category;
 
     /**
-     * @description model.snapshotType
-     *
      * @var string
      */
     public $snapshotType;
 
     /**
-     * @description model.tags
-     *
      * @var tags
      */
     public $tags;

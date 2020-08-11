@@ -9,117 +9,65 @@ use AlibabaCloud\Tea\Model;
 class ModifyInstanceAttributeRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description password
-     *
      * @var string
      */
     public $password;
 
     /**
-     * @description hostname
-     *
      * @var string
      */
     public $hostName;
 
     /**
-     * @description instanceName
-     *
      * @var string
      */
     public $instanceName;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description userData
-     *
      * @var string
      */
     public $userData;
 
     /**
-     * @description recyclable
-     *
      * @var bool
      */
     public $recyclable;
 
     /**
-     * @description creditSpecification
-     *
      * @var string
      */
     public $creditSpecification;
 
     /**
-     * @description deletionProtection
-     *
      * @var bool
      */
     public $deletionProtection;
 
     /**
-     * @description securityGroupIds
-     *
      * @var array
      */
     public $securityGroupIds;
     protected $_name = [
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'instanceId'           => 'InstanceId',
-        'password'             => 'Password',
-        'hostName'             => 'HostName',
-        'instanceName'         => 'InstanceName',
-        'description'          => 'Description',
-        'ownerAccount'         => 'OwnerAccount',
-        'userData'             => 'UserData',
-        'recyclable'           => 'Recyclable',
-        'creditSpecification'  => 'CreditSpecification',
-        'deletionProtection'   => 'DeletionProtection',
-        'securityGroupIds'     => 'SecurityGroupIds',
+        'instanceId'          => 'InstanceId',
+        'password'            => 'Password',
+        'hostName'            => 'HostName',
+        'instanceName'        => 'InstanceName',
+        'description'         => 'Description',
+        'userData'            => 'UserData',
+        'recyclable'          => 'Recyclable',
+        'creditSpecification' => 'CreditSpecification',
+        'deletionProtection'  => 'DeletionProtection',
+        'securityGroupIds'    => 'SecurityGroupIds',
     ];
 
     public function validate()
@@ -130,15 +78,6 @@ class ModifyInstanceAttributeRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->instanceId) {
             $res['InstanceId'] = $this->instanceId;
         }
@@ -154,9 +93,6 @@ class ModifyInstanceAttributeRequest extends Model
         if (null !== $this->description) {
             $res['Description'] = $this->description;
         }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->userData) {
             $res['UserData'] = $this->userData;
         }
@@ -170,10 +106,7 @@ class ModifyInstanceAttributeRequest extends Model
             $res['DeletionProtection'] = $this->deletionProtection;
         }
         if (null !== $this->securityGroupIds) {
-            $res['SecurityGroupIds'] = [];
-            if (null !== $this->securityGroupIds) {
-                $res['SecurityGroupIds'] = $this->securityGroupIds;
-            }
+            $res['SecurityGroupIds'] = $this->securityGroupIds;
         }
 
         return $res;
@@ -187,15 +120,6 @@ class ModifyInstanceAttributeRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['InstanceId'])) {
             $model->instanceId = $map['InstanceId'];
         }
@@ -211,9 +135,6 @@ class ModifyInstanceAttributeRequest extends Model
         if (isset($map['Description'])) {
             $model->description = $map['Description'];
         }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
         if (isset($map['UserData'])) {
             $model->userData = $map['UserData'];
         }
@@ -228,7 +149,6 @@ class ModifyInstanceAttributeRequest extends Model
         }
         if (isset($map['SecurityGroupIds'])) {
             if (!empty($map['SecurityGroupIds'])) {
-                $model->securityGroupIds = [];
                 $model->securityGroupIds = $map['SecurityGroupIds'];
             }
         }

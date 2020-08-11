@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class eventCycleStatus extends Model
 {
     /**
-     * @description code
-     *
      * @var int
      */
     public $code;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;

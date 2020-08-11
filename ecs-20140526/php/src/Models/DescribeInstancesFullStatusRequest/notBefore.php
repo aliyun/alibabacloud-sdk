@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class notBefore extends Model
 {
     /**
-     * @description eventPlanExeTimeFromStr
-     *
      * @var string
      */
     public $start;
 
     /**
-     * @description eventPlanExeTimeToStr
-     *
      * @var string
      */
     public $end;

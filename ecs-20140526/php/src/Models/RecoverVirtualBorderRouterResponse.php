@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class RecoverVirtualBorderRouterResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;

@@ -27,10 +27,7 @@ class supportedValues extends Model
     {
         $res = [];
         if (null !== $this->supportedValue) {
-            $res['SupportedValue'] = [];
-            if (null !== $this->supportedValue) {
-                $res['SupportedValue'] = $this->supportedValue;
-            }
+            $res['SupportedValue'] = $this->supportedValue;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class supportedValues extends Model
         $model = new self();
         if (isset($map['SupportedValue'])) {
             if (!empty($map['SupportedValue'])) {
-                $model->supportedValue = [];
                 $model->supportedValue = $map['SupportedValue'];
             }
         }

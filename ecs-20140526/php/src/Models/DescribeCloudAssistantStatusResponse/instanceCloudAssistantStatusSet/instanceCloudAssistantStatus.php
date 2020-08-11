@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class instanceCloudAssistantStatus extends Model
 {
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description cloudAssistantStatus
-     *
      * @var string
      */
     public $cloudAssistantStatus;
 
     /**
-     * @description cloudAssistantVersion
-     *
      * @var string
      */
     public $cloudAssistantVersion;

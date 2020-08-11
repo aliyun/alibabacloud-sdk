@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class attachment extends Model
 {
     /**
-     * @description ecsInstanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description trunkEniId
-     *
      * @var string
      */
     public $trunkNetworkInterfaceId;
 
     /**
-     * @description deviceIndex
-     *
      * @var int
      */
     public $deviceIndex;

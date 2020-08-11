@@ -10,22 +10,16 @@ use AlibabaCloud\Tea\Model;
 class RunInstancesResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.lxOrderResult.tradeAmount
-     *
      * @var float
      */
     public $tradePrice;
 
     /**
-     * @description data.instanceIdSet
-     *
      * @var instanceIdSets
      */
     public $instanceIdSets;

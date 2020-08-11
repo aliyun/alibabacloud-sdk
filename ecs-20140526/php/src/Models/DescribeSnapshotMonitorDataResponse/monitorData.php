@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class monitorData extends Model
 {
     /**
-     * @description DataPoint
-     *
      * @var array
      */
     public $dataPoint;

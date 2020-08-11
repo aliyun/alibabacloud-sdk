@@ -9,156 +9,90 @@ use AlibabaCloud\Tea\Model;
 class ModifySecurityGroupRuleRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description groupNo
-     *
      * @var string
      */
     public $securityGroupId;
 
     /**
-     * @description ipProtocol
-     *
      * @var string
      */
     public $ipProtocol;
 
     /**
-     * @description portRange
-     *
      * @var string
      */
     public $portRange;
 
     /**
-     * @description sourceGroupNo
-     *
      * @var string
      */
     public $sourceGroupId;
 
     /**
-     * @description groupOwnerAliUid
-     *
      * @var int
      */
     public $sourceGroupOwnerId;
 
     /**
-     * @description groupOwnerAccount
-     *
      * @var string
      */
     public $sourceGroupOwnerAccount;
 
     /**
-     * @description sourceCidrIp
-     *
      * @var string
      */
     public $sourceCidrIp;
 
     /**
-     * @description v6SourceCidrIp
-     *
      * @var string
      */
     public $ipv6SourceCidrIp;
 
     /**
-     * @description sourcePortRange
-     *
      * @var string
      */
     public $sourcePortRange;
 
     /**
-     * @description destCidrIp
-     *
      * @var string
      */
     public $destCidrIp;
 
     /**
-     * @description v6DestCidrIp
-     *
      * @var string
      */
     public $ipv6DestCidrIp;
 
     /**
-     * @description policy
-     *
      * @var string
      */
     public $policy;
 
     /**
-     * @description level
-     *
      * @var string
      */
     public $priority;
 
     /**
-     * @description nic
-     *
      * @var string
      */
     public $nicType;
 
     /**
-     * @description token
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
     protected $_name = [
-        'ownerId'                 => 'OwnerId',
-        'resourceOwnerAccount'    => 'ResourceOwnerAccount',
-        'resourceOwnerId'         => 'ResourceOwnerId',
-        'ownerAccount'            => 'OwnerAccount',
         'regionId'                => 'RegionId',
         'securityGroupId'         => 'SecurityGroupId',
         'ipProtocol'              => 'IpProtocol',
@@ -189,18 +123,6 @@ class ModifySecurityGroupRuleRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
@@ -264,18 +186,6 @@ class ModifySecurityGroupRuleRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }

@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class links extends Model
 {
     /**
-     * @description Link
-     *
      * @var array
      */
     public $link;

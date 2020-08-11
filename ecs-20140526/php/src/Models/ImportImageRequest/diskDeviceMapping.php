@@ -9,43 +9,31 @@ use AlibabaCloud\Tea\Model;
 class diskDeviceMapping extends Model
 {
     /**
-     * @description format
-     *
      * @var string
      */
     public $format;
 
     /**
-     * @description oSSBucket
-     *
      * @var string
      */
     public $OSSBucket;
 
     /**
-     * @description oSSObject
-     *
      * @var string
      */
     public $OSSObject;
 
     /**
-     * @description diskImSize
-     *
      * @var int
      */
     public $diskImSize;
 
     /**
-     * @description diskImageSize
-     *
      * @var int
      */
     public $diskImageSize;
 
     /**
-     * @description device
-     *
      * @var string
      */
     public $device;

@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class ModifyReservedInstanceAttributeResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description code
-     *
      * @var string
      */
     public $code;
 
     /**
-     * @description message
-     *
      * @var string
      */
     public $message;
 
     /**
-     * @description httpStatusCode
-     *
      * @var int
      */
     public $httpStatusCode;

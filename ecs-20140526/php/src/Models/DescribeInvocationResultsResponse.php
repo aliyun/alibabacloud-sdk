@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeInvocationResultsResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var invocation
      */
     public $invocation;

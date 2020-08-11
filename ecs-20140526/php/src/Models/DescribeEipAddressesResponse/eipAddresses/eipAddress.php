@@ -10,92 +10,66 @@ use AlibabaCloud\Tea\Model;
 class eipAddress extends Model
 {
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description ipAddress
-     *
      * @var string
      */
     public $ipAddress;
 
     /**
-     * @description resourceId
-     *
      * @var string
      */
     public $allocationId;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description bandwidth
-     *
      * @var string
      */
     public $bandwidth;
 
     /**
-     * @description oldBandwidth
-     *
      * @var string
      */
     public $eipBandwidth;
 
     /**
-     * @description internetChargeType
-     *
      * @var string
      */
     public $internetChargeType;
 
     /**
-     * @description allocationTime
-     *
      * @var string
      */
     public $allocationTime;
 
     /**
-     * @description instanceType
-     *
      * @var string
      */
     public $instanceType;
 
     /**
-     * @description chargeType
-     *
      * @var string
      */
     public $chargeType;
 
     /**
-     * @description expiredTime
-     *
      * @var string
      */
     public $expiredTime;
 
     /**
-     * @description operationLockTypes
-     *
      * @var operationLocks
      */
     public $operationLocks;

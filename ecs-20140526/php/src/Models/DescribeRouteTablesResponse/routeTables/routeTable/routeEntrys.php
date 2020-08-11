@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class routeEntrys extends Model
 {
     /**
-     * @description RouteEntry
-     *
      * @var array
      */
     public $routeEntry;

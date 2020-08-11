@@ -27,10 +27,7 @@ class instanceGenerations extends Model
     {
         $res = [];
         if (null !== $this->supportedInstanceGeneration) {
-            $res['supportedInstanceGeneration'] = [];
-            if (null !== $this->supportedInstanceGeneration) {
-                $res['supportedInstanceGeneration'] = $this->supportedInstanceGeneration;
-            }
+            $res['supportedInstanceGeneration'] = $this->supportedInstanceGeneration;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class instanceGenerations extends Model
         $model = new self();
         if (isset($map['supportedInstanceGeneration'])) {
             if (!empty($map['supportedInstanceGeneration'])) {
-                $model->supportedInstanceGeneration = [];
                 $model->supportedInstanceGeneration = $map['supportedInstanceGeneration'];
             }
         }

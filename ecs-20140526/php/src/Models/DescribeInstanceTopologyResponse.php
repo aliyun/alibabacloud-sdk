@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeInstanceTopologyResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.instanceNcInfos
-     *
      * @var topologys
      */
     public $topologys;

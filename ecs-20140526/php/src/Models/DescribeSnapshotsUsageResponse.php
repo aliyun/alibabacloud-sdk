@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class DescribeSnapshotsUsageResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.snapshotCount
-     *
      * @var int
      */
     public $snapshotCount;
 
     /**
-     * @description data.snapshotSize
-     *
      * @var int
      */
     public $snapshotSize;

@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class dedicatedInstanceAttribute extends Model
 {
     /**
-     * @description instanceTenancy
-     *
      * @var string
      */
     public $tenancy;
 
     /**
-     * @description dedicatedInstanceAffinity
-     *
      * @var string
      */
     public $affinity;

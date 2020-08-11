@@ -10,29 +10,21 @@ use AlibabaCloud\Tea\Model;
 class DescribeImageSupportInstanceTypesResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description data.imageId
-     *
      * @var string
      */
     public $imageId;
 
     /**
-     * @description data.instanceTypes
-     *
      * @var instanceTypes
      */
     public $instanceTypes;

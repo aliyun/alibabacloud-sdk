@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class operationProgressSet extends Model
 {
     /**
-     * @description OperationProgress
-     *
      * @var array
      */
     public $operationProgress;

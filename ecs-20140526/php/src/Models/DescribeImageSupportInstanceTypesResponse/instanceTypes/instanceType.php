@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class instanceType extends Model
 {
     /**
-     * @description instanceTypeId
-     *
      * @var string
      */
     public $instanceTypeId;
 
     /**
-     * @description cpuCoreCount
-     *
      * @var int
      */
     public $cpuCoreCount;
 
     /**
-     * @description memorySize
-     *
      * @var float
      */
     public $memorySize;
 
     /**
-     * @description instanceTypeFamily
-     *
      * @var string
      */
     public $instanceTypeFamily;

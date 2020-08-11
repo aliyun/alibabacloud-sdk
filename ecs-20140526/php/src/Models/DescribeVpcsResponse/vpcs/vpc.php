@@ -5,84 +5,62 @@
 namespace AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeVpcsResponse\vpcs;
 
 use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeVpcsResponse\vpcs\vpc\userCidrs;
-use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeVpcsResponse\vpcs\vpc\VSwitchIds;
+use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeVpcsResponse\vpcs\vpc\vSwitchIds;
 use AlibabaCloud\Tea\Model;
 
 class vpc extends Model
 {
     /**
-     * @description resourceId
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description vpcName
-     *
      * @var string
      */
     public $vpcName;
 
     /**
-     * @description creationTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description cidrBlock
-     *
      * @var string
      */
     public $cidrBlock;
 
     /**
-     * @description vRouterId
-     *
      * @var string
      */
     public $VRouterId;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description isDefault
-     *
      * @var bool
      */
     public $isDefault;
 
     /**
-     * @description vSwitchIds
-     *
-     * @var VSwitchIds
+     * @var vSwitchIds
      */
-    public $VSwitchIds;
+    public $vSwitchIds;
 
     /**
-     * @description userCidrs
-     *
      * @var userCidrs
      */
     public $userCidrs;
@@ -96,7 +74,7 @@ class vpc extends Model
         'VRouterId'    => 'VRouterId',
         'description'  => 'Description',
         'isDefault'    => 'IsDefault',
-        'VSwitchIds'   => 'VSwitchIds',
+        'vSwitchIds'   => 'VSwitchIds',
         'userCidrs'    => 'UserCidrs',
     ];
 
@@ -111,7 +89,7 @@ class vpc extends Model
         Model::validateRequired('VRouterId', $this->VRouterId, true);
         Model::validateRequired('description', $this->description, true);
         Model::validateRequired('isDefault', $this->isDefault, true);
-        Model::validateRequired('VSwitchIds', $this->VSwitchIds, true);
+        Model::validateRequired('vSwitchIds', $this->vSwitchIds, true);
         Model::validateRequired('userCidrs', $this->userCidrs, true);
     }
 
@@ -145,8 +123,8 @@ class vpc extends Model
         if (null !== $this->isDefault) {
             $res['IsDefault'] = $this->isDefault;
         }
-        if (null !== $this->VSwitchIds) {
-            $res['VSwitchIds'] = null !== $this->VSwitchIds ? $this->VSwitchIds->toMap() : null;
+        if (null !== $this->vSwitchIds) {
+            $res['VSwitchIds'] = null !== $this->vSwitchIds ? $this->vSwitchIds->toMap() : null;
         }
         if (null !== $this->userCidrs) {
             $res['UserCidrs'] = null !== $this->userCidrs ? $this->userCidrs->toMap() : null;
@@ -191,7 +169,7 @@ class vpc extends Model
             $model->isDefault = $map['IsDefault'];
         }
         if (isset($map['VSwitchIds'])) {
-            $model->VSwitchIds = VSwitchIds::fromMap($map['VSwitchIds']);
+            $model->vSwitchIds = vSwitchIds::fromMap($map['VSwitchIds']);
         }
         if (isset($map['UserCidrs'])) {
             $model->userCidrs = userCidrs::fromMap($map['UserCidrs']);

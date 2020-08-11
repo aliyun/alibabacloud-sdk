@@ -27,10 +27,7 @@ class dataDiskCategories extends Model
     {
         $res = [];
         if (null !== $this->supportedDataDiskCategory) {
-            $res['supportedDataDiskCategory'] = [];
-            if (null !== $this->supportedDataDiskCategory) {
-                $res['supportedDataDiskCategory'] = $this->supportedDataDiskCategory;
-            }
+            $res['supportedDataDiskCategory'] = $this->supportedDataDiskCategory;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class dataDiskCategories extends Model
         $model = new self();
         if (isset($map['supportedDataDiskCategory'])) {
             if (!empty($map['supportedDataDiskCategory'])) {
-                $model->supportedDataDiskCategory = [];
                 $model->supportedDataDiskCategory = $map['supportedDataDiskCategory'];
             }
         }

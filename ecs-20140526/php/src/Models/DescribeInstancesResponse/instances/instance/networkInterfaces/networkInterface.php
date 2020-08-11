@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class networkInterface extends Model
 {
     /**
-     * @description eniInstanceId
-     *
      * @var string
      */
     public $networkInterfaceId;
 
     /**
-     * @description macAddress
-     *
      * @var string
      */
     public $macAddress;
 
     /**
-     * @description primaryIpAddress
-     *
      * @var string
      */
     public $primaryIpAddress;

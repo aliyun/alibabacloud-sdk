@@ -10,50 +10,36 @@ use AlibabaCloud\Tea\Model;
 class VRouter extends Model
 {
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description vpcInstanceId
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $VRouterName;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $VRouterId;
 
     /**
-     * @description gmtCreate
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description vRouterTableIds
-     *
      * @var routeTableIds
      */
     public $routeTableIds;

@@ -10,36 +10,26 @@ use AlibabaCloud\Tea\Model;
 class DescribeEipAddressesResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.total
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description data.pageNo
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description data.pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description data.data
-     *
      * @var eipAddresses
      */
     public $eipAddresses;

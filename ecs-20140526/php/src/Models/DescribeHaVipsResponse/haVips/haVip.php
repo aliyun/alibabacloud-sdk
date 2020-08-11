@@ -11,78 +11,56 @@ use AlibabaCloud\Tea\Model;
 class haVip extends Model
 {
     /**
-     * @description haVipId
-     *
      * @var string
      */
     public $haVipId;
 
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description vpcId
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description vSwitchId
-     *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
 
     /**
-     * @description ipAddress
-     *
      * @var string
      */
     public $ipAddress;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description masterInstanceId
-     *
      * @var string
      */
     public $masterInstanceId;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description createTime
-     *
      * @var string
      */
     public $createTime;
 
     /**
-     * @description associatedInstances
-     *
      * @var associatedInstances
      */
     public $associatedInstances;
 
     /**
-     * @description associatedEipAddresses
-     *
      * @var associatedEipAddresses
      */
     public $associatedEipAddresses;
@@ -90,7 +68,7 @@ class haVip extends Model
         'haVipId'                => 'HaVipId',
         'regionId'               => 'RegionId',
         'vpcId'                  => 'VpcId',
-        'VSwitchId'              => 'VSwitchId',
+        'vSwitchId'              => 'VSwitchId',
         'ipAddress'              => 'IpAddress',
         'status'                 => 'Status',
         'masterInstanceId'       => 'MasterInstanceId',
@@ -105,7 +83,7 @@ class haVip extends Model
         Model::validateRequired('haVipId', $this->haVipId, true);
         Model::validateRequired('regionId', $this->regionId, true);
         Model::validateRequired('vpcId', $this->vpcId, true);
-        Model::validateRequired('VSwitchId', $this->VSwitchId, true);
+        Model::validateRequired('vSwitchId', $this->vSwitchId, true);
         Model::validateRequired('ipAddress', $this->ipAddress, true);
         Model::validateRequired('status', $this->status, true);
         Model::validateRequired('masterInstanceId', $this->masterInstanceId, true);
@@ -127,8 +105,8 @@ class haVip extends Model
         if (null !== $this->vpcId) {
             $res['VpcId'] = $this->vpcId;
         }
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
         if (null !== $this->ipAddress) {
             $res['IpAddress'] = $this->ipAddress;
@@ -173,7 +151,7 @@ class haVip extends Model
             $model->vpcId = $map['VpcId'];
         }
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
         if (isset($map['IpAddress'])) {
             $model->ipAddress = $map['IpAddress'];

@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class instanceTypeFamily extends Model
 {
     /**
-     * @description instanceTypeFamilyId
-     *
      * @var string
      */
     public $instanceTypeFamilyId;
 
     /**
-     * @description generation
-     *
      * @var string
      */
     public $generation;

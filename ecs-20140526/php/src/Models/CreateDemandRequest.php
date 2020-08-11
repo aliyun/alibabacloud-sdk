@@ -9,133 +9,77 @@ use AlibabaCloud\Tea\Model;
 class CreateDemandRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description clientToken
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description zoneNo
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description demandName
-     *
      * @var string
      */
     public $demandName;
 
     /**
-     * @description demandDescription
-     *
      * @var string
      */
     public $demandDescription;
 
     /**
-     * @description instanceType
-     *
      * @var string
      */
     public $instanceType;
 
     /**
-     * @description totalAmount
-     *
      * @var int
      */
     public $amount;
 
     /**
-     * @description payType
-     *
      * @var string
      */
     public $instanceChargeType;
 
     /**
-     * @description period
-     *
      * @var int
      */
     public $period;
 
     /**
-     * @description periodUnit
-     *
      * @var string
      */
     public $periodUnit;
 
     /**
-     * @description startTimeStr
-     *
      * @var string
      */
     public $startTime;
 
     /**
-     * @description endTimeStr
-     *
      * @var string
      */
     public $endTime;
     protected $_name = [
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'ownerAccount'         => 'OwnerAccount',
-        'clientToken'          => 'ClientToken',
-        'regionId'             => 'RegionId',
-        'zoneId'               => 'ZoneId',
-        'demandName'           => 'DemandName',
-        'demandDescription'    => 'DemandDescription',
-        'instanceType'         => 'InstanceType',
-        'amount'               => 'Amount',
-        'instanceChargeType'   => 'InstanceChargeType',
-        'period'               => 'Period',
-        'periodUnit'           => 'PeriodUnit',
-        'startTime'            => 'StartTime',
-        'endTime'              => 'EndTime',
+        'clientToken'        => 'ClientToken',
+        'regionId'           => 'RegionId',
+        'zoneId'             => 'ZoneId',
+        'demandName'         => 'DemandName',
+        'demandDescription'  => 'DemandDescription',
+        'instanceType'       => 'InstanceType',
+        'amount'             => 'Amount',
+        'instanceChargeType' => 'InstanceChargeType',
+        'period'             => 'Period',
+        'periodUnit'         => 'PeriodUnit',
+        'startTime'          => 'StartTime',
+        'endTime'            => 'EndTime',
     ];
 
     public function validate()
@@ -153,18 +97,6 @@ class CreateDemandRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->clientToken) {
             $res['ClientToken'] = $this->clientToken;
         }
@@ -213,18 +145,6 @@ class CreateDemandRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
         if (isset($map['ClientToken'])) {
             $model->clientToken = $map['ClientToken'];
         }

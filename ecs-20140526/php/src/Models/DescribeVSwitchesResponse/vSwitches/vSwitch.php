@@ -2,97 +2,75 @@
 
 // This file is auto-generated, don't edit it. Thanks.
 
-namespace AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeVSwitchesResponse\VSwitches;
+namespace AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeVSwitchesResponse\vSwitches;
 
 use AlibabaCloud\Tea\Model;
 
-class VSwitch extends Model
+class vSwitch extends Model
 {
     /**
-     * @description vSwitch.instanceId
-     *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
 
     /**
-     * @description vSwitch.vpcInstanceId
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description vSwitch.status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description vSwitch.cidrBlock
-     *
      * @var string
      */
     public $cidrBlock;
 
     /**
-     * @description vSwitch.izNo
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description vSwitch.availabeIpCount
-     *
      * @var int
      */
     public $availableIpAddressCount;
 
     /**
-     * @description vSwitch.description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description vSwitch.name
-     *
      * @var string
      */
-    public $VSwitchName;
+    public $vSwitchName;
 
     /**
-     * @description gmtCreated
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description isDefault
-     *
      * @var bool
      */
     public $isDefault;
 
     /**
-     * @description vSwitch.resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
     protected $_name = [
-        'VSwitchId'               => 'VSwitchId',
+        'vSwitchId'               => 'VSwitchId',
         'vpcId'                   => 'VpcId',
         'status'                  => 'Status',
         'cidrBlock'               => 'CidrBlock',
         'zoneId'                  => 'ZoneId',
         'availableIpAddressCount' => 'AvailableIpAddressCount',
         'description'             => 'Description',
-        'VSwitchName'             => 'VSwitchName',
+        'vSwitchName'             => 'VSwitchName',
         'creationTime'            => 'CreationTime',
         'isDefault'               => 'IsDefault',
         'resourceGroupId'         => 'ResourceGroupId',
@@ -100,14 +78,14 @@ class VSwitch extends Model
 
     public function validate()
     {
-        Model::validateRequired('VSwitchId', $this->VSwitchId, true);
+        Model::validateRequired('vSwitchId', $this->vSwitchId, true);
         Model::validateRequired('vpcId', $this->vpcId, true);
         Model::validateRequired('status', $this->status, true);
         Model::validateRequired('cidrBlock', $this->cidrBlock, true);
         Model::validateRequired('zoneId', $this->zoneId, true);
         Model::validateRequired('availableIpAddressCount', $this->availableIpAddressCount, true);
         Model::validateRequired('description', $this->description, true);
-        Model::validateRequired('VSwitchName', $this->VSwitchName, true);
+        Model::validateRequired('vSwitchName', $this->vSwitchName, true);
         Model::validateRequired('creationTime', $this->creationTime, true);
         Model::validateRequired('isDefault', $this->isDefault, true);
         Model::validateRequired('resourceGroupId', $this->resourceGroupId, true);
@@ -116,8 +94,8 @@ class VSwitch extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
         if (null !== $this->vpcId) {
             $res['VpcId'] = $this->vpcId;
@@ -137,8 +115,8 @@ class VSwitch extends Model
         if (null !== $this->description) {
             $res['Description'] = $this->description;
         }
-        if (null !== $this->VSwitchName) {
-            $res['VSwitchName'] = $this->VSwitchName;
+        if (null !== $this->vSwitchName) {
+            $res['VSwitchName'] = $this->vSwitchName;
         }
         if (null !== $this->creationTime) {
             $res['CreationTime'] = $this->creationTime;
@@ -156,13 +134,13 @@ class VSwitch extends Model
     /**
      * @param array $map
      *
-     * @return VSwitch
+     * @return vSwitch
      */
     public static function fromMap($map = [])
     {
         $model = new self();
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
         if (isset($map['VpcId'])) {
             $model->vpcId = $map['VpcId'];
@@ -183,7 +161,7 @@ class VSwitch extends Model
             $model->description = $map['Description'];
         }
         if (isset($map['VSwitchName'])) {
-            $model->VSwitchName = $map['VSwitchName'];
+            $model->vSwitchName = $map['VSwitchName'];
         }
         if (isset($map['CreationTime'])) {
             $model->creationTime = $map['CreationTime'];

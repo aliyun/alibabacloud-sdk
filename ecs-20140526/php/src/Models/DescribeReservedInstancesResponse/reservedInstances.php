@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class reservedInstances extends Model
 {
     /**
-     * @description ReservedInstance
-     *
      * @var array
      */
     public $reservedInstance;

@@ -11,141 +11,83 @@ use AlibabaCloud\Tea\Model;
 class CreateImageRequest extends Model
 {
     /**
-     * @description diskDeviceMappingParams
-     *
      * @var array
      */
     public $diskDeviceMapping;
 
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description snapshotNo
-     *
      * @var string
      */
     public $snapshotId;
 
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description imageName
-     *
      * @var string
      */
     public $imageName;
 
     /**
-     * @description imageFamily
-     *
      * @var string
      */
     public $imageFamily;
 
     /**
-     * @description version
-     *
      * @var string
      */
     public $imageVersion;
 
     /**
-     * @description remark
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description platform
-     *
      * @var string
      */
     public $platform;
 
     /**
-     * @description architecture
-     *
      * @var string
      */
     public $architecture;
 
     /**
-     * @description token
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description tagKeyValueParams
-     *
      * @var array
      */
     public $tag;
 
     /**
-     * @description resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
     protected $_name = [
-        'diskDeviceMapping'    => 'DiskDeviceMapping',
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'regionId'             => 'RegionId',
-        'snapshotId'           => 'SnapshotId',
-        'instanceId'           => 'InstanceId',
-        'imageName'            => 'ImageName',
-        'imageFamily'          => 'ImageFamily',
-        'imageVersion'         => 'ImageVersion',
-        'description'          => 'Description',
-        'platform'             => 'Platform',
-        'architecture'         => 'Architecture',
-        'clientToken'          => 'ClientToken',
-        'ownerAccount'         => 'OwnerAccount',
-        'tag'                  => 'Tag',
-        'resourceGroupId'      => 'ResourceGroupId',
+        'diskDeviceMapping' => 'DiskDeviceMapping',
+        'regionId'          => 'RegionId',
+        'snapshotId'        => 'SnapshotId',
+        'instanceId'        => 'InstanceId',
+        'imageName'         => 'ImageName',
+        'imageFamily'       => 'ImageFamily',
+        'imageVersion'      => 'ImageVersion',
+        'description'       => 'Description',
+        'platform'          => 'Platform',
+        'architecture'      => 'Architecture',
+        'clientToken'       => 'ClientToken',
+        'tag'               => 'Tag',
+        'resourceGroupId'   => 'ResourceGroupId',
     ];
 
     public function validate()
@@ -164,15 +106,6 @@ class CreateImageRequest extends Model
                     $res['DiskDeviceMapping'][$n++] = null !== $item ? $item->toMap() : $item;
                 }
             }
-        }
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
         }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
@@ -203,9 +136,6 @@ class CreateImageRequest extends Model
         }
         if (null !== $this->clientToken) {
             $res['ClientToken'] = $this->clientToken;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
         }
         if (null !== $this->tag) {
             $res['Tag'] = [];
@@ -240,15 +170,6 @@ class CreateImageRequest extends Model
                 }
             }
         }
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
@@ -278,9 +199,6 @@ class CreateImageRequest extends Model
         }
         if (isset($map['ClientToken'])) {
             $model->clientToken = $map['ClientToken'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
         }
         if (isset($map['Tag'])) {
             if (!empty($map['Tag'])) {

@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class VRouters extends Model
 {
     /**
-     * @description VRouter
-     *
      * @var array
      */
     public $VRouter;

@@ -10,99 +10,71 @@ use AlibabaCloud\Tea\Model;
 class autoSnapshotPolicy extends Model
 {
     /**
-     * @description snapshotPolicyId
-     *
      * @var string
      */
     public $autoSnapshotPolicyId;
 
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description autoSnapshotPolicyName
-     *
      * @var string
      */
     public $autoSnapshotPolicyName;
 
     /**
-     * @description timePoints
-     *
      * @var string
      */
     public $timePoints;
 
     /**
-     * @description repeatWeekdays
-     *
      * @var string
      */
     public $repeatWeekdays;
 
     /**
-     * @description retentionDays
-     *
      * @var int
      */
     public $retentionDays;
 
     /**
-     * @description diskNums
-     *
      * @var int
      */
     public $diskNums;
 
     /**
-     * @description volumeNums
-     *
      * @var int
      */
     public $volumeNums;
 
     /**
-     * @description creationTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description enableCrossRegionCopy
-     *
      * @var bool
      */
     public $enableCrossRegionCopy;
 
     /**
-     * @description targetCopyRegions
-     *
      * @var string
      */
     public $targetCopyRegions;
 
     /**
-     * @description copiedSnapshotsRetentionDays
-     *
      * @var int
      */
     public $copiedSnapshotsRetentionDays;
 
     /**
-     * @description tags
-     *
      * @var tags
      */
     public $tags;

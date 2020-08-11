@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class dedicatedHostRenewAttribute extends Model
 {
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $dedicatedHostId;
 
     /**
-     * @description autoRenewEnabled
-     *
      * @var bool
      */
     public $autoRenewEnabled;
 
     /**
-     * @description duration
-     *
      * @var int
      */
     public $duration;
 
     /**
-     * @description periodUnit
-     *
      * @var string
      */
     public $periodUnit;
 
     /**
-     * @description renewalStatus
-     *
      * @var string
      */
     public $renewalStatus;

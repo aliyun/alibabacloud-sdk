@@ -9,117 +9,65 @@ use AlibabaCloud\Tea\Model;
 class ModifyInstanceChargeTypeRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description instanceIds
-     *
      * @var string
      */
     public $instanceIds;
 
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description period
-     *
      * @var int
      */
     public $period;
 
     /**
-     * @description periodUnit
-     *
      * @var string
      */
     public $periodUnit;
 
     /**
-     * @description includeDataDisks
-     *
      * @var bool
      */
     public $includeDataDisks;
 
     /**
-     * @description dryRun
-     *
      * @var bool
      */
     public $dryRun;
 
     /**
-     * @description autoPay
-     *
      * @var bool
      */
     public $autoPay;
 
     /**
-     * @description instanceChargeType
-     *
      * @var string
      */
     public $instanceChargeType;
 
     /**
-     * @description clientToken
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description isDetailRefund
-     *
      * @var bool
      */
     public $isDetailFee;
     protected $_name = [
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'instanceIds'          => 'InstanceIds',
-        'regionId'             => 'RegionId',
-        'period'               => 'Period',
-        'periodUnit'           => 'PeriodUnit',
-        'includeDataDisks'     => 'IncludeDataDisks',
-        'dryRun'               => 'DryRun',
-        'autoPay'              => 'AutoPay',
-        'instanceChargeType'   => 'InstanceChargeType',
-        'clientToken'          => 'ClientToken',
-        'ownerAccount'         => 'OwnerAccount',
-        'isDetailFee'          => 'IsDetailFee',
+        'instanceIds'        => 'InstanceIds',
+        'regionId'           => 'RegionId',
+        'period'             => 'Period',
+        'periodUnit'         => 'PeriodUnit',
+        'includeDataDisks'   => 'IncludeDataDisks',
+        'dryRun'             => 'DryRun',
+        'autoPay'            => 'AutoPay',
+        'instanceChargeType' => 'InstanceChargeType',
+        'clientToken'        => 'ClientToken',
+        'isDetailFee'        => 'IsDetailFee',
     ];
 
     public function validate()
@@ -131,15 +79,6 @@ class ModifyInstanceChargeTypeRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->instanceIds) {
             $res['InstanceIds'] = $this->instanceIds;
         }
@@ -167,9 +106,6 @@ class ModifyInstanceChargeTypeRequest extends Model
         if (null !== $this->clientToken) {
             $res['ClientToken'] = $this->clientToken;
         }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->isDetailFee) {
             $res['IsDetailFee'] = $this->isDetailFee;
         }
@@ -185,15 +121,6 @@ class ModifyInstanceChargeTypeRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['InstanceIds'])) {
             $model->instanceIds = $map['InstanceIds'];
         }
@@ -220,9 +147,6 @@ class ModifyInstanceChargeTypeRequest extends Model
         }
         if (isset($map['ClientToken'])) {
             $model->clientToken = $map['ClientToken'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
         }
         if (isset($map['IsDetailFee'])) {
             $model->isDetailFee = $map['IsDetailFee'];

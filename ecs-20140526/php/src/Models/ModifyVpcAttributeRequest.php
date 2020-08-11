@@ -9,85 +9,41 @@ use AlibabaCloud\Tea\Model;
 class ModifyVpcAttributeRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description instanceId
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $vpcName;
 
     /**
-     * @description cidrBlock
-     *
      * @var string
      */
     public $cidrBlock;
 
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description userCidr
-     *
      * @var string
      */
     public $userCidr;
     protected $_name = [
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'vpcId'                => 'VpcId',
-        'description'          => 'Description',
-        'vpcName'              => 'VpcName',
-        'cidrBlock'            => 'CidrBlock',
-        'regionId'             => 'RegionId',
-        'ownerAccount'         => 'OwnerAccount',
-        'userCidr'             => 'UserCidr',
+        'vpcId'       => 'VpcId',
+        'description' => 'Description',
+        'vpcName'     => 'VpcName',
+        'cidrBlock'   => 'CidrBlock',
+        'regionId'    => 'RegionId',
+        'userCidr'    => 'UserCidr',
     ];
 
     public function validate()
@@ -98,15 +54,6 @@ class ModifyVpcAttributeRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->vpcId) {
             $res['VpcId'] = $this->vpcId;
         }
@@ -121,9 +68,6 @@ class ModifyVpcAttributeRequest extends Model
         }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
         }
         if (null !== $this->userCidr) {
             $res['UserCidr'] = $this->userCidr;
@@ -140,15 +84,6 @@ class ModifyVpcAttributeRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['VpcId'])) {
             $model->vpcId = $map['VpcId'];
         }
@@ -163,9 +98,6 @@ class ModifyVpcAttributeRequest extends Model
         }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
         }
         if (isset($map['UserCidr'])) {
             $model->userCidr = $map['UserCidr'];

@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class instanceSystemEventSet extends Model
 {
     /**
-     * @description InstanceSystemEventType
-     *
      * @var array
      */
     public $instanceSystemEventType;

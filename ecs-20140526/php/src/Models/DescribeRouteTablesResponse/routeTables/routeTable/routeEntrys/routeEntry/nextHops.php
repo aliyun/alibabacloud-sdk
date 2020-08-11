@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class nextHops extends Model
 {
     /**
-     * @description NextHop
-     *
      * @var array
      */
     public $nextHop;

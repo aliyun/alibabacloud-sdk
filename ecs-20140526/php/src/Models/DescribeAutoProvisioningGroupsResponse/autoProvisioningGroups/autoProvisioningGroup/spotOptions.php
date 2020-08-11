@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class spotOptions extends Model
 {
     /**
-     * @description allocationStrategy
-     *
      * @var string
      */
     public $allocationStrategy;
 
     /**
-     * @description instanceInterruptionBehavior
-     *
      * @var string
      */
     public $instanceInterruptionBehavior;
 
     /**
-     * @description instancePoolsToUseCount
-     *
      * @var int
      */
     public $instancePoolsToUseCount;

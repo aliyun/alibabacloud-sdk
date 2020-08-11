@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class StopInstancesResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.operateResponseModels
-     *
      * @var instanceResponses
      */
     public $instanceResponses;

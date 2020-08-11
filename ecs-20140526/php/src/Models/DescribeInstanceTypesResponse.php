@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeInstanceTypesResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var instanceTypes
      */
     public $instanceTypes;

@@ -27,10 +27,7 @@ class networkTypes extends Model
     {
         $res = [];
         if (null !== $this->supportedNetworkCategory) {
-            $res['supportedNetworkCategory'] = [];
-            if (null !== $this->supportedNetworkCategory) {
-                $res['supportedNetworkCategory'] = $this->supportedNetworkCategory;
-            }
+            $res['supportedNetworkCategory'] = $this->supportedNetworkCategory;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class networkTypes extends Model
         $model = new self();
         if (isset($map['supportedNetworkCategory'])) {
             if (!empty($map['supportedNetworkCategory'])) {
-                $model->supportedNetworkCategory = [];
                 $model->supportedNetworkCategory = $map['supportedNetworkCategory'];
             }
         }

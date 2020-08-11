@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeBandwidthLimitationResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var bandwidths
      */
     public $bandwidths;

@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class attachInstanceRamRoleResults extends Model
 {
     /**
-     * @description AttachInstanceRamRoleResult
-     *
      * @var array
      */
     public $attachInstanceRamRoleResult;

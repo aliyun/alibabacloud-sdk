@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class mountInstance extends Model
 {
     /**
-     * @description ecsInstanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description device
-     *
      * @var string
      */
     public $device;
 
     /**
-     * @description attachedTime
-     *
      * @var string
      */
     public $attachedTime;

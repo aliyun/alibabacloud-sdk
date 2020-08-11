@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class DescribeUserDataResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description data.instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description data.userData
-     *
      * @var string
      */
     public $userData;

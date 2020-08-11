@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class ModifyInstanceNetworkSpecResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.orderId
-     *
      * @var string
      */
     public $orderId;

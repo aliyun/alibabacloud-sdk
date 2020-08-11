@@ -10,36 +10,26 @@ use AlibabaCloud\Tea\Model;
 class DescribeInstanceAutoRenewAttributeResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.pageNo
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description data.pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description data.total
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description data.data
-     *
      * @var instanceRenewAttributes
      */
     public $instanceRenewAttributes;

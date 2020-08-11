@@ -10,133 +10,77 @@ use AlibabaCloud\Tea\Model;
 class DescribeDemandsRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description tagKeyValueParams
-     *
      * @var array
      */
     public $tag;
 
     /**
-     * @description pageNo
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description dryRun
-     *
      * @var bool
      */
     public $dryRun;
 
     /**
-     * @description zoneNo
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description demandId
-     *
      * @var string
      */
     public $demandId;
 
     /**
-     * @description instanceTypeFamily
-     *
      * @var string
      */
     public $instanceTypeFamily;
 
     /**
-     * @description instanceType
-     *
      * @var string
      */
     public $instanceType;
 
     /**
-     * @description instancePayType
-     *
      * @var string
      */
     public $instanceChargeType;
 
     /**
-     * @description demandType
-     *
      * @var string
      */
     public $demandType;
 
     /**
-     * @description demandStatusLists
-     *
      * @var array
      */
     public $demandStatus;
     protected $_name = [
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'ownerAccount'         => 'OwnerAccount',
-        'regionId'             => 'RegionId',
-        'tag'                  => 'Tag',
-        'pageNumber'           => 'PageNumber',
-        'pageSize'             => 'PageSize',
-        'dryRun'               => 'DryRun',
-        'zoneId'               => 'ZoneId',
-        'demandId'             => 'DemandId',
-        'instanceTypeFamily'   => 'InstanceTypeFamily',
-        'instanceType'         => 'InstanceType',
-        'instanceChargeType'   => 'InstanceChargeType',
-        'demandType'           => 'DemandType',
-        'demandStatus'         => 'DemandStatus',
+        'regionId'           => 'RegionId',
+        'tag'                => 'Tag',
+        'pageNumber'         => 'PageNumber',
+        'pageSize'           => 'PageSize',
+        'dryRun'             => 'DryRun',
+        'zoneId'             => 'ZoneId',
+        'demandId'           => 'DemandId',
+        'instanceTypeFamily' => 'InstanceTypeFamily',
+        'instanceType'       => 'InstanceType',
+        'instanceChargeType' => 'InstanceChargeType',
+        'demandType'         => 'DemandType',
+        'demandStatus'       => 'DemandStatus',
     ];
 
     public function validate()
@@ -147,18 +91,6 @@ class DescribeDemandsRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
@@ -199,10 +131,7 @@ class DescribeDemandsRequest extends Model
             $res['DemandType'] = $this->demandType;
         }
         if (null !== $this->demandStatus) {
-            $res['DemandStatus'] = [];
-            if (null !== $this->demandStatus) {
-                $res['DemandStatus'] = $this->demandStatus;
-            }
+            $res['DemandStatus'] = $this->demandStatus;
         }
 
         return $res;
@@ -216,18 +145,6 @@ class DescribeDemandsRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
@@ -269,7 +186,6 @@ class DescribeDemandsRequest extends Model
         }
         if (isset($map['DemandStatus'])) {
             if (!empty($map['DemandStatus'])) {
-                $model->demandStatus = [];
                 $model->demandStatus = $map['DemandStatus'];
             }
         }

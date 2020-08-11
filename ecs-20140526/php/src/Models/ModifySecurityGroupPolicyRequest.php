@@ -9,69 +9,29 @@ use AlibabaCloud\Tea\Model;
 class ModifySecurityGroupPolicyRequest extends Model
 {
     /**
-     * @description groupNo
-     *
      * @var string
      */
     public $securityGroupId;
 
     /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description policy
-     *
      * @var string
      */
     public $innerAccessPolicy;
 
     /**
-     * @description token
-     *
      * @var string
      */
     public $clientToken;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
     protected $_name = [
-        'securityGroupId'      => 'SecurityGroupId',
-        'regionId'             => 'RegionId',
-        'innerAccessPolicy'    => 'InnerAccessPolicy',
-        'clientToken'          => 'ClientToken',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'ownerAccount'         => 'OwnerAccount',
-        'ownerId'              => 'OwnerId',
+        'securityGroupId'   => 'SecurityGroupId',
+        'regionId'          => 'RegionId',
+        'innerAccessPolicy' => 'InnerAccessPolicy',
+        'clientToken'       => 'ClientToken',
     ];
 
     public function validate()
@@ -96,18 +56,6 @@ class ModifySecurityGroupPolicyRequest extends Model
         if (null !== $this->clientToken) {
             $res['ClientToken'] = $this->clientToken;
         }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
 
         return $res;
     }
@@ -131,18 +79,6 @@ class ModifySecurityGroupPolicyRequest extends Model
         }
         if (isset($map['ClientToken'])) {
             $model->clientToken = $map['ClientToken'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
         }
 
         return $model;

@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class inactiveDisk extends Model
 {
     /**
-     * @description createTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description releaseTime
-     *
      * @var string
      */
     public $releaseTime;
 
     /**
-     * @description deviceType
-     *
      * @var string
      */
     public $deviceType;
 
     /**
-     * @description deviceCategory
-     *
      * @var string
      */
     public $deviceCategory;
 
     /**
-     * @description deviceSize
-     *
      * @var string
      */
     public $deviceSize;

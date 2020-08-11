@@ -9,50 +9,36 @@ use AlibabaCloud\Tea\Model;
 class storageSet extends Model
 {
     /**
-     * @description storageSetId
-     *
      * @var string
      */
     public $storageSetId;
 
     /**
-     * @description createTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description storageSetName
-     *
      * @var string
      */
     public $storageSetName;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description maxPartition
-     *
      * @var int
      */
     public $storageSetPartitionNumber;
 
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description zoneId
-     *
      * @var string
      */
     public $zoneId;

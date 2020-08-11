@@ -10,167 +10,99 @@ use AlibabaCloud\Tea\Model;
 class DescribeNetworkInterfacesRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description tagKeyValueParams
-     *
      * @var array
      */
     public $tag;
 
     /**
-     * @description resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
 
     /**
-     * @description vswitchId
-     *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
 
     /**
-     * @description vpcId
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description primaryIpAddress
-     *
      * @var string
      */
     public $primaryIpAddress;
 
     /**
-     * @description privateIps
-     *
      * @var array
      */
     public $privateIpAddress;
 
     /**
-     * @description securityGroupId
-     *
      * @var string
      */
     public $securityGroupId;
 
     /**
-     * @description eniName
-     *
      * @var string
      */
     public $networkInterfaceName;
 
     /**
-     * @description networkInterfaceType
-     *
      * @var string
      */
     public $type;
 
     /**
-     * @description ecsInstanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description eniInstanceIds
-     *
      * @var array
      */
     public $networkInterfaceId;
 
     /**
-     * @description serviceManaged
-     *
      * @var bool
      */
     public $serviceManaged;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description pageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description nextToken
-     *
      * @var string
      */
     public $nextToken;
 
     /**
-     * @description maxResults
-     *
      * @var int
      */
     public $maxResults;
     protected $_name = [
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'ownerAccount'         => 'OwnerAccount',
         'regionId'             => 'RegionId',
         'tag'                  => 'Tag',
         'resourceGroupId'      => 'ResourceGroupId',
-        'VSwitchId'            => 'VSwitchId',
+        'vSwitchId'            => 'VSwitchId',
         'vpcId'                => 'VpcId',
         'primaryIpAddress'     => 'PrimaryIpAddress',
         'privateIpAddress'     => 'PrivateIpAddress',
@@ -195,18 +127,6 @@ class DescribeNetworkInterfacesRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
@@ -222,8 +142,8 @@ class DescribeNetworkInterfacesRequest extends Model
         if (null !== $this->resourceGroupId) {
             $res['ResourceGroupId'] = $this->resourceGroupId;
         }
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
         if (null !== $this->vpcId) {
             $res['VpcId'] = $this->vpcId;
@@ -232,10 +152,7 @@ class DescribeNetworkInterfacesRequest extends Model
             $res['PrimaryIpAddress'] = $this->primaryIpAddress;
         }
         if (null !== $this->privateIpAddress) {
-            $res['PrivateIpAddress'] = [];
-            if (null !== $this->privateIpAddress) {
-                $res['PrivateIpAddress'] = $this->privateIpAddress;
-            }
+            $res['PrivateIpAddress'] = $this->privateIpAddress;
         }
         if (null !== $this->securityGroupId) {
             $res['SecurityGroupId'] = $this->securityGroupId;
@@ -250,10 +167,7 @@ class DescribeNetworkInterfacesRequest extends Model
             $res['InstanceId'] = $this->instanceId;
         }
         if (null !== $this->networkInterfaceId) {
-            $res['NetworkInterfaceId'] = [];
-            if (null !== $this->networkInterfaceId) {
-                $res['NetworkInterfaceId'] = $this->networkInterfaceId;
-            }
+            $res['NetworkInterfaceId'] = $this->networkInterfaceId;
         }
         if (null !== $this->serviceManaged) {
             $res['ServiceManaged'] = $this->serviceManaged;
@@ -285,18 +199,6 @@ class DescribeNetworkInterfacesRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
@@ -313,7 +215,7 @@ class DescribeNetworkInterfacesRequest extends Model
             $model->resourceGroupId = $map['ResourceGroupId'];
         }
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
         if (isset($map['VpcId'])) {
             $model->vpcId = $map['VpcId'];
@@ -323,7 +225,6 @@ class DescribeNetworkInterfacesRequest extends Model
         }
         if (isset($map['PrivateIpAddress'])) {
             if (!empty($map['PrivateIpAddress'])) {
-                $model->privateIpAddress = [];
                 $model->privateIpAddress = $map['PrivateIpAddress'];
             }
         }
@@ -341,7 +242,6 @@ class DescribeNetworkInterfacesRequest extends Model
         }
         if (isset($map['NetworkInterfaceId'])) {
             if (!empty($map['NetworkInterfaceId'])) {
-                $model->networkInterfaceId = [];
                 $model->networkInterfaceId = $map['NetworkInterfaceId'];
             }
         }

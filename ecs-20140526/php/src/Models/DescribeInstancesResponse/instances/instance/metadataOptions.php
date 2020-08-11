@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class metadataOptions extends Model
 {
     /**
-     * @description httpEndpoint
-     *
      * @var string
      */
     public $httpEndpoint;
 
     /**
-     * @description httpTokens
-     *
      * @var string
      */
     public $httpTokens;
 
     /**
-     * @description httpPutResponseHopLimit
-     *
      * @var int
      */
     public $httpPutResponseHopLimit;

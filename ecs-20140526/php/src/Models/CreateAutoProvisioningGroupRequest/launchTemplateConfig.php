@@ -9,43 +9,33 @@ use AlibabaCloud\Tea\Model;
 class launchTemplateConfig extends Model
 {
     /**
-     * @description instanceType
-     *
      * @var string
      */
     public $instanceType;
 
     /**
-     * @description maxPrice
-     *
      * @var float
      */
     public $maxPrice;
 
     /**
-     * @description vSWitchId
-     *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
 
     /**
-     * @description weightedCapacity
-     *
      * @var float
      */
     public $weightedCapacity;
 
     /**
-     * @description priority
-     *
      * @var int
      */
     public $priority;
     protected $_name = [
         'instanceType'     => 'InstanceType',
         'maxPrice'         => 'MaxPrice',
-        'VSwitchId'        => 'VSwitchId',
+        'vSwitchId'        => 'VSwitchId',
         'weightedCapacity' => 'WeightedCapacity',
         'priority'         => 'Priority',
     ];
@@ -54,7 +44,7 @@ class launchTemplateConfig extends Model
     {
         Model::validateRequired('instanceType', $this->instanceType, true);
         Model::validateRequired('maxPrice', $this->maxPrice, true);
-        Model::validateRequired('VSwitchId', $this->VSwitchId, true);
+        Model::validateRequired('vSwitchId', $this->vSwitchId, true);
         Model::validateRequired('weightedCapacity', $this->weightedCapacity, true);
         Model::validateRequired('priority', $this->priority, true);
     }
@@ -68,8 +58,8 @@ class launchTemplateConfig extends Model
         if (null !== $this->maxPrice) {
             $res['MaxPrice'] = $this->maxPrice;
         }
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
         if (null !== $this->weightedCapacity) {
             $res['WeightedCapacity'] = $this->weightedCapacity;
@@ -96,7 +86,7 @@ class launchTemplateConfig extends Model
             $model->maxPrice = $map['MaxPrice'];
         }
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
         if (isset($map['WeightedCapacity'])) {
             $model->weightedCapacity = $map['WeightedCapacity'];

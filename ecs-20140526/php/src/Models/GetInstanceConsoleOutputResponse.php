@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class GetInstanceConsoleOutputResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description data.content
-     *
      * @var string
      */
     public $consoleOutput;
 
     /**
-     * @description data.timestamp
-     *
      * @var string
      */
     public $lastUpdateTime;

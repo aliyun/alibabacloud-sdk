@@ -27,10 +27,7 @@ class dedicatedHostGenerations extends Model
     {
         $res = [];
         if (null !== $this->dedicatedHostGeneration) {
-            $res['DedicatedHostGeneration'] = [];
-            if (null !== $this->dedicatedHostGeneration) {
-                $res['DedicatedHostGeneration'] = $this->dedicatedHostGeneration;
-            }
+            $res['DedicatedHostGeneration'] = $this->dedicatedHostGeneration;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class dedicatedHostGenerations extends Model
         $model = new self();
         if (isset($map['DedicatedHostGeneration'])) {
             if (!empty($map['DedicatedHostGeneration'])) {
-                $model->dedicatedHostGeneration = [];
                 $model->dedicatedHostGeneration = $map['DedicatedHostGeneration'];
             }
         }

@@ -27,10 +27,7 @@ class memberNetworkInterfaceIds extends Model
     {
         $res = [];
         if (null !== $this->memberNetworkInterfaceId) {
-            $res['MemberNetworkInterfaceId'] = [];
-            if (null !== $this->memberNetworkInterfaceId) {
-                $res['MemberNetworkInterfaceId'] = $this->memberNetworkInterfaceId;
-            }
+            $res['MemberNetworkInterfaceId'] = $this->memberNetworkInterfaceId;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class memberNetworkInterfaceIds extends Model
         $model = new self();
         if (isset($map['MemberNetworkInterfaceId'])) {
             if (!empty($map['MemberNetworkInterfaceId'])) {
-                $model->memberNetworkInterfaceId = [];
                 $model->memberNetworkInterfaceId = $map['MemberNetworkInterfaceId'];
             }
         }

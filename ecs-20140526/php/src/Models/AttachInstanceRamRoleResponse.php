@@ -10,36 +10,26 @@ use AlibabaCloud\Tea\Model;
 class AttachInstanceRamRoleResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.totalCount
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description data.failCount
-     *
      * @var int
      */
     public $failCount;
 
     /**
-     * @description data.ramRoleName
-     *
      * @var string
      */
     public $ramRoleName;
 
     /**
-     * @description data.results
-     *
      * @var attachInstanceRamRoleResults
      */
     public $attachInstanceRamRoleResults;

@@ -9,57 +9,41 @@ use AlibabaCloud\Tea\Model;
 class eniMonitorData extends Model
 {
     /**
-     * @description resourceId
-     *
      * @var string
      */
     public $eniId;
 
     /**
-     * @description timeStamp
-     *
      * @var string
      */
     public $timeStamp;
 
     /**
-     * @description item2Value.PacketTx
-     *
      * @var string
      */
     public $packetTx;
 
     /**
-     * @description item2Value.PacketRx
-     *
      * @var string
      */
     public $packetRx;
 
     /**
-     * @description item2Value.IntranetOut
-     *
      * @var string
      */
     public $intranetTx;
 
     /**
-     * @description item2Value.IntranetIn
-     *
      * @var string
      */
     public $intranetRx;
 
     /**
-     * @description item2Value.DropPacketTx
-     *
      * @var string
      */
     public $dropPacketTx;
 
     /**
-     * @description item2Value.DropPacketRx
-     *
      * @var string
      */
     public $dropPacketRx;

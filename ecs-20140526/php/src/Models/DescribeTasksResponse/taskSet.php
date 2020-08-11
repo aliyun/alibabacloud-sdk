@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class taskSet extends Model
 {
     /**
-     * @description Task
-     *
      * @var array
      */
     public $task;

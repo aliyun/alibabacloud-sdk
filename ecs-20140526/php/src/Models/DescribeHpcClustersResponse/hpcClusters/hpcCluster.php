@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class hpcCluster extends Model
 {
     /**
-     * @description hpcClusterId
-     *
      * @var string
      */
     public $hpcClusterId;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;

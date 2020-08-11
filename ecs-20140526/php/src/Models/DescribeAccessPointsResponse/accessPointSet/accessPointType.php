@@ -9,57 +9,41 @@ use AlibabaCloud\Tea\Model;
 class accessPointType extends Model
 {
     /**
-     * @description accessPointId
-     *
      * @var string
      */
     public $accessPointId;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description type
-     *
      * @var string
      */
     public $type;
 
     /**
-     * @description attachedRegionNo
-     *
      * @var string
      */
     public $attachedRegionNo;
 
     /**
-     * @description location
-     *
      * @var string
      */
     public $location;
 
     /**
-     * @description hostOperator
-     *
      * @var string
      */
     public $hostOperator;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;

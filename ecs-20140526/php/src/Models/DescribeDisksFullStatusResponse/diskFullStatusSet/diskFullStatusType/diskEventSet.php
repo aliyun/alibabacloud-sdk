@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class diskEventSet extends Model
 {
     /**
-     * @description DiskEventType
-     *
      * @var array
      */
     public $diskEventType;

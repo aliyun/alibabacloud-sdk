@@ -9,71 +9,51 @@ use AlibabaCloud\Tea\Model;
 class diskMonitorData extends Model
 {
     /**
-     * @description resourceId
-     *
      * @var string
      */
     public $diskId;
 
     /**
-     * @description item2Value.IOPSRead
-     *
      * @var int
      */
     public $IOPSRead;
 
     /**
-     * @description item2Value.IOPSWrite
-     *
      * @var int
      */
     public $IOPSWrite;
 
     /**
-     * @description item2Value.IOPSTotal
-     *
      * @var int
      */
     public $IOPSTotal;
 
     /**
-     * @description item2Value.BPSRead
-     *
      * @var int
      */
     public $BPSRead;
 
     /**
-     * @description item2Value.BPSWrite
-     *
      * @var int
      */
     public $BPSWrite;
 
     /**
-     * @description item2Value.BPSTotal
-     *
      * @var int
      */
     public $BPSTotal;
 
     /**
-     * @description item2Value.LatencyRead
-     *
      * @var int
      */
     public $latencyRead;
 
     /**
-     * @description item2Value.LatencyWrite
-     *
      * @var int
      */
     public $latencyWrite;
 
     /**
-     * @description timeStamp
-     *
      * @var string
      */
     public $timeStamp;

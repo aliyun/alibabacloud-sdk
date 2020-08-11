@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class dedicatedHostIdSets extends Model
 {
     /**
-     * @description DedicatedHostId
-     *
      * @var array
      */
     public $dedicatedHostId;
@@ -27,10 +25,7 @@ class dedicatedHostIdSets extends Model
     {
         $res = [];
         if (null !== $this->dedicatedHostId) {
-            $res['DedicatedHostId'] = [];
-            if (null !== $this->dedicatedHostId) {
-                $res['DedicatedHostId'] = $this->dedicatedHostId;
-            }
+            $res['DedicatedHostId'] = $this->dedicatedHostId;
         }
 
         return $res;
@@ -46,7 +41,6 @@ class dedicatedHostIdSets extends Model
         $model = new self();
         if (isset($map['DedicatedHostId'])) {
             if (!empty($map['DedicatedHostId'])) {
-                $model->dedicatedHostId = [];
                 $model->dedicatedHostId = $map['DedicatedHostId'];
             }
         }

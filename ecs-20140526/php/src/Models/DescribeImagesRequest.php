@@ -4,182 +4,117 @@
 
 namespace AlibabaCloud\SDK\Ecs\V20140526\Models;
 
+use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeImagesRequest\filter;
 use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeImagesRequest\tag;
 use AlibabaCloud\Tea\Model;
 
 class DescribeImagesRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description imageIds
-     *
      * @var string
      */
     public $imageId;
 
     /**
-     * @description isAll
-     *
      * @var bool
      */
     public $showExpired;
 
     /**
-     * @description snapshotId
-     *
      * @var string
      */
     public $snapshotId;
 
     /**
-     * @description fuzzyImageName
-     *
      * @var string
      */
     public $imageName;
 
     /**
-     * @description imageFamily
-     *
      * @var string
      */
     public $imageFamily;
 
     /**
-     * @description imageOwnerAlias
-     *
      * @var string
      */
     public $imageOwnerAlias;
 
     /**
-     * @description instanceType
-     *
      * @var string
      */
     public $instanceType;
 
     /**
-     * @description isSupportIoOptimized
-     *
      * @var bool
      */
     public $isSupportIoOptimized;
 
     /**
-     * @description isSupportCloudinit
-     *
      * @var bool
      */
     public $isSupportCloudinit;
 
     /**
-     * @description osType
-     *
      * @var string
      */
     public $OSType;
 
     /**
-     * @description architecture
-     *
      * @var string
      */
     public $architecture;
 
     /**
-     * @description pageNo
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description usage
-     *
      * @var string
      */
     public $usage;
 
     /**
-     * @description tagKeyValueParams
-     *
      * @var array
      */
     public $tag;
 
     /**
-     * @description dryRun
-     *
      * @var bool
      */
     public $dryRun;
 
     /**
-     * @description actionType
-     *
      * @var string
      */
     public $actionType;
 
     /**
-     * @description resourceGroupId
-     *
+     * @var array
+     */
+    public $filter;
+
+    /**
      * @var string
      */
     public $resourceGroupId;
     protected $_name = [
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
         'regionId'             => 'RegionId',
         'status'               => 'Status',
         'imageId'              => 'ImageId',
@@ -195,11 +130,11 @@ class DescribeImagesRequest extends Model
         'architecture'         => 'Architecture',
         'pageNumber'           => 'PageNumber',
         'pageSize'             => 'PageSize',
-        'ownerAccount'         => 'OwnerAccount',
         'usage'                => 'Usage',
         'tag'                  => 'Tag',
         'dryRun'               => 'DryRun',
         'actionType'           => 'ActionType',
+        'filter'               => 'Filter',
         'resourceGroupId'      => 'ResourceGroupId',
     ];
 
@@ -211,15 +146,6 @@ class DescribeImagesRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
@@ -265,9 +191,6 @@ class DescribeImagesRequest extends Model
         if (null !== $this->pageSize) {
             $res['PageSize'] = $this->pageSize;
         }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->usage) {
             $res['Usage'] = $this->usage;
         }
@@ -286,6 +209,15 @@ class DescribeImagesRequest extends Model
         if (null !== $this->actionType) {
             $res['ActionType'] = $this->actionType;
         }
+        if (null !== $this->filter) {
+            $res['Filter'] = [];
+            if (null !== $this->filter && \is_array($this->filter)) {
+                $n = 0;
+                foreach ($this->filter as $item) {
+                    $res['Filter'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
+            }
+        }
         if (null !== $this->resourceGroupId) {
             $res['ResourceGroupId'] = $this->resourceGroupId;
         }
@@ -301,15 +233,6 @@ class DescribeImagesRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
@@ -355,9 +278,6 @@ class DescribeImagesRequest extends Model
         if (isset($map['PageSize'])) {
             $model->pageSize = $map['PageSize'];
         }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
         if (isset($map['Usage'])) {
             $model->usage = $map['Usage'];
         }
@@ -375,6 +295,15 @@ class DescribeImagesRequest extends Model
         }
         if (isset($map['ActionType'])) {
             $model->actionType = $map['ActionType'];
+        }
+        if (isset($map['Filter'])) {
+            if (!empty($map['Filter'])) {
+                $model->filter = [];
+                $n             = 0;
+                foreach ($map['Filter'] as $item) {
+                    $model->filter[$n++] = null !== $item ? filter::fromMap($item) : $item;
+                }
+            }
         }
         if (isset($map['ResourceGroupId'])) {
             $model->resourceGroupId = $map['ResourceGroupId'];

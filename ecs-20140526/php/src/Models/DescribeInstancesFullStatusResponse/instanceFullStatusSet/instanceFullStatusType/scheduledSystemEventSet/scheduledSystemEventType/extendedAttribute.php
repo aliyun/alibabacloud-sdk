@@ -10,22 +10,16 @@ use AlibabaCloud\Tea\Model;
 class extendedAttribute extends Model
 {
     /**
-     * @description diskId
-     *
      * @var string
      */
     public $diskId;
 
     /**
-     * @description device
-     *
      * @var string
      */
     public $device;
 
     /**
-     * @description inactiveDisks
-     *
      * @var inactiveDisks
      */
     public $inactiveDisks;

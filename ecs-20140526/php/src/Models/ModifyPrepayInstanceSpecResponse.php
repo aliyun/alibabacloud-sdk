@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class ModifyPrepayInstanceSpecResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.orderId
-     *
      * @var string
      */
     public $orderId;

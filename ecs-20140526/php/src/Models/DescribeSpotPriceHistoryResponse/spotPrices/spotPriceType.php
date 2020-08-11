@@ -9,50 +9,36 @@ use AlibabaCloud\Tea\Model;
 class spotPriceType extends Model
 {
     /**
-     * @description izNo
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description instanceType
-     *
      * @var string
      */
     public $instanceType;
 
     /**
-     * @description ioOptimized
-     *
      * @var string
      */
     public $ioOptimized;
 
     /**
-     * @description utcTimestamp
-     *
      * @var string
      */
     public $timestamp;
 
     /**
-     * @description networkType
-     *
      * @var string
      */
     public $networkType;
 
     /**
-     * @description spotPrice
-     *
      * @var float
      */
     public $spotPrice;
 
     /**
-     * @description originPrice
-     *
      * @var float
      */
     public $originPrice;

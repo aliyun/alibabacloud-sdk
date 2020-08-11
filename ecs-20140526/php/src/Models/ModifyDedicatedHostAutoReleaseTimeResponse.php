@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class ModifyDedicatedHostAutoReleaseTimeResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;

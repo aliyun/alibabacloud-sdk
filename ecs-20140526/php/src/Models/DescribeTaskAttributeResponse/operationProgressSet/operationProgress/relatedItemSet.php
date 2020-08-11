@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class relatedItemSet extends Model
 {
     /**
-     * @description RelatedItem
-     *
      * @var array
      */
     public $relatedItem;

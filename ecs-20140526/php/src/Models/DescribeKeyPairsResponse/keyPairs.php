@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class keyPairs extends Model
 {
     /**
-     * @description KeyPair
-     *
      * @var array
      */
     public $keyPair;

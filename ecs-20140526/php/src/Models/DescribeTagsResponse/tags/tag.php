@@ -10,22 +10,16 @@ use AlibabaCloud\Tea\Model;
 class tag extends Model
 {
     /**
-     * @description tagKey
-     *
      * @var string
      */
     public $tagKey;
 
     /**
-     * @description tagValue
-     *
      * @var string
      */
     public $tagValue;
 
     /**
-     * @description tagResourceCount
-     *
      * @var resourceTypeCount
      */
     public $resourceTypeCount;

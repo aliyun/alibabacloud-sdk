@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class supportedResources extends Model
 {
     /**
-     * @description SupportedResource
-     *
      * @var array
      */
     public $supportedResource;

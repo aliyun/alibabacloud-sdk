@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class DescribeLimitationResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.limitation
-     *
      * @var string
      */
     public $limitation;
 
     /**
-     * @description data.value
-     *
      * @var string
      */
     public $value;

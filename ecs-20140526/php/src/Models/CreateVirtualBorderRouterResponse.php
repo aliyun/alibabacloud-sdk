@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class CreateVirtualBorderRouterResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.vbrId
-     *
      * @var string
      */
     public $vbrId;

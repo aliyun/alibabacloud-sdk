@@ -27,10 +27,7 @@ class securityGroupIds extends Model
     {
         $res = [];
         if (null !== $this->securityGroupId) {
-            $res['SecurityGroupId'] = [];
-            if (null !== $this->securityGroupId) {
-                $res['SecurityGroupId'] = $this->securityGroupId;
-            }
+            $res['SecurityGroupId'] = $this->securityGroupId;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class securityGroupIds extends Model
         $model = new self();
         if (isset($map['SecurityGroupId'])) {
             if (!empty($map['SecurityGroupId'])) {
-                $model->securityGroupId = [];
                 $model->securityGroupId = $map['SecurityGroupId'];
             }
         }

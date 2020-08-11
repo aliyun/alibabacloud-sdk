@@ -27,10 +27,7 @@ class privateIpAddress extends Model
     {
         $res = [];
         if (null !== $this->ipAddress) {
-            $res['IpAddress'] = [];
-            if (null !== $this->ipAddress) {
-                $res['IpAddress'] = $this->ipAddress;
-            }
+            $res['IpAddress'] = $this->ipAddress;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class privateIpAddress extends Model
         $model = new self();
         if (isset($map['IpAddress'])) {
             if (!empty($map['IpAddress'])) {
-                $model->ipAddress = [];
                 $model->ipAddress = $map['IpAddress'];
             }
         }

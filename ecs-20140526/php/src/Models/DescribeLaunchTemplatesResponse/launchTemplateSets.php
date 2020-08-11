@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class launchTemplateSets extends Model
 {
     /**
-     * @description LaunchTemplateSet
-     *
      * @var array
      */
     public $launchTemplateSet;

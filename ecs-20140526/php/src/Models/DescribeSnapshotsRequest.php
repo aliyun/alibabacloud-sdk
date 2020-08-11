@@ -4,187 +4,126 @@
 
 namespace AlibabaCloud\SDK\Ecs\V20140526\Models;
 
+use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeSnapshotsRequest\filter;
 use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeSnapshotsRequest\tag;
 use AlibabaCloud\Tea\Model;
 
 class DescribeSnapshotsRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description diskId
-     *
      * @var string
      */
     public $diskId;
 
     /**
-     * @description snapshotLinkId
-     *
      * @var string
      */
     public $snapshotLinkId;
 
     /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description snapshotIds
-     *
      * @var string
      */
     public $snapshotIds;
 
     /**
-     * @description pageNo
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description snapshotName
-     *
      * @var string
      */
     public $snapshotName;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description snapshotType
-     *
      * @var string
      */
     public $snapshotType;
 
     /**
-     * @description usage
-     *
+     * @var array
+     */
+    public $filter;
+
+    /**
      * @var string
      */
     public $usage;
 
     /**
-     * @description diskType
-     *
      * @var string
      */
     public $sourceDiskType;
 
     /**
-     * @description tagKeyValueParams
-     *
      * @var array
      */
     public $tag;
 
     /**
-     * @description encrypted
-     *
      * @var bool
      */
     public $encrypted;
 
     /**
-     * @description resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
 
     /**
-     * @description dryRun
-     *
      * @var bool
      */
     public $dryRun;
 
     /**
-     * @description kmsKeyId
-     *
      * @var string
      */
     public $KMSKeyId;
 
     /**
-     * @description category
-     *
      * @var string
      */
     public $category;
     protected $_name = [
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'instanceId'           => 'InstanceId',
-        'diskId'               => 'DiskId',
-        'snapshotLinkId'       => 'SnapshotLinkId',
-        'regionId'             => 'RegionId',
-        'snapshotIds'          => 'SnapshotIds',
-        'pageNumber'           => 'PageNumber',
-        'pageSize'             => 'PageSize',
-        'ownerAccount'         => 'OwnerAccount',
-        'snapshotName'         => 'SnapshotName',
-        'status'               => 'Status',
-        'snapshotType'         => 'SnapshotType',
-        'usage'                => 'Usage',
-        'sourceDiskType'       => 'SourceDiskType',
-        'tag'                  => 'Tag',
-        'encrypted'            => 'Encrypted',
-        'resourceGroupId'      => 'ResourceGroupId',
-        'dryRun'               => 'DryRun',
-        'KMSKeyId'             => 'KMSKeyId',
-        'category'             => 'Category',
+        'instanceId'      => 'InstanceId',
+        'diskId'          => 'DiskId',
+        'snapshotLinkId'  => 'SnapshotLinkId',
+        'regionId'        => 'RegionId',
+        'snapshotIds'     => 'SnapshotIds',
+        'pageNumber'      => 'PageNumber',
+        'pageSize'        => 'PageSize',
+        'snapshotName'    => 'SnapshotName',
+        'status'          => 'Status',
+        'snapshotType'    => 'SnapshotType',
+        'filter'          => 'Filter',
+        'usage'           => 'Usage',
+        'sourceDiskType'  => 'SourceDiskType',
+        'tag'             => 'Tag',
+        'encrypted'       => 'Encrypted',
+        'resourceGroupId' => 'ResourceGroupId',
+        'dryRun'          => 'DryRun',
+        'KMSKeyId'        => 'KMSKeyId',
+        'category'        => 'Category',
     ];
 
     public function validate()
@@ -195,15 +134,6 @@ class DescribeSnapshotsRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->instanceId) {
             $res['InstanceId'] = $this->instanceId;
         }
@@ -225,9 +155,6 @@ class DescribeSnapshotsRequest extends Model
         if (null !== $this->pageSize) {
             $res['PageSize'] = $this->pageSize;
         }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->snapshotName) {
             $res['SnapshotName'] = $this->snapshotName;
         }
@@ -236,6 +163,15 @@ class DescribeSnapshotsRequest extends Model
         }
         if (null !== $this->snapshotType) {
             $res['SnapshotType'] = $this->snapshotType;
+        }
+        if (null !== $this->filter) {
+            $res['Filter'] = [];
+            if (null !== $this->filter && \is_array($this->filter)) {
+                $n = 0;
+                foreach ($this->filter as $item) {
+                    $res['Filter'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
+            }
         }
         if (null !== $this->usage) {
             $res['Usage'] = $this->usage;
@@ -279,15 +215,6 @@ class DescribeSnapshotsRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['InstanceId'])) {
             $model->instanceId = $map['InstanceId'];
         }
@@ -309,9 +236,6 @@ class DescribeSnapshotsRequest extends Model
         if (isset($map['PageSize'])) {
             $model->pageSize = $map['PageSize'];
         }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
         if (isset($map['SnapshotName'])) {
             $model->snapshotName = $map['SnapshotName'];
         }
@@ -320,6 +244,15 @@ class DescribeSnapshotsRequest extends Model
         }
         if (isset($map['SnapshotType'])) {
             $model->snapshotType = $map['SnapshotType'];
+        }
+        if (isset($map['Filter'])) {
+            if (!empty($map['Filter'])) {
+                $model->filter = [];
+                $n             = 0;
+                foreach ($map['Filter'] as $item) {
+                    $model->filter[$n++] = null !== $item ? filter::fromMap($item) : $item;
+                }
+            }
         }
         if (isset($map['Usage'])) {
             $model->usage = $map['Usage'];

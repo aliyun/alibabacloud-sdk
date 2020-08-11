@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class PurchaseReservedInstancesOfferingResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.reservedInstanceIdSet
-     *
      * @var reservedInstanceIdSets
      */
     public $reservedInstanceIdSets;

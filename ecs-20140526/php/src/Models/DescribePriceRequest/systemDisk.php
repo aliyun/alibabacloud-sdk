@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class systemDisk extends Model
 {
     /**
-     * @description systemDiskCategory
-     *
      * @var string
      */
     public $category;
 
     /**
-     * @description systemDiskSize
-     *
      * @var int
      */
     public $size;
 
     /**
-     * @description systemDiskPerformanceLevel
-     *
      * @var string
      */
     public $performanceLevel;

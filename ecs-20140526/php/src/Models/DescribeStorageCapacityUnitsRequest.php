@@ -9,86 +9,45 @@ use AlibabaCloud\Tea\Model;
 class DescribeStorageCapacityUnitsRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description pageNo
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description capacity
-     *
      * @var int
      */
     public $capacity;
 
     /**
-     * @description instanceIds
-     *
      * @var array
      */
     public $storageCapacityUnitId;
 
     /**
-     * @description statusStrList
-     *
      * @var array
      */
     public $status;
+
+    /**
+     * @var string
+     */
+    public $allocationType;
     protected $_name = [
-        'ownerId'               => 'OwnerId',
-        'resourceOwnerAccount'  => 'ResourceOwnerAccount',
-        'resourceOwnerId'       => 'ResourceOwnerId',
-        'ownerAccount'          => 'OwnerAccount',
         'regionId'              => 'RegionId',
         'pageNumber'            => 'PageNumber',
         'pageSize'              => 'PageSize',
@@ -96,6 +55,7 @@ class DescribeStorageCapacityUnitsRequest extends Model
         'capacity'              => 'Capacity',
         'storageCapacityUnitId' => 'StorageCapacityUnitId',
         'status'                => 'Status',
+        'allocationType'        => 'AllocationType',
     ];
 
     public function validate()
@@ -106,18 +66,6 @@ class DescribeStorageCapacityUnitsRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
@@ -134,16 +82,13 @@ class DescribeStorageCapacityUnitsRequest extends Model
             $res['Capacity'] = $this->capacity;
         }
         if (null !== $this->storageCapacityUnitId) {
-            $res['StorageCapacityUnitId'] = [];
-            if (null !== $this->storageCapacityUnitId) {
-                $res['StorageCapacityUnitId'] = $this->storageCapacityUnitId;
-            }
+            $res['StorageCapacityUnitId'] = $this->storageCapacityUnitId;
         }
         if (null !== $this->status) {
-            $res['Status'] = [];
-            if (null !== $this->status) {
-                $res['Status'] = $this->status;
-            }
+            $res['Status'] = $this->status;
+        }
+        if (null !== $this->allocationType) {
+            $res['AllocationType'] = $this->allocationType;
         }
 
         return $res;
@@ -157,18 +102,6 @@ class DescribeStorageCapacityUnitsRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
@@ -186,15 +119,16 @@ class DescribeStorageCapacityUnitsRequest extends Model
         }
         if (isset($map['StorageCapacityUnitId'])) {
             if (!empty($map['StorageCapacityUnitId'])) {
-                $model->storageCapacityUnitId = [];
                 $model->storageCapacityUnitId = $map['StorageCapacityUnitId'];
             }
         }
         if (isset($map['Status'])) {
             if (!empty($map['Status'])) {
-                $model->status = [];
                 $model->status = $map['Status'];
             }
+        }
+        if (isset($map['AllocationType'])) {
+            $model->allocationType = $map['AllocationType'];
         }
 
         return $model;

@@ -10,43 +10,31 @@ use AlibabaCloud\Tea\Model;
 class DescribeNetworkInterfacesResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.totalCount
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description data.pageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description data.pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description data.nextToken
-     *
      * @var string
      */
     public $nextToken;
 
     /**
-     * @description data.data
-     *
      * @var networkInterfaceSets
      */
     public $networkInterfaceSets;

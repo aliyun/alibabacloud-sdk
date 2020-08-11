@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class autoProvisioningGroupHistories extends Model
 {
     /**
-     * @description AutoProvisioningGroupHistory
-     *
      * @var array
      */
     public $autoProvisioningGroupHistory;

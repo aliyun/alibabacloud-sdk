@@ -9,93 +9,47 @@ use AlibabaCloud\Tea\Model;
 class AttachDiskRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description ecsInstanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $diskId;
 
     /**
-     * @description mountPoint
-     *
      * @var string
      */
     public $device;
 
     /**
-     * @description deleteWithInstance
-     *
      * @var bool
      */
     public $deleteWithInstance;
 
     /**
-     * @description bootable
-     *
      * @var bool
      */
     public $bootable;
 
     /**
-     * @description password
-     *
      * @var string
      */
     public $password;
 
     /**
-     * @description keyPairName
-     *
      * @var string
      */
     public $keyPairName;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
     protected $_name = [
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'instanceId'           => 'InstanceId',
-        'diskId'               => 'DiskId',
-        'device'               => 'Device',
-        'deleteWithInstance'   => 'DeleteWithInstance',
-        'bootable'             => 'Bootable',
-        'password'             => 'Password',
-        'keyPairName'          => 'KeyPairName',
-        'ownerAccount'         => 'OwnerAccount',
+        'instanceId'         => 'InstanceId',
+        'diskId'             => 'DiskId',
+        'device'             => 'Device',
+        'deleteWithInstance' => 'DeleteWithInstance',
+        'bootable'           => 'Bootable',
+        'password'           => 'Password',
+        'keyPairName'        => 'KeyPairName',
     ];
 
     public function validate()
@@ -107,15 +61,6 @@ class AttachDiskRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->instanceId) {
             $res['InstanceId'] = $this->instanceId;
         }
@@ -137,9 +82,6 @@ class AttachDiskRequest extends Model
         if (null !== $this->keyPairName) {
             $res['KeyPairName'] = $this->keyPairName;
         }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
 
         return $res;
     }
@@ -152,15 +94,6 @@ class AttachDiskRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['InstanceId'])) {
             $model->instanceId = $map['InstanceId'];
         }
@@ -181,9 +114,6 @@ class AttachDiskRequest extends Model
         }
         if (isset($map['KeyPairName'])) {
             $model->keyPairName = $map['KeyPairName'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
         }
 
         return $model;

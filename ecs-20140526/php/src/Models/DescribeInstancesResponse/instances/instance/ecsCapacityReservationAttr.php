@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class ecsCapacityReservationAttr extends Model
 {
     /**
-     * @description capacityReservationId
-     *
      * @var string
      */
     public $capacityReservationId;
 
     /**
-     * @description capacityReservationPreference
-     *
      * @var string
      */
     public $capacityReservationPreference;

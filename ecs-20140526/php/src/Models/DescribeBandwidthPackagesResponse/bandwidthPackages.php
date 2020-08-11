@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class bandwidthPackages extends Model
 {
     /**
-     * @description BandwidthPackage
-     *
      * @var array
      */
     public $bandwidthPackage;

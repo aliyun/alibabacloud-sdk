@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class CreateCommandResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.commandId
-     *
      * @var string
      */
     public $commandId;

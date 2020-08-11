@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class snapshotLinks extends Model
 {
     /**
-     * @description SnapshotLink
-     *
      * @var array
      */
     public $snapshotLink;

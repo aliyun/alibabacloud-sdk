@@ -9,99 +9,50 @@ use AlibabaCloud\Tea\Model;
 class ModifyInstanceNetworkSpecRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description internetMaxBandwidthOut
-     *
      * @var int
      */
     public $internetMaxBandwidthOut;
 
     /**
-     * @description internetMaxBandwidthIn
-     *
      * @var int
      */
     public $internetMaxBandwidthIn;
 
     /**
-     * @description networkChargeType
-     *
      * @var string
      */
     public $networkChargeType;
 
     /**
-     * @description allocatePublicIp
-     *
      * @var bool
      */
     public $allocatePublicIp;
 
     /**
-     * @description startTime
-     *
      * @var string
      */
     public $startTime;
 
     /**
-     * @description endTime
-     *
      * @var string
      */
     public $endTime;
 
     /**
-     * @description autoPay
-     *
      * @var bool
      */
     public $autoPay;
 
     /**
-     * @description clientToken
-     *
      * @var string
      */
     public $clientToken;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
     protected $_name = [
-        'ownerId'                 => 'OwnerId',
-        'resourceOwnerAccount'    => 'ResourceOwnerAccount',
-        'resourceOwnerId'         => 'ResourceOwnerId',
         'instanceId'              => 'InstanceId',
         'internetMaxBandwidthOut' => 'InternetMaxBandwidthOut',
         'internetMaxBandwidthIn'  => 'InternetMaxBandwidthIn',
@@ -111,7 +62,6 @@ class ModifyInstanceNetworkSpecRequest extends Model
         'endTime'                 => 'EndTime',
         'autoPay'                 => 'AutoPay',
         'clientToken'             => 'ClientToken',
-        'ownerAccount'            => 'OwnerAccount',
     ];
 
     public function validate()
@@ -122,15 +72,6 @@ class ModifyInstanceNetworkSpecRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->instanceId) {
             $res['InstanceId'] = $this->instanceId;
         }
@@ -158,9 +99,6 @@ class ModifyInstanceNetworkSpecRequest extends Model
         if (null !== $this->clientToken) {
             $res['ClientToken'] = $this->clientToken;
         }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
 
         return $res;
     }
@@ -173,15 +111,6 @@ class ModifyInstanceNetworkSpecRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['InstanceId'])) {
             $model->instanceId = $map['InstanceId'];
         }
@@ -208,9 +137,6 @@ class ModifyInstanceNetworkSpecRequest extends Model
         }
         if (isset($map['ClientToken'])) {
             $model->clientToken = $map['ClientToken'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
         }
 
         return $model;

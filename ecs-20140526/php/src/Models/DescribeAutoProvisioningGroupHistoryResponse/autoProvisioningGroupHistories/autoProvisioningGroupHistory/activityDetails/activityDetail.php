@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class activityDetail extends Model
 {
     /**
-     * @description detail
-     *
      * @var string
      */
     public $detail;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;

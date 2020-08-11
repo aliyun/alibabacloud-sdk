@@ -10,29 +10,21 @@ use AlibabaCloud\Tea\Model;
 class DescribeInstanceRamRoleResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description data.totalCount
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description data.instanceRamRoles
-     *
      * @var instanceRamRoleSets
      */
     public $instanceRamRoleSets;

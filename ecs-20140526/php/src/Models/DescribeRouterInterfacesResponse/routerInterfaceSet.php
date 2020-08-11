@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class routerInterfaceSet extends Model
 {
     /**
-     * @description RouterInterfaceType
-     *
      * @var array
      */
     public $routerInterfaceType;

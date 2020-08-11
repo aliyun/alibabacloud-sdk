@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class privateIpSets extends Model
 {
     /**
-     * @description PrivateIpSet
-     *
      * @var array
      */
     public $privateIpSet;

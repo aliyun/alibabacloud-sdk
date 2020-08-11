@@ -9,107 +9,55 @@ use AlibabaCloud\Tea\Model;
 class DescribeLaunchTemplateVersionsRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description launchTemplateId
-     *
      * @var string
      */
     public $launchTemplateId;
 
     /**
-     * @description launchTemplateName
-     *
      * @var string
      */
     public $launchTemplateName;
 
     /**
-     * @description launchTemplateVersions
-     *
      * @var array
      */
     public $launchTemplateVersion;
 
     /**
-     * @description minVersion
-     *
      * @var int
      */
     public $minVersion;
 
     /**
-     * @description maxVersion
-     *
      * @var int
      */
     public $maxVersion;
 
     /**
-     * @description defaultVersion
-     *
      * @var bool
      */
     public $defaultVersion;
 
     /**
-     * @description detailFlag
-     *
      * @var bool
      */
     public $detailFlag;
 
     /**
-     * @description pageNo
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
     protected $_name = [
-        'ownerId'               => 'OwnerId',
-        'resourceOwnerAccount'  => 'ResourceOwnerAccount',
-        'resourceOwnerId'       => 'ResourceOwnerId',
-        'ownerAccount'          => 'OwnerAccount',
         'regionId'              => 'RegionId',
         'launchTemplateId'      => 'LaunchTemplateId',
         'launchTemplateName'    => 'LaunchTemplateName',
@@ -130,18 +78,6 @@ class DescribeLaunchTemplateVersionsRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
@@ -152,10 +88,7 @@ class DescribeLaunchTemplateVersionsRequest extends Model
             $res['LaunchTemplateName'] = $this->launchTemplateName;
         }
         if (null !== $this->launchTemplateVersion) {
-            $res['LaunchTemplateVersion'] = [];
-            if (null !== $this->launchTemplateVersion) {
-                $res['LaunchTemplateVersion'] = $this->launchTemplateVersion;
-            }
+            $res['LaunchTemplateVersion'] = $this->launchTemplateVersion;
         }
         if (null !== $this->minVersion) {
             $res['MinVersion'] = $this->minVersion;
@@ -187,18 +120,6 @@ class DescribeLaunchTemplateVersionsRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
@@ -210,7 +131,6 @@ class DescribeLaunchTemplateVersionsRequest extends Model
         }
         if (isset($map['LaunchTemplateVersion'])) {
             if (!empty($map['LaunchTemplateVersion'])) {
-                $model->launchTemplateVersion = [];
                 $model->launchTemplateVersion = $map['LaunchTemplateVersion'];
             }
         }

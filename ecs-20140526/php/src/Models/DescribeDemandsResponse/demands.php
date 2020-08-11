@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class demands extends Model
 {
     /**
-     * @description Demand
-     *
      * @var array
      */
     public $demand;

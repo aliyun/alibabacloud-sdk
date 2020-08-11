@@ -9,57 +9,41 @@ use AlibabaCloud\Tea\Model;
 class virtualBorderRouterForPhysicalConnectionType extends Model
 {
     /**
-     * @description vbrId
-     *
      * @var string
      */
     public $vbrId;
 
     /**
-     * @description vbrOwnerUid
-     *
      * @var int
      */
     public $vbrOwnerUid;
 
     /**
-     * @description creationTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description activationTime
-     *
      * @var string
      */
     public $activationTime;
 
     /**
-     * @description terminationTime
-     *
      * @var string
      */
     public $terminationTime;
 
     /**
-     * @description recoveryTime
-     *
      * @var string
      */
     public $recoveryTime;
 
     /**
-     * @description vlanId
-     *
      * @var int
      */
     public $vlanId;
 
     /**
-     * @description circuitCode
-     *
      * @var string
      */
     public $circuitCode;

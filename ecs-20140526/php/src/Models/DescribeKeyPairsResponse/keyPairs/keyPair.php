@@ -10,36 +10,26 @@ use AlibabaCloud\Tea\Model;
 class keyPair extends Model
 {
     /**
-     * @description keyPairName
-     *
      * @var string
      */
     public $keyPairName;
 
     /**
-     * @description keyPairFingerPrint
-     *
      * @var string
      */
     public $keyPairFingerPrint;
 
     /**
-     * @description createTimeStr
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
 
     /**
-     * @description tags
-     *
      * @var tags
      */
     public $tags;

@@ -27,10 +27,7 @@ class instanceTypes extends Model
     {
         $res = [];
         if (null !== $this->supportedInstanceType) {
-            $res['supportedInstanceType'] = [];
-            if (null !== $this->supportedInstanceType) {
-                $res['supportedInstanceType'] = $this->supportedInstanceType;
-            }
+            $res['supportedInstanceType'] = $this->supportedInstanceType;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class instanceTypes extends Model
         $model = new self();
         if (isset($map['supportedInstanceType'])) {
             if (!empty($map['supportedInstanceType'])) {
-                $model->supportedInstanceType = [];
                 $model->supportedInstanceType = $map['supportedInstanceType'];
             }
         }

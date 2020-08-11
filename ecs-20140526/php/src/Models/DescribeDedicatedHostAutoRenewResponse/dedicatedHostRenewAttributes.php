@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class dedicatedHostRenewAttributes extends Model
 {
     /**
-     * @description DedicatedHostRenewAttribute
-     *
      * @var array
      */
     public $dedicatedHostRenewAttribute;

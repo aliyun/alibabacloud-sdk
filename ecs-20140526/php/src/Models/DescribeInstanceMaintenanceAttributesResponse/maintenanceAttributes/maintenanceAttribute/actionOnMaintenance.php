@@ -10,22 +10,16 @@ use AlibabaCloud\Tea\Model;
 class actionOnMaintenance extends Model
 {
     /**
-     * @description value
-     *
      * @var string
      */
     public $value;
 
     /**
-     * @description defaultValue
-     *
      * @var string
      */
     public $defaultValue;
 
     /**
-     * @description supportedValues
-     *
      * @var supportedValues
      */
     public $supportedValues;

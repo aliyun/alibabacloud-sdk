@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeInstanceVncUrlResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.vncUrl
-     *
      * @var string
      */
     public $vncUrl;

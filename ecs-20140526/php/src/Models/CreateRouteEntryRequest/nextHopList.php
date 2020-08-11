@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class nextHopList extends Model
 {
     /**
-     * @description nextHopType
-     *
      * @var string
      */
     public $nextHopType;
 
     /**
-     * @description nextHopId
-     *
      * @var string
      */
     public $nextHopId;

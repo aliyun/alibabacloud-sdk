@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class dataDisks extends Model
 {
     /**
-     * @description DataDisk
-     *
      * @var array
      */
     public $dataDisk;

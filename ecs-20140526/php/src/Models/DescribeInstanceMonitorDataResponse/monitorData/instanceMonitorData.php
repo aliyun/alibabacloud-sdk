@@ -9,120 +9,86 @@ use AlibabaCloud\Tea\Model;
 class instanceMonitorData extends Model
 {
     /**
-     * @description resourceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description item2Value.CPU
-     *
      * @var int
      */
     public $CPU;
 
     /**
-     * @description item2Value.IntranetRX
-     *
      * @var int
      */
     public $intranetRX;
 
     /**
-     * @description item2Value.IntranetTX
-     *
      * @var int
      */
     public $intranetTX;
 
     /**
-     * @description item2Value.IntranetBandwidth
-     *
      * @var int
      */
     public $intranetBandwidth;
 
     /**
-     * @description item2Value.InternetRX
-     *
      * @var int
      */
     public $internetRX;
 
     /**
-     * @description item2Value.InternetTX
-     *
      * @var int
      */
     public $internetTX;
 
     /**
-     * @description item2Value.InternetBandwidth
-     *
      * @var int
      */
     public $internetBandwidth;
 
     /**
-     * @description item2Value.IOPSRead
-     *
      * @var int
      */
     public $IOPSRead;
 
     /**
-     * @description item2Value.IOPSWrite
-     *
      * @var int
      */
     public $IOPSWrite;
 
     /**
-     * @description item2Value.BPSRead
-     *
      * @var int
      */
     public $BPSRead;
 
     /**
-     * @description item2Value.BPSWrite
-     *
      * @var int
      */
     public $BPSWrite;
 
     /**
-     * @description item2Value.CPUCreditUsage
-     *
      * @var float
      */
     public $CPUCreditUsage;
 
     /**
-     * @description item2Value.CPUCreditBalance
-     *
      * @var float
      */
     public $CPUCreditBalance;
 
     /**
-     * @description item2Value.CPUAdvanceCreditBalance
-     *
      * @var float
      */
     public $CPUAdvanceCreditBalance;
 
     /**
-     * @description item2Value.CPUNotpaidSurplusCreditUsage
-     *
      * @var float
      */
     public $CPUNotpaidSurplusCreditUsage;
 
     /**
-     * @description timeStamp
-     *
      * @var string
      */
     public $timeStamp;

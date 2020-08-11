@@ -27,10 +27,7 @@ class parameterNames extends Model
     {
         $res = [];
         if (null !== $this->parameterName) {
-            $res['ParameterName'] = [];
-            if (null !== $this->parameterName) {
-                $res['ParameterName'] = $this->parameterName;
-            }
+            $res['ParameterName'] = $this->parameterName;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class parameterNames extends Model
         $model = new self();
         if (isset($map['ParameterName'])) {
             if (!empty($map['ParameterName'])) {
-                $model->parameterName = [];
                 $model->parameterName = $map['ParameterName'];
             }
         }

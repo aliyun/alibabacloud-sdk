@@ -10,101 +10,53 @@ use AlibabaCloud\Tea\Model;
 class CreateSecurityGroupRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description groupDesc
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description token
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description groupName
-     *
      * @var string
      */
     public $securityGroupName;
 
     /**
-     * @description vpcInstanceId
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description groupType
-     *
      * @var string
      */
     public $securityGroupType;
 
     /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description tagKeyValueParams
-     *
      * @var array
      */
     public $tag;
 
     /**
-     * @description resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
     protected $_name = [
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'regionId'             => 'RegionId',
-        'description'          => 'Description',
-        'clientToken'          => 'ClientToken',
-        'securityGroupName'    => 'SecurityGroupName',
-        'vpcId'                => 'VpcId',
-        'securityGroupType'    => 'SecurityGroupType',
-        'ownerAccount'         => 'OwnerAccount',
-        'tag'                  => 'Tag',
-        'resourceGroupId'      => 'ResourceGroupId',
+        'regionId'          => 'RegionId',
+        'description'       => 'Description',
+        'clientToken'       => 'ClientToken',
+        'securityGroupName' => 'SecurityGroupName',
+        'vpcId'             => 'VpcId',
+        'securityGroupType' => 'SecurityGroupType',
+        'tag'               => 'Tag',
+        'resourceGroupId'   => 'ResourceGroupId',
     ];
 
     public function validate()
@@ -115,15 +67,6 @@ class CreateSecurityGroupRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
@@ -141,9 +84,6 @@ class CreateSecurityGroupRequest extends Model
         }
         if (null !== $this->securityGroupType) {
             $res['SecurityGroupType'] = $this->securityGroupType;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
         }
         if (null !== $this->tag) {
             $res['Tag'] = [];
@@ -169,15 +109,6 @@ class CreateSecurityGroupRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
@@ -195,9 +126,6 @@ class CreateSecurityGroupRequest extends Model
         }
         if (isset($map['SecurityGroupType'])) {
             $model->securityGroupType = $map['SecurityGroupType'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
         }
         if (isset($map['Tag'])) {
             if (!empty($map['Tag'])) {

@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class ImportKeyPairResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.keyPairName
-     *
      * @var string
      */
     public $keyPairName;
 
     /**
-     * @description data.keyPairFingerPrint
-     *
      * @var string
      */
     public $keyPairFingerPrint;

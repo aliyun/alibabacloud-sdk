@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class routeTables extends Model
 {
     /**
-     * @description RouteTable
-     *
      * @var array
      */
     public $routeTable;

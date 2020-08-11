@@ -10,191 +10,115 @@ use AlibabaCloud\Tea\Model;
 class CreateAutoProvisioningGroupRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
 
     /**
-     * @description fleetName
-     *
      * @var string
      */
     public $autoProvisioningGroupName;
 
     /**
-     * @description typeStr
-     *
      * @var string
      */
     public $autoProvisioningGroupType;
 
     /**
-     * @description spotAllocationStrategy
-     *
      * @var string
      */
     public $spotAllocationStrategy;
 
     /**
-     * @description spotInstanceInterruptionBehavior
-     *
      * @var string
      */
     public $spotInstanceInterruptionBehavior;
 
     /**
-     * @description spotInstancePoolsToUseCount
-     *
      * @var int
      */
     public $spotInstancePoolsToUseCount;
 
     /**
-     * @description onDemandAllocationStrategy
-     *
      * @var string
      */
     public $payAsYouGoAllocationStrategy;
 
     /**
-     * @description excessCapacityTerminationPolicyStr
-     *
      * @var string
      */
     public $excessCapacityTerminationPolicy;
 
     /**
-     * @description validFromStr
-     *
      * @var string
      */
     public $validFrom;
 
     /**
-     * @description validUntilStr
-     *
      * @var string
      */
     public $validUntil;
 
     /**
-     * @description terminateInstancesWithExpiration
-     *
      * @var bool
      */
     public $terminateInstancesWithExpiration;
 
     /**
-     * @description terminateInstances
-     *
      * @var bool
      */
     public $terminateInstances;
 
     /**
-     * @description maxSpotPrice
-     *
      * @var float
      */
     public $maxSpotPrice;
 
     /**
-     * @description totalTargetCapacity
-     *
      * @var string
      */
     public $totalTargetCapacity;
 
     /**
-     * @description onDemandTargetCapacity
-     *
      * @var string
      */
     public $payAsYouGoTargetCapacity;
 
     /**
-     * @description spotTargetCapacity
-     *
      * @var string
      */
     public $spotTargetCapacity;
 
     /**
-     * @description defaultTargetCapacityTypeStr
-     *
      * @var string
      */
     public $defaultTargetCapacityType;
 
     /**
-     * @description launchTemplateId
-     *
      * @var string
      */
     public $launchTemplateId;
 
     /**
-     * @description launchTemplateVersion
-     *
      * @var string
      */
     public $launchTemplateVersion;
 
     /**
-     * @description launchTemplateConfigs
-     *
      * @var array
      */
     public $launchTemplateConfig;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
     protected $_name = [
-        'ownerId'                          => 'OwnerId',
-        'resourceOwnerAccount'             => 'ResourceOwnerAccount',
-        'resourceOwnerId'                  => 'ResourceOwnerId',
-        'ownerAccount'                     => 'OwnerAccount',
         'regionId'                         => 'RegionId',
         'resourceGroupId'                  => 'ResourceGroupId',
         'autoProvisioningGroupName'        => 'AutoProvisioningGroupName',
@@ -229,18 +153,6 @@ class CreateAutoProvisioningGroupRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
@@ -325,18 +237,6 @@ class CreateAutoProvisioningGroupRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }

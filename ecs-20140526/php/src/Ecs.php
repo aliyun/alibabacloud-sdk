@@ -209,6 +209,8 @@ use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeDemandsRequest;
 use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeDemandsResponse;
 use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeDeploymentSetsRequest;
 use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeDeploymentSetsResponse;
+use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeDeploymentSetSupportedInstanceTypeFamilyRequest;
+use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeDeploymentSetSupportedInstanceTypeFamilyResponse;
 use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeDiskMonitorDataRequest;
 use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeDiskMonitorDataResponse;
 use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeDisksFullStatusRequest;
@@ -628,27 +630,53 @@ class Ecs extends Rpc
             'rus-west-1-pop'              => 'ecs.ap-northeast-1.aliyuncs.com',
         ];
         $this->checkConfig($config);
-        $this->_endpoint = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
+        $this->_endpoint = $this->getEndpoint('ecs', $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDeploymentSetSupportedInstanceTypeFamilyRequest $request
+     * @param RuntimeOptions                                          $runtime
      *
-     * @return DescribeNetworkInterfaceAttributeResponse
+     * @return DescribeDeploymentSetSupportedInstanceTypeFamilyResponse
      */
-    public function describeNetworkInterfaceAttributeWithOptions(DescribeNetworkInterfaceAttributeRequest $request, RuntimeOptions $runtime)
+    public function describeDeploymentSetSupportedInstanceTypeFamilyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeNetworkInterfaceAttributeResponse::fromMap($this->doRequest('DescribeNetworkInterfaceAttribute', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeDeploymentSetSupportedInstanceTypeFamilyResponse::fromMap($this->doRequest('DescribeDeploymentSetSupportedInstanceTypeFamily', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDeploymentSetSupportedInstanceTypeFamilyRequest $request
+     *
+     * @return DescribeDeploymentSetSupportedInstanceTypeFamilyResponse
+     */
+    public function describeDeploymentSetSupportedInstanceTypeFamily($request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->describeDeploymentSetSupportedInstanceTypeFamilyWithOptions($request, $runtime);
+    }
+
+    /**
+     * @param DescribeNetworkInterfaceAttributeRequest $request
+     * @param RuntimeOptions                           $runtime
      *
      * @return DescribeNetworkInterfaceAttributeResponse
      */
-    public function describeNetworkInterfaceAttribute(DescribeNetworkInterfaceAttributeRequest $request)
+    public function describeNetworkInterfaceAttributeWithOptions($request, $runtime)
+    {
+        Utils::validateModel($request);
+
+        return DescribeNetworkInterfaceAttributeResponse::fromMap($this->doRequest('DescribeNetworkInterfaceAttribute', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
+    }
+
+    /**
+     * @param DescribeNetworkInterfaceAttributeRequest $request
+     *
+     * @return DescribeNetworkInterfaceAttributeResponse
+     */
+    public function describeNetworkInterfaceAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -656,23 +684,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CopySnapshotRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return CopySnapshotResponse
      */
-    public function copySnapshotWithOptions(CopySnapshotRequest $request, RuntimeOptions $runtime)
+    public function copySnapshotWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return CopySnapshotResponse::fromMap($this->doRequest('CopySnapshot', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return CopySnapshotResponse::fromMap($this->doRequest('CopySnapshot', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param CopySnapshotRequest $request
      *
      * @return CopySnapshotResponse
      */
-    public function copySnapshot(CopySnapshotRequest $request)
+    public function copySnapshot($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -680,11 +709,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyDedicatedHostsChargeTypeRequest $request
+     * @param RuntimeOptions                        $runtime
      *
      * @return ModifyDedicatedHostsChargeTypeResponse
      */
-    public function modifyDedicatedHostsChargeTypeWithOptions(ModifyDedicatedHostsChargeTypeRequest $request, RuntimeOptions $runtime)
+    public function modifyDedicatedHostsChargeTypeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -692,11 +722,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyDedicatedHostsChargeTypeRequest $request
      *
      * @return ModifyDedicatedHostsChargeTypeResponse
      */
-    public function modifyDedicatedHostsChargeType(ModifyDedicatedHostsChargeTypeRequest $request)
+    public function modifyDedicatedHostsChargeType($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -704,23 +734,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceMetadataOptionsRequest $request
+     * @param RuntimeOptions                       $runtime
      *
      * @return ModifyInstanceMetadataOptionsResponse
      */
-    public function modifyInstanceMetadataOptionsWithOptions(ModifyInstanceMetadataOptionsRequest $request, RuntimeOptions $runtime)
+    public function modifyInstanceMetadataOptionsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ModifyInstanceMetadataOptionsResponse::fromMap($this->doRequest('ModifyInstanceMetadataOptions', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ModifyInstanceMetadataOptionsResponse::fromMap($this->doRequest('ModifyInstanceMetadataOptions', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceMetadataOptionsRequest $request
      *
      * @return ModifyInstanceMetadataOptionsResponse
      */
-    public function modifyInstanceMetadataOptions(ModifyInstanceMetadataOptionsRequest $request)
+    public function modifyInstanceMetadataOptions($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -728,23 +759,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeImageFromFamilyRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return DescribeImageFromFamilyResponse
      */
-    public function describeImageFromFamilyWithOptions(DescribeImageFromFamilyRequest $request, RuntimeOptions $runtime)
+    public function describeImageFromFamilyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeImageFromFamilyResponse::fromMap($this->doRequest('DescribeImageFromFamily', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeImageFromFamilyResponse::fromMap($this->doRequest('DescribeImageFromFamily', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeImageFromFamilyRequest $request
      *
      * @return DescribeImageFromFamilyResponse
      */
-    public function describeImageFromFamily(DescribeImageFromFamilyRequest $request)
+    public function describeImageFromFamily($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -752,23 +784,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param StopInstancesRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return StopInstancesResponse
      */
-    public function stopInstancesWithOptions(StopInstancesRequest $request, RuntimeOptions $runtime)
+    public function stopInstancesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return StopInstancesResponse::fromMap($this->doRequest('StopInstances', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return StopInstancesResponse::fromMap($this->doRequest('StopInstances', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param StopInstancesRequest $request
      *
      * @return StopInstancesResponse
      */
-    public function stopInstances(StopInstancesRequest $request)
+    public function stopInstances($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -776,23 +809,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param StartInstancesRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return StartInstancesResponse
      */
-    public function startInstancesWithOptions(StartInstancesRequest $request, RuntimeOptions $runtime)
+    public function startInstancesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return StartInstancesResponse::fromMap($this->doRequest('StartInstances', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return StartInstancesResponse::fromMap($this->doRequest('StartInstances', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param StartInstancesRequest $request
      *
      * @return StartInstancesResponse
      */
-    public function startInstances(StartInstancesRequest $request)
+    public function startInstances($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -800,23 +834,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RebootInstancesRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return RebootInstancesResponse
      */
-    public function rebootInstancesWithOptions(RebootInstancesRequest $request, RuntimeOptions $runtime)
+    public function rebootInstancesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return RebootInstancesResponse::fromMap($this->doRequest('RebootInstances', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return RebootInstancesResponse::fromMap($this->doRequest('RebootInstances', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param RebootInstancesRequest $request
      *
      * @return RebootInstancesResponse
      */
-    public function rebootInstances(RebootInstancesRequest $request)
+    public function rebootInstances($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -824,23 +859,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RedeployDedicatedHostRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return RedeployDedicatedHostResponse
      */
-    public function redeployDedicatedHostWithOptions(RedeployDedicatedHostRequest $request, RuntimeOptions $runtime)
+    public function redeployDedicatedHostWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return RedeployDedicatedHostResponse::fromMap($this->doRequest('RedeployDedicatedHost', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return RedeployDedicatedHostResponse::fromMap($this->doRequest('RedeployDedicatedHost', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param RedeployDedicatedHostRequest $request
      *
      * @return RedeployDedicatedHostResponse
      */
-    public function redeployDedicatedHost(RedeployDedicatedHostRequest $request)
+    public function redeployDedicatedHost($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -848,23 +884,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceMaintenanceAttributesRequest $request
+     * @param RuntimeOptions                             $runtime
      *
      * @return ModifyInstanceMaintenanceAttributesResponse
      */
-    public function modifyInstanceMaintenanceAttributesWithOptions(ModifyInstanceMaintenanceAttributesRequest $request, RuntimeOptions $runtime)
+    public function modifyInstanceMaintenanceAttributesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ModifyInstanceMaintenanceAttributesResponse::fromMap($this->doRequest('ModifyInstanceMaintenanceAttributes', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ModifyInstanceMaintenanceAttributesResponse::fromMap($this->doRequest('ModifyInstanceMaintenanceAttributes', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceMaintenanceAttributesRequest $request
      *
      * @return ModifyInstanceMaintenanceAttributesResponse
      */
-    public function modifyInstanceMaintenanceAttributes(ModifyInstanceMaintenanceAttributesRequest $request)
+    public function modifyInstanceMaintenanceAttributes($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -872,23 +909,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceMaintenanceAttributesRequest $request
+     * @param RuntimeOptions                               $runtime
      *
      * @return DescribeInstanceMaintenanceAttributesResponse
      */
-    public function describeInstanceMaintenanceAttributesWithOptions(DescribeInstanceMaintenanceAttributesRequest $request, RuntimeOptions $runtime)
+    public function describeInstanceMaintenanceAttributesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeInstanceMaintenanceAttributesResponse::fromMap($this->doRequest('DescribeInstanceMaintenanceAttributes', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeInstanceMaintenanceAttributesResponse::fromMap($this->doRequest('DescribeInstanceMaintenanceAttributes', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceMaintenanceAttributesRequest $request
      *
      * @return DescribeInstanceMaintenanceAttributesResponse
      */
-    public function describeInstanceMaintenanceAttributes(DescribeInstanceMaintenanceAttributesRequest $request)
+    public function describeInstanceMaintenanceAttributes($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -896,23 +934,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyDemandRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return ModifyDemandResponse
      */
-    public function modifyDemandWithOptions(ModifyDemandRequest $request, RuntimeOptions $runtime)
+    public function modifyDemandWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ModifyDemandResponse::fromMap($this->doRequest('ModifyDemand', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ModifyDemandResponse::fromMap($this->doRequest('ModifyDemand', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyDemandRequest $request
      *
      * @return ModifyDemandResponse
      */
-    public function modifyDemand(ModifyDemandRequest $request)
+    public function modifyDemand($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -920,23 +959,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteDemandRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return DeleteDemandResponse
      */
-    public function deleteDemandWithOptions(DeleteDemandRequest $request, RuntimeOptions $runtime)
+    public function deleteDemandWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DeleteDemandResponse::fromMap($this->doRequest('DeleteDemand', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DeleteDemandResponse::fromMap($this->doRequest('DeleteDemand', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteDemandRequest $request
      *
      * @return DeleteDemandResponse
      */
-    public function deleteDemand(DeleteDemandRequest $request)
+    public function deleteDemand($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -944,23 +984,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateDemandRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return CreateDemandResponse
      */
-    public function createDemandWithOptions(CreateDemandRequest $request, RuntimeOptions $runtime)
+    public function createDemandWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return CreateDemandResponse::fromMap($this->doRequest('CreateDemand', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return CreateDemandResponse::fromMap($this->doRequest('CreateDemand', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param CreateDemandRequest $request
      *
      * @return CreateDemandResponse
      */
-    public function createDemand(CreateDemandRequest $request)
+    public function createDemand($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -968,23 +1009,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param PurchaseStorageCapacityUnitRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return PurchaseStorageCapacityUnitResponse
      */
-    public function purchaseStorageCapacityUnitWithOptions(PurchaseStorageCapacityUnitRequest $request, RuntimeOptions $runtime)
+    public function purchaseStorageCapacityUnitWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return PurchaseStorageCapacityUnitResponse::fromMap($this->doRequest('PurchaseStorageCapacityUnit', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return PurchaseStorageCapacityUnitResponse::fromMap($this->doRequest('PurchaseStorageCapacityUnit', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param PurchaseStorageCapacityUnitRequest $request
      *
      * @return PurchaseStorageCapacityUnitResponse
      */
-    public function purchaseStorageCapacityUnit(PurchaseStorageCapacityUnitRequest $request)
+    public function purchaseStorageCapacityUnit($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -992,23 +1034,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyStorageCapacityUnitAttributeRequest $request
+     * @param RuntimeOptions                            $runtime
      *
      * @return ModifyStorageCapacityUnitAttributeResponse
      */
-    public function modifyStorageCapacityUnitAttributeWithOptions(ModifyStorageCapacityUnitAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyStorageCapacityUnitAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ModifyStorageCapacityUnitAttributeResponse::fromMap($this->doRequest('ModifyStorageCapacityUnitAttribute', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ModifyStorageCapacityUnitAttributeResponse::fromMap($this->doRequest('ModifyStorageCapacityUnitAttribute', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyStorageCapacityUnitAttributeRequest $request
      *
      * @return ModifyStorageCapacityUnitAttributeResponse
      */
-    public function modifyStorageCapacityUnitAttribute(ModifyStorageCapacityUnitAttributeRequest $request)
+    public function modifyStorageCapacityUnitAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1016,23 +1059,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeStorageCapacityUnitsRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return DescribeStorageCapacityUnitsResponse
      */
-    public function describeStorageCapacityUnitsWithOptions(DescribeStorageCapacityUnitsRequest $request, RuntimeOptions $runtime)
+    public function describeStorageCapacityUnitsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeStorageCapacityUnitsResponse::fromMap($this->doRequest('DescribeStorageCapacityUnits', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeStorageCapacityUnitsResponse::fromMap($this->doRequest('DescribeStorageCapacityUnits', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeStorageCapacityUnitsRequest $request
      *
      * @return DescribeStorageCapacityUnitsResponse
      */
-    public function describeStorageCapacityUnits(DescribeStorageCapacityUnitsRequest $request)
+    public function describeStorageCapacityUnits($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1040,23 +1084,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RunCommandRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return RunCommandResponse
      */
-    public function runCommandWithOptions(RunCommandRequest $request, RuntimeOptions $runtime)
+    public function runCommandWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return RunCommandResponse::fromMap($this->doRequest('RunCommand', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return RunCommandResponse::fromMap($this->doRequest('RunCommand', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param RunCommandRequest $request
      *
      * @return RunCommandResponse
      */
-    public function runCommand(RunCommandRequest $request)
+    public function runCommand($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1064,11 +1109,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteInstancesRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return DeleteInstancesResponse
      */
-    public function deleteInstancesWithOptions(DeleteInstancesRequest $request, RuntimeOptions $runtime)
+    public function deleteInstancesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1076,11 +1122,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteInstancesRequest $request
      *
      * @return DeleteInstancesResponse
      */
-    public function deleteInstances(DeleteInstancesRequest $request)
+    public function deleteInstances($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1088,23 +1134,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyStorageSetAttributeRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return ModifyStorageSetAttributeResponse
      */
-    public function modifyStorageSetAttributeWithOptions(ModifyStorageSetAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyStorageSetAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ModifyStorageSetAttributeResponse::fromMap($this->doRequest('ModifyStorageSetAttribute', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ModifyStorageSetAttributeResponse::fromMap($this->doRequest('ModifyStorageSetAttribute', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyStorageSetAttributeRequest $request
      *
      * @return ModifyStorageSetAttributeResponse
      */
-    public function modifyStorageSetAttribute(ModifyStorageSetAttributeRequest $request)
+    public function modifyStorageSetAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1112,23 +1159,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeStorageSetsRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return DescribeStorageSetsResponse
      */
-    public function describeStorageSetsWithOptions(DescribeStorageSetsRequest $request, RuntimeOptions $runtime)
+    public function describeStorageSetsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeStorageSetsResponse::fromMap($this->doRequest('DescribeStorageSets', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeStorageSetsResponse::fromMap($this->doRequest('DescribeStorageSets', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeStorageSetsRequest $request
      *
      * @return DescribeStorageSetsResponse
      */
-    public function describeStorageSets(DescribeStorageSetsRequest $request)
+    public function describeStorageSets($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1136,23 +1184,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeStorageSetDetailsRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return DescribeStorageSetDetailsResponse
      */
-    public function describeStorageSetDetailsWithOptions(DescribeStorageSetDetailsRequest $request, RuntimeOptions $runtime)
+    public function describeStorageSetDetailsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeStorageSetDetailsResponse::fromMap($this->doRequest('DescribeStorageSetDetails', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeStorageSetDetailsResponse::fromMap($this->doRequest('DescribeStorageSetDetails', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeStorageSetDetailsRequest $request
      *
      * @return DescribeStorageSetDetailsResponse
      */
-    public function describeStorageSetDetails(DescribeStorageSetDetailsRequest $request)
+    public function describeStorageSetDetails($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1160,23 +1209,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteStorageSetRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DeleteStorageSetResponse
      */
-    public function deleteStorageSetWithOptions(DeleteStorageSetRequest $request, RuntimeOptions $runtime)
+    public function deleteStorageSetWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DeleteStorageSetResponse::fromMap($this->doRequest('DeleteStorageSet', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DeleteStorageSetResponse::fromMap($this->doRequest('DeleteStorageSet', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteStorageSetRequest $request
      *
      * @return DeleteStorageSetResponse
      */
-    public function deleteStorageSet(DeleteStorageSetRequest $request)
+    public function deleteStorageSet($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1184,23 +1234,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateStorageSetRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return CreateStorageSetResponse
      */
-    public function createStorageSetWithOptions(CreateStorageSetRequest $request, RuntimeOptions $runtime)
+    public function createStorageSetWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return CreateStorageSetResponse::fromMap($this->doRequest('CreateStorageSet', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return CreateStorageSetResponse::fromMap($this->doRequest('CreateStorageSet', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param CreateStorageSetRequest $request
      *
      * @return CreateStorageSetResponse
      */
-    public function createStorageSet(CreateStorageSetRequest $request)
+    public function createStorageSet($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1208,23 +1259,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyDiskSpecRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return ModifyDiskSpecResponse
      */
-    public function modifyDiskSpecWithOptions(ModifyDiskSpecRequest $request, RuntimeOptions $runtime)
+    public function modifyDiskSpecWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ModifyDiskSpecResponse::fromMap($this->doRequest('ModifyDiskSpec', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ModifyDiskSpecResponse::fromMap($this->doRequest('ModifyDiskSpec', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyDiskSpecRequest $request
      *
      * @return ModifyDiskSpecResponse
      */
-    public function modifyDiskSpec(ModifyDiskSpecRequest $request)
+    public function modifyDiskSpec($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1232,23 +1284,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyAutoProvisioningGroupRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return ModifyAutoProvisioningGroupResponse
      */
-    public function modifyAutoProvisioningGroupWithOptions(ModifyAutoProvisioningGroupRequest $request, RuntimeOptions $runtime)
+    public function modifyAutoProvisioningGroupWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ModifyAutoProvisioningGroupResponse::fromMap($this->doRequest('ModifyAutoProvisioningGroup', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ModifyAutoProvisioningGroupResponse::fromMap($this->doRequest('ModifyAutoProvisioningGroup', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyAutoProvisioningGroupRequest $request
      *
      * @return ModifyAutoProvisioningGroupResponse
      */
-    public function modifyAutoProvisioningGroup(ModifyAutoProvisioningGroupRequest $request)
+    public function modifyAutoProvisioningGroup($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1256,23 +1309,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAutoProvisioningGroupsRequest $request
+     * @param RuntimeOptions                        $runtime
      *
      * @return DescribeAutoProvisioningGroupsResponse
      */
-    public function describeAutoProvisioningGroupsWithOptions(DescribeAutoProvisioningGroupsRequest $request, RuntimeOptions $runtime)
+    public function describeAutoProvisioningGroupsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeAutoProvisioningGroupsResponse::fromMap($this->doRequest('DescribeAutoProvisioningGroups', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeAutoProvisioningGroupsResponse::fromMap($this->doRequest('DescribeAutoProvisioningGroups', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAutoProvisioningGroupsRequest $request
      *
      * @return DescribeAutoProvisioningGroupsResponse
      */
-    public function describeAutoProvisioningGroups(DescribeAutoProvisioningGroupsRequest $request)
+    public function describeAutoProvisioningGroups($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1280,23 +1334,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAutoProvisioningGroupInstancesRequest $request
+     * @param RuntimeOptions                                $runtime
      *
      * @return DescribeAutoProvisioningGroupInstancesResponse
      */
-    public function describeAutoProvisioningGroupInstancesWithOptions(DescribeAutoProvisioningGroupInstancesRequest $request, RuntimeOptions $runtime)
+    public function describeAutoProvisioningGroupInstancesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeAutoProvisioningGroupInstancesResponse::fromMap($this->doRequest('DescribeAutoProvisioningGroupInstances', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeAutoProvisioningGroupInstancesResponse::fromMap($this->doRequest('DescribeAutoProvisioningGroupInstances', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAutoProvisioningGroupInstancesRequest $request
      *
      * @return DescribeAutoProvisioningGroupInstancesResponse
      */
-    public function describeAutoProvisioningGroupInstances(DescribeAutoProvisioningGroupInstancesRequest $request)
+    public function describeAutoProvisioningGroupInstances($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1304,23 +1359,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteAutoProvisioningGroupRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return DeleteAutoProvisioningGroupResponse
      */
-    public function deleteAutoProvisioningGroupWithOptions(DeleteAutoProvisioningGroupRequest $request, RuntimeOptions $runtime)
+    public function deleteAutoProvisioningGroupWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DeleteAutoProvisioningGroupResponse::fromMap($this->doRequest('DeleteAutoProvisioningGroup', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DeleteAutoProvisioningGroupResponse::fromMap($this->doRequest('DeleteAutoProvisioningGroup', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteAutoProvisioningGroupRequest $request
      *
      * @return DeleteAutoProvisioningGroupResponse
      */
-    public function deleteAutoProvisioningGroup(DeleteAutoProvisioningGroupRequest $request)
+    public function deleteAutoProvisioningGroup($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1328,23 +1384,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateAutoProvisioningGroupRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return CreateAutoProvisioningGroupResponse
      */
-    public function createAutoProvisioningGroupWithOptions(CreateAutoProvisioningGroupRequest $request, RuntimeOptions $runtime)
+    public function createAutoProvisioningGroupWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return CreateAutoProvisioningGroupResponse::fromMap($this->doRequest('CreateAutoProvisioningGroup', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return CreateAutoProvisioningGroupResponse::fromMap($this->doRequest('CreateAutoProvisioningGroup', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param CreateAutoProvisioningGroupRequest $request
      *
      * @return CreateAutoProvisioningGroupResponse
      */
-    public function createAutoProvisioningGroup(CreateAutoProvisioningGroupRequest $request)
+    public function createAutoProvisioningGroup($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1352,23 +1409,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAutoProvisioningGroupHistoryRequest $request
+     * @param RuntimeOptions                              $runtime
      *
      * @return DescribeAutoProvisioningGroupHistoryResponse
      */
-    public function describeAutoProvisioningGroupHistoryWithOptions(DescribeAutoProvisioningGroupHistoryRequest $request, RuntimeOptions $runtime)
+    public function describeAutoProvisioningGroupHistoryWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeAutoProvisioningGroupHistoryResponse::fromMap($this->doRequest('DescribeAutoProvisioningGroupHistory', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeAutoProvisioningGroupHistoryResponse::fromMap($this->doRequest('DescribeAutoProvisioningGroupHistory', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAutoProvisioningGroupHistoryRequest $request
      *
      * @return DescribeAutoProvisioningGroupHistoryResponse
      */
-    public function describeAutoProvisioningGroupHistory(DescribeAutoProvisioningGroupHistoryRequest $request)
+    public function describeAutoProvisioningGroupHistory($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1376,23 +1434,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ReportInstancesStatusRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return ReportInstancesStatusResponse
      */
-    public function reportInstancesStatusWithOptions(ReportInstancesStatusRequest $request, RuntimeOptions $runtime)
+    public function reportInstancesStatusWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ReportInstancesStatusResponse::fromMap($this->doRequest('ReportInstancesStatus', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ReportInstancesStatusResponse::fromMap($this->doRequest('ReportInstancesStatus', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ReportInstancesStatusRequest $request
      *
      * @return ReportInstancesStatusResponse
      */
-    public function reportInstancesStatus(ReportInstancesStatusRequest $request)
+    public function reportInstancesStatus($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1400,23 +1459,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyReservedInstanceAttributeRequest $request
+     * @param RuntimeOptions                         $runtime
      *
      * @return ModifyReservedInstanceAttributeResponse
      */
-    public function modifyReservedInstanceAttributeWithOptions(ModifyReservedInstanceAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyReservedInstanceAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ModifyReservedInstanceAttributeResponse::fromMap($this->doRequest('ModifyReservedInstanceAttribute', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ModifyReservedInstanceAttributeResponse::fromMap($this->doRequest('ModifyReservedInstanceAttribute', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyReservedInstanceAttributeRequest $request
      *
      * @return ModifyReservedInstanceAttributeResponse
      */
-    public function modifyReservedInstanceAttribute(ModifyReservedInstanceAttributeRequest $request)
+    public function modifyReservedInstanceAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1424,23 +1484,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param PurchaseReservedInstancesOfferingRequest $request
+     * @param RuntimeOptions                           $runtime
      *
      * @return PurchaseReservedInstancesOfferingResponse
      */
-    public function purchaseReservedInstancesOfferingWithOptions(PurchaseReservedInstancesOfferingRequest $request, RuntimeOptions $runtime)
+    public function purchaseReservedInstancesOfferingWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return PurchaseReservedInstancesOfferingResponse::fromMap($this->doRequest('PurchaseReservedInstancesOffering', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return PurchaseReservedInstancesOfferingResponse::fromMap($this->doRequest('PurchaseReservedInstancesOffering', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param PurchaseReservedInstancesOfferingRequest $request
      *
      * @return PurchaseReservedInstancesOfferingResponse
      */
-    public function purchaseReservedInstancesOffering(PurchaseReservedInstancesOfferingRequest $request)
+    public function purchaseReservedInstancesOffering($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1448,23 +1509,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyReservedInstancesRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return ModifyReservedInstancesResponse
      */
-    public function modifyReservedInstancesWithOptions(ModifyReservedInstancesRequest $request, RuntimeOptions $runtime)
+    public function modifyReservedInstancesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ModifyReservedInstancesResponse::fromMap($this->doRequest('ModifyReservedInstances', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ModifyReservedInstancesResponse::fromMap($this->doRequest('ModifyReservedInstances', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyReservedInstancesRequest $request
      *
      * @return ModifyReservedInstancesResponse
      */
-    public function modifyReservedInstances(ModifyReservedInstancesRequest $request)
+    public function modifyReservedInstances($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1472,23 +1534,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeReservedInstancesRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return DescribeReservedInstancesResponse
      */
-    public function describeReservedInstancesWithOptions(DescribeReservedInstancesRequest $request, RuntimeOptions $runtime)
+    public function describeReservedInstancesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeReservedInstancesResponse::fromMap($this->doRequest('DescribeReservedInstances', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeReservedInstancesResponse::fromMap($this->doRequest('DescribeReservedInstances', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeReservedInstancesRequest $request
      *
      * @return DescribeReservedInstancesResponse
      */
-    public function describeReservedInstances(DescribeReservedInstancesRequest $request)
+    public function describeReservedInstances($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1496,23 +1559,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDemandsRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return DescribeDemandsResponse
      */
-    public function describeDemandsWithOptions(DescribeDemandsRequest $request, RuntimeOptions $runtime)
+    public function describeDemandsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeDemandsResponse::fromMap($this->doRequest('DescribeDemands', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeDemandsResponse::fromMap($this->doRequest('DescribeDemands', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDemandsRequest $request
      *
      * @return DescribeDemandsResponse
      */
-    public function describeDemands(DescribeDemandsRequest $request)
+    public function describeDemands($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1520,23 +1584,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ImportSnapshotRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return ImportSnapshotResponse
      */
-    public function importSnapshotWithOptions(ImportSnapshotRequest $request, RuntimeOptions $runtime)
+    public function importSnapshotWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ImportSnapshotResponse::fromMap($this->doRequest('ImportSnapshot', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ImportSnapshotResponse::fromMap($this->doRequest('ImportSnapshot', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ImportSnapshotRequest $request
      *
      * @return ImportSnapshotResponse
      */
-    public function importSnapshot(ImportSnapshotRequest $request)
+    public function importSnapshot($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1544,23 +1609,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ExportSnapshotRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return ExportSnapshotResponse
      */
-    public function exportSnapshotWithOptions(ExportSnapshotRequest $request, RuntimeOptions $runtime)
+    public function exportSnapshotWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ExportSnapshotResponse::fromMap($this->doRequest('ExportSnapshot', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ExportSnapshotResponse::fromMap($this->doRequest('ExportSnapshot', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ExportSnapshotRequest $request
      *
      * @return ExportSnapshotResponse
      */
-    public function exportSnapshot(ExportSnapshotRequest $request)
+    public function exportSnapshot($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1568,23 +1634,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UntagResourcesRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return UntagResourcesResponse
      */
-    public function untagResourcesWithOptions(UntagResourcesRequest $request, RuntimeOptions $runtime)
+    public function untagResourcesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return UntagResourcesResponse::fromMap($this->doRequest('UntagResources', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return UntagResourcesResponse::fromMap($this->doRequest('UntagResources', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param UntagResourcesRequest $request
      *
      * @return UntagResourcesResponse
      */
-    public function untagResources(UntagResourcesRequest $request)
+    public function untagResources($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1592,23 +1659,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param TagResourcesRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return TagResourcesResponse
      */
-    public function tagResourcesWithOptions(TagResourcesRequest $request, RuntimeOptions $runtime)
+    public function tagResourcesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return TagResourcesResponse::fromMap($this->doRequest('TagResources', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return TagResourcesResponse::fromMap($this->doRequest('TagResources', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param TagResourcesRequest $request
      *
      * @return TagResourcesResponse
      */
-    public function tagResources(TagResourcesRequest $request)
+    public function tagResources($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1616,23 +1684,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ListTagResourcesRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return ListTagResourcesResponse
      */
-    public function listTagResourcesWithOptions(ListTagResourcesRequest $request, RuntimeOptions $runtime)
+    public function listTagResourcesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ListTagResourcesResponse::fromMap($this->doRequest('ListTagResources', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ListTagResourcesResponse::fromMap($this->doRequest('ListTagResources', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ListTagResourcesRequest $request
      *
      * @return ListTagResourcesResponse
      */
-    public function listTagResources(ListTagResourcesRequest $request)
+    public function listTagResources($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1640,23 +1709,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AcceptInquiredSystemEventRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return AcceptInquiredSystemEventResponse
      */
-    public function acceptInquiredSystemEventWithOptions(AcceptInquiredSystemEventRequest $request, RuntimeOptions $runtime)
+    public function acceptInquiredSystemEventWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return AcceptInquiredSystemEventResponse::fromMap($this->doRequest('AcceptInquiredSystemEvent', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return AcceptInquiredSystemEventResponse::fromMap($this->doRequest('AcceptInquiredSystemEvent', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param AcceptInquiredSystemEventRequest $request
      *
      * @return AcceptInquiredSystemEventResponse
      */
-    public function acceptInquiredSystemEvent(AcceptInquiredSystemEventRequest $request)
+    public function acceptInquiredSystemEvent($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1664,23 +1734,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RedeployInstanceRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return RedeployInstanceResponse
      */
-    public function redeployInstanceWithOptions(RedeployInstanceRequest $request, RuntimeOptions $runtime)
+    public function redeployInstanceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return RedeployInstanceResponse::fromMap($this->doRequest('RedeployInstance', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return RedeployInstanceResponse::fromMap($this->doRequest('RedeployInstance', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param RedeployInstanceRequest $request
      *
      * @return RedeployInstanceResponse
      */
-    public function redeployInstance(RedeployInstanceRequest $request)
+    public function redeployInstance($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1688,23 +1759,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UnassignIpv6AddressesRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return UnassignIpv6AddressesResponse
      */
-    public function unassignIpv6AddressesWithOptions(UnassignIpv6AddressesRequest $request, RuntimeOptions $runtime)
+    public function unassignIpv6AddressesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return UnassignIpv6AddressesResponse::fromMap($this->doRequest('UnassignIpv6Addresses', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return UnassignIpv6AddressesResponse::fromMap($this->doRequest('UnassignIpv6Addresses', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param UnassignIpv6AddressesRequest $request
      *
      * @return UnassignIpv6AddressesResponse
      */
-    public function unassignIpv6Addresses(UnassignIpv6AddressesRequest $request)
+    public function unassignIpv6Addresses($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1712,23 +1784,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AssignIpv6AddressesRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return AssignIpv6AddressesResponse
      */
-    public function assignIpv6AddressesWithOptions(AssignIpv6AddressesRequest $request, RuntimeOptions $runtime)
+    public function assignIpv6AddressesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return AssignIpv6AddressesResponse::fromMap($this->doRequest('AssignIpv6Addresses', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return AssignIpv6AddressesResponse::fromMap($this->doRequest('AssignIpv6Addresses', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param AssignIpv6AddressesRequest $request
      *
      * @return AssignIpv6AddressesResponse
      */
-    public function assignIpv6Addresses(AssignIpv6AddressesRequest $request)
+    public function assignIpv6Addresses($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1736,11 +1809,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceTopologyRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return DescribeInstanceTopologyResponse
      */
-    public function describeInstanceTopologyWithOptions(DescribeInstanceTopologyRequest $request, RuntimeOptions $runtime)
+    public function describeInstanceTopologyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1748,11 +1822,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceTopologyRequest $request
      *
      * @return DescribeInstanceTopologyResponse
      */
-    public function describeInstanceTopology(DescribeInstanceTopologyRequest $request)
+    public function describeInstanceTopology($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1760,23 +1834,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RenewDedicatedHostsRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return RenewDedicatedHostsResponse
      */
-    public function renewDedicatedHostsWithOptions(RenewDedicatedHostsRequest $request, RuntimeOptions $runtime)
+    public function renewDedicatedHostsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return RenewDedicatedHostsResponse::fromMap($this->doRequest('RenewDedicatedHosts', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return RenewDedicatedHostsResponse::fromMap($this->doRequest('RenewDedicatedHosts', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param RenewDedicatedHostsRequest $request
      *
      * @return RenewDedicatedHostsResponse
      */
-    public function renewDedicatedHosts(RenewDedicatedHostsRequest $request)
+    public function renewDedicatedHosts($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1784,23 +1859,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ReleaseDedicatedHostRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return ReleaseDedicatedHostResponse
      */
-    public function releaseDedicatedHostWithOptions(ReleaseDedicatedHostRequest $request, RuntimeOptions $runtime)
+    public function releaseDedicatedHostWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ReleaseDedicatedHostResponse::fromMap($this->doRequest('ReleaseDedicatedHost', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ReleaseDedicatedHostResponse::fromMap($this->doRequest('ReleaseDedicatedHost', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ReleaseDedicatedHostRequest $request
      *
      * @return ReleaseDedicatedHostResponse
      */
-    public function releaseDedicatedHost(ReleaseDedicatedHostRequest $request)
+    public function releaseDedicatedHost($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1808,23 +1884,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceDeploymentRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return ModifyInstanceDeploymentResponse
      */
-    public function modifyInstanceDeploymentWithOptions(ModifyInstanceDeploymentRequest $request, RuntimeOptions $runtime)
+    public function modifyInstanceDeploymentWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ModifyInstanceDeploymentResponse::fromMap($this->doRequest('ModifyInstanceDeployment', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ModifyInstanceDeploymentResponse::fromMap($this->doRequest('ModifyInstanceDeployment', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceDeploymentRequest $request
      *
      * @return ModifyInstanceDeploymentResponse
      */
-    public function modifyInstanceDeployment(ModifyInstanceDeploymentRequest $request)
+    public function modifyInstanceDeployment($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1832,11 +1909,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyDedicatedHostAutoRenewAttributeRequest $request
+     * @param RuntimeOptions                               $runtime
      *
      * @return ModifyDedicatedHostAutoRenewAttributeResponse
      */
-    public function modifyDedicatedHostAutoRenewAttributeWithOptions(ModifyDedicatedHostAutoRenewAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyDedicatedHostAutoRenewAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1844,11 +1922,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyDedicatedHostAutoRenewAttributeRequest $request
      *
      * @return ModifyDedicatedHostAutoRenewAttributeResponse
      */
-    public function modifyDedicatedHostAutoRenewAttribute(ModifyDedicatedHostAutoRenewAttributeRequest $request)
+    public function modifyDedicatedHostAutoRenewAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1856,11 +1934,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyDedicatedHostAutoReleaseTimeRequest $request
+     * @param RuntimeOptions                            $runtime
      *
      * @return ModifyDedicatedHostAutoReleaseTimeResponse
      */
-    public function modifyDedicatedHostAutoReleaseTimeWithOptions(ModifyDedicatedHostAutoReleaseTimeRequest $request, RuntimeOptions $runtime)
+    public function modifyDedicatedHostAutoReleaseTimeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1868,11 +1947,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyDedicatedHostAutoReleaseTimeRequest $request
      *
      * @return ModifyDedicatedHostAutoReleaseTimeResponse
      */
-    public function modifyDedicatedHostAutoReleaseTime(ModifyDedicatedHostAutoReleaseTimeRequest $request)
+    public function modifyDedicatedHostAutoReleaseTime($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1880,23 +1959,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyDedicatedHostAttributeRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return ModifyDedicatedHostAttributeResponse
      */
-    public function modifyDedicatedHostAttributeWithOptions(ModifyDedicatedHostAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyDedicatedHostAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ModifyDedicatedHostAttributeResponse::fromMap($this->doRequest('ModifyDedicatedHostAttribute', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ModifyDedicatedHostAttributeResponse::fromMap($this->doRequest('ModifyDedicatedHostAttribute', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyDedicatedHostAttributeRequest $request
      *
      * @return ModifyDedicatedHostAttributeResponse
      */
-    public function modifyDedicatedHostAttribute(ModifyDedicatedHostAttributeRequest $request)
+    public function modifyDedicatedHostAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1904,11 +1984,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDedicatedHostsRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return DescribeDedicatedHostsResponse
      */
-    public function describeDedicatedHostsWithOptions(DescribeDedicatedHostsRequest $request, RuntimeOptions $runtime)
+    public function describeDedicatedHostsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1916,11 +1997,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDedicatedHostsRequest $request
      *
      * @return DescribeDedicatedHostsResponse
      */
-    public function describeDedicatedHosts(DescribeDedicatedHostsRequest $request)
+    public function describeDedicatedHosts($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1928,23 +2009,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDedicatedHostTypesRequest $request
+     * @param RuntimeOptions                    $runtime
      *
      * @return DescribeDedicatedHostTypesResponse
      */
-    public function describeDedicatedHostTypesWithOptions(DescribeDedicatedHostTypesRequest $request, RuntimeOptions $runtime)
+    public function describeDedicatedHostTypesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeDedicatedHostTypesResponse::fromMap($this->doRequest('DescribeDedicatedHostTypes', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeDedicatedHostTypesResponse::fromMap($this->doRequest('DescribeDedicatedHostTypes', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDedicatedHostTypesRequest $request
      *
      * @return DescribeDedicatedHostTypesResponse
      */
-    public function describeDedicatedHostTypes(DescribeDedicatedHostTypesRequest $request)
+    public function describeDedicatedHostTypes($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1952,11 +2034,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDedicatedHostAutoRenewRequest $request
+     * @param RuntimeOptions                        $runtime
      *
      * @return DescribeDedicatedHostAutoRenewResponse
      */
-    public function describeDedicatedHostAutoRenewWithOptions(DescribeDedicatedHostAutoRenewRequest $request, RuntimeOptions $runtime)
+    public function describeDedicatedHostAutoRenewWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1964,11 +2047,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDedicatedHostAutoRenewRequest $request
      *
      * @return DescribeDedicatedHostAutoRenewResponse
      */
-    public function describeDedicatedHostAutoRenew(DescribeDedicatedHostAutoRenewRequest $request)
+    public function describeDedicatedHostAutoRenew($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1976,23 +2059,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AllocateDedicatedHostsRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return AllocateDedicatedHostsResponse
      */
-    public function allocateDedicatedHostsWithOptions(AllocateDedicatedHostsRequest $request, RuntimeOptions $runtime)
+    public function allocateDedicatedHostsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return AllocateDedicatedHostsResponse::fromMap($this->doRequest('AllocateDedicatedHosts', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return AllocateDedicatedHostsResponse::fromMap($this->doRequest('AllocateDedicatedHosts', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param AllocateDedicatedHostsRequest $request
      *
      * @return AllocateDedicatedHostsResponse
      */
-    public function allocateDedicatedHosts(AllocateDedicatedHostsRequest $request)
+    public function allocateDedicatedHosts($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2000,23 +2084,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateSimulatedSystemEventsRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return CreateSimulatedSystemEventsResponse
      */
-    public function createSimulatedSystemEventsWithOptions(CreateSimulatedSystemEventsRequest $request, RuntimeOptions $runtime)
+    public function createSimulatedSystemEventsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return CreateSimulatedSystemEventsResponse::fromMap($this->doRequest('CreateSimulatedSystemEvents', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return CreateSimulatedSystemEventsResponse::fromMap($this->doRequest('CreateSimulatedSystemEvents', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param CreateSimulatedSystemEventsRequest $request
      *
      * @return CreateSimulatedSystemEventsResponse
      */
-    public function createSimulatedSystemEvents(CreateSimulatedSystemEventsRequest $request)
+    public function createSimulatedSystemEvents($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2024,23 +2109,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CancelSimulatedSystemEventsRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return CancelSimulatedSystemEventsResponse
      */
-    public function cancelSimulatedSystemEventsWithOptions(CancelSimulatedSystemEventsRequest $request, RuntimeOptions $runtime)
+    public function cancelSimulatedSystemEventsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return CancelSimulatedSystemEventsResponse::fromMap($this->doRequest('CancelSimulatedSystemEvents', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return CancelSimulatedSystemEventsResponse::fromMap($this->doRequest('CancelSimulatedSystemEvents', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param CancelSimulatedSystemEventsRequest $request
      *
      * @return CancelSimulatedSystemEventsResponse
      */
-    public function cancelSimulatedSystemEvents(CancelSimulatedSystemEventsRequest $request)
+    public function cancelSimulatedSystemEvents($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2048,23 +2134,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeEniMonitorDataRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return DescribeEniMonitorDataResponse
      */
-    public function describeEniMonitorDataWithOptions(DescribeEniMonitorDataRequest $request, RuntimeOptions $runtime)
+    public function describeEniMonitorDataWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeEniMonitorDataResponse::fromMap($this->doRequest('DescribeEniMonitorData', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeEniMonitorDataResponse::fromMap($this->doRequest('DescribeEniMonitorData', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeEniMonitorDataRequest $request
      *
      * @return DescribeEniMonitorDataResponse
      */
-    public function describeEniMonitorData(DescribeEniMonitorDataRequest $request)
+    public function describeEniMonitorData($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2072,23 +2159,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAccountAttributesRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return DescribeAccountAttributesResponse
      */
-    public function describeAccountAttributesWithOptions(DescribeAccountAttributesRequest $request, RuntimeOptions $runtime)
+    public function describeAccountAttributesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeAccountAttributesResponse::fromMap($this->doRequest('DescribeAccountAttributes', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeAccountAttributesResponse::fromMap($this->doRequest('DescribeAccountAttributes', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAccountAttributesRequest $request
      *
      * @return DescribeAccountAttributesResponse
      */
-    public function describeAccountAttributes(DescribeAccountAttributesRequest $request)
+    public function describeAccountAttributes($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2096,23 +2184,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyLaunchTemplateDefaultVersionRequest $request
+     * @param RuntimeOptions                            $runtime
      *
      * @return ModifyLaunchTemplateDefaultVersionResponse
      */
-    public function modifyLaunchTemplateDefaultVersionWithOptions(ModifyLaunchTemplateDefaultVersionRequest $request, RuntimeOptions $runtime)
+    public function modifyLaunchTemplateDefaultVersionWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ModifyLaunchTemplateDefaultVersionResponse::fromMap($this->doRequest('ModifyLaunchTemplateDefaultVersion', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ModifyLaunchTemplateDefaultVersionResponse::fromMap($this->doRequest('ModifyLaunchTemplateDefaultVersion', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyLaunchTemplateDefaultVersionRequest $request
      *
      * @return ModifyLaunchTemplateDefaultVersionResponse
      */
-    public function modifyLaunchTemplateDefaultVersion(ModifyLaunchTemplateDefaultVersionRequest $request)
+    public function modifyLaunchTemplateDefaultVersion($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2120,23 +2209,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeLaunchTemplatesRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return DescribeLaunchTemplatesResponse
      */
-    public function describeLaunchTemplatesWithOptions(DescribeLaunchTemplatesRequest $request, RuntimeOptions $runtime)
+    public function describeLaunchTemplatesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeLaunchTemplatesResponse::fromMap($this->doRequest('DescribeLaunchTemplates', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeLaunchTemplatesResponse::fromMap($this->doRequest('DescribeLaunchTemplates', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeLaunchTemplatesRequest $request
      *
      * @return DescribeLaunchTemplatesResponse
      */
-    public function describeLaunchTemplates(DescribeLaunchTemplatesRequest $request)
+    public function describeLaunchTemplates($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2144,23 +2234,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeLaunchTemplateVersionsRequest $request
+     * @param RuntimeOptions                        $runtime
      *
      * @return DescribeLaunchTemplateVersionsResponse
      */
-    public function describeLaunchTemplateVersionsWithOptions(DescribeLaunchTemplateVersionsRequest $request, RuntimeOptions $runtime)
+    public function describeLaunchTemplateVersionsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeLaunchTemplateVersionsResponse::fromMap($this->doRequest('DescribeLaunchTemplateVersions', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeLaunchTemplateVersionsResponse::fromMap($this->doRequest('DescribeLaunchTemplateVersions', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeLaunchTemplateVersionsRequest $request
      *
      * @return DescribeLaunchTemplateVersionsResponse
      */
-    public function describeLaunchTemplateVersions(DescribeLaunchTemplateVersionsRequest $request)
+    public function describeLaunchTemplateVersions($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2168,23 +2259,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteLaunchTemplateVersionRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return DeleteLaunchTemplateVersionResponse
      */
-    public function deleteLaunchTemplateVersionWithOptions(DeleteLaunchTemplateVersionRequest $request, RuntimeOptions $runtime)
+    public function deleteLaunchTemplateVersionWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DeleteLaunchTemplateVersionResponse::fromMap($this->doRequest('DeleteLaunchTemplateVersion', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DeleteLaunchTemplateVersionResponse::fromMap($this->doRequest('DeleteLaunchTemplateVersion', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteLaunchTemplateVersionRequest $request
      *
      * @return DeleteLaunchTemplateVersionResponse
      */
-    public function deleteLaunchTemplateVersion(DeleteLaunchTemplateVersionRequest $request)
+    public function deleteLaunchTemplateVersion($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2192,23 +2284,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteLaunchTemplateRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return DeleteLaunchTemplateResponse
      */
-    public function deleteLaunchTemplateWithOptions(DeleteLaunchTemplateRequest $request, RuntimeOptions $runtime)
+    public function deleteLaunchTemplateWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DeleteLaunchTemplateResponse::fromMap($this->doRequest('DeleteLaunchTemplate', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DeleteLaunchTemplateResponse::fromMap($this->doRequest('DeleteLaunchTemplate', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteLaunchTemplateRequest $request
      *
      * @return DeleteLaunchTemplateResponse
      */
-    public function deleteLaunchTemplate(DeleteLaunchTemplateRequest $request)
+    public function deleteLaunchTemplate($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2216,23 +2309,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateLaunchTemplateVersionRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return CreateLaunchTemplateVersionResponse
      */
-    public function createLaunchTemplateVersionWithOptions(CreateLaunchTemplateVersionRequest $request, RuntimeOptions $runtime)
+    public function createLaunchTemplateVersionWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return CreateLaunchTemplateVersionResponse::fromMap($this->doRequest('CreateLaunchTemplateVersion', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return CreateLaunchTemplateVersionResponse::fromMap($this->doRequest('CreateLaunchTemplateVersion', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param CreateLaunchTemplateVersionRequest $request
      *
      * @return CreateLaunchTemplateVersionResponse
      */
-    public function createLaunchTemplateVersion(CreateLaunchTemplateVersionRequest $request)
+    public function createLaunchTemplateVersion($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2240,23 +2334,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateLaunchTemplateRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return CreateLaunchTemplateResponse
      */
-    public function createLaunchTemplateWithOptions(CreateLaunchTemplateRequest $request, RuntimeOptions $runtime)
+    public function createLaunchTemplateWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return CreateLaunchTemplateResponse::fromMap($this->doRequest('CreateLaunchTemplate', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return CreateLaunchTemplateResponse::fromMap($this->doRequest('CreateLaunchTemplate', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param CreateLaunchTemplateRequest $request
      *
      * @return CreateLaunchTemplateResponse
      */
-    public function createLaunchTemplate(CreateLaunchTemplateRequest $request)
+    public function createLaunchTemplate($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2264,23 +2359,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param InstallCloudAssistantRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return InstallCloudAssistantResponse
      */
-    public function installCloudAssistantWithOptions(InstallCloudAssistantRequest $request, RuntimeOptions $runtime)
+    public function installCloudAssistantWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return InstallCloudAssistantResponse::fromMap($this->doRequest('InstallCloudAssistant', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return InstallCloudAssistantResponse::fromMap($this->doRequest('InstallCloudAssistant', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param InstallCloudAssistantRequest $request
      *
      * @return InstallCloudAssistantResponse
      */
-    public function installCloudAssistant(InstallCloudAssistantRequest $request)
+    public function installCloudAssistant($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2288,23 +2384,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeCloudAssistantStatusRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return DescribeCloudAssistantStatusResponse
      */
-    public function describeCloudAssistantStatusWithOptions(DescribeCloudAssistantStatusRequest $request, RuntimeOptions $runtime)
+    public function describeCloudAssistantStatusWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeCloudAssistantStatusResponse::fromMap($this->doRequest('DescribeCloudAssistantStatus', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeCloudAssistantStatusResponse::fromMap($this->doRequest('DescribeCloudAssistantStatus', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeCloudAssistantStatusRequest $request
      *
      * @return DescribeCloudAssistantStatusResponse
      */
-    public function describeCloudAssistantStatus(DescribeCloudAssistantStatusRequest $request)
+    public function describeCloudAssistantStatus($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2312,23 +2409,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UnassignPrivateIpAddressesRequest $request
+     * @param RuntimeOptions                    $runtime
      *
      * @return UnassignPrivateIpAddressesResponse
      */
-    public function unassignPrivateIpAddressesWithOptions(UnassignPrivateIpAddressesRequest $request, RuntimeOptions $runtime)
+    public function unassignPrivateIpAddressesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return UnassignPrivateIpAddressesResponse::fromMap($this->doRequest('UnassignPrivateIpAddresses', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return UnassignPrivateIpAddressesResponse::fromMap($this->doRequest('UnassignPrivateIpAddresses', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param UnassignPrivateIpAddressesRequest $request
      *
      * @return UnassignPrivateIpAddressesResponse
      */
-    public function unassignPrivateIpAddresses(UnassignPrivateIpAddressesRequest $request)
+    public function unassignPrivateIpAddresses($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2336,23 +2434,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AssignPrivateIpAddressesRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return AssignPrivateIpAddressesResponse
      */
-    public function assignPrivateIpAddressesWithOptions(AssignPrivateIpAddressesRequest $request, RuntimeOptions $runtime)
+    public function assignPrivateIpAddressesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return AssignPrivateIpAddressesResponse::fromMap($this->doRequest('AssignPrivateIpAddresses', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return AssignPrivateIpAddressesResponse::fromMap($this->doRequest('AssignPrivateIpAddresses', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param AssignPrivateIpAddressesRequest $request
      *
      * @return AssignPrivateIpAddressesResponse
      */
-    public function assignPrivateIpAddresses(AssignPrivateIpAddressesRequest $request)
+    public function assignPrivateIpAddresses($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2360,23 +2459,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeNetworkInterfacePermissionsRequest $request
+     * @param RuntimeOptions                             $runtime
      *
      * @return DescribeNetworkInterfacePermissionsResponse
      */
-    public function describeNetworkInterfacePermissionsWithOptions(DescribeNetworkInterfacePermissionsRequest $request, RuntimeOptions $runtime)
+    public function describeNetworkInterfacePermissionsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeNetworkInterfacePermissionsResponse::fromMap($this->doRequest('DescribeNetworkInterfacePermissions', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeNetworkInterfacePermissionsResponse::fromMap($this->doRequest('DescribeNetworkInterfacePermissions', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeNetworkInterfacePermissionsRequest $request
      *
      * @return DescribeNetworkInterfacePermissionsResponse
      */
-    public function describeNetworkInterfacePermissions(DescribeNetworkInterfacePermissionsRequest $request)
+    public function describeNetworkInterfacePermissions($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2384,23 +2484,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteNetworkInterfacePermissionRequest $request
+     * @param RuntimeOptions                          $runtime
      *
      * @return DeleteNetworkInterfacePermissionResponse
      */
-    public function deleteNetworkInterfacePermissionWithOptions(DeleteNetworkInterfacePermissionRequest $request, RuntimeOptions $runtime)
+    public function deleteNetworkInterfacePermissionWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DeleteNetworkInterfacePermissionResponse::fromMap($this->doRequest('DeleteNetworkInterfacePermission', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DeleteNetworkInterfacePermissionResponse::fromMap($this->doRequest('DeleteNetworkInterfacePermission', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteNetworkInterfacePermissionRequest $request
      *
      * @return DeleteNetworkInterfacePermissionResponse
      */
-    public function deleteNetworkInterfacePermission(DeleteNetworkInterfacePermissionRequest $request)
+    public function deleteNetworkInterfacePermission($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2408,23 +2509,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateNetworkInterfacePermissionRequest $request
+     * @param RuntimeOptions                          $runtime
      *
      * @return CreateNetworkInterfacePermissionResponse
      */
-    public function createNetworkInterfacePermissionWithOptions(CreateNetworkInterfacePermissionRequest $request, RuntimeOptions $runtime)
+    public function createNetworkInterfacePermissionWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return CreateNetworkInterfacePermissionResponse::fromMap($this->doRequest('CreateNetworkInterfacePermission', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return CreateNetworkInterfacePermissionResponse::fromMap($this->doRequest('CreateNetworkInterfacePermission', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param CreateNetworkInterfacePermissionRequest $request
      *
      * @return CreateNetworkInterfacePermissionResponse
      */
-    public function createNetworkInterfacePermission(CreateNetworkInterfacePermissionRequest $request)
+    public function createNetworkInterfacePermission($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2432,23 +2534,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetInstanceScreenshotRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return GetInstanceScreenshotResponse
      */
-    public function getInstanceScreenshotWithOptions(GetInstanceScreenshotRequest $request, RuntimeOptions $runtime)
+    public function getInstanceScreenshotWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return GetInstanceScreenshotResponse::fromMap($this->doRequest('GetInstanceScreenshot', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return GetInstanceScreenshotResponse::fromMap($this->doRequest('GetInstanceScreenshot', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param GetInstanceScreenshotRequest $request
      *
      * @return GetInstanceScreenshotResponse
      */
-    public function getInstanceScreenshot(GetInstanceScreenshotRequest $request)
+    public function getInstanceScreenshot($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2456,23 +2559,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetInstanceConsoleOutputRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return GetInstanceConsoleOutputResponse
      */
-    public function getInstanceConsoleOutputWithOptions(GetInstanceConsoleOutputRequest $request, RuntimeOptions $runtime)
+    public function getInstanceConsoleOutputWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return GetInstanceConsoleOutputResponse::fromMap($this->doRequest('GetInstanceConsoleOutput', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return GetInstanceConsoleOutputResponse::fromMap($this->doRequest('GetInstanceConsoleOutput', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param GetInstanceConsoleOutputRequest $request
      *
      * @return GetInstanceConsoleOutputResponse
      */
-    public function getInstanceConsoleOutput(GetInstanceConsoleOutputRequest $request)
+    public function getInstanceConsoleOutput($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2480,23 +2584,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeResourcesModificationRequest $request
+     * @param RuntimeOptions                       $runtime
      *
      * @return DescribeResourcesModificationResponse
      */
-    public function describeResourcesModificationWithOptions(DescribeResourcesModificationRequest $request, RuntimeOptions $runtime)
+    public function describeResourcesModificationWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeResourcesModificationResponse::fromMap($this->doRequest('DescribeResourcesModification', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeResourcesModificationResponse::fromMap($this->doRequest('DescribeResourcesModification', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeResourcesModificationRequest $request
      *
      * @return DescribeResourcesModificationResponse
      */
-    public function describeResourcesModification(DescribeResourcesModificationRequest $request)
+    public function describeResourcesModification($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2504,23 +2609,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeBandwidthLimitationRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return DescribeBandwidthLimitationResponse
      */
-    public function describeBandwidthLimitationWithOptions(DescribeBandwidthLimitationRequest $request, RuntimeOptions $runtime)
+    public function describeBandwidthLimitationWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeBandwidthLimitationResponse::fromMap($this->doRequest('DescribeBandwidthLimitation', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeBandwidthLimitationResponse::fromMap($this->doRequest('DescribeBandwidthLimitation', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeBandwidthLimitationRequest $request
      *
      * @return DescribeBandwidthLimitationResponse
      */
-    public function describeBandwidthLimitation(DescribeBandwidthLimitationRequest $request)
+    public function describeBandwidthLimitation($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2528,23 +2634,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAvailableResourceRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return DescribeAvailableResourceResponse
      */
-    public function describeAvailableResourceWithOptions(DescribeAvailableResourceRequest $request, RuntimeOptions $runtime)
+    public function describeAvailableResourceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeAvailableResourceResponse::fromMap($this->doRequest('DescribeAvailableResource', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeAvailableResourceResponse::fromMap($this->doRequest('DescribeAvailableResource', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAvailableResourceRequest $request
      *
      * @return DescribeAvailableResourceResponse
      */
-    public function describeAvailableResource(DescribeAvailableResourceRequest $request)
+    public function describeAvailableResource($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2552,11 +2659,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ReActivateInstancesRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return ReActivateInstancesResponse
      */
-    public function reActivateInstancesWithOptions(ReActivateInstancesRequest $request, RuntimeOptions $runtime)
+    public function reActivateInstancesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -2564,11 +2672,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ReActivateInstancesRequest $request
      *
      * @return ReActivateInstancesResponse
      */
-    public function reActivateInstances(ReActivateInstancesRequest $request)
+    public function reActivateInstances($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2576,23 +2684,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstancesFullStatusRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return DescribeInstancesFullStatusResponse
      */
-    public function describeInstancesFullStatusWithOptions(DescribeInstancesFullStatusRequest $request, RuntimeOptions $runtime)
+    public function describeInstancesFullStatusWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeInstancesFullStatusResponse::fromMap($this->doRequest('DescribeInstancesFullStatus', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeInstancesFullStatusResponse::fromMap($this->doRequest('DescribeInstancesFullStatus', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstancesFullStatusRequest $request
      *
      * @return DescribeInstancesFullStatusResponse
      */
-    public function describeInstancesFullStatus(DescribeInstancesFullStatusRequest $request)
+    public function describeInstancesFullStatus($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2600,23 +2709,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceHistoryEventsRequest $request
+     * @param RuntimeOptions                       $runtime
      *
      * @return DescribeInstanceHistoryEventsResponse
      */
-    public function describeInstanceHistoryEventsWithOptions(DescribeInstanceHistoryEventsRequest $request, RuntimeOptions $runtime)
+    public function describeInstanceHistoryEventsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeInstanceHistoryEventsResponse::fromMap($this->doRequest('DescribeInstanceHistoryEvents', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeInstanceHistoryEventsResponse::fromMap($this->doRequest('DescribeInstanceHistoryEvents', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceHistoryEventsRequest $request
      *
      * @return DescribeInstanceHistoryEventsResponse
      */
-    public function describeInstanceHistoryEvents(DescribeInstanceHistoryEventsRequest $request)
+    public function describeInstanceHistoryEvents($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2624,23 +2734,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDisksFullStatusRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return DescribeDisksFullStatusResponse
      */
-    public function describeDisksFullStatusWithOptions(DescribeDisksFullStatusRequest $request, RuntimeOptions $runtime)
+    public function describeDisksFullStatusWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeDisksFullStatusResponse::fromMap($this->doRequest('DescribeDisksFullStatus', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeDisksFullStatusResponse::fromMap($this->doRequest('DescribeDisksFullStatus', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDisksFullStatusRequest $request
      *
      * @return DescribeDisksFullStatusResponse
      */
-    public function describeDisksFullStatus(DescribeDisksFullStatusRequest $request)
+    public function describeDisksFullStatus($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2648,23 +2759,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyUserBusinessBehaviorRequest $request
+     * @param RuntimeOptions                    $runtime
      *
      * @return ModifyUserBusinessBehaviorResponse
      */
-    public function modifyUserBusinessBehaviorWithOptions(ModifyUserBusinessBehaviorRequest $request, RuntimeOptions $runtime)
+    public function modifyUserBusinessBehaviorWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ModifyUserBusinessBehaviorResponse::fromMap($this->doRequest('ModifyUserBusinessBehavior', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ModifyUserBusinessBehaviorResponse::fromMap($this->doRequest('ModifyUserBusinessBehavior', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyUserBusinessBehaviorRequest $request
      *
      * @return ModifyUserBusinessBehaviorResponse
      */
-    public function modifyUserBusinessBehavior(ModifyUserBusinessBehaviorRequest $request)
+    public function modifyUserBusinessBehavior($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2672,23 +2784,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeUserBusinessBehaviorRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return DescribeUserBusinessBehaviorResponse
      */
-    public function describeUserBusinessBehaviorWithOptions(DescribeUserBusinessBehaviorRequest $request, RuntimeOptions $runtime)
+    public function describeUserBusinessBehaviorWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeUserBusinessBehaviorResponse::fromMap($this->doRequest('DescribeUserBusinessBehavior', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeUserBusinessBehaviorResponse::fromMap($this->doRequest('DescribeUserBusinessBehavior', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeUserBusinessBehaviorRequest $request
      *
      * @return DescribeUserBusinessBehaviorResponse
      */
-    public function describeUserBusinessBehavior(DescribeUserBusinessBehaviorRequest $request)
+    public function describeUserBusinessBehavior($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2696,23 +2809,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RunInstancesRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return RunInstancesResponse
      */
-    public function runInstancesWithOptions(RunInstancesRequest $request, RuntimeOptions $runtime)
+    public function runInstancesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return RunInstancesResponse::fromMap($this->doRequest('RunInstances', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return RunInstancesResponse::fromMap($this->doRequest('RunInstances', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param RunInstancesRequest $request
      *
      * @return RunInstancesResponse
      */
-    public function runInstances(RunInstancesRequest $request)
+    public function runInstances($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2720,23 +2834,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ConvertNatPublicIpToEipRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return ConvertNatPublicIpToEipResponse
      */
-    public function convertNatPublicIpToEipWithOptions(ConvertNatPublicIpToEipRequest $request, RuntimeOptions $runtime)
+    public function convertNatPublicIpToEipWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ConvertNatPublicIpToEipResponse::fromMap($this->doRequest('ConvertNatPublicIpToEip', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ConvertNatPublicIpToEipResponse::fromMap($this->doRequest('ConvertNatPublicIpToEip', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ConvertNatPublicIpToEipRequest $request
      *
      * @return ConvertNatPublicIpToEipResponse
      */
-    public function convertNatPublicIpToEip(ConvertNatPublicIpToEipRequest $request)
+    public function convertNatPublicIpToEip($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2744,23 +2859,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyHpcClusterAttributeRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return ModifyHpcClusterAttributeResponse
      */
-    public function modifyHpcClusterAttributeWithOptions(ModifyHpcClusterAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyHpcClusterAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ModifyHpcClusterAttributeResponse::fromMap($this->doRequest('ModifyHpcClusterAttribute', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ModifyHpcClusterAttributeResponse::fromMap($this->doRequest('ModifyHpcClusterAttribute', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyHpcClusterAttributeRequest $request
      *
      * @return ModifyHpcClusterAttributeResponse
      */
-    public function modifyHpcClusterAttribute(ModifyHpcClusterAttributeRequest $request)
+    public function modifyHpcClusterAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2768,23 +2884,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeHpcClustersRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return DescribeHpcClustersResponse
      */
-    public function describeHpcClustersWithOptions(DescribeHpcClustersRequest $request, RuntimeOptions $runtime)
+    public function describeHpcClustersWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeHpcClustersResponse::fromMap($this->doRequest('DescribeHpcClusters', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeHpcClustersResponse::fromMap($this->doRequest('DescribeHpcClusters', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeHpcClustersRequest $request
      *
      * @return DescribeHpcClustersResponse
      */
-    public function describeHpcClusters(DescribeHpcClustersRequest $request)
+    public function describeHpcClusters($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2792,23 +2909,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteHpcClusterRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DeleteHpcClusterResponse
      */
-    public function deleteHpcClusterWithOptions(DeleteHpcClusterRequest $request, RuntimeOptions $runtime)
+    public function deleteHpcClusterWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DeleteHpcClusterResponse::fromMap($this->doRequest('DeleteHpcCluster', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DeleteHpcClusterResponse::fromMap($this->doRequest('DeleteHpcCluster', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteHpcClusterRequest $request
      *
      * @return DeleteHpcClusterResponse
      */
-    public function deleteHpcCluster(DeleteHpcClusterRequest $request)
+    public function deleteHpcCluster($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2816,23 +2934,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateHpcClusterRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return CreateHpcClusterResponse
      */
-    public function createHpcClusterWithOptions(CreateHpcClusterRequest $request, RuntimeOptions $runtime)
+    public function createHpcClusterWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return CreateHpcClusterResponse::fromMap($this->doRequest('CreateHpcCluster', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return CreateHpcClusterResponse::fromMap($this->doRequest('CreateHpcCluster', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param CreateHpcClusterRequest $request
      *
      * @return CreateHpcClusterResponse
      */
-    public function createHpcCluster(CreateHpcClusterRequest $request)
+    public function createHpcCluster($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2840,23 +2959,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSnapshotsUsageRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return DescribeSnapshotsUsageResponse
      */
-    public function describeSnapshotsUsageWithOptions(DescribeSnapshotsUsageRequest $request, RuntimeOptions $runtime)
+    public function describeSnapshotsUsageWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeSnapshotsUsageResponse::fromMap($this->doRequest('DescribeSnapshotsUsage', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeSnapshotsUsageResponse::fromMap($this->doRequest('DescribeSnapshotsUsage', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSnapshotsUsageRequest $request
      *
      * @return DescribeSnapshotsUsageResponse
      */
-    public function describeSnapshotsUsage(DescribeSnapshotsUsageRequest $request)
+    public function describeSnapshotsUsage($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2864,23 +2984,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSpotPriceHistoryRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return DescribeSpotPriceHistoryResponse
      */
-    public function describeSpotPriceHistoryWithOptions(DescribeSpotPriceHistoryRequest $request, RuntimeOptions $runtime)
+    public function describeSpotPriceHistoryWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeSpotPriceHistoryResponse::fromMap($this->doRequest('DescribeSpotPriceHistory', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeSpotPriceHistoryResponse::fromMap($this->doRequest('DescribeSpotPriceHistory', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSpotPriceHistoryRequest $request
      *
      * @return DescribeSpotPriceHistoryResponse
      */
-    public function describeSpotPriceHistory(DescribeSpotPriceHistoryRequest $request)
+    public function describeSpotPriceHistory($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2888,23 +3009,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param StopInvocationRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return StopInvocationResponse
      */
-    public function stopInvocationWithOptions(StopInvocationRequest $request, RuntimeOptions $runtime)
+    public function stopInvocationWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return StopInvocationResponse::fromMap($this->doRequest('StopInvocation', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return StopInvocationResponse::fromMap($this->doRequest('StopInvocation', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param StopInvocationRequest $request
      *
      * @return StopInvocationResponse
      */
-    public function stopInvocation(StopInvocationRequest $request)
+    public function stopInvocation($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2912,23 +3034,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyCommandRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return ModifyCommandResponse
      */
-    public function modifyCommandWithOptions(ModifyCommandRequest $request, RuntimeOptions $runtime)
+    public function modifyCommandWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ModifyCommandResponse::fromMap($this->doRequest('ModifyCommand', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ModifyCommandResponse::fromMap($this->doRequest('ModifyCommand', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyCommandRequest $request
      *
      * @return ModifyCommandResponse
      */
-    public function modifyCommand(ModifyCommandRequest $request)
+    public function modifyCommand($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2936,23 +3059,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param InvokeCommandRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return InvokeCommandResponse
      */
-    public function invokeCommandWithOptions(InvokeCommandRequest $request, RuntimeOptions $runtime)
+    public function invokeCommandWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return InvokeCommandResponse::fromMap($this->doRequest('InvokeCommand', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return InvokeCommandResponse::fromMap($this->doRequest('InvokeCommand', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param InvokeCommandRequest $request
      *
      * @return InvokeCommandResponse
      */
-    public function invokeCommand(InvokeCommandRequest $request)
+    public function invokeCommand($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2960,23 +3084,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInvocationsRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return DescribeInvocationsResponse
      */
-    public function describeInvocationsWithOptions(DescribeInvocationsRequest $request, RuntimeOptions $runtime)
+    public function describeInvocationsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeInvocationsResponse::fromMap($this->doRequest('DescribeInvocations', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeInvocationsResponse::fromMap($this->doRequest('DescribeInvocations', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInvocationsRequest $request
      *
      * @return DescribeInvocationsResponse
      */
-    public function describeInvocations(DescribeInvocationsRequest $request)
+    public function describeInvocations($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -2984,23 +3109,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInvocationResultsRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return DescribeInvocationResultsResponse
      */
-    public function describeInvocationResultsWithOptions(DescribeInvocationResultsRequest $request, RuntimeOptions $runtime)
+    public function describeInvocationResultsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeInvocationResultsResponse::fromMap($this->doRequest('DescribeInvocationResults', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeInvocationResultsResponse::fromMap($this->doRequest('DescribeInvocationResults', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInvocationResultsRequest $request
      *
      * @return DescribeInvocationResultsResponse
      */
-    public function describeInvocationResults(DescribeInvocationResultsRequest $request)
+    public function describeInvocationResults($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3008,23 +3134,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeCommandsRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DescribeCommandsResponse
      */
-    public function describeCommandsWithOptions(DescribeCommandsRequest $request, RuntimeOptions $runtime)
+    public function describeCommandsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeCommandsResponse::fromMap($this->doRequest('DescribeCommands', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeCommandsResponse::fromMap($this->doRequest('DescribeCommands', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeCommandsRequest $request
      *
      * @return DescribeCommandsResponse
      */
-    public function describeCommands(DescribeCommandsRequest $request)
+    public function describeCommands($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3032,23 +3159,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteCommandRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return DeleteCommandResponse
      */
-    public function deleteCommandWithOptions(DeleteCommandRequest $request, RuntimeOptions $runtime)
+    public function deleteCommandWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DeleteCommandResponse::fromMap($this->doRequest('DeleteCommand', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DeleteCommandResponse::fromMap($this->doRequest('DeleteCommand', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteCommandRequest $request
      *
      * @return DeleteCommandResponse
      */
-    public function deleteCommand(DeleteCommandRequest $request)
+    public function deleteCommand($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3056,23 +3184,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateCommandRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return CreateCommandResponse
      */
-    public function createCommandWithOptions(CreateCommandRequest $request, RuntimeOptions $runtime)
+    public function createCommandWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return CreateCommandResponse::fromMap($this->doRequest('CreateCommand', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return CreateCommandResponse::fromMap($this->doRequest('CreateCommand', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param CreateCommandRequest $request
      *
      * @return CreateCommandResponse
      */
-    public function createCommand(CreateCommandRequest $request)
+    public function createCommand($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3080,23 +3209,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifySecurityGroupEgressRuleRequest $request
+     * @param RuntimeOptions                       $runtime
      *
      * @return ModifySecurityGroupEgressRuleResponse
      */
-    public function modifySecurityGroupEgressRuleWithOptions(ModifySecurityGroupEgressRuleRequest $request, RuntimeOptions $runtime)
+    public function modifySecurityGroupEgressRuleWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ModifySecurityGroupEgressRuleResponse::fromMap($this->doRequest('ModifySecurityGroupEgressRule', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ModifySecurityGroupEgressRuleResponse::fromMap($this->doRequest('ModifySecurityGroupEgressRule', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ModifySecurityGroupEgressRuleRequest $request
      *
      * @return ModifySecurityGroupEgressRuleResponse
      */
-    public function modifySecurityGroupEgressRule(ModifySecurityGroupEgressRuleRequest $request)
+    public function modifySecurityGroupEgressRule($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3104,11 +3234,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyDiskChargeTypeRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return ModifyDiskChargeTypeResponse
      */
-    public function modifyDiskChargeTypeWithOptions(ModifyDiskChargeTypeRequest $request, RuntimeOptions $runtime)
+    public function modifyDiskChargeTypeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3116,11 +3247,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyDiskChargeTypeRequest $request
      *
      * @return ModifyDiskChargeTypeResponse
      */
-    public function modifyDiskChargeType(ModifyDiskChargeTypeRequest $request)
+    public function modifyDiskChargeType($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3128,23 +3259,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyNetworkInterfaceAttributeRequest $request
+     * @param RuntimeOptions                         $runtime
      *
      * @return ModifyNetworkInterfaceAttributeResponse
      */
-    public function modifyNetworkInterfaceAttributeWithOptions(ModifyNetworkInterfaceAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyNetworkInterfaceAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ModifyNetworkInterfaceAttributeResponse::fromMap($this->doRequest('ModifyNetworkInterfaceAttribute', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ModifyNetworkInterfaceAttributeResponse::fromMap($this->doRequest('ModifyNetworkInterfaceAttribute', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyNetworkInterfaceAttributeRequest $request
      *
      * @return ModifyNetworkInterfaceAttributeResponse
      */
-    public function modifyNetworkInterfaceAttribute(ModifyNetworkInterfaceAttributeRequest $request)
+    public function modifyNetworkInterfaceAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3152,23 +3284,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetachNetworkInterfaceRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return DetachNetworkInterfaceResponse
      */
-    public function detachNetworkInterfaceWithOptions(DetachNetworkInterfaceRequest $request, RuntimeOptions $runtime)
+    public function detachNetworkInterfaceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DetachNetworkInterfaceResponse::fromMap($this->doRequest('DetachNetworkInterface', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DetachNetworkInterfaceResponse::fromMap($this->doRequest('DetachNetworkInterface', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DetachNetworkInterfaceRequest $request
      *
      * @return DetachNetworkInterfaceResponse
      */
-    public function detachNetworkInterface(DetachNetworkInterfaceRequest $request)
+    public function detachNetworkInterface($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3176,23 +3309,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeNetworkInterfacesRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return DescribeNetworkInterfacesResponse
      */
-    public function describeNetworkInterfacesWithOptions(DescribeNetworkInterfacesRequest $request, RuntimeOptions $runtime)
+    public function describeNetworkInterfacesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeNetworkInterfacesResponse::fromMap($this->doRequest('DescribeNetworkInterfaces', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeNetworkInterfacesResponse::fromMap($this->doRequest('DescribeNetworkInterfaces', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeNetworkInterfacesRequest $request
      *
      * @return DescribeNetworkInterfacesResponse
      */
-    public function describeNetworkInterfaces(DescribeNetworkInterfacesRequest $request)
+    public function describeNetworkInterfaces($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3200,23 +3334,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteNetworkInterfaceRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return DeleteNetworkInterfaceResponse
      */
-    public function deleteNetworkInterfaceWithOptions(DeleteNetworkInterfaceRequest $request, RuntimeOptions $runtime)
+    public function deleteNetworkInterfaceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DeleteNetworkInterfaceResponse::fromMap($this->doRequest('DeleteNetworkInterface', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DeleteNetworkInterfaceResponse::fromMap($this->doRequest('DeleteNetworkInterface', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteNetworkInterfaceRequest $request
      *
      * @return DeleteNetworkInterfaceResponse
      */
-    public function deleteNetworkInterface(DeleteNetworkInterfaceRequest $request)
+    public function deleteNetworkInterface($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3224,23 +3359,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateNetworkInterfaceRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return CreateNetworkInterfaceResponse
      */
-    public function createNetworkInterfaceWithOptions(CreateNetworkInterfaceRequest $request, RuntimeOptions $runtime)
+    public function createNetworkInterfaceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return CreateNetworkInterfaceResponse::fromMap($this->doRequest('CreateNetworkInterface', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return CreateNetworkInterfaceResponse::fromMap($this->doRequest('CreateNetworkInterface', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param CreateNetworkInterfaceRequest $request
      *
      * @return CreateNetworkInterfaceResponse
      */
-    public function createNetworkInterface(CreateNetworkInterfaceRequest $request)
+    public function createNetworkInterface($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3248,23 +3384,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AttachNetworkInterfaceRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return AttachNetworkInterfaceResponse
      */
-    public function attachNetworkInterfaceWithOptions(AttachNetworkInterfaceRequest $request, RuntimeOptions $runtime)
+    public function attachNetworkInterfaceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return AttachNetworkInterfaceResponse::fromMap($this->doRequest('AttachNetworkInterface', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return AttachNetworkInterfaceResponse::fromMap($this->doRequest('AttachNetworkInterface', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param AttachNetworkInterfaceRequest $request
      *
      * @return AttachNetworkInterfaceResponse
      */
-    public function attachNetworkInterface(AttachNetworkInterfaceRequest $request)
+    public function attachNetworkInterface($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3272,11 +3409,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeRecommendInstanceTypeRequest $request
+     * @param RuntimeOptions                       $runtime
      *
      * @return DescribeRecommendInstanceTypeResponse
      */
-    public function describeRecommendInstanceTypeWithOptions(DescribeRecommendInstanceTypeRequest $request, RuntimeOptions $runtime)
+    public function describeRecommendInstanceTypeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3284,11 +3422,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeRecommendInstanceTypeRequest $request
      *
      * @return DescribeRecommendInstanceTypeResponse
      */
-    public function describeRecommendInstanceType(DescribeRecommendInstanceTypeRequest $request)
+    public function describeRecommendInstanceType($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3296,11 +3434,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyPrepayInstanceSpecRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return ModifyPrepayInstanceSpecResponse
      */
-    public function modifyPrepayInstanceSpecWithOptions(ModifyPrepayInstanceSpecRequest $request, RuntimeOptions $runtime)
+    public function modifyPrepayInstanceSpecWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3308,11 +3447,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyPrepayInstanceSpecRequest $request
      *
      * @return ModifyPrepayInstanceSpecResponse
      */
-    public function modifyPrepayInstanceSpec(ModifyPrepayInstanceSpecRequest $request)
+    public function modifyPrepayInstanceSpec($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3320,11 +3459,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceChargeTypeRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return ModifyInstanceChargeTypeResponse
      */
-    public function modifyInstanceChargeTypeWithOptions(ModifyInstanceChargeTypeRequest $request, RuntimeOptions $runtime)
+    public function modifyInstanceChargeTypeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3332,11 +3472,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceChargeTypeRequest $request
      *
      * @return ModifyInstanceChargeTypeResponse
      */
-    public function modifyInstanceChargeType(ModifyInstanceChargeTypeRequest $request)
+    public function modifyInstanceChargeType($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3344,11 +3484,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param JoinResourceGroupRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return JoinResourceGroupResponse
      */
-    public function joinResourceGroupWithOptions(JoinResourceGroupRequest $request, RuntimeOptions $runtime)
+    public function joinResourceGroupWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3356,11 +3497,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param JoinResourceGroupRequest $request
      *
      * @return JoinResourceGroupResponse
      */
-    public function joinResourceGroup(JoinResourceGroupRequest $request)
+    public function joinResourceGroup($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3368,11 +3509,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifySecurityGroupPolicyRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return ModifySecurityGroupPolicyResponse
      */
-    public function modifySecurityGroupPolicyWithOptions(ModifySecurityGroupPolicyRequest $request, RuntimeOptions $runtime)
+    public function modifySecurityGroupPolicyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3380,11 +3522,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifySecurityGroupPolicyRequest $request
      *
      * @return ModifySecurityGroupPolicyResponse
      */
-    public function modifySecurityGroupPolicy(ModifySecurityGroupPolicyRequest $request)
+    public function modifySecurityGroupPolicy($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3392,11 +3534,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSecurityGroupReferencesRequest $request
+     * @param RuntimeOptions                         $runtime
      *
      * @return DescribeSecurityGroupReferencesResponse
      */
-    public function describeSecurityGroupReferencesWithOptions(DescribeSecurityGroupReferencesRequest $request, RuntimeOptions $runtime)
+    public function describeSecurityGroupReferencesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3404,11 +3547,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSecurityGroupReferencesRequest $request
      *
      * @return DescribeSecurityGroupReferencesResponse
      */
-    public function describeSecurityGroupReferences(DescribeSecurityGroupReferencesRequest $request)
+    public function describeSecurityGroupReferences($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3416,11 +3559,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetachClassicLinkVpcRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return DetachClassicLinkVpcResponse
      */
-    public function detachClassicLinkVpcWithOptions(DetachClassicLinkVpcRequest $request, RuntimeOptions $runtime)
+    public function detachClassicLinkVpcWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3428,11 +3572,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetachClassicLinkVpcRequest $request
      *
      * @return DetachClassicLinkVpcResponse
      */
-    public function detachClassicLinkVpc(DetachClassicLinkVpcRequest $request)
+    public function detachClassicLinkVpc($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3440,11 +3584,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeClassicLinkInstancesRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return DescribeClassicLinkInstancesResponse
      */
-    public function describeClassicLinkInstancesWithOptions(DescribeClassicLinkInstancesRequest $request, RuntimeOptions $runtime)
+    public function describeClassicLinkInstancesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3452,11 +3597,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeClassicLinkInstancesRequest $request
      *
      * @return DescribeClassicLinkInstancesResponse
      */
-    public function describeClassicLinkInstances(DescribeClassicLinkInstancesRequest $request)
+    public function describeClassicLinkInstances($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3464,11 +3609,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AttachClassicLinkVpcRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return AttachClassicLinkVpcResponse
      */
-    public function attachClassicLinkVpcWithOptions(AttachClassicLinkVpcRequest $request, RuntimeOptions $runtime)
+    public function attachClassicLinkVpcWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3476,11 +3622,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AttachClassicLinkVpcRequest $request
      *
      * @return AttachClassicLinkVpcResponse
      */
-    public function attachClassicLinkVpc(AttachClassicLinkVpcRequest $request)
+    public function attachClassicLinkVpc($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3488,11 +3634,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetachInstanceRamRoleRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return DetachInstanceRamRoleResponse
      */
-    public function detachInstanceRamRoleWithOptions(DetachInstanceRamRoleRequest $request, RuntimeOptions $runtime)
+    public function detachInstanceRamRoleWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3500,11 +3647,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetachInstanceRamRoleRequest $request
      *
      * @return DetachInstanceRamRoleResponse
      */
-    public function detachInstanceRamRole(DetachInstanceRamRoleRequest $request)
+    public function detachInstanceRamRole($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3512,11 +3659,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceRamRoleRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return DescribeInstanceRamRoleResponse
      */
-    public function describeInstanceRamRoleWithOptions(DescribeInstanceRamRoleRequest $request, RuntimeOptions $runtime)
+    public function describeInstanceRamRoleWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3524,11 +3672,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceRamRoleRequest $request
      *
      * @return DescribeInstanceRamRoleResponse
      */
-    public function describeInstanceRamRole(DescribeInstanceRamRoleRequest $request)
+    public function describeInstanceRamRole($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3536,11 +3684,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AttachInstanceRamRoleRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return AttachInstanceRamRoleResponse
      */
-    public function attachInstanceRamRoleWithOptions(AttachInstanceRamRoleRequest $request, RuntimeOptions $runtime)
+    public function attachInstanceRamRoleWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3548,11 +3697,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AttachInstanceRamRoleRequest $request
      *
      * @return AttachInstanceRamRoleResponse
      */
-    public function attachInstanceRamRole(AttachInstanceRamRoleRequest $request)
+    public function attachInstanceRamRole($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3560,11 +3709,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSnapshotPackageRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return DescribeSnapshotPackageResponse
      */
-    public function describeSnapshotPackageWithOptions(DescribeSnapshotPackageRequest $request, RuntimeOptions $runtime)
+    public function describeSnapshotPackageWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3572,11 +3722,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSnapshotPackageRequest $request
      *
      * @return DescribeSnapshotPackageResponse
      */
-    public function describeSnapshotPackage(DescribeSnapshotPackageRequest $request)
+    public function describeSnapshotPackage($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3584,23 +3734,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifySecurityGroupRuleRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return ModifySecurityGroupRuleResponse
      */
-    public function modifySecurityGroupRuleWithOptions(ModifySecurityGroupRuleRequest $request, RuntimeOptions $runtime)
+    public function modifySecurityGroupRuleWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return ModifySecurityGroupRuleResponse::fromMap($this->doRequest('ModifySecurityGroupRule', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return ModifySecurityGroupRuleResponse::fromMap($this->doRequest('ModifySecurityGroupRule', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param ModifySecurityGroupRuleRequest $request
      *
      * @return ModifySecurityGroupRuleResponse
      */
-    public function modifySecurityGroupRule(ModifySecurityGroupRuleRequest $request)
+    public function modifySecurityGroupRule($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3608,11 +3759,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSnapshotMonitorDataRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return DescribeSnapshotMonitorDataResponse
      */
-    public function describeSnapshotMonitorDataWithOptions(DescribeSnapshotMonitorDataRequest $request, RuntimeOptions $runtime)
+    public function describeSnapshotMonitorDataWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3620,11 +3772,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSnapshotMonitorDataRequest $request
      *
      * @return DescribeSnapshotMonitorDataResponse
      */
-    public function describeSnapshotMonitorData(DescribeSnapshotMonitorDataRequest $request)
+    public function describeSnapshotMonitorData($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3632,11 +3784,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeRenewalPriceRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return DescribeRenewalPriceResponse
      */
-    public function describeRenewalPriceWithOptions(DescribeRenewalPriceRequest $request, RuntimeOptions $runtime)
+    public function describeRenewalPriceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3644,11 +3797,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeRenewalPriceRequest $request
      *
      * @return DescribeRenewalPriceResponse
      */
-    public function describeRenewalPrice(DescribeRenewalPriceRequest $request)
+    public function describeRenewalPrice($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3656,11 +3809,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribePriceRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return DescribePriceResponse
      */
-    public function describePriceWithOptions(DescribePriceRequest $request, RuntimeOptions $runtime)
+    public function describePriceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3668,11 +3822,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribePriceRequest $request
      *
      * @return DescribePriceResponse
      */
-    public function describePrice(DescribePriceRequest $request)
+    public function describePrice($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3680,11 +3834,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyDeploymentSetAttributeRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return ModifyDeploymentSetAttributeResponse
      */
-    public function modifyDeploymentSetAttributeWithOptions(ModifyDeploymentSetAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyDeploymentSetAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3692,11 +3847,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyDeploymentSetAttributeRequest $request
      *
      * @return ModifyDeploymentSetAttributeResponse
      */
-    public function modifyDeploymentSetAttribute(ModifyDeploymentSetAttributeRequest $request)
+    public function modifyDeploymentSetAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3704,11 +3859,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDeploymentSetsRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return DescribeDeploymentSetsResponse
      */
-    public function describeDeploymentSetsWithOptions(DescribeDeploymentSetsRequest $request, RuntimeOptions $runtime)
+    public function describeDeploymentSetsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3716,11 +3872,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDeploymentSetsRequest $request
      *
      * @return DescribeDeploymentSetsResponse
      */
-    public function describeDeploymentSets(DescribeDeploymentSetsRequest $request)
+    public function describeDeploymentSets($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3728,11 +3884,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteDeploymentSetRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return DeleteDeploymentSetResponse
      */
-    public function deleteDeploymentSetWithOptions(DeleteDeploymentSetRequest $request, RuntimeOptions $runtime)
+    public function deleteDeploymentSetWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3740,11 +3897,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteDeploymentSetRequest $request
      *
      * @return DeleteDeploymentSetResponse
      */
-    public function deleteDeploymentSet(DeleteDeploymentSetRequest $request)
+    public function deleteDeploymentSet($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3752,11 +3909,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateDeploymentSetRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return CreateDeploymentSetResponse
      */
-    public function createDeploymentSetWithOptions(CreateDeploymentSetRequest $request, RuntimeOptions $runtime)
+    public function createDeploymentSetWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3764,11 +3922,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateDeploymentSetRequest $request
      *
      * @return CreateDeploymentSetResponse
      */
-    public function createDeploymentSet(CreateDeploymentSetRequest $request)
+    public function createDeploymentSet($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3776,11 +3934,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ImportKeyPairRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return ImportKeyPairResponse
      */
-    public function importKeyPairWithOptions(ImportKeyPairRequest $request, RuntimeOptions $runtime)
+    public function importKeyPairWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3788,11 +3947,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ImportKeyPairRequest $request
      *
      * @return ImportKeyPairResponse
      */
-    public function importKeyPair(ImportKeyPairRequest $request)
+    public function importKeyPair($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3800,11 +3959,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetachKeyPairRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return DetachKeyPairResponse
      */
-    public function detachKeyPairWithOptions(DetachKeyPairRequest $request, RuntimeOptions $runtime)
+    public function detachKeyPairWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3812,11 +3972,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetachKeyPairRequest $request
      *
      * @return DetachKeyPairResponse
      */
-    public function detachKeyPair(DetachKeyPairRequest $request)
+    public function detachKeyPair($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3824,11 +3984,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeKeyPairsRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DescribeKeyPairsResponse
      */
-    public function describeKeyPairsWithOptions(DescribeKeyPairsRequest $request, RuntimeOptions $runtime)
+    public function describeKeyPairsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3836,11 +3997,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeKeyPairsRequest $request
      *
      * @return DescribeKeyPairsResponse
      */
-    public function describeKeyPairs(DescribeKeyPairsRequest $request)
+    public function describeKeyPairs($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3848,11 +4009,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteKeyPairsRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return DeleteKeyPairsResponse
      */
-    public function deleteKeyPairsWithOptions(DeleteKeyPairsRequest $request, RuntimeOptions $runtime)
+    public function deleteKeyPairsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3860,11 +4022,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteKeyPairsRequest $request
      *
      * @return DeleteKeyPairsResponse
      */
-    public function deleteKeyPairs(DeleteKeyPairsRequest $request)
+    public function deleteKeyPairs($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3872,11 +4034,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateKeyPairRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return CreateKeyPairResponse
      */
-    public function createKeyPairWithOptions(CreateKeyPairRequest $request, RuntimeOptions $runtime)
+    public function createKeyPairWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3884,11 +4047,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateKeyPairRequest $request
      *
      * @return CreateKeyPairResponse
      */
-    public function createKeyPair(CreateKeyPairRequest $request)
+    public function createKeyPair($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3896,11 +4059,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AttachKeyPairRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return AttachKeyPairResponse
      */
-    public function attachKeyPairWithOptions(AttachKeyPairRequest $request, RuntimeOptions $runtime)
+    public function attachKeyPairWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3908,11 +4072,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AttachKeyPairRequest $request
      *
      * @return AttachKeyPairResponse
      */
-    public function attachKeyPair(AttachKeyPairRequest $request)
+    public function attachKeyPair($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3920,11 +4084,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceAutoRenewAttributeRequest $request
+     * @param RuntimeOptions                          $runtime
      *
      * @return ModifyInstanceAutoRenewAttributeResponse
      */
-    public function modifyInstanceAutoRenewAttributeWithOptions(ModifyInstanceAutoRenewAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyInstanceAutoRenewAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3932,11 +4097,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceAutoRenewAttributeRequest $request
      *
      * @return ModifyInstanceAutoRenewAttributeResponse
      */
-    public function modifyInstanceAutoRenewAttribute(ModifyInstanceAutoRenewAttributeRequest $request)
+    public function modifyInstanceAutoRenewAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3944,11 +4109,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceAutoRenewAttributeRequest $request
+     * @param RuntimeOptions                            $runtime
      *
      * @return DescribeInstanceAutoRenewAttributeResponse
      */
-    public function describeInstanceAutoRenewAttributeWithOptions(DescribeInstanceAutoRenewAttributeRequest $request, RuntimeOptions $runtime)
+    public function describeInstanceAutoRenewAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3956,11 +4122,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceAutoRenewAttributeRequest $request
      *
      * @return DescribeInstanceAutoRenewAttributeResponse
      */
-    public function describeInstanceAutoRenewAttribute(DescribeInstanceAutoRenewAttributeRequest $request)
+    public function describeInstanceAutoRenewAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3968,11 +4134,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSnapshotLinksRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return DescribeSnapshotLinksResponse
      */
-    public function describeSnapshotLinksWithOptions(DescribeSnapshotLinksRequest $request, RuntimeOptions $runtime)
+    public function describeSnapshotLinksWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -3980,11 +4147,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSnapshotLinksRequest $request
      *
      * @return DescribeSnapshotLinksResponse
      */
-    public function describeSnapshotLinks(DescribeSnapshotLinksRequest $request)
+    public function describeSnapshotLinks($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -3992,11 +4159,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceAutoReleaseTimeRequest $request
+     * @param RuntimeOptions                       $runtime
      *
      * @return ModifyInstanceAutoReleaseTimeResponse
      */
-    public function modifyInstanceAutoReleaseTimeWithOptions(ModifyInstanceAutoReleaseTimeRequest $request, RuntimeOptions $runtime)
+    public function modifyInstanceAutoReleaseTimeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4004,11 +4172,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceAutoReleaseTimeRequest $request
      *
      * @return ModifyInstanceAutoReleaseTimeResponse
      */
-    public function modifyInstanceAutoReleaseTime(ModifyInstanceAutoReleaseTimeRequest $request)
+    public function modifyInstanceAutoReleaseTime($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4016,11 +4184,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeNewProjectEipMonitorDataRequest $request
+     * @param RuntimeOptions                          $runtime
      *
      * @return DescribeNewProjectEipMonitorDataResponse
      */
-    public function describeNewProjectEipMonitorDataWithOptions(DescribeNewProjectEipMonitorDataRequest $request, RuntimeOptions $runtime)
+    public function describeNewProjectEipMonitorDataWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4028,11 +4197,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeNewProjectEipMonitorDataRequest $request
      *
      * @return DescribeNewProjectEipMonitorDataResponse
      */
-    public function describeNewProjectEipMonitorData(DescribeNewProjectEipMonitorDataRequest $request)
+    public function describeNewProjectEipMonitorData($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4040,11 +4209,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeUserDataRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DescribeUserDataResponse
      */
-    public function describeUserDataWithOptions(DescribeUserDataRequest $request, RuntimeOptions $runtime)
+    public function describeUserDataWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4052,11 +4222,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeUserDataRequest $request
      *
      * @return DescribeUserDataResponse
      */
-    public function describeUserData(DescribeUserDataRequest $request)
+    public function describeUserData($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4064,11 +4234,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RemoveBandwidthPackageIpsRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return RemoveBandwidthPackageIpsResponse
      */
-    public function removeBandwidthPackageIpsWithOptions(RemoveBandwidthPackageIpsRequest $request, RuntimeOptions $runtime)
+    public function removeBandwidthPackageIpsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4076,11 +4247,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RemoveBandwidthPackageIpsRequest $request
      *
      * @return RemoveBandwidthPackageIpsResponse
      */
-    public function removeBandwidthPackageIps(RemoveBandwidthPackageIpsRequest $request)
+    public function removeBandwidthPackageIps($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4088,11 +4259,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyForwardEntryRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return ModifyForwardEntryResponse
      */
-    public function modifyForwardEntryWithOptions(ModifyForwardEntryRequest $request, RuntimeOptions $runtime)
+    public function modifyForwardEntryWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4100,11 +4272,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyForwardEntryRequest $request
      *
      * @return ModifyForwardEntryResponse
      */
-    public function modifyForwardEntry(ModifyForwardEntryRequest $request)
+    public function modifyForwardEntry($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4112,11 +4284,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyBandwidthPackageSpecRequest $request
+     * @param RuntimeOptions                    $runtime
      *
      * @return ModifyBandwidthPackageSpecResponse
      */
-    public function modifyBandwidthPackageSpecWithOptions(ModifyBandwidthPackageSpecRequest $request, RuntimeOptions $runtime)
+    public function modifyBandwidthPackageSpecWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4124,11 +4297,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyBandwidthPackageSpecRequest $request
      *
      * @return ModifyBandwidthPackageSpecResponse
      */
-    public function modifyBandwidthPackageSpec(ModifyBandwidthPackageSpecRequest $request)
+    public function modifyBandwidthPackageSpec($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4136,11 +4309,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeNatGatewaysRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return DescribeNatGatewaysResponse
      */
-    public function describeNatGatewaysWithOptions(DescribeNatGatewaysRequest $request, RuntimeOptions $runtime)
+    public function describeNatGatewaysWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4148,11 +4322,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeNatGatewaysRequest $request
      *
      * @return DescribeNatGatewaysResponse
      */
-    public function describeNatGateways(DescribeNatGatewaysRequest $request)
+    public function describeNatGateways($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4160,11 +4334,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeForwardTableEntriesRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return DescribeForwardTableEntriesResponse
      */
-    public function describeForwardTableEntriesWithOptions(DescribeForwardTableEntriesRequest $request, RuntimeOptions $runtime)
+    public function describeForwardTableEntriesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4172,11 +4347,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeForwardTableEntriesRequest $request
      *
      * @return DescribeForwardTableEntriesResponse
      */
-    public function describeForwardTableEntries(DescribeForwardTableEntriesRequest $request)
+    public function describeForwardTableEntries($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4184,11 +4359,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeBandwidthPackagesRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return DescribeBandwidthPackagesResponse
      */
-    public function describeBandwidthPackagesWithOptions(DescribeBandwidthPackagesRequest $request, RuntimeOptions $runtime)
+    public function describeBandwidthPackagesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4196,11 +4372,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeBandwidthPackagesRequest $request
      *
      * @return DescribeBandwidthPackagesResponse
      */
-    public function describeBandwidthPackages(DescribeBandwidthPackagesRequest $request)
+    public function describeBandwidthPackages($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4208,11 +4384,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteNatGatewayRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DeleteNatGatewayResponse
      */
-    public function deleteNatGatewayWithOptions(DeleteNatGatewayRequest $request, RuntimeOptions $runtime)
+    public function deleteNatGatewayWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4220,11 +4397,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteNatGatewayRequest $request
      *
      * @return DeleteNatGatewayResponse
      */
-    public function deleteNatGateway(DeleteNatGatewayRequest $request)
+    public function deleteNatGateway($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4232,11 +4409,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteForwardEntryRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return DeleteForwardEntryResponse
      */
-    public function deleteForwardEntryWithOptions(DeleteForwardEntryRequest $request, RuntimeOptions $runtime)
+    public function deleteForwardEntryWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4244,11 +4422,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteForwardEntryRequest $request
      *
      * @return DeleteForwardEntryResponse
      */
-    public function deleteForwardEntry(DeleteForwardEntryRequest $request)
+    public function deleteForwardEntry($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4256,11 +4434,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteBandwidthPackageRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return DeleteBandwidthPackageResponse
      */
-    public function deleteBandwidthPackageWithOptions(DeleteBandwidthPackageRequest $request, RuntimeOptions $runtime)
+    public function deleteBandwidthPackageWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4268,11 +4447,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteBandwidthPackageRequest $request
      *
      * @return DeleteBandwidthPackageResponse
      */
-    public function deleteBandwidthPackage(DeleteBandwidthPackageRequest $request)
+    public function deleteBandwidthPackage($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4280,11 +4459,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateNatGatewayRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return CreateNatGatewayResponse
      */
-    public function createNatGatewayWithOptions(CreateNatGatewayRequest $request, RuntimeOptions $runtime)
+    public function createNatGatewayWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4292,11 +4472,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateNatGatewayRequest $request
      *
      * @return CreateNatGatewayResponse
      */
-    public function createNatGateway(CreateNatGatewayRequest $request)
+    public function createNatGateway($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4304,11 +4484,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateForwardEntryRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return CreateForwardEntryResponse
      */
-    public function createForwardEntryWithOptions(CreateForwardEntryRequest $request, RuntimeOptions $runtime)
+    public function createForwardEntryWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4316,11 +4497,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateForwardEntryRequest $request
      *
      * @return CreateForwardEntryResponse
      */
-    public function createForwardEntry(CreateForwardEntryRequest $request)
+    public function createForwardEntry($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4328,11 +4509,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AddBandwidthPackageIpsRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return AddBandwidthPackageIpsResponse
      */
-    public function addBandwidthPackageIpsWithOptions(AddBandwidthPackageIpsRequest $request, RuntimeOptions $runtime)
+    public function addBandwidthPackageIpsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4340,11 +4522,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AddBandwidthPackageIpsRequest $request
      *
      * @return AddBandwidthPackageIpsResponse
      */
-    public function addBandwidthPackageIps(AddBandwidthPackageIpsRequest $request)
+    public function addBandwidthPackageIps($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4352,11 +4534,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param EipFillProductRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return EipFillProductResponse
      */
-    public function eipFillProductWithOptions(EipFillProductRequest $request, RuntimeOptions $runtime)
+    public function eipFillProductWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4364,11 +4547,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param EipFillProductRequest $request
      *
      * @return EipFillProductResponse
      */
-    public function eipFillProduct(EipFillProductRequest $request)
+    public function eipFillProduct($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4376,11 +4559,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param EipNotifyPaidRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return EipNotifyPaidResponse
      */
-    public function eipNotifyPaidWithOptions(EipNotifyPaidRequest $request, RuntimeOptions $runtime)
+    public function eipNotifyPaidWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4388,11 +4572,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param EipNotifyPaidRequest $request
      *
      * @return EipNotifyPaidResponse
      */
-    public function eipNotifyPaid(EipNotifyPaidRequest $request)
+    public function eipNotifyPaid($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4400,11 +4584,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param EipFillParamsRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return EipFillParamsResponse
      */
-    public function eipFillParamsWithOptions(EipFillParamsRequest $request, RuntimeOptions $runtime)
+    public function eipFillParamsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4412,11 +4597,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param EipFillParamsRequest $request
      *
      * @return EipFillParamsResponse
      */
-    public function eipFillParams(EipFillParamsRequest $request)
+    public function eipFillParams($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4424,11 +4609,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyAutoSnapshotPolicyExRequest $request
+     * @param RuntimeOptions                    $runtime
      *
      * @return ModifyAutoSnapshotPolicyExResponse
      */
-    public function modifyAutoSnapshotPolicyExWithOptions(ModifyAutoSnapshotPolicyExRequest $request, RuntimeOptions $runtime)
+    public function modifyAutoSnapshotPolicyExWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4436,11 +4622,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyAutoSnapshotPolicyExRequest $request
      *
      * @return ModifyAutoSnapshotPolicyExResponse
      */
-    public function modifyAutoSnapshotPolicyEx(ModifyAutoSnapshotPolicyExRequest $request)
+    public function modifyAutoSnapshotPolicyEx($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4448,11 +4634,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAutoSnapshotPolicyExRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return DescribeAutoSnapshotPolicyExResponse
      */
-    public function describeAutoSnapshotPolicyExWithOptions(DescribeAutoSnapshotPolicyExRequest $request, RuntimeOptions $runtime)
+    public function describeAutoSnapshotPolicyExWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4460,11 +4647,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAutoSnapshotPolicyExRequest $request
      *
      * @return DescribeAutoSnapshotPolicyExResponse
      */
-    public function describeAutoSnapshotPolicyEx(DescribeAutoSnapshotPolicyExRequest $request)
+    public function describeAutoSnapshotPolicyEx($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4472,11 +4659,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteAutoSnapshotPolicyRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return DeleteAutoSnapshotPolicyResponse
      */
-    public function deleteAutoSnapshotPolicyWithOptions(DeleteAutoSnapshotPolicyRequest $request, RuntimeOptions $runtime)
+    public function deleteAutoSnapshotPolicyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4484,11 +4672,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteAutoSnapshotPolicyRequest $request
      *
      * @return DeleteAutoSnapshotPolicyResponse
      */
-    public function deleteAutoSnapshotPolicy(DeleteAutoSnapshotPolicyRequest $request)
+    public function deleteAutoSnapshotPolicy($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4496,11 +4684,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateAutoSnapshotPolicyRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return CreateAutoSnapshotPolicyResponse
      */
-    public function createAutoSnapshotPolicyWithOptions(CreateAutoSnapshotPolicyRequest $request, RuntimeOptions $runtime)
+    public function createAutoSnapshotPolicyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4508,11 +4697,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateAutoSnapshotPolicyRequest $request
      *
      * @return CreateAutoSnapshotPolicyResponse
      */
-    public function createAutoSnapshotPolicy(CreateAutoSnapshotPolicyRequest $request)
+    public function createAutoSnapshotPolicy($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4520,11 +4709,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CancelAutoSnapshotPolicyRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return CancelAutoSnapshotPolicyResponse
      */
-    public function cancelAutoSnapshotPolicyWithOptions(CancelAutoSnapshotPolicyRequest $request, RuntimeOptions $runtime)
+    public function cancelAutoSnapshotPolicyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4532,11 +4722,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CancelAutoSnapshotPolicyRequest $request
      *
      * @return CancelAutoSnapshotPolicyResponse
      */
-    public function cancelAutoSnapshotPolicy(CancelAutoSnapshotPolicyRequest $request)
+    public function cancelAutoSnapshotPolicy($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4544,11 +4734,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ApplyAutoSnapshotPolicyRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return ApplyAutoSnapshotPolicyResponse
      */
-    public function applyAutoSnapshotPolicyWithOptions(ApplyAutoSnapshotPolicyRequest $request, RuntimeOptions $runtime)
+    public function applyAutoSnapshotPolicyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4556,11 +4747,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ApplyAutoSnapshotPolicyRequest $request
      *
      * @return ApplyAutoSnapshotPolicyResponse
      */
-    public function applyAutoSnapshotPolicy(ApplyAutoSnapshotPolicyRequest $request)
+    public function applyAutoSnapshotPolicy($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4568,11 +4759,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeImageSupportInstanceTypesRequest $request
+     * @param RuntimeOptions                           $runtime
      *
      * @return DescribeImageSupportInstanceTypesResponse
      */
-    public function describeImageSupportInstanceTypesWithOptions(DescribeImageSupportInstanceTypesRequest $request, RuntimeOptions $runtime)
+    public function describeImageSupportInstanceTypesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4580,11 +4772,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeImageSupportInstanceTypesRequest $request
      *
      * @return DescribeImageSupportInstanceTypesResponse
      */
-    public function describeImageSupportInstanceTypes(DescribeImageSupportInstanceTypesRequest $request)
+    public function describeImageSupportInstanceTypes($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4592,11 +4784,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param TerminateVirtualBorderRouterRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return TerminateVirtualBorderRouterResponse
      */
-    public function terminateVirtualBorderRouterWithOptions(TerminateVirtualBorderRouterRequest $request, RuntimeOptions $runtime)
+    public function terminateVirtualBorderRouterWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4604,11 +4797,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param TerminateVirtualBorderRouterRequest $request
      *
      * @return TerminateVirtualBorderRouterResponse
      */
-    public function terminateVirtualBorderRouter(TerminateVirtualBorderRouterRequest $request)
+    public function terminateVirtualBorderRouter($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4616,11 +4809,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param TerminatePhysicalConnectionRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return TerminatePhysicalConnectionResponse
      */
-    public function terminatePhysicalConnectionWithOptions(TerminatePhysicalConnectionRequest $request, RuntimeOptions $runtime)
+    public function terminatePhysicalConnectionWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4628,11 +4822,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param TerminatePhysicalConnectionRequest $request
      *
      * @return TerminatePhysicalConnectionResponse
      */
-    public function terminatePhysicalConnection(TerminatePhysicalConnectionRequest $request)
+    public function terminatePhysicalConnection($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4640,11 +4834,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecoverVirtualBorderRouterRequest $request
+     * @param RuntimeOptions                    $runtime
      *
      * @return RecoverVirtualBorderRouterResponse
      */
-    public function recoverVirtualBorderRouterWithOptions(RecoverVirtualBorderRouterRequest $request, RuntimeOptions $runtime)
+    public function recoverVirtualBorderRouterWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4652,11 +4847,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RecoverVirtualBorderRouterRequest $request
      *
      * @return RecoverVirtualBorderRouterResponse
      */
-    public function recoverVirtualBorderRouter(RecoverVirtualBorderRouterRequest $request)
+    public function recoverVirtualBorderRouter($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4664,11 +4859,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyVirtualBorderRouterAttributeRequest $request
+     * @param RuntimeOptions                            $runtime
      *
      * @return ModifyVirtualBorderRouterAttributeResponse
      */
-    public function modifyVirtualBorderRouterAttributeWithOptions(ModifyVirtualBorderRouterAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyVirtualBorderRouterAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4676,11 +4872,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyVirtualBorderRouterAttributeRequest $request
      *
      * @return ModifyVirtualBorderRouterAttributeResponse
      */
-    public function modifyVirtualBorderRouterAttribute(ModifyVirtualBorderRouterAttributeRequest $request)
+    public function modifyVirtualBorderRouterAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4688,11 +4884,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyPhysicalConnectionAttributeRequest $request
+     * @param RuntimeOptions                           $runtime
      *
      * @return ModifyPhysicalConnectionAttributeResponse
      */
-    public function modifyPhysicalConnectionAttributeWithOptions(ModifyPhysicalConnectionAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyPhysicalConnectionAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4700,11 +4897,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyPhysicalConnectionAttributeRequest $request
      *
      * @return ModifyPhysicalConnectionAttributeResponse
      */
-    public function modifyPhysicalConnectionAttribute(ModifyPhysicalConnectionAttributeRequest $request)
+    public function modifyPhysicalConnectionAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4712,11 +4909,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param EnablePhysicalConnectionRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return EnablePhysicalConnectionResponse
      */
-    public function enablePhysicalConnectionWithOptions(EnablePhysicalConnectionRequest $request, RuntimeOptions $runtime)
+    public function enablePhysicalConnectionWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4724,11 +4922,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param EnablePhysicalConnectionRequest $request
      *
      * @return EnablePhysicalConnectionResponse
      */
-    public function enablePhysicalConnection(EnablePhysicalConnectionRequest $request)
+    public function enablePhysicalConnection($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4736,11 +4934,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeVirtualBorderRoutersForPhysicalConnectionRequest $request
+     * @param RuntimeOptions                                           $runtime
      *
      * @return DescribeVirtualBorderRoutersForPhysicalConnectionResponse
      */
-    public function describeVirtualBorderRoutersForPhysicalConnectionWithOptions(DescribeVirtualBorderRoutersForPhysicalConnectionRequest $request, RuntimeOptions $runtime)
+    public function describeVirtualBorderRoutersForPhysicalConnectionWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4748,11 +4947,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeVirtualBorderRoutersForPhysicalConnectionRequest $request
      *
      * @return DescribeVirtualBorderRoutersForPhysicalConnectionResponse
      */
-    public function describeVirtualBorderRoutersForPhysicalConnection(DescribeVirtualBorderRoutersForPhysicalConnectionRequest $request)
+    public function describeVirtualBorderRoutersForPhysicalConnection($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4760,11 +4959,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeVirtualBorderRoutersRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return DescribeVirtualBorderRoutersResponse
      */
-    public function describeVirtualBorderRoutersWithOptions(DescribeVirtualBorderRoutersRequest $request, RuntimeOptions $runtime)
+    public function describeVirtualBorderRoutersWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4772,11 +4972,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeVirtualBorderRoutersRequest $request
      *
      * @return DescribeVirtualBorderRoutersResponse
      */
-    public function describeVirtualBorderRouters(DescribeVirtualBorderRoutersRequest $request)
+    public function describeVirtualBorderRouters($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4784,11 +4984,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribePhysicalConnectionsRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return DescribePhysicalConnectionsResponse
      */
-    public function describePhysicalConnectionsWithOptions(DescribePhysicalConnectionsRequest $request, RuntimeOptions $runtime)
+    public function describePhysicalConnectionsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4796,11 +4997,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribePhysicalConnectionsRequest $request
      *
      * @return DescribePhysicalConnectionsResponse
      */
-    public function describePhysicalConnections(DescribePhysicalConnectionsRequest $request)
+    public function describePhysicalConnections($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4808,11 +5009,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAccessPointsRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return DescribeAccessPointsResponse
      */
-    public function describeAccessPointsWithOptions(DescribeAccessPointsRequest $request, RuntimeOptions $runtime)
+    public function describeAccessPointsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4820,11 +5022,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAccessPointsRequest $request
      *
      * @return DescribeAccessPointsResponse
      */
-    public function describeAccessPoints(DescribeAccessPointsRequest $request)
+    public function describeAccessPoints($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4832,11 +5034,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteVirtualBorderRouterRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return DeleteVirtualBorderRouterResponse
      */
-    public function deleteVirtualBorderRouterWithOptions(DeleteVirtualBorderRouterRequest $request, RuntimeOptions $runtime)
+    public function deleteVirtualBorderRouterWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4844,11 +5047,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteVirtualBorderRouterRequest $request
      *
      * @return DeleteVirtualBorderRouterResponse
      */
-    public function deleteVirtualBorderRouter(DeleteVirtualBorderRouterRequest $request)
+    public function deleteVirtualBorderRouter($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4856,11 +5059,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeletePhysicalConnectionRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return DeletePhysicalConnectionResponse
      */
-    public function deletePhysicalConnectionWithOptions(DeletePhysicalConnectionRequest $request, RuntimeOptions $runtime)
+    public function deletePhysicalConnectionWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4868,11 +5072,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeletePhysicalConnectionRequest $request
      *
      * @return DeletePhysicalConnectionResponse
      */
-    public function deletePhysicalConnection(DeletePhysicalConnectionRequest $request)
+    public function deletePhysicalConnection($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4880,11 +5084,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateVirtualBorderRouterRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return CreateVirtualBorderRouterResponse
      */
-    public function createVirtualBorderRouterWithOptions(CreateVirtualBorderRouterRequest $request, RuntimeOptions $runtime)
+    public function createVirtualBorderRouterWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4892,11 +5097,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateVirtualBorderRouterRequest $request
      *
      * @return CreateVirtualBorderRouterResponse
      */
-    public function createVirtualBorderRouter(CreateVirtualBorderRouterRequest $request)
+    public function createVirtualBorderRouter($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4904,11 +5109,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreatePhysicalConnectionRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return CreatePhysicalConnectionResponse
      */
-    public function createPhysicalConnectionWithOptions(CreatePhysicalConnectionRequest $request, RuntimeOptions $runtime)
+    public function createPhysicalConnectionWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4916,11 +5122,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreatePhysicalConnectionRequest $request
      *
      * @return CreatePhysicalConnectionResponse
      */
-    public function createPhysicalConnection(CreatePhysicalConnectionRequest $request)
+    public function createPhysicalConnection($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4928,11 +5134,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CancelPhysicalConnectionRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return CancelPhysicalConnectionResponse
      */
-    public function cancelPhysicalConnectionWithOptions(CancelPhysicalConnectionRequest $request, RuntimeOptions $runtime)
+    public function cancelPhysicalConnectionWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4940,11 +5147,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CancelPhysicalConnectionRequest $request
      *
      * @return CancelPhysicalConnectionResponse
      */
-    public function cancelPhysicalConnection(CancelPhysicalConnectionRequest $request)
+    public function cancelPhysicalConnection($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4952,11 +5159,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ImportImageRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return ImportImageResponse
      */
-    public function importImageWithOptions(ImportImageRequest $request, RuntimeOptions $runtime)
+    public function importImageWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4964,11 +5172,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ImportImageRequest $request
      *
      * @return ImportImageResponse
      */
-    public function importImage(ImportImageRequest $request)
+    public function importImage($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -4976,11 +5184,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ExportImageRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return ExportImageResponse
      */
-    public function exportImageWithOptions(ExportImageRequest $request, RuntimeOptions $runtime)
+    public function exportImageWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -4988,11 +5197,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ExportImageRequest $request
      *
      * @return ExportImageResponse
      */
-    public function exportImage(ExportImageRequest $request)
+    public function exportImage($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5000,11 +5209,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeTasksRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return DescribeTasksResponse
      */
-    public function describeTasksWithOptions(DescribeTasksRequest $request, RuntimeOptions $runtime)
+    public function describeTasksWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5012,11 +5222,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeTasksRequest $request
      *
      * @return DescribeTasksResponse
      */
-    public function describeTasks(DescribeTasksRequest $request)
+    public function describeTasks($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5024,11 +5234,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeTaskAttributeRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return DescribeTaskAttributeResponse
      */
-    public function describeTaskAttributeWithOptions(DescribeTaskAttributeRequest $request, RuntimeOptions $runtime)
+    public function describeTaskAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5036,11 +5247,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeTaskAttributeRequest $request
      *
      * @return DescribeTaskAttributeResponse
      */
-    public function describeTaskAttribute(DescribeTaskAttributeRequest $request)
+    public function describeTaskAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5048,11 +5259,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CancelTaskRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return CancelTaskResponse
      */
-    public function cancelTaskWithOptions(CancelTaskRequest $request, RuntimeOptions $runtime)
+    public function cancelTaskWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5060,11 +5272,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CancelTaskRequest $request
      *
      * @return CancelTaskResponse
      */
-    public function cancelTask(CancelTaskRequest $request)
+    public function cancelTask($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5072,11 +5284,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceTypeFamiliesRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return DescribeInstanceTypeFamiliesResponse
      */
-    public function describeInstanceTypeFamiliesWithOptions(DescribeInstanceTypeFamiliesRequest $request, RuntimeOptions $runtime)
+    public function describeInstanceTypeFamiliesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5084,11 +5297,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceTypeFamiliesRequest $request
      *
      * @return DescribeInstanceTypeFamiliesResponse
      */
-    public function describeInstanceTypeFamilies(DescribeInstanceTypeFamiliesRequest $request)
+    public function describeInstanceTypeFamilies($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5096,11 +5309,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyRouterInterfaceSpecRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return ModifyRouterInterfaceSpecResponse
      */
-    public function modifyRouterInterfaceSpecWithOptions(ModifyRouterInterfaceSpecRequest $request, RuntimeOptions $runtime)
+    public function modifyRouterInterfaceSpecWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5108,11 +5322,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyRouterInterfaceSpecRequest $request
      *
      * @return ModifyRouterInterfaceSpecResponse
      */
-    public function modifyRouterInterfaceSpec(ModifyRouterInterfaceSpecRequest $request)
+    public function modifyRouterInterfaceSpec($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5120,11 +5334,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyRouterInterfaceAttributeRequest $request
+     * @param RuntimeOptions                        $runtime
      *
      * @return ModifyRouterInterfaceAttributeResponse
      */
-    public function modifyRouterInterfaceAttributeWithOptions(ModifyRouterInterfaceAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyRouterInterfaceAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5132,11 +5347,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyRouterInterfaceAttributeRequest $request
      *
      * @return ModifyRouterInterfaceAttributeResponse
      */
-    public function modifyRouterInterfaceAttribute(ModifyRouterInterfaceAttributeRequest $request)
+    public function modifyRouterInterfaceAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5144,11 +5359,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeRouterInterfacesRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return DescribeRouterInterfacesResponse
      */
-    public function describeRouterInterfacesWithOptions(DescribeRouterInterfacesRequest $request, RuntimeOptions $runtime)
+    public function describeRouterInterfacesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5156,11 +5372,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeRouterInterfacesRequest $request
      *
      * @return DescribeRouterInterfacesResponse
      */
-    public function describeRouterInterfaces(DescribeRouterInterfacesRequest $request)
+    public function describeRouterInterfaces($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5168,11 +5384,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteRouterInterfaceRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return DeleteRouterInterfaceResponse
      */
-    public function deleteRouterInterfaceWithOptions(DeleteRouterInterfaceRequest $request, RuntimeOptions $runtime)
+    public function deleteRouterInterfaceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5180,11 +5397,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteRouterInterfaceRequest $request
      *
      * @return DeleteRouterInterfaceResponse
      */
-    public function deleteRouterInterface(DeleteRouterInterfaceRequest $request)
+    public function deleteRouterInterface($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5192,11 +5409,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeactivateRouterInterfaceRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return DeactivateRouterInterfaceResponse
      */
-    public function deactivateRouterInterfaceWithOptions(DeactivateRouterInterfaceRequest $request, RuntimeOptions $runtime)
+    public function deactivateRouterInterfaceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5204,11 +5422,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeactivateRouterInterfaceRequest $request
      *
      * @return DeactivateRouterInterfaceResponse
      */
-    public function deactivateRouterInterface(DeactivateRouterInterfaceRequest $request)
+    public function deactivateRouterInterface($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5216,11 +5434,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateRouterInterfaceRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return CreateRouterInterfaceResponse
      */
-    public function createRouterInterfaceWithOptions(CreateRouterInterfaceRequest $request, RuntimeOptions $runtime)
+    public function createRouterInterfaceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5228,11 +5447,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateRouterInterfaceRequest $request
      *
      * @return CreateRouterInterfaceResponse
      */
-    public function createRouterInterface(CreateRouterInterfaceRequest $request)
+    public function createRouterInterface($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5240,11 +5459,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ConnectRouterInterfaceRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return ConnectRouterInterfaceResponse
      */
-    public function connectRouterInterfaceWithOptions(ConnectRouterInterfaceRequest $request, RuntimeOptions $runtime)
+    public function connectRouterInterfaceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5252,11 +5472,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ConnectRouterInterfaceRequest $request
      *
      * @return ConnectRouterInterfaceResponse
      */
-    public function connectRouterInterface(ConnectRouterInterfaceRequest $request)
+    public function connectRouterInterface($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5264,11 +5484,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ActivateRouterInterfaceRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return ActivateRouterInterfaceResponse
      */
-    public function activateRouterInterfaceWithOptions(ActivateRouterInterfaceRequest $request, RuntimeOptions $runtime)
+    public function activateRouterInterfaceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5276,11 +5497,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ActivateRouterInterfaceRequest $request
      *
      * @return ActivateRouterInterfaceResponse
      */
-    public function activateRouterInterface(ActivateRouterInterfaceRequest $request)
+    public function activateRouterInterface($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5288,11 +5509,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UnassociateHaVipRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return UnassociateHaVipResponse
      */
-    public function unassociateHaVipWithOptions(UnassociateHaVipRequest $request, RuntimeOptions $runtime)
+    public function unassociateHaVipWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5300,11 +5522,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UnassociateHaVipRequest $request
      *
      * @return UnassociateHaVipResponse
      */
-    public function unassociateHaVip(UnassociateHaVipRequest $request)
+    public function unassociateHaVip($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5312,11 +5534,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyHaVipAttributeRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return ModifyHaVipAttributeResponse
      */
-    public function modifyHaVipAttributeWithOptions(ModifyHaVipAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyHaVipAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5324,11 +5547,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyHaVipAttributeRequest $request
      *
      * @return ModifyHaVipAttributeResponse
      */
-    public function modifyHaVipAttribute(ModifyHaVipAttributeRequest $request)
+    public function modifyHaVipAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5336,11 +5559,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeHaVipsRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return DescribeHaVipsResponse
      */
-    public function describeHaVipsWithOptions(DescribeHaVipsRequest $request, RuntimeOptions $runtime)
+    public function describeHaVipsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5348,11 +5572,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeHaVipsRequest $request
      *
      * @return DescribeHaVipsResponse
      */
-    public function describeHaVips(DescribeHaVipsRequest $request)
+    public function describeHaVips($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5360,11 +5584,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteHaVipRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return DeleteHaVipResponse
      */
-    public function deleteHaVipWithOptions(DeleteHaVipRequest $request, RuntimeOptions $runtime)
+    public function deleteHaVipWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5372,11 +5597,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteHaVipRequest $request
      *
      * @return DeleteHaVipResponse
      */
-    public function deleteHaVip(DeleteHaVipRequest $request)
+    public function deleteHaVip($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5384,11 +5609,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateHaVipRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return CreateHaVipResponse
      */
-    public function createHaVipWithOptions(CreateHaVipRequest $request, RuntimeOptions $runtime)
+    public function createHaVipWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5396,11 +5622,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateHaVipRequest $request
      *
      * @return CreateHaVipResponse
      */
-    public function createHaVip(CreateHaVipRequest $request)
+    public function createHaVip($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5408,11 +5634,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AssociateHaVipRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return AssociateHaVipResponse
      */
-    public function associateHaVipWithOptions(AssociateHaVipRequest $request, RuntimeOptions $runtime)
+    public function associateHaVipWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5420,11 +5647,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AssociateHaVipRequest $request
      *
      * @return AssociateHaVipResponse
      */
-    public function associateHaVip(AssociateHaVipRequest $request)
+    public function associateHaVip($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5432,11 +5659,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RenewInstanceRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return RenewInstanceResponse
      */
-    public function renewInstanceWithOptions(RenewInstanceRequest $request, RuntimeOptions $runtime)
+    public function renewInstanceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5444,11 +5672,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RenewInstanceRequest $request
      *
      * @return RenewInstanceResponse
      */
-    public function renewInstance(RenewInstanceRequest $request)
+    public function renewInstance($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5456,11 +5684,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RemoveTagsRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return RemoveTagsResponse
      */
-    public function removeTagsWithOptions(RemoveTagsRequest $request, RuntimeOptions $runtime)
+    public function removeTagsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5468,11 +5697,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RemoveTagsRequest $request
      *
      * @return RemoveTagsResponse
      */
-    public function removeTags(RemoveTagsRequest $request)
+    public function removeTags($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5480,11 +5709,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeTagsRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return DescribeTagsResponse
      */
-    public function describeTagsWithOptions(DescribeTagsRequest $request, RuntimeOptions $runtime)
+    public function describeTagsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5492,11 +5722,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeTagsRequest $request
      *
      * @return DescribeTagsResponse
      */
-    public function describeTags(DescribeTagsRequest $request)
+    public function describeTags($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5504,11 +5734,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeResourceByTagsRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return DescribeResourceByTagsResponse
      */
-    public function describeResourceByTagsWithOptions(DescribeResourceByTagsRequest $request, RuntimeOptions $runtime)
+    public function describeResourceByTagsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5516,11 +5747,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeResourceByTagsRequest $request
      *
      * @return DescribeResourceByTagsResponse
      */
-    public function describeResourceByTags(DescribeResourceByTagsRequest $request)
+    public function describeResourceByTags($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5528,11 +5759,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AddTagsRequest $request
+     * @param RuntimeOptions $runtime
      *
      * @return AddTagsResponse
      */
-    public function addTagsWithOptions(AddTagsRequest $request, RuntimeOptions $runtime)
+    public function addTagsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5540,11 +5772,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AddTagsRequest $request
      *
      * @return AddTagsResponse
      */
-    public function addTags(AddTagsRequest $request)
+    public function addTags($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5552,11 +5784,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UnassociateEipAddressRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return UnassociateEipAddressResponse
      */
-    public function unassociateEipAddressWithOptions(UnassociateEipAddressRequest $request, RuntimeOptions $runtime)
+    public function unassociateEipAddressWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5564,11 +5797,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UnassociateEipAddressRequest $request
      *
      * @return UnassociateEipAddressResponse
      */
-    public function unassociateEipAddress(UnassociateEipAddressRequest $request)
+    public function unassociateEipAddress($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5576,11 +5809,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param StopInstanceRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return StopInstanceResponse
      */
-    public function stopInstanceWithOptions(StopInstanceRequest $request, RuntimeOptions $runtime)
+    public function stopInstanceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5588,11 +5822,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param StopInstanceRequest $request
      *
      * @return StopInstanceResponse
      */
-    public function stopInstance(StopInstanceRequest $request)
+    public function stopInstance($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5600,11 +5834,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param StartInstanceRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return StartInstanceResponse
      */
-    public function startInstanceWithOptions(StartInstanceRequest $request, RuntimeOptions $runtime)
+    public function startInstanceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5612,11 +5847,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param StartInstanceRequest $request
      *
      * @return StartInstanceResponse
      */
-    public function startInstance(StartInstanceRequest $request)
+    public function startInstance($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5624,23 +5859,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RevokeSecurityGroupEgressRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return RevokeSecurityGroupEgressResponse
      */
-    public function revokeSecurityGroupEgressWithOptions(RevokeSecurityGroupEgressRequest $request, RuntimeOptions $runtime)
+    public function revokeSecurityGroupEgressWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return RevokeSecurityGroupEgressResponse::fromMap($this->doRequest('RevokeSecurityGroupEgress', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return RevokeSecurityGroupEgressResponse::fromMap($this->doRequest('RevokeSecurityGroupEgress', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param RevokeSecurityGroupEgressRequest $request
      *
      * @return RevokeSecurityGroupEgressResponse
      */
-    public function revokeSecurityGroupEgress(RevokeSecurityGroupEgressRequest $request)
+    public function revokeSecurityGroupEgress($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5648,23 +5884,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RevokeSecurityGroupRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return RevokeSecurityGroupResponse
      */
-    public function revokeSecurityGroupWithOptions(RevokeSecurityGroupRequest $request, RuntimeOptions $runtime)
+    public function revokeSecurityGroupWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return RevokeSecurityGroupResponse::fromMap($this->doRequest('RevokeSecurityGroup', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return RevokeSecurityGroupResponse::fromMap($this->doRequest('RevokeSecurityGroup', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param RevokeSecurityGroupRequest $request
      *
      * @return RevokeSecurityGroupResponse
      */
-    public function revokeSecurityGroup(RevokeSecurityGroupRequest $request)
+    public function revokeSecurityGroup($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5672,11 +5909,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ResizeDiskRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return ResizeDiskResponse
      */
-    public function resizeDiskWithOptions(ResizeDiskRequest $request, RuntimeOptions $runtime)
+    public function resizeDiskWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5684,11 +5922,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ResizeDiskRequest $request
      *
      * @return ResizeDiskResponse
      */
-    public function resizeDisk(ResizeDiskRequest $request)
+    public function resizeDisk($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5696,11 +5934,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ResetDiskRequest $request
+     * @param RuntimeOptions   $runtime
      *
      * @return ResetDiskResponse
      */
-    public function resetDiskWithOptions(ResetDiskRequest $request, RuntimeOptions $runtime)
+    public function resetDiskWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5708,11 +5947,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ResetDiskRequest $request
      *
      * @return ResetDiskResponse
      */
-    public function resetDisk(ResetDiskRequest $request)
+    public function resetDisk($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5720,11 +5959,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ReplaceSystemDiskRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return ReplaceSystemDiskResponse
      */
-    public function replaceSystemDiskWithOptions(ReplaceSystemDiskRequest $request, RuntimeOptions $runtime)
+    public function replaceSystemDiskWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5732,11 +5972,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ReplaceSystemDiskRequest $request
      *
      * @return ReplaceSystemDiskResponse
      */
-    public function replaceSystemDisk(ReplaceSystemDiskRequest $request)
+    public function replaceSystemDisk($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5744,11 +5984,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ReleasePublicIpAddressRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return ReleasePublicIpAddressResponse
      */
-    public function releasePublicIpAddressWithOptions(ReleasePublicIpAddressRequest $request, RuntimeOptions $runtime)
+    public function releasePublicIpAddressWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5756,11 +5997,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ReleasePublicIpAddressRequest $request
      *
      * @return ReleasePublicIpAddressResponse
      */
-    public function releasePublicIpAddress(ReleasePublicIpAddressRequest $request)
+    public function releasePublicIpAddress($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5768,11 +6009,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ReleaseEipAddressRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return ReleaseEipAddressResponse
      */
-    public function releaseEipAddressWithOptions(ReleaseEipAddressRequest $request, RuntimeOptions $runtime)
+    public function releaseEipAddressWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5780,11 +6022,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ReleaseEipAddressRequest $request
      *
      * @return ReleaseEipAddressResponse
      */
-    public function releaseEipAddress(ReleaseEipAddressRequest $request)
+    public function releaseEipAddress($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5792,11 +6034,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ReInitDiskRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return ReInitDiskResponse
      */
-    public function reInitDiskWithOptions(ReInitDiskRequest $request, RuntimeOptions $runtime)
+    public function reInitDiskWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5804,11 +6047,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ReInitDiskRequest $request
      *
      * @return ReInitDiskResponse
      */
-    public function reInitDisk(ReInitDiskRequest $request)
+    public function reInitDisk($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5816,11 +6059,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RebootInstanceRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return RebootInstanceResponse
      */
-    public function rebootInstanceWithOptions(RebootInstanceRequest $request, RuntimeOptions $runtime)
+    public function rebootInstanceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5828,11 +6072,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RebootInstanceRequest $request
      *
      * @return RebootInstanceResponse
      */
-    public function rebootInstance(RebootInstanceRequest $request)
+    public function rebootInstance($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5840,11 +6084,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyVSwitchAttributeRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return ModifyVSwitchAttributeResponse
      */
-    public function modifyVSwitchAttributeWithOptions(ModifyVSwitchAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyVSwitchAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5852,11 +6097,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyVSwitchAttributeRequest $request
      *
      * @return ModifyVSwitchAttributeResponse
      */
-    public function modifyVSwitchAttribute(ModifyVSwitchAttributeRequest $request)
+    public function modifyVSwitchAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5864,11 +6109,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyVRouterAttributeRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return ModifyVRouterAttributeResponse
      */
-    public function modifyVRouterAttributeWithOptions(ModifyVRouterAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyVRouterAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5876,11 +6122,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyVRouterAttributeRequest $request
      *
      * @return ModifyVRouterAttributeResponse
      */
-    public function modifyVRouterAttribute(ModifyVRouterAttributeRequest $request)
+    public function modifyVRouterAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5888,11 +6134,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyVpcAttributeRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return ModifyVpcAttributeResponse
      */
-    public function modifyVpcAttributeWithOptions(ModifyVpcAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyVpcAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5900,11 +6147,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyVpcAttributeRequest $request
      *
      * @return ModifyVpcAttributeResponse
      */
-    public function modifyVpcAttribute(ModifyVpcAttributeRequest $request)
+    public function modifyVpcAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5912,11 +6159,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifySnapshotAttributeRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return ModifySnapshotAttributeResponse
      */
-    public function modifySnapshotAttributeWithOptions(ModifySnapshotAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifySnapshotAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5924,11 +6172,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifySnapshotAttributeRequest $request
      *
      * @return ModifySnapshotAttributeResponse
      */
-    public function modifySnapshotAttribute(ModifySnapshotAttributeRequest $request)
+    public function modifySnapshotAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5936,11 +6184,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifySecurityGroupAttributeRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return ModifySecurityGroupAttributeResponse
      */
-    public function modifySecurityGroupAttributeWithOptions(ModifySecurityGroupAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifySecurityGroupAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5948,11 +6197,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifySecurityGroupAttributeRequest $request
      *
      * @return ModifySecurityGroupAttributeResponse
      */
-    public function modifySecurityGroupAttribute(ModifySecurityGroupAttributeRequest $request)
+    public function modifySecurityGroupAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5960,11 +6209,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceVpcAttributeRequest $request
+     * @param RuntimeOptions                    $runtime
      *
      * @return ModifyInstanceVpcAttributeResponse
      */
-    public function modifyInstanceVpcAttributeWithOptions(ModifyInstanceVpcAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyInstanceVpcAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5972,11 +6222,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceVpcAttributeRequest $request
      *
      * @return ModifyInstanceVpcAttributeResponse
      */
-    public function modifyInstanceVpcAttribute(ModifyInstanceVpcAttributeRequest $request)
+    public function modifyInstanceVpcAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -5984,11 +6234,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceVncPasswdRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return ModifyInstanceVncPasswdResponse
      */
-    public function modifyInstanceVncPasswdWithOptions(ModifyInstanceVncPasswdRequest $request, RuntimeOptions $runtime)
+    public function modifyInstanceVncPasswdWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -5996,11 +6247,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceVncPasswdRequest $request
      *
      * @return ModifyInstanceVncPasswdResponse
      */
-    public function modifyInstanceVncPasswd(ModifyInstanceVncPasswdRequest $request)
+    public function modifyInstanceVncPasswd($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6008,11 +6259,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceSpecRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return ModifyInstanceSpecResponse
      */
-    public function modifyInstanceSpecWithOptions(ModifyInstanceSpecRequest $request, RuntimeOptions $runtime)
+    public function modifyInstanceSpecWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6020,11 +6272,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceSpecRequest $request
      *
      * @return ModifyInstanceSpecResponse
      */
-    public function modifyInstanceSpec(ModifyInstanceSpecRequest $request)
+    public function modifyInstanceSpec($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6032,11 +6284,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceNetworkSpecRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return ModifyInstanceNetworkSpecResponse
      */
-    public function modifyInstanceNetworkSpecWithOptions(ModifyInstanceNetworkSpecRequest $request, RuntimeOptions $runtime)
+    public function modifyInstanceNetworkSpecWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6044,11 +6297,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceNetworkSpecRequest $request
      *
      * @return ModifyInstanceNetworkSpecResponse
      */
-    public function modifyInstanceNetworkSpec(ModifyInstanceNetworkSpecRequest $request)
+    public function modifyInstanceNetworkSpec($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6056,11 +6309,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceAttributeRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return ModifyInstanceAttributeResponse
      */
-    public function modifyInstanceAttributeWithOptions(ModifyInstanceAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyInstanceAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6068,11 +6322,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyInstanceAttributeRequest $request
      *
      * @return ModifyInstanceAttributeResponse
      */
-    public function modifyInstanceAttribute(ModifyInstanceAttributeRequest $request)
+    public function modifyInstanceAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6080,11 +6334,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyImageSharePermissionRequest $request
+     * @param RuntimeOptions                    $runtime
      *
      * @return ModifyImageSharePermissionResponse
      */
-    public function modifyImageSharePermissionWithOptions(ModifyImageSharePermissionRequest $request, RuntimeOptions $runtime)
+    public function modifyImageSharePermissionWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6092,11 +6347,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyImageSharePermissionRequest $request
      *
      * @return ModifyImageSharePermissionResponse
      */
-    public function modifyImageSharePermission(ModifyImageSharePermissionRequest $request)
+    public function modifyImageSharePermission($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6104,11 +6359,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyImageShareGroupPermissionRequest $request
+     * @param RuntimeOptions                         $runtime
      *
      * @return ModifyImageShareGroupPermissionResponse
      */
-    public function modifyImageShareGroupPermissionWithOptions(ModifyImageShareGroupPermissionRequest $request, RuntimeOptions $runtime)
+    public function modifyImageShareGroupPermissionWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6116,11 +6372,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyImageShareGroupPermissionRequest $request
      *
      * @return ModifyImageShareGroupPermissionResponse
      */
-    public function modifyImageShareGroupPermission(ModifyImageShareGroupPermissionRequest $request)
+    public function modifyImageShareGroupPermission($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6128,11 +6384,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyImageAttributeRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return ModifyImageAttributeResponse
      */
-    public function modifyImageAttributeWithOptions(ModifyImageAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyImageAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6140,11 +6397,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyImageAttributeRequest $request
      *
      * @return ModifyImageAttributeResponse
      */
-    public function modifyImageAttribute(ModifyImageAttributeRequest $request)
+    public function modifyImageAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6152,11 +6409,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyEipAddressAttributeRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return ModifyEipAddressAttributeResponse
      */
-    public function modifyEipAddressAttributeWithOptions(ModifyEipAddressAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyEipAddressAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6164,11 +6422,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyEipAddressAttributeRequest $request
      *
      * @return ModifyEipAddressAttributeResponse
      */
-    public function modifyEipAddressAttribute(ModifyEipAddressAttributeRequest $request)
+    public function modifyEipAddressAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6176,11 +6434,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyDiskAttributeRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return ModifyDiskAttributeResponse
      */
-    public function modifyDiskAttributeWithOptions(ModifyDiskAttributeRequest $request, RuntimeOptions $runtime)
+    public function modifyDiskAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6188,11 +6447,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyDiskAttributeRequest $request
      *
      * @return ModifyDiskAttributeResponse
      */
-    public function modifyDiskAttribute(ModifyDiskAttributeRequest $request)
+    public function modifyDiskAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6200,11 +6459,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyAutoSnapshotPolicyRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return ModifyAutoSnapshotPolicyResponse
      */
-    public function modifyAutoSnapshotPolicyWithOptions(ModifyAutoSnapshotPolicyRequest $request, RuntimeOptions $runtime)
+    public function modifyAutoSnapshotPolicyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6212,11 +6472,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyAutoSnapshotPolicyRequest $request
      *
      * @return ModifyAutoSnapshotPolicyResponse
      */
-    public function modifyAutoSnapshotPolicy(ModifyAutoSnapshotPolicyRequest $request)
+    public function modifyAutoSnapshotPolicy($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6224,11 +6484,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param LeaveSecurityGroupRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return LeaveSecurityGroupResponse
      */
-    public function leaveSecurityGroupWithOptions(LeaveSecurityGroupRequest $request, RuntimeOptions $runtime)
+    public function leaveSecurityGroupWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6236,11 +6497,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param LeaveSecurityGroupRequest $request
      *
      * @return LeaveSecurityGroupResponse
      */
-    public function leaveSecurityGroup(LeaveSecurityGroupRequest $request)
+    public function leaveSecurityGroup($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6248,11 +6509,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param JoinSecurityGroupRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return JoinSecurityGroupResponse
      */
-    public function joinSecurityGroupWithOptions(JoinSecurityGroupRequest $request, RuntimeOptions $runtime)
+    public function joinSecurityGroupWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6260,11 +6522,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param JoinSecurityGroupRequest $request
      *
      * @return JoinSecurityGroupResponse
      */
-    public function joinSecurityGroup(JoinSecurityGroupRequest $request)
+    public function joinSecurityGroup($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6272,11 +6534,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetachDiskRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return DetachDiskResponse
      */
-    public function detachDiskWithOptions(DetachDiskRequest $request, RuntimeOptions $runtime)
+    public function detachDiskWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6284,11 +6547,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DetachDiskRequest $request
      *
      * @return DetachDiskResponse
      */
-    public function detachDisk(DetachDiskRequest $request)
+    public function detachDisk($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6296,11 +6559,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeZonesRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return DescribeZonesResponse
      */
-    public function describeZonesWithOptions(DescribeZonesRequest $request, RuntimeOptions $runtime)
+    public function describeZonesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6308,11 +6572,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeZonesRequest $request
      *
      * @return DescribeZonesResponse
      */
-    public function describeZones(DescribeZonesRequest $request)
+    public function describeZones($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6320,11 +6584,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeVSwitchesRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return DescribeVSwitchesResponse
      */
-    public function describeVSwitchesWithOptions(DescribeVSwitchesRequest $request, RuntimeOptions $runtime)
+    public function describeVSwitchesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6332,11 +6597,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeVSwitchesRequest $request
      *
      * @return DescribeVSwitchesResponse
      */
-    public function describeVSwitches(DescribeVSwitchesRequest $request)
+    public function describeVSwitches($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6344,11 +6609,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeVRoutersRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DescribeVRoutersResponse
      */
-    public function describeVRoutersWithOptions(DescribeVRoutersRequest $request, RuntimeOptions $runtime)
+    public function describeVRoutersWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6356,11 +6622,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeVRoutersRequest $request
      *
      * @return DescribeVRoutersResponse
      */
-    public function describeVRouters(DescribeVRoutersRequest $request)
+    public function describeVRouters($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6368,11 +6634,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeVpcsRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return DescribeVpcsResponse
      */
-    public function describeVpcsWithOptions(DescribeVpcsRequest $request, RuntimeOptions $runtime)
+    public function describeVpcsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6380,11 +6647,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeVpcsRequest $request
      *
      * @return DescribeVpcsResponse
      */
-    public function describeVpcs(DescribeVpcsRequest $request)
+    public function describeVpcs($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6392,11 +6659,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSnapshotsRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return DescribeSnapshotsResponse
      */
-    public function describeSnapshotsWithOptions(DescribeSnapshotsRequest $request, RuntimeOptions $runtime)
+    public function describeSnapshotsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6404,11 +6672,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSnapshotsRequest $request
      *
      * @return DescribeSnapshotsResponse
      */
-    public function describeSnapshots(DescribeSnapshotsRequest $request)
+    public function describeSnapshots($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6416,11 +6684,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSecurityGroupsRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return DescribeSecurityGroupsResponse
      */
-    public function describeSecurityGroupsWithOptions(DescribeSecurityGroupsRequest $request, RuntimeOptions $runtime)
+    public function describeSecurityGroupsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6428,11 +6697,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSecurityGroupsRequest $request
      *
      * @return DescribeSecurityGroupsResponse
      */
-    public function describeSecurityGroups(DescribeSecurityGroupsRequest $request)
+    public function describeSecurityGroups($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6440,11 +6709,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSecurityGroupAttributeRequest $request
+     * @param RuntimeOptions                        $runtime
      *
      * @return DescribeSecurityGroupAttributeResponse
      */
-    public function describeSecurityGroupAttributeWithOptions(DescribeSecurityGroupAttributeRequest $request, RuntimeOptions $runtime)
+    public function describeSecurityGroupAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6452,11 +6722,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSecurityGroupAttributeRequest $request
      *
      * @return DescribeSecurityGroupAttributeResponse
      */
-    public function describeSecurityGroupAttribute(DescribeSecurityGroupAttributeRequest $request)
+    public function describeSecurityGroupAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6464,11 +6734,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeRouteTablesRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return DescribeRouteTablesResponse
      */
-    public function describeRouteTablesWithOptions(DescribeRouteTablesRequest $request, RuntimeOptions $runtime)
+    public function describeRouteTablesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6476,11 +6747,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeRouteTablesRequest $request
      *
      * @return DescribeRouteTablesResponse
      */
-    public function describeRouteTables(DescribeRouteTablesRequest $request)
+    public function describeRouteTables($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6488,11 +6759,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeRegionsRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return DescribeRegionsResponse
      */
-    public function describeRegionsWithOptions(DescribeRegionsRequest $request, RuntimeOptions $runtime)
+    public function describeRegionsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6500,11 +6772,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeRegionsRequest $request
      *
      * @return DescribeRegionsResponse
      */
-    public function describeRegions(DescribeRegionsRequest $request)
+    public function describeRegions($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6512,11 +6784,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeLimitationRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return DescribeLimitationResponse
      */
-    public function describeLimitationWithOptions(DescribeLimitationRequest $request, RuntimeOptions $runtime)
+    public function describeLimitationWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6524,11 +6797,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeLimitationRequest $request
      *
      * @return DescribeLimitationResponse
      */
-    public function describeLimitation(DescribeLimitationRequest $request)
+    public function describeLimitation($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6536,11 +6809,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceVncUrlRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return DescribeInstanceVncUrlResponse
      */
-    public function describeInstanceVncUrlWithOptions(DescribeInstanceVncUrlRequest $request, RuntimeOptions $runtime)
+    public function describeInstanceVncUrlWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6548,11 +6822,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceVncUrlRequest $request
      *
      * @return DescribeInstanceVncUrlResponse
      */
-    public function describeInstanceVncUrl(DescribeInstanceVncUrlRequest $request)
+    public function describeInstanceVncUrl($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6560,11 +6834,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceVncPasswdRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return DescribeInstanceVncPasswdResponse
      */
-    public function describeInstanceVncPasswdWithOptions(DescribeInstanceVncPasswdRequest $request, RuntimeOptions $runtime)
+    public function describeInstanceVncPasswdWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6572,11 +6847,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceVncPasswdRequest $request
      *
      * @return DescribeInstanceVncPasswdResponse
      */
-    public function describeInstanceVncPasswd(DescribeInstanceVncPasswdRequest $request)
+    public function describeInstanceVncPasswd($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6584,11 +6859,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceTypesRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return DescribeInstanceTypesResponse
      */
-    public function describeInstanceTypesWithOptions(DescribeInstanceTypesRequest $request, RuntimeOptions $runtime)
+    public function describeInstanceTypesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6596,11 +6872,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceTypesRequest $request
      *
      * @return DescribeInstanceTypesResponse
      */
-    public function describeInstanceTypes(DescribeInstanceTypesRequest $request)
+    public function describeInstanceTypes($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6608,11 +6884,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceStatusRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return DescribeInstanceStatusResponse
      */
-    public function describeInstanceStatusWithOptions(DescribeInstanceStatusRequest $request, RuntimeOptions $runtime)
+    public function describeInstanceStatusWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6620,11 +6897,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceStatusRequest $request
      *
      * @return DescribeInstanceStatusResponse
      */
-    public function describeInstanceStatus(DescribeInstanceStatusRequest $request)
+    public function describeInstanceStatus($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6632,11 +6909,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstancesRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return DescribeInstancesResponse
      */
-    public function describeInstancesWithOptions(DescribeInstancesRequest $request, RuntimeOptions $runtime)
+    public function describeInstancesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6644,11 +6922,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstancesRequest $request
      *
      * @return DescribeInstancesResponse
      */
-    public function describeInstances(DescribeInstancesRequest $request)
+    public function describeInstances($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6656,23 +6934,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceMonitorDataRequest $request
+     * @param RuntimeOptions                     $runtime
      *
      * @return DescribeInstanceMonitorDataResponse
      */
-    public function describeInstanceMonitorDataWithOptions(DescribeInstanceMonitorDataRequest $request, RuntimeOptions $runtime)
+    public function describeInstanceMonitorDataWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeInstanceMonitorDataResponse::fromMap($this->doRequest('DescribeInstanceMonitorData', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeInstanceMonitorDataResponse::fromMap($this->doRequest('DescribeInstanceMonitorData', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceMonitorDataRequest $request
      *
      * @return DescribeInstanceMonitorDataResponse
      */
-    public function describeInstanceMonitorData(DescribeInstanceMonitorDataRequest $request)
+    public function describeInstanceMonitorData($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6680,11 +6959,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceAttributeRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return DescribeInstanceAttributeResponse
      */
-    public function describeInstanceAttributeWithOptions(DescribeInstanceAttributeRequest $request, RuntimeOptions $runtime)
+    public function describeInstanceAttributeWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6692,11 +6972,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeInstanceAttributeRequest $request
      *
      * @return DescribeInstanceAttributeResponse
      */
-    public function describeInstanceAttribute(DescribeInstanceAttributeRequest $request)
+    public function describeInstanceAttribute($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6704,11 +6984,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeImageSharePermissionRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return DescribeImageSharePermissionResponse
      */
-    public function describeImageSharePermissionWithOptions(DescribeImageSharePermissionRequest $request, RuntimeOptions $runtime)
+    public function describeImageSharePermissionWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6716,11 +6997,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeImageSharePermissionRequest $request
      *
      * @return DescribeImageSharePermissionResponse
      */
-    public function describeImageSharePermission(DescribeImageSharePermissionRequest $request)
+    public function describeImageSharePermission($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6728,11 +7009,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeImagesRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return DescribeImagesResponse
      */
-    public function describeImagesWithOptions(DescribeImagesRequest $request, RuntimeOptions $runtime)
+    public function describeImagesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6740,11 +7022,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeImagesRequest $request
      *
      * @return DescribeImagesResponse
      */
-    public function describeImages(DescribeImagesRequest $request)
+    public function describeImages($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6752,11 +7034,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeEipMonitorDataRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return DescribeEipMonitorDataResponse
      */
-    public function describeEipMonitorDataWithOptions(DescribeEipMonitorDataRequest $request, RuntimeOptions $runtime)
+    public function describeEipMonitorDataWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6764,11 +7047,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeEipMonitorDataRequest $request
      *
      * @return DescribeEipMonitorDataResponse
      */
-    public function describeEipMonitorData(DescribeEipMonitorDataRequest $request)
+    public function describeEipMonitorData($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6776,11 +7059,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeEipAddressesRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return DescribeEipAddressesResponse
      */
-    public function describeEipAddressesWithOptions(DescribeEipAddressesRequest $request, RuntimeOptions $runtime)
+    public function describeEipAddressesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6788,11 +7072,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeEipAddressesRequest $request
      *
      * @return DescribeEipAddressesResponse
      */
-    public function describeEipAddresses(DescribeEipAddressesRequest $request)
+    public function describeEipAddresses($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6800,11 +7084,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDisksRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return DescribeDisksResponse
      */
-    public function describeDisksWithOptions(DescribeDisksRequest $request, RuntimeOptions $runtime)
+    public function describeDisksWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6812,11 +7097,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDisksRequest $request
      *
      * @return DescribeDisksResponse
      */
-    public function describeDisks(DescribeDisksRequest $request)
+    public function describeDisks($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6824,23 +7109,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDiskMonitorDataRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return DescribeDiskMonitorDataResponse
      */
-    public function describeDiskMonitorDataWithOptions(DescribeDiskMonitorDataRequest $request, RuntimeOptions $runtime)
+    public function describeDiskMonitorDataWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeDiskMonitorDataResponse::fromMap($this->doRequest('DescribeDiskMonitorData', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return DescribeDiskMonitorDataResponse::fromMap($this->doRequest('DescribeDiskMonitorData', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDiskMonitorDataRequest $request
      *
      * @return DescribeDiskMonitorDataResponse
      */
-    public function describeDiskMonitorData(DescribeDiskMonitorDataRequest $request)
+    public function describeDiskMonitorData($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6848,11 +7134,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeClustersRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DescribeClustersResponse
      */
-    public function describeClustersWithOptions(DescribeClustersRequest $request, RuntimeOptions $runtime)
+    public function describeClustersWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6860,11 +7147,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeClustersRequest $request
      *
      * @return DescribeClustersResponse
      */
-    public function describeClusters(DescribeClustersRequest $request)
+    public function describeClusters($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6872,11 +7159,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteVSwitchRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return DeleteVSwitchResponse
      */
-    public function deleteVSwitchWithOptions(DeleteVSwitchRequest $request, RuntimeOptions $runtime)
+    public function deleteVSwitchWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6884,11 +7172,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteVSwitchRequest $request
      *
      * @return DeleteVSwitchResponse
      */
-    public function deleteVSwitch(DeleteVSwitchRequest $request)
+    public function deleteVSwitch($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6896,11 +7184,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteVpcRequest $request
+     * @param RuntimeOptions   $runtime
      *
      * @return DeleteVpcResponse
      */
-    public function deleteVpcWithOptions(DeleteVpcRequest $request, RuntimeOptions $runtime)
+    public function deleteVpcWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6908,11 +7197,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteVpcRequest $request
      *
      * @return DeleteVpcResponse
      */
-    public function deleteVpc(DeleteVpcRequest $request)
+    public function deleteVpc($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6920,11 +7209,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteSnapshotRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return DeleteSnapshotResponse
      */
-    public function deleteSnapshotWithOptions(DeleteSnapshotRequest $request, RuntimeOptions $runtime)
+    public function deleteSnapshotWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6932,11 +7222,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteSnapshotRequest $request
      *
      * @return DeleteSnapshotResponse
      */
-    public function deleteSnapshot(DeleteSnapshotRequest $request)
+    public function deleteSnapshot($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6944,11 +7234,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteSecurityGroupRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return DeleteSecurityGroupResponse
      */
-    public function deleteSecurityGroupWithOptions(DeleteSecurityGroupRequest $request, RuntimeOptions $runtime)
+    public function deleteSecurityGroupWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6956,11 +7247,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteSecurityGroupRequest $request
      *
      * @return DeleteSecurityGroupResponse
      */
-    public function deleteSecurityGroup(DeleteSecurityGroupRequest $request)
+    public function deleteSecurityGroup($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6968,11 +7259,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteRouteEntryRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DeleteRouteEntryResponse
      */
-    public function deleteRouteEntryWithOptions(DeleteRouteEntryRequest $request, RuntimeOptions $runtime)
+    public function deleteRouteEntryWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -6980,11 +7272,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteRouteEntryRequest $request
      *
      * @return DeleteRouteEntryResponse
      */
-    public function deleteRouteEntry(DeleteRouteEntryRequest $request)
+    public function deleteRouteEntry($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -6992,11 +7284,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteInstanceRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return DeleteInstanceResponse
      */
-    public function deleteInstanceWithOptions(DeleteInstanceRequest $request, RuntimeOptions $runtime)
+    public function deleteInstanceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -7004,11 +7297,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteInstanceRequest $request
      *
      * @return DeleteInstanceResponse
      */
-    public function deleteInstance(DeleteInstanceRequest $request)
+    public function deleteInstance($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7016,11 +7309,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteImageRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return DeleteImageResponse
      */
-    public function deleteImageWithOptions(DeleteImageRequest $request, RuntimeOptions $runtime)
+    public function deleteImageWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -7028,11 +7322,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteImageRequest $request
      *
      * @return DeleteImageResponse
      */
-    public function deleteImage(DeleteImageRequest $request)
+    public function deleteImage($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7040,11 +7334,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteDiskRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return DeleteDiskResponse
      */
-    public function deleteDiskWithOptions(DeleteDiskRequest $request, RuntimeOptions $runtime)
+    public function deleteDiskWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -7052,11 +7347,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteDiskRequest $request
      *
      * @return DeleteDiskResponse
      */
-    public function deleteDisk(DeleteDiskRequest $request)
+    public function deleteDisk($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7064,11 +7359,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateVSwitchRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return CreateVSwitchResponse
      */
-    public function createVSwitchWithOptions(CreateVSwitchRequest $request, RuntimeOptions $runtime)
+    public function createVSwitchWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -7076,11 +7372,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateVSwitchRequest $request
      *
      * @return CreateVSwitchResponse
      */
-    public function createVSwitch(CreateVSwitchRequest $request)
+    public function createVSwitch($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7088,11 +7384,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateVpcRequest $request
+     * @param RuntimeOptions   $runtime
      *
      * @return CreateVpcResponse
      */
-    public function createVpcWithOptions(CreateVpcRequest $request, RuntimeOptions $runtime)
+    public function createVpcWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -7100,11 +7397,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateVpcRequest $request
      *
      * @return CreateVpcResponse
      */
-    public function createVpc(CreateVpcRequest $request)
+    public function createVpc($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7112,11 +7409,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateSnapshotRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return CreateSnapshotResponse
      */
-    public function createSnapshotWithOptions(CreateSnapshotRequest $request, RuntimeOptions $runtime)
+    public function createSnapshotWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -7124,11 +7422,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateSnapshotRequest $request
      *
      * @return CreateSnapshotResponse
      */
-    public function createSnapshot(CreateSnapshotRequest $request)
+    public function createSnapshot($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7136,11 +7434,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateSecurityGroupRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return CreateSecurityGroupResponse
      */
-    public function createSecurityGroupWithOptions(CreateSecurityGroupRequest $request, RuntimeOptions $runtime)
+    public function createSecurityGroupWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -7148,11 +7447,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateSecurityGroupRequest $request
      *
      * @return CreateSecurityGroupResponse
      */
-    public function createSecurityGroup(CreateSecurityGroupRequest $request)
+    public function createSecurityGroup($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7160,11 +7459,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateRouteEntryRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return CreateRouteEntryResponse
      */
-    public function createRouteEntryWithOptions(CreateRouteEntryRequest $request, RuntimeOptions $runtime)
+    public function createRouteEntryWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -7172,11 +7472,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateRouteEntryRequest $request
      *
      * @return CreateRouteEntryResponse
      */
-    public function createRouteEntry(CreateRouteEntryRequest $request)
+    public function createRouteEntry($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7184,11 +7484,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateInstanceRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return CreateInstanceResponse
      */
-    public function createInstanceWithOptions(CreateInstanceRequest $request, RuntimeOptions $runtime)
+    public function createInstanceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -7196,11 +7497,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateInstanceRequest $request
      *
      * @return CreateInstanceResponse
      */
-    public function createInstance(CreateInstanceRequest $request)
+    public function createInstance($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7208,11 +7509,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateImageRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return CreateImageResponse
      */
-    public function createImageWithOptions(CreateImageRequest $request, RuntimeOptions $runtime)
+    public function createImageWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -7220,11 +7522,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateImageRequest $request
      *
      * @return CreateImageResponse
      */
-    public function createImage(CreateImageRequest $request)
+    public function createImage($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7232,11 +7534,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateDiskRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return CreateDiskResponse
      */
-    public function createDiskWithOptions(CreateDiskRequest $request, RuntimeOptions $runtime)
+    public function createDiskWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -7244,11 +7547,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateDiskRequest $request
      *
      * @return CreateDiskResponse
      */
-    public function createDisk(CreateDiskRequest $request)
+    public function createDisk($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7256,11 +7559,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CopyImageRequest $request
+     * @param RuntimeOptions   $runtime
      *
      * @return CopyImageResponse
      */
-    public function copyImageWithOptions(CopyImageRequest $request, RuntimeOptions $runtime)
+    public function copyImageWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -7268,11 +7572,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CopyImageRequest $request
      *
      * @return CopyImageResponse
      */
-    public function copyImage(CopyImageRequest $request)
+    public function copyImage($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7280,11 +7584,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CancelCopyImageRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return CancelCopyImageResponse
      */
-    public function cancelCopyImageWithOptions(CancelCopyImageRequest $request, RuntimeOptions $runtime)
+    public function cancelCopyImageWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -7292,11 +7597,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CancelCopyImageRequest $request
      *
      * @return CancelCopyImageResponse
      */
-    public function cancelCopyImage(CancelCopyImageRequest $request)
+    public function cancelCopyImage($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7304,23 +7609,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AuthorizeSecurityGroupEgressRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return AuthorizeSecurityGroupEgressResponse
      */
-    public function authorizeSecurityGroupEgressWithOptions(AuthorizeSecurityGroupEgressRequest $request, RuntimeOptions $runtime)
+    public function authorizeSecurityGroupEgressWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return AuthorizeSecurityGroupEgressResponse::fromMap($this->doRequest('AuthorizeSecurityGroupEgress', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return AuthorizeSecurityGroupEgressResponse::fromMap($this->doRequest('AuthorizeSecurityGroupEgress', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param AuthorizeSecurityGroupEgressRequest $request
      *
      * @return AuthorizeSecurityGroupEgressResponse
      */
-    public function authorizeSecurityGroupEgress(AuthorizeSecurityGroupEgressRequest $request)
+    public function authorizeSecurityGroupEgress($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7328,23 +7634,24 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AuthorizeSecurityGroupRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return AuthorizeSecurityGroupResponse
      */
-    public function authorizeSecurityGroupWithOptions(AuthorizeSecurityGroupRequest $request, RuntimeOptions $runtime)
+    public function authorizeSecurityGroupWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return AuthorizeSecurityGroupResponse::fromMap($this->doRequest('AuthorizeSecurityGroup', 'HTTPS', 'POST', '2014-05-26', 'AK', $request, null, $runtime));
+        return AuthorizeSecurityGroupResponse::fromMap($this->doRequest('AuthorizeSecurityGroup', 'HTTPS', 'POST', '2014-05-26', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param AuthorizeSecurityGroupRequest $request
      *
      * @return AuthorizeSecurityGroupResponse
      */
-    public function authorizeSecurityGroup(AuthorizeSecurityGroupRequest $request)
+    public function authorizeSecurityGroup($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7352,11 +7659,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AttachDiskRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return AttachDiskResponse
      */
-    public function attachDiskWithOptions(AttachDiskRequest $request, RuntimeOptions $runtime)
+    public function attachDiskWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -7364,11 +7672,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AttachDiskRequest $request
      *
      * @return AttachDiskResponse
      */
-    public function attachDisk(AttachDiskRequest $request)
+    public function attachDisk($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7376,11 +7684,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AssociateEipAddressRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return AssociateEipAddressResponse
      */
-    public function associateEipAddressWithOptions(AssociateEipAddressRequest $request, RuntimeOptions $runtime)
+    public function associateEipAddressWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -7388,11 +7697,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AssociateEipAddressRequest $request
      *
      * @return AssociateEipAddressResponse
      */
-    public function associateEipAddress(AssociateEipAddressRequest $request)
+    public function associateEipAddress($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7400,11 +7709,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AllocatePublicIpAddressRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return AllocatePublicIpAddressResponse
      */
-    public function allocatePublicIpAddressWithOptions(AllocatePublicIpAddressRequest $request, RuntimeOptions $runtime)
+    public function allocatePublicIpAddressWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -7412,11 +7722,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AllocatePublicIpAddressRequest $request
      *
      * @return AllocatePublicIpAddressResponse
      */
-    public function allocatePublicIpAddress(AllocatePublicIpAddressRequest $request)
+    public function allocatePublicIpAddress($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7424,11 +7734,12 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AllocateEipAddressRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return AllocateEipAddressResponse
      */
-    public function allocateEipAddressWithOptions(AllocateEipAddressRequest $request, RuntimeOptions $runtime)
+    public function allocateEipAddressWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -7436,11 +7747,11 @@ class Ecs extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AllocateEipAddressRequest $request
      *
      * @return AllocateEipAddressResponse
      */
-    public function allocateEipAddress(AllocateEipAddressRequest $request)
+    public function allocateEipAddress($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -7455,8 +7766,6 @@ class Ecs extends Rpc
      * @param string $suffix
      * @param array  $endpointMap
      * @param string $endpoint
-     *
-     * @throws \Exception
      *
      * @return string
      */

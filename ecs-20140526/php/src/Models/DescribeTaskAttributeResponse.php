@@ -10,92 +10,66 @@ use AlibabaCloud\Tea\Model;
 class DescribeTaskAttributeResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.taskId
-     *
      * @var string
      */
     public $taskId;
 
     /**
-     * @description data.regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description data.taskAction
-     *
      * @var string
      */
     public $taskAction;
 
     /**
-     * @description data.taskStatus
-     *
      * @var string
      */
     public $taskStatus;
 
     /**
-     * @description data.taskProcess
-     *
      * @var string
      */
     public $taskProcess;
 
     /**
-     * @description data.supportCancel
-     *
      * @var string
      */
     public $supportCancel;
 
     /**
-     * @description data.totalCount
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description data.successCount
-     *
      * @var int
      */
     public $successCount;
 
     /**
-     * @description data.failedCount
-     *
      * @var int
      */
     public $failedCount;
 
     /**
-     * @description data.creationTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description data.finishedTime
-     *
      * @var string
      */
     public $finishedTime;
 
     /**
-     * @description data.operationProgressSet
-     *
      * @var operationProgressSet
      */
     public $operationProgressSet;

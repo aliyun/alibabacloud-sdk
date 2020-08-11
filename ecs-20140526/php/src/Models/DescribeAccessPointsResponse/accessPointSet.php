@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class accessPointSet extends Model
 {
     /**
-     * @description AccessPointType
-     *
      * @var array
      */
     public $accessPointType;

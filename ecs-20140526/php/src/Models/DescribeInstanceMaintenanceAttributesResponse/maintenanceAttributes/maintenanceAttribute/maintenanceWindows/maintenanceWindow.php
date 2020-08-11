@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class maintenanceWindow extends Model
 {
     /**
-     * @description startTime
-     *
      * @var string
      */
     public $startTime;
 
     /**
-     * @description endTime
-     *
      * @var string
      */
     public $endTime;

@@ -9,127 +9,91 @@ use AlibabaCloud\Tea\Model;
 class physicalConnectionType extends Model
 {
     /**
-     * @description physicalConnectionId
-     *
      * @var string
      */
     public $physicalConnectionId;
 
     /**
-     * @description accessPointId
-     *
      * @var string
      */
     public $accessPointId;
 
     /**
-     * @description type
-     *
      * @var string
      */
     public $type;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description businessStatus
-     *
      * @var string
      */
     public $businessStatus;
 
     /**
-     * @description creationTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description enabledTime
-     *
      * @var string
      */
     public $enabledTime;
 
     /**
-     * @description lineOperator
-     *
      * @var string
      */
     public $lineOperator;
 
     /**
-     * @description spec
-     *
      * @var string
      */
     public $spec;
 
     /**
-     * @description peerLocation
-     *
      * @var string
      */
     public $peerLocation;
 
     /**
-     * @description portType
-     *
      * @var string
      */
     public $portType;
 
     /**
-     * @description redundantPhysicalConnectionId
-     *
      * @var string
      */
     public $redundantPhysicalConnectionId;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description adLocation
-     *
      * @var string
      */
     public $adLocation;
 
     /**
-     * @description portNumber
-     *
      * @var string
      */
     public $portNumber;
 
     /**
-     * @description circuitCode
-     *
      * @var string
      */
     public $circuitCode;
 
     /**
-     * @description bandwidth
-     *
      * @var int
      */
     public $bandwidth;

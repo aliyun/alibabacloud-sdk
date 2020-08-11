@@ -15,50 +15,36 @@ use AlibabaCloud\Tea\Model;
 class resourcesInfo extends Model
 {
     /**
-     * @description supportIoOptimized
-     *
      * @var bool
      */
     public $ioOptimized;
 
     /**
-     * @description supportedSystemDiskCategories
-     *
      * @var systemDiskCategories
      */
     public $systemDiskCategories;
 
     /**
-     * @description supportedDataDiskCategories
-     *
      * @var dataDiskCategories
      */
     public $dataDiskCategories;
 
     /**
-     * @description supportedNetworkCategories
-     *
      * @var networkTypes
      */
     public $networkTypes;
 
     /**
-     * @description supportedInstanceTypes
-     *
      * @var instanceTypes
      */
     public $instanceTypes;
 
     /**
-     * @description supportedInstanceTypeFamilies
-     *
      * @var instanceTypeFamilies
      */
     public $instanceTypeFamilies;
 
     /**
-     * @description supportedInstanceGenerations
-     *
      * @var instanceGenerations
      */
     public $instanceGenerations;

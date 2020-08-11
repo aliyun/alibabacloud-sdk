@@ -9,27 +9,23 @@ use AlibabaCloud\Tea\Model;
 class CreateVSwitchResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.instanceId
-     *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
     protected $_name = [
         'requestId' => 'RequestId',
-        'VSwitchId' => 'VSwitchId',
+        'vSwitchId' => 'VSwitchId',
     ];
 
     public function validate()
     {
         Model::validateRequired('requestId', $this->requestId, true);
-        Model::validateRequired('VSwitchId', $this->VSwitchId, true);
+        Model::validateRequired('vSwitchId', $this->vSwitchId, true);
     }
 
     public function toMap()
@@ -38,8 +34,8 @@ class CreateVSwitchResponse extends Model
         if (null !== $this->requestId) {
             $res['RequestId'] = $this->requestId;
         }
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
 
         return $res;
@@ -57,7 +53,7 @@ class CreateVSwitchResponse extends Model
             $model->requestId = $map['RequestId'];
         }
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
 
         return $model;

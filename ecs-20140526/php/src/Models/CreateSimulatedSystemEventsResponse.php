@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class CreateSimulatedSystemEventsResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.eventIds
-     *
      * @var eventIdSet
      */
     public $eventIdSet;

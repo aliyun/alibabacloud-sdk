@@ -10,125 +10,69 @@ use AlibabaCloud\Tea\Model;
 class ReplaceSystemDiskRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description imageId
-     *
      * @var string
      */
     public $imageId;
 
     /**
-     * @description SystemDisk
-     *
      * @var systemDisk
      */
     public $systemDisk;
 
     /**
-     * @description clientToken
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description enableVmOsConfig
-     *
      * @var bool
      */
     public $useAdditionalService;
 
     /**
-     * @description password
-     *
      * @var string
      */
     public $password;
 
     /**
-     * @description passwdInherit
-     *
      * @var bool
      */
     public $passwordInherit;
 
     /**
-     * @description keyPairName
-     *
      * @var string
      */
     public $keyPairName;
 
     /**
-     * @description diskId
-     *
      * @var string
      */
     public $diskId;
 
     /**
-     * @description platform
-     *
      * @var string
      */
     public $platform;
 
     /**
-     * @description architecture
-     *
      * @var string
      */
     public $architecture;
 
     /**
-     * @description securityEnhancementStrategy
-     *
      * @var string
      */
     public $securityEnhancementStrategy;
     protected $_name = [
-        'ownerId'                     => 'OwnerId',
-        'resourceOwnerAccount'        => 'ResourceOwnerAccount',
-        'resourceOwnerId'             => 'ResourceOwnerId',
         'instanceId'                  => 'InstanceId',
         'imageId'                     => 'ImageId',
         'systemDisk'                  => 'SystemDisk',
         'clientToken'                 => 'ClientToken',
-        'ownerAccount'                => 'OwnerAccount',
         'useAdditionalService'        => 'UseAdditionalService',
         'password'                    => 'Password',
         'passwordInherit'             => 'PasswordInherit',
@@ -142,21 +86,11 @@ class ReplaceSystemDiskRequest extends Model
     public function validate()
     {
         Model::validateRequired('instanceId', $this->instanceId, true);
-        Model::validateRequired('systemDisk', $this->systemDisk, true);
     }
 
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->instanceId) {
             $res['InstanceId'] = $this->instanceId;
         }
@@ -168,9 +102,6 @@ class ReplaceSystemDiskRequest extends Model
         }
         if (null !== $this->clientToken) {
             $res['ClientToken'] = $this->clientToken;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
         }
         if (null !== $this->useAdditionalService) {
             $res['UseAdditionalService'] = $this->useAdditionalService;
@@ -208,15 +139,6 @@ class ReplaceSystemDiskRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['InstanceId'])) {
             $model->instanceId = $map['InstanceId'];
         }
@@ -228,9 +150,6 @@ class ReplaceSystemDiskRequest extends Model
         }
         if (isset($map['ClientToken'])) {
             $model->clientToken = $map['ClientToken'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
         }
         if (isset($map['UseAdditionalService'])) {
             $model->useAdditionalService = $map['UseAdditionalService'];

@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class instanceRamRoleSet extends Model
 {
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description roleName
-     *
      * @var string
      */
     public $ramRoleName;

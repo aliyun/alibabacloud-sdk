@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeInstanceVncPasswdResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.vncPasswd
-     *
      * @var string
      */
     public $vncPasswd;

@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class invocations extends Model
 {
     /**
-     * @description Invocation
-     *
      * @var array
      */
     public $invocation;

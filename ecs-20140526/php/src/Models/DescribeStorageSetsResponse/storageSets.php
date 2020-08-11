@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class storageSets extends Model
 {
     /**
-     * @description StorageSet
-     *
      * @var array
      */
     public $storageSet;

@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class accountAttributeItem extends Model
 {
     /**
-     * @description attributeName
-     *
      * @var string
      */
     public $attributeName;
 
     /**
-     * @description attributeValues
-     *
      * @var attributeValues
      */
     public $attributeValues;

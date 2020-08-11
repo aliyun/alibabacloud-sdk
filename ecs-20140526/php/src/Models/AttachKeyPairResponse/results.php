@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class results extends Model
 {
     /**
-     * @description Result
-     *
      * @var array
      */
     public $result;

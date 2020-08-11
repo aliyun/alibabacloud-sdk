@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class storageCapacityUnitIds extends Model
 {
     /**
-     * @description StorageCapacityUnitId
-     *
      * @var array
      */
     public $storageCapacityUnitId;
@@ -27,10 +25,7 @@ class storageCapacityUnitIds extends Model
     {
         $res = [];
         if (null !== $this->storageCapacityUnitId) {
-            $res['StorageCapacityUnitId'] = [];
-            if (null !== $this->storageCapacityUnitId) {
-                $res['StorageCapacityUnitId'] = $this->storageCapacityUnitId;
-            }
+            $res['StorageCapacityUnitId'] = $this->storageCapacityUnitId;
         }
 
         return $res;
@@ -46,7 +41,6 @@ class storageCapacityUnitIds extends Model
         $model = new self();
         if (isset($map['StorageCapacityUnitId'])) {
             if (!empty($map['StorageCapacityUnitId'])) {
-                $model->storageCapacityUnitId = [];
                 $model->storageCapacityUnitId = $map['StorageCapacityUnitId'];
             }
         }

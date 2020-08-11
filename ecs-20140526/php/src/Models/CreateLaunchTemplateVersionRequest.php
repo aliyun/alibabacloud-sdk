@@ -13,289 +13,185 @@ use AlibabaCloud\Tea\Model;
 class CreateLaunchTemplateVersionRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description launchTemplateId
-     *
      * @var string
      */
     public $launchTemplateId;
 
     /**
-     * @description launchTemplateName
-     *
      * @var string
      */
     public $launchTemplateName;
 
     /**
-     * @description versionDescription
-     *
      * @var string
      */
     public $versionDescription;
 
     /**
-     * @description imageId
-     *
      * @var string
      */
     public $imageId;
 
     /**
-     * @description imageOwnerAlias
-     *
      * @var string
      */
     public $imageOwnerAlias;
 
     /**
-     * @description passwordInherit
-     *
      * @var bool
      */
     public $passwordInherit;
 
     /**
-     * @description instanceType
-     *
      * @var string
      */
     public $instanceType;
 
     /**
-     * @description securityGroupId
-     *
      * @var string
      */
     public $securityGroupId;
 
     /**
-     * @description vpcId
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description vSwitchId
-     *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
 
     /**
-     * @description instanceName
-     *
      * @var string
      */
     public $instanceName;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description internetMaxBandwidthIn
-     *
      * @var int
      */
     public $internetMaxBandwidthIn;
 
     /**
-     * @description internetMaxBandwidthOut
-     *
      * @var int
      */
     public $internetMaxBandwidthOut;
 
     /**
-     * @description hostName
-     *
      * @var string
      */
     public $hostName;
 
     /**
-     * @description izNo
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description SystemDisk
-     *
      * @var systemDisk
      */
     public $systemDisk;
 
     /**
-     * @description dataDisks
-     *
      * @var array
      */
     public $dataDisk;
 
     /**
-     * @description ioOptimized
-     *
      * @var string
      */
     public $ioOptimized;
 
     /**
-     * @description enis
-     *
      * @var array
      */
     public $networkInterface;
 
     /**
-     * @description instanceChargeType
-     *
      * @var string
      */
     public $instanceChargeType;
 
     /**
-     * @description period
-     *
      * @var int
      */
     public $period;
 
     /**
-     * @description internetChargeType
-     *
      * @var string
      */
     public $internetChargeType;
 
     /**
-     * @description enableVmOsConfig
-     *
      * @var bool
      */
     public $enableVmOsConfig;
 
     /**
-     * @description networkType
-     *
      * @var string
      */
     public $networkType;
 
     /**
-     * @description userData
-     *
      * @var string
      */
     public $userData;
 
     /**
-     * @description keyPairName
-     *
      * @var string
      */
     public $keyPairName;
 
     /**
-     * @description ramRoleName
-     *
      * @var string
      */
     public $ramRoleName;
 
     /**
-     * @description autoReleaseTime
-     *
      * @var string
      */
     public $autoReleaseTime;
 
     /**
-     * @description spotStrategy
-     *
      * @var string
      */
     public $spotStrategy;
 
     /**
-     * @description spotPriceLimit
-     *
      * @var float
      */
     public $spotPriceLimit;
 
     /**
-     * @description spotDuration
-     *
      * @var int
      */
     public $spotDuration;
 
     /**
-     * @description resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
 
     /**
-     * @description securityEnhancementStrategy
-     *
      * @var string
      */
     public $securityEnhancementStrategy;
 
     /**
-     * @description tagList
-     *
      * @var array
      */
     public $tag;
     protected $_name = [
-        'ownerId'                     => 'OwnerId',
-        'resourceOwnerAccount'        => 'ResourceOwnerAccount',
-        'resourceOwnerId'             => 'ResourceOwnerId',
-        'ownerAccount'                => 'OwnerAccount',
         'regionId'                    => 'RegionId',
         'launchTemplateId'            => 'LaunchTemplateId',
         'launchTemplateName'          => 'LaunchTemplateName',
@@ -306,7 +202,7 @@ class CreateLaunchTemplateVersionRequest extends Model
         'instanceType'                => 'InstanceType',
         'securityGroupId'             => 'SecurityGroupId',
         'vpcId'                       => 'VpcId',
-        'VSwitchId'                   => 'VSwitchId',
+        'vSwitchId'                   => 'VSwitchId',
         'instanceName'                => 'InstanceName',
         'description'                 => 'Description',
         'internetMaxBandwidthIn'      => 'InternetMaxBandwidthIn',
@@ -337,24 +233,11 @@ class CreateLaunchTemplateVersionRequest extends Model
     public function validate()
     {
         Model::validateRequired('regionId', $this->regionId, true);
-        Model::validateRequired('systemDisk', $this->systemDisk, true);
     }
 
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
@@ -385,8 +268,8 @@ class CreateLaunchTemplateVersionRequest extends Model
         if (null !== $this->vpcId) {
             $res['VpcId'] = $this->vpcId;
         }
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
         if (null !== $this->instanceName) {
             $res['InstanceName'] = $this->instanceName;
@@ -493,18 +376,6 @@ class CreateLaunchTemplateVersionRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
@@ -536,7 +407,7 @@ class CreateLaunchTemplateVersionRequest extends Model
             $model->vpcId = $map['VpcId'];
         }
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
         if (isset($map['InstanceName'])) {
             $model->instanceName = $map['InstanceName'];

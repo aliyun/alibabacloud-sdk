@@ -13,414 +13,280 @@ use AlibabaCloud\Tea\Model;
 class CreateInstanceRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description imageId
-     *
      * @var string
      */
     public $imageId;
 
     /**
-     * @description imageFamily
-     *
      * @var string
      */
     public $imageFamily;
 
     /**
-     * @description instanceType
-     *
      * @var string
      */
     public $instanceType;
 
     /**
-     * @description securityGroupId
-     *
      * @var string
      */
     public $securityGroupId;
 
     /**
-     * @description instanceName
-     *
      * @var string
      */
     public $instanceName;
 
     /**
-     * @description internetChargeType
-     *
      * @var string
      */
     public $internetChargeType;
 
     /**
-     * @description autoRenew
-     *
      * @var bool
      */
     public $autoRenew;
 
     /**
-     * @description autoRenewPeriod
-     *
      * @var int
      */
     public $autoRenewPeriod;
 
     /**
-     * @description internetMaxBandwidthIn
-     *
      * @var int
      */
     public $internetMaxBandwidthIn;
 
     /**
-     * @description internetMaxBandwidthOut
-     *
      * @var int
      */
     public $internetMaxBandwidthOut;
 
     /**
-     * @description hostName
-     *
      * @var string
      */
     public $hostName;
 
     /**
-     * @description password
-     *
      * @var string
      */
     public $password;
 
     /**
-     * @description passwdInherit
-     *
      * @var bool
      */
     public $passwordInherit;
 
     /**
-     * @description deploymentSetId
-     *
      * @var string
      */
     public $deploymentSetId;
 
     /**
-     * @description izNo
-     *
+     * @var int
+     */
+    public $deploymentSetGroupNo;
+
+    /**
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description zoneNo
-     *
      * @var string
      */
     public $clusterId;
 
     /**
-     * @description clientToken
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description vlanNo
-     *
      * @var string
      */
     public $vlanId;
 
     /**
-     * @description innerIp
-     *
      * @var string
      */
     public $innerIpAddress;
 
     /**
-     * @description SystemDisk
-     *
      * @var systemDisk
      */
     public $systemDisk;
 
     /**
-     * @description createDataDiskParams
-     *
      * @var array
      */
     public $dataDisk;
 
     /**
-     * @description arns
-     *
      * @var array
      */
     public $arn;
 
     /**
-     * @description nodeControllerId
-     *
      * @var string
      */
     public $nodeControllerId;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description vSwitchId
-     *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
 
     /**
-     * @description privateIpAddress
-     *
      * @var string
      */
     public $privateIpAddress;
 
     /**
-     * @description ioOptimized
-     *
      * @var string
      */
     public $ioOptimized;
 
     /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description enableVmOsConfig
-     *
      * @var bool
      */
     public $useAdditionalService;
 
     /**
-     * @description instanceChargeType
-     *
      * @var string
      */
     public $instanceChargeType;
 
     /**
-     * @description period
-     *
      * @var int
      */
     public $period;
 
     /**
-     * @description periodUnit
-     *
      * @var string
      */
     public $periodUnit;
 
     /**
-     * @description tagKeyValueParams
-     *
      * @var array
      */
     public $tag;
 
     /**
-     * @description userData
-     *
      * @var string
      */
     public $userData;
 
     /**
-     * @description spotStrategy
-     *
      * @var string
      */
     public $spotStrategy;
 
     /**
-     * @description keyPairName
-     *
      * @var string
      */
     public $keyPairName;
 
     /**
-     * @description spotPriceLimit
-     *
      * @var float
      */
     public $spotPriceLimit;
 
     /**
-     * @description spotDuration
-     *
      * @var int
      */
     public $spotDuration;
 
     /**
-     * @description spotInterruptionBehavior
-     *
      * @var string
      */
     public $spotInterruptionBehavior;
 
     /**
-     * @description ramRoleName
-     *
      * @var string
      */
     public $ramRoleName;
 
     /**
-     * @description securityEnhancementStrategy
-     *
      * @var string
      */
     public $securityEnhancementStrategy;
 
     /**
-     * @description resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
 
     /**
-     * @description hpcClusterId
-     *
      * @var string
      */
     public $hpcClusterId;
 
     /**
-     * @description dryRun
-     *
      * @var bool
      */
     public $dryRun;
 
     /**
-     * @description dedicatedHostId
-     *
      * @var string
      */
     public $dedicatedHostId;
 
     /**
-     * @description creditSpecification
-     *
      * @var string
      */
     public $creditSpecification;
 
     /**
-     * @description deletionProtection
-     *
      * @var bool
      */
     public $deletionProtection;
 
     /**
-     * @description dedicatedInstanceAffinity
-     *
      * @var string
      */
     public $affinity;
 
     /**
-     * @description instanceTenancy
-     *
      * @var string
      */
     public $tenancy;
 
     /**
-     * @description storageSetId
-     *
      * @var string
      */
     public $storageSetId;
 
     /**
-     * @description storageSetPartitionNumber
-     *
      * @var int
      */
     public $storageSetPartitionNumber;
 
     /**
-     * @description httpEndpoint
-     *
      * @var string
      */
     public $httpEndpoint;
 
     /**
-     * @description httpTokens
-     *
      * @var string
      */
     public $httpTokens;
 
     /**
-     * @description httpPutResponseHopLimit
-     *
      * @var int
      */
     public $httpPutResponseHopLimit;
     protected $_name = [
-        'ownerId'                     => 'OwnerId',
-        'resourceOwnerAccount'        => 'ResourceOwnerAccount',
-        'resourceOwnerId'             => 'ResourceOwnerId',
         'regionId'                    => 'RegionId',
         'imageId'                     => 'ImageId',
         'imageFamily'                 => 'ImageFamily',
@@ -436,6 +302,7 @@ class CreateInstanceRequest extends Model
         'password'                    => 'Password',
         'passwordInherit'             => 'PasswordInherit',
         'deploymentSetId'             => 'DeploymentSetId',
+        'deploymentSetGroupNo'        => 'DeploymentSetGroupNo',
         'zoneId'                      => 'ZoneId',
         'clusterId'                   => 'ClusterId',
         'clientToken'                 => 'ClientToken',
@@ -446,10 +313,9 @@ class CreateInstanceRequest extends Model
         'arn'                         => 'Arn',
         'nodeControllerId'            => 'NodeControllerId',
         'description'                 => 'Description',
-        'VSwitchId'                   => 'VSwitchId',
+        'vSwitchId'                   => 'VSwitchId',
         'privateIpAddress'            => 'PrivateIpAddress',
         'ioOptimized'                 => 'IoOptimized',
-        'ownerAccount'                => 'OwnerAccount',
         'useAdditionalService'        => 'UseAdditionalService',
         'instanceChargeType'          => 'InstanceChargeType',
         'period'                      => 'Period',
@@ -482,21 +348,11 @@ class CreateInstanceRequest extends Model
     {
         Model::validateRequired('regionId', $this->regionId, true);
         Model::validateRequired('instanceType', $this->instanceType, true);
-        Model::validateRequired('systemDisk', $this->systemDisk, true);
     }
 
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
@@ -542,6 +398,9 @@ class CreateInstanceRequest extends Model
         if (null !== $this->deploymentSetId) {
             $res['DeploymentSetId'] = $this->deploymentSetId;
         }
+        if (null !== $this->deploymentSetGroupNo) {
+            $res['DeploymentSetGroupNo'] = $this->deploymentSetGroupNo;
+        }
         if (null !== $this->zoneId) {
             $res['ZoneId'] = $this->zoneId;
         }
@@ -584,17 +443,14 @@ class CreateInstanceRequest extends Model
         if (null !== $this->description) {
             $res['Description'] = $this->description;
         }
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
         if (null !== $this->privateIpAddress) {
             $res['PrivateIpAddress'] = $this->privateIpAddress;
         }
         if (null !== $this->ioOptimized) {
             $res['IoOptimized'] = $this->ioOptimized;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
         }
         if (null !== $this->useAdditionalService) {
             $res['UseAdditionalService'] = $this->useAdditionalService;
@@ -692,15 +548,6 @@ class CreateInstanceRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
@@ -746,6 +593,9 @@ class CreateInstanceRequest extends Model
         if (isset($map['DeploymentSetId'])) {
             $model->deploymentSetId = $map['DeploymentSetId'];
         }
+        if (isset($map['DeploymentSetGroupNo'])) {
+            $model->deploymentSetGroupNo = $map['DeploymentSetGroupNo'];
+        }
         if (isset($map['ZoneId'])) {
             $model->zoneId = $map['ZoneId'];
         }
@@ -789,16 +639,13 @@ class CreateInstanceRequest extends Model
             $model->description = $map['Description'];
         }
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
         if (isset($map['PrivateIpAddress'])) {
             $model->privateIpAddress = $map['PrivateIpAddress'];
         }
         if (isset($map['IoOptimized'])) {
             $model->ioOptimized = $map['IoOptimized'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
         }
         if (isset($map['UseAdditionalService'])) {
             $model->useAdditionalService = $map['UseAdditionalService'];

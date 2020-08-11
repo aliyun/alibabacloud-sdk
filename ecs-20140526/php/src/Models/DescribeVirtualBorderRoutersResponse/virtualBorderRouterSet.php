@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class virtualBorderRouterSet extends Model
 {
     /**
-     * @description VirtualBorderRouterType
-     *
      * @var array
      */
     public $virtualBorderRouterType;

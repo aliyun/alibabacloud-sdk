@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class CreateRouterInterfaceResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.routerInterfaceId
-     *
      * @var string
      */
     public $routerInterfaceId;
 
     /**
-     * @description data.orderId
-     *
      * @var int
      */
     public $orderId;

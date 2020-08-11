@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class topology extends Model
 {
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description hostId
-     *
      * @var string
      */
     public $hostId;

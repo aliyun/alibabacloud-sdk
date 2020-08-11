@@ -16,225 +16,161 @@ use AlibabaCloud\Tea\Model;
 class DescribeInstanceAttributeResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description data.instanceName
-     *
      * @var string
      */
     public $instanceName;
 
     /**
-     * @description data.imageId
-     *
      * @var string
      */
     public $imageId;
 
     /**
-     * @description data.regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description data.izNo
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description data.zoneNo
-     *
      * @var string
      */
     public $clusterId;
 
     /**
-     * @description data.instanceType
-     *
      * @var string
      */
     public $instanceType;
 
     /**
-     * @description data.cores
-     *
      * @var int
      */
     public $cpu;
 
     /**
-     * @description data.mem
-     *
      * @var int
      */
     public $memory;
 
     /**
-     * @description data.hostName
-     *
      * @var string
      */
     public $hostName;
 
     /**
-     * @description data.status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description data.internetChargeType
-     *
      * @var string
      */
     public $internetChargeType;
 
     /**
-     * @description data.internetMaxBandwidthIn
-     *
      * @var int
      */
     public $internetMaxBandwidthIn;
 
     /**
-     * @description data.internetMaxBandwidthOut
-     *
      * @var int
      */
     public $internetMaxBandwidthOut;
 
     /**
-     * @description data.vlanId
-     *
      * @var string
      */
     public $vlanId;
 
     /**
-     * @description data.serialNumber
-     *
      * @var string
      */
     public $serialNumber;
 
     /**
-     * @description data.creationTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description data.description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description data.instanceNetWorkType
-     *
      * @var string
      */
     public $instanceNetworkType;
 
     /**
-     * @description data.ioOptimized
-     *
      * @var string
      */
     public $ioOptimized;
 
     /**
-     * @description data.instanceChargeType
-     *
      * @var string
      */
     public $instanceChargeType;
 
     /**
-     * @description data.expiredTime
-     *
      * @var string
      */
     public $expiredTime;
 
     /**
-     * @description data.stopBehavior
-     *
      * @var string
      */
     public $stoppedMode;
 
     /**
-     * @description data.creditSpecification
-     *
      * @var string
      */
     public $creditSpecification;
 
     /**
-     * @description data.operationLockTypes
-     *
      * @var operationLocks
      */
     public $operationLocks;
 
     /**
-     * @description data.vpcAttribute
-     *
      * @var vpcAttributes
      */
     public $vpcAttributes;
 
     /**
-     * @description data.eipAddressAssignType
-     *
      * @var eipAddress
      */
     public $eipAddress;
 
     /**
-     * @description data.dedicatedHostAttribute
-     *
      * @var dedicatedHostAttribute
      */
     public $dedicatedHostAttribute;
 
     /**
-     * @description data.securityGroupIds
-     *
      * @var securityGroupIds
      */
     public $securityGroupIds;
 
     /**
-     * @description data.publicIpAddress
-     *
      * @var publicIpAddress
      */
     public $publicIpAddress;
 
     /**
-     * @description data.innerIpAddress
-     *
      * @var innerIpAddress
      */
     public $innerIpAddress;

@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class temporary extends Model
 {
     /**
-     * @description temporaryStartTime
-     *
      * @var string
      */
     public $startTime;
 
     /**
-     * @description temporaryEndTime
-     *
      * @var string
      */
     public $endTime;
 
     /**
-     * @description temporaryInternetMaxBandwidthOut
-     *
      * @var int
      */
     public $internetMaxBandwidthOut;

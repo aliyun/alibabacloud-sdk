@@ -9,50 +9,36 @@ use AlibabaCloud\Tea\Model;
 class valueItem extends Model
 {
     /**
-     * @description value
-     *
      * @var string
      */
     public $value;
 
     /**
-     * @description expiredTime
-     *
      * @var string
      */
     public $expiredTime;
 
     /**
-     * @description zoneId
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description instanceChargeType
-     *
      * @var string
      */
     public $instanceChargeType;
 
     /**
-     * @description instanceType
-     *
      * @var string
      */
     public $instanceType;
 
     /**
-     * @description count
-     *
      * @var int
      */
     public $count;
 
     /**
-     * @description category
-     *
      * @var string
      */
     public $diskCategory;

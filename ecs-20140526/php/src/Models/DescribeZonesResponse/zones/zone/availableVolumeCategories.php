@@ -27,10 +27,7 @@ class availableVolumeCategories extends Model
     {
         $res = [];
         if (null !== $this->volumeCategories) {
-            $res['VolumeCategories'] = [];
-            if (null !== $this->volumeCategories) {
-                $res['VolumeCategories'] = $this->volumeCategories;
-            }
+            $res['VolumeCategories'] = $this->volumeCategories;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class availableVolumeCategories extends Model
         $model = new self();
         if (isset($map['VolumeCategories'])) {
             if (!empty($map['VolumeCategories'])) {
-                $model->volumeCategories = [];
                 $model->volumeCategories = $map['VolumeCategories'];
             }
         }

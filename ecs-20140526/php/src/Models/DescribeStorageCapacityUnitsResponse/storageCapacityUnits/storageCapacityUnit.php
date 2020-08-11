@@ -9,67 +9,54 @@ use AlibabaCloud\Tea\Model;
 class storageCapacityUnit extends Model
 {
     /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description resourceId
-     *
      * @var string
      */
     public $storageCapacityUnitId;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description capacity
-     *
      * @var int
      */
     public $capacity;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description createUtcTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description expireUtcTime
-     *
      * @var string
      */
     public $expiredTime;
 
     /**
-     * @description startUtcTime
-     *
      * @var string
      */
     public $startTime;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
+
+    /**
+     * @var string
+     */
+    public $allocationStatus;
     protected $_name = [
         'regionId'              => 'RegionId',
         'storageCapacityUnitId' => 'StorageCapacityUnitId',
@@ -80,6 +67,7 @@ class storageCapacityUnit extends Model
         'expiredTime'           => 'ExpiredTime',
         'startTime'             => 'StartTime',
         'description'           => 'Description',
+        'allocationStatus'      => 'AllocationStatus',
     ];
 
     public function validate()
@@ -93,6 +81,7 @@ class storageCapacityUnit extends Model
         Model::validateRequired('expiredTime', $this->expiredTime, true);
         Model::validateRequired('startTime', $this->startTime, true);
         Model::validateRequired('description', $this->description, true);
+        Model::validateRequired('allocationStatus', $this->allocationStatus, true);
     }
 
     public function toMap()
@@ -124,6 +113,9 @@ class storageCapacityUnit extends Model
         }
         if (null !== $this->description) {
             $res['Description'] = $this->description;
+        }
+        if (null !== $this->allocationStatus) {
+            $res['AllocationStatus'] = $this->allocationStatus;
         }
 
         return $res;
@@ -163,6 +155,9 @@ class storageCapacityUnit extends Model
         }
         if (isset($map['Description'])) {
             $model->description = $map['Description'];
+        }
+        if (isset($map['AllocationStatus'])) {
+            $model->allocationStatus = $map['AllocationStatus'];
         }
 
         return $model;

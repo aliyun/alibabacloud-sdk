@@ -9,43 +9,31 @@ use AlibabaCloud\Tea\Model;
 class networkInterfacePermission extends Model
 {
     /**
-     * @description accountId
-     *
      * @var int
      */
     public $accountId;
 
     /**
-     * @description serviceName
-     *
      * @var string
      */
     public $serviceName;
 
     /**
-     * @description eniId
-     *
      * @var string
      */
     public $networkInterfaceId;
 
     /**
-     * @description eniPermissionId
-     *
      * @var string
      */
     public $networkInterfacePermissionId;
 
     /**
-     * @description eniPermissionType
-     *
      * @var string
      */
     public $permission;
 
     /**
-     * @description eniPermissionStatus
-     *
      * @var string
      */
     public $permissionState;

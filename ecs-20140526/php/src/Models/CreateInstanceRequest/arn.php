@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class arn extends Model
 {
     /**
-     * @description assumeRoleFor
-     *
      * @var int
      */
     public $assumeRoleFor;
 
     /**
-     * @description rolearn
-     *
      * @var string
      */
     public $rolearn;
 
     /**
-     * @description roleType
-     *
      * @var string
      */
     public $roleType;

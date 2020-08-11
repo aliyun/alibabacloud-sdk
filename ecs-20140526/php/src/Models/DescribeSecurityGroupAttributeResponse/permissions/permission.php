@@ -9,134 +9,96 @@ use AlibabaCloud\Tea\Model;
 class permission extends Model
 {
     /**
-     * @description ipProtocal
-     *
      * @var string
      */
     public $ipProtocol;
 
     /**
-     * @description portRange
-     *
      * @var string
      */
     public $portRange;
 
     /**
-     * @description sourcePortRange
-     *
      * @var string
      */
     public $sourcePortRange;
 
     /**
-     * @description sourceGroupNo
-     *
      * @var string
      */
     public $sourceGroupId;
 
     /**
-     * @description sourceGroupName
-     *
      * @var string
      */
     public $sourceGroupName;
 
     /**
-     * @description sourceCidrIp
-     *
      * @var string
      */
     public $sourceCidrIp;
 
     /**
-     * @description v6SourceCidrIp
-     *
      * @var string
      */
     public $ipv6SourceCidrIp;
 
     /**
-     * @description policy
-     *
      * @var string
      */
     public $policy;
 
     /**
-     * @description nic
-     *
      * @var string
      */
     public $nicType;
 
     /**
-     * @description sourceGroupOwnerUserAccount
-     *
      * @var string
      */
     public $sourceGroupOwnerAccount;
 
     /**
-     * @description destGroupNo
-     *
      * @var string
      */
     public $destGroupId;
 
     /**
-     * @description destGroupName
-     *
      * @var string
      */
     public $destGroupName;
 
     /**
-     * @description destCidrIp
-     *
      * @var string
      */
     public $destCidrIp;
 
     /**
-     * @description v6DestCidrIp
-     *
      * @var string
      */
     public $ipv6DestCidrIp;
 
     /**
-     * @description destGroupOwnerUserAccount
-     *
      * @var string
      */
     public $destGroupOwnerAccount;
 
     /**
-     * @description level
-     *
      * @var string
      */
     public $priority;
 
     /**
-     * @description direction
-     *
      * @var string
      */
     public $direction;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description createTime
-     *
      * @var string
      */
     public $createTime;

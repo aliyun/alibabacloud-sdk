@@ -11,29 +11,21 @@ use AlibabaCloud\Tea\Model;
 class CreateNatGatewayResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.natGatewayId
-     *
      * @var string
      */
     public $natGatewayId;
 
     /**
-     * @description data.forwardTableIds
-     *
      * @var forwardTableIds
      */
     public $forwardTableIds;
 
     /**
-     * @description data.bandwidthPackageIds
-     *
      * @var bandwidthPackageIds
      */
     public $bandwidthPackageIds;

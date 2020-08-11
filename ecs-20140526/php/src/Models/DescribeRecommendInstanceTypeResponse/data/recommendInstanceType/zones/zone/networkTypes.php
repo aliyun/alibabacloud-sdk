@@ -27,10 +27,7 @@ class networkTypes extends Model
     {
         $res = [];
         if (null !== $this->networkType) {
-            $res['NetworkType'] = [];
-            if (null !== $this->networkType) {
-                $res['NetworkType'] = $this->networkType;
-            }
+            $res['NetworkType'] = $this->networkType;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class networkTypes extends Model
         $model = new self();
         if (isset($map['NetworkType'])) {
             if (!empty($map['NetworkType'])) {
-                $model->networkType = [];
                 $model->networkType = $map['NetworkType'];
             }
         }

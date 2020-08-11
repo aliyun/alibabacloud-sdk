@@ -10,64 +10,46 @@ use AlibabaCloud\Tea\Model;
 class launchTemplateVersionSet extends Model
 {
     /**
-     * @description uTCCreateTime
-     *
      * @var string
      */
     public $createTime;
 
     /**
-     * @description uTCModifiedTime
-     *
      * @var string
      */
     public $modifiedTime;
 
     /**
-     * @description launchTemplateId
-     *
      * @var string
      */
     public $launchTemplateId;
 
     /**
-     * @description launchTemplateName
-     *
      * @var string
      */
     public $launchTemplateName;
 
     /**
-     * @description defaultVersion
-     *
      * @var bool
      */
     public $defaultVersion;
 
     /**
-     * @description versionNumber
-     *
      * @var int
      */
     public $versionNumber;
 
     /**
-     * @description versionDescription
-     *
      * @var string
      */
     public $versionDescription;
 
     /**
-     * @description createdBy
-     *
      * @var string
      */
     public $createdBy;
 
     /**
-     * @description versionSpecific
-     *
      * @var launchTemplateData
      */
     public $launchTemplateData;

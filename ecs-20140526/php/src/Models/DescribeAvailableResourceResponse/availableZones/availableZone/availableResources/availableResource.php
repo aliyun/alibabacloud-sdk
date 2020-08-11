@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class availableResource extends Model
 {
     /**
-     * @description type
-     *
      * @var string
      */
     public $type;
 
     /**
-     * @description supportedResourceModels
-     *
      * @var supportedResources
      */
     public $supportedResources;

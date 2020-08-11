@@ -9,78 +9,56 @@ use AlibabaCloud\Tea\Model;
 class snapshotLink extends Model
 {
     /**
-     * @description snapshotLinkId
-     *
      * @var string
      */
     public $snapshotLinkId;
 
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description instanceName
-     *
      * @var string
      */
     public $instanceName;
 
     /**
-     * @description sourceDiskId
-     *
      * @var string
      */
     public $sourceDiskId;
 
     /**
-     * @description sourceDiskName
-     *
      * @var string
      */
     public $sourceDiskName;
 
     /**
-     * @description sourceDiskSize
-     *
      * @var int
      */
     public $sourceDiskSize;
 
     /**
-     * @description sourceDiskType
-     *
      * @var string
      */
     public $sourceDiskType;
 
     /**
-     * @description category
-     *
      * @var string
      */
     public $category;
 
     /**
-     * @description totalSize
-     *
      * @var int
      */
     public $totalSize;
 
     /**
-     * @description totalCount
-     *
      * @var int
      */
     public $totalCount;

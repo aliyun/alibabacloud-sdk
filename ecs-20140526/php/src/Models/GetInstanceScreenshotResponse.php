@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class GetInstanceScreenshotResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description data.content
-     *
      * @var string
      */
     public $screenshot;

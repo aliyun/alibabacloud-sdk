@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeAccountAttributesResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var accountAttributeItems
      */
     public $accountAttributeItems;

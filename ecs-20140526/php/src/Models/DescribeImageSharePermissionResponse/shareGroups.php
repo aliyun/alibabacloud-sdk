@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class shareGroups extends Model
 {
     /**
-     * @description ShareGroup
-     *
      * @var array
      */
     public $shareGroup;

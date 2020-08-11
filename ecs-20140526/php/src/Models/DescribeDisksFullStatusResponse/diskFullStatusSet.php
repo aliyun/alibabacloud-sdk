@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class diskFullStatusSet extends Model
 {
     /**
-     * @description DiskFullStatusType
-     *
      * @var array
      */
     public $diskFullStatusType;

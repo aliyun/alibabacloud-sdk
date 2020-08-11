@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class ModifyDiskChargeTypeResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.orderId
-     *
      * @var string
      */
     public $orderId;

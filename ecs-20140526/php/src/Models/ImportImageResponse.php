@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class ImportImageResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.taskId
-     *
      * @var string
      */
     public $taskId;
 
     /**
-     * @description data.regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description data.imageId
-     *
      * @var string
      */
     public $imageId;

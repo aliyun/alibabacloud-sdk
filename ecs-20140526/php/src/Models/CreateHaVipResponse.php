@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class CreateHaVipResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.haVipId
-     *
      * @var string
      */
     public $haVipId;

@@ -9,64 +9,46 @@ use AlibabaCloud\Tea\Model;
 class capacity extends Model
 {
     /**
-     * @description totalVcpus
-     *
      * @var int
      */
     public $totalVcpus;
 
     /**
-     * @description availableVcpus
-     *
      * @var int
      */
     public $availableVcpus;
 
     /**
-     * @description totalVgpus
-     *
      * @var int
      */
     public $totalVgpus;
 
     /**
-     * @description availableVgpus
-     *
      * @var int
      */
     public $availableVgpus;
 
     /**
-     * @description totalMemGB
-     *
      * @var float
      */
     public $totalMemory;
 
     /**
-     * @description availableMemGB
-     *
      * @var float
      */
     public $availableMemory;
 
     /**
-     * @description totalDisk
-     *
      * @var int
      */
     public $totalLocalStorage;
 
     /**
-     * @description availableDisk
-     *
      * @var int
      */
     public $availableLocalStorage;
 
     /**
-     * @description dataDiskCategory
-     *
      * @var string
      */
     public $localStorageCategory;

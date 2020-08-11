@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class scheduledSystemEventSet extends Model
 {
     /**
-     * @description ScheduledSystemEventType
-     *
      * @var array
      */
     public $scheduledSystemEventType;

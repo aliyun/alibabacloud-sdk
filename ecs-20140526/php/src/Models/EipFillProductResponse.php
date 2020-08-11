@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class EipFillProductResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var string
      */
     public $data;
 
     /**
-     * @description code
-     *
      * @var string
      */
     public $code;
 
     /**
-     * @description success
-     *
      * @var bool
      */
     public $success;
 
     /**
-     * @description message
-     *
      * @var string
      */
     public $message;

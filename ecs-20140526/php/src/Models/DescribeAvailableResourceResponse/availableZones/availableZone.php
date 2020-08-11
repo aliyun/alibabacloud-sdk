@@ -10,36 +10,26 @@ use AlibabaCloud\Tea\Model;
 class availableZone extends Model
 {
     /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description zoneNo
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description statusCategory
-     *
      * @var string
      */
     public $statusCategory;
 
     /**
-     * @description availableIzResources
-     *
      * @var availableResources
      */
     public $availableResources;

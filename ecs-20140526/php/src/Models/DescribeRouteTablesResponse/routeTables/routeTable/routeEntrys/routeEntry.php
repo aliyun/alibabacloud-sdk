@@ -10,50 +10,36 @@ use AlibabaCloud\Tea\Model;
 class routeEntry extends Model
 {
     /**
-     * @description tableInstanceId
-     *
      * @var string
      */
     public $routeTableId;
 
     /**
-     * @description destinationCidrBlock
-     *
      * @var string
      */
     public $destinationCidrBlock;
 
     /**
-     * @description type
-     *
      * @var string
      */
     public $type;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description nextRouterInstanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description nexthopType
-     *
      * @var string
      */
     public $nextHopType;
 
     /**
-     * @description nextHopList.nextHopItems
-     *
      * @var nextHops
      */
     public $nextHops;

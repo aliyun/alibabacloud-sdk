@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class haVips extends Model
 {
     /**
-     * @description HaVip
-     *
      * @var array
      */
     public $haVip;

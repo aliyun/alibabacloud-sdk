@@ -9,85 +9,61 @@ use AlibabaCloud\Tea\Model;
 class dataDisk extends Model
 {
     /**
-     * @description size
-     *
      * @var int
      */
     public $size;
 
     /**
-     * @description snapshotId
-     *
      * @var string
      */
     public $snapshotId;
 
     /**
-     * @description category
-     *
      * @var string
      */
     public $category;
 
     /**
-     * @description encrypted
-     *
      * @var string
      */
     public $encrypted;
 
     /**
-     * @description kmsKeyId
-     *
      * @var string
      */
     public $KMSKeyId;
 
     /**
-     * @description diskName
-     *
      * @var string
      */
     public $diskName;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description device
-     *
      * @var string
      */
     public $device;
 
     /**
-     * @description deleteWithInstance
-     *
      * @var bool
      */
     public $deleteWithInstance;
 
     /**
-     * @description performanceLevel
-     *
      * @var string
      */
     public $performanceLevel;
 
     /**
-     * @description autoSnapshotPolicyId
-     *
      * @var string
      */
     public $autoSnapshotPolicyId;
 
     /**
-     * @description encryptAlgorithm
-     *
      * @var string
      */
     public $encryptAlgorithm;

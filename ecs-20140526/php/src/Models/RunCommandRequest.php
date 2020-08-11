@@ -9,149 +9,89 @@ use AlibabaCloud\Tea\Model;
 class RunCommandRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description type
-     *
      * @var string
      */
     public $type;
 
     /**
-     * @description commandContent
-     *
      * @var string
      */
     public $commandContent;
 
     /**
-     * @description workingDir
-     *
      * @var string
      */
     public $workingDir;
 
     /**
-     * @description timeout
-     *
      * @var int
      */
     public $timeout;
 
     /**
-     * @description enableParameter
-     *
      * @var bool
      */
     public $enableParameter;
 
     /**
-     * @description timed
-     *
      * @var bool
      */
     public $timed;
 
     /**
-     * @description frequency
-     *
      * @var string
      */
     public $frequency;
 
     /**
-     * @description instanceIds
-     *
      * @var array
      */
     public $instanceId;
 
     /**
-     * @description parameters
-     *
      * @var array
      */
     public $parameters;
 
     /**
-     * @description keepCommand
-     *
      * @var bool
      */
     public $keepCommand;
 
     /**
-     * @description contentEncoding
-     *
      * @var string
      */
     public $contentEncoding;
     protected $_name = [
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'ownerAccount'         => 'OwnerAccount',
-        'regionId'             => 'RegionId',
-        'name'                 => 'Name',
-        'description'          => 'Description',
-        'type'                 => 'Type',
-        'commandContent'       => 'CommandContent',
-        'workingDir'           => 'WorkingDir',
-        'timeout'              => 'Timeout',
-        'enableParameter'      => 'EnableParameter',
-        'timed'                => 'Timed',
-        'frequency'            => 'Frequency',
-        'instanceId'           => 'InstanceId',
-        'parameters'           => 'Parameters',
-        'keepCommand'          => 'KeepCommand',
-        'contentEncoding'      => 'ContentEncoding',
+        'regionId'        => 'RegionId',
+        'name'            => 'Name',
+        'description'     => 'Description',
+        'type'            => 'Type',
+        'commandContent'  => 'CommandContent',
+        'workingDir'      => 'WorkingDir',
+        'timeout'         => 'Timeout',
+        'enableParameter' => 'EnableParameter',
+        'timed'           => 'Timed',
+        'frequency'       => 'Frequency',
+        'instanceId'      => 'InstanceId',
+        'parameters'      => 'Parameters',
+        'keepCommand'     => 'KeepCommand',
+        'contentEncoding' => 'ContentEncoding',
     ];
 
     public function validate()
@@ -165,18 +105,6 @@ class RunCommandRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
@@ -208,10 +136,7 @@ class RunCommandRequest extends Model
             $res['Frequency'] = $this->frequency;
         }
         if (null !== $this->instanceId) {
-            $res['InstanceId'] = [];
-            if (null !== $this->instanceId) {
-                $res['InstanceId'] = $this->instanceId;
-            }
+            $res['InstanceId'] = $this->instanceId;
         }
         if (null !== $this->parameters) {
             $res['Parameters'] = $this->parameters;
@@ -234,18 +159,6 @@ class RunCommandRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
@@ -278,7 +191,6 @@ class RunCommandRequest extends Model
         }
         if (isset($map['InstanceId'])) {
             if (!empty($map['InstanceId'])) {
-                $model->instanceId = [];
                 $model->instanceId = $map['InstanceId'];
             }
         }

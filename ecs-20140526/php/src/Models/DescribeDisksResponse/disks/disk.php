@@ -12,274 +12,201 @@ use AlibabaCloud\Tea\Model;
 class disk extends Model
 {
     /**
-     * @description resourceId
-     *
      * @var string
      */
     public $diskId;
 
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description izNo
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description diskName
-     *
      * @var string
      */
     public $diskName;
 
     /**
-     * @description diskDesc
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description diskType
-     *
      * @var string
      */
     public $type;
 
     /**
-     * @description diskCategory
-     *
      * @var string
      */
     public $category;
 
     /**
-     * @description diskSize
-     *
      * @var int
      */
     public $size;
 
     /**
-     * @description imageNo
-     *
      * @var string
      */
     public $imageId;
 
     /**
-     * @description snapshotNo
-     *
      * @var string
      */
     public $sourceSnapshotId;
 
     /**
-     * @description autoSnapshotPolicyId
-     *
      * @var string
      */
     public $autoSnapshotPolicyId;
 
     /**
-     * @description productCode
-     *
      * @var string
      */
     public $productCode;
 
     /**
-     * @description portable
-     *
      * @var bool
      */
     public $portable;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description ecsInstanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description mountPoint
-     *
      * @var string
      */
     public $device;
 
     /**
-     * @description deleteWithInstance
-     *
      * @var bool
      */
     public $deleteWithInstance;
 
     /**
-     * @description deleteAutoSnapshot
-     *
      * @var bool
      */
     public $deleteAutoSnapshot;
 
     /**
-     * @description enableAutoSnapshot
-     *
      * @var bool
      */
     public $enableAutoSnapshot;
 
     /**
-     * @description enableAutomatedSnapshotPolicy
-     *
      * @var bool
      */
     public $enableAutomatedSnapshotPolicy;
 
     /**
-     * @description gmtCreate
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description lastAttachTime
-     *
      * @var string
      */
     public $attachedTime;
 
     /**
-     * @description lastDetachTime
-     *
      * @var string
      */
     public $detachedTime;
 
     /**
-     * @description diskChargeType
-     *
      * @var string
      */
     public $diskChargeType;
 
     /**
-     * @description expiredTime
-     *
      * @var string
      */
     public $expiredTime;
 
     /**
-     * @description resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
 
     /**
-     * @description encrypted
-     *
      * @var bool
      */
     public $encrypted;
 
     /**
-     * @description storageSetId
-     *
      * @var string
      */
     public $storageSetId;
 
     /**
-     * @description storageSetPartitionNumber
-     *
      * @var int
      */
     public $storageSetPartitionNumber;
 
     /**
-     * @description mountInstanceNum
-     *
      * @var int
      */
     public $mountInstanceNum;
 
     /**
-     * @description iops
-     *
      * @var int
      */
     public $IOPS;
 
     /**
-     * @description iopsRead
-     *
      * @var int
      */
     public $IOPSRead;
 
     /**
-     * @description iopsWrite
-     *
      * @var int
      */
     public $IOPSWrite;
 
     /**
-     * @description kmsKeyId
-     *
      * @var string
      */
     public $KMSKeyId;
 
     /**
-     * @description performanceLevel
-     *
      * @var string
      */
     public $performanceLevel;
 
     /**
-     * @description bdfId
-     *
      * @var string
      */
     public $bdfId;
 
     /**
-     * @description operationLockTypes
-     *
+     * @var string
+     */
+    public $serialNumber;
+
+    /**
      * @var operationLocks
      */
     public $operationLocks;
 
     /**
-     * @description mountInstances
-     *
      * @var mountInstances
      */
     public $mountInstances;
 
     /**
-     * @description tags
-     *
      * @var tags
      */
     public $tags;
@@ -320,6 +247,7 @@ class disk extends Model
         'KMSKeyId'                      => 'KMSKeyId',
         'performanceLevel'              => 'PerformanceLevel',
         'bdfId'                         => 'BdfId',
+        'serialNumber'                  => 'SerialNumber',
         'operationLocks'                => 'OperationLocks',
         'mountInstances'                => 'MountInstances',
         'tags'                          => 'Tags',
@@ -363,6 +291,7 @@ class disk extends Model
         Model::validateRequired('KMSKeyId', $this->KMSKeyId, true);
         Model::validateRequired('performanceLevel', $this->performanceLevel, true);
         Model::validateRequired('bdfId', $this->bdfId, true);
+        Model::validateRequired('serialNumber', $this->serialNumber, true);
         Model::validateRequired('operationLocks', $this->operationLocks, true);
         Model::validateRequired('mountInstances', $this->mountInstances, true);
         Model::validateRequired('tags', $this->tags, true);
@@ -478,6 +407,9 @@ class disk extends Model
         }
         if (null !== $this->bdfId) {
             $res['BdfId'] = $this->bdfId;
+        }
+        if (null !== $this->serialNumber) {
+            $res['SerialNumber'] = $this->serialNumber;
         }
         if (null !== $this->operationLocks) {
             $res['OperationLocks'] = null !== $this->operationLocks ? $this->operationLocks->toMap() : null;
@@ -607,6 +539,9 @@ class disk extends Model
         }
         if (isset($map['BdfId'])) {
             $model->bdfId = $map['BdfId'];
+        }
+        if (isset($map['SerialNumber'])) {
+            $model->serialNumber = $map['SerialNumber'];
         }
         if (isset($map['OperationLocks'])) {
             $model->operationLocks = operationLocks::fromMap($map['OperationLocks']);

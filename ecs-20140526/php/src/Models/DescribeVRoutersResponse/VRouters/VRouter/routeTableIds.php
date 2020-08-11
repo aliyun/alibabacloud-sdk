@@ -27,10 +27,7 @@ class routeTableIds extends Model
     {
         $res = [];
         if (null !== $this->routeTableId) {
-            $res['RouteTableId'] = [];
-            if (null !== $this->routeTableId) {
-                $res['RouteTableId'] = $this->routeTableId;
-            }
+            $res['RouteTableId'] = $this->routeTableId;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class routeTableIds extends Model
         $model = new self();
         if (isset($map['RouteTableId'])) {
             if (!empty($map['RouteTableId'])) {
-                $model->routeTableId = [];
                 $model->routeTableId = $map['RouteTableId'];
             }
         }

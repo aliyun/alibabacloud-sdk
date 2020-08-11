@@ -10,43 +10,31 @@ use AlibabaCloud\Tea\Model;
 class DescribeDeploymentSetsResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description data.total
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description data.pageNo
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description data.pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description data.data
-     *
      * @var deploymentSets
      */
     public $deploymentSets;

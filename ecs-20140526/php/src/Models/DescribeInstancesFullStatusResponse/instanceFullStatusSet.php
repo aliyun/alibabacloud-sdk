@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class instanceFullStatusSet extends Model
 {
     /**
-     * @description InstanceFullStatusType
-     *
      * @var array
      */
     public $instanceFullStatusType;

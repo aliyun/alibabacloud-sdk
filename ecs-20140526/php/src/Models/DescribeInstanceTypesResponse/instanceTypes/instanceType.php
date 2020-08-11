@@ -9,155 +9,111 @@ use AlibabaCloud\Tea\Model;
 class instanceType extends Model
 {
     /**
-     * @description instanceType
-     *
      * @var string
      */
     public $instanceTypeId;
 
     /**
-     * @description cores
-     *
      * @var int
      */
     public $cpuCoreCount;
 
     /**
-     * @description memGB
-     *
      * @var float
      */
     public $memorySize;
 
     /**
-     * @description instanceTypeFamily
-     *
      * @var string
      */
     public $instanceTypeFamily;
 
     /**
-     * @description diskSize
-     *
      * @var int
      */
     public $localStorageCapacity;
 
     /**
-     * @description diskNum
-     *
      * @var int
      */
     public $localStorageAmount;
 
     /**
-     * @description dataDiskCategory
-     *
      * @var string
      */
     public $localStorageCategory;
 
     /**
-     * @description gpuAmount
-     *
      * @var int
      */
     public $GPUAmount;
 
     /**
-     * @description gpuSpec
-     *
      * @var string
      */
     public $GPUSpec;
 
     /**
-     * @description initCredit
-     *
      * @var int
      */
     public $initialCredit;
 
     /**
-     * @description baseline
-     *
      * @var int
      */
     public $baselineCredit;
 
     /**
-     * @description eniQuantity
-     *
      * @var int
      */
     public $eniQuantity;
 
     /**
-     * @description eniPrivateIpQuantity
-     *
      * @var int
      */
     public $eniPrivateIpAddressQuantity;
 
     /**
-     * @description eniIpv6Quantity
-     *
      * @var int
      */
     public $eniIpv6AddressQuantity;
 
     /**
-     * @description vmBandwidthTx
-     *
      * @var int
      */
     public $instanceBandwidthRx;
 
     /**
-     * @description vmBandwidthRx
-     *
      * @var int
      */
     public $instanceBandwidthTx;
 
     /**
-     * @description privateRxPps
-     *
      * @var int
      */
     public $instancePpsRx;
 
     /**
-     * @description privateTxPps
-     *
      * @var int
      */
     public $instancePpsTx;
 
     /**
-     * @description instanceFamilyLevel
-     *
      * @var string
      */
     public $instanceFamilyLevel;
 
     /**
-     * @description eniQueueQuota
-     *
      * @var int
      */
     public $totalEniQueueQuantity;
 
     /**
-     * @description eniTrunkEnabled
-     *
      * @var bool
      */
     public $eniTrunkSupported;
 
     /**
-     * @description eniVportQuota
-     *
      * @var int
      */
     public $eniTotalQuantity;

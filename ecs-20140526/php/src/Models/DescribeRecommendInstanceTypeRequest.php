@@ -9,157 +9,95 @@ use AlibabaCloud\Tea\Model;
 class DescribeRecommendInstanceTypeRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description cores
-     *
      * @var int
      */
     public $cores;
 
     /**
-     * @description memory
-     *
      * @var float
      */
     public $memory;
 
     /**
-     * @description instanceFamilyLevel
-     *
      * @var string
      */
     public $instanceFamilyLevel;
 
     /**
-     * @description instanceType
-     *
      * @var string
      */
     public $instanceType;
 
     /**
-     * @description networkType
-     *
      * @var string
      */
     public $networkType;
 
     /**
-     * @description chargeType
-     *
      * @var string
      */
     public $instanceChargeType;
 
     /**
-     * @description spotStrategy
-     *
      * @var string
      */
     public $spotStrategy;
 
     /**
-     * @description ioOptimized
-     *
      * @var string
      */
     public $ioOptimized;
 
     /**
-     * @description supportInstanceTypeFamilies
-     *
      * @var array
      */
     public $instanceTypeFamily;
 
     /**
-     * @description priorityStrategy
-     *
      * @var string
      */
     public $priorityStrategy;
 
     /**
-     * @description maxPrice
-     *
      * @var float
      */
     public $maxPrice;
 
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description zoneId
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description systemDiskCategory
-     *
      * @var string
      */
     public $systemDiskCategory;
 
     /**
-     * @description scene
-     *
      * @var string
      */
     public $scene;
     protected $_name = [
-        'ownerId'              => 'OwnerId',
-        'ownerAccount'         => 'OwnerAccount',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'cores'                => 'Cores',
-        'memory'               => 'Memory',
-        'instanceFamilyLevel'  => 'InstanceFamilyLevel',
-        'instanceType'         => 'InstanceType',
-        'networkType'          => 'NetworkType',
-        'instanceChargeType'   => 'InstanceChargeType',
-        'spotStrategy'         => 'SpotStrategy',
-        'ioOptimized'          => 'IoOptimized',
-        'instanceTypeFamily'   => 'InstanceTypeFamily',
-        'priorityStrategy'     => 'PriorityStrategy',
-        'maxPrice'             => 'MaxPrice',
-        'regionId'             => 'RegionId',
-        'zoneId'               => 'ZoneId',
-        'systemDiskCategory'   => 'SystemDiskCategory',
-        'scene'                => 'Scene',
+        'cores'               => 'Cores',
+        'memory'              => 'Memory',
+        'instanceFamilyLevel' => 'InstanceFamilyLevel',
+        'instanceType'        => 'InstanceType',
+        'networkType'         => 'NetworkType',
+        'instanceChargeType'  => 'InstanceChargeType',
+        'spotStrategy'        => 'SpotStrategy',
+        'ioOptimized'         => 'IoOptimized',
+        'instanceTypeFamily'  => 'InstanceTypeFamily',
+        'priorityStrategy'    => 'PriorityStrategy',
+        'maxPrice'            => 'MaxPrice',
+        'regionId'            => 'RegionId',
+        'zoneId'              => 'ZoneId',
+        'systemDiskCategory'  => 'SystemDiskCategory',
+        'scene'               => 'Scene',
     ];
 
     public function validate()
@@ -171,18 +109,6 @@ class DescribeRecommendInstanceTypeRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->cores) {
             $res['Cores'] = $this->cores;
         }
@@ -208,10 +134,7 @@ class DescribeRecommendInstanceTypeRequest extends Model
             $res['IoOptimized'] = $this->ioOptimized;
         }
         if (null !== $this->instanceTypeFamily) {
-            $res['InstanceTypeFamily'] = [];
-            if (null !== $this->instanceTypeFamily) {
-                $res['InstanceTypeFamily'] = $this->instanceTypeFamily;
-            }
+            $res['InstanceTypeFamily'] = $this->instanceTypeFamily;
         }
         if (null !== $this->priorityStrategy) {
             $res['PriorityStrategy'] = $this->priorityStrategy;
@@ -243,18 +166,6 @@ class DescribeRecommendInstanceTypeRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['Cores'])) {
             $model->cores = $map['Cores'];
         }
@@ -281,7 +192,6 @@ class DescribeRecommendInstanceTypeRequest extends Model
         }
         if (isset($map['InstanceTypeFamily'])) {
             if (!empty($map['InstanceTypeFamily'])) {
-                $model->instanceTypeFamily = [];
                 $model->instanceTypeFamily = $map['InstanceTypeFamily'];
             }
         }

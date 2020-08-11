@@ -27,10 +27,7 @@ class bandwidthPackageIds extends Model
     {
         $res = [];
         if (null !== $this->bandwidthPackageId) {
-            $res['BandwidthPackageId'] = [];
-            if (null !== $this->bandwidthPackageId) {
-                $res['BandwidthPackageId'] = $this->bandwidthPackageId;
-            }
+            $res['BandwidthPackageId'] = $this->bandwidthPackageId;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class bandwidthPackageIds extends Model
         $model = new self();
         if (isset($map['BandwidthPackageId'])) {
             if (!empty($map['BandwidthPackageId'])) {
-                $model->bandwidthPackageId = [];
                 $model->bandwidthPackageId = $map['BandwidthPackageId'];
             }
         }

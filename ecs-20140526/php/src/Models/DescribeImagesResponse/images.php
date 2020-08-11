@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class images extends Model
 {
     /**
-     * @description Image
-     *
      * @var array
      */
     public $image;

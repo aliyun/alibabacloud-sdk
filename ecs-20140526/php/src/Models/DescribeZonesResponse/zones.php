@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class zones extends Model
 {
     /**
-     * @description Zone
-     *
      * @var array
      */
     public $zone;

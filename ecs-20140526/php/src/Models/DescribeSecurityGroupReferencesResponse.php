@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeSecurityGroupReferencesResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.groupReferences
-     *
      * @var securityGroupReferences
      */
     public $securityGroupReferences;

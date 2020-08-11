@@ -27,10 +27,7 @@ class associatedInstances extends Model
     {
         $res = [];
         if (null !== $this->associatedInstance) {
-            $res['associatedInstance'] = [];
-            if (null !== $this->associatedInstance) {
-                $res['associatedInstance'] = $this->associatedInstance;
-            }
+            $res['associatedInstance'] = $this->associatedInstance;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class associatedInstances extends Model
         $model = new self();
         if (isset($map['associatedInstance'])) {
             if (!empty($map['associatedInstance'])) {
-                $model->associatedInstance = [];
                 $model->associatedInstance = $map['associatedInstance'];
             }
         }

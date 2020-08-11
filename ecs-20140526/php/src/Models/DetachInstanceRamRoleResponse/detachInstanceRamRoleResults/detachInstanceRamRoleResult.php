@@ -10,36 +10,26 @@ use AlibabaCloud\Tea\Model;
 class detachInstanceRamRoleResult extends Model
 {
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description isSuccess
-     *
      * @var bool
      */
     public $success;
 
     /**
-     * @description code
-     *
      * @var string
      */
     public $code;
 
     /**
-     * @description message
-     *
      * @var string
      */
     public $message;
 
     /**
-     * @description instanceRamRoleInfoModel
-     *
      * @var instanceRamRoleSets
      */
     public $instanceRamRoleSets;

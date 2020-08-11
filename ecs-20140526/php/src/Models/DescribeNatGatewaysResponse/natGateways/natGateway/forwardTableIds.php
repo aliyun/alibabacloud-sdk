@@ -27,10 +27,7 @@ class forwardTableIds extends Model
     {
         $res = [];
         if (null !== $this->forwardTableId) {
-            $res['ForwardTableId'] = [];
-            if (null !== $this->forwardTableId) {
-                $res['ForwardTableId'] = $this->forwardTableId;
-            }
+            $res['ForwardTableId'] = $this->forwardTableId;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class forwardTableIds extends Model
         $model = new self();
         if (isset($map['ForwardTableId'])) {
             if (!empty($map['ForwardTableId'])) {
-                $model->forwardTableId = [];
                 $model->forwardTableId = $map['ForwardTableId'];
             }
         }

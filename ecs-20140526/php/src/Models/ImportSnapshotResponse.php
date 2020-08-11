@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class ImportSnapshotResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.taskId
-     *
      * @var string
      */
     public $taskId;
 
     /**
-     * @description data.data
-     *
      * @var string
      */
     public $snapshotId;

@@ -4,224 +4,147 @@
 
 namespace AlibabaCloud\SDK\Ecs\V20140526\Models;
 
+use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeDisksRequest\filter;
 use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeDisksRequest\tag;
 use AlibabaCloud\Tea\Model;
 
 class DescribeDisksRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description izNo
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description instanceIds
-     *
      * @var string
      */
     public $diskIds;
 
     /**
-     * @description ecsInstanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description diskType
-     *
      * @var string
      */
     public $diskType;
 
     /**
-     * @description diskCategory
-     *
      * @var string
      */
     public $category;
 
     /**
-     * @description diskStatus
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description snapshotNo
-     *
      * @var string
      */
     public $snapshotId;
 
     /**
-     * @description portable
-     *
      * @var bool
      */
     public $portable;
 
     /**
-     * @description deleteWithInstance
-     *
      * @var bool
      */
     public $deleteWithInstance;
 
     /**
-     * @description deleteAutoSnapshot
-     *
      * @var bool
      */
     public $deleteAutoSnapshot;
 
     /**
-     * @description pageNo
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description fuzzyDiskName
-     *
      * @var string
      */
     public $diskName;
 
     /**
-     * @description autoSnapshotPolicyId
-     *
      * @var string
      */
     public $autoSnapshotPolicyId;
 
     /**
-     * @description enableAutoSnapshot
-     *
      * @var bool
      */
     public $enableAutoSnapshot;
 
     /**
-     * @description enableAutomatedSnapshotPolicy
-     *
      * @var bool
      */
     public $enableAutomatedSnapshotPolicy;
 
     /**
-     * @description diskChargeType
-     *
      * @var string
      */
     public $diskChargeType;
 
     /**
-     * @description lockReason
-     *
      * @var string
      */
     public $lockReason;
 
     /**
-     * @description tagKeyValueParams
-     *
+     * @var array
+     */
+    public $filter;
+
+    /**
      * @var array
      */
     public $tag;
 
     /**
-     * @description resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
 
     /**
-     * @description enableShared
-     *
      * @var bool
      */
     public $enableShared;
 
     /**
-     * @description encrypted
-     *
      * @var bool
      */
     public $encrypted;
 
     /**
-     * @description additionalAttributes
-     *
      * @var array
      */
     public $additionalAttributes;
 
     /**
-     * @description dryRun
-     *
      * @var bool
      */
     public $dryRun;
 
     /**
-     * @description kmsKeyId
-     *
      * @var string
      */
     public $KMSKeyId;
     protected $_name = [
-        'ownerId'                       => 'OwnerId',
-        'resourceOwnerAccount'          => 'ResourceOwnerAccount',
-        'resourceOwnerId'               => 'ResourceOwnerId',
         'regionId'                      => 'RegionId',
         'zoneId'                        => 'ZoneId',
         'diskIds'                       => 'DiskIds',
@@ -235,13 +158,13 @@ class DescribeDisksRequest extends Model
         'deleteAutoSnapshot'            => 'DeleteAutoSnapshot',
         'pageNumber'                    => 'PageNumber',
         'pageSize'                      => 'PageSize',
-        'ownerAccount'                  => 'OwnerAccount',
         'diskName'                      => 'DiskName',
         'autoSnapshotPolicyId'          => 'AutoSnapshotPolicyId',
         'enableAutoSnapshot'            => 'EnableAutoSnapshot',
         'enableAutomatedSnapshotPolicy' => 'EnableAutomatedSnapshotPolicy',
         'diskChargeType'                => 'DiskChargeType',
         'lockReason'                    => 'LockReason',
+        'filter'                        => 'Filter',
         'tag'                           => 'Tag',
         'resourceGroupId'               => 'ResourceGroupId',
         'enableShared'                  => 'EnableShared',
@@ -259,15 +182,6 @@ class DescribeDisksRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
@@ -307,9 +221,6 @@ class DescribeDisksRequest extends Model
         if (null !== $this->pageSize) {
             $res['PageSize'] = $this->pageSize;
         }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->diskName) {
             $res['DiskName'] = $this->diskName;
         }
@@ -327,6 +238,15 @@ class DescribeDisksRequest extends Model
         }
         if (null !== $this->lockReason) {
             $res['LockReason'] = $this->lockReason;
+        }
+        if (null !== $this->filter) {
+            $res['Filter'] = [];
+            if (null !== $this->filter && \is_array($this->filter)) {
+                $n = 0;
+                foreach ($this->filter as $item) {
+                    $res['Filter'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
+            }
         }
         if (null !== $this->tag) {
             $res['Tag'] = [];
@@ -347,10 +267,7 @@ class DescribeDisksRequest extends Model
             $res['Encrypted'] = $this->encrypted;
         }
         if (null !== $this->additionalAttributes) {
-            $res['AdditionalAttributes'] = [];
-            if (null !== $this->additionalAttributes) {
-                $res['AdditionalAttributes'] = $this->additionalAttributes;
-            }
+            $res['AdditionalAttributes'] = $this->additionalAttributes;
         }
         if (null !== $this->dryRun) {
             $res['DryRun'] = $this->dryRun;
@@ -370,15 +287,6 @@ class DescribeDisksRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
@@ -418,9 +326,6 @@ class DescribeDisksRequest extends Model
         if (isset($map['PageSize'])) {
             $model->pageSize = $map['PageSize'];
         }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
         if (isset($map['DiskName'])) {
             $model->diskName = $map['DiskName'];
         }
@@ -438,6 +343,15 @@ class DescribeDisksRequest extends Model
         }
         if (isset($map['LockReason'])) {
             $model->lockReason = $map['LockReason'];
+        }
+        if (isset($map['Filter'])) {
+            if (!empty($map['Filter'])) {
+                $model->filter = [];
+                $n             = 0;
+                foreach ($map['Filter'] as $item) {
+                    $model->filter[$n++] = null !== $item ? filter::fromMap($item) : $item;
+                }
+            }
         }
         if (isset($map['Tag'])) {
             if (!empty($map['Tag'])) {
@@ -459,7 +373,6 @@ class DescribeDisksRequest extends Model
         }
         if (isset($map['AdditionalAttributes'])) {
             if (!empty($map['AdditionalAttributes'])) {
-                $model->additionalAttributes = [];
                 $model->additionalAttributes = $map['AdditionalAttributes'];
             }
         }

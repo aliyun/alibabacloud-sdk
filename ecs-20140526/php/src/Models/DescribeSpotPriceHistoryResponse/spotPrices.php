@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class spotPrices extends Model
 {
     /**
-     * @description SpotPriceType
-     *
      * @var array
      */
     public $spotPriceType;

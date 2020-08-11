@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class cluster extends Model
 {
     /**
-     * @description zoneNo
-     *
      * @var string
      */
     public $clusterId;

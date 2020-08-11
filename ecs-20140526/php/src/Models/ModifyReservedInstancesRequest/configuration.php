@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class configuration extends Model
 {
     /**
-     * @description izNo
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description riName
-     *
      * @var string
      */
     public $reservedInstanceName;
 
     /**
-     * @description instanceType
-     *
      * @var string
      */
     public $instanceType;
 
     /**
-     * @description scope
-     *
      * @var string
      */
     public $scope;
 
     /**
-     * @description instanceAmount
-     *
      * @var int
      */
     public $instanceAmount;

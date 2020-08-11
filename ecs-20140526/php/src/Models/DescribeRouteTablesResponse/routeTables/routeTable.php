@@ -10,43 +10,31 @@ use AlibabaCloud\Tea\Model;
 class routeTable extends Model
 {
     /**
-     * @description vRouterTable.routerInstanceId
-     *
      * @var string
      */
     public $VRouterId;
 
     /**
-     * @description vRouterTable.instanceId
-     *
      * @var string
      */
     public $routeTableId;
 
     /**
-     * @description vRouterTable.type
-     *
      * @var string
      */
     public $routeTableType;
 
     /**
-     * @description gmtCreated
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description vRouterTable.resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
 
     /**
-     * @description vRouterTable.vRouterEntrys
-     *
      * @var routeEntrys
      */
     public $routeEntrys;

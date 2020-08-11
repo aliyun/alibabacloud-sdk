@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeDedicatedHostTypesResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var dedicatedHostTypes
      */
     public $dedicatedHostTypes;

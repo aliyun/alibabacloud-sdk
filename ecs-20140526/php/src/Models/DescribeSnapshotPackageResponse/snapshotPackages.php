@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class snapshotPackages extends Model
 {
     /**
-     * @description SnapshotPackage
-     *
      * @var array
      */
     public $snapshotPackage;

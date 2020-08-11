@@ -10,134 +10,96 @@ use AlibabaCloud\Tea\Model;
 class demand extends Model
 {
     /**
-     * @description zoneId
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description demandTime
-     *
      * @var string
      */
     public $demandTime;
 
     /**
-     * @description instanceTypeFamily
-     *
      * @var string
      */
     public $instanceTypeFamily;
 
     /**
-     * @description demandId
-     *
      * @var string
      */
     public $demandId;
 
     /**
-     * @description demandName
-     *
      * @var string
      */
     public $demandName;
 
     /**
-     * @description comment
-     *
      * @var string
      */
     public $comment;
 
     /**
-     * @description demandDescription
-     *
      * @var string
      */
     public $demandDescription;
 
     /**
-     * @description instanceType
-     *
      * @var string
      */
     public $instanceType;
 
     /**
-     * @description instanceChargeType
-     *
      * @var string
      */
     public $instanceChargeType;
 
     /**
-     * @description payDuration
-     *
      * @var int
      */
     public $period;
 
     /**
-     * @description payUnit
-     *
      * @var string
      */
     public $periodUnit;
 
     /**
-     * @description startTime
-     *
      * @var string
      */
     public $startTime;
 
     /**
-     * @description endTime
-     *
      * @var string
      */
     public $endTime;
 
     /**
-     * @description demandStatus
-     *
      * @var string
      */
     public $demandStatus;
 
     /**
-     * @description totalAmount
-     *
      * @var int
      */
     public $totalAmount;
 
     /**
-     * @description availableAmount
-     *
      * @var int
      */
     public $availableAmount;
 
     /**
-     * @description usedAmount
-     *
      * @var int
      */
     public $usedAmount;
 
     /**
-     * @description deliveringAmount
-     *
      * @var int
      */
     public $deliveringAmount;
 
     /**
-     * @description demandSupplyList
-     *
      * @var supplyInfos
      */
     public $supplyInfos;

@@ -27,10 +27,7 @@ class supportedInstanceTypesList extends Model
     {
         $res = [];
         if (null !== $this->supportedInstanceTypesList) {
-            $res['SupportedInstanceTypesList'] = [];
-            if (null !== $this->supportedInstanceTypesList) {
-                $res['SupportedInstanceTypesList'] = $this->supportedInstanceTypesList;
-            }
+            $res['SupportedInstanceTypesList'] = $this->supportedInstanceTypesList;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class supportedInstanceTypesList extends Model
         $model = new self();
         if (isset($map['SupportedInstanceTypesList'])) {
             if (!empty($map['SupportedInstanceTypesList'])) {
-                $model->supportedInstanceTypesList = [];
                 $model->supportedInstanceTypesList = $map['SupportedInstanceTypesList'];
             }
         }

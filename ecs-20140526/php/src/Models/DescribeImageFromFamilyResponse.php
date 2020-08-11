@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeImageFromFamilyResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var image
      */
     public $image;

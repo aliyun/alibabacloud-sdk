@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class CreateLaunchTemplateVersionResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var int
      */
     public $launchTemplateVersionNumber;

@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class diskDeviceMappings extends Model
 {
     /**
-     * @description DiskDeviceMapping
-     *
      * @var array
      */
     public $diskDeviceMapping;

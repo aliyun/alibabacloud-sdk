@@ -27,10 +27,7 @@ class instanceIds extends Model
     {
         $res = [];
         if (null !== $this->instanceId) {
-            $res['InstanceId'] = [];
-            if (null !== $this->instanceId) {
-                $res['InstanceId'] = $this->instanceId;
-            }
+            $res['InstanceId'] = $this->instanceId;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class instanceIds extends Model
         $model = new self();
         if (isset($map['InstanceId'])) {
             if (!empty($map['InstanceId'])) {
-                $model->instanceId = [];
                 $model->instanceId = $map['InstanceId'];
             }
         }

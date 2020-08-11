@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class networkAttributes extends Model
 {
     /**
-     * @description slbUdpTimeout
-     *
      * @var int
      */
     public $slbUdpTimeout;
 
     /**
-     * @description udpTimeout
-     *
      * @var int
      */
     public $udpTimeout;

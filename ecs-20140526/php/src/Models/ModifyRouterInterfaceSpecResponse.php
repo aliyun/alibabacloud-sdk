@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class ModifyRouterInterfaceSpecResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.spec
-     *
      * @var string
      */
     public $spec;

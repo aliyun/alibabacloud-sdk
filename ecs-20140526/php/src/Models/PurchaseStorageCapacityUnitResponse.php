@@ -10,22 +10,16 @@ use AlibabaCloud\Tea\Model;
 class PurchaseStorageCapacityUnitResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.orderId
-     *
      * @var string
      */
     public $orderId;
 
     /**
-     * @description data.reservedDiskIds
-     *
      * @var storageCapacityUnitIds
      */
     public $storageCapacityUnitIds;

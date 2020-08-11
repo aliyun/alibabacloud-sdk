@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class eipMonitorDatas extends Model
 {
     /**
-     * @description EipMonitorData
-     *
      * @var array
      */
     public $eipMonitorData;

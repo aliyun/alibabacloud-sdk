@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class nextHop extends Model
 {
     /**
-     * @description nextHopType
-     *
      * @var string
      */
     public $nextHopType;
 
     /**
-     * @description nextHopId
-     *
      * @var string
      */
     public $nextHopId;
 
     /**
-     * @description enabled
-     *
      * @var int
      */
     public $enabled;
 
     /**
-     * @description weight
-     *
      * @var int
      */
     public $weight;

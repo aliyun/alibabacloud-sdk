@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class snapshotPackage extends Model
 {
     /**
-     * @description startTime
-     *
      * @var string
      */
     public $startTime;
 
     /**
-     * @description endTime
-     *
      * @var string
      */
     public $endTime;
 
     /**
-     * @description initCapacity
-     *
      * @var int
      */
     public $initCapacity;
 
     /**
-     * @description displayName
-     *
      * @var string
      */
     public $displayName;

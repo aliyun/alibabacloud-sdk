@@ -9,101 +9,53 @@ use AlibabaCloud\Tea\Model;
 class DescribeRouteTablesRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description routerInstanceId
-     *
      * @var string
      */
     public $VRouterId;
 
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $routeTableId;
 
     /**
-     * @description routerType
-     *
      * @var string
      */
     public $routerType;
 
     /**
-     * @description routerId
-     *
      * @var string
      */
     public $routerId;
 
     /**
-     * @description routeTableName
-     *
      * @var string
      */
     public $routeTableName;
 
     /**
-     * @description pageNo
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
     protected $_name = [
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'regionId'             => 'RegionId',
-        'VRouterId'            => 'VRouterId',
-        'routeTableId'         => 'RouteTableId',
-        'routerType'           => 'RouterType',
-        'routerId'             => 'RouterId',
-        'routeTableName'       => 'RouteTableName',
-        'pageNumber'           => 'PageNumber',
-        'pageSize'             => 'PageSize',
-        'ownerAccount'         => 'OwnerAccount',
+        'regionId'       => 'RegionId',
+        'VRouterId'      => 'VRouterId',
+        'routeTableId'   => 'RouteTableId',
+        'routerType'     => 'RouterType',
+        'routerId'       => 'RouterId',
+        'routeTableName' => 'RouteTableName',
+        'pageNumber'     => 'PageNumber',
+        'pageSize'       => 'PageSize',
     ];
 
     public function validate()
@@ -113,15 +65,6 @@ class DescribeRouteTablesRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
@@ -146,9 +89,6 @@ class DescribeRouteTablesRequest extends Model
         if (null !== $this->pageSize) {
             $res['PageSize'] = $this->pageSize;
         }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
 
         return $res;
     }
@@ -161,15 +101,6 @@ class DescribeRouteTablesRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
@@ -193,9 +124,6 @@ class DescribeRouteTablesRequest extends Model
         }
         if (isset($map['PageSize'])) {
             $model->pageSize = $map['PageSize'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
         }
 
         return $model;

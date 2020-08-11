@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class eipAddresses extends Model
 {
     /**
-     * @description EipAddress
-     *
      * @var array
      */
     public $eipAddress;

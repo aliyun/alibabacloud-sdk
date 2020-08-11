@@ -10,29 +10,21 @@ use AlibabaCloud\Tea\Model;
 class operationProgress extends Model
 {
     /**
-     * @description operationStatus
-     *
      * @var string
      */
     public $operationStatus;
 
     /**
-     * @description errorCode
-     *
      * @var string
      */
     public $errorCode;
 
     /**
-     * @description errorMsg
-     *
      * @var string
      */
     public $errorMsg;
 
     /**
-     * @description relatedItemSet
-     *
      * @var relatedItemSet
      */
     public $relatedItemSet;

@@ -9,85 +9,61 @@ use AlibabaCloud\Tea\Model;
 class instance extends Model
 {
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description izNo
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description cores
-     *
      * @var int
      */
     public $CPU;
 
     /**
-     * @description memory
-     *
      * @var int
      */
     public $memory;
 
     /**
-     * @description instanceType
-     *
      * @var string
      */
     public $instanceType;
 
     /**
-     * @description isSpot
-     *
      * @var bool
      */
     public $isSpot;
 
     /**
-     * @description ioOptimized
-     *
      * @var bool
      */
     public $ioOptimized;
 
     /**
-     * @description networkType
-     *
      * @var string
      */
     public $networkType;
 
     /**
-     * @description osType
-     *
      * @var string
      */
     public $osType;
 
     /**
-     * @description gmtCreated
-     *
      * @var string
      */
     public $creationTime;

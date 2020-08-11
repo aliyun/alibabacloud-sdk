@@ -9,43 +9,31 @@ use AlibabaCloud\Tea\Model;
 class task extends Model
 {
     /**
-     * @description taskId
-     *
      * @var string
      */
     public $taskId;
 
     /**
-     * @description taskAction
-     *
      * @var string
      */
     public $taskAction;
 
     /**
-     * @description taskStatus
-     *
      * @var string
      */
     public $taskStatus;
 
     /**
-     * @description supportCancel
-     *
      * @var string
      */
     public $supportCancel;
 
     /**
-     * @description creationTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description finishedTime
-     *
      * @var string
      */
     public $finishedTime;

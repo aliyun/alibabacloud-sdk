@@ -4,34 +4,32 @@
 
 namespace AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeVSwitchesResponse;
 
-use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeVSwitchesResponse\VSwitches\VSwitch;
+use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeVSwitchesResponse\vSwitches\vSwitch;
 use AlibabaCloud\Tea\Model;
 
-class VSwitches extends Model
+class vSwitches extends Model
 {
     /**
-     * @description VSwitch
-     *
      * @var array
      */
-    public $VSwitch;
+    public $vSwitch;
     protected $_name = [
-        'VSwitch' => 'VSwitch',
+        'vSwitch' => 'VSwitch',
     ];
 
     public function validate()
     {
-        Model::validateRequired('VSwitch', $this->VSwitch, true);
+        Model::validateRequired('vSwitch', $this->vSwitch, true);
     }
 
     public function toMap()
     {
         $res = [];
-        if (null !== $this->VSwitch) {
+        if (null !== $this->vSwitch) {
             $res['VSwitch'] = [];
-            if (null !== $this->VSwitch && \is_array($this->VSwitch)) {
+            if (null !== $this->vSwitch && \is_array($this->vSwitch)) {
                 $n = 0;
-                foreach ($this->VSwitch as $item) {
+                foreach ($this->vSwitch as $item) {
                     $res['VSwitch'][$n++] = null !== $item ? $item->toMap() : $item;
                 }
             }
@@ -43,17 +41,17 @@ class VSwitches extends Model
     /**
      * @param array $map
      *
-     * @return VSwitches
+     * @return vSwitches
      */
     public static function fromMap($map = [])
     {
         $model = new self();
         if (isset($map['VSwitch'])) {
             if (!empty($map['VSwitch'])) {
-                $model->VSwitch = [];
+                $model->vSwitch = [];
                 $n              = 0;
                 foreach ($map['VSwitch'] as $item) {
-                    $model->VSwitch[$n++] = null !== $item ? VSwitch::fromMap($item) : $item;
+                    $model->vSwitch[$n++] = null !== $item ? vSwitch::fromMap($item) : $item;
                 }
             }
         }

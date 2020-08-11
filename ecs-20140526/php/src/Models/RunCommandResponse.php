@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class RunCommandResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.commandId
-     *
      * @var string
      */
     public $commandId;
 
     /**
-     * @description data.taskId
-     *
      * @var string
      */
     public $invokeId;

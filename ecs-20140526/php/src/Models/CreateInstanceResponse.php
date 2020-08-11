@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class CreateInstanceResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description data.lxOrderResult.tradeAmount
-     *
      * @var float
      */
     public $tradePrice;

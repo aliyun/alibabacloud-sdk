@@ -10,22 +10,16 @@ use AlibabaCloud\Tea\Model;
 class DescribeEniMonitorDataResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.count
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description data
-     *
      * @var monitorData
      */
     public $monitorData;

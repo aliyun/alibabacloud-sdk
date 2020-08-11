@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class networkInterfacePermissions extends Model
 {
     /**
-     * @description NetworkInterfacePermission
-     *
      * @var array
      */
     public $networkInterfacePermission;

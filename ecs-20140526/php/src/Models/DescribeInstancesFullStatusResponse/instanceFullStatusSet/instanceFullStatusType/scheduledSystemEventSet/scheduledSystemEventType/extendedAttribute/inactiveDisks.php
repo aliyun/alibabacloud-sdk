@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class inactiveDisks extends Model
 {
     /**
-     * @description InactiveDisk
-     *
      * @var array
      */
     public $inactiveDisk;

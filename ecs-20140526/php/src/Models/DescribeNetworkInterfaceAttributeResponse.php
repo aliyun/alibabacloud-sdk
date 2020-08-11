@@ -15,169 +15,121 @@ use AlibabaCloud\Tea\Model;
 class DescribeNetworkInterfaceAttributeResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.instanceId
-     *
      * @var string
      */
     public $networkInterfaceId;
 
     /**
-     * @description data.status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description data.type
-     *
      * @var string
      */
     public $type;
 
     /**
-     * @description data.vpcId
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description data.vswitchId
-     *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
 
     /**
-     * @description data.zoneId
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description data.primaryPrivateIpAddress
-     *
      * @var string
      */
     public $privateIpAddress;
 
     /**
-     * @description data.macAddress
-     *
      * @var string
      */
     public $macAddress;
 
     /**
-     * @description data.eniName
-     *
      * @var string
      */
     public $networkInterfaceName;
 
     /**
-     * @description data.eniDescription
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description data.ecsInstanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description data.uTCCreateTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description data.resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
 
     /**
-     * @description data.serviceID
-     *
      * @var int
      */
     public $serviceID;
 
     /**
-     * @description data.serviceManaged
-     *
      * @var bool
      */
     public $serviceManaged;
 
     /**
-     * @description data.queueNumber
-     *
      * @var int
      */
     public $queueNumber;
 
     /**
-     * @description data.aliUid
-     *
      * @var string
      */
     public $ownerId;
 
     /**
-     * @description data.eniPrivateIpList
-     *
      * @var privateIpSets
      */
     public $privateIpSets;
 
     /**
-     * @description data.eniIpv6List
-     *
      * @var ipv6Sets
      */
     public $ipv6Sets;
 
     /**
-     * @description data.tags
-     *
      * @var tags
      */
     public $tags;
 
     /**
-     * @description data.primaryAssociatedPublicIp
-     *
      * @var associatedPublicIp
      */
     public $associatedPublicIp;
 
     /**
-     * @description data.attachment
-     *
      * @var attachment
      */
     public $attachment;
 
     /**
-     * @description data.securityGroupIds
-     *
      * @var securityGroupIds
      */
     public $securityGroupIds;
@@ -187,7 +139,7 @@ class DescribeNetworkInterfaceAttributeResponse extends Model
         'status'               => 'Status',
         'type'                 => 'Type',
         'vpcId'                => 'VpcId',
-        'VSwitchId'            => 'VSwitchId',
+        'vSwitchId'            => 'VSwitchId',
         'zoneId'               => 'ZoneId',
         'privateIpAddress'     => 'PrivateIpAddress',
         'macAddress'           => 'MacAddress',
@@ -215,7 +167,7 @@ class DescribeNetworkInterfaceAttributeResponse extends Model
         Model::validateRequired('status', $this->status, true);
         Model::validateRequired('type', $this->type, true);
         Model::validateRequired('vpcId', $this->vpcId, true);
-        Model::validateRequired('VSwitchId', $this->VSwitchId, true);
+        Model::validateRequired('vSwitchId', $this->vSwitchId, true);
         Model::validateRequired('zoneId', $this->zoneId, true);
         Model::validateRequired('privateIpAddress', $this->privateIpAddress, true);
         Model::validateRequired('macAddress', $this->macAddress, true);
@@ -254,8 +206,8 @@ class DescribeNetworkInterfaceAttributeResponse extends Model
         if (null !== $this->vpcId) {
             $res['VpcId'] = $this->vpcId;
         }
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
         if (null !== $this->zoneId) {
             $res['ZoneId'] = $this->zoneId;
@@ -339,7 +291,7 @@ class DescribeNetworkInterfaceAttributeResponse extends Model
             $model->vpcId = $map['VpcId'];
         }
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
         if (isset($map['ZoneId'])) {
             $model->zoneId = $map['ZoneId'];

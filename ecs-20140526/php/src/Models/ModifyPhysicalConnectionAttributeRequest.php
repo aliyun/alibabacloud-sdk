@@ -9,113 +9,61 @@ use AlibabaCloud\Tea\Model;
 class ModifyPhysicalConnectionAttributeRequest extends Model
 {
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description physicalConnectionId
-     *
      * @var string
      */
     public $physicalConnectionId;
 
     /**
-     * @description lineOperator
-     *
      * @var string
      */
     public $lineOperator;
 
     /**
-     * @description bandwidth
-     *
      * @var int
      */
     public $bandwidth;
 
     /**
-     * @description peerLocation
-     *
      * @var string
      */
     public $peerLocation;
 
     /**
-     * @description portType
-     *
      * @var string
      */
     public $portType;
 
     /**
-     * @description redundantPhysicalConnectionId
-     *
      * @var string
      */
     public $redundantPhysicalConnectionId;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description token
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description userCidr
-     *
      * @var string
      */
     public $userCidr;
 
     /**
-     * @description circuitCode
-     *
      * @var string
      */
     public $circuitCode;
@@ -130,10 +78,6 @@ class ModifyPhysicalConnectionAttributeRequest extends Model
         'description'                   => 'Description',
         'name'                          => 'Name',
         'clientToken'                   => 'ClientToken',
-        'ownerId'                       => 'OwnerId',
-        'resourceOwnerAccount'          => 'ResourceOwnerAccount',
-        'resourceOwnerId'               => 'ResourceOwnerId',
-        'ownerAccount'                  => 'OwnerAccount',
         'userCidr'                      => 'UserCidr',
         'circuitCode'                   => 'CircuitCode',
     ];
@@ -176,18 +120,6 @@ class ModifyPhysicalConnectionAttributeRequest extends Model
         }
         if (null !== $this->clientToken) {
             $res['ClientToken'] = $this->clientToken;
-        }
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
         }
         if (null !== $this->userCidr) {
             $res['UserCidr'] = $this->userCidr;
@@ -236,18 +168,6 @@ class ModifyPhysicalConnectionAttributeRequest extends Model
         }
         if (isset($map['ClientToken'])) {
             $model->clientToken = $map['ClientToken'];
-        }
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
         }
         if (isset($map['UserCidr'])) {
             $model->userCidr = $map['UserCidr'];

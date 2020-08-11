@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class instanceResponse extends Model
 {
     /**
-     * @description instanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description previousStatus
-     *
      * @var string
      */
     public $previousStatus;
 
     /**
-     * @description currentStatus
-     *
      * @var string
      */
     public $currentStatus;
 
     /**
-     * @description code
-     *
      * @var string
      */
     public $code;
 
     /**
-     * @description message
-     *
      * @var string
      */
     public $message;

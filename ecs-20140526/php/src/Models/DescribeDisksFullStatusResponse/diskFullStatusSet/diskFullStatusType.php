@@ -12,43 +12,31 @@ use AlibabaCloud\Tea\Model;
 class diskFullStatusType extends Model
 {
     /**
-     * @description diskId
-     *
      * @var string
      */
     public $diskId;
 
     /**
-     * @description ecsInstanceId
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description device
-     *
      * @var string
      */
     public $device;
 
     /**
-     * @description diskEvents
-     *
      * @var diskEventSet
      */
     public $diskEventSet;
 
     /**
-     * @description diskLifeCycleStatus
-     *
      * @var status
      */
     public $status;
 
     /**
-     * @description diskHealthStatus
-     *
      * @var healthStatus
      */
     public $healthStatus;

@@ -10,36 +10,26 @@ use AlibabaCloud\Tea\Model;
 class resourcePriceModel extends Model
 {
     /**
-     * @description resource
-     *
      * @var string
      */
     public $resource;
 
     /**
-     * @description originalPrice
-     *
      * @var float
      */
     public $originalPrice;
 
     /**
-     * @description discountPrice
-     *
      * @var float
      */
     public $discountPrice;
 
     /**
-     * @description tradePrice
-     *
      * @var float
      */
     public $tradePrice;
 
     /**
-     * @description rules
-     *
      * @var subRules
      */
     public $subRules;

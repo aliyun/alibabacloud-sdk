@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class JoinSecurityGroupResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;

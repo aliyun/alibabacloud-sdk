@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class natGateways extends Model
 {
     /**
-     * @description NatGateway
-     *
      * @var array
      */
     public $natGateway;

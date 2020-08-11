@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class bandwidthPackage extends Model
 {
     /**
-     * @description ipCount
-     *
      * @var int
      */
     public $ipCount;
 
     /**
-     * @description bandwidth
-     *
      * @var int
      */
     public $bandwidth;
 
     /**
-     * @description zoneId
-     *
      * @var string
      */
     public $zone;

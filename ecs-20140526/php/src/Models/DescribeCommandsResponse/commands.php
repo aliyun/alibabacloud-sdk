@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class commands extends Model
 {
     /**
-     * @description Command
-     *
      * @var array
      */
     public $command;

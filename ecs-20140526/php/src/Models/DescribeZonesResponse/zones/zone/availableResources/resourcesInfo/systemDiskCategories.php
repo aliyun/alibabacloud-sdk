@@ -27,10 +27,7 @@ class systemDiskCategories extends Model
     {
         $res = [];
         if (null !== $this->supportedSystemDiskCategory) {
-            $res['supportedSystemDiskCategory'] = [];
-            if (null !== $this->supportedSystemDiskCategory) {
-                $res['supportedSystemDiskCategory'] = $this->supportedSystemDiskCategory;
-            }
+            $res['supportedSystemDiskCategory'] = $this->supportedSystemDiskCategory;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class systemDiskCategories extends Model
         $model = new self();
         if (isset($map['supportedSystemDiskCategory'])) {
             if (!empty($map['supportedSystemDiskCategory'])) {
-                $model->supportedSystemDiskCategory = [];
                 $model->supportedSystemDiskCategory = $map['supportedSystemDiskCategory'];
             }
         }

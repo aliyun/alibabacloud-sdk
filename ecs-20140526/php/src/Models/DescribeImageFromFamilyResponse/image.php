@@ -11,162 +11,116 @@ use AlibabaCloud\Tea\Model;
 class image extends Model
 {
     /**
-     * @description progress
-     *
      * @var string
      */
     public $progress;
 
     /**
-     * @description resourceId
-     *
      * @var string
      */
     public $imageId;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $imageName;
 
     /**
-     * @description imageFamily
-     *
      * @var string
      */
     public $imageFamily;
 
     /**
-     * @description version
-     *
      * @var string
      */
     public $imageVersion;
 
     /**
-     * @description remark
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description imageSize
-     *
      * @var int
      */
     public $size;
 
     /**
-     * @description imageCategory
-     *
      * @var string
      */
     public $imageOwnerAlias;
 
     /**
-     * @description isSupportIoOptimized
-     *
      * @var bool
      */
     public $isSupportIoOptimized;
 
     /**
-     * @description isSupportCloudinit
-     *
      * @var bool
      */
     public $isSupportCloudinit;
 
     /**
-     * @description osName
-     *
      * @var string
      */
     public $OSName;
 
     /**
-     * @description osBit
-     *
      * @var string
      */
     public $architecture;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description productCode
-     *
      * @var string
      */
     public $productCode;
 
     /**
-     * @description subscribed
-     *
      * @var bool
      */
     public $isSubscribed;
 
     /**
-     * @description gmtCreated
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description isSelfShared
-     *
      * @var string
      */
     public $isSelfShared;
 
     /**
-     * @description osType
-     *
      * @var string
      */
     public $OSType;
 
     /**
-     * @description platform
-     *
      * @var string
      */
     public $platform;
 
     /**
-     * @description usage
-     *
      * @var string
      */
     public $usage;
 
     /**
-     * @description isCopied
-     *
      * @var bool
      */
     public $isCopied;
 
     /**
-     * @description diskDeviceMappings
-     *
      * @var diskDeviceMappings
      */
     public $diskDeviceMappings;
 
     /**
-     * @description tags
-     *
      * @var tags
      */
     public $tags;

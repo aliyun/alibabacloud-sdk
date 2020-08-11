@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class deploymentSets extends Model
 {
     /**
-     * @description DeploymentSet
-     *
      * @var array
      */
     public $deploymentSet;

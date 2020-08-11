@@ -9,43 +9,31 @@ use AlibabaCloud\Tea\Model;
 class supportedResource extends Model
 {
     /**
-     * @description value
-     *
      * @var string
      */
     public $value;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description statusCategory
-     *
      * @var string
      */
     public $statusCategory;
 
     /**
-     * @description min
-     *
      * @var int
      */
     public $min;
 
     /**
-     * @description max
-     *
      * @var int
      */
     public $max;
 
     /**
-     * @description unit
-     *
      * @var string
      */
     public $unit;

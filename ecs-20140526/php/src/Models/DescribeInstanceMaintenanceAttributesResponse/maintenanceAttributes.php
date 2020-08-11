@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class maintenanceAttributes extends Model
 {
     /**
-     * @description MaintenanceAttribute
-     *
      * @var array
      */
     public $maintenanceAttribute;

@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class EipNotifyPaidResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var string
      */
     public $data;
 
     /**
-     * @description code
-     *
      * @var string
      */
     public $code;
 
     /**
-     * @description message
-     *
      * @var string
      */
     public $message;
 
     /**
-     * @description success
-     *
      * @var bool
      */
     public $success;

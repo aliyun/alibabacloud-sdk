@@ -10,109 +10,65 @@ use AlibabaCloud\Tea\Model;
 class CopyImageRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description toImageName
-     *
      * @var string
      */
     public $destinationImageName;
 
     /**
-     * @description toImageDesc
-     *
      * @var string
      */
     public $destinationDescription;
 
     /**
-     * @description fromImageNo
-     *
      * @var string
      */
     public $imageId;
 
     /**
-     * @description fromRegionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description toRegionNo
-     *
      * @var string
      */
     public $destinationRegionId;
 
     /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
-     * @description tagKeyValueParams
-     *
      * @var array
      */
     public $tag;
 
     /**
-     * @description toEncrypted
-     *
      * @var bool
      */
     public $encrypted;
 
     /**
-     * @description kmsKeyId
-     *
      * @var string
      */
     public $KMSKeyId;
 
     /**
-     * @description encryptAlgorithm
-     *
      * @var string
      */
     public $encryptAlgorithm;
+
+    /**
+     * @var string
+     */
+    public $resourceGroupId;
     protected $_name = [
-        'ownerId'                => 'OwnerId',
-        'resourceOwnerAccount'   => 'ResourceOwnerAccount',
-        'resourceOwnerId'        => 'ResourceOwnerId',
         'destinationImageName'   => 'DestinationImageName',
         'destinationDescription' => 'DestinationDescription',
         'imageId'                => 'ImageId',
         'regionId'               => 'RegionId',
         'destinationRegionId'    => 'DestinationRegionId',
-        'ownerAccount'           => 'OwnerAccount',
         'tag'                    => 'Tag',
         'encrypted'              => 'Encrypted',
         'KMSKeyId'               => 'KMSKeyId',
         'encryptAlgorithm'       => 'EncryptAlgorithm',
+        'resourceGroupId'        => 'ResourceGroupId',
     ];
 
     public function validate()
@@ -124,15 +80,6 @@ class CopyImageRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->destinationImageName) {
             $res['DestinationImageName'] = $this->destinationImageName;
         }
@@ -147,9 +94,6 @@ class CopyImageRequest extends Model
         }
         if (null !== $this->destinationRegionId) {
             $res['DestinationRegionId'] = $this->destinationRegionId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
         }
         if (null !== $this->tag) {
             $res['Tag'] = [];
@@ -169,6 +113,9 @@ class CopyImageRequest extends Model
         if (null !== $this->encryptAlgorithm) {
             $res['EncryptAlgorithm'] = $this->encryptAlgorithm;
         }
+        if (null !== $this->resourceGroupId) {
+            $res['ResourceGroupId'] = $this->resourceGroupId;
+        }
 
         return $res;
     }
@@ -181,15 +128,6 @@ class CopyImageRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['DestinationImageName'])) {
             $model->destinationImageName = $map['DestinationImageName'];
         }
@@ -204,9 +142,6 @@ class CopyImageRequest extends Model
         }
         if (isset($map['DestinationRegionId'])) {
             $model->destinationRegionId = $map['DestinationRegionId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
         }
         if (isset($map['Tag'])) {
             if (!empty($map['Tag'])) {
@@ -225,6 +160,9 @@ class CopyImageRequest extends Model
         }
         if (isset($map['EncryptAlgorithm'])) {
             $model->encryptAlgorithm = $map['EncryptAlgorithm'];
+        }
+        if (isset($map['ResourceGroupId'])) {
+            $model->resourceGroupId = $map['ResourceGroupId'];
         }
 
         return $model;

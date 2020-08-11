@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class hpcClusters extends Model
 {
     /**
-     * @description HpcCluster
-     *
      * @var array
      */
     public $hpcCluster;

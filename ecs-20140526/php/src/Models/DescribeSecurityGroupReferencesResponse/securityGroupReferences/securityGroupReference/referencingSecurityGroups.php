@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class referencingSecurityGroups extends Model
 {
     /**
-     * @description ReferencingSecurityGroup
-     *
      * @var array
      */
     public $referencingSecurityGroup;

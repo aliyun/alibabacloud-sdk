@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeSnapshotMonitorDataResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var monitorData
      */
     public $monitorData;

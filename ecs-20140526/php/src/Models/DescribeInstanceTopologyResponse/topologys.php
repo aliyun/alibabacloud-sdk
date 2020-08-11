@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class topologys extends Model
 {
     /**
-     * @description Topology
-     *
      * @var array
      */
     public $topology;

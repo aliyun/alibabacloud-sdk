@@ -17,197 +17,141 @@ use AlibabaCloud\Tea\Model;
 class dedicatedHost extends Model
 {
     /**
-     * @description dedicatedHostId
-     *
      * @var string
      */
     public $dedicatedHostId;
 
     /**
-     * @description autoPlacement
-     *
      * @var string
      */
     public $autoPlacement;
 
     /**
-     * @description regionNo
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description izNo
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description dedicatedHostName
-     *
      * @var string
      */
     public $dedicatedHostName;
 
     /**
-     * @description machineId
-     *
      * @var string
      */
     public $machineId;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description hostType
-     *
      * @var string
      */
     public $dedicatedHostType;
 
     /**
-     * @description sockets
-     *
      * @var int
      */
     public $sockets;
 
     /**
-     * @description physicalCores
-     *
      * @var int
      */
     public $cores;
 
     /**
-     * @description physicalGpus
-     *
      * @var int
      */
     public $physicalGpus;
 
     /**
-     * @description gpuSpec
-     *
      * @var string
      */
     public $GPUSpec;
 
     /**
-     * @description actionOnMaintenance
-     *
      * @var string
      */
     public $actionOnMaintenance;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description creationTime
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description chargeType
-     *
      * @var string
      */
     public $chargeType;
 
     /**
-     * @description saleCycle
-     *
      * @var string
      */
     public $saleCycle;
 
     /**
-     * @description expiredTime
-     *
      * @var string
      */
     public $expiredTime;
 
     /**
-     * @description autoReleaseTime
-     *
      * @var string
      */
     public $autoReleaseTime;
 
     /**
-     * @description resourceGroupId
-     *
      * @var string
      */
     public $resourceGroupId;
 
     /**
-     * @description hostInstances
-     *
      * @var instances
      */
     public $instances;
 
     /**
-     * @description operationLockTypes
-     *
      * @var operationLocks
      */
     public $operationLocks;
 
     /**
-     * @description tags
-     *
      * @var tags
      */
     public $tags;
 
     /**
-     * @description dedicatedHostCapacity
-     *
      * @var capacity
      */
     public $capacity;
 
     /**
-     * @description networkAttributes
-     *
      * @var networkAttributes
      */
     public $networkAttributes;
 
     /**
-     * @description supportInstanceTypeFamilies
-     *
      * @var supportedInstanceTypeFamilies
      */
     public $supportedInstanceTypeFamilies;
 
     /**
-     * @description supportCustomInstanceTypeFamilies
-     *
      * @var supportedCustomInstanceTypeFamilies
      */
     public $supportedCustomInstanceTypeFamilies;
 
     /**
-     * @description supportInstanceTypesList
-     *
      * @var supportedInstanceTypesList
      */
     public $supportedInstanceTypesList;

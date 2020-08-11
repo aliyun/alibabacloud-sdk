@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class RebootInstancesResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.operateResponseModels
-     *
      * @var instanceResponses
      */
     public $instanceResponses;

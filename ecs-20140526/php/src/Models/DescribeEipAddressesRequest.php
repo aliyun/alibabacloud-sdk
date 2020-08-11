@@ -4,118 +4,71 @@
 
 namespace AlibabaCloud\SDK\Ecs\V20140526\Models;
 
+use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeEipAddressesRequest\filter;
 use AlibabaCloud\Tea\Model;
 
 class DescribeEipAddressesRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description eipAddress
-     *
      * @var string
      */
     public $eipAddress;
 
     /**
-     * @description allocationId
-     *
      * @var string
      */
     public $allocationId;
 
     /**
-     * @description isp
-     *
      * @var string
      */
     public $ISP;
 
     /**
-     * @description pageNo
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description ownerAccount
-     *
-     * @var string
+     * @var array
      */
-    public $ownerAccount;
+    public $filter;
 
     /**
-     * @description reason
-     *
      * @var string
      */
     public $lockReason;
 
     /**
-     * @description associatedInstanceType
-     *
      * @var string
      */
     public $associatedInstanceType;
 
     /**
-     * @description associatedInstanceId
-     *
      * @var string
      */
     public $associatedInstanceId;
 
     /**
-     * @description chargeType
-     *
      * @var string
      */
     public $chargeType;
     protected $_name = [
-        'ownerId'                => 'OwnerId',
-        'resourceOwnerAccount'   => 'ResourceOwnerAccount',
-        'resourceOwnerId'        => 'ResourceOwnerId',
         'regionId'               => 'RegionId',
         'status'                 => 'Status',
         'eipAddress'             => 'EipAddress',
@@ -123,7 +76,7 @@ class DescribeEipAddressesRequest extends Model
         'ISP'                    => 'ISP',
         'pageNumber'             => 'PageNumber',
         'pageSize'               => 'PageSize',
-        'ownerAccount'           => 'OwnerAccount',
+        'filter'                 => 'Filter',
         'lockReason'             => 'LockReason',
         'associatedInstanceType' => 'AssociatedInstanceType',
         'associatedInstanceId'   => 'AssociatedInstanceId',
@@ -138,15 +91,6 @@ class DescribeEipAddressesRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
@@ -168,8 +112,14 @@ class DescribeEipAddressesRequest extends Model
         if (null !== $this->pageSize) {
             $res['PageSize'] = $this->pageSize;
         }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
+        if (null !== $this->filter) {
+            $res['Filter'] = [];
+            if (null !== $this->filter && \is_array($this->filter)) {
+                $n = 0;
+                foreach ($this->filter as $item) {
+                    $res['Filter'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
+            }
         }
         if (null !== $this->lockReason) {
             $res['LockReason'] = $this->lockReason;
@@ -195,15 +145,6 @@ class DescribeEipAddressesRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
@@ -225,8 +166,14 @@ class DescribeEipAddressesRequest extends Model
         if (isset($map['PageSize'])) {
             $model->pageSize = $map['PageSize'];
         }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
+        if (isset($map['Filter'])) {
+            if (!empty($map['Filter'])) {
+                $model->filter = [];
+                $n             = 0;
+                foreach ($map['Filter'] as $item) {
+                    $model->filter[$n++] = null !== $item ? filter::fromMap($item) : $item;
+                }
+            }
         }
         if (isset($map['LockReason'])) {
             $model->lockReason = $map['LockReason'];

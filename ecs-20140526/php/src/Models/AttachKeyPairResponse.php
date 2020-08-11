@@ -10,36 +10,26 @@ use AlibabaCloud\Tea\Model;
 class AttachKeyPairResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.totalCount
-     *
      * @var string
      */
     public $totalCount;
 
     /**
-     * @description data.failCount
-     *
      * @var string
      */
     public $failCount;
 
     /**
-     * @description data.keyPairId
-     *
      * @var string
      */
     public $keyPairName;
 
     /**
-     * @description data.results
-     *
      * @var results
      */
     public $results;

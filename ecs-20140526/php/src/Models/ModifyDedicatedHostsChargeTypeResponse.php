@@ -10,22 +10,16 @@ use AlibabaCloud\Tea\Model;
 class ModifyDedicatedHostsChargeTypeResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data.orderId
-     *
      * @var string
      */
     public $orderId;
 
     /**
-     * @description data.refundFeeOfInstances
-     *
      * @var feeOfInstances
      */
     public $feeOfInstances;

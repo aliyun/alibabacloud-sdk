@@ -9,69 +9,35 @@ use AlibabaCloud\Tea\Model;
 class ImportSnapshotRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description snapshotName
-     *
      * @var string
      */
     public $snapshotName;
 
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description ossBucket
-     *
      * @var string
      */
     public $ossBucket;
 
     /**
-     * @description ossObject
-     *
      * @var string
      */
     public $ossObject;
 
     /**
-     * @description roleName
-     *
      * @var string
      */
     public $roleName;
     protected $_name = [
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'snapshotName'         => 'SnapshotName',
-        'regionId'             => 'RegionId',
-        'ossBucket'            => 'OssBucket',
-        'ossObject'            => 'OssObject',
-        'roleName'             => 'RoleName',
+        'snapshotName' => 'SnapshotName',
+        'regionId'     => 'RegionId',
+        'ossBucket'    => 'OssBucket',
+        'ossObject'    => 'OssObject',
+        'roleName'     => 'RoleName',
     ];
 
     public function validate()
@@ -85,15 +51,6 @@ class ImportSnapshotRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
         if (null !== $this->snapshotName) {
             $res['SnapshotName'] = $this->snapshotName;
         }
@@ -121,15 +78,6 @@ class ImportSnapshotRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
         if (isset($map['SnapshotName'])) {
             $model->snapshotName = $map['SnapshotName'];
         }

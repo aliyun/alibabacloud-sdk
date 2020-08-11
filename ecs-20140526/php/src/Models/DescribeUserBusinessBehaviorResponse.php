@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeUserBusinessBehaviorResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var string
      */
     public $statusValue;

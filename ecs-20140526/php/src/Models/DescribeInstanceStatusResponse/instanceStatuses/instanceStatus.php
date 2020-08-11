@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class instanceStatus extends Model
 {
     /**
-     * @description ecsName
-     *
      * @var string
      */
     public $instanceId;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;

@@ -16,64 +16,46 @@ use AlibabaCloud\Tea\Model;
 class zone extends Model
 {
     /**
-     * @description no
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description cnName
-     *
      * @var string
      */
     public $localName;
 
     /**
-     * @description izResourceModel
-     *
      * @var availableResources
      */
     public $availableResources;
 
     /**
-     * @description allowedResourceCreation
-     *
      * @var availableResourceCreation
      */
     public $availableResourceCreation;
 
     /**
-     * @description supportedDiskCategories
-     *
      * @var availableDiskCategories
      */
     public $availableDiskCategories;
 
     /**
-     * @description supportedInstanceTypeNames
-     *
      * @var availableInstanceTypes
      */
     public $availableInstanceTypes;
 
     /**
-     * @description supportedVolumeCategories
-     *
      * @var availableVolumeCategories
      */
     public $availableVolumeCategories;
 
     /**
-     * @description supportedDedicatedHostTypeNames
-     *
      * @var availableDedicatedHostTypes
      */
     public $availableDedicatedHostTypes;
 
     /**
-     * @description supportedDedicatedHostGenerations
-     *
      * @var dedicatedHostGenerations
      */
     public $dedicatedHostGenerations;

@@ -10,36 +10,26 @@ use AlibabaCloud\Tea\Model;
 class autoProvisioningGroupHistory extends Model
 {
     /**
-     * @description taskId
-     *
      * @var string
      */
     public $taskId;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description lastEventTime
-     *
      * @var string
      */
     public $lastEventTime;
 
     /**
-     * @description startTime
-     *
      * @var string
      */
     public $startTime;
 
     /**
-     * @description activityDetails
-     *
      * @var activityDetails
      */
     public $activityDetails;

@@ -27,10 +27,7 @@ class availableInstanceTypes extends Model
     {
         $res = [];
         if (null !== $this->instanceTypes) {
-            $res['InstanceTypes'] = [];
-            if (null !== $this->instanceTypes) {
-                $res['InstanceTypes'] = $this->instanceTypes;
-            }
+            $res['InstanceTypes'] = $this->instanceTypes;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class availableInstanceTypes extends Model
         $model = new self();
         if (isset($map['InstanceTypes'])) {
             if (!empty($map['InstanceTypes'])) {
-                $model->instanceTypes = [];
                 $model->instanceTypes = $map['InstanceTypes'];
             }
         }

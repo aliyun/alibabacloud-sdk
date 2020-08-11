@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class mountInstances extends Model
 {
     /**
-     * @description MountInstance
-     *
      * @var array
      */
     public $mountInstance;
