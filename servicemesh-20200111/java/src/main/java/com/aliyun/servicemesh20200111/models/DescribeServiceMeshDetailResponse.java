@@ -165,6 +165,34 @@ public class DescribeServiceMeshDetailResponse extends TeaModel {
 
     }
 
+    public static class DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigProxy extends TeaModel {
+        @NameInMap("ClusterDomain")
+        @Validation(required = true)
+        public String clusterDomain;
+
+        @NameInMap("RequestCPU")
+        @Validation(required = true)
+        public String requestCPU;
+
+        @NameInMap("RequestMemory")
+        @Validation(required = true)
+        public String requestMemory;
+
+        @NameInMap("LimitCPU")
+        @Validation(required = true)
+        public String limitCPU;
+
+        @NameInMap("LimitMemory")
+        @Validation(required = true)
+        public String limitMemory;
+
+        public static DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigProxy build(java.util.Map<String, ?> map) throws Exception {
+            DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigProxy self = new DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigProxy();
+            return TeaModel.build(map, self);
+        }
+
+    }
+
     public static class DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfig extends TeaModel {
         @NameInMap("EnableLocalityLB")
         @Validation(required = true)
@@ -182,6 +210,14 @@ public class DescribeServiceMeshDetailResponse extends TeaModel {
         @Validation(required = true)
         public Boolean customizedZipkin;
 
+        @NameInMap("OutboundTrafficPolicy")
+        @Validation(required = true)
+        public String outboundTrafficPolicy;
+
+        @NameInMap("IncludeIPRanges")
+        @Validation(required = true)
+        public String includeIPRanges;
+
         @NameInMap("Pilot")
         @Validation(required = true)
         public DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigPilot pilot;
@@ -193,6 +229,10 @@ public class DescribeServiceMeshDetailResponse extends TeaModel {
         @NameInMap("Audit")
         @Validation(required = true)
         public DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigAudit audit;
+
+        @NameInMap("Proxy")
+        @Validation(required = true)
+        public DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigProxy proxy;
 
         public static DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfig build(java.util.Map<String, ?> map) throws Exception {
             DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfig self = new DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfig();

@@ -50,6 +50,24 @@ public class UpdateMeshFeatureRequest extends TeaModel {
     @NameInMap("CustomizedZipkin")
     public Boolean customizedZipkin;
 
+    @NameInMap("OutboundTrafficPolicy")
+    public String outboundTrafficPolicy;
+
+    @NameInMap("ProxyRequestCPU")
+    public String proxyRequestCPU;
+
+    @NameInMap("ProxyRequestMemory")
+    public String proxyRequestMemory;
+
+    @NameInMap("ProxyLimitCPU")
+    public String proxyLimitCPU;
+
+    @NameInMap("ProxyLimitMemory")
+    public String proxyLimitMemory;
+
+    @NameInMap("IncludeIPRanges")
+    public String includeIPRanges;
+
     public static UpdateMeshFeatureRequest build(java.util.Map<String, ?> map) throws Exception {
         UpdateMeshFeatureRequest self = new UpdateMeshFeatureRequest();
         return TeaModel.build(map, self);

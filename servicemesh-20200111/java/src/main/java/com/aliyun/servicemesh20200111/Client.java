@@ -13,6 +13,46 @@ public class Client extends com.aliyun.tearpc.Client {
     }
 
 
+    public AddVmAppToMeshResponse addVmAppToMeshWithOptions(AddVmAppToMeshRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("AddVmAppToMesh", "HTTPS", "POST", "2020-01-11", "AK", null, TeaModel.buildMap(request), runtime), new AddVmAppToMeshResponse());
+    }
+
+    public AddVmAppToMeshResponse addVmAppToMesh(AddVmAppToMeshRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.addVmAppToMeshWithOptions(request, runtime);
+    }
+
+    public GetVmAppMeshInfoResponse getVmAppMeshInfoWithOptions(GetVmAppMeshInfoRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("GetVmAppMeshInfo", "HTTPS", "GET", "2020-01-11", "AK", TeaModel.buildMap(request), null, runtime), new GetVmAppMeshInfoResponse());
+    }
+
+    public GetVmAppMeshInfoResponse getVmAppMeshInfo(GetVmAppMeshInfoRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.getVmAppMeshInfoWithOptions(request, runtime);
+    }
+
+    public GetVmMetaResponse getVmMetaWithOptions(GetVmMetaRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("GetVmMeta", "HTTPS", "GET", "2020-01-11", "AK", TeaModel.buildMap(request), null, runtime), new GetVmMetaResponse());
+    }
+
+    public GetVmMetaResponse getVmMeta(GetVmMetaRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.getVmMetaWithOptions(request, runtime);
+    }
+
+    public RemoveVmAppFromMeshResponse removeVmAppFromMeshWithOptions(RemoveVmAppFromMeshRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("RemoveVmAppFromMesh", "HTTPS", "POST", "2020-01-11", "AK", null, TeaModel.buildMap(request), runtime), new RemoveVmAppFromMeshResponse());
+    }
+
+    public RemoveVmAppFromMeshResponse removeVmAppFromMesh(RemoveVmAppFromMeshRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.removeVmAppFromMeshWithOptions(request, runtime);
+    }
+
     public GetRegisteredServiceEndpointsResponse getRegisteredServiceEndpointsWithOptions(GetRegisteredServiceEndpointsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
         return TeaModel.toModel(this.doRequest("GetRegisteredServiceEndpoints", "HTTPS", "POST", "2020-01-11", "AK", null, TeaModel.buildMap(request), runtime), new GetRegisteredServiceEndpointsResponse());
