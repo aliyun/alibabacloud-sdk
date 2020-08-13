@@ -1,16 +1,420 @@
+# -*- coding: utf-8 -*-
 # This file is auto-generated, don't edit it. Thanks.
 from Tea.model import TeaModel
 
 
-class DetectLungNoduleRequest(TeaModel):
+class DetectKneeXRayRequest(TeaModel):
+    def __init__(self, url=None, data_format=None):
+        self.url = url
+        self.data_format = data_format
+
+    def validate(self):
+        self.validate_required(self.url, 'url')
+        self.validate_required(self.data_format, 'data_format')
+
+    def to_map(self):
+        result = {}
+        result['Url'] = self.url
+        result['DataFormat'] = self.data_format
+        return result
+
+    def from_map(self, map={}):
+        self.url = map.get('Url')
+        self.data_format = map.get('DataFormat')
+        return self
+
+
+class DetectKneeXRayResponse(TeaModel):
+    def __init__(self, request_id=None, data=None):
+        self.request_id = request_id
+        self.data = data
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.data, 'data')
+        if self.data:
+            self.data.validate()
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        if self.data is not None:
+            result['Data'] = self.data.to_map()
+        else:
+            result['Data'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        if map.get('Data') is not None:
+            temp_model = DetectKneeXRayResponseData()
+            self.data = temp_model.from_map(map['Data'])
+        else:
+            self.data = None
+        return self
+
+
+class DetectKneeXRayResponseDataKLDetections(TeaModel):
+    def __init__(self, detections=None):
+        self.detections = detections
+
+    def validate(self):
+        self.validate_required(self.detections, 'detections')
+
+    def to_map(self):
+        result = {}
+        result['Detections'] = []
+        if self.detections is not None:
+            for k in self.detections:
+                result['Detections'].append(k)
+        else:
+            result['Detections'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.detections = []
+        if map.get('Detections') is not None:
+            for k in map.get('Detections'):
+                self.detections.append(k)
+        else:
+            self.detections = None
+        return self
+
+
+class DetectKneeXRayResponseData(TeaModel):
+    def __init__(self, kldetections=None):
+        self.kldetections = kldetections
+
+    def validate(self):
+        self.validate_required(self.kldetections, 'kldetections')
+        if self.kldetections:
+            for k in self.kldetections:
+                if k:
+                    k.validate()
+
+    def to_map(self):
+        result = {}
+        result['KLDetections'] = []
+        if self.kldetections is not None:
+            for k in self.kldetections:
+                result['KLDetections'].append(k.to_map() if k else None)
+        else:
+            result['KLDetections'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.kldetections = []
+        if map.get('KLDetections') is not None:
+            for k in map.get('KLDetections'):
+                temp_model = DetectKneeXRayResponseDataKLDetections()
+                temp_model = temp_model.from_map(k)
+                self.kldetections.append(temp_model)
+        else:
+            self.kldetections = None
+        return self
+class DetectKneeXRayAdvanceRequest(TeaModel):
+    def __init__(self, url_object=None, data_format=None):
+        self.url_object = url_object
+        self.data_format = data_format
+
+    def validate(self):
+        self.validate_required(self.url_object, 'url_object')
+        self.validate_required(self.data_format, 'data_format')
+
+    def to_map(self):
+        result = {}
+        result['UrlObject'] = self.url_object
+        result['DataFormat'] = self.data_format
+        return result
+
+    def from_map(self, map={}):
+        self.url_object = map.get('UrlObject')
+        self.data_format = map.get('DataFormat')
+        return self
+
+
+class DetectSpineMRIRequest(TeaModel):
     def __init__(self, urllist=None):
-        self.urllist = []
+        self.urllist = urllist
 
     def validate(self):
         self.validate_required(self.urllist, 'urllist')
         if self.urllist:
             for k in self.urllist:
-                if k :
+                if k:
+                    k.validate()
+
+    def to_map(self):
+        result = {}
+        result['URLList'] = []
+        if self.urllist is not None:
+            for k in self.urllist:
+                result['URLList'].append(k.to_map() if k else None)
+        else:
+            result['URLList'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.urllist = []
+        if map.get('URLList') is not None:
+            for k in map.get('URLList'):
+                temp_model = DetectSpineMRIRequestURLList()
+                temp_model = temp_model.from_map(k)
+                self.urllist.append(temp_model)
+        else:
+            self.urllist = None
+        return self
+
+
+class DetectSpineMRIRequestURLList(TeaModel):
+    def __init__(self, url=None):
+        self.url = url
+
+    def validate(self):
+        self.validate_required(self.url, 'url')
+
+    def to_map(self):
+        result = {}
+        result['URL'] = self.url
+        return result
+
+    def from_map(self, map={}):
+        self.url = map.get('URL')
+        return self
+class DetectSpineMRIResponse(TeaModel):
+    def __init__(self, request_id=None, data=None):
+        self.request_id = request_id
+        self.data = data
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.data, 'data')
+        if self.data:
+            self.data.validate()
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        if self.data is not None:
+            result['Data'] = self.data.to_map()
+        else:
+            result['Data'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        if map.get('Data') is not None:
+            temp_model = DetectSpineMRIResponseData()
+            self.data = temp_model.from_map(map['Data'])
+        else:
+            self.data = None
+        return self
+
+
+class DetectSpineMRIResponseDataDiscs(TeaModel):
+    def __init__(self, disease=None, identification=None, location=None):
+        self.disease = disease
+        self.identification = identification
+        self.location = location
+
+    def validate(self):
+        self.validate_required(self.disease, 'disease')
+        self.validate_required(self.identification, 'identification')
+        self.validate_required(self.location, 'location')
+
+    def to_map(self):
+        result = {}
+        result['Disease'] = self.disease
+        result['Identification'] = self.identification
+        result['Location'] = []
+        if self.location is not None:
+            for k in self.location:
+                result['Location'].append(k)
+        else:
+            result['Location'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.disease = map.get('Disease')
+        self.identification = map.get('Identification')
+        self.location = []
+        if map.get('Location') is not None:
+            for k in map.get('Location'):
+                self.location.append(k)
+        else:
+            self.location = None
+        return self
+
+
+class DetectSpineMRIResponseDataVertebras(TeaModel):
+    def __init__(self, disease=None, identification=None, location=None):
+        self.disease = disease
+        self.identification = identification
+        self.location = location
+
+    def validate(self):
+        self.validate_required(self.disease, 'disease')
+        self.validate_required(self.identification, 'identification')
+        self.validate_required(self.location, 'location')
+
+    def to_map(self):
+        result = {}
+        result['Disease'] = self.disease
+        result['Identification'] = self.identification
+        result['Location'] = []
+        if self.location is not None:
+            for k in self.location:
+                result['Location'].append(k)
+        else:
+            result['Location'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.disease = map.get('Disease')
+        self.identification = map.get('Identification')
+        self.location = []
+        if map.get('Location') is not None:
+            for k in map.get('Location'):
+                self.location.append(k)
+        else:
+            self.location = None
+        return self
+
+
+class DetectSpineMRIResponseData(TeaModel):
+    def __init__(self, discs=None, vertebras=None):
+        self.discs = discs
+        self.vertebras = vertebras
+
+    def validate(self):
+        self.validate_required(self.discs, 'discs')
+        if self.discs:
+            for k in self.discs:
+                if k:
+                    k.validate()
+        self.validate_required(self.vertebras, 'vertebras')
+        if self.vertebras:
+            for k in self.vertebras:
+                if k:
+                    k.validate()
+
+    def to_map(self):
+        result = {}
+        result['Discs'] = []
+        if self.discs is not None:
+            for k in self.discs:
+                result['Discs'].append(k.to_map() if k else None)
+        else:
+            result['Discs'] = None
+        result['Vertebras'] = []
+        if self.vertebras is not None:
+            for k in self.vertebras:
+                result['Vertebras'].append(k.to_map() if k else None)
+        else:
+            result['Vertebras'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.discs = []
+        if map.get('Discs') is not None:
+            for k in map.get('Discs'):
+                temp_model = DetectSpineMRIResponseDataDiscs()
+                temp_model = temp_model.from_map(k)
+                self.discs.append(temp_model)
+        else:
+            self.discs = None
+        self.vertebras = []
+        if map.get('Vertebras') is not None:
+            for k in map.get('Vertebras'):
+                temp_model = DetectSpineMRIResponseDataVertebras()
+                temp_model = temp_model.from_map(k)
+                self.vertebras.append(temp_model)
+        else:
+            self.vertebras = None
+        return self
+class TranslateMedRequest(TeaModel):
+    def __init__(self, from_language=None, to_language=None, text=None):
+        self.from_language = from_language
+        self.to_language = to_language
+        self.text = text
+
+    def validate(self):
+        self.validate_required(self.from_language, 'from_language')
+        self.validate_required(self.to_language, 'to_language')
+        self.validate_required(self.text, 'text')
+
+    def to_map(self):
+        result = {}
+        result['FromLanguage'] = self.from_language
+        result['ToLanguage'] = self.to_language
+        result['Text'] = self.text
+        return result
+
+    def from_map(self, map={}):
+        self.from_language = map.get('FromLanguage')
+        self.to_language = map.get('ToLanguage')
+        self.text = map.get('Text')
+        return self
+
+
+class TranslateMedResponse(TeaModel):
+    def __init__(self, request_id=None, data=None):
+        self.request_id = request_id
+        self.data = data
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.data, 'data')
+        if self.data:
+            self.data.validate()
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        if self.data is not None:
+            result['Data'] = self.data.to_map()
+        else:
+            result['Data'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        if map.get('Data') is not None:
+            temp_model = TranslateMedResponseData()
+            self.data = temp_model.from_map(map['Data'])
+        else:
+            self.data = None
+        return self
+
+
+class TranslateMedResponseData(TeaModel):
+    def __init__(self, text=None, words=None):
+        self.text = text
+        self.words = words
+
+    def validate(self):
+        self.validate_required(self.text, 'text')
+        self.validate_required(self.words, 'words')
+
+    def to_map(self):
+        result = {}
+        result['Text'] = self.text
+        result['Words'] = self.words
+        return result
+
+    def from_map(self, map={}):
+        self.text = map.get('Text')
+        self.words = map.get('Words')
+        return self
+class DetectLungNoduleRequest(TeaModel):
+    def __init__(self, urllist=None):
+        self.urllist = urllist
+
+    def validate(self):
+        self.validate_required(self.urllist, 'urllist')
+        if self.urllist:
+            for k in self.urllist:
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -36,22 +440,20 @@ class DetectLungNoduleRequest(TeaModel):
 
 
 class DetectLungNoduleRequestURLList(TeaModel):
-    def __init__(self, _url=None):
-        self._url = _url
+    def __init__(self, url=None):
+        self.url = url
 
     def validate(self):
-        self.validate_required(self._url, '_url')
+        self.validate_required(self.url, 'url')
 
     def to_map(self):
         result = {}
-        result['URL'] = self._url
+        result['URL'] = self.url
         return result
 
     def from_map(self, map={}):
-        self._url = map.get('URL')
+        self.url = map.get('URL')
         return self
-
-
 class DetectLungNoduleResponse(TeaModel):
     def __init__(self, request_id=None, data=None):
         self.request_id = request_id
@@ -130,14 +532,14 @@ class DetectLungNoduleResponseDataSeriesElements(TeaModel):
 class DetectLungNoduleResponseDataSeries(TeaModel):
     def __init__(self, series_instance_uid=None, elements=None):
         self.series_instance_uid = series_instance_uid
-        self.elements = []
+        self.elements = elements
 
     def validate(self):
         self.validate_required(self.series_instance_uid, 'series_instance_uid')
         self.validate_required(self.elements, 'elements')
         if self.elements:
             for k in self.elements:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -166,13 +568,13 @@ class DetectLungNoduleResponseDataSeries(TeaModel):
 
 class DetectLungNoduleResponseData(TeaModel):
     def __init__(self, series=None):
-        self.series = []
+        self.series = series
 
     def validate(self):
         self.validate_required(self.series, 'series')
         if self.series:
             for k in self.series:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -195,17 +597,15 @@ class DetectLungNoduleResponseData(TeaModel):
         else:
             self.series = None
         return self
-
-
 class DetectCovid19CadRequest(TeaModel):
     def __init__(self, urllist=None):
-        self.urllist = []
+        self.urllist = urllist
 
     def validate(self):
         self.validate_required(self.urllist, 'urllist')
         if self.urllist:
             for k in self.urllist:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -231,22 +631,20 @@ class DetectCovid19CadRequest(TeaModel):
 
 
 class DetectCovid19CadRequestURLList(TeaModel):
-    def __init__(self, _url=None):
-        self._url = _url
+    def __init__(self, url=None):
+        self.url = url
 
     def validate(self):
-        self.validate_required(self._url, '_url')
+        self.validate_required(self.url, 'url')
 
     def to_map(self):
         result = {}
-        result['URL'] = self._url
+        result['URL'] = self.url
         return result
 
     def from_map(self, map={}):
-        self._url = map.get('URL')
+        self.url = map.get('URL')
         return self
-
-
 class DetectCovid19CadResponse(TeaModel):
     def __init__(self, request_id=None, data=None):
         self.request_id = request_id
@@ -278,7 +676,8 @@ class DetectCovid19CadResponse(TeaModel):
 
 
 class DetectCovid19CadResponseData(TeaModel):
-    def __init__(self, new_probability=None, normal_probability=None, other_probability=None, lesion_ratio=None, mask=None):
+    def __init__(self, new_probability=None, normal_probability=None, other_probability=None, lesion_ratio=None,
+                 mask=None):
         self.new_probability = new_probability
         self.normal_probability = normal_probability
         self.other_probability = other_probability
@@ -308,8 +707,6 @@ class DetectCovid19CadResponseData(TeaModel):
         self.lesion_ratio = map.get('LesionRatio')
         self.mask = map.get('Mask')
         return self
-
-
 class GetAsyncJobResultRequest(TeaModel):
     def __init__(self, job_id=None):
         self.job_id = job_id
