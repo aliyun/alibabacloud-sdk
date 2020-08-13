@@ -14,6 +14,80 @@ import (
 	"io"
 )
 
+type SegmentHalfBodyRequest struct {
+	VideoUrl *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
+}
+
+func (s SegmentHalfBodyRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentHalfBodyRequest) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentHalfBodyRequest) SetVideoUrl(v string) *SegmentHalfBodyRequest {
+	s.VideoUrl = &v
+	return s
+}
+
+type SegmentHalfBodyResponse struct {
+	RequestId *string                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SegmentHalfBodyResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s SegmentHalfBodyResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentHalfBodyResponse) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentHalfBodyResponse) SetRequestId(v string) *SegmentHalfBodyResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *SegmentHalfBodyResponse) SetData(v *SegmentHalfBodyResponseData) *SegmentHalfBodyResponse {
+	s.Data = v
+	return s
+}
+
+type SegmentHalfBodyResponseData struct {
+	VideoUrl *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
+}
+
+func (s SegmentHalfBodyResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentHalfBodyResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentHalfBodyResponseData) SetVideoUrl(v string) *SegmentHalfBodyResponseData {
+	s.VideoUrl = &v
+	return s
+}
+
+type SegmentHalfBodyAdvanceRequest struct {
+	VideoUrlObject io.Reader `json:"VideoUrlObject,omitempty" xml:"VideoUrlObject,omitempty" require:"true"`
+}
+
+func (s SegmentHalfBodyAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentHalfBodyAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentHalfBodyAdvanceRequest) SetVideoUrlObject(v io.Reader) *SegmentHalfBodyAdvanceRequest {
+	s.VideoUrlObject = v
+	return s
+}
+
 type SegmentVideoBodyRequest struct {
 	VideoUrl *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
 }
@@ -195,6 +269,104 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	}
 
 	return nil
+}
+
+func (client *Client) SegmentHalfBody(request *SegmentHalfBodyRequest, runtime *util.RuntimeOptions) (_result *SegmentHalfBodyResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &SegmentHalfBodyResponse{}
+	_body, _err := client.DoRequest(tea.String("SegmentHalfBody"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-03-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) SegmentHalfBodyAdvance(request *SegmentHalfBodyAdvanceRequest, runtime *util.RuntimeOptions) (_result *SegmentHalfBodyResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return _result, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return _result, _err
+	}
+
+	authConfig := &rpc.Config{
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("videoseg"),
+		RegionId: client.RegionId,
+	}
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.VideoUrlObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return _result, _err
+	}
+	// Step 2: request final api
+	segmentHalfBodyreq := &SegmentHalfBodyRequest{}
+	rpcutil.Convert(request, segmentHalfBodyreq)
+	segmentHalfBodyreq.VideoUrl = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	segmentHalfBodyResp, _err := client.SegmentHalfBody(segmentHalfBodyreq, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	_result = segmentHalfBodyResp
+	return _result, _err
 }
 
 func (client *Client) SegmentVideoBody(request *SegmentVideoBodyRequest, runtime *util.RuntimeOptions) (_result *SegmentVideoBodyResponse, _err error) {
