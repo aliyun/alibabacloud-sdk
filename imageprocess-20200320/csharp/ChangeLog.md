@@ -1,3 +1,6 @@
+2020-08-13 Version: 1.0.3
+- Release DetectKneeXRay DetectSpineMRI TranslateMed.
+
 2020-08-13 Version: 1.0.2
 - Release DetectKneeXRay DetectSpineMRI TranslateMed.
 
