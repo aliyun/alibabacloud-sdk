@@ -4,6 +4,200 @@ import RPC, * as $RPC from '@alicloud/rpc-client';
 import EndpointUtil from '@alicloud/endpoint-util';
 import * as $tea from '@alicloud/tea-typescript';
 
+export class AddVmAppToMeshRequest extends $tea.Model {
+  serviceMeshId: string;
+  namespace: string;
+  serviceName: string;
+  ips: string;
+  ports: string;
+  labels: string;
+  annotations?: string;
+  serviceAccount?: string;
+  force?: boolean;
+  static names(): { [key: string]: string } {
+    return {
+      serviceMeshId: 'ServiceMeshId',
+      namespace: 'Namespace',
+      serviceName: 'ServiceName',
+      ips: 'Ips',
+      ports: 'Ports',
+      labels: 'Labels',
+      annotations: 'Annotations',
+      serviceAccount: 'ServiceAccount',
+      force: 'Force',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      serviceMeshId: 'string',
+      namespace: 'string',
+      serviceName: 'string',
+      ips: 'string',
+      ports: 'string',
+      labels: 'string',
+      annotations: 'string',
+      serviceAccount: 'string',
+      force: 'boolean',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class AddVmAppToMeshResponse extends $tea.Model {
+  requestId: string;
+  data: string;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class GetVmAppMeshInfoRequest extends $tea.Model {
+  serviceMeshId: string;
+  static names(): { [key: string]: string } {
+    return {
+      serviceMeshId: 'ServiceMeshId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      serviceMeshId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class GetVmAppMeshInfoResponse extends $tea.Model {
+  requestId: string;
+  data: string;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class GetVmMetaRequest extends $tea.Model {
+  serviceMeshId: string;
+  static names(): { [key: string]: string } {
+    return {
+      serviceMeshId: 'ServiceMeshId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      serviceMeshId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class GetVmMetaResponse extends $tea.Model {
+  requestId: string;
+  vmMetaInfo: GetVmMetaResponseVmMetaInfo;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      vmMetaInfo: 'VmMetaInfo',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      vmMetaInfo: GetVmMetaResponseVmMetaInfo,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class RemoveVmAppFromMeshRequest extends $tea.Model {
+  serviceMeshId: string;
+  namespace: string;
+  serviceName: string;
+  static names(): { [key: string]: string } {
+    return {
+      serviceMeshId: 'ServiceMeshId',
+      namespace: 'Namespace',
+      serviceName: 'ServiceName',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      serviceMeshId: 'string',
+      namespace: 'string',
+      serviceName: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class RemoveVmAppFromMeshResponse extends $tea.Model {
+  requestId: string;
+  data: string;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class GetRegisteredServiceEndpointsRequest extends $tea.Model {
   serviceMeshId: string;
   namespace: string;
@@ -753,6 +947,12 @@ export class UpdateMeshFeatureRequest extends $tea.Model {
   auditProject?: string;
   clusterDomain?: string;
   customizedZipkin?: boolean;
+  outboundTrafficPolicy?: string;
+  proxyRequestCPU?: string;
+  proxyRequestMemory?: string;
+  proxyLimitCPU?: string;
+  proxyLimitMemory?: string;
+  includeIPRanges?: string;
   static names(): { [key: string]: string } {
     return {
       serviceMeshId: 'ServiceMeshId',
@@ -770,6 +970,12 @@ export class UpdateMeshFeatureRequest extends $tea.Model {
       auditProject: 'AuditProject',
       clusterDomain: 'ClusterDomain',
       customizedZipkin: 'CustomizedZipkin',
+      outboundTrafficPolicy: 'OutboundTrafficPolicy',
+      proxyRequestCPU: 'ProxyRequestCPU',
+      proxyRequestMemory: 'ProxyRequestMemory',
+      proxyLimitCPU: 'ProxyLimitCPU',
+      proxyLimitMemory: 'ProxyLimitMemory',
+      includeIPRanges: 'IncludeIPRanges',
     };
   }
 
@@ -790,6 +996,12 @@ export class UpdateMeshFeatureRequest extends $tea.Model {
       auditProject: 'string',
       clusterDomain: 'string',
       customizedZipkin: 'boolean',
+      outboundTrafficPolicy: 'string',
+      proxyRequestCPU: 'string',
+      proxyRequestMemory: 'string',
+      proxyLimitCPU: 'string',
+      proxyLimitMemory: 'string',
+      includeIPRanges: 'string',
     };
   }
 
@@ -1130,6 +1342,52 @@ export class DeleteServiceMeshResponse extends $tea.Model {
   static types(): { [key: string]: any } {
     return {
       requestId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class GetVmMetaResponseVmMetaInfo extends $tea.Model {
+  rootCertPath: string;
+  rootCertContent: string;
+  keyPath: string;
+  keyContent: string;
+  certChainPath: string;
+  certChainContent: string;
+  envoyEnvPath: string;
+  envoyEnvContent: string;
+  hostsPath: string;
+  hostsContent: string;
+  static names(): { [key: string]: string } {
+    return {
+      rootCertPath: 'RootCertPath',
+      rootCertContent: 'RootCertContent',
+      keyPath: 'KeyPath',
+      keyContent: 'KeyContent',
+      certChainPath: 'CertChainPath',
+      certChainContent: 'CertChainContent',
+      envoyEnvPath: 'EnvoyEnvPath',
+      envoyEnvContent: 'EnvoyEnvContent',
+      hostsPath: 'HostsPath',
+      hostsContent: 'HostsContent',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      rootCertPath: 'string',
+      rootCertContent: 'string',
+      keyPath: 'string',
+      keyContent: 'string',
+      certChainPath: 'string',
+      certChainContent: 'string',
+      envoyEnvPath: 'string',
+      envoyEnvContent: 'string',
+      hostsPath: 'string',
+      hostsContent: 'string',
     };
   }
 
@@ -1685,23 +1943,60 @@ export class DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigAudit ext
   }
 }
 
+export class DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigProxy extends $tea.Model {
+  clusterDomain: string;
+  requestCPU: string;
+  requestMemory: string;
+  limitCPU: string;
+  limitMemory: string;
+  static names(): { [key: string]: string } {
+    return {
+      clusterDomain: 'ClusterDomain',
+      requestCPU: 'RequestCPU',
+      requestMemory: 'RequestMemory',
+      limitCPU: 'LimitCPU',
+      limitMemory: 'LimitMemory',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      clusterDomain: 'string',
+      requestCPU: 'string',
+      requestMemory: 'string',
+      limitCPU: 'string',
+      limitMemory: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfig extends $tea.Model {
   enableLocalityLB: boolean;
   telemetry: boolean;
   tracing: boolean;
   customizedZipkin: boolean;
+  outboundTrafficPolicy: string;
+  includeIPRanges: string;
   pilot: DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigPilot;
   OPA: DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigOPA;
   audit: DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigAudit;
+  proxy: DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigProxy;
   static names(): { [key: string]: string } {
     return {
       enableLocalityLB: 'EnableLocalityLB',
       telemetry: 'Telemetry',
       tracing: 'Tracing',
       customizedZipkin: 'CustomizedZipkin',
+      outboundTrafficPolicy: 'OutboundTrafficPolicy',
+      includeIPRanges: 'IncludeIPRanges',
       pilot: 'Pilot',
       OPA: 'OPA',
       audit: 'Audit',
+      proxy: 'Proxy',
     };
   }
 
@@ -1711,9 +2006,12 @@ export class DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfig extends 
       telemetry: 'boolean',
       tracing: 'boolean',
       customizedZipkin: 'boolean',
+      outboundTrafficPolicy: 'string',
+      includeIPRanges: 'string',
       pilot: DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigPilot,
       OPA: DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigOPA,
       audit: DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigAudit,
+      proxy: DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigProxy,
     };
   }
 
@@ -1810,6 +2108,46 @@ export default class Client extends RPC {
     this._endpoint = this.getEndpoint("servicemesh", this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
   }
 
+
+  async addVmAppToMeshWithOptions(request: AddVmAppToMeshRequest, runtime: $Util.RuntimeOptions): Promise<AddVmAppToMeshResponse> {
+    Util.validateModel(request);
+    return $tea.cast<AddVmAppToMeshResponse>(await this.doRequest("AddVmAppToMesh", "HTTPS", "POST", "2020-01-11", "AK", null, $tea.toMap(request), runtime), new AddVmAppToMeshResponse({}));
+  }
+
+  async addVmAppToMesh(request: AddVmAppToMeshRequest): Promise<AddVmAppToMeshResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.addVmAppToMeshWithOptions(request, runtime);
+  }
+
+  async getVmAppMeshInfoWithOptions(request: GetVmAppMeshInfoRequest, runtime: $Util.RuntimeOptions): Promise<GetVmAppMeshInfoResponse> {
+    Util.validateModel(request);
+    return $tea.cast<GetVmAppMeshInfoResponse>(await this.doRequest("GetVmAppMeshInfo", "HTTPS", "GET", "2020-01-11", "AK", $tea.toMap(request), null, runtime), new GetVmAppMeshInfoResponse({}));
+  }
+
+  async getVmAppMeshInfo(request: GetVmAppMeshInfoRequest): Promise<GetVmAppMeshInfoResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.getVmAppMeshInfoWithOptions(request, runtime);
+  }
+
+  async getVmMetaWithOptions(request: GetVmMetaRequest, runtime: $Util.RuntimeOptions): Promise<GetVmMetaResponse> {
+    Util.validateModel(request);
+    return $tea.cast<GetVmMetaResponse>(await this.doRequest("GetVmMeta", "HTTPS", "GET", "2020-01-11", "AK", $tea.toMap(request), null, runtime), new GetVmMetaResponse({}));
+  }
+
+  async getVmMeta(request: GetVmMetaRequest): Promise<GetVmMetaResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.getVmMetaWithOptions(request, runtime);
+  }
+
+  async removeVmAppFromMeshWithOptions(request: RemoveVmAppFromMeshRequest, runtime: $Util.RuntimeOptions): Promise<RemoveVmAppFromMeshResponse> {
+    Util.validateModel(request);
+    return $tea.cast<RemoveVmAppFromMeshResponse>(await this.doRequest("RemoveVmAppFromMesh", "HTTPS", "POST", "2020-01-11", "AK", null, $tea.toMap(request), runtime), new RemoveVmAppFromMeshResponse({}));
+  }
+
+  async removeVmAppFromMesh(request: RemoveVmAppFromMeshRequest): Promise<RemoveVmAppFromMeshResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.removeVmAppFromMeshWithOptions(request, runtime);
+  }
 
   async getRegisteredServiceEndpointsWithOptions(request: GetRegisteredServiceEndpointsRequest, runtime: $Util.RuntimeOptions): Promise<GetRegisteredServiceEndpointsResponse> {
     Util.validateModel(request);
