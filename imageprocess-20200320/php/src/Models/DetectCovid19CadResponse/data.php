@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description NewProbability
-     *
      * @var string
      */
     public $newProbability;
 
     /**
-     * @description NormalProbability
-     *
      * @var string
      */
     public $normalProbability;
 
     /**
-     * @description OtherProbability
-     *
      * @var string
      */
     public $otherProbability;
 
     /**
-     * @description LesionRatio
-     *
      * @var string
      */
     public $lesionRatio;
 
     /**
-     * @description Mask
-     *
      * @var string
      */
     public $mask;

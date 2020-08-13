@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class DetectLungNoduleRequest extends Model
 {
     /**
-     * @description urlList
-     *
      * @var array
      */
     public $URLList;

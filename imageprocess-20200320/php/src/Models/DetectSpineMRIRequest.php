@@ -4,10 +4,10 @@
 
 namespace AlibabaCloud\SDK\Imageprocess\V20200320\Models;
 
-use AlibabaCloud\SDK\Imageprocess\V20200320\Models\DetectCovid19CadRequest\URLList;
+use AlibabaCloud\SDK\Imageprocess\V20200320\Models\DetectSpineMRIRequest\URLList;
 use AlibabaCloud\Tea\Model;
 
-class DetectCovid19CadRequest extends Model
+class DetectSpineMRIRequest extends Model
 {
     /**
      * @var array
@@ -41,7 +41,7 @@ class DetectCovid19CadRequest extends Model
     /**
      * @param array $map
      *
-     * @return DetectCovid19CadRequest
+     * @return DetectSpineMRIRequest
      */
     public static function fromMap($map = [])
     {

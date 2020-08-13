@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class series extends Model
 {
     /**
-     * @description SeriesInstanceUid
-     *
      * @var string
      */
     public $seriesInstanceUid;
 
     /**
-     * @description Elements
-     *
      * @var array
      */
     public $elements;

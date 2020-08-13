@@ -4,10 +4,10 @@
 
 namespace AlibabaCloud\SDK\Imageprocess\V20200320\Models;
 
-use AlibabaCloud\SDK\Imageprocess\V20200320\Models\DetectLungNoduleResponse\data;
+use AlibabaCloud\SDK\Imageprocess\V20200320\Models\DetectSpineMRIResponse\data;
 use AlibabaCloud\Tea\Model;
 
-class DetectLungNoduleResponse extends Model
+class DetectSpineMRIResponse extends Model
 {
     /**
      * @var string
@@ -45,7 +45,7 @@ class DetectLungNoduleResponse extends Model
     /**
      * @param array $map
      *
-     * @return DetectLungNoduleResponse
+     * @return DetectSpineMRIResponse
      */
     public static function fromMap($map = [])
     {

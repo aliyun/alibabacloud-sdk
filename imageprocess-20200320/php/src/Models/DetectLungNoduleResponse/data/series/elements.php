@@ -9,57 +9,41 @@ use AlibabaCloud\Tea\Model;
 class elements extends Model
 {
     /**
-     * @description Category
-     *
      * @var string
      */
     public $category;
 
     /**
-     * @description Confidence
-     *
      * @var float
      */
     public $confidence;
 
     /**
-     * @description Diameter
-     *
      * @var float
      */
     public $diameter;
 
     /**
-     * @description Lobe
-     *
      * @var string
      */
     public $lobe;
 
     /**
-     * @description Lung
-     *
      * @var string
      */
     public $lung;
 
     /**
-     * @description X
-     *
      * @var float
      */
     public $x;
 
     /**
-     * @description Z
-     *
      * @var float
      */
     public $z;
 
     /**
-     * @description Y
-     *
      * @var float
      */
     public $y;

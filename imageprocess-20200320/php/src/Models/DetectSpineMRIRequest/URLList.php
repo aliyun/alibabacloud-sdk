@@ -2,7 +2,7 @@
 
 // This file is auto-generated, don't edit it. Thanks.
 
-namespace AlibabaCloud\SDK\Imageprocess\V20200320\Models\DetectCovid19CadRequest;
+namespace AlibabaCloud\SDK\Imageprocess\V20200320\Models\DetectSpineMRIRequest;
 
 use AlibabaCloud\Tea\Model;
 
