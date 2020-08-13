@@ -1,5 +1,85 @@
+# -*- coding: utf-8 -*-
 # This file is auto-generated, don't edit it. Thanks.
 from Tea.model import TeaModel
+
+
+class SegmentHalfBodyRequest(TeaModel):
+    def __init__(self, video_url=None):
+        self.video_url = video_url
+
+    def validate(self):
+        self.validate_required(self.video_url, 'video_url')
+
+    def to_map(self):
+        result = {}
+        result['VideoUrl'] = self.video_url
+        return result
+
+    def from_map(self, map={}):
+        self.video_url = map.get('VideoUrl')
+        return self
+
+
+class SegmentHalfBodyResponse(TeaModel):
+    def __init__(self, request_id=None, data=None):
+        self.request_id = request_id
+        self.data = data
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.data, 'data')
+        if self.data:
+            self.data.validate()
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        if self.data is not None:
+            result['Data'] = self.data.to_map()
+        else:
+            result['Data'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        if map.get('Data') is not None:
+            temp_model = SegmentHalfBodyResponseData()
+            self.data = temp_model.from_map(map['Data'])
+        else:
+            self.data = None
+        return self
+
+
+class SegmentHalfBodyResponseData(TeaModel):
+    def __init__(self, video_url=None):
+        self.video_url = video_url
+
+    def validate(self):
+        self.validate_required(self.video_url, 'video_url')
+
+    def to_map(self):
+        result = {}
+        result['VideoUrl'] = self.video_url
+        return result
+
+    def from_map(self, map={}):
+        self.video_url = map.get('VideoUrl')
+        return self
+class SegmentHalfBodyAdvanceRequest(TeaModel):
+    def __init__(self, video_url_object=None):
+        self.video_url_object = video_url_object
+
+    def validate(self):
+        self.validate_required(self.video_url_object, 'video_url_object')
+
+    def to_map(self):
+        result = {}
+        result['VideoUrlObject'] = self.video_url_object
+        return result
+
+    def from_map(self, map={}):
+        self.video_url_object = map.get('VideoUrlObject')
+        return self
 
 
 class SegmentVideoBodyRequest(TeaModel):

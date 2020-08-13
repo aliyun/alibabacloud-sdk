@@ -1,3 +1,6 @@
+2020-08-13 Version: 1.0.2
+- Release SegmentHalfBody.
+
 2020-07-27 Version: 1.0.1
 - Generated videoseg-20200320 for Python.
 
