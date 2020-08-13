@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class SegmentVideoBodyRequest extends Model
 {
     /**
-     * @description videoUrl
-     *
      * @var string
      */
     public $videoUrl;

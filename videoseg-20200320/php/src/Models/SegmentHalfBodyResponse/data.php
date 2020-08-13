@@ -2,30 +2,30 @@
 
 // This file is auto-generated, don't edit it. Thanks.
 
-namespace AlibabaCloud\SDK\Videoseg\V20200320\Models;
+namespace AlibabaCloud\SDK\Videoseg\V20200320\Models\SegmentHalfBodyResponse;
 
 use AlibabaCloud\Tea\Model;
 
-class GetAsyncJobResultRequest extends Model
+class data extends Model
 {
     /**
      * @var string
      */
-    public $jobId;
+    public $videoUrl;
     protected $_name = [
-        'jobId' => 'JobId',
+        'videoUrl' => 'VideoUrl',
     ];
 
     public function validate()
     {
-        Model::validateRequired('jobId', $this->jobId, true);
+        Model::validateRequired('videoUrl', $this->videoUrl, true);
     }
 
     public function toMap()
     {
         $res = [];
-        if (null !== $this->jobId) {
-            $res['JobId'] = $this->jobId;
+        if (null !== $this->videoUrl) {
+            $res['VideoUrl'] = $this->videoUrl;
         }
 
         return $res;
@@ -34,13 +34,13 @@ class GetAsyncJobResultRequest extends Model
     /**
      * @param array $map
      *
-     * @return GetAsyncJobResultRequest
+     * @return data
      */
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['JobId'])) {
-            $model->jobId = $map['JobId'];
+        if (isset($map['VideoUrl'])) {
+            $model->videoUrl = $map['VideoUrl'];
         }
 
         return $model;

@@ -5,8 +5,9 @@
 namespace AlibabaCloud\SDK\Videoseg\V20200320\Models;
 
 use AlibabaCloud\Tea\Model;
+use GuzzleHttp\Psr7\Stream;
 
-class SegmentVideoBodyAdvanceRequest extends Model
+class SegmentHalfBodyAdvanceRequest extends Model
 {
     /**
      * @var Stream
@@ -34,7 +35,7 @@ class SegmentVideoBodyAdvanceRequest extends Model
     /**
      * @param array $map
      *
-     * @return SegmentVideoBodyAdvanceRequest
+     * @return SegmentHalfBodyAdvanceRequest
      */
     public static function fromMap($map = [])
     {

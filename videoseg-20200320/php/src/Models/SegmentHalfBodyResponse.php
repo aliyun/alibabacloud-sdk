@@ -4,10 +4,10 @@
 
 namespace AlibabaCloud\SDK\Videoseg\V20200320\Models;
 
-use AlibabaCloud\SDK\Videoseg\V20200320\Models\GetAsyncJobResultResponse\data;
+use AlibabaCloud\SDK\Videoseg\V20200320\Models\SegmentHalfBodyResponse\data;
 use AlibabaCloud\Tea\Model;
 
-class GetAsyncJobResultResponse extends Model
+class SegmentHalfBodyResponse extends Model
 {
     /**
      * @var string
@@ -45,7 +45,7 @@ class GetAsyncJobResultResponse extends Model
     /**
      * @param array $map
      *
-     * @return GetAsyncJobResultResponse
+     * @return SegmentHalfBodyResponse
      */
     public static function fromMap($map = [])
     {
