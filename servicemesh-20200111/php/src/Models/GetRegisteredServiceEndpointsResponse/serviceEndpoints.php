@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class serviceEndpoints extends Model
 {
     /**
-     * @description address
-     *
      * @var string
      */
     public $address;
 
     /**
-     * @description clusterId
-     *
      * @var string
      */
     public $clusterId;

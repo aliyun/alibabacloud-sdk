@@ -9,109 +9,109 @@ use AlibabaCloud\Tea\Model;
 class UpdateMeshFeatureRequest extends Model
 {
     /**
-     * @description ServiceMeshId
-     *
      * @var string
      */
     public $serviceMeshId;
 
     /**
-     * @description tracing
-     *
      * @var bool
      */
     public $tracing;
 
     /**
-     * @description traceSampling
-     *
      * @var float
      */
     public $traceSampling;
 
     /**
-     * @description enableLocalityLB
-     *
      * @var bool
      */
     public $localityLoadBalancing;
 
     /**
-     * @description telemetryV2
-     *
      * @var bool
      */
     public $telemetry;
 
     /**
-     * @description opaEnabled
-     *
      * @var bool
      */
     public $openAgentPolicy;
 
     /**
-     * @description opaLogLevel
-     *
      * @var string
      */
     public $OPALogLevel;
 
     /**
-     * @description opaRequestCPU
-     *
      * @var string
      */
     public $OPARequestCPU;
 
     /**
-     * @description opaRequestMemory
-     *
      * @var string
      */
     public $OPARequestMemory;
 
     /**
-     * @description opaLimitCPU
-     *
      * @var string
      */
     public $OPALimitCPU;
 
     /**
-     * @description opaLimitMemory
-     *
      * @var string
      */
     public $OPALimitMemory;
 
     /**
-     * @description enableAudit
-     *
      * @var bool
      */
     public $enableAudit;
 
     /**
-     * @description auditProject
-     *
      * @var string
      */
     public $auditProject;
 
     /**
-     * @description clusterDomain
-     *
      * @var string
      */
     public $clusterDomain;
 
     /**
-     * @description customizedZipkin
-     *
      * @var bool
      */
     public $customizedZipkin;
+
+    /**
+     * @var string
+     */
+    public $outboundTrafficPolicy;
+
+    /**
+     * @var string
+     */
+    public $proxyRequestCPU;
+
+    /**
+     * @var string
+     */
+    public $proxyRequestMemory;
+
+    /**
+     * @var string
+     */
+    public $proxyLimitCPU;
+
+    /**
+     * @var string
+     */
+    public $proxyLimitMemory;
+
+    /**
+     * @var string
+     */
+    public $includeIPRanges;
     protected $_name = [
         'serviceMeshId'         => 'ServiceMeshId',
         'tracing'               => 'Tracing',
@@ -128,6 +128,12 @@ class UpdateMeshFeatureRequest extends Model
         'auditProject'          => 'AuditProject',
         'clusterDomain'         => 'ClusterDomain',
         'customizedZipkin'      => 'CustomizedZipkin',
+        'outboundTrafficPolicy' => 'OutboundTrafficPolicy',
+        'proxyRequestCPU'       => 'ProxyRequestCPU',
+        'proxyRequestMemory'    => 'ProxyRequestMemory',
+        'proxyLimitCPU'         => 'ProxyLimitCPU',
+        'proxyLimitMemory'      => 'ProxyLimitMemory',
+        'includeIPRanges'       => 'IncludeIPRanges',
     ];
 
     public function validate()
@@ -182,6 +188,24 @@ class UpdateMeshFeatureRequest extends Model
         }
         if (null !== $this->customizedZipkin) {
             $res['CustomizedZipkin'] = $this->customizedZipkin;
+        }
+        if (null !== $this->outboundTrafficPolicy) {
+            $res['OutboundTrafficPolicy'] = $this->outboundTrafficPolicy;
+        }
+        if (null !== $this->proxyRequestCPU) {
+            $res['ProxyRequestCPU'] = $this->proxyRequestCPU;
+        }
+        if (null !== $this->proxyRequestMemory) {
+            $res['ProxyRequestMemory'] = $this->proxyRequestMemory;
+        }
+        if (null !== $this->proxyLimitCPU) {
+            $res['ProxyLimitCPU'] = $this->proxyLimitCPU;
+        }
+        if (null !== $this->proxyLimitMemory) {
+            $res['ProxyLimitMemory'] = $this->proxyLimitMemory;
+        }
+        if (null !== $this->includeIPRanges) {
+            $res['IncludeIPRanges'] = $this->includeIPRanges;
         }
 
         return $res;
@@ -239,6 +263,24 @@ class UpdateMeshFeatureRequest extends Model
         }
         if (isset($map['CustomizedZipkin'])) {
             $model->customizedZipkin = $map['CustomizedZipkin'];
+        }
+        if (isset($map['OutboundTrafficPolicy'])) {
+            $model->outboundTrafficPolicy = $map['OutboundTrafficPolicy'];
+        }
+        if (isset($map['ProxyRequestCPU'])) {
+            $model->proxyRequestCPU = $map['ProxyRequestCPU'];
+        }
+        if (isset($map['ProxyRequestMemory'])) {
+            $model->proxyRequestMemory = $map['ProxyRequestMemory'];
+        }
+        if (isset($map['ProxyLimitCPU'])) {
+            $model->proxyLimitCPU = $map['ProxyLimitCPU'];
+        }
+        if (isset($map['ProxyLimitMemory'])) {
+            $model->proxyLimitMemory = $map['ProxyLimitMemory'];
+        }
+        if (isset($map['IncludeIPRanges'])) {
+            $model->includeIPRanges = $map['IncludeIPRanges'];
         }
 
         return $model;

@@ -12,22 +12,16 @@ use AlibabaCloud\Tea\Model;
 class spec extends Model
 {
     /**
-     * @description load_balancer
-     *
      * @var loadBalancer
      */
     public $loadBalancer;
 
     /**
-     * @description mesh_config
-     *
      * @var meshConfig
      */
     public $meshConfig;
 
     /**
-     * @description network
-     *
      * @var network
      */
     public $network;

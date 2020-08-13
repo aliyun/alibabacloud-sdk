@@ -9,85 +9,61 @@ use AlibabaCloud\Tea\Model;
 class clusters extends Model
 {
     /**
-     * @description cluster_id
-     *
      * @var string
      */
     public $clusterId;
 
     /**
-     * @description cluster_type
-     *
      * @var string
      */
     public $clusterType;
 
     /**
-     * @description created
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description errMsg
-     *
      * @var string
      */
     public $errorMessage;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description region_id
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description state
-     *
      * @var string
      */
     public $state;
 
     /**
-     * @description updated
-     *
      * @var string
      */
     public $updateTime;
 
     /**
-     * @description current_version
-     *
      * @var string
      */
     public $version;
 
     /**
-     * @description vpc_id
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description security_group_id
-     *
      * @var string
      */
     public $sgId;
 
     /**
-     * @description cluster_domain
-     *
      * @var string
      */
     public $clusterDomain;

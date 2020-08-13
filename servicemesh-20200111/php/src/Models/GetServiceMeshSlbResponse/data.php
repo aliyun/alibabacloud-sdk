@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description loadBalancerId
-     *
      * @var string
      */
     public $loadBalancerId;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description serverHealthStatus
-     *
      * @var string
      */
     public $serverHealthStatus;

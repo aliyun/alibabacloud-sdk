@@ -7,6 +7,8 @@ namespace AlibabaCloud\SDK\Servicemesh\V20200111;
 use AlibabaCloud\Endpoint\Endpoint;
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\AddClusterIntoServiceMeshRequest;
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\AddClusterIntoServiceMeshResponse;
+use AlibabaCloud\SDK\Servicemesh\V20200111\Models\AddVmAppToMeshRequest;
+use AlibabaCloud\SDK\Servicemesh\V20200111\Models\AddVmAppToMeshResponse;
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\CreateServiceMeshRequest;
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\CreateServiceMeshResponse;
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\DeleteServiceMeshRequest;
@@ -43,8 +45,14 @@ use AlibabaCloud\SDK\Servicemesh\V20200111\Models\GetRegisteredServicesRequest;
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\GetRegisteredServicesResponse;
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\GetServiceMeshSlbRequest;
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\GetServiceMeshSlbResponse;
+use AlibabaCloud\SDK\Servicemesh\V20200111\Models\GetVmAppMeshInfoRequest;
+use AlibabaCloud\SDK\Servicemesh\V20200111\Models\GetVmAppMeshInfoResponse;
+use AlibabaCloud\SDK\Servicemesh\V20200111\Models\GetVmMetaRequest;
+use AlibabaCloud\SDK\Servicemesh\V20200111\Models\GetVmMetaResponse;
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\RemoveClusterFromServiceMeshRequest;
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\RemoveClusterFromServiceMeshResponse;
+use AlibabaCloud\SDK\Servicemesh\V20200111\Models\RemoveVmAppFromMeshRequest;
+use AlibabaCloud\SDK\Servicemesh\V20200111\Models\RemoveVmAppFromMeshResponse;
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\RunDiagnosisRequest;
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\RunDiagnosisResponse;
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\UpdateIstioInjectionConfigRequest;
@@ -65,6 +73,106 @@ class Servicemesh extends Rpc
         $this->_endpointRule = 'central';
         $this->checkConfig($config);
         $this->_endpoint = $this->getEndpoint('servicemesh', $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
+    }
+
+    /**
+     * @param AddVmAppToMeshRequest $request
+     * @param RuntimeOptions        $runtime
+     *
+     * @return AddVmAppToMeshResponse
+     */
+    public function addVmAppToMeshWithOptions($request, $runtime)
+    {
+        Utils::validateModel($request);
+
+        return AddVmAppToMeshResponse::fromMap($this->doRequest('AddVmAppToMesh', 'HTTPS', 'POST', '2020-01-11', 'AK', null, $request, $runtime));
+    }
+
+    /**
+     * @param AddVmAppToMeshRequest $request
+     *
+     * @return AddVmAppToMeshResponse
+     */
+    public function addVmAppToMesh($request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->addVmAppToMeshWithOptions($request, $runtime);
+    }
+
+    /**
+     * @param GetVmAppMeshInfoRequest $request
+     * @param RuntimeOptions          $runtime
+     *
+     * @return GetVmAppMeshInfoResponse
+     */
+    public function getVmAppMeshInfoWithOptions($request, $runtime)
+    {
+        Utils::validateModel($request);
+
+        return GetVmAppMeshInfoResponse::fromMap($this->doRequest('GetVmAppMeshInfo', 'HTTPS', 'GET', '2020-01-11', 'AK', $request, null, $runtime));
+    }
+
+    /**
+     * @param GetVmAppMeshInfoRequest $request
+     *
+     * @return GetVmAppMeshInfoResponse
+     */
+    public function getVmAppMeshInfo($request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->getVmAppMeshInfoWithOptions($request, $runtime);
+    }
+
+    /**
+     * @param GetVmMetaRequest $request
+     * @param RuntimeOptions   $runtime
+     *
+     * @return GetVmMetaResponse
+     */
+    public function getVmMetaWithOptions($request, $runtime)
+    {
+        Utils::validateModel($request);
+
+        return GetVmMetaResponse::fromMap($this->doRequest('GetVmMeta', 'HTTPS', 'GET', '2020-01-11', 'AK', $request, null, $runtime));
+    }
+
+    /**
+     * @param GetVmMetaRequest $request
+     *
+     * @return GetVmMetaResponse
+     */
+    public function getVmMeta($request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->getVmMetaWithOptions($request, $runtime);
+    }
+
+    /**
+     * @param RemoveVmAppFromMeshRequest $request
+     * @param RuntimeOptions             $runtime
+     *
+     * @return RemoveVmAppFromMeshResponse
+     */
+    public function removeVmAppFromMeshWithOptions($request, $runtime)
+    {
+        Utils::validateModel($request);
+
+        return RemoveVmAppFromMeshResponse::fromMap($this->doRequest('RemoveVmAppFromMesh', 'HTTPS', 'POST', '2020-01-11', 'AK', null, $request, $runtime));
+    }
+
+    /**
+     * @param RemoveVmAppFromMeshRequest $request
+     *
+     * @return RemoveVmAppFromMeshResponse
+     */
+    public function removeVmAppFromMesh($request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->removeVmAppFromMeshWithOptions($request, $runtime);
     }
 
     /**

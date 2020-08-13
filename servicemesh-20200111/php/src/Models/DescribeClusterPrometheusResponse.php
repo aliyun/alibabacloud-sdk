@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeClusterPrometheusResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description prometheus
-     *
      * @var string
      */
     public $prometheus;

@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class pilot extends Model
 {
     /**
-     * @description traceSampling
-     *
      * @var float
      */
     public $traceSampling;

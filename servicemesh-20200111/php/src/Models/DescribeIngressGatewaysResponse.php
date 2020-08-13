@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeIngressGatewaysResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description ingressgateways
-     *
      * @var array
      */
     public $ingressGateways;
@@ -39,10 +35,7 @@ class DescribeIngressGatewaysResponse extends Model
             $res['RequestId'] = $this->requestId;
         }
         if (null !== $this->ingressGateways) {
-            $res['IngressGateways'] = [];
-            if (null !== $this->ingressGateways) {
-                $res['IngressGateways'] = $this->ingressGateways;
-            }
+            $res['IngressGateways'] = $this->ingressGateways;
         }
 
         return $res;
@@ -61,7 +54,6 @@ class DescribeIngressGatewaysResponse extends Model
         }
         if (isset($map['IngressGateways'])) {
             if (!empty($map['IngressGateways'])) {
-                $model->ingressGateways = [];
                 $model->ingressGateways = $map['IngressGateways'];
             }
         }

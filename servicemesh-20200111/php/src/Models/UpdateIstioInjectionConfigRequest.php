@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class UpdateIstioInjectionConfigRequest extends Model
 {
     /**
-     * @description ServiceMeshId
-     *
      * @var string
      */
     public $serviceMeshId;
 
     /**
-     * @description namespace
-     *
      * @var string
      */
     public $namespace;
 
     /**
-     * @description enableIstioInjection
-     *
      * @var bool
      */
     public $enableIstioInjection;

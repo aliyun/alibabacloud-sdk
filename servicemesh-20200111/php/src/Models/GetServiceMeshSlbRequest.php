@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class GetServiceMeshSlbRequest extends Model
 {
     /**
-     * @description ServiceMeshId
-     *
      * @var string
      */
     public $serviceMeshId;

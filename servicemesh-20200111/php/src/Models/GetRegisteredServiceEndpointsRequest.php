@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class GetRegisteredServiceEndpointsRequest extends Model
 {
     /**
-     * @description ServiceMeshId
-     *
      * @var string
      */
     public $serviceMeshId;
 
     /**
-     * @description namespace
-     *
      * @var string
      */
     public $namespace;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;

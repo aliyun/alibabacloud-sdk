@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class audit extends Model
 {
     /**
-     * @description enabled
-     *
      * @var bool
      */
     public $enabled;
 
     /**
-     * @description project
-     *
      * @var string
      */
     public $project;

@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class endpoints extends Model
 {
     /**
-     * @description intranet_api_server_endpoint
-     *
      * @var string
      */
     public $intranetApiServerEndpoint;
 
     /**
-     * @description intranet_pilot_endpoint
-     *
      * @var string
      */
     public $intranetPilotEndpoint;
 
     /**
-     * @description public_api_server_endpoint
-     *
      * @var string
      */
     public $publicApiServerEndpoint;
 
     /**
-     * @description public_pilot_endpoint
-     *
      * @var string
      */
     public $publicPilotEndpoint;
 
     /**
-     * @description reverse_tunnel_endpoint
-     *
      * @var string
      */
     public $reverseTunnelEndpoint;

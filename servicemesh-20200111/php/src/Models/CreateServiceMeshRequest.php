@@ -9,190 +9,136 @@ use AlibabaCloud\Tea\Model;
 class CreateServiceMeshRequest extends Model
 {
     /**
-     * @description region_id
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description current_version
-     *
      * @var string
      */
     public $istioVersion;
 
     /**
-     * @description vpc_id
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description api_server_public_eip
-     *
      * @var bool
      */
     public $apiServerPublicEip;
 
     /**
-     * @description pilot_public_eip
-     *
      * @var bool
      */
     public $pilotPublicEip;
 
     /**
-     * @description tracing
-     *
      * @var bool
      */
     public $tracing;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description vswitch_ids
-     *
      * @var string
      */
     public $vSwitches;
 
     /**
-     * @description traceSampling
-     *
      * @var float
      */
     public $traceSampling;
 
     /**
-     * @description enableLocalityLB
-     *
      * @var bool
      */
     public $localityLoadBalancing;
 
     /**
-     * @description telemetryV2
-     *
      * @var bool
      */
     public $telemetry;
 
     /**
-     * @description opaEnabled
-     *
      * @var bool
      */
     public $openAgentPolicy;
 
     /**
-     * @description opaLogLevel
-     *
      * @var string
      */
     public $OPALogLevel;
 
     /**
-     * @description opaRequestCPU
-     *
      * @var string
      */
     public $OPARequestCPU;
 
     /**
-     * @description opaRequestMemory
-     *
      * @var string
      */
     public $OPARequestMemory;
 
     /**
-     * @description opaLimitCPU
-     *
      * @var string
      */
     public $OPALimitCPU;
 
     /**
-     * @description opaLimitMemory
-     *
      * @var string
      */
     public $OPALimitMemory;
 
     /**
-     * @description enableAudit
-     *
      * @var bool
      */
     public $enableAudit;
 
     /**
-     * @description AuditProject
-     *
      * @var string
      */
     public $auditProject;
 
     /**
-     * @description proxyRequestCPU
-     *
      * @var string
      */
     public $proxyRequestCPU;
 
     /**
-     * @description proxyRequestMemory
-     *
      * @var string
      */
     public $proxyRequestMemory;
 
     /**
-     * @description proxyLimitCPU
-     *
      * @var string
      */
     public $proxyLimitCPU;
 
     /**
-     * @description proxyLimitMemory
-     *
      * @var string
      */
     public $proxyLimitMemory;
 
     /**
-     * @description includeIPRanges
-     *
      * @var string
      */
     public $includeIPRanges;
 
     /**
-     * @description excludeIPRanges
-     *
      * @var string
      */
     public $excludeIPRanges;
 
     /**
-     * @description excludeOutboundPorts
-     *
      * @var string
      */
     public $excludeOutboundPorts;
 
     /**
-     * @description excludeInboundPorts
-     *
      * @var string
      */
     public $excludeInboundPorts;

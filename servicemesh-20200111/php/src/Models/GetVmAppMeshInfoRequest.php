@@ -6,7 +6,7 @@ namespace AlibabaCloud\SDK\Servicemesh\V20200111\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class DescribeUpgradeVersionRequest extends Model
+class GetVmAppMeshInfoRequest extends Model
 {
     /**
      * @var string
@@ -18,6 +18,7 @@ class DescribeUpgradeVersionRequest extends Model
 
     public function validate()
     {
+        Model::validateRequired('serviceMeshId', $this->serviceMeshId, true);
     }
 
     public function toMap()
@@ -33,7 +34,7 @@ class DescribeUpgradeVersionRequest extends Model
     /**
      * @param array $map
      *
-     * @return DescribeUpgradeVersionRequest
+     * @return GetVmAppMeshInfoRequest
      */
     public static function fromMap($map = [])
     {

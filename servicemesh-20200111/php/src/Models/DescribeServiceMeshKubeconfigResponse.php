@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeServiceMeshKubeconfigResponse extends Model
 {
     /**
-     * @description config
-     *
      * @var string
      */
     public $kubeconfig;
 
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;

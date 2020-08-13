@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class loadBalancer extends Model
 {
     /**
-     * @description api_server_load_balancer_id
-     *
      * @var string
      */
     public $apiServerLoadbalancerId;
 
     /**
-     * @description api_server_public_eip
-     *
      * @var bool
      */
     public $apiServerPublicEip;
 
     /**
-     * @description pilot_public_eip
-     *
      * @var bool
      */
     public $pilotPublicEip;
 
     /**
-     * @description pilot_load_balancer_id
-     *
      * @var string
      */
     public $pilotPublicLoadbalancerId;

@@ -6,17 +6,12 @@ namespace AlibabaCloud\SDK\Servicemesh\V20200111\Models\DescribeServiceMeshDetai
 
 use AlibabaCloud\Tea\Model;
 
-class OPA extends Model
+class proxy extends Model
 {
-    /**
-     * @var bool
-     */
-    public $enabled;
-
     /**
      * @var string
      */
-    public $logLevel;
+    public $clusterDomain;
 
     /**
      * @var string
@@ -38,8 +33,7 @@ class OPA extends Model
      */
     public $limitMemory;
     protected $_name = [
-        'enabled'       => 'Enabled',
-        'logLevel'      => 'LogLevel',
+        'clusterDomain' => 'ClusterDomain',
         'requestCPU'    => 'RequestCPU',
         'requestMemory' => 'RequestMemory',
         'limitCPU'      => 'LimitCPU',
@@ -48,8 +42,7 @@ class OPA extends Model
 
     public function validate()
     {
-        Model::validateRequired('enabled', $this->enabled, true);
-        Model::validateRequired('logLevel', $this->logLevel, true);
+        Model::validateRequired('clusterDomain', $this->clusterDomain, true);
         Model::validateRequired('requestCPU', $this->requestCPU, true);
         Model::validateRequired('requestMemory', $this->requestMemory, true);
         Model::validateRequired('limitCPU', $this->limitCPU, true);
@@ -59,11 +52,8 @@ class OPA extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->enabled) {
-            $res['Enabled'] = $this->enabled;
-        }
-        if (null !== $this->logLevel) {
-            $res['LogLevel'] = $this->logLevel;
+        if (null !== $this->clusterDomain) {
+            $res['ClusterDomain'] = $this->clusterDomain;
         }
         if (null !== $this->requestCPU) {
             $res['RequestCPU'] = $this->requestCPU;
@@ -84,16 +74,13 @@ class OPA extends Model
     /**
      * @param array $map
      *
-     * @return OPA
+     * @return proxy
      */
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['Enabled'])) {
-            $model->enabled = $map['Enabled'];
-        }
-        if (isset($map['LogLevel'])) {
-            $model->logLevel = $map['LogLevel'];
+        if (isset($map['ClusterDomain'])) {
+            $model->clusterDomain = $map['ClusterDomain'];
         }
         if (isset($map['RequestCPU'])) {
             $model->requestCPU = $map['RequestCPU'];

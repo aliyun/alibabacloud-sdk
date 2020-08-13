@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class GetRegisteredServiceEndpointsResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description serviceEndpoints
-     *
      * @var array
      */
     public $serviceEndpoints;

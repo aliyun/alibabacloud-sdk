@@ -12,29 +12,21 @@ use AlibabaCloud\Tea\Model;
 class serviceMesh extends Model
 {
     /**
-     * @description endpoints
-     *
      * @var endpoints
      */
     public $endpoints;
 
     /**
-     * @description cluster_info
-     *
      * @var serviceMeshInfo
      */
     public $serviceMeshInfo;
 
     /**
-     * @description spec
-     *
      * @var spec
      */
     public $spec;
 
     /**
-     * @description guest_clusters
-     *
      * @var array
      */
     public $clusters;
@@ -66,10 +58,7 @@ class serviceMesh extends Model
             $res['Spec'] = null !== $this->spec ? $this->spec->toMap() : null;
         }
         if (null !== $this->clusters) {
-            $res['Clusters'] = [];
-            if (null !== $this->clusters) {
-                $res['Clusters'] = $this->clusters;
-            }
+            $res['Clusters'] = $this->clusters;
         }
 
         return $res;
@@ -94,7 +83,6 @@ class serviceMesh extends Model
         }
         if (isset($map['Clusters'])) {
             if (!empty($map['Clusters'])) {
-                $model->clusters = [];
                 $model->clusters = $map['Clusters'];
             }
         }

@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeCensResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description clusters
-     *
      * @var array
      */
     public $clusters;
@@ -39,10 +35,7 @@ class DescribeCensResponse extends Model
             $res['RequestId'] = $this->requestId;
         }
         if (null !== $this->clusters) {
-            $res['Clusters'] = [];
-            if (null !== $this->clusters) {
-                $res['Clusters'] = $this->clusters;
-            }
+            $res['Clusters'] = $this->clusters;
         }
 
         return $res;
@@ -61,7 +54,6 @@ class DescribeCensResponse extends Model
         }
         if (isset($map['Clusters'])) {
             if (!empty($map['Clusters'])) {
-                $model->clusters = [];
                 $model->clusters = $map['Clusters'];
             }
         }

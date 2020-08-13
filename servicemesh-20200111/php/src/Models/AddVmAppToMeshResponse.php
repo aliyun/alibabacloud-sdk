@@ -6,19 +6,26 @@ namespace AlibabaCloud\SDK\Servicemesh\V20200111\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class UpdateMeshFeatureResponse extends Model
+class AddVmAppToMeshResponse extends Model
 {
     /**
      * @var string
      */
     public $requestId;
+
+    /**
+     * @var string
+     */
+    public $data;
     protected $_name = [
         'requestId' => 'RequestId',
+        'data'      => 'Data',
     ];
 
     public function validate()
     {
         Model::validateRequired('requestId', $this->requestId, true);
+        Model::validateRequired('data', $this->data, true);
     }
 
     public function toMap()
@@ -27,6 +34,9 @@ class UpdateMeshFeatureResponse extends Model
         if (null !== $this->requestId) {
             $res['RequestId'] = $this->requestId;
         }
+        if (null !== $this->data) {
+            $res['Data'] = $this->data;
+        }
 
         return $res;
     }
@@ -34,13 +44,16 @@ class UpdateMeshFeatureResponse extends Model
     /**
      * @param array $map
      *
-     * @return UpdateMeshFeatureResponse
+     * @return AddVmAppToMeshResponse
      */
     public static function fromMap($map = [])
     {
         $model = new self();
         if (isset($map['RequestId'])) {
             $model->requestId = $map['RequestId'];
+        }
+        if (isset($map['Data'])) {
+            $model->data = $map['Data'];
         }
 
         return $model;

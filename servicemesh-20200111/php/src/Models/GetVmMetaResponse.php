@@ -4,21 +4,29 @@
 
 namespace AlibabaCloud\SDK\Servicemesh\V20200111\Models;
 
+use AlibabaCloud\SDK\Servicemesh\V20200111\Models\GetVmMetaResponse\vmMetaInfo;
 use AlibabaCloud\Tea\Model;
 
-class UpdateMeshFeatureResponse extends Model
+class GetVmMetaResponse extends Model
 {
     /**
      * @var string
      */
     public $requestId;
+
+    /**
+     * @var vmMetaInfo
+     */
+    public $vmMetaInfo;
     protected $_name = [
-        'requestId' => 'RequestId',
+        'requestId'  => 'RequestId',
+        'vmMetaInfo' => 'VmMetaInfo',
     ];
 
     public function validate()
     {
         Model::validateRequired('requestId', $this->requestId, true);
+        Model::validateRequired('vmMetaInfo', $this->vmMetaInfo, true);
     }
 
     public function toMap()
@@ -27,6 +35,9 @@ class UpdateMeshFeatureResponse extends Model
         if (null !== $this->requestId) {
             $res['RequestId'] = $this->requestId;
         }
+        if (null !== $this->vmMetaInfo) {
+            $res['VmMetaInfo'] = null !== $this->vmMetaInfo ? $this->vmMetaInfo->toMap() : null;
+        }
 
         return $res;
     }
@@ -34,13 +45,16 @@ class UpdateMeshFeatureResponse extends Model
     /**
      * @param array $map
      *
-     * @return UpdateMeshFeatureResponse
+     * @return GetVmMetaResponse
      */
     public static function fromMap($map = [])
     {
         $model = new self();
         if (isset($map['RequestId'])) {
             $model->requestId = $map['RequestId'];
+        }
+        if (isset($map['VmMetaInfo'])) {
+            $model->vmMetaInfo = vmMetaInfo::fromMap($map['VmMetaInfo']);
         }
 
         return $model;

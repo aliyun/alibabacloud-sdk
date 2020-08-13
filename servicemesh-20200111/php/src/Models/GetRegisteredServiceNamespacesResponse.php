@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class GetRegisteredServiceNamespacesResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description namespaces
-     *
      * @var array
      */
     public $namespaces;
@@ -39,10 +35,7 @@ class GetRegisteredServiceNamespacesResponse extends Model
             $res['RequestId'] = $this->requestId;
         }
         if (null !== $this->namespaces) {
-            $res['Namespaces'] = [];
-            if (null !== $this->namespaces) {
-                $res['Namespaces'] = $this->namespaces;
-            }
+            $res['Namespaces'] = $this->namespaces;
         }
 
         return $res;
@@ -61,7 +54,6 @@ class GetRegisteredServiceNamespacesResponse extends Model
         }
         if (isset($map['Namespaces'])) {
             if (!empty($map['Namespaces'])) {
-                $model->namespaces = [];
                 $model->namespaces = $map['Namespaces'];
             }
         }

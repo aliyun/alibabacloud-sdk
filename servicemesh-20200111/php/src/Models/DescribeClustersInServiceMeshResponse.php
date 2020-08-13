@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeClustersInServiceMeshResponse extends Model
 {
     /**
-     * @description RequestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description clusters
-     *
      * @var array
      */
     public $clusters;

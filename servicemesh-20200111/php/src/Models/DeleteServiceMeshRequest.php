@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class DeleteServiceMeshRequest extends Model
 {
     /**
-     * @description ServiceMeshId
-     *
      * @var string
      */
     public $serviceMeshId;
 
     /**
-     * @description force
-     *
      * @var bool
      */
     public $force;

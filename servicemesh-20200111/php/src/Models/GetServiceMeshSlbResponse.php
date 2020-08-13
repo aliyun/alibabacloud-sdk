@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class GetServiceMeshSlbResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var array
      */
     public $data;

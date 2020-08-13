@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class meshConfig extends Model
 {
     /**
-     * @description mtls
-     *
      * @var bool
      */
     public $mtls;
 
     /**
-     * @description outbound_traffic_policy
-     *
      * @var string
      */
     public $outboundTrafficPolicy;
 
     /**
-     * @description mtls_strict
-     *
      * @var bool
      */
     public $strictMtls;
 
     /**
-     * @description tracing
-     *
      * @var bool
      */
     public $tracing;
 
     /**
-     * @description telemetry_v2
-     *
      * @var bool
      */
     public $telemetry;

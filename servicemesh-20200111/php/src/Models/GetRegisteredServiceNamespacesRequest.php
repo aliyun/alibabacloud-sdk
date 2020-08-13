@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class GetRegisteredServiceNamespacesRequest extends Model
 {
     /**
-     * @description ServiceMeshId
-     *
      * @var string
      */
     public $serviceMeshId;

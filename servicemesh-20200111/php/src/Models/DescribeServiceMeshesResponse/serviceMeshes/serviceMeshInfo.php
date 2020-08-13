@@ -9,57 +9,41 @@ use AlibabaCloud\Tea\Model;
 class serviceMeshInfo extends Model
 {
     /**
-     * @description created
-     *
      * @var string
      */
     public $creationTime;
 
     /**
-     * @description errMsg
-     *
      * @var string
      */
     public $errorMessage;
 
     /**
-     * @description name
-     *
      * @var string
      */
     public $name;
 
     /**
-     * @description region_id
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description cluster_id
-     *
      * @var string
      */
     public $serviceMeshId;
 
     /**
-     * @description state
-     *
      * @var string
      */
     public $state;
 
     /**
-     * @description updated
-     *
      * @var string
      */
     public $updateTime;
 
     /**
-     * @description current_version
-     *
      * @var string
      */
     public $version;

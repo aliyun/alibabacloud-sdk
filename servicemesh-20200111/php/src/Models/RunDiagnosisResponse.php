@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class RunDiagnosisResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description result
-     *
      * @var string
      */
     public $result;

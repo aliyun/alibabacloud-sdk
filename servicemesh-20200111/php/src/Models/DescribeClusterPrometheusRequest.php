@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class DescribeClusterPrometheusRequest extends Model
 {
     /**
-     * @description ServiceMeshId
-     *
      * @var string
      */
     public $serviceMeshId;
 
     /**
-     * @description k8sClusterId
-     *
      * @var string
      */
     public $k8sClusterId;
 
     /**
-     * @description k8sClusterRegionId
-     *
      * @var string
      */
     public $k8sClusterRegionId;

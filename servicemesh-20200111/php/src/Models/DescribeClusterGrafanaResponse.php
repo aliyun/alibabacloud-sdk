@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeClusterGrafanaResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description dashboards
-     *
      * @var array
      */
     public $dashboards;

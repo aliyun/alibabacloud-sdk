@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class CreateServiceMeshResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description servicemesh_id
-     *
      * @var string
      */
     public $serviceMeshId;

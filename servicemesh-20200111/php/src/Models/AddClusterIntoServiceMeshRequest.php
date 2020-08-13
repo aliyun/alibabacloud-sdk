@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class AddClusterIntoServiceMeshRequest extends Model
 {
     /**
-     * @description ServiceMeshId
-     *
      * @var string
      */
     public $serviceMeshId;
 
     /**
-     * @description cluster_id
-     *
      * @var string
      */
     public $clusterId;

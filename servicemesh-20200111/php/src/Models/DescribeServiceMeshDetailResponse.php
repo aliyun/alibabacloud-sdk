@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeServiceMeshDetailResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var serviceMesh
      */
     public $serviceMesh;

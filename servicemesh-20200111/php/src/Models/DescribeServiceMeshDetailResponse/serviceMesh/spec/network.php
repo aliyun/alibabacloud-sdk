@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class network extends Model
 {
     /**
-     * @description security_group_id
-     *
      * @var string
      */
     public $securityGroupId;
 
     /**
-     * @description vpc_id
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description vswitch_ids
-     *
      * @var array
      */
     public $vSwitches;
@@ -51,10 +45,7 @@ class network extends Model
             $res['VpcId'] = $this->vpcId;
         }
         if (null !== $this->vSwitches) {
-            $res['VSwitches'] = [];
-            if (null !== $this->vSwitches) {
-                $res['VSwitches'] = $this->vSwitches;
-            }
+            $res['VSwitches'] = $this->vSwitches;
         }
 
         return $res;
@@ -76,7 +67,6 @@ class network extends Model
         }
         if (isset($map['VSwitches'])) {
             if (!empty($map['VSwitches'])) {
-                $model->vSwitches = [];
                 $model->vSwitches = $map['VSwitches'];
             }
         }

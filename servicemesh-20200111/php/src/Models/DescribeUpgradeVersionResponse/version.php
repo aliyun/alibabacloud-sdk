@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class version extends Model
 {
     /**
-     * @description istio_version
-     *
      * @var string
      */
     public $istioVersion;
 
     /**
-     * @description istio_operator_version
-     *
      * @var string
      */
     public $istioOperatorVersion;
 
     /**
-     * @description kubernetes_version
-     *
      * @var string
      */
     public $kubernetesVersion;

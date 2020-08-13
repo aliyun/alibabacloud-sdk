@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class DescribeGuestClusterAccessLogDashboardsRequest extends Model
 {
     /**
-     * @description k8sClusterId
-     *
      * @var string
      */
     public $k8sClusterId;

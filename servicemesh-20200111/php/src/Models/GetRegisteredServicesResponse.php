@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class GetRegisteredServicesResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description services
-     *
      * @var array
      */
     public $services;
@@ -39,10 +35,7 @@ class GetRegisteredServicesResponse extends Model
             $res['RequestId'] = $this->requestId;
         }
         if (null !== $this->services) {
-            $res['Services'] = [];
-            if (null !== $this->services) {
-                $res['Services'] = $this->services;
-            }
+            $res['Services'] = $this->services;
         }
 
         return $res;
@@ -61,7 +54,6 @@ class GetRegisteredServicesResponse extends Model
         }
         if (isset($map['Services'])) {
             if (!empty($map['Services'])) {
-                $model->services = [];
                 $model->services = $map['Services'];
             }
         }

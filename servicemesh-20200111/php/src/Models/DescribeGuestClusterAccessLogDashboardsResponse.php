@@ -10,22 +10,16 @@ use AlibabaCloud\Tea\Model;
 class DescribeGuestClusterAccessLogDashboardsResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description k8sClusterId
-     *
      * @var string
      */
     public $k8sClusterId;
 
     /**
-     * @description dashboards
-     *
      * @var array
      */
     public $dashboards;

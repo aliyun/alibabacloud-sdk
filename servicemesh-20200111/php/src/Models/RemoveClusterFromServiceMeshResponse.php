@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class RemoveClusterFromServiceMeshResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description code
-     *
      * @var string
      */
     public $code;
 
     /**
-     * @description message
-     *
      * @var string
      */
     public $message;
