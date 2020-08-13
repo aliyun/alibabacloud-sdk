@@ -24,6 +24,102 @@ namespace AlibabaCloud.SDK.Servicemesh20200111
         }
 
 
+        public AddVmAppToMeshResponse AddVmAppToMeshWithOptions(AddVmAppToMeshRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<AddVmAppToMeshResponse>(DoRequest("AddVmAppToMesh", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
+        }
+
+        public async Task<AddVmAppToMeshResponse> AddVmAppToMeshWithOptionsAsync(AddVmAppToMeshRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<AddVmAppToMeshResponse>(await DoRequestAsync("AddVmAppToMesh", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
+        }
+
+        public AddVmAppToMeshResponse AddVmAppToMesh(AddVmAppToMeshRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return AddVmAppToMeshWithOptions(request, runtime);
+        }
+
+        public async Task<AddVmAppToMeshResponse> AddVmAppToMeshAsync(AddVmAppToMeshRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await AddVmAppToMeshWithOptionsAsync(request, runtime);
+        }
+
+        public GetVmAppMeshInfoResponse GetVmAppMeshInfoWithOptions(GetVmAppMeshInfoRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<GetVmAppMeshInfoResponse>(DoRequest("GetVmAppMeshInfo", "HTTPS", "GET", "2020-01-11", "AK", request.ToMap(), null, runtime));
+        }
+
+        public async Task<GetVmAppMeshInfoResponse> GetVmAppMeshInfoWithOptionsAsync(GetVmAppMeshInfoRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<GetVmAppMeshInfoResponse>(await DoRequestAsync("GetVmAppMeshInfo", "HTTPS", "GET", "2020-01-11", "AK", request.ToMap(), null, runtime));
+        }
+
+        public GetVmAppMeshInfoResponse GetVmAppMeshInfo(GetVmAppMeshInfoRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return GetVmAppMeshInfoWithOptions(request, runtime);
+        }
+
+        public async Task<GetVmAppMeshInfoResponse> GetVmAppMeshInfoAsync(GetVmAppMeshInfoRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await GetVmAppMeshInfoWithOptionsAsync(request, runtime);
+        }
+
+        public GetVmMetaResponse GetVmMetaWithOptions(GetVmMetaRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<GetVmMetaResponse>(DoRequest("GetVmMeta", "HTTPS", "GET", "2020-01-11", "AK", request.ToMap(), null, runtime));
+        }
+
+        public async Task<GetVmMetaResponse> GetVmMetaWithOptionsAsync(GetVmMetaRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<GetVmMetaResponse>(await DoRequestAsync("GetVmMeta", "HTTPS", "GET", "2020-01-11", "AK", request.ToMap(), null, runtime));
+        }
+
+        public GetVmMetaResponse GetVmMeta(GetVmMetaRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return GetVmMetaWithOptions(request, runtime);
+        }
+
+        public async Task<GetVmMetaResponse> GetVmMetaAsync(GetVmMetaRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await GetVmMetaWithOptionsAsync(request, runtime);
+        }
+
+        public RemoveVmAppFromMeshResponse RemoveVmAppFromMeshWithOptions(RemoveVmAppFromMeshRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<RemoveVmAppFromMeshResponse>(DoRequest("RemoveVmAppFromMesh", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
+        }
+
+        public async Task<RemoveVmAppFromMeshResponse> RemoveVmAppFromMeshWithOptionsAsync(RemoveVmAppFromMeshRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<RemoveVmAppFromMeshResponse>(await DoRequestAsync("RemoveVmAppFromMesh", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
+        }
+
+        public RemoveVmAppFromMeshResponse RemoveVmAppFromMesh(RemoveVmAppFromMeshRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return RemoveVmAppFromMeshWithOptions(request, runtime);
+        }
+
+        public async Task<RemoveVmAppFromMeshResponse> RemoveVmAppFromMeshAsync(RemoveVmAppFromMeshRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await RemoveVmAppFromMeshWithOptionsAsync(request, runtime);
+        }
+
         public GetRegisteredServiceEndpointsResponse GetRegisteredServiceEndpointsWithOptions(GetRegisteredServiceEndpointsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);

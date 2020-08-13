@@ -113,6 +113,12 @@ namespace AlibabaCloud.SDK.Servicemesh20200111.Models
                     [NameInMap("CustomizedZipkin")]
                     [Validation(Required=true)]
                     public bool? CustomizedZipkin { get; set; }
+                    [NameInMap("OutboundTrafficPolicy")]
+                    [Validation(Required=true)]
+                    public string OutboundTrafficPolicy { get; set; }
+                    [NameInMap("IncludeIPRanges")]
+                    [Validation(Required=true)]
+                    public string IncludeIPRanges { get; set; }
                     [NameInMap("Pilot")]
                     [Validation(Required=true)]
                     public DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigPilot Pilot { get; set; }
@@ -162,6 +168,31 @@ namespace AlibabaCloud.SDK.Servicemesh20200111.Models
                         [NameInMap("Project")]
                         [Validation(Required=true)]
                         public string Project { get; set; }
+
+                    }
+                    [NameInMap("Proxy")]
+                    [Validation(Required=true)]
+                    public DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigProxy Proxy { get; set; }
+                    public class DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigProxy : TeaModel {
+                        [NameInMap("ClusterDomain")]
+                        [Validation(Required=true)]
+                        public string ClusterDomain { get; set; }
+
+                        [NameInMap("RequestCPU")]
+                        [Validation(Required=true)]
+                        public string RequestCPU { get; set; }
+
+                        [NameInMap("RequestMemory")]
+                        [Validation(Required=true)]
+                        public string RequestMemory { get; set; }
+
+                        [NameInMap("LimitCPU")]
+                        [Validation(Required=true)]
+                        public string LimitCPU { get; set; }
+
+                        [NameInMap("LimitMemory")]
+                        [Validation(Required=true)]
+                        public string LimitMemory { get; set; }
 
                     }
                 };
