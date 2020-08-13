@@ -1,8 +1,168 @@
 // This file is auto-generated, don't edit it
-import Util, * as $Util from '@alicloud/tea-util';
+import OSS, * as $OSS from '@alicloud/oss-client';
+import OpenPlatform, * as $OpenPlatform from '@alicloud/openplatform20191219';
+import RPCUtil from '@alicloud/rpc-util';
 import RPC, * as $RPC from '@alicloud/rpc-client';
+import OSSUtil, * as $OSSUtil from '@alicloud/oss-util';
+import Util, * as $Util from '@alicloud/tea-util';
+import FileForm, * as $FileForm from '@alicloud/tea-fileform';
 import EndpointUtil from '@alicloud/endpoint-util';
+import { Readable } from 'stream';
 import * as $tea from '@alicloud/tea-typescript';
+
+export class DetectKneeXRayRequest extends $tea.Model {
+  url: string;
+  dataFormat: string;
+  static names(): { [key: string]: string } {
+    return {
+      url: 'Url',
+      dataFormat: 'DataFormat',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      url: 'string',
+      dataFormat: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectKneeXRayResponse extends $tea.Model {
+  requestId: string;
+  data: DetectKneeXRayResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: DetectKneeXRayResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectKneeXRayAdvanceRequest extends $tea.Model {
+  urlObject: Readable;
+  dataFormat: string;
+  static names(): { [key: string]: string } {
+    return {
+      urlObject: 'UrlObject',
+      dataFormat: 'DataFormat',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      urlObject: 'Readable',
+      dataFormat: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectSpineMRIRequest extends $tea.Model {
+  URLList: DetectSpineMRIRequestURLList[];
+  static names(): { [key: string]: string } {
+    return {
+      URLList: 'URLList',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      URLList: { 'type': 'array', 'itemType': DetectSpineMRIRequestURLList },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectSpineMRIResponse extends $tea.Model {
+  requestId: string;
+  data: DetectSpineMRIResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: DetectSpineMRIResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class TranslateMedRequest extends $tea.Model {
+  fromLanguage: string;
+  toLanguage: string;
+  text: string;
+  static names(): { [key: string]: string } {
+    return {
+      fromLanguage: 'FromLanguage',
+      toLanguage: 'ToLanguage',
+      text: 'Text',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      fromLanguage: 'string',
+      toLanguage: 'string',
+      text: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class TranslateMedResponse extends $tea.Model {
+  requestId: string;
+  data: TranslateMedResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: TranslateMedResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
 
 export class DetectLungNoduleRequest extends $tea.Model {
   URLList: DetectLungNoduleRequestURLList[];
@@ -119,6 +279,157 @@ export class GetAsyncJobResultResponse extends $tea.Model {
     return {
       requestId: 'string',
       data: GetAsyncJobResultResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectKneeXRayResponseDataKLDetections extends $tea.Model {
+  detections: number[];
+  static names(): { [key: string]: string } {
+    return {
+      detections: 'Detections',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      detections: { 'type': 'array', 'itemType': 'number' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectKneeXRayResponseData extends $tea.Model {
+  KLDetections: DetectKneeXRayResponseDataKLDetections[];
+  static names(): { [key: string]: string } {
+    return {
+      KLDetections: 'KLDetections',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      KLDetections: { 'type': 'array', 'itemType': DetectKneeXRayResponseDataKLDetections },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectSpineMRIRequestURLList extends $tea.Model {
+  URL: string;
+  static names(): { [key: string]: string } {
+    return {
+      URL: 'URL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      URL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectSpineMRIResponseDataDiscs extends $tea.Model {
+  disease: string;
+  identification: string;
+  location: number[];
+  static names(): { [key: string]: string } {
+    return {
+      disease: 'Disease',
+      identification: 'Identification',
+      location: 'Location',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      disease: 'string',
+      identification: 'string',
+      location: { 'type': 'array', 'itemType': 'number' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectSpineMRIResponseDataVertebras extends $tea.Model {
+  disease: string;
+  identification: string;
+  location: number[];
+  static names(): { [key: string]: string } {
+    return {
+      disease: 'Disease',
+      identification: 'Identification',
+      location: 'Location',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      disease: 'string',
+      identification: 'string',
+      location: { 'type': 'array', 'itemType': 'number' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectSpineMRIResponseData extends $tea.Model {
+  discs: DetectSpineMRIResponseDataDiscs[];
+  vertebras: DetectSpineMRIResponseDataVertebras[];
+  static names(): { [key: string]: string } {
+    return {
+      discs: 'Discs',
+      vertebras: 'Vertebras',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      discs: { 'type': 'array', 'itemType': DetectSpineMRIResponseDataDiscs },
+      vertebras: { 'type': 'array', 'itemType': DetectSpineMRIResponseDataVertebras },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class TranslateMedResponseData extends $tea.Model {
+  text: string;
+  words: number;
+  static names(): { [key: string]: string } {
+    return {
+      text: 'Text',
+      words: 'Words',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      text: 'string',
+      words: 'number',
     };
   }
 
@@ -319,34 +630,90 @@ export default class Client extends RPC {
   }
 
 
-  async detectLungNoduleWithOptions(request: DetectLungNoduleRequest, runtime: $Util.RuntimeOptions): Promise<DetectLungNoduleResponse> {
+  async detectKneeXRay(request: DetectKneeXRayRequest, runtime: $Util.RuntimeOptions): Promise<DetectKneeXRayResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DetectKneeXRayResponse>(await this.doRequest("DetectKneeXRay", "HTTPS", "POST", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new DetectKneeXRayResponse({}));
+  }
+
+  async detectKneeXRayAdvance(request: DetectKneeXRayAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<DetectKneeXRayResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "imageprocess",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.urlObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let detectKneeXRayreq = new DetectKneeXRayRequest({ });
+    RPCUtil.convert(request, detectKneeXRayreq);
+    detectKneeXRayreq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let detectKneeXRayResp = await this.detectKneeXRay(detectKneeXRayreq, runtime);
+    return detectKneeXRayResp;
+  }
+
+  async detectSpineMRI(request: DetectSpineMRIRequest, runtime: $Util.RuntimeOptions): Promise<DetectSpineMRIResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DetectSpineMRIResponse>(await this.doRequest("DetectSpineMRI", "HTTPS", "POST", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new DetectSpineMRIResponse({}));
+  }
+
+  async translateMed(request: TranslateMedRequest, runtime: $Util.RuntimeOptions): Promise<TranslateMedResponse> {
+    Util.validateModel(request);
+    return $tea.cast<TranslateMedResponse>(await this.doRequest("TranslateMed", "HTTPS", "POST", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new TranslateMedResponse({}));
+  }
+
+  async detectLungNodule(request: DetectLungNoduleRequest, runtime: $Util.RuntimeOptions): Promise<DetectLungNoduleResponse> {
     Util.validateModel(request);
     return $tea.cast<DetectLungNoduleResponse>(await this.doRequest("DetectLungNodule", "HTTPS", "POST", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new DetectLungNoduleResponse({}));
   }
 
-  async detectLungNodule(request: DetectLungNoduleRequest): Promise<DetectLungNoduleResponse> {
-    let runtime = new $Util.RuntimeOptions({ });
-    return await this.detectLungNoduleWithOptions(request, runtime);
-  }
-
-  async detectCovid19CadWithOptions(request: DetectCovid19CadRequest, runtime: $Util.RuntimeOptions): Promise<DetectCovid19CadResponse> {
+  async detectCovid19Cad(request: DetectCovid19CadRequest, runtime: $Util.RuntimeOptions): Promise<DetectCovid19CadResponse> {
     Util.validateModel(request);
     return $tea.cast<DetectCovid19CadResponse>(await this.doRequest("DetectCovid19Cad", "HTTPS", "POST", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new DetectCovid19CadResponse({}));
   }
 
-  async detectCovid19Cad(request: DetectCovid19CadRequest): Promise<DetectCovid19CadResponse> {
-    let runtime = new $Util.RuntimeOptions({ });
-    return await this.detectCovid19CadWithOptions(request, runtime);
-  }
-
-  async getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, runtime: $Util.RuntimeOptions): Promise<GetAsyncJobResultResponse> {
+  async getAsyncJobResult(request: GetAsyncJobResultRequest, runtime: $Util.RuntimeOptions): Promise<GetAsyncJobResultResponse> {
     Util.validateModel(request);
     return $tea.cast<GetAsyncJobResultResponse>(await this.doRequest("GetAsyncJobResult", "HTTPS", "POST", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new GetAsyncJobResultResponse({}));
-  }
-
-  async getAsyncJobResult(request: GetAsyncJobResultRequest): Promise<GetAsyncJobResultResponse> {
-    let runtime = new $Util.RuntimeOptions({ });
-    return await this.getAsyncJobResultWithOptions(request, runtime);
   }
 
   getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: {[key: string ]: string}, endpoint: string): string {
