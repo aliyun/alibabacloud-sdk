@@ -17,4 +17,20 @@ public class VerifyFaceMaskAdvanceRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public VerifyFaceMaskAdvanceRequest setImageURLObject(java.io.InputStream imageURLObject) {
+        this.imageURLObject = imageURLObject;
+        return this;
+    }
+    public java.io.InputStream getImageURLObject() {
+        return this.imageURLObject;
+    }
+
+    public VerifyFaceMaskAdvanceRequest setRefUrl(String refUrl) {
+        this.refUrl = refUrl;
+        return this;
+    }
+    public String getRefUrl() {
+        return this.refUrl;
+    }
+
 }

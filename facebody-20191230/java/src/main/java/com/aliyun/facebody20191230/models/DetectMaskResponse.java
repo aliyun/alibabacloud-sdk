@@ -17,6 +17,22 @@ public class DetectMaskResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DetectMaskResponse setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+    public String getRequestId() {
+        return this.requestId;
+    }
+
+    public DetectMaskResponse setData(DetectMaskResponseData data) {
+        this.data = data;
+        return this;
+    }
+    public DetectMaskResponseData getData() {
+        return this.data;
+    }
+
     public static class DetectMaskResponseData extends TeaModel {
         @NameInMap("Mask")
         @Validation(required = true)
@@ -24,11 +40,27 @@ public class DetectMaskResponse extends TeaModel {
 
         @NameInMap("FaceProbability")
         @Validation(required = true)
-        public Double faceProbability;
+        public Float faceProbability;
 
         public static DetectMaskResponseData build(java.util.Map<String, ?> map) throws Exception {
             DetectMaskResponseData self = new DetectMaskResponseData();
             return TeaModel.build(map, self);
+        }
+
+        public DetectMaskResponseData setMask(Integer mask) {
+            this.mask = mask;
+            return this;
+        }
+        public Integer getMask() {
+            return this.mask;
+        }
+
+        public DetectMaskResponseData setFaceProbability(Float faceProbability) {
+            this.faceProbability = faceProbability;
+            return this;
+        }
+        public Float getFaceProbability() {
+            return this.faceProbability;
         }
 
     }

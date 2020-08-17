@@ -13,4 +13,12 @@ public class DetectVideoLivingFaceAdvanceRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DetectVideoLivingFaceAdvanceRequest setVideoUrlObject(java.io.InputStream videoUrlObject) {
+        this.videoUrlObject = videoUrlObject;
+        return this;
+    }
+    public java.io.InputStream getVideoUrlObject() {
+        return this.videoUrlObject;
+    }
+
 }

@@ -13,4 +13,12 @@ public class DetectCelebrityRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DetectCelebrityRequest setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+        return this;
+    }
+    public String getImageURL() {
+        return this.imageURL;
+    }
+
 }

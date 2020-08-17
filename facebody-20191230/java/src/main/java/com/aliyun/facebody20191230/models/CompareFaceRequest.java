@@ -17,4 +17,20 @@ public class CompareFaceRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public CompareFaceRequest setImageURLA(String imageURLA) {
+        this.imageURLA = imageURLA;
+        return this;
+    }
+    public String getImageURLA() {
+        return this.imageURLA;
+    }
+
+    public CompareFaceRequest setImageURLB(String imageURLB) {
+        this.imageURLB = imageURLB;
+        return this;
+    }
+    public String getImageURLB() {
+        return this.imageURLB;
+    }
+
 }

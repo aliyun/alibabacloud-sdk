@@ -13,4 +13,12 @@ public class CreateFaceDbRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public CreateFaceDbRequest setName(String name) {
+        this.name = name;
+        return this;
+    }
+    public String getName() {
+        return this.name;
+    }
+
 }

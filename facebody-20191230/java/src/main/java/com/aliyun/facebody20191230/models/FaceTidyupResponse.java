@@ -17,6 +17,22 @@ public class FaceTidyupResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public FaceTidyupResponse setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+    public String getRequestId() {
+        return this.requestId;
+    }
+
+    public FaceTidyupResponse setData(FaceTidyupResponseData data) {
+        this.data = data;
+        return this;
+    }
+    public FaceTidyupResponseData getData() {
+        return this.data;
+    }
+
     public static class FaceTidyupResponseData extends TeaModel {
         @NameInMap("ImageURL")
         @Validation(required = true)
@@ -25,6 +41,14 @@ public class FaceTidyupResponse extends TeaModel {
         public static FaceTidyupResponseData build(java.util.Map<String, ?> map) throws Exception {
             FaceTidyupResponseData self = new FaceTidyupResponseData();
             return TeaModel.build(map, self);
+        }
+
+        public FaceTidyupResponseData setImageURL(String imageURL) {
+            this.imageURL = imageURL;
+            return this;
+        }
+        public String getImageURL() {
+            return this.imageURL;
         }
 
     }

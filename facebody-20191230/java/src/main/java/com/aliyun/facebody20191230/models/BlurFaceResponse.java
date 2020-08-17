@@ -3,21 +3,21 @@ package com.aliyun.facebody20191230.models;
 
 import com.aliyun.tea.*;
 
-public class FaceBeautyResponse extends TeaModel {
+public class BlurFaceResponse extends TeaModel {
     @NameInMap("RequestId")
     @Validation(required = true)
     public String requestId;
 
     @NameInMap("Data")
     @Validation(required = true)
-    public FaceBeautyResponseData data;
+    public BlurFaceResponseData data;
 
-    public static FaceBeautyResponse build(java.util.Map<String, ?> map) throws Exception {
-        FaceBeautyResponse self = new FaceBeautyResponse();
+    public static BlurFaceResponse build(java.util.Map<String, ?> map) throws Exception {
+        BlurFaceResponse self = new BlurFaceResponse();
         return TeaModel.build(map, self);
     }
 
-    public FaceBeautyResponse setRequestId(String requestId) {
+    public BlurFaceResponse setRequestId(String requestId) {
         this.requestId = requestId;
         return this;
     }
@@ -25,25 +25,25 @@ public class FaceBeautyResponse extends TeaModel {
         return this.requestId;
     }
 
-    public FaceBeautyResponse setData(FaceBeautyResponseData data) {
+    public BlurFaceResponse setData(BlurFaceResponseData data) {
         this.data = data;
         return this;
     }
-    public FaceBeautyResponseData getData() {
+    public BlurFaceResponseData getData() {
         return this.data;
     }
 
-    public static class FaceBeautyResponseData extends TeaModel {
+    public static class BlurFaceResponseData extends TeaModel {
         @NameInMap("ImageURL")
         @Validation(required = true)
         public String imageURL;
 
-        public static FaceBeautyResponseData build(java.util.Map<String, ?> map) throws Exception {
-            FaceBeautyResponseData self = new FaceBeautyResponseData();
+        public static BlurFaceResponseData build(java.util.Map<String, ?> map) throws Exception {
+            BlurFaceResponseData self = new BlurFaceResponseData();
             return TeaModel.build(map, self);
         }
 
-        public FaceBeautyResponseData setImageURL(String imageURL) {
+        public BlurFaceResponseData setImageURL(String imageURL) {
             this.imageURL = imageURL;
             return this;
         }

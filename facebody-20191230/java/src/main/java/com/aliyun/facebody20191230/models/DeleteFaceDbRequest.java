@@ -13,4 +13,12 @@ public class DeleteFaceDbRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DeleteFaceDbRequest setName(String name) {
+        this.name = name;
+        return this;
+    }
+    public String getName() {
+        return this.name;
+    }
+
 }

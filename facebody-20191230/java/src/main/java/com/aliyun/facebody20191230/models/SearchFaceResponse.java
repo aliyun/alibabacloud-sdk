@@ -17,6 +17,22 @@ public class SearchFaceResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public SearchFaceResponse setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+    public String getRequestId() {
+        return this.requestId;
+    }
+
+    public SearchFaceResponse setData(SearchFaceResponseData data) {
+        this.data = data;
+        return this;
+    }
+    public SearchFaceResponseData getData() {
+        return this.data;
+    }
+
     public static class SearchFaceResponseDataMatchListFaceItems extends TeaModel {
         @NameInMap("FaceId")
         @Validation(required = true)
@@ -24,7 +40,7 @@ public class SearchFaceResponse extends TeaModel {
 
         @NameInMap("Score")
         @Validation(required = true)
-        public Double score;
+        public Float score;
 
         @NameInMap("ExtraData")
         @Validation(required = true)
@@ -37,6 +53,38 @@ public class SearchFaceResponse extends TeaModel {
         public static SearchFaceResponseDataMatchListFaceItems build(java.util.Map<String, ?> map) throws Exception {
             SearchFaceResponseDataMatchListFaceItems self = new SearchFaceResponseDataMatchListFaceItems();
             return TeaModel.build(map, self);
+        }
+
+        public SearchFaceResponseDataMatchListFaceItems setFaceId(String faceId) {
+            this.faceId = faceId;
+            return this;
+        }
+        public String getFaceId() {
+            return this.faceId;
+        }
+
+        public SearchFaceResponseDataMatchListFaceItems setScore(Float score) {
+            this.score = score;
+            return this;
+        }
+        public Float getScore() {
+            return this.score;
+        }
+
+        public SearchFaceResponseDataMatchListFaceItems setExtraData(String extraData) {
+            this.extraData = extraData;
+            return this;
+        }
+        public String getExtraData() {
+            return this.extraData;
+        }
+
+        public SearchFaceResponseDataMatchListFaceItems setEntityId(String entityId) {
+            this.entityId = entityId;
+            return this;
+        }
+        public String getEntityId() {
+            return this.entityId;
         }
 
     }
@@ -63,6 +111,38 @@ public class SearchFaceResponse extends TeaModel {
             return TeaModel.build(map, self);
         }
 
+        public SearchFaceResponseDataMatchListLocation setX(Integer x) {
+            this.x = x;
+            return this;
+        }
+        public Integer getX() {
+            return this.x;
+        }
+
+        public SearchFaceResponseDataMatchListLocation setY(Integer y) {
+            this.y = y;
+            return this;
+        }
+        public Integer getY() {
+            return this.y;
+        }
+
+        public SearchFaceResponseDataMatchListLocation setWidth(Integer width) {
+            this.width = width;
+            return this;
+        }
+        public Integer getWidth() {
+            return this.width;
+        }
+
+        public SearchFaceResponseDataMatchListLocation setHeight(Integer height) {
+            this.height = height;
+            return this;
+        }
+        public Integer getHeight() {
+            return this.height;
+        }
+
     }
 
     public static class SearchFaceResponseDataMatchList extends TeaModel {
@@ -79,6 +159,22 @@ public class SearchFaceResponse extends TeaModel {
             return TeaModel.build(map, self);
         }
 
+        public SearchFaceResponseDataMatchList setFaceItems(java.util.List<SearchFaceResponseDataMatchListFaceItems> faceItems) {
+            this.faceItems = faceItems;
+            return this;
+        }
+        public java.util.List<SearchFaceResponseDataMatchListFaceItems> getFaceItems() {
+            return this.faceItems;
+        }
+
+        public SearchFaceResponseDataMatchList setLocation(SearchFaceResponseDataMatchListLocation location) {
+            this.location = location;
+            return this;
+        }
+        public SearchFaceResponseDataMatchListLocation getLocation() {
+            return this.location;
+        }
+
     }
 
     public static class SearchFaceResponseData extends TeaModel {
@@ -89,6 +185,14 @@ public class SearchFaceResponse extends TeaModel {
         public static SearchFaceResponseData build(java.util.Map<String, ?> map) throws Exception {
             SearchFaceResponseData self = new SearchFaceResponseData();
             return TeaModel.build(map, self);
+        }
+
+        public SearchFaceResponseData setMatchList(java.util.List<SearchFaceResponseDataMatchList> matchList) {
+            this.matchList = matchList;
+            return this;
+        }
+        public java.util.List<SearchFaceResponseDataMatchList> getMatchList() {
+            return this.matchList;
         }
 
     }

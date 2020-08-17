@@ -17,4 +17,20 @@ public class VerifyFaceMaskRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public VerifyFaceMaskRequest setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+        return this;
+    }
+    public String getImageURL() {
+        return this.imageURL;
+    }
+
+    public VerifyFaceMaskRequest setRefUrl(String refUrl) {
+        this.refUrl = refUrl;
+        return this;
+    }
+    public String getRefUrl() {
+        return this.refUrl;
+    }
+
 }

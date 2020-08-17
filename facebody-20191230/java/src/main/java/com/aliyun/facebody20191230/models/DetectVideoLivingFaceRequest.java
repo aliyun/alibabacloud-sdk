@@ -13,4 +13,12 @@ public class DetectVideoLivingFaceRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DetectVideoLivingFaceRequest setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+        return this;
+    }
+    public String getVideoUrl() {
+        return this.videoUrl;
+    }
+
 }

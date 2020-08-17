@@ -13,4 +13,12 @@ public class BodyPostureRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public BodyPostureRequest setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+        return this;
+    }
+    public String getImageURL() {
+        return this.imageURL;
+    }
+
 }

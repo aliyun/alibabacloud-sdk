@@ -13,4 +13,12 @@ public class HandPostureRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public HandPostureRequest setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+        return this;
+    }
+    public String getImageURL() {
+        return this.imageURL;
+    }
+
 }

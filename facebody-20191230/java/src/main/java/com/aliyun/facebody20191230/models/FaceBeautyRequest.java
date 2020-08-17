@@ -10,19 +10,51 @@ public class FaceBeautyRequest extends TeaModel {
 
     @NameInMap("Sharp")
     @Validation(required = true)
-    public Double sharp;
+    public Float sharp;
 
     @NameInMap("Smooth")
     @Validation(required = true)
-    public Double smooth;
+    public Float smooth;
 
     @NameInMap("White")
     @Validation(required = true)
-    public Double white;
+    public Float white;
 
     public static FaceBeautyRequest build(java.util.Map<String, ?> map) throws Exception {
         FaceBeautyRequest self = new FaceBeautyRequest();
         return TeaModel.build(map, self);
+    }
+
+    public FaceBeautyRequest setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+        return this;
+    }
+    public String getImageURL() {
+        return this.imageURL;
+    }
+
+    public FaceBeautyRequest setSharp(Float sharp) {
+        this.sharp = sharp;
+        return this;
+    }
+    public Float getSharp() {
+        return this.sharp;
+    }
+
+    public FaceBeautyRequest setSmooth(Float smooth) {
+        this.smooth = smooth;
+        return this;
+    }
+    public Float getSmooth() {
+        return this.smooth;
+    }
+
+    public FaceBeautyRequest setWhite(Float white) {
+        this.white = white;
+        return this;
+    }
+    public Float getWhite() {
+        return this.white;
     }
 
 }

@@ -24,4 +24,36 @@ public class AddFaceAdvanceRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public AddFaceAdvanceRequest setImageUrlObject(java.io.InputStream imageUrlObject) {
+        this.imageUrlObject = imageUrlObject;
+        return this;
+    }
+    public java.io.InputStream getImageUrlObject() {
+        return this.imageUrlObject;
+    }
+
+    public AddFaceAdvanceRequest setDbName(String dbName) {
+        this.dbName = dbName;
+        return this;
+    }
+    public String getDbName() {
+        return this.dbName;
+    }
+
+    public AddFaceAdvanceRequest setEntityId(String entityId) {
+        this.entityId = entityId;
+        return this;
+    }
+    public String getEntityId() {
+        return this.entityId;
+    }
+
+    public AddFaceAdvanceRequest setExtraData(String extraData) {
+        this.extraData = extraData;
+        return this;
+    }
+    public String getExtraData() {
+        return this.extraData;
+    }
+
 }

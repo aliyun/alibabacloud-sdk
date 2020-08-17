@@ -17,4 +17,20 @@ public class DeleteFaceEntityRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DeleteFaceEntityRequest setDbName(String dbName) {
+        this.dbName = dbName;
+        return this;
+    }
+    public String getDbName() {
+        return this.dbName;
+    }
+
+    public DeleteFaceEntityRequest setEntityId(String entityId) {
+        this.entityId = entityId;
+        return this;
+    }
+    public String getEntityId() {
+        return this.entityId;
+    }
+
 }

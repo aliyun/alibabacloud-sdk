@@ -3,17 +3,17 @@ package com.aliyun.facebody20191230.models;
 
 import com.aliyun.tea.*;
 
-public class HandPostureAdvanceRequest extends TeaModel {
+public class BlurFaceAdvanceRequest extends TeaModel {
     @NameInMap("ImageURLObject")
     @Validation(required = true)
     public java.io.InputStream imageURLObject;
 
-    public static HandPostureAdvanceRequest build(java.util.Map<String, ?> map) throws Exception {
-        HandPostureAdvanceRequest self = new HandPostureAdvanceRequest();
+    public static BlurFaceAdvanceRequest build(java.util.Map<String, ?> map) throws Exception {
+        BlurFaceAdvanceRequest self = new BlurFaceAdvanceRequest();
         return TeaModel.build(map, self);
     }
 
-    public HandPostureAdvanceRequest setImageURLObject(java.io.InputStream imageURLObject) {
+    public BlurFaceAdvanceRequest setImageURLObject(java.io.InputStream imageURLObject) {
         this.imageURLObject = imageURLObject;
         return this;
     }

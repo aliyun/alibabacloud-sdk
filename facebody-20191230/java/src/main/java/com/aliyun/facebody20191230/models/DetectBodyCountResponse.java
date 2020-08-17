@@ -17,6 +17,22 @@ public class DetectBodyCountResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DetectBodyCountResponse setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+    public String getRequestId() {
+        return this.requestId;
+    }
+
+    public DetectBodyCountResponse setData(DetectBodyCountResponseData data) {
+        this.data = data;
+        return this;
+    }
+    public DetectBodyCountResponseData getData() {
+        return this.data;
+    }
+
     public static class DetectBodyCountResponseData extends TeaModel {
         @NameInMap("PersonNumber")
         @Validation(required = true)
@@ -25,6 +41,14 @@ public class DetectBodyCountResponse extends TeaModel {
         public static DetectBodyCountResponseData build(java.util.Map<String, ?> map) throws Exception {
             DetectBodyCountResponseData self = new DetectBodyCountResponseData();
             return TeaModel.build(map, self);
+        }
+
+        public DetectBodyCountResponseData setPersonNumber(Integer personNumber) {
+            this.personNumber = personNumber;
+            return this;
+        }
+        public Integer getPersonNumber() {
+            return this.personNumber;
         }
 
     }

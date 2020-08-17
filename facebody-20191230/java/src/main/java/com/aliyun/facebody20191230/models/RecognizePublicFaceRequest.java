@@ -13,6 +13,14 @@ public class RecognizePublicFaceRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public RecognizePublicFaceRequest setTask(java.util.List<RecognizePublicFaceRequestTask> task) {
+        this.task = task;
+        return this;
+    }
+    public java.util.List<RecognizePublicFaceRequestTask> getTask() {
+        return this.task;
+    }
+
     public static class RecognizePublicFaceRequestTask extends TeaModel {
         @NameInMap("ImageURL")
         @Validation(required = true)
@@ -21,6 +29,14 @@ public class RecognizePublicFaceRequest extends TeaModel {
         public static RecognizePublicFaceRequestTask build(java.util.Map<String, ?> map) throws Exception {
             RecognizePublicFaceRequestTask self = new RecognizePublicFaceRequestTask();
             return TeaModel.build(map, self);
+        }
+
+        public RecognizePublicFaceRequestTask setImageURL(String imageURL) {
+            this.imageURL = imageURL;
+            return this;
+        }
+        public String getImageURL() {
+            return this.imageURL;
         }
 
     }

@@ -3,17 +3,17 @@ package com.aliyun.facebody20191230.models;
 
 import com.aliyun.tea.*;
 
-public class ExtractPedestrianFeatureAttributeRequest extends TeaModel {
+public class BlurFaceRequest extends TeaModel {
     @NameInMap("ImageURL")
     @Validation(required = true)
     public String imageURL;
 
-    public static ExtractPedestrianFeatureAttributeRequest build(java.util.Map<String, ?> map) throws Exception {
-        ExtractPedestrianFeatureAttributeRequest self = new ExtractPedestrianFeatureAttributeRequest();
+    public static BlurFaceRequest build(java.util.Map<String, ?> map) throws Exception {
+        BlurFaceRequest self = new BlurFaceRequest();
         return TeaModel.build(map, self);
     }
 
-    public ExtractPedestrianFeatureAttributeRequest setImageURL(String imageURL) {
+    public BlurFaceRequest setImageURL(String imageURL) {
         this.imageURL = imageURL;
         return this;
     }

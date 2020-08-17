@@ -21,4 +21,28 @@ public class SearchFaceRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public SearchFaceRequest setDbName(String dbName) {
+        this.dbName = dbName;
+        return this;
+    }
+    public String getDbName() {
+        return this.dbName;
+    }
+
+    public SearchFaceRequest setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+        return this;
+    }
+    public String getImageUrl() {
+        return this.imageUrl;
+    }
+
+    public SearchFaceRequest setLimit(Integer limit) {
+        this.limit = limit;
+        return this;
+    }
+    public Integer getLimit() {
+        return this.limit;
+    }
+
 }

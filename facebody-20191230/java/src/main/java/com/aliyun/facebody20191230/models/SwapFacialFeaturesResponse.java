@@ -17,6 +17,22 @@ public class SwapFacialFeaturesResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public SwapFacialFeaturesResponse setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+    public String getRequestId() {
+        return this.requestId;
+    }
+
+    public SwapFacialFeaturesResponse setData(SwapFacialFeaturesResponseData data) {
+        this.data = data;
+        return this;
+    }
+    public SwapFacialFeaturesResponseData getData() {
+        return this.data;
+    }
+
     public static class SwapFacialFeaturesResponseData extends TeaModel {
         @NameInMap("ImageURL")
         @Validation(required = true)
@@ -25,6 +41,14 @@ public class SwapFacialFeaturesResponse extends TeaModel {
         public static SwapFacialFeaturesResponseData build(java.util.Map<String, ?> map) throws Exception {
             SwapFacialFeaturesResponseData self = new SwapFacialFeaturesResponseData();
             return TeaModel.build(map, self);
+        }
+
+        public SwapFacialFeaturesResponseData setImageURL(String imageURL) {
+            this.imageURL = imageURL;
+            return this;
+        }
+        public String getImageURL() {
+            return this.imageURL;
         }
 
     }

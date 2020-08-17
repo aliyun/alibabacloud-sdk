@@ -17,4 +17,20 @@ public class GetFaceEntityRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public GetFaceEntityRequest setDbName(String dbName) {
+        this.dbName = dbName;
+        return this;
+    }
+    public String getDbName() {
+        return this.dbName;
+    }
+
+    public GetFaceEntityRequest setEntityId(String entityId) {
+        this.entityId = entityId;
+        return this;
+    }
+    public String getEntityId() {
+        return this.entityId;
+    }
+
 }

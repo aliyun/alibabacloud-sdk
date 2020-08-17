@@ -17,6 +17,22 @@ public class GetFaceEntityResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public GetFaceEntityResponse setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+    public String getRequestId() {
+        return this.requestId;
+    }
+
+    public GetFaceEntityResponse setData(GetFaceEntityResponseData data) {
+        this.data = data;
+        return this;
+    }
+    public GetFaceEntityResponseData getData() {
+        return this.data;
+    }
+
     public static class GetFaceEntityResponseDataFaces extends TeaModel {
         @NameInMap("FaceId")
         @Validation(required = true)
@@ -25,6 +41,14 @@ public class GetFaceEntityResponse extends TeaModel {
         public static GetFaceEntityResponseDataFaces build(java.util.Map<String, ?> map) throws Exception {
             GetFaceEntityResponseDataFaces self = new GetFaceEntityResponseDataFaces();
             return TeaModel.build(map, self);
+        }
+
+        public GetFaceEntityResponseDataFaces setFaceId(String faceId) {
+            this.faceId = faceId;
+            return this;
+        }
+        public String getFaceId() {
+            return this.faceId;
         }
 
     }
@@ -49,6 +73,38 @@ public class GetFaceEntityResponse extends TeaModel {
         public static GetFaceEntityResponseData build(java.util.Map<String, ?> map) throws Exception {
             GetFaceEntityResponseData self = new GetFaceEntityResponseData();
             return TeaModel.build(map, self);
+        }
+
+        public GetFaceEntityResponseData setDbName(String dbName) {
+            this.dbName = dbName;
+            return this;
+        }
+        public String getDbName() {
+            return this.dbName;
+        }
+
+        public GetFaceEntityResponseData setEntityId(String entityId) {
+            this.entityId = entityId;
+            return this;
+        }
+        public String getEntityId() {
+            return this.entityId;
+        }
+
+        public GetFaceEntityResponseData setLabels(String labels) {
+            this.labels = labels;
+            return this;
+        }
+        public String getLabels() {
+            return this.labels;
+        }
+
+        public GetFaceEntityResponseData setFaces(java.util.List<GetFaceEntityResponseDataFaces> faces) {
+            this.faces = faces;
+            return this;
+        }
+        public java.util.List<GetFaceEntityResponseDataFaces> getFaces() {
+            return this.faces;
         }
 
     }

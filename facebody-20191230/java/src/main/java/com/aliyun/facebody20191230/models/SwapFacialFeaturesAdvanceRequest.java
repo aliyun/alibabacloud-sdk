@@ -21,4 +21,28 @@ public class SwapFacialFeaturesAdvanceRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public SwapFacialFeaturesAdvanceRequest setSourceImageURLObject(java.io.InputStream sourceImageURLObject) {
+        this.sourceImageURLObject = sourceImageURLObject;
+        return this;
+    }
+    public java.io.InputStream getSourceImageURLObject() {
+        return this.sourceImageURLObject;
+    }
+
+    public SwapFacialFeaturesAdvanceRequest setEditPart(String editPart) {
+        this.editPart = editPart;
+        return this;
+    }
+    public String getEditPart() {
+        return this.editPart;
+    }
+
+    public SwapFacialFeaturesAdvanceRequest setTargetImageURL(String targetImageURL) {
+        this.targetImageURL = targetImageURL;
+        return this;
+    }
+    public String getTargetImageURL() {
+        return this.targetImageURL;
+    }
+
 }

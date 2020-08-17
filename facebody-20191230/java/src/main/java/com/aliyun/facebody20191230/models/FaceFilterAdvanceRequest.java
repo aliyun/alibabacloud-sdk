@@ -14,11 +14,35 @@ public class FaceFilterAdvanceRequest extends TeaModel {
 
     @NameInMap("Strength")
     @Validation(required = true)
-    public Double strength;
+    public Float strength;
 
     public static FaceFilterAdvanceRequest build(java.util.Map<String, ?> map) throws Exception {
         FaceFilterAdvanceRequest self = new FaceFilterAdvanceRequest();
         return TeaModel.build(map, self);
+    }
+
+    public FaceFilterAdvanceRequest setImageURLObject(java.io.InputStream imageURLObject) {
+        this.imageURLObject = imageURLObject;
+        return this;
+    }
+    public java.io.InputStream getImageURLObject() {
+        return this.imageURLObject;
+    }
+
+    public FaceFilterAdvanceRequest setResourceType(String resourceType) {
+        this.resourceType = resourceType;
+        return this;
+    }
+    public String getResourceType() {
+        return this.resourceType;
+    }
+
+    public FaceFilterAdvanceRequest setStrength(Float strength) {
+        this.strength = strength;
+        return this;
+    }
+    public Float getStrength() {
+        return this.strength;
     }
 
 }
