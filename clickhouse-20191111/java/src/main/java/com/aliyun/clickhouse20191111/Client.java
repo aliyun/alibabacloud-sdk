@@ -59,6 +59,46 @@ public class Client extends com.aliyun.tearpc.Client {
     }
 
 
+    public ModifyDBClusterResponse modifyDBClusterWithOptions(ModifyDBClusterRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("ModifyDBCluster", "HTTPS", "POST", "2019-11-11", "AK", null, TeaModel.buildMap(request), runtime), new ModifyDBClusterResponse());
+    }
+
+    public ModifyDBClusterResponse modifyDBCluster(ModifyDBClusterRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.modifyDBClusterWithOptions(request, runtime);
+    }
+
+    public DescribeLogHubAttributeResponse describeLogHubAttributeWithOptions(DescribeLogHubAttributeRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("DescribeLogHubAttribute", "HTTPS", "POST", "2019-11-11", "AK", null, TeaModel.buildMap(request), runtime), new DescribeLogHubAttributeResponse());
+    }
+
+    public DescribeLogHubAttributeResponse describeLogHubAttribute(DescribeLogHubAttributeRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.describeLogHubAttributeWithOptions(request, runtime);
+    }
+
+    public CreateServiceLinkedRoleResponse createServiceLinkedRoleWithOptions(CreateServiceLinkedRoleRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("CreateServiceLinkedRole", "HTTPS", "POST", "2019-11-11", "AK", null, TeaModel.buildMap(request), runtime), new CreateServiceLinkedRoleResponse());
+    }
+
+    public CreateServiceLinkedRoleResponse createServiceLinkedRole(CreateServiceLinkedRoleRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.createServiceLinkedRoleWithOptions(request, runtime);
+    }
+
+    public CheckServiceLinkedRoleResponse checkServiceLinkedRoleWithOptions(CheckServiceLinkedRoleRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("CheckServiceLinkedRole", "HTTPS", "POST", "2019-11-11", "AK", null, TeaModel.buildMap(request), runtime), new CheckServiceLinkedRoleResponse());
+    }
+
+    public CheckServiceLinkedRoleResponse checkServiceLinkedRole(CheckServiceLinkedRoleRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.checkServiceLinkedRoleWithOptions(request, runtime);
+    }
+
     public ModifyDBConfigResponse modifyDBConfigWithOptions(ModifyDBConfigRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
         return TeaModel.toModel(this.doRequest("ModifyDBConfig", "HTTPS", "POST", "2019-11-11", "AK", null, TeaModel.buildMap(request), runtime), new ModifyDBConfigResponse());
