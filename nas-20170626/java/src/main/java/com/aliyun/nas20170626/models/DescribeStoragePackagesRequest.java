@@ -22,4 +22,36 @@ public class DescribeStoragePackagesRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DescribeStoragePackagesRequest setRegionId(String regionId) {
+        this.regionId = regionId;
+        return this;
+    }
+    public String getRegionId() {
+        return this.regionId;
+    }
+
+    public DescribeStoragePackagesRequest setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+        return this;
+    }
+    public Integer getPageSize() {
+        return this.pageSize;
+    }
+
+    public DescribeStoragePackagesRequest setUseUTCDateTime(Boolean useUTCDateTime) {
+        this.useUTCDateTime = useUTCDateTime;
+        return this;
+    }
+    public Boolean getUseUTCDateTime() {
+        return this.useUTCDateTime;
+    }
+
+    public DescribeStoragePackagesRequest setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+        return this;
+    }
+    public Integer getPageNumber() {
+        return this.pageNumber;
+    }
+
 }

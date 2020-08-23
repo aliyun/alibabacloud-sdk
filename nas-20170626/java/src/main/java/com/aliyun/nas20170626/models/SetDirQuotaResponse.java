@@ -17,4 +17,20 @@ public class SetDirQuotaResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public SetDirQuotaResponse setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+    public String getRequestId() {
+        return this.requestId;
+    }
+
+    public SetDirQuotaResponse setSuccess(Boolean success) {
+        this.success = success;
+        return this;
+    }
+    public Boolean getSuccess() {
+        return this.success;
+    }
+
 }

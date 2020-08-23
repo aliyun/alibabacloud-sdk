@@ -24,4 +24,36 @@ public class CreateLDAPConfigRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public CreateLDAPConfigRequest setFileSystemId(String fileSystemId) {
+        this.fileSystemId = fileSystemId;
+        return this;
+    }
+    public String getFileSystemId() {
+        return this.fileSystemId;
+    }
+
+    public CreateLDAPConfigRequest setURI(String URI) {
+        this.URI = URI;
+        return this;
+    }
+    public String getURI() {
+        return this.URI;
+    }
+
+    public CreateLDAPConfigRequest setBindDN(String bindDN) {
+        this.bindDN = bindDN;
+        return this;
+    }
+    public String getBindDN() {
+        return this.bindDN;
+    }
+
+    public CreateLDAPConfigRequest setSearchBase(String searchBase) {
+        this.searchBase = searchBase;
+        return this;
+    }
+    public String getSearchBase() {
+        return this.searchBase;
+    }
+
 }

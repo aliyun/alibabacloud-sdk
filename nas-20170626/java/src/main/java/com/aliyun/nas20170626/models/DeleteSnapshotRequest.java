@@ -13,4 +13,12 @@ public class DeleteSnapshotRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DeleteSnapshotRequest setSnapshotId(String snapshotId) {
+        this.snapshotId = snapshotId;
+        return this;
+    }
+    public String getSnapshotId() {
+        return this.snapshotId;
+    }
+
 }

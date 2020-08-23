@@ -25,4 +25,44 @@ public class DescribeAutoSnapshotTasksRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DescribeAutoSnapshotTasksRequest setFileSystemIds(String fileSystemIds) {
+        this.fileSystemIds = fileSystemIds;
+        return this;
+    }
+    public String getFileSystemIds() {
+        return this.fileSystemIds;
+    }
+
+    public DescribeAutoSnapshotTasksRequest setAutoSnapshotPolicyIds(String autoSnapshotPolicyIds) {
+        this.autoSnapshotPolicyIds = autoSnapshotPolicyIds;
+        return this;
+    }
+    public String getAutoSnapshotPolicyIds() {
+        return this.autoSnapshotPolicyIds;
+    }
+
+    public DescribeAutoSnapshotTasksRequest setFileSystemType(String fileSystemType) {
+        this.fileSystemType = fileSystemType;
+        return this;
+    }
+    public String getFileSystemType() {
+        return this.fileSystemType;
+    }
+
+    public DescribeAutoSnapshotTasksRequest setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+        return this;
+    }
+    public Integer getPageSize() {
+        return this.pageSize;
+    }
+
+    public DescribeAutoSnapshotTasksRequest setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+        return this;
+    }
+    public Integer getPageNumber() {
+        return this.pageNumber;
+    }
+
 }

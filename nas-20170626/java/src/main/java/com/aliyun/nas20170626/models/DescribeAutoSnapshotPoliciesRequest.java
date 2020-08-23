@@ -22,4 +22,36 @@ public class DescribeAutoSnapshotPoliciesRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DescribeAutoSnapshotPoliciesRequest setAutoSnapshotPolicyId(String autoSnapshotPolicyId) {
+        this.autoSnapshotPolicyId = autoSnapshotPolicyId;
+        return this;
+    }
+    public String getAutoSnapshotPolicyId() {
+        return this.autoSnapshotPolicyId;
+    }
+
+    public DescribeAutoSnapshotPoliciesRequest setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+        return this;
+    }
+    public Integer getPageSize() {
+        return this.pageSize;
+    }
+
+    public DescribeAutoSnapshotPoliciesRequest setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+        return this;
+    }
+    public Integer getPageNumber() {
+        return this.pageNumber;
+    }
+
+    public DescribeAutoSnapshotPoliciesRequest setFileSystemType(String fileSystemType) {
+        this.fileSystemType = fileSystemType;
+        return this;
+    }
+    public String getFileSystemType() {
+        return this.fileSystemType;
+    }
+
 }

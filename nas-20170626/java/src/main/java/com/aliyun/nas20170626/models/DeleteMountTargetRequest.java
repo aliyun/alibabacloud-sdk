@@ -17,4 +17,20 @@ public class DeleteMountTargetRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DeleteMountTargetRequest setFileSystemId(String fileSystemId) {
+        this.fileSystemId = fileSystemId;
+        return this;
+    }
+    public String getFileSystemId() {
+        return this.fileSystemId;
+    }
+
+    public DeleteMountTargetRequest setMountTargetDomain(String mountTargetDomain) {
+        this.mountTargetDomain = mountTargetDomain;
+        return this;
+    }
+    public String getMountTargetDomain() {
+        return this.mountTargetDomain;
+    }
+
 }

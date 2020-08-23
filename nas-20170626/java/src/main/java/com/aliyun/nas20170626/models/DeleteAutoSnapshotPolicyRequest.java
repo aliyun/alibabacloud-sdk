@@ -13,4 +13,12 @@ public class DeleteAutoSnapshotPolicyRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DeleteAutoSnapshotPolicyRequest setAutoSnapshotPolicyId(String autoSnapshotPolicyId) {
+        this.autoSnapshotPolicyId = autoSnapshotPolicyId;
+        return this;
+    }
+    public String getAutoSnapshotPolicyId() {
+        return this.autoSnapshotPolicyId;
+    }
+
 }

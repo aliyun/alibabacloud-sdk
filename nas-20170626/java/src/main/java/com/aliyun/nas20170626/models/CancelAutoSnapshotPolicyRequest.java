@@ -13,4 +13,12 @@ public class CancelAutoSnapshotPolicyRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public CancelAutoSnapshotPolicyRequest setFileSystemIds(String fileSystemIds) {
+        this.fileSystemIds = fileSystemIds;
+        return this;
+    }
+    public String getFileSystemIds() {
+        return this.fileSystemIds;
+    }
+
 }

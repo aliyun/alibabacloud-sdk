@@ -19,4 +19,28 @@ public class ModifyAccessGroupRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public ModifyAccessGroupRequest setAccessGroupName(String accessGroupName) {
+        this.accessGroupName = accessGroupName;
+        return this;
+    }
+    public String getAccessGroupName() {
+        return this.accessGroupName;
+    }
+
+    public ModifyAccessGroupRequest setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+    public String getDescription() {
+        return this.description;
+    }
+
+    public ModifyAccessGroupRequest setFileSystemType(String fileSystemType) {
+        this.fileSystemType = fileSystemType;
+        return this;
+    }
+    public String getFileSystemType() {
+        return this.fileSystemType;
+    }
+
 }

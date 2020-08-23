@@ -17,4 +17,20 @@ public class CreateLifecyclePolicyResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public CreateLifecyclePolicyResponse setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+    public String getRequestId() {
+        return this.requestId;
+    }
+
+    public CreateLifecyclePolicyResponse setSuccess(Boolean success) {
+        this.success = success;
+        return this;
+    }
+    public Boolean getSuccess() {
+        return this.success;
+    }
+
 }

@@ -17,4 +17,20 @@ public class DeleteLifecyclePolicyRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DeleteLifecyclePolicyRequest setFileSystemId(String fileSystemId) {
+        this.fileSystemId = fileSystemId;
+        return this;
+    }
+    public String getFileSystemId() {
+        return this.fileSystemId;
+    }
+
+    public DeleteLifecyclePolicyRequest setLifecyclePolicyName(String lifecyclePolicyName) {
+        this.lifecyclePolicyName = lifecyclePolicyName;
+        return this;
+    }
+    public String getLifecyclePolicyName() {
+        return this.lifecyclePolicyName;
+    }
+
 }

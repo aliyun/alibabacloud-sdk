@@ -29,6 +29,46 @@ public class DescribeSnapshotsResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DescribeSnapshotsResponse setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+    public String getRequestId() {
+        return this.requestId;
+    }
+
+    public DescribeSnapshotsResponse setTotalCount(Integer totalCount) {
+        this.totalCount = totalCount;
+        return this;
+    }
+    public Integer getTotalCount() {
+        return this.totalCount;
+    }
+
+    public DescribeSnapshotsResponse setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+        return this;
+    }
+    public Integer getPageSize() {
+        return this.pageSize;
+    }
+
+    public DescribeSnapshotsResponse setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+        return this;
+    }
+    public Integer getPageNumber() {
+        return this.pageNumber;
+    }
+
+    public DescribeSnapshotsResponse setSnapshots(DescribeSnapshotsResponseSnapshots snapshots) {
+        this.snapshots = snapshots;
+        return this;
+    }
+    public DescribeSnapshotsResponseSnapshots getSnapshots() {
+        return this.snapshots;
+    }
+
     public static class DescribeSnapshotsResponseSnapshotsSnapshot extends TeaModel {
         @NameInMap("CreateTime")
         @Validation(required = true)
@@ -83,6 +123,102 @@ public class DescribeSnapshotsResponse extends TeaModel {
             return TeaModel.build(map, self);
         }
 
+        public DescribeSnapshotsResponseSnapshotsSnapshot setCreateTime(String createTime) {
+            this.createTime = createTime;
+            return this;
+        }
+        public String getCreateTime() {
+            return this.createTime;
+        }
+
+        public DescribeSnapshotsResponseSnapshotsSnapshot setDescription(String description) {
+            this.description = description;
+            return this;
+        }
+        public String getDescription() {
+            return this.description;
+        }
+
+        public DescribeSnapshotsResponseSnapshotsSnapshot setProgress(String progress) {
+            this.progress = progress;
+            return this;
+        }
+        public String getProgress() {
+            return this.progress;
+        }
+
+        public DescribeSnapshotsResponseSnapshotsSnapshot setRemainTime(Integer remainTime) {
+            this.remainTime = remainTime;
+            return this;
+        }
+        public Integer getRemainTime() {
+            return this.remainTime;
+        }
+
+        public DescribeSnapshotsResponseSnapshotsSnapshot setRetentionDays(Integer retentionDays) {
+            this.retentionDays = retentionDays;
+            return this;
+        }
+        public Integer getRetentionDays() {
+            return this.retentionDays;
+        }
+
+        public DescribeSnapshotsResponseSnapshotsSnapshot setSnapshotId(String snapshotId) {
+            this.snapshotId = snapshotId;
+            return this;
+        }
+        public String getSnapshotId() {
+            return this.snapshotId;
+        }
+
+        public DescribeSnapshotsResponseSnapshotsSnapshot setSnapshotName(String snapshotName) {
+            this.snapshotName = snapshotName;
+            return this;
+        }
+        public String getSnapshotName() {
+            return this.snapshotName;
+        }
+
+        public DescribeSnapshotsResponseSnapshotsSnapshot setSourceFileSystemId(String sourceFileSystemId) {
+            this.sourceFileSystemId = sourceFileSystemId;
+            return this;
+        }
+        public String getSourceFileSystemId() {
+            return this.sourceFileSystemId;
+        }
+
+        public DescribeSnapshotsResponseSnapshotsSnapshot setSourceFileSystemSize(Long sourceFileSystemSize) {
+            this.sourceFileSystemSize = sourceFileSystemSize;
+            return this;
+        }
+        public Long getSourceFileSystemSize() {
+            return this.sourceFileSystemSize;
+        }
+
+        public DescribeSnapshotsResponseSnapshotsSnapshot setStatus(String status) {
+            this.status = status;
+            return this;
+        }
+        public String getStatus() {
+            return this.status;
+        }
+
+        public DescribeSnapshotsResponseSnapshotsSnapshot setEncryptType(Integer encryptType) {
+            this.encryptType = encryptType;
+            return this;
+        }
+        public Integer getEncryptType() {
+            return this.encryptType;
+        }
+
+        public DescribeSnapshotsResponseSnapshotsSnapshot setSourceFileSystemVersion(String sourceFileSystemVersion) {
+            this.sourceFileSystemVersion = sourceFileSystemVersion;
+            return this;
+        }
+        public String getSourceFileSystemVersion() {
+            return this.sourceFileSystemVersion;
+        }
+
     }
 
     public static class DescribeSnapshotsResponseSnapshots extends TeaModel {
@@ -93,6 +229,14 @@ public class DescribeSnapshotsResponse extends TeaModel {
         public static DescribeSnapshotsResponseSnapshots build(java.util.Map<String, ?> map) throws Exception {
             DescribeSnapshotsResponseSnapshots self = new DescribeSnapshotsResponseSnapshots();
             return TeaModel.build(map, self);
+        }
+
+        public DescribeSnapshotsResponseSnapshots setSnapshot(java.util.List<DescribeSnapshotsResponseSnapshotsSnapshot> snapshot) {
+            this.snapshot = snapshot;
+            return this;
+        }
+        public java.util.List<DescribeSnapshotsResponseSnapshotsSnapshot> getSnapshot() {
+            return this.snapshot;
         }
 
     }

@@ -23,4 +23,36 @@ public class ModifyMountTargetRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public ModifyMountTargetRequest setFileSystemId(String fileSystemId) {
+        this.fileSystemId = fileSystemId;
+        return this;
+    }
+    public String getFileSystemId() {
+        return this.fileSystemId;
+    }
+
+    public ModifyMountTargetRequest setMountTargetDomain(String mountTargetDomain) {
+        this.mountTargetDomain = mountTargetDomain;
+        return this;
+    }
+    public String getMountTargetDomain() {
+        return this.mountTargetDomain;
+    }
+
+    public ModifyMountTargetRequest setAccessGroupName(String accessGroupName) {
+        this.accessGroupName = accessGroupName;
+        return this;
+    }
+    public String getAccessGroupName() {
+        return this.accessGroupName;
+    }
+
+    public ModifyMountTargetRequest setStatus(String status) {
+        this.status = status;
+        return this;
+    }
+    public String getStatus() {
+        return this.status;
+    }
+
 }

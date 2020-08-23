@@ -23,4 +23,36 @@ public class UpgradeFileSystemRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public UpgradeFileSystemRequest setFileSystemId(String fileSystemId) {
+        this.fileSystemId = fileSystemId;
+        return this;
+    }
+    public String getFileSystemId() {
+        return this.fileSystemId;
+    }
+
+    public UpgradeFileSystemRequest setCapacity(Long capacity) {
+        this.capacity = capacity;
+        return this;
+    }
+    public Long getCapacity() {
+        return this.capacity;
+    }
+
+    public UpgradeFileSystemRequest setDryRun(Boolean dryRun) {
+        this.dryRun = dryRun;
+        return this;
+    }
+    public Boolean getDryRun() {
+        return this.dryRun;
+    }
+
+    public UpgradeFileSystemRequest setClientToken(String clientToken) {
+        this.clientToken = clientToken;
+        return this;
+    }
+    public String getClientToken() {
+        return this.clientToken;
+    }
+
 }

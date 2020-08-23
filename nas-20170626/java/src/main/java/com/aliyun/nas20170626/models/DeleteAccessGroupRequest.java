@@ -16,4 +16,20 @@ public class DeleteAccessGroupRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DeleteAccessGroupRequest setAccessGroupName(String accessGroupName) {
+        this.accessGroupName = accessGroupName;
+        return this;
+    }
+    public String getAccessGroupName() {
+        return this.accessGroupName;
+    }
+
+    public DeleteAccessGroupRequest setFileSystemType(String fileSystemType) {
+        this.fileSystemType = fileSystemType;
+        return this;
+    }
+    public String getFileSystemType() {
+        return this.fileSystemType;
+    }
+
 }

@@ -60,7 +60,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public DescribeLifecyclePoliciesResponse describeLifecyclePoliciesWithOptions(DescribeLifecyclePoliciesRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DescribeLifecyclePolicies", "HTTPS", "GET", "2017-06-26", "AK", null, TeaModel.buildMap(request), runtime), new DescribeLifecyclePoliciesResponse());
+        return TeaModel.toModel(this.doRequest("DescribeLifecyclePolicies", "HTTPS", "GET", "2017-06-26", "AK", TeaModel.buildMap(request), null, runtime), new DescribeLifecyclePoliciesResponse());
     }
 
     public DescribeLifecyclePoliciesResponse describeLifecyclePolicies(DescribeLifecyclePoliciesRequest request) throws Exception {
@@ -533,8 +533,8 @@ public class Client extends com.aliyun.tearpc.Client {
             return endpoint;
         }
 
-        if (!com.aliyun.teautil.Common.isUnset(endpointMap) && !com.aliyun.teautil.Common.empty(endpointMap.get("regionId"))) {
-            return endpointMap.get("regionId");
+        if (!com.aliyun.teautil.Common.isUnset(endpointMap) && !com.aliyun.teautil.Common.empty(endpointMap.get(regionId))) {
+            return endpointMap.get(regionId);
         }
 
         return com.aliyun.endpointutil.Client.getEndpointRules(productId, regionId, endpointRule, network, suffix);

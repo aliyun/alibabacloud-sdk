@@ -17,4 +17,20 @@ public class CreateAccessRuleResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public CreateAccessRuleResponse setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+    public String getRequestId() {
+        return this.requestId;
+    }
+
+    public CreateAccessRuleResponse setAccessRuleId(String accessRuleId) {
+        this.accessRuleId = accessRuleId;
+        return this;
+    }
+    public String getAccessRuleId() {
+        return this.accessRuleId;
+    }
+
 }

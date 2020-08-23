@@ -13,4 +13,12 @@ public class DeleteAccessRuleResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DeleteAccessRuleResponse setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+    public String getRequestId() {
+        return this.requestId;
+    }
+
 }

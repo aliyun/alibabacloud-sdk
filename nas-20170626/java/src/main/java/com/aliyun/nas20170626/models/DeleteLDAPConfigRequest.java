@@ -13,4 +13,12 @@ public class DeleteLDAPConfigRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DeleteLDAPConfigRequest setFileSystemId(String fileSystemId) {
+        this.fileSystemId = fileSystemId;
+        return this;
+    }
+    public String getFileSystemId() {
+        return this.fileSystemId;
+    }
+
 }

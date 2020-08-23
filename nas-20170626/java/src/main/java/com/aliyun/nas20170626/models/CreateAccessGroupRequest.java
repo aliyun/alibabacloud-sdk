@@ -23,4 +23,36 @@ public class CreateAccessGroupRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public CreateAccessGroupRequest setAccessGroupName(String accessGroupName) {
+        this.accessGroupName = accessGroupName;
+        return this;
+    }
+    public String getAccessGroupName() {
+        return this.accessGroupName;
+    }
+
+    public CreateAccessGroupRequest setAccessGroupType(String accessGroupType) {
+        this.accessGroupType = accessGroupType;
+        return this;
+    }
+    public String getAccessGroupType() {
+        return this.accessGroupType;
+    }
+
+    public CreateAccessGroupRequest setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+    public String getDescription() {
+        return this.description;
+    }
+
+    public CreateAccessGroupRequest setFileSystemType(String fileSystemType) {
+        this.fileSystemType = fileSystemType;
+        return this;
+    }
+    public String getFileSystemType() {
+        return this.fileSystemType;
+    }
+
 }

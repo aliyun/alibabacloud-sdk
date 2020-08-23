@@ -33,6 +33,54 @@ public class DescribeLogAnalysisResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DescribeLogAnalysisResponse setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+    public String getRequestId() {
+        return this.requestId;
+    }
+
+    public DescribeLogAnalysisResponse setCode(String code) {
+        this.code = code;
+        return this;
+    }
+    public String getCode() {
+        return this.code;
+    }
+
+    public DescribeLogAnalysisResponse setTotalCount(Integer totalCount) {
+        this.totalCount = totalCount;
+        return this;
+    }
+    public Integer getTotalCount() {
+        return this.totalCount;
+    }
+
+    public DescribeLogAnalysisResponse setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+        return this;
+    }
+    public Integer getPageSize() {
+        return this.pageSize;
+    }
+
+    public DescribeLogAnalysisResponse setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+        return this;
+    }
+    public Integer getPageNumber() {
+        return this.pageNumber;
+    }
+
+    public DescribeLogAnalysisResponse setAnalyses(DescribeLogAnalysisResponseAnalyses analyses) {
+        this.analyses = analyses;
+        return this;
+    }
+    public DescribeLogAnalysisResponseAnalyses getAnalyses() {
+        return this.analyses;
+    }
+
     public static class DescribeLogAnalysisResponseAnalysesAnalysisMetaValue extends TeaModel {
         @NameInMap("Logstore")
         @Validation(required = true)
@@ -55,6 +103,38 @@ public class DescribeLogAnalysisResponse extends TeaModel {
             return TeaModel.build(map, self);
         }
 
+        public DescribeLogAnalysisResponseAnalysesAnalysisMetaValue setLogstore(String logstore) {
+            this.logstore = logstore;
+            return this;
+        }
+        public String getLogstore() {
+            return this.logstore;
+        }
+
+        public DescribeLogAnalysisResponseAnalysesAnalysisMetaValue setRegion(String region) {
+            this.region = region;
+            return this;
+        }
+        public String getRegion() {
+            return this.region;
+        }
+
+        public DescribeLogAnalysisResponseAnalysesAnalysisMetaValue setProject(String project) {
+            this.project = project;
+            return this;
+        }
+        public String getProject() {
+            return this.project;
+        }
+
+        public DescribeLogAnalysisResponseAnalysesAnalysisMetaValue setRoleArn(String roleArn) {
+            this.roleArn = roleArn;
+            return this;
+        }
+        public String getRoleArn() {
+            return this.roleArn;
+        }
+
     }
 
     public static class DescribeLogAnalysisResponseAnalysesAnalysis extends TeaModel {
@@ -71,6 +151,22 @@ public class DescribeLogAnalysisResponse extends TeaModel {
             return TeaModel.build(map, self);
         }
 
+        public DescribeLogAnalysisResponseAnalysesAnalysis setMetaKey(String metaKey) {
+            this.metaKey = metaKey;
+            return this;
+        }
+        public String getMetaKey() {
+            return this.metaKey;
+        }
+
+        public DescribeLogAnalysisResponseAnalysesAnalysis setMetaValue(DescribeLogAnalysisResponseAnalysesAnalysisMetaValue metaValue) {
+            this.metaValue = metaValue;
+            return this;
+        }
+        public DescribeLogAnalysisResponseAnalysesAnalysisMetaValue getMetaValue() {
+            return this.metaValue;
+        }
+
     }
 
     public static class DescribeLogAnalysisResponseAnalyses extends TeaModel {
@@ -81,6 +177,14 @@ public class DescribeLogAnalysisResponse extends TeaModel {
         public static DescribeLogAnalysisResponseAnalyses build(java.util.Map<String, ?> map) throws Exception {
             DescribeLogAnalysisResponseAnalyses self = new DescribeLogAnalysisResponseAnalyses();
             return TeaModel.build(map, self);
+        }
+
+        public DescribeLogAnalysisResponseAnalyses setAnalysis(java.util.List<DescribeLogAnalysisResponseAnalysesAnalysis> analysis) {
+            this.analysis = analysis;
+            return this;
+        }
+        public java.util.List<DescribeLogAnalysisResponseAnalysesAnalysis> getAnalysis() {
+            return this.analysis;
         }
 
     }

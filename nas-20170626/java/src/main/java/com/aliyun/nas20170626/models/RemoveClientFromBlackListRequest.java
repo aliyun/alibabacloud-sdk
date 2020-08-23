@@ -25,4 +25,36 @@ public class RemoveClientFromBlackListRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public RemoveClientFromBlackListRequest setRegionId(String regionId) {
+        this.regionId = regionId;
+        return this;
+    }
+    public String getRegionId() {
+        return this.regionId;
+    }
+
+    public RemoveClientFromBlackListRequest setFileSystemId(String fileSystemId) {
+        this.fileSystemId = fileSystemId;
+        return this;
+    }
+    public String getFileSystemId() {
+        return this.fileSystemId;
+    }
+
+    public RemoveClientFromBlackListRequest setClientIP(String clientIP) {
+        this.clientIP = clientIP;
+        return this;
+    }
+    public String getClientIP() {
+        return this.clientIP;
+    }
+
+    public RemoveClientFromBlackListRequest setClientToken(String clientToken) {
+        this.clientToken = clientToken;
+        return this;
+    }
+    public String getClientToken() {
+        return this.clientToken;
+    }
+
 }

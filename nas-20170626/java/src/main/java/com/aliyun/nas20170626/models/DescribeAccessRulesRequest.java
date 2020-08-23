@@ -25,4 +25,44 @@ public class DescribeAccessRulesRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DescribeAccessRulesRequest setAccessGroupName(String accessGroupName) {
+        this.accessGroupName = accessGroupName;
+        return this;
+    }
+    public String getAccessGroupName() {
+        return this.accessGroupName;
+    }
+
+    public DescribeAccessRulesRequest setAccessRuleId(String accessRuleId) {
+        this.accessRuleId = accessRuleId;
+        return this;
+    }
+    public String getAccessRuleId() {
+        return this.accessRuleId;
+    }
+
+    public DescribeAccessRulesRequest setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+        return this;
+    }
+    public Integer getPageSize() {
+        return this.pageSize;
+    }
+
+    public DescribeAccessRulesRequest setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+        return this;
+    }
+    public Integer getPageNumber() {
+        return this.pageNumber;
+    }
+
+    public DescribeAccessRulesRequest setFileSystemType(String fileSystemType) {
+        this.fileSystemType = fileSystemType;
+        return this;
+    }
+    public String getFileSystemType() {
+        return this.fileSystemType;
+    }
+
 }

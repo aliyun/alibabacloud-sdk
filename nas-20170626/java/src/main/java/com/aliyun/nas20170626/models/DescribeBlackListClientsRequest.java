@@ -20,4 +20,28 @@ public class DescribeBlackListClientsRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DescribeBlackListClientsRequest setRegionId(String regionId) {
+        this.regionId = regionId;
+        return this;
+    }
+    public String getRegionId() {
+        return this.regionId;
+    }
+
+    public DescribeBlackListClientsRequest setFileSystemId(String fileSystemId) {
+        this.fileSystemId = fileSystemId;
+        return this;
+    }
+    public String getFileSystemId() {
+        return this.fileSystemId;
+    }
+
+    public DescribeBlackListClientsRequest setClientIP(String clientIP) {
+        this.clientIP = clientIP;
+        return this;
+    }
+    public String getClientIP() {
+        return this.clientIP;
+    }
+
 }

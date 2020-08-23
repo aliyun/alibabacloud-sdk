@@ -24,4 +24,36 @@ public class CancelDirQuotaRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public CancelDirQuotaRequest setFileSystemId(String fileSystemId) {
+        this.fileSystemId = fileSystemId;
+        return this;
+    }
+    public String getFileSystemId() {
+        return this.fileSystemId;
+    }
+
+    public CancelDirQuotaRequest setPath(String path) {
+        this.path = path;
+        return this;
+    }
+    public String getPath() {
+        return this.path;
+    }
+
+    public CancelDirQuotaRequest setUserType(String userType) {
+        this.userType = userType;
+        return this;
+    }
+    public String getUserType() {
+        return this.userType;
+    }
+
+    public CancelDirQuotaRequest setUserId(String userId) {
+        this.userId = userId;
+        return this;
+    }
+    public String getUserId() {
+        return this.userId;
+    }
+
 }

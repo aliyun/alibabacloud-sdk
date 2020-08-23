@@ -34,4 +34,68 @@ public class DescribeSnapshotsRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DescribeSnapshotsRequest setFileSystemType(String fileSystemType) {
+        this.fileSystemType = fileSystemType;
+        return this;
+    }
+    public String getFileSystemType() {
+        return this.fileSystemType;
+    }
+
+    public DescribeSnapshotsRequest setFileSystemId(String fileSystemId) {
+        this.fileSystemId = fileSystemId;
+        return this;
+    }
+    public String getFileSystemId() {
+        return this.fileSystemId;
+    }
+
+    public DescribeSnapshotsRequest setSnapshotIds(String snapshotIds) {
+        this.snapshotIds = snapshotIds;
+        return this;
+    }
+    public String getSnapshotIds() {
+        return this.snapshotIds;
+    }
+
+    public DescribeSnapshotsRequest setSnapshotName(String snapshotName) {
+        this.snapshotName = snapshotName;
+        return this;
+    }
+    public String getSnapshotName() {
+        return this.snapshotName;
+    }
+
+    public DescribeSnapshotsRequest setSnapshotType(String snapshotType) {
+        this.snapshotType = snapshotType;
+        return this;
+    }
+    public String getSnapshotType() {
+        return this.snapshotType;
+    }
+
+    public DescribeSnapshotsRequest setStatus(String status) {
+        this.status = status;
+        return this;
+    }
+    public String getStatus() {
+        return this.status;
+    }
+
+    public DescribeSnapshotsRequest setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+        return this;
+    }
+    public Integer getPageSize() {
+        return this.pageSize;
+    }
+
+    public DescribeSnapshotsRequest setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+        return this;
+    }
+    public Integer getPageNumber() {
+        return this.pageNumber;
+    }
+
 }

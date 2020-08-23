@@ -22,4 +22,36 @@ public class DescribeMountTargetsRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DescribeMountTargetsRequest setFileSystemId(String fileSystemId) {
+        this.fileSystemId = fileSystemId;
+        return this;
+    }
+    public String getFileSystemId() {
+        return this.fileSystemId;
+    }
+
+    public DescribeMountTargetsRequest setMountTargetDomain(String mountTargetDomain) {
+        this.mountTargetDomain = mountTargetDomain;
+        return this;
+    }
+    public String getMountTargetDomain() {
+        return this.mountTargetDomain;
+    }
+
+    public DescribeMountTargetsRequest setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+        return this;
+    }
+    public Integer getPageSize() {
+        return this.pageSize;
+    }
+
+    public DescribeMountTargetsRequest setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+        return this;
+    }
+    public Integer getPageNumber() {
+        return this.pageNumber;
+    }
+
 }

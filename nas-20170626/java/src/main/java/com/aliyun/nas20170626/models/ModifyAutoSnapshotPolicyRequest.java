@@ -25,4 +25,44 @@ public class ModifyAutoSnapshotPolicyRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public ModifyAutoSnapshotPolicyRequest setAutoSnapshotPolicyId(String autoSnapshotPolicyId) {
+        this.autoSnapshotPolicyId = autoSnapshotPolicyId;
+        return this;
+    }
+    public String getAutoSnapshotPolicyId() {
+        return this.autoSnapshotPolicyId;
+    }
+
+    public ModifyAutoSnapshotPolicyRequest setAutoSnapshotPolicyName(String autoSnapshotPolicyName) {
+        this.autoSnapshotPolicyName = autoSnapshotPolicyName;
+        return this;
+    }
+    public String getAutoSnapshotPolicyName() {
+        return this.autoSnapshotPolicyName;
+    }
+
+    public ModifyAutoSnapshotPolicyRequest setRepeatWeekdays(String repeatWeekdays) {
+        this.repeatWeekdays = repeatWeekdays;
+        return this;
+    }
+    public String getRepeatWeekdays() {
+        return this.repeatWeekdays;
+    }
+
+    public ModifyAutoSnapshotPolicyRequest setRetentionDays(Integer retentionDays) {
+        this.retentionDays = retentionDays;
+        return this;
+    }
+    public Integer getRetentionDays() {
+        return this.retentionDays;
+    }
+
+    public ModifyAutoSnapshotPolicyRequest setTimePoints(String timePoints) {
+        this.timePoints = timePoints;
+        return this;
+    }
+    public String getTimePoints() {
+        return this.timePoints;
+    }
+
 }

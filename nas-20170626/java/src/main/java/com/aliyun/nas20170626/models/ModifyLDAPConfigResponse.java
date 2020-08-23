@@ -13,4 +13,12 @@ public class ModifyLDAPConfigResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public ModifyLDAPConfigResponse setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+    public String getRequestId() {
+        return this.requestId;
+    }
+
 }

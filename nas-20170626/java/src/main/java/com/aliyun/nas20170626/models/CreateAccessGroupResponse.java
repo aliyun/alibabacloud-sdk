@@ -17,4 +17,20 @@ public class CreateAccessGroupResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public CreateAccessGroupResponse setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+    public String getRequestId() {
+        return this.requestId;
+    }
+
+    public CreateAccessGroupResponse setAccessGroupName(String accessGroupName) {
+        this.accessGroupName = accessGroupName;
+        return this;
+    }
+    public String getAccessGroupName() {
+        return this.accessGroupName;
+    }
+
 }

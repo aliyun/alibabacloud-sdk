@@ -29,6 +29,46 @@ public class DescribeMountedClientsResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DescribeMountedClientsResponse setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+    public String getRequestId() {
+        return this.requestId;
+    }
+
+    public DescribeMountedClientsResponse setTotalCount(Integer totalCount) {
+        this.totalCount = totalCount;
+        return this;
+    }
+    public Integer getTotalCount() {
+        return this.totalCount;
+    }
+
+    public DescribeMountedClientsResponse setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+        return this;
+    }
+    public Integer getPageSize() {
+        return this.pageSize;
+    }
+
+    public DescribeMountedClientsResponse setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+        return this;
+    }
+    public Integer getPageNumber() {
+        return this.pageNumber;
+    }
+
+    public DescribeMountedClientsResponse setClients(DescribeMountedClientsResponseClients clients) {
+        this.clients = clients;
+        return this;
+    }
+    public DescribeMountedClientsResponseClients getClients() {
+        return this.clients;
+    }
+
     public static class DescribeMountedClientsResponseClientsClient extends TeaModel {
         @NameInMap("ClientIP")
         @Validation(required = true)
@@ -37,6 +77,14 @@ public class DescribeMountedClientsResponse extends TeaModel {
         public static DescribeMountedClientsResponseClientsClient build(java.util.Map<String, ?> map) throws Exception {
             DescribeMountedClientsResponseClientsClient self = new DescribeMountedClientsResponseClientsClient();
             return TeaModel.build(map, self);
+        }
+
+        public DescribeMountedClientsResponseClientsClient setClientIP(String clientIP) {
+            this.clientIP = clientIP;
+            return this;
+        }
+        public String getClientIP() {
+            return this.clientIP;
         }
 
     }
@@ -49,6 +97,14 @@ public class DescribeMountedClientsResponse extends TeaModel {
         public static DescribeMountedClientsResponseClients build(java.util.Map<String, ?> map) throws Exception {
             DescribeMountedClientsResponseClients self = new DescribeMountedClientsResponseClients();
             return TeaModel.build(map, self);
+        }
+
+        public DescribeMountedClientsResponseClients setClient(java.util.List<DescribeMountedClientsResponseClientsClient> client) {
+            this.client = client;
+            return this;
+        }
+        public java.util.List<DescribeMountedClientsResponseClientsClient> getClient() {
+            return this.client;
         }
 
     }

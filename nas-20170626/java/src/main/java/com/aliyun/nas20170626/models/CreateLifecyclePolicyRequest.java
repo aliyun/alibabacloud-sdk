@@ -29,4 +29,44 @@ public class CreateLifecyclePolicyRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public CreateLifecyclePolicyRequest setFileSystemId(String fileSystemId) {
+        this.fileSystemId = fileSystemId;
+        return this;
+    }
+    public String getFileSystemId() {
+        return this.fileSystemId;
+    }
+
+    public CreateLifecyclePolicyRequest setLifecyclePolicyName(String lifecyclePolicyName) {
+        this.lifecyclePolicyName = lifecyclePolicyName;
+        return this;
+    }
+    public String getLifecyclePolicyName() {
+        return this.lifecyclePolicyName;
+    }
+
+    public CreateLifecyclePolicyRequest setPath(String path) {
+        this.path = path;
+        return this;
+    }
+    public String getPath() {
+        return this.path;
+    }
+
+    public CreateLifecyclePolicyRequest setLifecycleRuleName(String lifecycleRuleName) {
+        this.lifecycleRuleName = lifecycleRuleName;
+        return this;
+    }
+    public String getLifecycleRuleName() {
+        return this.lifecycleRuleName;
+    }
+
+    public CreateLifecyclePolicyRequest setStorageType(String storageType) {
+        this.storageType = storageType;
+        return this;
+    }
+    public String getStorageType() {
+        return this.storageType;
+    }
+
 }

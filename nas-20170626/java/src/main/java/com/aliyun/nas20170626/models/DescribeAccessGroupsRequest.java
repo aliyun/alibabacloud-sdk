@@ -24,4 +24,44 @@ public class DescribeAccessGroupsRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DescribeAccessGroupsRequest setAccessGroupName(String accessGroupName) {
+        this.accessGroupName = accessGroupName;
+        return this;
+    }
+    public String getAccessGroupName() {
+        return this.accessGroupName;
+    }
+
+    public DescribeAccessGroupsRequest setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+        return this;
+    }
+    public Integer getPageSize() {
+        return this.pageSize;
+    }
+
+    public DescribeAccessGroupsRequest setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+        return this;
+    }
+    public Integer getPageNumber() {
+        return this.pageNumber;
+    }
+
+    public DescribeAccessGroupsRequest setUseUTCDateTime(Boolean useUTCDateTime) {
+        this.useUTCDateTime = useUTCDateTime;
+        return this;
+    }
+    public Boolean getUseUTCDateTime() {
+        return this.useUTCDateTime;
+    }
+
+    public DescribeAccessGroupsRequest setFileSystemType(String fileSystemType) {
+        this.fileSystemType = fileSystemType;
+        return this;
+    }
+    public String getFileSystemType() {
+        return this.fileSystemType;
+    }
+
 }

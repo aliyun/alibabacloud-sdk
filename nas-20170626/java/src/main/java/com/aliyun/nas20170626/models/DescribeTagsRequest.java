@@ -21,6 +21,38 @@ public class DescribeTagsRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public DescribeTagsRequest setFileSystemId(String fileSystemId) {
+        this.fileSystemId = fileSystemId;
+        return this;
+    }
+    public String getFileSystemId() {
+        return this.fileSystemId;
+    }
+
+    public DescribeTagsRequest setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+        return this;
+    }
+    public Integer getPageSize() {
+        return this.pageSize;
+    }
+
+    public DescribeTagsRequest setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+        return this;
+    }
+    public Integer getPageNumber() {
+        return this.pageNumber;
+    }
+
+    public DescribeTagsRequest setTag(java.util.List<DescribeTagsRequestTag> tag) {
+        this.tag = tag;
+        return this;
+    }
+    public java.util.List<DescribeTagsRequestTag> getTag() {
+        return this.tag;
+    }
+
     public static class DescribeTagsRequestTag extends TeaModel {
         @NameInMap("Key")
         public String key;
@@ -31,6 +63,22 @@ public class DescribeTagsRequest extends TeaModel {
         public static DescribeTagsRequestTag build(java.util.Map<String, ?> map) throws Exception {
             DescribeTagsRequestTag self = new DescribeTagsRequestTag();
             return TeaModel.build(map, self);
+        }
+
+        public DescribeTagsRequestTag setKey(String key) {
+            this.key = key;
+            return this;
+        }
+        public String getKey() {
+            return this.key;
+        }
+
+        public DescribeTagsRequestTag setValue(String value) {
+            this.value = value;
+            return this;
+        }
+        public String getValue() {
+            return this.value;
         }
 
     }

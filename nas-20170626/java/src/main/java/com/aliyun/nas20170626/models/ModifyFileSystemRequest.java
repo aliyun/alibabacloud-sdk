@@ -16,4 +16,20 @@ public class ModifyFileSystemRequest extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public ModifyFileSystemRequest setFileSystemId(String fileSystemId) {
+        this.fileSystemId = fileSystemId;
+        return this;
+    }
+    public String getFileSystemId() {
+        return this.fileSystemId;
+    }
+
+    public ModifyFileSystemRequest setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+    public String getDescription() {
+        return this.description;
+    }
+
 }

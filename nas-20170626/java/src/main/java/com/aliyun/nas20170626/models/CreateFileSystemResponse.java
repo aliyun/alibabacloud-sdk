@@ -17,4 +17,20 @@ public class CreateFileSystemResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public CreateFileSystemResponse setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+    public String getRequestId() {
+        return this.requestId;
+    }
+
+    public CreateFileSystemResponse setFileSystemId(String fileSystemId) {
+        this.fileSystemId = fileSystemId;
+        return this;
+    }
+    public String getFileSystemId() {
+        return this.fileSystemId;
+    }
+
 }

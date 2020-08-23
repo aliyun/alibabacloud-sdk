@@ -17,4 +17,20 @@ public class CreateMountTargetResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public CreateMountTargetResponse setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+    public String getRequestId() {
+        return this.requestId;
+    }
+
+    public CreateMountTargetResponse setMountTargetDomain(String mountTargetDomain) {
+        this.mountTargetDomain = mountTargetDomain;
+        return this;
+    }
+    public String getMountTargetDomain() {
+        return this.mountTargetDomain;
+    }
+
 }
