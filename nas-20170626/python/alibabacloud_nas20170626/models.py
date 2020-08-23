@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This file is auto-generated, don't edit it. Thanks.
 from Tea.model import TeaModel
 
@@ -89,7 +90,8 @@ class UpgradeFileSystemResponse(TeaModel):
 
 
 class ModifyLifecyclePolicyRequest(TeaModel):
-    def __init__(self, file_system_id=None, lifecycle_policy_name=None, path=None, lifecycle_rule_name=None, storage_type=None):
+    def __init__(self, file_system_id=None, lifecycle_policy_name=None, path=None, lifecycle_rule_name=None,
+                 storage_type=None):
         self.file_system_id = file_system_id
         self.lifecycle_policy_name = lifecycle_policy_name
         self.path = path
@@ -143,7 +145,8 @@ class ModifyLifecyclePolicyResponse(TeaModel):
 
 
 class CreateLifecyclePolicyRequest(TeaModel):
-    def __init__(self, file_system_id=None, lifecycle_policy_name=None, path=None, lifecycle_rule_name=None, storage_type=None):
+    def __init__(self, file_system_id=None, lifecycle_policy_name=None, path=None, lifecycle_rule_name=None,
+                 storage_type=None):
         self.file_system_id = file_system_id
         self.lifecycle_policy_name = lifecycle_policy_name
         self.path = path
@@ -225,7 +228,7 @@ class DescribeLifecyclePoliciesResponse(TeaModel):
         self.total_count = total_count
         self.page_size = page_size
         self.page_number = page_number
-        self.lifecycle_policies = []
+        self.lifecycle_policies = lifecycle_policies
 
     def validate(self):
         self.validate_required(self.request_id, 'request_id')
@@ -235,7 +238,7 @@ class DescribeLifecyclePoliciesResponse(TeaModel):
         self.validate_required(self.lifecycle_policies, 'lifecycle_policies')
         if self.lifecycle_policies:
             for k in self.lifecycle_policies:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -269,7 +272,8 @@ class DescribeLifecyclePoliciesResponse(TeaModel):
 
 
 class DescribeLifecyclePoliciesResponseLifecyclePolicies(TeaModel):
-    def __init__(self, file_system_id=None, lifecycle_policy_name=None, path=None, lifecycle_rule_name=None, storage_type=None, create_time=None):
+    def __init__(self, file_system_id=None, lifecycle_policy_name=None, path=None, lifecycle_rule_name=None,
+                 storage_type=None, create_time=None):
         self.file_system_id = file_system_id
         self.lifecycle_policy_name = lifecycle_policy_name
         self.path = path
@@ -303,8 +307,6 @@ class DescribeLifecyclePoliciesResponseLifecyclePolicies(TeaModel):
         self.storage_type = map.get('StorageType')
         self.create_time = map.get('CreateTime')
         return self
-
-
 class DescribeDirQuotasRequest(TeaModel):
     def __init__(self, file_system_id=None, path=None, page_size=None, page_number=None):
         self.file_system_id = file_system_id
@@ -337,7 +339,7 @@ class DescribeDirQuotasResponse(TeaModel):
         self.total_count = total_count
         self.page_size = page_size
         self.page_number = page_number
-        self.dir_quota_infos = []
+        self.dir_quota_infos = dir_quota_infos
 
     def validate(self):
         self.validate_required(self.request_id, 'request_id')
@@ -347,7 +349,7 @@ class DescribeDirQuotasResponse(TeaModel):
         self.validate_required(self.dir_quota_infos, 'dir_quota_infos')
         if self.dir_quota_infos:
             for k in self.dir_quota_infos:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -381,7 +383,8 @@ class DescribeDirQuotasResponse(TeaModel):
 
 
 class DescribeDirQuotasResponseDirQuotaInfosUserQuotaInfos(TeaModel):
-    def __init__(self, user_type=None, user_id=None, quota_type=None, size_limit=None, size_real=None, file_count_limit=None, file_count_real=None):
+    def __init__(self, user_type=None, user_id=None, quota_type=None, size_limit=None, size_real=None,
+                 file_count_limit=None, file_count_real=None):
         self.user_type = user_type
         self.user_id = user_id
         self.quota_type = quota_type
@@ -426,7 +429,7 @@ class DescribeDirQuotasResponseDirQuotaInfos(TeaModel):
         self.path = path
         self.dir_inode = dir_inode
         self.status = status
-        self.user_quota_infos = []
+        self.user_quota_infos = user_quota_infos
 
     def validate(self):
         self.validate_required(self.path, 'path')
@@ -435,7 +438,7 @@ class DescribeDirQuotasResponseDirQuotaInfos(TeaModel):
         self.validate_required(self.user_quota_infos, 'user_quota_infos')
         if self.user_quota_infos:
             for k in self.user_quota_infos:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -464,10 +467,9 @@ class DescribeDirQuotasResponseDirQuotaInfos(TeaModel):
         else:
             self.user_quota_infos = None
         return self
-
-
 class SetDirQuotaRequest(TeaModel):
-    def __init__(self, file_system_id=None, path=None, quota_type=None, user_type=None, user_id=None, size_limit=None, file_count_limit=None):
+    def __init__(self, file_system_id=None, path=None, quota_type=None, user_type=None, user_id=None,
+                 size_limit=None, file_count_limit=None):
         self.file_system_id = file_system_id
         self.path = path
         self.quota_type = quota_type
@@ -643,7 +645,8 @@ class DescribeStoragePackagesResponse(TeaModel):
 
 
 class DescribeStoragePackagesResponsePackagesPackage(TeaModel):
-    def __init__(self, start_time=None, storage_type=None, status=None, file_system_id=None, package_id=None, expired_time=None, size=None):
+    def __init__(self, start_time=None, storage_type=None, status=None, file_system_id=None, package_id=None,
+                 expired_time=None, size=None):
         self.start_time = start_time
         self.storage_type = storage_type
         self.status = status
@@ -685,13 +688,13 @@ class DescribeStoragePackagesResponsePackagesPackage(TeaModel):
 
 class DescribeStoragePackagesResponsePackages(TeaModel):
     def __init__(self, package=None):
-        self.package = []
+        self.package = package
 
     def validate(self):
         self.validate_required(self.package, 'package')
         if self.package:
             for k in self.package:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -714,8 +717,6 @@ class DescribeStoragePackagesResponsePackages(TeaModel):
         else:
             self.package = None
         return self
-
-
 class DescribeFileSystemStatisticsRequest(TeaModel):
     def __init__(self, page_size=None, page_number=None):
         self.page_size = page_size
@@ -737,7 +738,8 @@ class DescribeFileSystemStatisticsRequest(TeaModel):
 
 
 class DescribeFileSystemStatisticsResponse(TeaModel):
-    def __init__(self, request_id=None, total_count=None, page_size=None, page_number=None, file_system_statistics=None):
+    def __init__(self, request_id=None, total_count=None, page_size=None, page_number=None,
+                 file_system_statistics=None):
         self.request_id = request_id
         self.total_count = total_count
         self.page_size = page_size
@@ -779,7 +781,8 @@ class DescribeFileSystemStatisticsResponse(TeaModel):
 
 
 class DescribeFileSystemStatisticsResponseFileSystemStatisticsFileSystemStatistic(TeaModel):
-    def __init__(self, file_system_type=None, total_count=None, metered_size=None, expired_count=None, expiring_count=None):
+    def __init__(self, file_system_type=None, total_count=None, metered_size=None, expired_count=None,
+                 expiring_count=None):
         self.file_system_type = file_system_type
         self.total_count = total_count
         self.metered_size = metered_size
@@ -813,13 +816,13 @@ class DescribeFileSystemStatisticsResponseFileSystemStatisticsFileSystemStatisti
 
 class DescribeFileSystemStatisticsResponseFileSystemStatistics(TeaModel):
     def __init__(self, file_system_statistic=None):
-        self.file_system_statistic = []
+        self.file_system_statistic = file_system_statistic
 
     def validate(self):
         self.validate_required(self.file_system_statistic, 'file_system_statistic')
         if self.file_system_statistic:
             for k in self.file_system_statistic:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -842,11 +845,11 @@ class DescribeFileSystemStatisticsResponseFileSystemStatistics(TeaModel):
         else:
             self.file_system_statistic = None
         return self
-
-
 class DescribeLogAnalysisRequest(TeaModel):
-    def __init__(self, region_id=None):
+    def __init__(self, region_id=None, page_size=None, page_number=None):
         self.region_id = region_id
+        self.page_size = page_size
+        self.page_number = page_number
 
     def validate(self):
         self.validate_required(self.region_id, 'region_id')
@@ -854,10 +857,14 @@ class DescribeLogAnalysisRequest(TeaModel):
     def to_map(self):
         result = {}
         result['RegionId'] = self.region_id
+        result['PageSize'] = self.page_size
+        result['PageNumber'] = self.page_number
         return result
 
     def from_map(self, map={}):
         self.region_id = map.get('RegionId')
+        self.page_size = map.get('PageSize')
+        self.page_number = map.get('PageNumber')
         return self
 
 
@@ -968,13 +975,13 @@ class DescribeLogAnalysisResponseAnalysesAnalysis(TeaModel):
 
 class DescribeLogAnalysisResponseAnalyses(TeaModel):
     def __init__(self, analysis=None):
-        self.analysis = []
+        self.analysis = analysis
 
     def validate(self):
         self.validate_required(self.analysis, 'analysis')
         if self.analysis:
             for k in self.analysis:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -997,10 +1004,9 @@ class DescribeLogAnalysisResponseAnalyses(TeaModel):
         else:
             self.analysis = None
         return self
-
-
 class DescribeMountedClientsRequest(TeaModel):
-    def __init__(self, region_id=None, page_size=None, file_system_id=None, client_ip=None, mount_target_domain=None, page_number=None):
+    def __init__(self, region_id=None, page_size=None, file_system_id=None, client_ip=None,
+                 mount_target_domain=None, page_number=None):
         self.region_id = region_id
         self.page_size = page_size
         self.file_system_id = file_system_id
@@ -1094,13 +1100,13 @@ class DescribeMountedClientsResponseClientsClient(TeaModel):
 
 class DescribeMountedClientsResponseClients(TeaModel):
     def __init__(self, client=None):
-        self.client = []
+        self.client = client
 
     def validate(self):
         self.validate_required(self.client, 'client')
         if self.client:
             for k in self.client:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -1123,10 +1129,9 @@ class DescribeMountedClientsResponseClients(TeaModel):
         else:
             self.client = None
         return self
-
-
 class DescribeAutoSnapshotTasksRequest(TeaModel):
-    def __init__(self, file_system_ids=None, auto_snapshot_policy_ids=None, file_system_type=None, page_size=None, page_number=None):
+    def __init__(self, file_system_ids=None, auto_snapshot_policy_ids=None, file_system_type=None, page_size=None,
+                 page_number=None):
         self.file_system_ids = file_system_ids
         self.auto_snapshot_policy_ids = auto_snapshot_policy_ids
         self.file_system_type = file_system_type
@@ -1155,7 +1160,8 @@ class DescribeAutoSnapshotTasksRequest(TeaModel):
 
 
 class DescribeAutoSnapshotTasksResponse(TeaModel):
-    def __init__(self, request_id=None, total_count=None, page_size=None, page_number=None, auto_snapshot_tasks=None):
+    def __init__(self, request_id=None, total_count=None, page_size=None, page_number=None,
+                 auto_snapshot_tasks=None):
         self.request_id = request_id
         self.total_count = total_count
         self.page_size = page_size
@@ -1219,13 +1225,13 @@ class DescribeAutoSnapshotTasksResponseAutoSnapshotTasksAutoSnapshotTask(TeaMode
 
 class DescribeAutoSnapshotTasksResponseAutoSnapshotTasks(TeaModel):
     def __init__(self, auto_snapshot_task=None):
-        self.auto_snapshot_task = []
+        self.auto_snapshot_task = auto_snapshot_task
 
     def validate(self):
         self.validate_required(self.auto_snapshot_task, 'auto_snapshot_task')
         if self.auto_snapshot_task:
             for k in self.auto_snapshot_task:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -1248,8 +1254,6 @@ class DescribeAutoSnapshotTasksResponseAutoSnapshotTasks(TeaModel):
         else:
             self.auto_snapshot_task = None
         return self
-
-
 class RemoveClientFromBlackListRequest(TeaModel):
     def __init__(self, region_id=None, file_system_id=None, client_ip=None, client_token=None):
         self.region_id = region_id
@@ -1435,53 +1439,51 @@ class DescribeLDAPConfigResponse(TeaModel):
 
 
 class DescribeLDAPConfigResponseLdap(TeaModel):
-    def __init__(self, bind_dn=None, _uri=None, search_base=None):
+    def __init__(self, bind_dn=None, uri=None, search_base=None):
         self.bind_dn = bind_dn
-        self._uri = _uri
+        self.uri = uri
         self.search_base = search_base
 
     def validate(self):
         self.validate_required(self.bind_dn, 'bind_dn')
-        self.validate_required(self._uri, '_uri')
+        self.validate_required(self.uri, 'uri')
         self.validate_required(self.search_base, 'search_base')
 
     def to_map(self):
         result = {}
         result['BindDN'] = self.bind_dn
-        result['URI'] = self._uri
+        result['URI'] = self.uri
         result['SearchBase'] = self.search_base
         return result
 
     def from_map(self, map={}):
         self.bind_dn = map.get('BindDN')
-        self._uri = map.get('URI')
+        self.uri = map.get('URI')
         self.search_base = map.get('SearchBase')
         return self
-
-
 class ModifyLDAPConfigRequest(TeaModel):
-    def __init__(self, file_system_id=None, _uri=None, bind_dn=None, search_base=None):
+    def __init__(self, file_system_id=None, uri=None, bind_dn=None, search_base=None):
         self.file_system_id = file_system_id
-        self._uri = _uri
+        self.uri = uri
         self.bind_dn = bind_dn
         self.search_base = search_base
 
     def validate(self):
         self.validate_required(self.file_system_id, 'file_system_id')
-        self.validate_required(self._uri, '_uri')
+        self.validate_required(self.uri, 'uri')
         self.validate_required(self.search_base, 'search_base')
 
     def to_map(self):
         result = {}
         result['FileSystemId'] = self.file_system_id
-        result['URI'] = self._uri
+        result['URI'] = self.uri
         result['BindDN'] = self.bind_dn
         result['SearchBase'] = self.search_base
         return result
 
     def from_map(self, map={}):
         self.file_system_id = map.get('FileSystemId')
-        self._uri = map.get('URI')
+        self.uri = map.get('URI')
         self.bind_dn = map.get('BindDN')
         self.search_base = map.get('SearchBase')
         return self
@@ -1505,28 +1507,28 @@ class ModifyLDAPConfigResponse(TeaModel):
 
 
 class CreateLDAPConfigRequest(TeaModel):
-    def __init__(self, file_system_id=None, _uri=None, bind_dn=None, search_base=None):
+    def __init__(self, file_system_id=None, uri=None, bind_dn=None, search_base=None):
         self.file_system_id = file_system_id
-        self._uri = _uri
+        self.uri = uri
         self.bind_dn = bind_dn
         self.search_base = search_base
 
     def validate(self):
         self.validate_required(self.file_system_id, 'file_system_id')
-        self.validate_required(self._uri, '_uri')
+        self.validate_required(self.uri, 'uri')
         self.validate_required(self.search_base, 'search_base')
 
     def to_map(self):
         result = {}
         result['FileSystemId'] = self.file_system_id
-        result['URI'] = self._uri
+        result['URI'] = self.uri
         result['BindDN'] = self.bind_dn
         result['SearchBase'] = self.search_base
         return result
 
     def from_map(self, map={}):
         self.file_system_id = map.get('FileSystemId')
-        self._uri = map.get('URI')
+        self.uri = map.get('URI')
         self.bind_dn = map.get('BindDN')
         self.search_base = map.get('SearchBase')
         return self
@@ -1588,12 +1590,12 @@ class DescribeTagsRequest(TeaModel):
         self.file_system_id = file_system_id
         self.page_size = page_size
         self.page_number = page_number
-        self.tag = []
+        self.tag = tag
 
     def validate(self):
         if self.tag:
             for k in self.tag:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -1642,8 +1644,6 @@ class DescribeTagsRequestTag(TeaModel):
         self.key = map.get('Key')
         self.value = map.get('Value')
         return self
-
-
 class DescribeTagsResponse(TeaModel):
     def __init__(self, request_id=None, total_count=None, page_size=None, page_number=None, tags=None):
         self.request_id = request_id
@@ -1688,7 +1688,8 @@ class DescribeTagsResponse(TeaModel):
 
 class DescribeTagsResponseTagsTagFileSystemIds(TeaModel):
     def __init__(self, file_system_id=None):
-        self.file_system_id = []
+        # FileSystemId
+        self.file_system_id = file_system_id
 
     def validate(self):
         self.validate_required(self.file_system_id, 'file_system_id')
@@ -1749,13 +1750,13 @@ class DescribeTagsResponseTagsTag(TeaModel):
 
 class DescribeTagsResponseTags(TeaModel):
     def __init__(self, tag=None):
-        self.tag = []
+        self.tag = tag
 
     def validate(self):
         self.validate_required(self.tag, 'tag')
         if self.tag:
             for k in self.tag:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -1778,19 +1779,17 @@ class DescribeTagsResponseTags(TeaModel):
         else:
             self.tag = None
         return self
-
-
 class RemoveTagsRequest(TeaModel):
     def __init__(self, file_system_id=None, tag=None):
         self.file_system_id = file_system_id
-        self.tag = []
+        self.tag = tag
 
     def validate(self):
         self.validate_required(self.file_system_id, 'file_system_id')
         self.validate_required(self.tag, 'tag')
         if self.tag:
             for k in self.tag:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -1835,8 +1834,6 @@ class RemoveTagsRequestTag(TeaModel):
         self.key = map.get('Key')
         self.value = map.get('Value')
         return self
-
-
 class RemoveTagsResponse(TeaModel):
     def __init__(self, request_id=None):
         self.request_id = request_id
@@ -1857,14 +1854,14 @@ class RemoveTagsResponse(TeaModel):
 class AddTagsRequest(TeaModel):
     def __init__(self, file_system_id=None, tag=None):
         self.file_system_id = file_system_id
-        self.tag = []
+        self.tag = tag
 
     def validate(self):
         self.validate_required(self.file_system_id, 'file_system_id')
         self.validate_required(self.tag, 'tag')
         if self.tag:
             for k in self.tag:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -1909,8 +1906,6 @@ class AddTagsRequestTag(TeaModel):
         self.key = map.get('Key')
         self.value = map.get('Value')
         return self
-
-
 class AddTagsResponse(TeaModel):
     def __init__(self, request_id=None):
         self.request_id = request_id
@@ -1967,7 +1962,8 @@ class ResetFileSystemResponse(TeaModel):
 
 
 class CreateAutoSnapshotPolicyRequest(TeaModel):
-    def __init__(self, repeat_weekdays=None, time_points=None, retention_days=None, auto_snapshot_policy_name=None, file_system_type=None):
+    def __init__(self, repeat_weekdays=None, time_points=None, retention_days=None, auto_snapshot_policy_name=None,
+                 file_system_type=None):
         self.repeat_weekdays = repeat_weekdays
         self.time_points = time_points
         self.retention_days = retention_days
@@ -2045,7 +2041,8 @@ class DescribeAutoSnapshotPoliciesRequest(TeaModel):
 
 
 class DescribeAutoSnapshotPoliciesResponse(TeaModel):
-    def __init__(self, request_id=None, total_count=None, page_size=None, page_number=None, auto_snapshot_policies=None):
+    def __init__(self, request_id=None, total_count=None, page_size=None, page_number=None,
+                 auto_snapshot_policies=None):
         self.request_id = request_id
         self.total_count = total_count
         self.page_size = page_size
@@ -2087,7 +2084,8 @@ class DescribeAutoSnapshotPoliciesResponse(TeaModel):
 
 
 class DescribeAutoSnapshotPoliciesResponseAutoSnapshotPoliciesAutoSnapshotPolicy(TeaModel):
-    def __init__(self, auto_snapshot_policy_id=None, auto_snapshot_policy_name=None, create_time=None, file_system_nums=None, region_id=None, repeat_weekdays=None, retention_days=None, status=None, time_points=None):
+    def __init__(self, auto_snapshot_policy_id=None, auto_snapshot_policy_name=None, create_time=None,
+                 file_system_nums=None, region_id=None, repeat_weekdays=None, retention_days=None, status=None, time_points=None):
         self.auto_snapshot_policy_id = auto_snapshot_policy_id
         self.auto_snapshot_policy_name = auto_snapshot_policy_name
         self.create_time = create_time
@@ -2137,13 +2135,13 @@ class DescribeAutoSnapshotPoliciesResponseAutoSnapshotPoliciesAutoSnapshotPolicy
 
 class DescribeAutoSnapshotPoliciesResponseAutoSnapshotPolicies(TeaModel):
     def __init__(self, auto_snapshot_policy=None):
-        self.auto_snapshot_policy = []
+        self.auto_snapshot_policy = auto_snapshot_policy
 
     def validate(self):
         self.validate_required(self.auto_snapshot_policy, 'auto_snapshot_policy')
         if self.auto_snapshot_policy:
             for k in self.auto_snapshot_policy:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -2166,8 +2164,6 @@ class DescribeAutoSnapshotPoliciesResponseAutoSnapshotPolicies(TeaModel):
         else:
             self.auto_snapshot_policy = None
         return self
-
-
 class CancelAutoSnapshotPolicyRequest(TeaModel):
     def __init__(self, file_system_ids=None):
         self.file_system_ids = file_system_ids
@@ -2241,7 +2237,8 @@ class ApplyAutoSnapshotPolicyResponse(TeaModel):
 
 
 class ModifyAutoSnapshotPolicyRequest(TeaModel):
-    def __init__(self, auto_snapshot_policy_id=None, auto_snapshot_policy_name=None, repeat_weekdays=None, retention_days=None, time_points=None):
+    def __init__(self, auto_snapshot_policy_id=None, auto_snapshot_policy_name=None, repeat_weekdays=None,
+                 retention_days=None, time_points=None):
         self.auto_snapshot_policy_id = auto_snapshot_policy_id
         self.auto_snapshot_policy_name = auto_snapshot_policy_name
         self.repeat_weekdays = repeat_weekdays
@@ -2402,7 +2399,8 @@ class CreateSnapshotResponse(TeaModel):
 
 
 class DescribeSnapshotsRequest(TeaModel):
-    def __init__(self, file_system_type=None, file_system_id=None, snapshot_ids=None, snapshot_name=None, snapshot_type=None, status=None, page_size=None, page_number=None):
+    def __init__(self, file_system_type=None, file_system_id=None, snapshot_ids=None, snapshot_name=None,
+                 snapshot_type=None, status=None, page_size=None, page_number=None):
         self.file_system_type = file_system_type
         self.file_system_id = file_system_id
         self.snapshot_ids = snapshot_ids
@@ -2482,7 +2480,9 @@ class DescribeSnapshotsResponse(TeaModel):
 
 
 class DescribeSnapshotsResponseSnapshotsSnapshot(TeaModel):
-    def __init__(self, create_time=None, description=None, progress=None, remain_time=None, retention_days=None, snapshot_id=None, snapshot_name=None, source_file_system_id=None, source_file_system_size=None, status=None, encrypt_type=None, source_file_system_version=None):
+    def __init__(self, create_time=None, description=None, progress=None, remain_time=None, retention_days=None,
+                 snapshot_id=None, snapshot_name=None, source_file_system_id=None, source_file_system_size=None, status=None,
+                 encrypt_type=None, source_file_system_version=None):
         self.create_time = create_time
         self.description = description
         self.progress = progress
@@ -2544,13 +2544,13 @@ class DescribeSnapshotsResponseSnapshotsSnapshot(TeaModel):
 
 class DescribeSnapshotsResponseSnapshots(TeaModel):
     def __init__(self, snapshot=None):
-        self.snapshot = []
+        self.snapshot = snapshot
 
     def validate(self):
         self.validate_required(self.snapshot, 'snapshot')
         if self.snapshot:
             for k in self.snapshot:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -2573,8 +2573,6 @@ class DescribeSnapshotsResponseSnapshots(TeaModel):
         else:
             self.snapshot = None
         return self
-
-
 class DescribeZonesRequest(TeaModel):
     def __init__(self, region_id=None):
         self.region_id = region_id
@@ -2624,7 +2622,8 @@ class DescribeZonesResponse(TeaModel):
 
 class DescribeZonesResponseZonesZoneCapacity(TeaModel):
     def __init__(self, protocol=None):
-        self.protocol = []
+        # Protocol
+        self.protocol = protocol
 
     def validate(self):
         self.validate_required(self.protocol, 'protocol')
@@ -2651,7 +2650,8 @@ class DescribeZonesResponseZonesZoneCapacity(TeaModel):
 
 class DescribeZonesResponseZonesZonePerformance(TeaModel):
     def __init__(self, protocol=None):
-        self.protocol = []
+        # Protocol
+        self.protocol = protocol
 
     def validate(self):
         self.validate_required(self.protocol, 'protocol')
@@ -2721,13 +2721,13 @@ class DescribeZonesResponseZonesZone(TeaModel):
 
 class DescribeZonesResponseZones(TeaModel):
     def __init__(self, zone=None):
-        self.zone = []
+        self.zone = zone
 
     def validate(self):
         self.validate_required(self.zone, 'zone')
         if self.zone:
             for k in self.zone:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -2750,8 +2750,6 @@ class DescribeZonesResponseZones(TeaModel):
         else:
             self.zone = None
         return self
-
-
 class CreateAccessGroupRequest(TeaModel):
     def __init__(self, access_group_name=None, access_group_type=None, description=None, file_system_type=None):
         self.access_group_name = access_group_name
@@ -2801,12 +2799,13 @@ class CreateAccessGroupResponse(TeaModel):
 
 
 class CreateMountTargetRequest(TeaModel):
-    def __init__(self, file_system_id=None, access_group_name=None, network_type=None, vpc_id=None, vswitch_id=None, security_group_id=None):
+    def __init__(self, file_system_id=None, access_group_name=None, network_type=None, vpc_id=None,
+                 v_switch_id=None, security_group_id=None):
         self.file_system_id = file_system_id
         self.access_group_name = access_group_name
         self.network_type = network_type
         self.vpc_id = vpc_id
-        self.vswitch_id = vswitch_id
+        self.v_switch_id = v_switch_id
         self.security_group_id = security_group_id
 
     def validate(self):
@@ -2820,7 +2819,7 @@ class CreateMountTargetRequest(TeaModel):
         result['AccessGroupName'] = self.access_group_name
         result['NetworkType'] = self.network_type
         result['VpcId'] = self.vpc_id
-        result['VSwitchId'] = self.vswitch_id
+        result['VSwitchId'] = self.v_switch_id
         result['SecurityGroupId'] = self.security_group_id
         return result
 
@@ -2829,7 +2828,7 @@ class CreateMountTargetRequest(TeaModel):
         self.access_group_name = map.get('AccessGroupName')
         self.network_type = map.get('NetworkType')
         self.vpc_id = map.get('VpcId')
-        self.vswitch_id = map.get('VSwitchId')
+        self.v_switch_id = map.get('VSwitchId')
         self.security_group_id = map.get('SecurityGroupId')
         return self
 
@@ -2856,7 +2855,9 @@ class CreateMountTargetResponse(TeaModel):
 
 
 class CreateFileSystemRequest(TeaModel):
-    def __init__(self, file_system_type=None, charge_type=None, duration=None, capacity=None, bandwidth=None, storage_type=None, zone_id=None, protocol_type=None, encrypt_type=None, snapshot_id=None, vpc_id=None, vswitch_id=None, description=None, client_token=None, dry_run=None):
+    def __init__(self, file_system_type=None, charge_type=None, duration=None, capacity=None, bandwidth=None,
+                 storage_type=None, zone_id=None, protocol_type=None, encrypt_type=None, snapshot_id=None, vpc_id=None,
+                 v_switch_id=None, description=None, client_token=None, dry_run=None):
         self.file_system_type = file_system_type
         self.charge_type = charge_type
         self.duration = duration
@@ -2868,7 +2869,7 @@ class CreateFileSystemRequest(TeaModel):
         self.encrypt_type = encrypt_type
         self.snapshot_id = snapshot_id
         self.vpc_id = vpc_id
-        self.vswitch_id = vswitch_id
+        self.v_switch_id = v_switch_id
         self.description = description
         self.client_token = client_token
         self.dry_run = dry_run
@@ -2890,7 +2891,7 @@ class CreateFileSystemRequest(TeaModel):
         result['EncryptType'] = self.encrypt_type
         result['SnapshotId'] = self.snapshot_id
         result['VpcId'] = self.vpc_id
-        result['VSwitchId'] = self.vswitch_id
+        result['VSwitchId'] = self.v_switch_id
         result['Description'] = self.description
         result['ClientToken'] = self.client_token
         result['DryRun'] = self.dry_run
@@ -2908,7 +2909,7 @@ class CreateFileSystemRequest(TeaModel):
         self.encrypt_type = map.get('EncryptType')
         self.snapshot_id = map.get('SnapshotId')
         self.vpc_id = map.get('VpcId')
-        self.vswitch_id = map.get('VSwitchId')
+        self.v_switch_id = map.get('VSwitchId')
         self.description = map.get('Description')
         self.client_token = map.get('ClientToken')
         self.dry_run = map.get('DryRun')
@@ -2937,7 +2938,8 @@ class CreateFileSystemResponse(TeaModel):
 
 
 class CreateAccessRuleRequest(TeaModel):
-    def __init__(self, access_group_name=None, source_cidr_ip=None, rwaccess_type=None, user_access_type=None, priority=None, file_system_type=None):
+    def __init__(self, access_group_name=None, source_cidr_ip=None, rwaccess_type=None, user_access_type=None,
+                 priority=None, file_system_type=None):
         self.access_group_name = access_group_name
         self.source_cidr_ip = source_cidr_ip
         self.rwaccess_type = rwaccess_type
@@ -2991,7 +2993,8 @@ class CreateAccessRuleResponse(TeaModel):
 
 
 class DescribeAccessRulesRequest(TeaModel):
-    def __init__(self, access_group_name=None, access_rule_id=None, page_size=None, page_number=None, file_system_type=None):
+    def __init__(self, access_group_name=None, access_rule_id=None, page_size=None, page_number=None,
+                 file_system_type=None):
         self.access_group_name = access_group_name
         self.access_rule_id = access_rule_id
         self.page_size = page_size
@@ -3096,13 +3099,13 @@ class DescribeAccessRulesResponseAccessRulesAccessRule(TeaModel):
 
 class DescribeAccessRulesResponseAccessRules(TeaModel):
     def __init__(self, access_rule=None):
-        self.access_rule = []
+        self.access_rule = access_rule
 
     def validate(self):
         self.validate_required(self.access_rule, 'access_rule')
         if self.access_rule:
             for k in self.access_rule:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -3125,10 +3128,9 @@ class DescribeAccessRulesResponseAccessRules(TeaModel):
         else:
             self.access_rule = None
         return self
-
-
 class DescribeAccessGroupsRequest(TeaModel):
-    def __init__(self, access_group_name=None, page_size=None, page_number=None, use_utcdate_time=None, file_system_type=None):
+    def __init__(self, access_group_name=None, page_size=None, page_number=None, use_utcdate_time=None,
+                 file_system_type=None):
         self.access_group_name = access_group_name
         self.page_size = page_size
         self.page_number = page_number
@@ -3199,7 +3201,8 @@ class DescribeAccessGroupsResponse(TeaModel):
 
 
 class DescribeAccessGroupsResponseAccessGroupsAccessGroup(TeaModel):
-    def __init__(self, access_group_name=None, access_group_type=None, rule_count=None, mount_target_count=None, description=None, create_time=None):
+    def __init__(self, access_group_name=None, access_group_type=None, rule_count=None, mount_target_count=None,
+                 description=None, create_time=None):
         self.access_group_name = access_group_name
         self.access_group_type = access_group_type
         self.rule_count = rule_count
@@ -3237,13 +3240,13 @@ class DescribeAccessGroupsResponseAccessGroupsAccessGroup(TeaModel):
 
 class DescribeAccessGroupsResponseAccessGroups(TeaModel):
     def __init__(self, access_group=None):
-        self.access_group = []
+        self.access_group = access_group
 
     def validate(self):
         self.validate_required(self.access_group, 'access_group')
         if self.access_group:
             for k in self.access_group:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -3266,8 +3269,6 @@ class DescribeAccessGroupsResponseAccessGroups(TeaModel):
         else:
             self.access_group = None
         return self
-
-
 class DeleteMountTargetRequest(TeaModel):
     def __init__(self, file_system_id=None, mount_target_domain=None):
         self.file_system_id = file_system_id
@@ -3419,7 +3420,8 @@ class DeleteAccessGroupResponse(TeaModel):
 
 
 class ModifyAccessRuleRequest(TeaModel):
-    def __init__(self, access_group_name=None, access_rule_id=None, source_cidr_ip=None, rwaccess_type=None, user_access_type=None, priority=None, file_system_type=None):
+    def __init__(self, access_group_name=None, access_rule_id=None, source_cidr_ip=None, rwaccess_type=None,
+                 user_access_type=None, priority=None, file_system_type=None):
         self.access_group_name = access_group_name
         self.access_rule_id = access_rule_id
         self.source_cidr_ip = source_cidr_ip
@@ -3603,13 +3605,13 @@ class DescribeRegionsResponseRegionsRegion(TeaModel):
 
 class DescribeRegionsResponseRegions(TeaModel):
     def __init__(self, region=None):
-        self.region = []
+        self.region = region
 
     def validate(self):
         self.validate_required(self.region, 'region')
         if self.region:
             for k in self.region:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -3632,8 +3634,6 @@ class DescribeRegionsResponseRegions(TeaModel):
         else:
             self.region = None
         return self
-
-
 class DescribeMountTargetsRequest(TeaModel):
     def __init__(self, file_system_id=None, mount_target_domain=None, page_size=None, page_number=None):
         self.file_system_id = file_system_id
@@ -3703,7 +3703,8 @@ class DescribeMountTargetsResponse(TeaModel):
 
 
 class DescribeMountTargetsResponseMountTargetsMountTarget(TeaModel):
-    def __init__(self, mount_target_domain=None, network_type=None, vpc_id=None, vsw_id=None, access_group=None, status=None):
+    def __init__(self, mount_target_domain=None, network_type=None, vpc_id=None, vsw_id=None, access_group=None,
+                 status=None):
         self.mount_target_domain = mount_target_domain
         self.network_type = network_type
         self.vpc_id = vpc_id
@@ -3741,13 +3742,13 @@ class DescribeMountTargetsResponseMountTargetsMountTarget(TeaModel):
 
 class DescribeMountTargetsResponseMountTargets(TeaModel):
     def __init__(self, mount_target=None):
-        self.mount_target = []
+        self.mount_target = mount_target
 
     def validate(self):
         self.validate_required(self.mount_target, 'mount_target')
         if self.mount_target:
             for k in self.mount_target:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -3770,8 +3771,6 @@ class DescribeMountTargetsResponseMountTargets(TeaModel):
         else:
             self.mount_target = None
         return self
-
-
 class DescribeFileSystemsRequest(TeaModel):
     def __init__(self, file_system_id=None, file_system_type=None, vpc_id=None, page_size=None, page_number=None):
         self.file_system_id = file_system_id
@@ -3844,7 +3843,8 @@ class DescribeFileSystemsResponse(TeaModel):
 
 
 class DescribeFileSystemsResponseFileSystemsFileSystemMountTargetsMountTarget(TeaModel):
-    def __init__(self, mount_target_domain=None, network_type=None, vpc_id=None, vsw_id=None, access_group_name=None, status=None):
+    def __init__(self, mount_target_domain=None, network_type=None, vpc_id=None, vsw_id=None,
+                 access_group_name=None, status=None):
         self.mount_target_domain = mount_target_domain
         self.network_type = network_type
         self.vpc_id = vpc_id
@@ -3882,13 +3882,13 @@ class DescribeFileSystemsResponseFileSystemsFileSystemMountTargetsMountTarget(Te
 
 class DescribeFileSystemsResponseFileSystemsFileSystemMountTargets(TeaModel):
     def __init__(self, mount_target=None):
-        self.mount_target = []
+        self.mount_target = mount_target
 
     def validate(self):
         self.validate_required(self.mount_target, 'mount_target')
         if self.mount_target:
             for k in self.mount_target:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -3948,13 +3948,13 @@ class DescribeFileSystemsResponseFileSystemsFileSystemPackagesPackage(TeaModel):
 
 class DescribeFileSystemsResponseFileSystemsFileSystemPackages(TeaModel):
     def __init__(self, package=None):
-        self.package = []
+        self.package = package
 
     def validate(self):
         self.validate_required(self.package, 'package')
         if self.package:
             for k in self.package:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -3980,33 +3980,34 @@ class DescribeFileSystemsResponseFileSystemsFileSystemPackages(TeaModel):
 
 
 class DescribeFileSystemsResponseFileSystemsFileSystemLdap(TeaModel):
-    def __init__(self, bind_dn=None, _uri=None, search_base=None):
+    def __init__(self, bind_dn=None, uri=None, search_base=None):
         self.bind_dn = bind_dn
-        self._uri = _uri
+        self.uri = uri
         self.search_base = search_base
 
     def validate(self):
         self.validate_required(self.bind_dn, 'bind_dn')
-        self.validate_required(self._uri, '_uri')
+        self.validate_required(self.uri, 'uri')
         self.validate_required(self.search_base, 'search_base')
 
     def to_map(self):
         result = {}
         result['BindDN'] = self.bind_dn
-        result['URI'] = self._uri
+        result['URI'] = self.uri
         result['SearchBase'] = self.search_base
         return result
 
     def from_map(self, map={}):
         self.bind_dn = map.get('BindDN')
-        self._uri = map.get('URI')
+        self.uri = map.get('URI')
         self.search_base = map.get('SearchBase')
         return self
 
 
 class DescribeFileSystemsResponseFileSystemsFileSystemSupportedFeatures(TeaModel):
     def __init__(self, supported_feature=None):
-        self.supported_feature = []
+        # SupportedFeature
+        self.supported_feature = supported_feature
 
     def validate(self):
         self.validate_required(self.supported_feature, 'supported_feature')
@@ -4032,7 +4033,11 @@ class DescribeFileSystemsResponseFileSystemsFileSystemSupportedFeatures(TeaModel
 
 
 class DescribeFileSystemsResponseFileSystemsFileSystem(TeaModel):
-    def __init__(self, file_system_id=None, description=None, create_time=None, expired_time=None, region_id=None, zone_id=None, protocol_type=None, storage_type=None, file_system_type=None, encrypt_type=None, metered_size=None, metered_iasize=None, bandwidth=None, capacity=None, auto_snapshot_policy_id=None, status=None, charge_type=None, mount_target_count_limit=None, nas_namespace_id=None, kmskey_id=None, version=None, mount_targets=None, packages=None, ldap=None, supported_features=None):
+    def __init__(self, file_system_id=None, description=None, create_time=None, expired_time=None, region_id=None,
+                 zone_id=None, protocol_type=None, storage_type=None, file_system_type=None, encrypt_type=None,
+                 metered_size=None, metered_iasize=None, bandwidth=None, capacity=None, auto_snapshot_policy_id=None,
+                 status=None, charge_type=None, mount_target_count_limit=None, nas_namespace_id=None, kmskey_id=None,
+                 version=None, mount_targets=None, packages=None, ldap=None, supported_features=None):
         self.file_system_id = file_system_id
         self.description = description
         self.create_time = create_time
@@ -4182,13 +4187,13 @@ class DescribeFileSystemsResponseFileSystemsFileSystem(TeaModel):
 
 class DescribeFileSystemsResponseFileSystems(TeaModel):
     def __init__(self, file_system=None):
-        self.file_system = []
+        self.file_system = file_system
 
     def validate(self):
         self.validate_required(self.file_system, 'file_system')
         if self.file_system:
             for k in self.file_system:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -4211,8 +4216,6 @@ class DescribeFileSystemsResponseFileSystems(TeaModel):
         else:
             self.file_system = None
         return self
-
-
 class ModifyMountTargetRequest(TeaModel):
     def __init__(self, file_system_id=None, mount_target_domain=None, access_group_name=None, status=None):
         self.file_system_id = file_system_id
