@@ -1821,6 +1821,7 @@ func (s *DescribeTagsResponseTagsTag) SetFileSystemIds(v *DescribeTagsResponseTa
 }
 
 type DescribeTagsResponseTagsTagFileSystemIds struct {
+	// FileSystemId
 	FileSystemId []*string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -2770,6 +2771,7 @@ func (s *DescribeZonesResponseZonesZone) SetPerformance(v *DescribeZonesResponse
 }
 
 type DescribeZonesResponseZonesZoneCapacity struct {
+	// Protocol
 	Protocol []*string `json:"Protocol,omitempty" xml:"Protocol,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -2787,6 +2789,7 @@ func (s *DescribeZonesResponseZonesZoneCapacity) SetProtocol(v []*string) *Descr
 }
 
 type DescribeZonesResponseZonesZonePerformance struct {
+	// Protocol
 	Protocol []*string `json:"Protocol,omitempty" xml:"Protocol,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -4355,6 +4358,7 @@ func (s *DescribeFileSystemsResponseFileSystemsFileSystemLdap) SetSearchBase(v s
 }
 
 type DescribeFileSystemsResponseFileSystemsFileSystemSupportedFeatures struct {
+	// SupportedFeature
 	SupportedFeature []*string `json:"SupportedFeature,omitempty" xml:"SupportedFeature,omitempty" require:"true" type:"Repeated"`
 }
 
