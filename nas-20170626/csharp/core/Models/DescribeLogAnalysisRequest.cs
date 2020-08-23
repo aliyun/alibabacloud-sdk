@@ -13,6 +13,14 @@ namespace AlibabaCloud.SDK.NAS20170626.Models
         [Validation(Required=true)]
         public string RegionId { get; set; }
 
+        [NameInMap("PageSize")]
+        [Validation(Required=false)]
+        public int? PageSize { get; set; }
+
+        [NameInMap("PageNumber")]
+        [Validation(Required=false)]
+        public int? PageNumber { get; set; }
+
     }
 
 }

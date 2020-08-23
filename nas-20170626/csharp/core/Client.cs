@@ -129,13 +129,13 @@ namespace AlibabaCloud.SDK.NAS20170626
         public DescribeLifecyclePoliciesResponse DescribeLifecyclePoliciesWithOptions(DescribeLifecyclePoliciesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DescribeLifecyclePoliciesResponse>(DoRequest("DescribeLifecyclePolicies", "HTTPS", "GET", "2017-06-26", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DescribeLifecyclePoliciesResponse>(DoRequest("DescribeLifecyclePolicies", "HTTPS", "GET", "2017-06-26", "AK", request.ToMap(), null, runtime));
         }
 
         public async Task<DescribeLifecyclePoliciesResponse> DescribeLifecyclePoliciesWithOptionsAsync(DescribeLifecyclePoliciesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DescribeLifecyclePoliciesResponse>(await DoRequestAsync("DescribeLifecyclePolicies", "HTTPS", "GET", "2017-06-26", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DescribeLifecyclePoliciesResponse>(await DoRequestAsync("DescribeLifecyclePolicies", "HTTPS", "GET", "2017-06-26", "AK", request.ToMap(), null, runtime));
         }
 
         public DescribeLifecyclePoliciesResponse DescribeLifecyclePolicies(DescribeLifecyclePoliciesRequest request)
