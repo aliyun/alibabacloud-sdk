@@ -539,15 +539,21 @@ export class DescribeFileSystemStatisticsResponse extends $tea.Model {
 
 export class DescribeLogAnalysisRequest extends $tea.Model {
   regionId: string;
+  pageSize?: number;
+  pageNumber?: number;
   static names(): { [key: string]: string } {
     return {
       regionId: 'RegionId',
+      pageSize: 'PageSize',
+      pageNumber: 'PageNumber',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
       regionId: 'string',
+      pageSize: 'number',
+      pageNumber: 'number',
     };
   }
 
@@ -1747,7 +1753,7 @@ export class CreateMountTargetRequest extends $tea.Model {
   accessGroupName: string;
   networkType: string;
   vpcId?: string;
-  VSwitchId?: string;
+  vSwitchId?: string;
   securityGroupId?: string;
   static names(): { [key: string]: string } {
     return {
@@ -1755,7 +1761,7 @@ export class CreateMountTargetRequest extends $tea.Model {
       accessGroupName: 'AccessGroupName',
       networkType: 'NetworkType',
       vpcId: 'VpcId',
-      VSwitchId: 'VSwitchId',
+      vSwitchId: 'VSwitchId',
       securityGroupId: 'SecurityGroupId',
     };
   }
@@ -1766,7 +1772,7 @@ export class CreateMountTargetRequest extends $tea.Model {
       accessGroupName: 'string',
       networkType: 'string',
       vpcId: 'string',
-      VSwitchId: 'string',
+      vSwitchId: 'string',
       securityGroupId: 'string',
     };
   }
@@ -1810,7 +1816,7 @@ export class CreateFileSystemRequest extends $tea.Model {
   encryptType?: number;
   snapshotId?: string;
   vpcId?: string;
-  VSwitchId?: string;
+  vSwitchId?: string;
   description?: string;
   clientToken?: string;
   dryRun?: boolean;
@@ -1827,7 +1833,7 @@ export class CreateFileSystemRequest extends $tea.Model {
       encryptType: 'EncryptType',
       snapshotId: 'SnapshotId',
       vpcId: 'VpcId',
-      VSwitchId: 'VSwitchId',
+      vSwitchId: 'VSwitchId',
       description: 'Description',
       clientToken: 'ClientToken',
       dryRun: 'DryRun',
@@ -1847,7 +1853,7 @@ export class CreateFileSystemRequest extends $tea.Model {
       encryptType: 'number',
       snapshotId: 'string',
       vpcId: 'string',
-      VSwitchId: 'string',
+      vSwitchId: 'string',
       description: 'string',
       clientToken: 'string',
       dryRun: 'boolean',
@@ -3827,7 +3833,7 @@ export default class Client extends RPC {
 
   async describeLifecyclePoliciesWithOptions(request: DescribeLifecyclePoliciesRequest, runtime: $Util.RuntimeOptions): Promise<DescribeLifecyclePoliciesResponse> {
     Util.validateModel(request);
-    return $tea.cast<DescribeLifecyclePoliciesResponse>(await this.doRequest("DescribeLifecyclePolicies", "HTTPS", "GET", "2017-06-26", "AK", null, $tea.toMap(request), runtime), new DescribeLifecyclePoliciesResponse({}));
+    return $tea.cast<DescribeLifecyclePoliciesResponse>(await this.doRequest("DescribeLifecyclePolicies", "HTTPS", "GET", "2017-06-26", "AK", $tea.toMap(request), null, runtime), new DescribeLifecyclePoliciesResponse({}));
   }
 
   async describeLifecyclePolicies(request: DescribeLifecyclePoliciesRequest): Promise<DescribeLifecyclePoliciesResponse> {
