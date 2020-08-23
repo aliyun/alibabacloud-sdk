@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class accessGroups extends Model
 {
     /**
-     * @description AccessGroup
-     *
      * @var array
      */
     public $accessGroup;

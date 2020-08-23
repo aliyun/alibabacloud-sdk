@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class ldap extends Model
 {
     /**
-     * @description bindDN
-     *
      * @var string
      */
     public $bindDN;
 
     /**
-     * @description uri
-     *
      * @var string
      */
     public $URI;
 
     /**
-     * @description searchBase
-     *
      * @var string
      */
     public $searchBase;

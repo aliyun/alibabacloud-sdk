@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class DeleteAutoSnapshotPolicyRequest extends Model
 {
     /**
-     * @description autoSnapshotPolicyId
-     *
      * @var string
      */
     public $autoSnapshotPolicyId;

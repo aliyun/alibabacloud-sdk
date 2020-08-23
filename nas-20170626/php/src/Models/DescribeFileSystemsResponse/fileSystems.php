@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class fileSystems extends Model
 {
     /**
-     * @description FileSystem
-     *
      * @var array
      */
     public $fileSystem;

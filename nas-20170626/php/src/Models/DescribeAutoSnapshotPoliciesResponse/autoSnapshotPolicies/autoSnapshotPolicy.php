@@ -9,64 +9,46 @@ use AlibabaCloud\Tea\Model;
 class autoSnapshotPolicy extends Model
 {
     /**
-     * @description autoSnapshotPolicyId
-     *
      * @var string
      */
     public $autoSnapshotPolicyId;
 
     /**
-     * @description autoSnapshotPolicyName
-     *
      * @var string
      */
     public $autoSnapshotPolicyName;
 
     /**
-     * @description createTime
-     *
      * @var string
      */
     public $createTime;
 
     /**
-     * @description fileSystemNums
-     *
      * @var int
      */
     public $fileSystemNums;
 
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description repeatWeekdays
-     *
      * @var string
      */
     public $repeatWeekdays;
 
     /**
-     * @description retentionDays
-     *
      * @var int
      */
     public $retentionDays;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description timePoints
-     *
      * @var string
      */
     public $timePoints;

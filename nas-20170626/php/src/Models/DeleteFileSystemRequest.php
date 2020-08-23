@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class DeleteFileSystemRequest extends Model
 {
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;

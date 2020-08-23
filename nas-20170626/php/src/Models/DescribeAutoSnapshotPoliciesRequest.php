@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class DescribeAutoSnapshotPoliciesRequest extends Model
 {
     /**
-     * @description autoSnapshotPolicyId
-     *
      * @var string
      */
     public $autoSnapshotPolicyId;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description pageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description fileSystemType
-     *
      * @var string
      */
     public $fileSystemType;

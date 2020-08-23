@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class package extends Model
 {
     /**
-     * @description packageId
-     *
      * @var string
      */
     public $packageId;
 
     /**
-     * @description packageType
-     *
      * @var string
      */
     public $packageType;
 
     /**
-     * @description size
-     *
      * @var int
      */
     public $size;
 
     /**
-     * @description startTimeStr
-     *
      * @var string
      */
     public $startTime;
 
     /**
-     * @description endTimeStr
-     *
      * @var string
      */
     public $expiredTime;

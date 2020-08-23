@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class ResetFileSystemRequest extends Model
 {
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description snapshotId
-     *
      * @var string
      */
     public $snapshotId;

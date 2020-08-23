@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeLDAPConfigResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var ldap
      */
     public $ldap;

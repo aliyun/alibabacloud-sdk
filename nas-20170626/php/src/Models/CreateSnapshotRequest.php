@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class CreateSnapshotRequest extends Model
 {
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description snapshotName
-     *
      * @var string
      */
     public $snapshotName;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description retentionDays
-     *
      * @var int
      */
     public $retentionDays;

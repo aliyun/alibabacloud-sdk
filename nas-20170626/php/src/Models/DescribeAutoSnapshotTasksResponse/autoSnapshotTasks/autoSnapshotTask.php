@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class autoSnapshotTask extends Model
 {
     /**
-     * @description sourceFileSystemId
-     *
      * @var string
      */
     public $sourceFileSystemId;
 
     /**
-     * @description autoSnapshotPolicyId
-     *
      * @var string
      */
     public $autoSnapshotPolicyId;

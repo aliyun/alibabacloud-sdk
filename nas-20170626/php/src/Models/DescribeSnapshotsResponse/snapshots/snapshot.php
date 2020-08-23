@@ -9,85 +9,61 @@ use AlibabaCloud\Tea\Model;
 class snapshot extends Model
 {
     /**
-     * @description createTime
-     *
      * @var string
      */
     public $createTime;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description progress
-     *
      * @var string
      */
     public $progress;
 
     /**
-     * @description remainTime
-     *
      * @var int
      */
     public $remainTime;
 
     /**
-     * @description retentionDays
-     *
      * @var int
      */
     public $retentionDays;
 
     /**
-     * @description snapshotId
-     *
      * @var string
      */
     public $snapshotId;
 
     /**
-     * @description snapshotName
-     *
      * @var string
      */
     public $snapshotName;
 
     /**
-     * @description sourceFileSystemId
-     *
      * @var string
      */
     public $sourceFileSystemId;
 
     /**
-     * @description sourceFileSystemSize
-     *
      * @var int
      */
     public $sourceFileSystemSize;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description encryptType
-     *
      * @var int
      */
     public $encryptType;
 
     /**
-     * @description sourceFileSystemVersion
-     *
      * @var string
      */
     public $sourceFileSystemVersion;

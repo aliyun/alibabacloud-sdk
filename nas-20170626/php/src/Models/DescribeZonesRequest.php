@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class DescribeZonesRequest extends Model
 {
     /**
-     * @description region
-     *
      * @var string
      */
     public $regionId;

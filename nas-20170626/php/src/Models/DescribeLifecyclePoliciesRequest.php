@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class DescribeLifecyclePoliciesRequest extends Model
 {
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description pageNumber
-     *
      * @var int
      */
     public $pageNumber;

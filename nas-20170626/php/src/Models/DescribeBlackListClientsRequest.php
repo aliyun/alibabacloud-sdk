@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class DescribeBlackListClientsRequest extends Model
 {
     /**
-     * @description region
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description fileSystemId
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description clientIp
-     *
      * @var string
      */
     public $clientIP;

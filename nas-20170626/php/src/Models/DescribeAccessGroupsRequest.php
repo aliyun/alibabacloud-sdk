@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class DescribeAccessGroupsRequest extends Model
 {
     /**
-     * @description accessGroupName
-     *
      * @var string
      */
     public $accessGroupName;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description pageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description useUTCDateTime
-     *
      * @var bool
      */
     public $useUTCDateTime;
 
     /**
-     * @description fileSystemType
-     *
      * @var string
      */
     public $fileSystemType;

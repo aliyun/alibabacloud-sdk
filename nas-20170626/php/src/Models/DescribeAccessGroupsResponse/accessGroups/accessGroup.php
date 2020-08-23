@@ -9,43 +9,31 @@ use AlibabaCloud\Tea\Model;
 class accessGroup extends Model
 {
     /**
-     * @description accessGroupName
-     *
      * @var string
      */
     public $accessGroupName;
 
     /**
-     * @description accessGroupType
-     *
      * @var string
      */
     public $accessGroupType;
 
     /**
-     * @description ruleCount
-     *
      * @var int
      */
     public $ruleCount;
 
     /**
-     * @description mountTargetCount
-     *
      * @var int
      */
     public $mountTargetCount;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description createTime
-     *
      * @var string
      */
     public $createTime;

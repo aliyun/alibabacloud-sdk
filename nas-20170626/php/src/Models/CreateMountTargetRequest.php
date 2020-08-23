@@ -9,43 +9,31 @@ use AlibabaCloud\Tea\Model;
 class CreateMountTargetRequest extends Model
 {
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description accessGroupName
-     *
      * @var string
      */
     public $accessGroupName;
 
     /**
-     * @description netWorkType
-     *
      * @var string
      */
     public $networkType;
 
     /**
-     * @description vpcId
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description vswitchId
-     *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
 
     /**
-     * @description securityGroupId
-     *
      * @var string
      */
     public $securityGroupId;
@@ -54,7 +42,7 @@ class CreateMountTargetRequest extends Model
         'accessGroupName' => 'AccessGroupName',
         'networkType'     => 'NetworkType',
         'vpcId'           => 'VpcId',
-        'VSwitchId'       => 'VSwitchId',
+        'vSwitchId'       => 'VSwitchId',
         'securityGroupId' => 'SecurityGroupId',
     ];
 
@@ -80,8 +68,8 @@ class CreateMountTargetRequest extends Model
         if (null !== $this->vpcId) {
             $res['VpcId'] = $this->vpcId;
         }
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
         if (null !== $this->securityGroupId) {
             $res['SecurityGroupId'] = $this->securityGroupId;
@@ -111,7 +99,7 @@ class CreateMountTargetRequest extends Model
             $model->vpcId = $map['VpcId'];
         }
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
         if (isset($map['SecurityGroupId'])) {
             $model->securityGroupId = $map['SecurityGroupId'];

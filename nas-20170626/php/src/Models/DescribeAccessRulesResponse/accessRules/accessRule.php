@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class accessRule extends Model
 {
     /**
-     * @description sourceCidrIp
-     *
      * @var string
      */
     public $sourceCidrIp;
 
     /**
-     * @description priority
-     *
      * @var int
      */
     public $priority;
 
     /**
-     * @description ruleId
-     *
      * @var string
      */
     public $accessRuleId;
 
     /**
-     * @description policy
-     *
      * @var string
      */
     public $RWAccess;
 
     /**
-     * @description squashType
-     *
      * @var string
      */
     public $userAccess;

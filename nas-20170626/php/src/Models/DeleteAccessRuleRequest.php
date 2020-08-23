@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class DeleteAccessRuleRequest extends Model
 {
     /**
-     * @description accessGroupName
-     *
      * @var string
      */
     public $accessGroupName;
 
     /**
-     * @description ruleId
-     *
      * @var string
      */
     public $accessRuleId;
 
     /**
-     * @description fileSystemType
-     *
      * @var string
      */
     public $fileSystemType;

@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class metaValue extends Model
 {
     /**
-     * @description logstore
-     *
      * @var string
      */
     public $logstore;
 
     /**
-     * @description region
-     *
      * @var string
      */
     public $region;
 
     /**
-     * @description project
-     *
      * @var string
      */
     public $project;
 
     /**
-     * @description roleArn
-     *
      * @var string
      */
     public $roleArn;

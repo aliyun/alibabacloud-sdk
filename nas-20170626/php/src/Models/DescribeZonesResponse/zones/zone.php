@@ -11,22 +11,16 @@ use AlibabaCloud\Tea\Model;
 class zone extends Model
 {
     /**
-     * @description zoneId
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description capacity
-     *
      * @var capacity
      */
     public $capacity;
 
     /**
-     * @description performance
-     *
      * @var performance
      */
     public $performance;

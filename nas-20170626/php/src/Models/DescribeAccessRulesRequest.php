@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class DescribeAccessRulesRequest extends Model
 {
     /**
-     * @description accessGroupName
-     *
      * @var string
      */
     public $accessGroupName;
 
     /**
-     * @description ruleId
-     *
      * @var string
      */
     public $accessRuleId;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description pageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description fileSystemType
-     *
      * @var string
      */
     public $fileSystemType;

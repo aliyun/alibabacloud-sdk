@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeBlackListClientsResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description data
-     *
      * @var string
      */
     public $clients;

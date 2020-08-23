@@ -10,29 +10,21 @@ use AlibabaCloud\Tea\Model;
 class dirQuotaInfos extends Model
 {
     /**
-     * @description path
-     *
      * @var string
      */
     public $path;
 
     /**
-     * @description dirInode
-     *
      * @var string
      */
     public $dirInode;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description userQuotaInfos
-     *
      * @var array
      */
     public $userQuotaInfos;

@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class ModifyMountTargetRequest extends Model
 {
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description domainName
-     *
      * @var string
      */
     public $mountTargetDomain;
 
     /**
-     * @description accessGroupName
-     *
      * @var string
      */
     public $accessGroupName;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;

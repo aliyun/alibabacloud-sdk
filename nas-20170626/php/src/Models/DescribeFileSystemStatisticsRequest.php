@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeFileSystemStatisticsRequest extends Model
 {
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description pageNumber
-     *
      * @var int
      */
     public $pageNumber;

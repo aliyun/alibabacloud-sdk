@@ -10,36 +10,26 @@ use AlibabaCloud\Tea\Model;
 class DescribeStoragePackagesResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description totalCount
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description pageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description data
-     *
      * @var packages
      */
     public $packages;

@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class ModifyFileSystemRequest extends Model
 {
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description volumeDesc
-     *
      * @var string
      */
     public $description;

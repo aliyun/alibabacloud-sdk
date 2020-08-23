@@ -9,22 +9,16 @@ use AlibabaCloud\Tea\Model;
 class ModifyAccessGroupRequest extends Model
 {
     /**
-     * @description accessGroupName
-     *
      * @var string
      */
     public $accessGroupName;
 
     /**
-     * @description description
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description fileSystemType
-     *
      * @var string
      */
     public $fileSystemType;

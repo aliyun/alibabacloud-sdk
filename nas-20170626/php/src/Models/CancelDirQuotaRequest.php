@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class CancelDirQuotaRequest extends Model
 {
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description path
-     *
      * @var string
      */
     public $path;
 
     /**
-     * @description userType
-     *
      * @var string
      */
     public $userType;
 
     /**
-     * @description userId
-     *
      * @var string
      */
     public $userId;

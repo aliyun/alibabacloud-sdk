@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class AddTagsRequest extends Model
 {
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description tags
-     *
      * @var array
      */
     public $tag;

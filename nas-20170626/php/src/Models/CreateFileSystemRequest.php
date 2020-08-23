@@ -9,106 +9,76 @@ use AlibabaCloud\Tea\Model;
 class CreateFileSystemRequest extends Model
 {
     /**
-     * @description fileSystemType
-     *
      * @var string
      */
     public $fileSystemType;
 
     /**
-     * @description bizType
-     *
      * @var string
      */
     public $chargeType;
 
     /**
-     * @description duration
-     *
      * @var int
      */
     public $duration;
 
     /**
-     * @description capacity
-     *
      * @var int
      */
     public $capacity;
 
     /**
-     * @description bandwidth
-     *
      * @var int
      */
     public $bandwidth;
 
     /**
-     * @description volumeType
-     *
      * @var string
      */
     public $storageType;
 
     /**
-     * @description avaliableZone
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description protocolType
-     *
      * @var string
      */
     public $protocolType;
 
     /**
-     * @description encryptType
-     *
      * @var int
      */
     public $encryptType;
 
     /**
-     * @description snapshotId
-     *
      * @var string
      */
     public $snapshotId;
 
     /**
-     * @description vpcId
-     *
      * @var string
      */
     public $vpcId;
 
     /**
-     * @description vswitchId
-     *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
 
     /**
-     * @description volumeDesc
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description clientToken
-     *
      * @var string
      */
     public $clientToken;
 
     /**
-     * @description dryRun
-     *
      * @var bool
      */
     public $dryRun;
@@ -124,7 +94,7 @@ class CreateFileSystemRequest extends Model
         'encryptType'    => 'EncryptType',
         'snapshotId'     => 'SnapshotId',
         'vpcId'          => 'VpcId',
-        'VSwitchId'      => 'VSwitchId',
+        'vSwitchId'      => 'VSwitchId',
         'description'    => 'Description',
         'clientToken'    => 'ClientToken',
         'dryRun'         => 'DryRun',
@@ -172,8 +142,8 @@ class CreateFileSystemRequest extends Model
         if (null !== $this->vpcId) {
             $res['VpcId'] = $this->vpcId;
         }
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
         if (null !== $this->description) {
             $res['Description'] = $this->description;
@@ -230,7 +200,7 @@ class CreateFileSystemRequest extends Model
             $model->vpcId = $map['VpcId'];
         }
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
         if (isset($map['Description'])) {
             $model->description = $map['Description'];

@@ -9,57 +9,41 @@ use AlibabaCloud\Tea\Model;
 class DescribeSnapshotsRequest extends Model
 {
     /**
-     * @description fileSystemType
-     *
      * @var string
      */
     public $fileSystemType;
 
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description snapshotIds
-     *
      * @var string
      */
     public $snapshotIds;
 
     /**
-     * @description snapshotName
-     *
      * @var string
      */
     public $snapshotName;
 
     /**
-     * @description snapshotType
-     *
      * @var string
      */
     public $snapshotType;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description pageNumber
-     *
      * @var int
      */
     public $pageNumber;

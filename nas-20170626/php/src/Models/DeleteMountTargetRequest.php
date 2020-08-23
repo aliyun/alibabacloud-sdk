@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class DeleteMountTargetRequest extends Model
 {
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description domainName
-     *
      * @var string
      */
     public $mountTargetDomain;

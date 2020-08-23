@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class analyses extends Model
 {
     /**
-     * @description Analysis
-     *
      * @var array
      */
     public $analysis;

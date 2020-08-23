@@ -9,50 +9,36 @@ use AlibabaCloud\Tea\Model;
 class SetDirQuotaRequest extends Model
 {
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description path
-     *
      * @var string
      */
     public $path;
 
     /**
-     * @description quotaType
-     *
      * @var string
      */
     public $quotaType;
 
     /**
-     * @description userType
-     *
      * @var string
      */
     public $userType;
 
     /**
-     * @description userId
-     *
      * @var string
      */
     public $userId;
 
     /**
-     * @description sizeLimit
-     *
      * @var int
      */
     public $sizeLimit;
 
     /**
-     * @description fileCountLimit
-     *
      * @var int
      */
     public $fileCountLimit;

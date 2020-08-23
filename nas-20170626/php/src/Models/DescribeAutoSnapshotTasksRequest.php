@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class DescribeAutoSnapshotTasksRequest extends Model
 {
     /**
-     * @description volumes
-     *
      * @var string
      */
     public $fileSystemIds;
 
     /**
-     * @description autoSnapshotPolicyIds
-     *
      * @var string
      */
     public $autoSnapshotPolicyIds;
 
     /**
-     * @description fileSystemType
-     *
      * @var string
      */
     public $fileSystemType;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description pageNumber
-     *
      * @var int
      */
     public $pageNumber;

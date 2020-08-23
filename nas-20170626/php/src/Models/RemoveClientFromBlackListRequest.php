@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class RemoveClientFromBlackListRequest extends Model
 {
     /**
-     * @description region
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description fileSystemId
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description clientIp
-     *
      * @var string
      */
     public $clientIP;
 
     /**
-     * @description clientToken
-     *
      * @var string
      */
     public $clientToken;

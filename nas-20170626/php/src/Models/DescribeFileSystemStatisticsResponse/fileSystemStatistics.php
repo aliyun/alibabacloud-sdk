@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class fileSystemStatistics extends Model
 {
     /**
-     * @description FileSystemStatistic
-     *
      * @var array
      */
     public $fileSystemStatistic;

@@ -27,10 +27,7 @@ class supportedFeatures extends Model
     {
         $res = [];
         if (null !== $this->supportedFeature) {
-            $res['SupportedFeature'] = [];
-            if (null !== $this->supportedFeature) {
-                $res['SupportedFeature'] = $this->supportedFeature;
-            }
+            $res['SupportedFeature'] = $this->supportedFeature;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class supportedFeatures extends Model
         $model = new self();
         if (isset($map['SupportedFeature'])) {
             if (!empty($map['SupportedFeature'])) {
-                $model->supportedFeature = [];
                 $model->supportedFeature = $map['SupportedFeature'];
             }
         }

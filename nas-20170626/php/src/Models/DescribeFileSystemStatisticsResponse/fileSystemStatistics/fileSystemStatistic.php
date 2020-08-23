@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class fileSystemStatistic extends Model
 {
     /**
-     * @description fileSystemType
-     *
      * @var string
      */
     public $fileSystemType;
 
     /**
-     * @description totalCount
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description meteredSize
-     *
      * @var int
      */
     public $meteredSize;
 
     /**
-     * @description expiredCount
-     *
      * @var int
      */
     public $expiredCount;
 
     /**
-     * @description expiringCount
-     *
      * @var int
      */
     public $expiringCount;

@@ -13,176 +13,126 @@ use AlibabaCloud\Tea\Model;
 class fileSystem extends Model
 {
     /**
-     * @description fileSystemName
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description fileSystemDesc
-     *
      * @var string
      */
     public $description;
 
     /**
-     * @description createTimeStr
-     *
      * @var string
      */
     public $createTime;
 
     /**
-     * @description expireTime
-     *
      * @var string
      */
     public $expiredTime;
 
     /**
-     * @description regionId
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description zoneId
-     *
      * @var string
      */
     public $zoneId;
 
     /**
-     * @description protocolType
-     *
      * @var string
      */
     public $protocolType;
 
     /**
-     * @description storageType
-     *
      * @var string
      */
     public $storageType;
 
     /**
-     * @description fileSystemType
-     *
      * @var string
      */
     public $fileSystemType;
 
     /**
-     * @description encryptType
-     *
      * @var int
      */
     public $encryptType;
 
     /**
-     * @description meteredSize
-     *
      * @var int
      */
     public $meteredSize;
 
     /**
-     * @description meteredIASize
-     *
      * @var int
      */
     public $meteredIASize;
 
     /**
-     * @description bandwidth
-     *
      * @var int
      */
     public $bandwidth;
 
     /**
-     * @description capacity
-     *
      * @var int
      */
     public $capacity;
 
     /**
-     * @description autoSnapshotPolicyId
-     *
      * @var string
      */
     public $autoSnapshotPolicyId;
 
     /**
-     * @description status
-     *
      * @var string
      */
     public $status;
 
     /**
-     * @description bizType
-     *
      * @var string
      */
     public $chargeType;
 
     /**
-     * @description targetLimit
-     *
      * @var int
      */
     public $mountTargetCountLimit;
 
     /**
-     * @description nasNamespaceId
-     *
      * @var string
      */
     public $nasNamespaceId;
 
     /**
-     * @description kmsKeyId
-     *
      * @var string
      */
     public $KMSKeyId;
 
     /**
-     * @description version
-     *
      * @var string
      */
     public $version;
 
     /**
-     * @description mountTargets
-     *
      * @var mountTargets
      */
     public $mountTargets;
 
     /**
-     * @description packages
-     *
      * @var packages
      */
     public $packages;
 
     /**
-     * @description ldap
-     *
      * @var ldap
      */
     public $ldap;
 
     /**
-     * @description supportedFeatures
-     *
      * @var supportedFeatures
      */
     public $supportedFeatures;

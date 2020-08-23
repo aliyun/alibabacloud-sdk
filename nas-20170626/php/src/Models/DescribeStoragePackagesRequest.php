@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class DescribeStoragePackagesRequest extends Model
 {
     /**
-     * @description region
-     *
      * @var string
      */
     public $regionId;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description useUTCDateTime
-     *
      * @var bool
      */
     public $useUTCDateTime;
 
     /**
-     * @description pageNumber
-     *
      * @var int
      */
     public $pageNumber;

@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class ApplyAutoSnapshotPolicyRequest extends Model
 {
     /**
-     * @description autoSnapshotPolicyId
-     *
      * @var string
      */
     public $autoSnapshotPolicyId;
 
     /**
-     * @description volumes
-     *
      * @var string
      */
     public $fileSystemIds;

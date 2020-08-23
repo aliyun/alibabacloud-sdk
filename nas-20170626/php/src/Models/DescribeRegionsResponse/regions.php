@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class regions extends Model
 {
     /**
-     * @description Region
-     *
      * @var array
      */
     public $region;

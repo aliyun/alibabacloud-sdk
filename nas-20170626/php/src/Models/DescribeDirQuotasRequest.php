@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class DescribeDirQuotasRequest extends Model
 {
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description path
-     *
      * @var string
      */
     public $path;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description pageNumber
-     *
      * @var int
      */
     public $pageNumber;

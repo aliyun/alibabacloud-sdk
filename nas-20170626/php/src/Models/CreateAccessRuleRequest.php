@@ -9,43 +9,31 @@ use AlibabaCloud\Tea\Model;
 class CreateAccessRuleRequest extends Model
 {
     /**
-     * @description accessGroupName
-     *
      * @var string
      */
     public $accessGroupName;
 
     /**
-     * @description sourceCidrIp
-     *
      * @var string
      */
     public $sourceCidrIp;
 
     /**
-     * @description policy
-     *
      * @var string
      */
     public $RWAccessType;
 
     /**
-     * @description squashType
-     *
      * @var string
      */
     public $userAccessType;
 
     /**
-     * @description priority
-     *
      * @var int
      */
     public $priority;
 
     /**
-     * @description fileSystemType
-     *
      * @var string
      */
     public $fileSystemType;

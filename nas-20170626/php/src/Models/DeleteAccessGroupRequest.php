@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class DeleteAccessGroupRequest extends Model
 {
     /**
-     * @description accessGroupName
-     *
      * @var string
      */
     public $accessGroupName;
 
     /**
-     * @description fileSystemType
-     *
      * @var string
      */
     public $fileSystemType;

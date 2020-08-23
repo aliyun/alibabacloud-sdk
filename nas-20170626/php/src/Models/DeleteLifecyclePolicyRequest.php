@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class DeleteLifecyclePolicyRequest extends Model
 {
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description lifecyclePolicyName
-     *
      * @var string
      */
     public $lifecyclePolicyName;

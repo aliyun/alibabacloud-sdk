@@ -9,50 +9,36 @@ use AlibabaCloud\Tea\Model;
 class userQuotaInfos extends Model
 {
     /**
-     * @description userType
-     *
      * @var string
      */
     public $userType;
 
     /**
-     * @description userId
-     *
      * @var string
      */
     public $userId;
 
     /**
-     * @description quotaType
-     *
      * @var string
      */
     public $quotaType;
 
     /**
-     * @description sizeLimit
-     *
      * @var int
      */
     public $sizeLimit;
 
     /**
-     * @description sizeReal
-     *
      * @var int
      */
     public $sizeReal;
 
     /**
-     * @description fileCountLimit
-     *
      * @var int
      */
     public $fileCountLimit;
 
     /**
-     * @description fileCountReal
-     *
      * @var int
      */
     public $fileCountReal;

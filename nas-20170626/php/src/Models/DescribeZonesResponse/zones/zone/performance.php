@@ -27,10 +27,7 @@ class performance extends Model
     {
         $res = [];
         if (null !== $this->protocol) {
-            $res['Protocol'] = [];
-            if (null !== $this->protocol) {
-                $res['Protocol'] = $this->protocol;
-            }
+            $res['Protocol'] = $this->protocol;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class performance extends Model
         $model = new self();
         if (isset($map['Protocol'])) {
             if (!empty($map['Protocol'])) {
-                $model->protocol = [];
                 $model->protocol = $map['Protocol'];
             }
         }

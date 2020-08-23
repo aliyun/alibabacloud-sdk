@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class ModifyFileSystemResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;

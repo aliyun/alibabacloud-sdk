@@ -127,11 +127,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteLifecyclePolicyRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return DeleteLifecyclePolicyResponse
      */
-    public function deleteLifecyclePolicyWithOptions(DeleteLifecyclePolicyRequest $request, RuntimeOptions $runtime)
+    public function deleteLifecyclePolicyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -139,11 +140,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteLifecyclePolicyRequest $request
      *
      * @return DeleteLifecyclePolicyResponse
      */
-    public function deleteLifecyclePolicy(DeleteLifecyclePolicyRequest $request)
+    public function deleteLifecyclePolicy($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -151,11 +152,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UpgradeFileSystemRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return UpgradeFileSystemResponse
      */
-    public function upgradeFileSystemWithOptions(UpgradeFileSystemRequest $request, RuntimeOptions $runtime)
+    public function upgradeFileSystemWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -163,11 +165,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param UpgradeFileSystemRequest $request
      *
      * @return UpgradeFileSystemResponse
      */
-    public function upgradeFileSystem(UpgradeFileSystemRequest $request)
+    public function upgradeFileSystem($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -175,11 +177,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyLifecyclePolicyRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return ModifyLifecyclePolicyResponse
      */
-    public function modifyLifecyclePolicyWithOptions(ModifyLifecyclePolicyRequest $request, RuntimeOptions $runtime)
+    public function modifyLifecyclePolicyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -187,11 +190,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyLifecyclePolicyRequest $request
      *
      * @return ModifyLifecyclePolicyResponse
      */
-    public function modifyLifecyclePolicy(ModifyLifecyclePolicyRequest $request)
+    public function modifyLifecyclePolicy($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -199,11 +202,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateLifecyclePolicyRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return CreateLifecyclePolicyResponse
      */
-    public function createLifecyclePolicyWithOptions(CreateLifecyclePolicyRequest $request, RuntimeOptions $runtime)
+    public function createLifecyclePolicyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -211,11 +215,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateLifecyclePolicyRequest $request
      *
      * @return CreateLifecyclePolicyResponse
      */
-    public function createLifecyclePolicy(CreateLifecyclePolicyRequest $request)
+    public function createLifecyclePolicy($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -223,23 +227,24 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeLifecyclePoliciesRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return DescribeLifecyclePoliciesResponse
      */
-    public function describeLifecyclePoliciesWithOptions(DescribeLifecyclePoliciesRequest $request, RuntimeOptions $runtime)
+    public function describeLifecyclePoliciesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeLifecyclePoliciesResponse::fromMap($this->doRequest('DescribeLifecyclePolicies', 'HTTPS', 'GET', '2017-06-26', 'AK', null, $request, $runtime));
+        return DescribeLifecyclePoliciesResponse::fromMap($this->doRequest('DescribeLifecyclePolicies', 'HTTPS', 'GET', '2017-06-26', 'AK', $request, null, $runtime));
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeLifecyclePoliciesRequest $request
      *
      * @return DescribeLifecyclePoliciesResponse
      */
-    public function describeLifecyclePolicies(DescribeLifecyclePoliciesRequest $request)
+    public function describeLifecyclePolicies($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -247,11 +252,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDirQuotasRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return DescribeDirQuotasResponse
      */
-    public function describeDirQuotasWithOptions(DescribeDirQuotasRequest $request, RuntimeOptions $runtime)
+    public function describeDirQuotasWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -259,11 +265,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDirQuotasRequest $request
      *
      * @return DescribeDirQuotasResponse
      */
-    public function describeDirQuotas(DescribeDirQuotasRequest $request)
+    public function describeDirQuotas($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -271,11 +277,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SetDirQuotaRequest $request
+     * @param RuntimeOptions     $runtime
      *
      * @return SetDirQuotaResponse
      */
-    public function setDirQuotaWithOptions(SetDirQuotaRequest $request, RuntimeOptions $runtime)
+    public function setDirQuotaWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -283,11 +290,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SetDirQuotaRequest $request
      *
      * @return SetDirQuotaResponse
      */
-    public function setDirQuota(SetDirQuotaRequest $request)
+    public function setDirQuota($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -295,11 +302,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CancelDirQuotaRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return CancelDirQuotaResponse
      */
-    public function cancelDirQuotaWithOptions(CancelDirQuotaRequest $request, RuntimeOptions $runtime)
+    public function cancelDirQuotaWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -307,11 +315,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CancelDirQuotaRequest $request
      *
      * @return CancelDirQuotaResponse
      */
-    public function cancelDirQuota(CancelDirQuotaRequest $request)
+    public function cancelDirQuota($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -319,11 +327,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeStoragePackagesRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return DescribeStoragePackagesResponse
      */
-    public function describeStoragePackagesWithOptions(DescribeStoragePackagesRequest $request, RuntimeOptions $runtime)
+    public function describeStoragePackagesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -331,11 +340,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeStoragePackagesRequest $request
      *
      * @return DescribeStoragePackagesResponse
      */
-    public function describeStoragePackages(DescribeStoragePackagesRequest $request)
+    public function describeStoragePackages($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -343,11 +352,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeFileSystemStatisticsRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return DescribeFileSystemStatisticsResponse
      */
-    public function describeFileSystemStatisticsWithOptions(DescribeFileSystemStatisticsRequest $request, RuntimeOptions $runtime)
+    public function describeFileSystemStatisticsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -355,11 +365,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeFileSystemStatisticsRequest $request
      *
      * @return DescribeFileSystemStatisticsResponse
      */
-    public function describeFileSystemStatistics(DescribeFileSystemStatisticsRequest $request)
+    public function describeFileSystemStatistics($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -367,11 +377,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeLogAnalysisRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return DescribeLogAnalysisResponse
      */
-    public function describeLogAnalysisWithOptions(DescribeLogAnalysisRequest $request, RuntimeOptions $runtime)
+    public function describeLogAnalysisWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -379,11 +390,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeLogAnalysisRequest $request
      *
      * @return DescribeLogAnalysisResponse
      */
-    public function describeLogAnalysis(DescribeLogAnalysisRequest $request)
+    public function describeLogAnalysis($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -391,11 +402,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeMountedClientsRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return DescribeMountedClientsResponse
      */
-    public function describeMountedClientsWithOptions(DescribeMountedClientsRequest $request, RuntimeOptions $runtime)
+    public function describeMountedClientsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -403,11 +415,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeMountedClientsRequest $request
      *
      * @return DescribeMountedClientsResponse
      */
-    public function describeMountedClients(DescribeMountedClientsRequest $request)
+    public function describeMountedClients($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -415,11 +427,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAutoSnapshotTasksRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return DescribeAutoSnapshotTasksResponse
      */
-    public function describeAutoSnapshotTasksWithOptions(DescribeAutoSnapshotTasksRequest $request, RuntimeOptions $runtime)
+    public function describeAutoSnapshotTasksWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -427,11 +440,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAutoSnapshotTasksRequest $request
      *
      * @return DescribeAutoSnapshotTasksResponse
      */
-    public function describeAutoSnapshotTasks(DescribeAutoSnapshotTasksRequest $request)
+    public function describeAutoSnapshotTasks($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -439,11 +452,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RemoveClientFromBlackListRequest $request
+     * @param RuntimeOptions                   $runtime
      *
      * @return RemoveClientFromBlackListResponse
      */
-    public function removeClientFromBlackListWithOptions(RemoveClientFromBlackListRequest $request, RuntimeOptions $runtime)
+    public function removeClientFromBlackListWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -451,11 +465,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RemoveClientFromBlackListRequest $request
      *
      * @return RemoveClientFromBlackListResponse
      */
-    public function removeClientFromBlackList(RemoveClientFromBlackListRequest $request)
+    public function removeClientFromBlackList($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -463,11 +477,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeBlackListClientsRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return DescribeBlackListClientsResponse
      */
-    public function describeBlackListClientsWithOptions(DescribeBlackListClientsRequest $request, RuntimeOptions $runtime)
+    public function describeBlackListClientsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -475,11 +490,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeBlackListClientsRequest $request
      *
      * @return DescribeBlackListClientsResponse
      */
-    public function describeBlackListClients(DescribeBlackListClientsRequest $request)
+    public function describeBlackListClients($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -487,11 +502,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AddClientToBlackListRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return AddClientToBlackListResponse
      */
-    public function addClientToBlackListWithOptions(AddClientToBlackListRequest $request, RuntimeOptions $runtime)
+    public function addClientToBlackListWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -499,11 +515,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AddClientToBlackListRequest $request
      *
      * @return AddClientToBlackListResponse
      */
-    public function addClientToBlackList(AddClientToBlackListRequest $request)
+    public function addClientToBlackList($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -511,11 +527,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeLDAPConfigRequest $request
+     * @param RuntimeOptions            $runtime
      *
      * @return DescribeLDAPConfigResponse
      */
-    public function describeLDAPConfigWithOptions(DescribeLDAPConfigRequest $request, RuntimeOptions $runtime)
+    public function describeLDAPConfigWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -523,11 +540,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeLDAPConfigRequest $request
      *
      * @return DescribeLDAPConfigResponse
      */
-    public function describeLDAPConfig(DescribeLDAPConfigRequest $request)
+    public function describeLDAPConfig($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -535,11 +552,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyLDAPConfigRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return ModifyLDAPConfigResponse
      */
-    public function modifyLDAPConfigWithOptions(ModifyLDAPConfigRequest $request, RuntimeOptions $runtime)
+    public function modifyLDAPConfigWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -547,11 +565,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyLDAPConfigRequest $request
      *
      * @return ModifyLDAPConfigResponse
      */
-    public function modifyLDAPConfig(ModifyLDAPConfigRequest $request)
+    public function modifyLDAPConfig($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -559,11 +577,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateLDAPConfigRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return CreateLDAPConfigResponse
      */
-    public function createLDAPConfigWithOptions(CreateLDAPConfigRequest $request, RuntimeOptions $runtime)
+    public function createLDAPConfigWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -571,11 +590,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateLDAPConfigRequest $request
      *
      * @return CreateLDAPConfigResponse
      */
-    public function createLDAPConfig(CreateLDAPConfigRequest $request)
+    public function createLDAPConfig($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -583,11 +602,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteLDAPConfigRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DeleteLDAPConfigResponse
      */
-    public function deleteLDAPConfigWithOptions(DeleteLDAPConfigRequest $request, RuntimeOptions $runtime)
+    public function deleteLDAPConfigWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -595,11 +615,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteLDAPConfigRequest $request
      *
      * @return DeleteLDAPConfigResponse
      */
-    public function deleteLDAPConfig(DeleteLDAPConfigRequest $request)
+    public function deleteLDAPConfig($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -607,11 +627,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeTagsRequest $request
+     * @param RuntimeOptions      $runtime
      *
      * @return DescribeTagsResponse
      */
-    public function describeTagsWithOptions(DescribeTagsRequest $request, RuntimeOptions $runtime)
+    public function describeTagsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -619,11 +640,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeTagsRequest $request
      *
      * @return DescribeTagsResponse
      */
-    public function describeTags(DescribeTagsRequest $request)
+    public function describeTags($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -631,11 +652,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RemoveTagsRequest $request
+     * @param RuntimeOptions    $runtime
      *
      * @return RemoveTagsResponse
      */
-    public function removeTagsWithOptions(RemoveTagsRequest $request, RuntimeOptions $runtime)
+    public function removeTagsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -643,11 +665,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param RemoveTagsRequest $request
      *
      * @return RemoveTagsResponse
      */
-    public function removeTags(RemoveTagsRequest $request)
+    public function removeTags($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -655,11 +677,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AddTagsRequest $request
+     * @param RuntimeOptions $runtime
      *
      * @return AddTagsResponse
      */
-    public function addTagsWithOptions(AddTagsRequest $request, RuntimeOptions $runtime)
+    public function addTagsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -667,11 +690,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AddTagsRequest $request
      *
      * @return AddTagsResponse
      */
-    public function addTags(AddTagsRequest $request)
+    public function addTags($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -679,11 +702,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ResetFileSystemRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return ResetFileSystemResponse
      */
-    public function resetFileSystemWithOptions(ResetFileSystemRequest $request, RuntimeOptions $runtime)
+    public function resetFileSystemWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -691,11 +715,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ResetFileSystemRequest $request
      *
      * @return ResetFileSystemResponse
      */
-    public function resetFileSystem(ResetFileSystemRequest $request)
+    public function resetFileSystem($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -703,11 +727,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateAutoSnapshotPolicyRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return CreateAutoSnapshotPolicyResponse
      */
-    public function createAutoSnapshotPolicyWithOptions(CreateAutoSnapshotPolicyRequest $request, RuntimeOptions $runtime)
+    public function createAutoSnapshotPolicyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -715,11 +740,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateAutoSnapshotPolicyRequest $request
      *
      * @return CreateAutoSnapshotPolicyResponse
      */
-    public function createAutoSnapshotPolicy(CreateAutoSnapshotPolicyRequest $request)
+    public function createAutoSnapshotPolicy($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -727,11 +752,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAutoSnapshotPoliciesRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return DescribeAutoSnapshotPoliciesResponse
      */
-    public function describeAutoSnapshotPoliciesWithOptions(DescribeAutoSnapshotPoliciesRequest $request, RuntimeOptions $runtime)
+    public function describeAutoSnapshotPoliciesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -739,11 +765,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAutoSnapshotPoliciesRequest $request
      *
      * @return DescribeAutoSnapshotPoliciesResponse
      */
-    public function describeAutoSnapshotPolicies(DescribeAutoSnapshotPoliciesRequest $request)
+    public function describeAutoSnapshotPolicies($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -751,11 +777,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CancelAutoSnapshotPolicyRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return CancelAutoSnapshotPolicyResponse
      */
-    public function cancelAutoSnapshotPolicyWithOptions(CancelAutoSnapshotPolicyRequest $request, RuntimeOptions $runtime)
+    public function cancelAutoSnapshotPolicyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -763,11 +790,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CancelAutoSnapshotPolicyRequest $request
      *
      * @return CancelAutoSnapshotPolicyResponse
      */
-    public function cancelAutoSnapshotPolicy(CancelAutoSnapshotPolicyRequest $request)
+    public function cancelAutoSnapshotPolicy($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -775,11 +802,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ApplyAutoSnapshotPolicyRequest $request
+     * @param RuntimeOptions                 $runtime
      *
      * @return ApplyAutoSnapshotPolicyResponse
      */
-    public function applyAutoSnapshotPolicyWithOptions(ApplyAutoSnapshotPolicyRequest $request, RuntimeOptions $runtime)
+    public function applyAutoSnapshotPolicyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -787,11 +815,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ApplyAutoSnapshotPolicyRequest $request
      *
      * @return ApplyAutoSnapshotPolicyResponse
      */
-    public function applyAutoSnapshotPolicy(ApplyAutoSnapshotPolicyRequest $request)
+    public function applyAutoSnapshotPolicy($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -799,11 +827,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyAutoSnapshotPolicyRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return ModifyAutoSnapshotPolicyResponse
      */
-    public function modifyAutoSnapshotPolicyWithOptions(ModifyAutoSnapshotPolicyRequest $request, RuntimeOptions $runtime)
+    public function modifyAutoSnapshotPolicyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -811,11 +840,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyAutoSnapshotPolicyRequest $request
      *
      * @return ModifyAutoSnapshotPolicyResponse
      */
-    public function modifyAutoSnapshotPolicy(ModifyAutoSnapshotPolicyRequest $request)
+    public function modifyAutoSnapshotPolicy($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -823,11 +852,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteAutoSnapshotPolicyRequest $request
+     * @param RuntimeOptions                  $runtime
      *
      * @return DeleteAutoSnapshotPolicyResponse
      */
-    public function deleteAutoSnapshotPolicyWithOptions(DeleteAutoSnapshotPolicyRequest $request, RuntimeOptions $runtime)
+    public function deleteAutoSnapshotPolicyWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -835,11 +865,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteAutoSnapshotPolicyRequest $request
      *
      * @return DeleteAutoSnapshotPolicyResponse
      */
-    public function deleteAutoSnapshotPolicy(DeleteAutoSnapshotPolicyRequest $request)
+    public function deleteAutoSnapshotPolicy($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -847,11 +877,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteSnapshotRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return DeleteSnapshotResponse
      */
-    public function deleteSnapshotWithOptions(DeleteSnapshotRequest $request, RuntimeOptions $runtime)
+    public function deleteSnapshotWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -859,11 +890,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteSnapshotRequest $request
      *
      * @return DeleteSnapshotResponse
      */
-    public function deleteSnapshot(DeleteSnapshotRequest $request)
+    public function deleteSnapshot($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -871,11 +902,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateSnapshotRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return CreateSnapshotResponse
      */
-    public function createSnapshotWithOptions(CreateSnapshotRequest $request, RuntimeOptions $runtime)
+    public function createSnapshotWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -883,11 +915,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateSnapshotRequest $request
      *
      * @return CreateSnapshotResponse
      */
-    public function createSnapshot(CreateSnapshotRequest $request)
+    public function createSnapshot($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -895,11 +927,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSnapshotsRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return DescribeSnapshotsResponse
      */
-    public function describeSnapshotsWithOptions(DescribeSnapshotsRequest $request, RuntimeOptions $runtime)
+    public function describeSnapshotsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -907,11 +940,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeSnapshotsRequest $request
      *
      * @return DescribeSnapshotsResponse
      */
-    public function describeSnapshots(DescribeSnapshotsRequest $request)
+    public function describeSnapshots($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -919,11 +952,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeZonesRequest $request
+     * @param RuntimeOptions       $runtime
      *
      * @return DescribeZonesResponse
      */
-    public function describeZonesWithOptions(DescribeZonesRequest $request, RuntimeOptions $runtime)
+    public function describeZonesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -931,11 +965,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeZonesRequest $request
      *
      * @return DescribeZonesResponse
      */
-    public function describeZones(DescribeZonesRequest $request)
+    public function describeZones($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -943,11 +977,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateAccessGroupRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return CreateAccessGroupResponse
      */
-    public function createAccessGroupWithOptions(CreateAccessGroupRequest $request, RuntimeOptions $runtime)
+    public function createAccessGroupWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -955,11 +990,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateAccessGroupRequest $request
      *
      * @return CreateAccessGroupResponse
      */
-    public function createAccessGroup(CreateAccessGroupRequest $request)
+    public function createAccessGroup($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -967,11 +1002,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateMountTargetRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return CreateMountTargetResponse
      */
-    public function createMountTargetWithOptions(CreateMountTargetRequest $request, RuntimeOptions $runtime)
+    public function createMountTargetWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -979,11 +1015,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateMountTargetRequest $request
      *
      * @return CreateMountTargetResponse
      */
-    public function createMountTarget(CreateMountTargetRequest $request)
+    public function createMountTarget($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -991,11 +1027,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateFileSystemRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return CreateFileSystemResponse
      */
-    public function createFileSystemWithOptions(CreateFileSystemRequest $request, RuntimeOptions $runtime)
+    public function createFileSystemWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1003,11 +1040,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateFileSystemRequest $request
      *
      * @return CreateFileSystemResponse
      */
-    public function createFileSystem(CreateFileSystemRequest $request)
+    public function createFileSystem($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1015,11 +1052,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateAccessRuleRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return CreateAccessRuleResponse
      */
-    public function createAccessRuleWithOptions(CreateAccessRuleRequest $request, RuntimeOptions $runtime)
+    public function createAccessRuleWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1027,11 +1065,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateAccessRuleRequest $request
      *
      * @return CreateAccessRuleResponse
      */
-    public function createAccessRule(CreateAccessRuleRequest $request)
+    public function createAccessRule($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1039,11 +1077,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAccessRulesRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return DescribeAccessRulesResponse
      */
-    public function describeAccessRulesWithOptions(DescribeAccessRulesRequest $request, RuntimeOptions $runtime)
+    public function describeAccessRulesWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1051,11 +1090,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAccessRulesRequest $request
      *
      * @return DescribeAccessRulesResponse
      */
-    public function describeAccessRules(DescribeAccessRulesRequest $request)
+    public function describeAccessRules($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1063,11 +1102,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAccessGroupsRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return DescribeAccessGroupsResponse
      */
-    public function describeAccessGroupsWithOptions(DescribeAccessGroupsRequest $request, RuntimeOptions $runtime)
+    public function describeAccessGroupsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1075,11 +1115,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeAccessGroupsRequest $request
      *
      * @return DescribeAccessGroupsResponse
      */
-    public function describeAccessGroups(DescribeAccessGroupsRequest $request)
+    public function describeAccessGroups($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1087,11 +1127,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteMountTargetRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return DeleteMountTargetResponse
      */
-    public function deleteMountTargetWithOptions(DeleteMountTargetRequest $request, RuntimeOptions $runtime)
+    public function deleteMountTargetWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1099,11 +1140,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteMountTargetRequest $request
      *
      * @return DeleteMountTargetResponse
      */
-    public function deleteMountTarget(DeleteMountTargetRequest $request)
+    public function deleteMountTarget($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1111,11 +1152,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteFileSystemRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DeleteFileSystemResponse
      */
-    public function deleteFileSystemWithOptions(DeleteFileSystemRequest $request, RuntimeOptions $runtime)
+    public function deleteFileSystemWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1123,11 +1165,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteFileSystemRequest $request
      *
      * @return DeleteFileSystemResponse
      */
-    public function deleteFileSystem(DeleteFileSystemRequest $request)
+    public function deleteFileSystem($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1135,11 +1177,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteAccessRuleRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return DeleteAccessRuleResponse
      */
-    public function deleteAccessRuleWithOptions(DeleteAccessRuleRequest $request, RuntimeOptions $runtime)
+    public function deleteAccessRuleWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1147,11 +1190,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteAccessRuleRequest $request
      *
      * @return DeleteAccessRuleResponse
      */
-    public function deleteAccessRule(DeleteAccessRuleRequest $request)
+    public function deleteAccessRule($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1159,11 +1202,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteAccessGroupRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return DeleteAccessGroupResponse
      */
-    public function deleteAccessGroupWithOptions(DeleteAccessGroupRequest $request, RuntimeOptions $runtime)
+    public function deleteAccessGroupWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1171,11 +1215,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DeleteAccessGroupRequest $request
      *
      * @return DeleteAccessGroupResponse
      */
-    public function deleteAccessGroup(DeleteAccessGroupRequest $request)
+    public function deleteAccessGroup($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1183,11 +1227,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyAccessRuleRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return ModifyAccessRuleResponse
      */
-    public function modifyAccessRuleWithOptions(ModifyAccessRuleRequest $request, RuntimeOptions $runtime)
+    public function modifyAccessRuleWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1195,11 +1240,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyAccessRuleRequest $request
      *
      * @return ModifyAccessRuleResponse
      */
-    public function modifyAccessRule(ModifyAccessRuleRequest $request)
+    public function modifyAccessRule($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1207,11 +1252,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyAccessGroupRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return ModifyAccessGroupResponse
      */
-    public function modifyAccessGroupWithOptions(ModifyAccessGroupRequest $request, RuntimeOptions $runtime)
+    public function modifyAccessGroupWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1219,11 +1265,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyAccessGroupRequest $request
      *
      * @return ModifyAccessGroupResponse
      */
-    public function modifyAccessGroup(ModifyAccessGroupRequest $request)
+    public function modifyAccessGroup($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1231,11 +1277,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeRegionsRequest $request
+     * @param RuntimeOptions         $runtime
      *
      * @return DescribeRegionsResponse
      */
-    public function describeRegionsWithOptions(DescribeRegionsRequest $request, RuntimeOptions $runtime)
+    public function describeRegionsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1243,11 +1290,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeRegionsRequest $request
      *
      * @return DescribeRegionsResponse
      */
-    public function describeRegions(DescribeRegionsRequest $request)
+    public function describeRegions($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1255,11 +1302,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeMountTargetsRequest $request
+     * @param RuntimeOptions              $runtime
      *
      * @return DescribeMountTargetsResponse
      */
-    public function describeMountTargetsWithOptions(DescribeMountTargetsRequest $request, RuntimeOptions $runtime)
+    public function describeMountTargetsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1267,11 +1315,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeMountTargetsRequest $request
      *
      * @return DescribeMountTargetsResponse
      */
-    public function describeMountTargets(DescribeMountTargetsRequest $request)
+    public function describeMountTargets($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1279,11 +1327,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeFileSystemsRequest $request
+     * @param RuntimeOptions             $runtime
      *
      * @return DescribeFileSystemsResponse
      */
-    public function describeFileSystemsWithOptions(DescribeFileSystemsRequest $request, RuntimeOptions $runtime)
+    public function describeFileSystemsWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1291,11 +1340,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeFileSystemsRequest $request
      *
      * @return DescribeFileSystemsResponse
      */
-    public function describeFileSystems(DescribeFileSystemsRequest $request)
+    public function describeFileSystems($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1303,11 +1352,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyMountTargetRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return ModifyMountTargetResponse
      */
-    public function modifyMountTargetWithOptions(ModifyMountTargetRequest $request, RuntimeOptions $runtime)
+    public function modifyMountTargetWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1315,11 +1365,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyMountTargetRequest $request
      *
      * @return ModifyMountTargetResponse
      */
-    public function modifyMountTarget(ModifyMountTargetRequest $request)
+    public function modifyMountTarget($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1327,11 +1377,12 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyFileSystemRequest $request
+     * @param RuntimeOptions          $runtime
      *
      * @return ModifyFileSystemResponse
      */
-    public function modifyFileSystemWithOptions(ModifyFileSystemRequest $request, RuntimeOptions $runtime)
+    public function modifyFileSystemWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -1339,11 +1390,11 @@ class NAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param ModifyFileSystemRequest $request
      *
      * @return ModifyFileSystemResponse
      */
-    public function modifyFileSystem(ModifyFileSystemRequest $request)
+    public function modifyFileSystem($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -1358,8 +1409,6 @@ class NAS extends Rpc
      * @param string $suffix
      * @param array  $endpointMap
      * @param string $endpoint
-     *
-     * @throws \Exception
      *
      * @return string
      */

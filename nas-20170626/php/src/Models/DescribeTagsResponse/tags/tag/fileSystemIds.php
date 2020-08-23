@@ -27,10 +27,7 @@ class fileSystemIds extends Model
     {
         $res = [];
         if (null !== $this->fileSystemId) {
-            $res['FileSystemId'] = [];
-            if (null !== $this->fileSystemId) {
-                $res['FileSystemId'] = $this->fileSystemId;
-            }
+            $res['FileSystemId'] = $this->fileSystemId;
         }
 
         return $res;
@@ -46,7 +43,6 @@ class fileSystemIds extends Model
         $model = new self();
         if (isset($map['FileSystemId'])) {
             if (!empty($map['FileSystemId'])) {
-                $model->fileSystemId = [];
                 $model->fileSystemId = $map['FileSystemId'];
             }
         }

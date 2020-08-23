@@ -10,43 +10,31 @@ use AlibabaCloud\Tea\Model;
 class DescribeLogAnalysisResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description code
-     *
      * @var string
      */
     public $code;
 
     /**
-     * @description totalCount
-     *
      * @var int
      */
     public $totalCount;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description pageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description data
-     *
      * @var analyses
      */
     public $analyses;

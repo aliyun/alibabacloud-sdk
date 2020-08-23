@@ -10,29 +10,21 @@ use AlibabaCloud\Tea\Model;
 class DescribeTagsRequest extends Model
 {
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description pageNumber
-     *
      * @var int
      */
     public $pageNumber;
 
     /**
-     * @description tags
-     *
      * @var array
      */
     public $tag;

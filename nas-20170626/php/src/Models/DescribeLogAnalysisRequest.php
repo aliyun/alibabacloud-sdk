@@ -9,13 +9,23 @@ use AlibabaCloud\Tea\Model;
 class DescribeLogAnalysisRequest extends Model
 {
     /**
-     * @description region
-     *
      * @var string
      */
     public $regionId;
+
+    /**
+     * @var int
+     */
+    public $pageSize;
+
+    /**
+     * @var int
+     */
+    public $pageNumber;
     protected $_name = [
-        'regionId' => 'RegionId',
+        'regionId'   => 'RegionId',
+        'pageSize'   => 'PageSize',
+        'pageNumber' => 'PageNumber',
     ];
 
     public function validate()
@@ -28,6 +38,12 @@ class DescribeLogAnalysisRequest extends Model
         $res = [];
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
         }
 
         return $res;
@@ -43,6 +59,12 @@ class DescribeLogAnalysisRequest extends Model
         $model = new self();
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
+        }
+        if (isset($map['PageSize'])) {
+            $model->pageSize = $map['PageSize'];
+        }
+        if (isset($map['PageNumber'])) {
+            $model->pageNumber = $map['PageNumber'];
         }
 
         return $model;

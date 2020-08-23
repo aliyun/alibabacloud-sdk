@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class clients extends Model
 {
     /**
-     * @description Client
-     *
      * @var array
      */
     public $client;

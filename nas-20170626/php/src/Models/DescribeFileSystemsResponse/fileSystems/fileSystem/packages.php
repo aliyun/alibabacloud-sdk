@@ -10,8 +10,6 @@ use AlibabaCloud\Tea\Model;
 class packages extends Model
 {
     /**
-     * @description Package
-     *
      * @var array
      */
     public $package;

@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class CreateLDAPConfigRequest extends Model
 {
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description uri
-     *
      * @var string
      */
     public $URI;
 
     /**
-     * @description bindDN
-     *
      * @var string
      */
     public $bindDN;
 
     /**
-     * @description searchBase
-     *
      * @var string
      */
     public $searchBase;

@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class DeleteSnapshotRequest extends Model
 {
     /**
-     * @description snapshotId
-     *
      * @var string
      */
     public $snapshotId;

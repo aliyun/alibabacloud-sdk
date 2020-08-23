@@ -10,15 +10,11 @@ use AlibabaCloud\Tea\Model;
 class analysis extends Model
 {
     /**
-     * @description metaKey
-     *
      * @var string
      */
     public $metaKey;
 
     /**
-     * @description metaValue
-     *
      * @var metaValue
      */
     public $metaValue;

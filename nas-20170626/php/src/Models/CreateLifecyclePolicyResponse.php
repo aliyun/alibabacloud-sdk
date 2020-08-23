@@ -9,15 +9,11 @@ use AlibabaCloud\Tea\Model;
 class CreateLifecyclePolicyResponse extends Model
 {
     /**
-     * @description requestId
-     *
      * @var string
      */
     public $requestId;
 
     /**
-     * @description success
-     *
      * @var bool
      */
     public $success;

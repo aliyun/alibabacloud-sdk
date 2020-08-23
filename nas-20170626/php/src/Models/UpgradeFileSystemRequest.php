@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class UpgradeFileSystemRequest extends Model
 {
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description capacity
-     *
      * @var int
      */
     public $capacity;
 
     /**
-     * @description dryRun
-     *
      * @var bool
      */
     public $dryRun;
 
     /**
-     * @description clientToken
-     *
      * @var string
      */
     public $clientToken;

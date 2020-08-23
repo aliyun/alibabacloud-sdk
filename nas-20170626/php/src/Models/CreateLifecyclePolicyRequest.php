@@ -9,36 +9,26 @@ use AlibabaCloud\Tea\Model;
 class CreateLifecyclePolicyRequest extends Model
 {
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description lifecyclePolicyName
-     *
      * @var string
      */
     public $lifecyclePolicyName;
 
     /**
-     * @description path
-     *
      * @var string
      */
     public $path;
 
     /**
-     * @description lifecycleRuleName
-     *
      * @var string
      */
     public $lifecycleRuleName;
 
     /**
-     * @description storageType
-     *
      * @var string
      */
     public $storageType;

@@ -9,8 +9,6 @@ use AlibabaCloud\Tea\Model;
 class CancelAutoSnapshotPolicyRequest extends Model
 {
     /**
-     * @description volumes
-     *
      * @var string
      */
     public $fileSystemIds;

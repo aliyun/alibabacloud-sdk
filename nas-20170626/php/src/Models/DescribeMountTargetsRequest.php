@@ -9,29 +9,21 @@ use AlibabaCloud\Tea\Model;
 class DescribeMountTargetsRequest extends Model
 {
     /**
-     * @description volume
-     *
      * @var string
      */
     public $fileSystemId;
 
     /**
-     * @description domainName
-     *
      * @var string
      */
     public $mountTargetDomain;
 
     /**
-     * @description pageSize
-     *
      * @var int
      */
     public $pageSize;
 
     /**
-     * @description pageNumber
-     *
      * @var int
      */
     public $pageNumber;
