@@ -1,3 +1,6 @@
+2020-08-24 Version: 0.0.10
+- Release ExtractPedestrianFeatureAttribute and BlurFace.
+
 2020-08-03 Version: 0.0.9
 - Add ExtractPedestrianFeatureAttribute.
 
