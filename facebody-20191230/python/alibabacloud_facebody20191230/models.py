@@ -1,5 +1,245 @@
+# -*- coding: utf-8 -*-
 # This file is auto-generated, don't edit it. Thanks.
 from Tea.model import TeaModel
+
+
+class DetectIPCPedestrianRequest(TeaModel):
+    def __init__(self, image_data=None, width=None, height=None):
+        self.image_data = image_data
+        self.width = width
+        self.height = height
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['ImageData'] = self.image_data
+        result['Width'] = self.width
+        result['Height'] = self.height
+        return result
+
+    def from_map(self, map={}):
+        self.image_data = map.get('ImageData')
+        self.width = map.get('Width')
+        self.height = map.get('Height')
+        return self
+
+
+class DetectIPCPedestrianResponse(TeaModel):
+    def __init__(self, request_id=None, data=None):
+        self.request_id = request_id
+        self.data = data
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.data, 'data')
+        if self.data:
+            self.data.validate()
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        if self.data is not None:
+            result['Data'] = self.data.to_map()
+        else:
+            result['Data'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        if map.get('Data') is not None:
+            temp_model = DetectIPCPedestrianResponseData()
+            self.data = temp_model.from_map(map['Data'])
+        else:
+            self.data = None
+        return self
+
+
+class DetectIPCPedestrianResponseDataImageInfoListElements(TeaModel):
+    def __init__(self, score=None, boxes=None):
+        self.score = score
+        self.boxes = boxes
+
+    def validate(self):
+        self.validate_required(self.score, 'score')
+        self.validate_required(self.boxes, 'boxes')
+
+    def to_map(self):
+        result = {}
+        result['Score'] = self.score
+        result['Boxes'] = []
+        if self.boxes is not None:
+            for k in self.boxes:
+                result['Boxes'].append(k)
+        else:
+            result['Boxes'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.score = map.get('Score')
+        self.boxes = []
+        if map.get('Boxes') is not None:
+            for k in map.get('Boxes'):
+                self.boxes.append(k)
+        else:
+            self.boxes = None
+        return self
+
+
+class DetectIPCPedestrianResponseDataImageInfoList(TeaModel):
+    def __init__(self, error_code=None, error_message=None, data_id=None, elements=None):
+        self.error_code = error_code
+        self.error_message = error_message
+        self.data_id = data_id
+        self.elements = elements
+
+    def validate(self):
+        self.validate_required(self.error_code, 'error_code')
+        self.validate_required(self.error_message, 'error_message')
+        self.validate_required(self.data_id, 'data_id')
+        self.validate_required(self.elements, 'elements')
+        if self.elements:
+            for k in self.elements:
+                if k:
+                    k.validate()
+
+    def to_map(self):
+        result = {}
+        result['ErrorCode'] = self.error_code
+        result['ErrorMessage'] = self.error_message
+        result['DataId'] = self.data_id
+        result['Elements'] = []
+        if self.elements is not None:
+            for k in self.elements:
+                result['Elements'].append(k.to_map() if k else None)
+        else:
+            result['Elements'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.error_code = map.get('ErrorCode')
+        self.error_message = map.get('ErrorMessage')
+        self.data_id = map.get('DataId')
+        self.elements = []
+        if map.get('Elements') is not None:
+            for k in map.get('Elements'):
+                temp_model = DetectIPCPedestrianResponseDataImageInfoListElements()
+                temp_model = temp_model.from_map(k)
+                self.elements.append(temp_model)
+        else:
+            self.elements = None
+        return self
+
+
+class DetectIPCPedestrianResponseData(TeaModel):
+    def __init__(self, image_info_list=None):
+        self.image_info_list = image_info_list
+
+    def validate(self):
+        self.validate_required(self.image_info_list, 'image_info_list')
+        if self.image_info_list:
+            for k in self.image_info_list:
+                if k:
+                    k.validate()
+
+    def to_map(self):
+        result = {}
+        result['ImageInfoList'] = []
+        if self.image_info_list is not None:
+            for k in self.image_info_list:
+                result['ImageInfoList'].append(k.to_map() if k else None)
+        else:
+            result['ImageInfoList'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.image_info_list = []
+        if map.get('ImageInfoList') is not None:
+            for k in map.get('ImageInfoList'):
+                temp_model = DetectIPCPedestrianResponseDataImageInfoList()
+                temp_model = temp_model.from_map(k)
+                self.image_info_list.append(temp_model)
+        else:
+            self.image_info_list = None
+        return self
+class BlurFaceRequest(TeaModel):
+    def __init__(self, image_url=None):
+        self.image_url = image_url
+
+    def validate(self):
+        self.validate_required(self.image_url, 'image_url')
+
+    def to_map(self):
+        result = {}
+        result['ImageURL'] = self.image_url
+        return result
+
+    def from_map(self, map={}):
+        self.image_url = map.get('ImageURL')
+        return self
+
+
+class BlurFaceResponse(TeaModel):
+    def __init__(self, request_id=None, data=None):
+        self.request_id = request_id
+        self.data = data
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.data, 'data')
+        if self.data:
+            self.data.validate()
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        if self.data is not None:
+            result['Data'] = self.data.to_map()
+        else:
+            result['Data'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        if map.get('Data') is not None:
+            temp_model = BlurFaceResponseData()
+            self.data = temp_model.from_map(map['Data'])
+        else:
+            self.data = None
+        return self
+
+
+class BlurFaceResponseData(TeaModel):
+    def __init__(self, image_url=None):
+        self.image_url = image_url
+
+    def validate(self):
+        self.validate_required(self.image_url, 'image_url')
+
+    def to_map(self):
+        result = {}
+        result['ImageURL'] = self.image_url
+        return result
+
+    def from_map(self, map={}):
+        self.image_url = map.get('ImageURL')
+        return self
+class BlurFaceAdvanceRequest(TeaModel):
+    def __init__(self, image_urlobject=None):
+        self.image_urlobject = image_urlobject
+
+    def validate(self):
+        self.validate_required(self.image_urlobject, 'image_urlobject')
+
+    def to_map(self):
+        result = {}
+        result['ImageURLObject'] = self.image_urlobject
+        return result
+
+    def from_map(self, map={}):
+        self.image_urlobject = map.get('ImageURLObject')
+        return self
 
 
 class ExtractPedestrianFeatureAttributeRequest(TeaModel):
@@ -50,7 +290,10 @@ class ExtractPedestrianFeatureAttributeResponse(TeaModel):
 
 
 class ExtractPedestrianFeatureAttributeResponseData(TeaModel):
-    def __init__(self, obj_type=None, obj_type_score=None, feature=None, quality_score=None, upper_color=None, upper_color_score=None, upper_type=None, upper_type_score=None, lower_color=None, lower_color_score=None, lower_type=None, lower_type_score=None, gender=None, gender_score=None, hair=None, hair_score=None, age=None, age_score=None):
+    def __init__(self, obj_type=None, obj_type_score=None, feature=None, quality_score=None, upper_color=None,
+                 upper_color_score=None, upper_type=None, upper_type_score=None, lower_color=None, lower_color_score=None,
+                 lower_type=None, lower_type_score=None, gender=None, gender_score=None, hair=None, hair_score=None, age=None,
+                 age_score=None):
         self.obj_type = obj_type
         self.obj_type_score = obj_type_score
         self.feature = feature
@@ -199,7 +442,7 @@ class DetectCelebrityResponse(TeaModel):
 class DetectCelebrityResponseDataFaceRecognizeResults(TeaModel):
     def __init__(self, name=None, face_boxes=None):
         self.name = name
-        self.face_boxes = []
+        self.face_boxes = face_boxes
 
     def validate(self):
         self.validate_required(self.name, 'name')
@@ -231,7 +474,7 @@ class DetectCelebrityResponseData(TeaModel):
     def __init__(self, width=None, height=None, face_recognize_results=None):
         self.width = width
         self.height = height
-        self.face_recognize_results = []
+        self.face_recognize_results = face_recognize_results
 
     def validate(self):
         self.validate_required(self.width, 'width')
@@ -239,7 +482,7 @@ class DetectCelebrityResponseData(TeaModel):
         self.validate_required(self.face_recognize_results, 'face_recognize_results')
         if self.face_recognize_results:
             for k in self.face_recognize_results:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -335,13 +578,14 @@ class VerifyFaceMaskResponse(TeaModel):
 
 
 class VerifyFaceMaskResponseData(TeaModel):
-    def __init__(self, confidence=None, mask=None, mask_ref=None, rectangle=None, rectangle_ref=None, thresholds=None):
+    def __init__(self, confidence=None, mask=None, mask_ref=None, rectangle=None, rectangle_ref=None,
+                 thresholds=None):
         self.confidence = confidence
         self.mask = mask
         self.mask_ref = mask_ref
-        self.rectangle = []
-        self.rectangle_ref = []
-        self.thresholds = []
+        self.rectangle = rectangle
+        self.rectangle_ref = rectangle_ref
+        self.thresholds = thresholds
 
     def validate(self):
         self.validate_required(self.confidence, 'confidence')
@@ -422,14 +666,14 @@ class VerifyFaceMaskAdvanceRequest(TeaModel):
 
 class RecognizeActionRequest(TeaModel):
     def __init__(self, urllist=None, type=None, video_url=None):
-        self.urllist = []
+        self.urllist = urllist
         self.type = type
         self.video_url = video_url
 
     def validate(self):
         if self.urllist:
             for k in self.urllist:
-                if k :
+                if k:
                     k.validate()
         self.validate_required(self.type, 'type')
 
@@ -460,19 +704,19 @@ class RecognizeActionRequest(TeaModel):
 
 
 class RecognizeActionRequestURLList(TeaModel):
-    def __init__(self, _url=None):
-        self._url = _url
+    def __init__(self, url=None):
+        self.url = url
 
     def validate(self):
         pass
 
     def to_map(self):
         result = {}
-        result['URL'] = self._url
+        result['URL'] = self.url
         return result
 
     def from_map(self, map={}):
-        self._url = map.get('URL')
+        self.url = map.get('URL')
         return self
 class RecognizeActionResponse(TeaModel):
     def __init__(self, request_id=None, data=None):
@@ -506,7 +750,7 @@ class RecognizeActionResponse(TeaModel):
 
 class RecognizeActionResponseDataElementsBoxes(TeaModel):
     def __init__(self, box=None):
-        self.box = []
+        self.box = box
 
     def validate(self):
         self.validate_required(self.box, 'box')
@@ -534,16 +778,16 @@ class RecognizeActionResponseDataElementsBoxes(TeaModel):
 class RecognizeActionResponseDataElements(TeaModel):
     def __init__(self, timestamp=None, boxes=None, scores=None, labels=None):
         self.timestamp = timestamp
-        self.boxes = []
-        self.scores = []
-        self.labels = []
+        self.boxes = boxes
+        self.scores = scores
+        self.labels = labels
 
     def validate(self):
         self.validate_required(self.timestamp, 'timestamp')
         self.validate_required(self.boxes, 'boxes')
         if self.boxes:
             for k in self.boxes:
-                if k :
+                if k:
                     k.validate()
         self.validate_required(self.scores, 'scores')
         self.validate_required(self.labels, 'labels')
@@ -598,13 +842,13 @@ class RecognizeActionResponseDataElements(TeaModel):
 
 class RecognizeActionResponseData(TeaModel):
     def __init__(self, elements=None):
-        self.elements = []
+        self.elements = elements
 
     def validate(self):
         self.validate_required(self.elements, 'elements')
         if self.elements:
             for k in self.elements:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -678,7 +922,7 @@ class DetectVideoLivingFaceResponseDataElements(TeaModel):
     def __init__(self, live_confidence=None, face_confidence=None, rect=None):
         self.live_confidence = live_confidence
         self.face_confidence = face_confidence
-        self.rect = []
+        self.rect = rect
 
     def validate(self):
         self.validate_required(self.live_confidence, 'live_confidence')
@@ -711,13 +955,13 @@ class DetectVideoLivingFaceResponseDataElements(TeaModel):
 
 class DetectVideoLivingFaceResponseData(TeaModel):
     def __init__(self, elements=None):
-        self.elements = []
+        self.elements = elements
 
     def validate(self):
         self.validate_required(self.elements, 'elements')
         if self.elements:
             for k in self.elements:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -932,7 +1176,8 @@ class DeleteFaceEntityResponse(TeaModel):
 
 
 class ListFaceEntitiesRequest(TeaModel):
-    def __init__(self, db_name=None, offset=None, limit=None, token=None, labels=None, entity_id_prefix=None, order=None):
+    def __init__(self, db_name=None, offset=None, limit=None, token=None, labels=None, entity_id_prefix=None,
+                 order=None):
         self.db_name = db_name
         self.offset = offset
         self.limit = limit
@@ -1037,7 +1282,7 @@ class ListFaceEntitiesResponseData(TeaModel):
     def __init__(self, token=None, total_count=None, entities=None):
         self.token = token
         self.total_count = total_count
-        self.entities = []
+        self.entities = entities
 
     def validate(self):
         self.validate_required(self.token, 'token')
@@ -1045,7 +1290,7 @@ class ListFaceEntitiesResponseData(TeaModel):
         self.validate_required(self.entities, 'entities')
         if self.entities:
             for k in self.entities:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -1145,7 +1390,7 @@ class GetFaceEntityResponseData(TeaModel):
         self.db_name = db_name
         self.entity_id = entity_id
         self.labels = labels
-        self.faces = []
+        self.faces = faces
 
     def validate(self):
         self.validate_required(self.db_name, 'db_name')
@@ -1154,7 +1399,7 @@ class GetFaceEntityResponseData(TeaModel):
         self.validate_required(self.faces, 'faces')
         if self.faces:
             for k in self.faces:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -1376,7 +1621,7 @@ class HandPostureResponse(TeaModel):
 
 class HandPostureResponseDataOutputsResultsBoxPositions(TeaModel):
     def __init__(self, points=None):
-        self.points = []
+        self.points = points
 
     def validate(self):
         self.validate_required(self.points, 'points')
@@ -1404,14 +1649,14 @@ class HandPostureResponseDataOutputsResultsBoxPositions(TeaModel):
 class HandPostureResponseDataOutputsResultsBox(TeaModel):
     def __init__(self, confident=None, positions=None):
         self.confident = confident
-        self.positions = []
+        self.positions = positions
 
     def validate(self):
         self.validate_required(self.confident, 'confident')
         self.validate_required(self.positions, 'positions')
         if self.positions:
             for k in self.positions:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -1440,7 +1685,7 @@ class HandPostureResponseDataOutputsResultsBox(TeaModel):
 
 class HandPostureResponseDataOutputsResultsHandsKeyPointsPositions(TeaModel):
     def __init__(self, points=None):
-        self.points = []
+        self.points = points
 
     def validate(self):
         self.validate_required(self.points, 'points')
@@ -1468,14 +1713,14 @@ class HandPostureResponseDataOutputsResultsHandsKeyPointsPositions(TeaModel):
 class HandPostureResponseDataOutputsResultsHandsKeyPoints(TeaModel):
     def __init__(self, label=None, positions=None):
         self.label = label
-        self.positions = []
+        self.positions = positions
 
     def validate(self):
         self.validate_required(self.label, 'label')
         self.validate_required(self.positions, 'positions')
         if self.positions:
             for k in self.positions:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -1505,14 +1750,14 @@ class HandPostureResponseDataOutputsResultsHandsKeyPoints(TeaModel):
 class HandPostureResponseDataOutputsResultsHands(TeaModel):
     def __init__(self, confident=None, key_points=None):
         self.confident = confident
-        self.key_points = []
+        self.key_points = key_points
 
     def validate(self):
         self.validate_required(self.confident, 'confident')
         self.validate_required(self.key_points, 'key_points')
         if self.key_points:
             for k in self.key_points:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -1581,14 +1826,14 @@ class HandPostureResponseDataOutputsResults(TeaModel):
 class HandPostureResponseDataOutputs(TeaModel):
     def __init__(self, hand_count=None, results=None):
         self.hand_count = hand_count
-        self.results = []
+        self.results = results
 
     def validate(self):
         self.validate_required(self.hand_count, 'hand_count')
         self.validate_required(self.results, 'results')
         if self.results:
             for k in self.results:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -1638,14 +1883,14 @@ class HandPostureResponseDataMetaObject(TeaModel):
 
 class HandPostureResponseData(TeaModel):
     def __init__(self, outputs=None, meta_object=None):
-        self.outputs = []
+        self.outputs = outputs
         self.meta_object = meta_object
 
     def validate(self):
         self.validate_required(self.outputs, 'outputs')
         if self.outputs:
             for k in self.outputs:
-                if k :
+                if k:
                     k.validate()
         self.validate_required(self.meta_object, 'meta_object')
         if self.meta_object:
@@ -1746,7 +1991,7 @@ class BodyPostureResponse(TeaModel):
 
 class BodyPostureResponseDataOutputsResultsBodiesPositions(TeaModel):
     def __init__(self, points=None):
-        self.points = []
+        self.points = points
 
     def validate(self):
         self.validate_required(self.points, 'points')
@@ -1775,7 +2020,7 @@ class BodyPostureResponseDataOutputsResultsBodies(TeaModel):
     def __init__(self, confident=None, label=None, positions=None):
         self.confident = confident
         self.label = label
-        self.positions = []
+        self.positions = positions
 
     def validate(self):
         self.validate_required(self.confident, 'confident')
@@ -1783,7 +2028,7 @@ class BodyPostureResponseDataOutputsResultsBodies(TeaModel):
         self.validate_required(self.positions, 'positions')
         if self.positions:
             for k in self.positions:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -1814,13 +2059,13 @@ class BodyPostureResponseDataOutputsResultsBodies(TeaModel):
 
 class BodyPostureResponseDataOutputsResults(TeaModel):
     def __init__(self, bodies=None):
-        self.bodies = []
+        self.bodies = bodies
 
     def validate(self):
         self.validate_required(self.bodies, 'bodies')
         if self.bodies:
             for k in self.bodies:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -1848,14 +2093,14 @@ class BodyPostureResponseDataOutputsResults(TeaModel):
 class BodyPostureResponseDataOutputs(TeaModel):
     def __init__(self, human_count=None, results=None):
         self.human_count = human_count
-        self.results = []
+        self.results = results
 
     def validate(self):
         self.validate_required(self.human_count, 'human_count')
         self.validate_required(self.results, 'results')
         if self.results:
             for k in self.results:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -1905,14 +2150,14 @@ class BodyPostureResponseDataMetaObject(TeaModel):
 
 class BodyPostureResponseData(TeaModel):
     def __init__(self, outputs=None, meta_object=None):
-        self.outputs = []
+        self.outputs = outputs
         self.meta_object = meta_object
 
     def validate(self):
         self.validate_required(self.outputs, 'outputs')
         if self.outputs:
             for k in self.outputs:
-                if k :
+                if k:
                     k.validate()
         self.validate_required(self.meta_object, 'meta_object')
         if self.meta_object:
@@ -2015,7 +2260,7 @@ class DetectPedestrianResponseDataElements(TeaModel):
     def __init__(self, score=None, type=None, boxes=None):
         self.score = score
         self.type = type
-        self.boxes = []
+        self.boxes = boxes
 
     def validate(self):
         self.validate_required(self.score, 'score')
@@ -2050,7 +2295,7 @@ class DetectPedestrianResponseData(TeaModel):
     def __init__(self, width=None, height=None, elements=None):
         self.width = width
         self.height = height
-        self.elements = []
+        self.elements = elements
 
     def validate(self):
         self.validate_required(self.width, 'width')
@@ -2058,7 +2303,7 @@ class DetectPedestrianResponseData(TeaModel):
         self.validate_required(self.elements, 'elements')
         if self.elements:
             for k in self.elements:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -2589,14 +2834,14 @@ class SearchFaceResponseDataMatchListLocation(TeaModel):
 
 class SearchFaceResponseDataMatchList(TeaModel):
     def __init__(self, face_items=None, location=None):
-        self.face_items = []
+        self.face_items = face_items
         self.location = location
 
     def validate(self):
         self.validate_required(self.face_items, 'face_items')
         if self.face_items:
             for k in self.face_items:
-                if k :
+                if k:
                     k.validate()
         self.validate_required(self.location, 'location')
         if self.location:
@@ -2635,13 +2880,13 @@ class SearchFaceResponseDataMatchList(TeaModel):
 
 class SearchFaceResponseData(TeaModel):
     def __init__(self, match_list=None):
-        self.match_list = []
+        self.match_list = match_list
 
     def validate(self):
         self.validate_required(self.match_list, 'match_list')
         if self.match_list:
             for k in self.match_list:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -2753,13 +2998,13 @@ class ListFaceDbsResponseDataDbList(TeaModel):
 
 class ListFaceDbsResponseData(TeaModel):
     def __init__(self, db_list=None):
-        self.db_list = []
+        self.db_list = db_list
 
     def validate(self):
         self.validate_required(self.db_list, 'db_list')
         if self.db_list:
             for k in self.db_list:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -3101,13 +3346,13 @@ class RecognizeExpressionResponseDataElements(TeaModel):
 
 class RecognizeExpressionResponseData(TeaModel):
     def __init__(self, elements=None):
-        self.elements = []
+        self.elements = elements
 
     def validate(self):
         self.validate_required(self.elements, 'elements')
         if self.elements:
             for k in self.elements:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -3149,13 +3394,13 @@ class RecognizeExpressionAdvanceRequest(TeaModel):
 
 class RecognizePublicFaceRequest(TeaModel):
     def __init__(self, task=None):
-        self.task = []
+        self.task = task
 
     def validate(self):
         self.validate_required(self.task, 'task')
         if self.task:
             for k in self.task:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -3256,7 +3501,7 @@ class RecognizePublicFaceResponseDataElementsResultsSubResults(TeaModel):
         self.w = w
         self.x = x
         self.y = y
-        self.faces = []
+        self.faces = faces
 
     def validate(self):
         self.validate_required(self.h, 'h')
@@ -3266,7 +3511,7 @@ class RecognizePublicFaceResponseDataElementsResultsSubResults(TeaModel):
         self.validate_required(self.faces, 'faces')
         if self.faces:
             for k in self.faces:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -3304,7 +3549,7 @@ class RecognizePublicFaceResponseDataElementsResults(TeaModel):
         self.label = label
         self.suggestion = suggestion
         self.rate = rate
-        self.sub_results = []
+        self.sub_results = sub_results
 
     def validate(self):
         self.validate_required(self.label, 'label')
@@ -3313,7 +3558,7 @@ class RecognizePublicFaceResponseDataElementsResults(TeaModel):
         self.validate_required(self.sub_results, 'sub_results')
         if self.sub_results:
             for k in self.sub_results:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -3348,7 +3593,7 @@ class RecognizePublicFaceResponseDataElements(TeaModel):
     def __init__(self, task_id=None, image_url=None, results=None):
         self.task_id = task_id
         self.image_url = image_url
-        self.results = []
+        self.results = results
 
     def validate(self):
         self.validate_required(self.task_id, 'task_id')
@@ -3356,7 +3601,7 @@ class RecognizePublicFaceResponseDataElements(TeaModel):
         self.validate_required(self.results, 'results')
         if self.results:
             for k in self.results:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -3387,13 +3632,13 @@ class RecognizePublicFaceResponseDataElements(TeaModel):
 
 class RecognizePublicFaceResponseData(TeaModel):
     def __init__(self, elements=None):
-        self.elements = []
+        self.elements = elements
 
     def validate(self):
         self.validate_required(self.elements, 'elements')
         if self.elements:
             for k in self.elements:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -3418,13 +3663,13 @@ class RecognizePublicFaceResponseData(TeaModel):
         return self
 class DetectLivingFaceRequest(TeaModel):
     def __init__(self, tasks=None):
-        self.tasks = []
+        self.tasks = tasks
 
     def validate(self):
         self.validate_required(self.tasks, 'tasks')
         if self.tasks:
             for k in self.tasks:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -3520,7 +3765,7 @@ class DetectLivingFaceResponseDataElementsResults(TeaModel):
         self.label = label
         self.suggestion = suggestion
         self.rate = rate
-        self.frames = []
+        self.frames = frames
 
     def validate(self):
         self.validate_required(self.label, 'label')
@@ -3529,7 +3774,7 @@ class DetectLivingFaceResponseDataElementsResults(TeaModel):
         self.validate_required(self.frames, 'frames')
         if self.frames:
             for k in self.frames:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -3564,7 +3809,7 @@ class DetectLivingFaceResponseDataElements(TeaModel):
     def __init__(self, task_id=None, image_url=None, results=None):
         self.task_id = task_id
         self.image_url = image_url
-        self.results = []
+        self.results = results
 
     def validate(self):
         self.validate_required(self.task_id, 'task_id')
@@ -3572,7 +3817,7 @@ class DetectLivingFaceResponseDataElements(TeaModel):
         self.validate_required(self.results, 'results')
         if self.results:
             for k in self.results:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -3603,13 +3848,13 @@ class DetectLivingFaceResponseDataElements(TeaModel):
 
 class DetectLivingFaceResponseData(TeaModel):
     def __init__(self, elements=None):
-        self.elements = []
+        self.elements = elements
 
     def validate(self):
         self.validate_required(self.elements, 'elements')
         if self.elements:
             for k in self.elements:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -3842,20 +4087,22 @@ class RecognizeFaceResponse(TeaModel):
 
 
 class RecognizeFaceResponseData(TeaModel):
-    def __init__(self, face_count=None, landmark_count=None, dense_feature_length=None, face_rectangles=None, face_probability_list=None, pose_list=None, landmarks=None, pupils=None, gender_list=None, age_list=None, expressions=None, glasses=None, dense_features=None):
+    def __init__(self, face_count=None, landmark_count=None, dense_feature_length=None, face_rectangles=None,
+                 face_probability_list=None, pose_list=None, landmarks=None, pupils=None, gender_list=None, age_list=None,
+                 expressions=None, glasses=None, dense_features=None):
         self.face_count = face_count
         self.landmark_count = landmark_count
         self.dense_feature_length = dense_feature_length
-        self.face_rectangles = []
-        self.face_probability_list = []
-        self.pose_list = []
-        self.landmarks = []
-        self.pupils = []
-        self.gender_list = []
-        self.age_list = []
-        self.expressions = []
-        self.glasses = []
-        self.dense_features = []
+        self.face_rectangles = face_rectangles
+        self.face_probability_list = face_probability_list
+        self.pose_list = pose_list
+        self.landmarks = landmarks
+        self.pupils = pupils
+        self.gender_list = gender_list
+        self.age_list = age_list
+        self.expressions = expressions
+        self.glasses = glasses
+        self.dense_features = dense_features
 
     def validate(self):
         self.validate_required(self.face_count, 'face_count')
@@ -4075,9 +4322,9 @@ class CompareFaceResponse(TeaModel):
 class CompareFaceResponseData(TeaModel):
     def __init__(self, confidence=None, thresholds=None, rect_alist=None, rect_blist=None):
         self.confidence = confidence
-        self.thresholds = []
-        self.rect_alist = []
-        self.rect_blist = []
+        self.thresholds = thresholds
+        self.rect_alist = rect_alist
+        self.rect_blist = rect_blist
 
     def validate(self):
         self.validate_required(self.confidence, 'confidence')
@@ -4177,14 +4424,15 @@ class DetectFaceResponse(TeaModel):
 
 
 class DetectFaceResponseData(TeaModel):
-    def __init__(self, face_count=None, landmark_count=None, face_rectangles=None, face_probability_list=None, pose_list=None, landmarks=None, pupils=None):
+    def __init__(self, face_count=None, landmark_count=None, face_rectangles=None, face_probability_list=None,
+                 pose_list=None, landmarks=None, pupils=None):
         self.face_count = face_count
         self.landmark_count = landmark_count
-        self.face_rectangles = []
-        self.face_probability_list = []
-        self.pose_list = []
-        self.landmarks = []
-        self.pupils = []
+        self.face_rectangles = face_rectangles
+        self.face_probability_list = face_probability_list
+        self.pose_list = pose_list
+        self.landmarks = landmarks
+        self.pupils = pupils
 
     def validate(self):
         self.validate_required(self.face_count, 'face_count')
