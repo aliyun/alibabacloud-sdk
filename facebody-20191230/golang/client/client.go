@@ -14,6 +14,207 @@ import (
 	"io"
 )
 
+type DetectIPCPedestrianRequest struct {
+	ImageData *string `json:"ImageData,omitempty" xml:"ImageData,omitempty"`
+	Width     *int    `json:"Width,omitempty" xml:"Width,omitempty"`
+	Height    *int    `json:"Height,omitempty" xml:"Height,omitempty"`
+}
+
+func (s DetectIPCPedestrianRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectIPCPedestrianRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectIPCPedestrianRequest) SetImageData(v string) *DetectIPCPedestrianRequest {
+	s.ImageData = &v
+	return s
+}
+
+func (s *DetectIPCPedestrianRequest) SetWidth(v int) *DetectIPCPedestrianRequest {
+	s.Width = &v
+	return s
+}
+
+func (s *DetectIPCPedestrianRequest) SetHeight(v int) *DetectIPCPedestrianRequest {
+	s.Height = &v
+	return s
+}
+
+type DetectIPCPedestrianResponse struct {
+	RequestId *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *DetectIPCPedestrianResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s DetectIPCPedestrianResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectIPCPedestrianResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DetectIPCPedestrianResponse) SetRequestId(v string) *DetectIPCPedestrianResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DetectIPCPedestrianResponse) SetData(v *DetectIPCPedestrianResponseData) *DetectIPCPedestrianResponse {
+	s.Data = v
+	return s
+}
+
+type DetectIPCPedestrianResponseData struct {
+	ImageInfoList []*DetectIPCPedestrianResponseDataImageInfoList `json:"ImageInfoList,omitempty" xml:"ImageInfoList,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DetectIPCPedestrianResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectIPCPedestrianResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *DetectIPCPedestrianResponseData) SetImageInfoList(v []*DetectIPCPedestrianResponseDataImageInfoList) *DetectIPCPedestrianResponseData {
+	s.ImageInfoList = v
+	return s
+}
+
+type DetectIPCPedestrianResponseDataImageInfoList struct {
+	ErrorCode    *string                                                 `json:"ErrorCode,omitempty" xml:"ErrorCode,omitempty" require:"true"`
+	ErrorMessage *string                                                 `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
+	DataId       *string                                                 `json:"DataId,omitempty" xml:"DataId,omitempty" require:"true"`
+	Elements     []*DetectIPCPedestrianResponseDataImageInfoListElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DetectIPCPedestrianResponseDataImageInfoList) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectIPCPedestrianResponseDataImageInfoList) GoString() string {
+	return s.String()
+}
+
+func (s *DetectIPCPedestrianResponseDataImageInfoList) SetErrorCode(v string) *DetectIPCPedestrianResponseDataImageInfoList {
+	s.ErrorCode = &v
+	return s
+}
+
+func (s *DetectIPCPedestrianResponseDataImageInfoList) SetErrorMessage(v string) *DetectIPCPedestrianResponseDataImageInfoList {
+	s.ErrorMessage = &v
+	return s
+}
+
+func (s *DetectIPCPedestrianResponseDataImageInfoList) SetDataId(v string) *DetectIPCPedestrianResponseDataImageInfoList {
+	s.DataId = &v
+	return s
+}
+
+func (s *DetectIPCPedestrianResponseDataImageInfoList) SetElements(v []*DetectIPCPedestrianResponseDataImageInfoListElements) *DetectIPCPedestrianResponseDataImageInfoList {
+	s.Elements = v
+	return s
+}
+
+type DetectIPCPedestrianResponseDataImageInfoListElements struct {
+	Score *float32 `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Boxes []*int   `json:"Boxes,omitempty" xml:"Boxes,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DetectIPCPedestrianResponseDataImageInfoListElements) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectIPCPedestrianResponseDataImageInfoListElements) GoString() string {
+	return s.String()
+}
+
+func (s *DetectIPCPedestrianResponseDataImageInfoListElements) SetScore(v float32) *DetectIPCPedestrianResponseDataImageInfoListElements {
+	s.Score = &v
+	return s
+}
+
+func (s *DetectIPCPedestrianResponseDataImageInfoListElements) SetBoxes(v []*int) *DetectIPCPedestrianResponseDataImageInfoListElements {
+	s.Boxes = v
+	return s
+}
+
+type BlurFaceRequest struct {
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+}
+
+func (s BlurFaceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s BlurFaceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *BlurFaceRequest) SetImageURL(v string) *BlurFaceRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type BlurFaceResponse struct {
+	RequestId *string               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *BlurFaceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s BlurFaceResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s BlurFaceResponse) GoString() string {
+	return s.String()
+}
+
+func (s *BlurFaceResponse) SetRequestId(v string) *BlurFaceResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *BlurFaceResponse) SetData(v *BlurFaceResponseData) *BlurFaceResponse {
+	s.Data = v
+	return s
+}
+
+type BlurFaceResponseData struct {
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+}
+
+func (s BlurFaceResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s BlurFaceResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *BlurFaceResponseData) SetImageURL(v string) *BlurFaceResponseData {
+	s.ImageURL = &v
+	return s
+}
+
+type BlurFaceAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+}
+
+func (s BlurFaceAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s BlurFaceAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *BlurFaceAdvanceRequest) SetImageURLObject(v io.Reader) *BlurFaceAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
 type ExtractPedestrianFeatureAttributeRequest struct {
 	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
@@ -3683,6 +3884,118 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	}
 
 	return nil
+}
+
+func (client *Client) DetectIPCPedestrian(request *DetectIPCPedestrianRequest, runtime *util.RuntimeOptions) (_result *DetectIPCPedestrianResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DetectIPCPedestrianResponse{}
+	_body, _err := client.DoRequest(tea.String("DetectIPCPedestrian"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) BlurFace(request *BlurFaceRequest, runtime *util.RuntimeOptions) (_result *BlurFaceResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &BlurFaceResponse{}
+	_body, _err := client.DoRequest(tea.String("BlurFace"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) BlurFaceAdvance(request *BlurFaceAdvanceRequest, runtime *util.RuntimeOptions) (_result *BlurFaceResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return _result, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return _result, _err
+	}
+
+	authConfig := &rpc.Config{
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("facebody"),
+		RegionId: client.RegionId,
+	}
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return _result, _err
+	}
+	// Step 2: request final api
+	blurFacereq := &BlurFaceRequest{}
+	rpcutil.Convert(request, blurFacereq)
+	blurFacereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	blurFaceResp, _err := client.BlurFace(blurFacereq, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	_result = blurFaceResp
+	return _result, _err
 }
 
 func (client *Client) ExtractPedestrianFeatureAttribute(request *ExtractPedestrianFeatureAttributeRequest, runtime *util.RuntimeOptions) (_result *ExtractPedestrianFeatureAttributeResponse, _err error) {
