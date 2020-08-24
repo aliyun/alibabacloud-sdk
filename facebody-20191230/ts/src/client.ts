@@ -10,6 +10,113 @@ import EndpointUtil from '@alicloud/endpoint-util';
 import { Readable } from 'stream';
 import * as $tea from '@alicloud/tea-typescript';
 
+export class DetectIPCPedestrianRequest extends $tea.Model {
+  imageData?: string;
+  width?: number;
+  height?: number;
+  static names(): { [key: string]: string } {
+    return {
+      imageData: 'ImageData',
+      width: 'Width',
+      height: 'Height',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageData: 'string',
+      width: 'number',
+      height: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectIPCPedestrianResponse extends $tea.Model {
+  requestId: string;
+  data: DetectIPCPedestrianResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: DetectIPCPedestrianResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class BlurFaceRequest extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class BlurFaceResponse extends $tea.Model {
+  requestId: string;
+  data: BlurFaceResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: BlurFaceResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class BlurFaceAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class ExtractPedestrianFeatureAttributeRequest extends $tea.Model {
   imageURL: string;
   static names(): { [key: string]: string } {
@@ -1878,6 +1985,94 @@ export class DetectFaceAdvanceRequest extends $tea.Model {
   }
 }
 
+export class DetectIPCPedestrianResponseDataImageInfoListElements extends $tea.Model {
+  score: number;
+  boxes: number[];
+  static names(): { [key: string]: string } {
+    return {
+      score: 'Score',
+      boxes: 'Boxes',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      score: 'number',
+      boxes: { 'type': 'array', 'itemType': 'number' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectIPCPedestrianResponseDataImageInfoList extends $tea.Model {
+  errorCode: string;
+  errorMessage: string;
+  dataId: string;
+  elements: DetectIPCPedestrianResponseDataImageInfoListElements[];
+  static names(): { [key: string]: string } {
+    return {
+      errorCode: 'ErrorCode',
+      errorMessage: 'ErrorMessage',
+      dataId: 'DataId',
+      elements: 'Elements',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      errorCode: 'string',
+      errorMessage: 'string',
+      dataId: 'string',
+      elements: { 'type': 'array', 'itemType': DetectIPCPedestrianResponseDataImageInfoListElements },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectIPCPedestrianResponseData extends $tea.Model {
+  imageInfoList: DetectIPCPedestrianResponseDataImageInfoList[];
+  static names(): { [key: string]: string } {
+    return {
+      imageInfoList: 'ImageInfoList',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageInfoList: { 'type': 'array', 'itemType': DetectIPCPedestrianResponseDataImageInfoList },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class BlurFaceResponseData extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class ExtractPedestrianFeatureAttributeResponseData extends $tea.Model {
   objType: string;
   objTypeScore: number;
@@ -1961,7 +2156,7 @@ export class DetectCelebrityResponseDataFaceRecognizeResults extends $tea.Model 
   static types(): { [key: string]: any } {
     return {
       name: 'string',
-      faceBoxes: { 'type': 'array', 'itemType': 'float' },
+      faceBoxes: { 'type': 'array', 'itemType': 'number' },
     };
   }
 
@@ -2018,9 +2213,9 @@ export class VerifyFaceMaskResponseData extends $tea.Model {
       confidence: 'number',
       mask: 'number',
       maskRef: 'number',
-      rectangle: { 'type': 'array', 'itemType': 'integer' },
-      rectangleRef: { 'type': 'array', 'itemType': 'integer' },
-      thresholds: { 'type': 'array', 'itemType': 'float' },
+      rectangle: { 'type': 'array', 'itemType': 'number' },
+      rectangleRef: { 'type': 'array', 'itemType': 'number' },
+      thresholds: { 'type': 'array', 'itemType': 'number' },
     };
   }
 
@@ -2058,7 +2253,7 @@ export class RecognizeActionResponseDataElementsBoxes extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      box: { 'type': 'array', 'itemType': 'integer' },
+      box: { 'type': 'array', 'itemType': 'number' },
     };
   }
 
@@ -2085,7 +2280,7 @@ export class RecognizeActionResponseDataElements extends $tea.Model {
     return {
       timestamp: 'number',
       boxes: { 'type': 'array', 'itemType': RecognizeActionResponseDataElementsBoxes },
-      scores: { 'type': 'array', 'itemType': 'float' },
+      scores: { 'type': 'array', 'itemType': 'number' },
       labels: { 'type': 'array', 'itemType': 'string' },
     };
   }
@@ -2130,7 +2325,7 @@ export class DetectVideoLivingFaceResponseDataElements extends $tea.Model {
     return {
       liveConfidence: 'number',
       faceConfidence: 'number',
-      rect: { 'type': 'array', 'itemType': 'integer' },
+      rect: { 'type': 'array', 'itemType': 'number' },
     };
   }
 
@@ -2312,7 +2507,7 @@ export class HandPostureResponseDataOutputsResultsBoxPositions extends $tea.Mode
 
   static types(): { [key: string]: any } {
     return {
-      points: { 'type': 'array', 'itemType': 'float' },
+      points: { 'type': 'array', 'itemType': 'number' },
     };
   }
 
@@ -2353,7 +2548,7 @@ export class HandPostureResponseDataOutputsResultsHandsKeyPointsPositions extend
 
   static types(): { [key: string]: any } {
     return {
-      points: { 'type': 'array', 'itemType': 'float' },
+      points: { 'type': 'array', 'itemType': 'number' },
     };
   }
 
@@ -2504,7 +2699,7 @@ export class BodyPostureResponseDataOutputsResultsBodiesPositions extends $tea.M
 
   static types(): { [key: string]: any } {
     return {
-      points: { 'type': 'array', 'itemType': 'float' },
+      points: { 'type': 'array', 'itemType': 'number' },
     };
   }
 
@@ -2639,7 +2834,7 @@ export class DetectPedestrianResponseDataElements extends $tea.Model {
     return {
       score: 'number',
       type: 'string',
-      boxes: { 'type': 'array', 'itemType': 'integer' },
+      boxes: { 'type': 'array', 'itemType': 'number' },
     };
   }
 
@@ -3313,15 +3508,15 @@ export class RecognizeFaceResponseData extends $tea.Model {
       faceCount: 'number',
       landmarkCount: 'number',
       denseFeatureLength: 'number',
-      faceRectangles: { 'type': 'array', 'itemType': 'integer' },
-      faceProbabilityList: { 'type': 'array', 'itemType': 'float' },
-      poseList: { 'type': 'array', 'itemType': 'float' },
-      landmarks: { 'type': 'array', 'itemType': 'float' },
-      pupils: { 'type': 'array', 'itemType': 'float' },
-      genderList: { 'type': 'array', 'itemType': 'integer' },
-      ageList: { 'type': 'array', 'itemType': 'integer' },
-      expressions: { 'type': 'array', 'itemType': 'integer' },
-      glasses: { 'type': 'array', 'itemType': 'integer' },
+      faceRectangles: { 'type': 'array', 'itemType': 'number' },
+      faceProbabilityList: { 'type': 'array', 'itemType': 'number' },
+      poseList: { 'type': 'array', 'itemType': 'number' },
+      landmarks: { 'type': 'array', 'itemType': 'number' },
+      pupils: { 'type': 'array', 'itemType': 'number' },
+      genderList: { 'type': 'array', 'itemType': 'number' },
+      ageList: { 'type': 'array', 'itemType': 'number' },
+      expressions: { 'type': 'array', 'itemType': 'number' },
+      glasses: { 'type': 'array', 'itemType': 'number' },
       denseFeatures: { 'type': 'array', 'itemType': 'string' },
     };
   }
@@ -3348,9 +3543,9 @@ export class CompareFaceResponseData extends $tea.Model {
   static types(): { [key: string]: any } {
     return {
       confidence: 'number',
-      thresholds: { 'type': 'array', 'itemType': 'float' },
-      rectAList: { 'type': 'array', 'itemType': 'integer' },
-      rectBList: { 'type': 'array', 'itemType': 'integer' },
+      thresholds: { 'type': 'array', 'itemType': 'number' },
+      rectAList: { 'type': 'array', 'itemType': 'number' },
+      rectBList: { 'type': 'array', 'itemType': 'number' },
     };
   }
 
@@ -3383,11 +3578,11 @@ export class DetectFaceResponseData extends $tea.Model {
     return {
       faceCount: 'number',
       landmarkCount: 'number',
-      faceRectangles: { 'type': 'array', 'itemType': 'integer' },
-      faceProbabilityList: { 'type': 'array', 'itemType': 'float' },
-      poseList: { 'type': 'array', 'itemType': 'float' },
-      landmarks: { 'type': 'array', 'itemType': 'float' },
-      pupils: { 'type': 'array', 'itemType': 'float' },
+      faceRectangles: { 'type': 'array', 'itemType': 'number' },
+      faceProbabilityList: { 'type': 'array', 'itemType': 'number' },
+      poseList: { 'type': 'array', 'itemType': 'number' },
+      landmarks: { 'type': 'array', 'itemType': 'number' },
+      pupils: { 'type': 'array', 'itemType': 'number' },
     };
   }
 
@@ -3406,6 +3601,72 @@ export default class Client extends RPC {
     this._endpoint = this.getEndpoint("facebody", this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
   }
 
+
+  async detectIPCPedestrian(request: DetectIPCPedestrianRequest, runtime: $Util.RuntimeOptions): Promise<DetectIPCPedestrianResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DetectIPCPedestrianResponse>(await this.doRequest("DetectIPCPedestrian", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new DetectIPCPedestrianResponse({}));
+  }
+
+  async blurFace(request: BlurFaceRequest, runtime: $Util.RuntimeOptions): Promise<BlurFaceResponse> {
+    Util.validateModel(request);
+    return $tea.cast<BlurFaceResponse>(await this.doRequest("BlurFace", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new BlurFaceResponse({}));
+  }
+
+  async blurFaceAdvance(request: BlurFaceAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<BlurFaceResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "facebody",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let blurFacereq = new BlurFaceRequest({ });
+    RPCUtil.convert(request, blurFacereq);
+    blurFacereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let blurFaceResp = await this.blurFace(blurFacereq, runtime);
+    return blurFaceResp;
+  }
 
   async extractPedestrianFeatureAttribute(request: ExtractPedestrianFeatureAttributeRequest, runtime: $Util.RuntimeOptions): Promise<ExtractPedestrianFeatureAttributeResponse> {
     Util.validateModel(request);
