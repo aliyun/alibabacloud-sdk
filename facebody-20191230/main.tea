@@ -17,6 +17,101 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('facebody', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model ExtractPedestrianFeatureAttrRequest = {
+  imageURL: string(name='ImageURL'),
+}
+
+model ExtractPedestrianFeatureAttrResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    objType: string(name='ObjType'),
+    objTypeScore: float(name='ObjTypeScore'),
+    feature: string(name='Feature'),
+    qualityScore: float(name='QualityScore'),
+    upperColor: string(name='UpperColor'),
+    upperColorScore: float(name='UpperColorScore'),
+    upperType: string(name='UpperType'),
+    upperTypeScore: float(name='UpperTypeScore'),
+    lowerColor: string(name='LowerColor'),
+    lowerColorScore: float(name='LowerColorScore'),
+    lowerType: string(name='LowerType'),
+    lowerTypeScore: float(name='LowerTypeScore'),
+    gender: string(name='Gender'),
+    genderScore: float(name='GenderScore'),
+    hair: string(name='Hair'),
+    hairScore: float(name='HairScore'),
+    age: string(name='Age'),
+    ageScore: float(name='AgeScore'),
+  }(name='Data'),
+}
+
+async function extractPedestrianFeatureAttr(request: ExtractPedestrianFeatureAttrRequest, runtime: Util.RuntimeOptions): ExtractPedestrianFeatureAttrResponse {
+  Util.validateModel(request);
+  return doRequest('ExtractPedestrianFeatureAttr', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
+}
+
+model ExtractPedestrianFeatureAttrAdvanceRequest = {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+async function extractPedestrianFeatureAttrAdvance(request: ExtractPedestrianFeatureAttrAdvanceRequest, runtime: Util.RuntimeOptions): ExtractPedestrianFeatureAttrResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var extractPedestrianFeatureAttrreq = new ExtractPedestrianFeatureAttrRequest{};
+  RPCUtil.convert(request, extractPedestrianFeatureAttrreq);
+  extractPedestrianFeatureAttrreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var extractPedestrianFeatureAttrResp = extractPedestrianFeatureAttr(extractPedestrianFeatureAttrreq, runtime);
+  return extractPedestrianFeatureAttrResp;
+}
+
 model DetectIPCPedestrianRequest = {
   imageData?: string(name='ImageData'),
   width?: integer(name='Width'),
