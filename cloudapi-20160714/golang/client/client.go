@@ -8,6 +8,40 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 )
 
+type OpenApiGatewayServiceRequest struct {
+}
+
+func (s OpenApiGatewayServiceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s OpenApiGatewayServiceRequest) GoString() string {
+	return s.String()
+}
+
+type OpenApiGatewayServiceResponse struct {
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	OrderId   *string `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
+}
+
+func (s OpenApiGatewayServiceResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s OpenApiGatewayServiceResponse) GoString() string {
+	return s.String()
+}
+
+func (s *OpenApiGatewayServiceResponse) SetRequestId(v string) *OpenApiGatewayServiceResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *OpenApiGatewayServiceResponse) SetOrderId(v string) *OpenApiGatewayServiceResponse {
+	s.OrderId = &v
+	return s
+}
+
 type DescribeSummaryDataRequest struct {
 	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
 	Language      *string `json:"Language,omitempty" xml:"Language,omitempty"`
@@ -75,6 +109,52 @@ func (s *DescribeSummaryDataResponse) SetComeingSoonInstanceNum(v int) *Describe
 
 func (s *DescribeSummaryDataResponse) SetRegion(v string) *DescribeSummaryDataResponse {
 	s.Region = &v
+	return s
+}
+
+type DescribeMarketRemainsQuotaRequest struct {
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	DomainName    *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+}
+
+func (s DescribeMarketRemainsQuotaRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeMarketRemainsQuotaRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeMarketRemainsQuotaRequest) SetSecurityToken(v string) *DescribeMarketRemainsQuotaRequest {
+	s.SecurityToken = &v
+	return s
+}
+
+func (s *DescribeMarketRemainsQuotaRequest) SetDomainName(v string) *DescribeMarketRemainsQuotaRequest {
+	s.DomainName = &v
+	return s
+}
+
+type DescribeMarketRemainsQuotaResponse struct {
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RemainsQuota *int64  `json:"RemainsQuota,omitempty" xml:"RemainsQuota,omitempty" require:"true"`
+}
+
+func (s DescribeMarketRemainsQuotaResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeMarketRemainsQuotaResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeMarketRemainsQuotaResponse) SetRequestId(v string) *DescribeMarketRemainsQuotaResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DescribeMarketRemainsQuotaResponse) SetRemainsQuota(v int64) *DescribeMarketRemainsQuotaResponse {
+	s.RemainsQuota = &v
 	return s
 }
 
@@ -8304,10 +8384,17 @@ func (s *DescribeDeployedApiResponseServiceConfigVpcConfig) SetPort(v int) *Desc
 }
 
 type DescribeDeployedApiResponseServiceConfigFunctionComputeConfig struct {
-	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
-	ServiceName  *string `json:"ServiceName,omitempty" xml:"ServiceName,omitempty" require:"true"`
-	FunctionName *string `json:"FunctionName,omitempty" xml:"FunctionName,omitempty" require:"true"`
-	RoleArn      *string `json:"RoleArn,omitempty" xml:"RoleArn,omitempty" require:"true"`
+	RegionId            *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ServiceName         *string `json:"ServiceName,omitempty" xml:"ServiceName,omitempty" require:"true"`
+	FunctionName        *string `json:"FunctionName,omitempty" xml:"FunctionName,omitempty" require:"true"`
+	RoleArn             *string `json:"RoleArn,omitempty" xml:"RoleArn,omitempty" require:"true"`
+	Qualifier           *string `json:"Qualifier,omitempty" xml:"Qualifier,omitempty" require:"true"`
+	FcBaseUrl           *string `json:"FcBaseUrl,omitempty" xml:"FcBaseUrl,omitempty" require:"true"`
+	FcType              *string `json:"FcType,omitempty" xml:"FcType,omitempty" require:"true"`
+	Path                *string `json:"Path,omitempty" xml:"Path,omitempty" require:"true"`
+	Method              *string `json:"Method,omitempty" xml:"Method,omitempty" require:"true"`
+	ContentTypeCatagory *string `json:"ContentTypeCatagory,omitempty" xml:"ContentTypeCatagory,omitempty" require:"true"`
+	ContentTypeValue    *string `json:"ContentTypeValue,omitempty" xml:"ContentTypeValue,omitempty" require:"true"`
 }
 
 func (s DescribeDeployedApiResponseServiceConfigFunctionComputeConfig) String() string {
@@ -8335,6 +8422,41 @@ func (s *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig) SetFunct
 
 func (s *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig) SetRoleArn(v string) *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig {
 	s.RoleArn = &v
+	return s
+}
+
+func (s *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig) SetQualifier(v string) *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig {
+	s.Qualifier = &v
+	return s
+}
+
+func (s *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig) SetFcBaseUrl(v string) *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig {
+	s.FcBaseUrl = &v
+	return s
+}
+
+func (s *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig) SetFcType(v string) *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig {
+	s.FcType = &v
+	return s
+}
+
+func (s *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig) SetPath(v string) *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig {
+	s.Path = &v
+	return s
+}
+
+func (s *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig) SetMethod(v string) *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig {
+	s.Method = &v
+	return s
+}
+
+func (s *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig) SetContentTypeCatagory(v string) *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig {
+	s.ContentTypeCatagory = &v
+	return s
+}
+
+func (s *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig) SetContentTypeValue(v string) *DescribeDeployedApiResponseServiceConfigFunctionComputeConfig {
+	s.ContentTypeValue = &v
 	return s
 }
 
@@ -8958,6 +9080,7 @@ type DescribeAppAttributesRequest struct {
 	AppName       *string                            `json:"AppName,omitempty" xml:"AppName,omitempty"`
 	PageNumber    *int                               `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 	PageSize      *int                               `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	Sort          *string                            `json:"Sort,omitempty" xml:"Sort,omitempty"`
 	Tag           []*DescribeAppAttributesRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
 	EnableTagAuth *bool                              `json:"EnableTagAuth,omitempty" xml:"EnableTagAuth,omitempty"`
 }
@@ -8992,6 +9115,11 @@ func (s *DescribeAppAttributesRequest) SetPageNumber(v int) *DescribeAppAttribut
 
 func (s *DescribeAppAttributesRequest) SetPageSize(v int) *DescribeAppAttributesRequest {
 	s.PageSize = &v
+	return s
+}
+
+func (s *DescribeAppAttributesRequest) SetSort(v string) *DescribeAppAttributesRequest {
+	s.Sort = &v
 	return s
 }
 
@@ -11364,10 +11492,17 @@ func (s *DescribeApiHistoryResponseServiceConfigVpcConfig) SetPort(v int) *Descr
 }
 
 type DescribeApiHistoryResponseServiceConfigFunctionComputeConfig struct {
-	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
-	ServiceName  *string `json:"ServiceName,omitempty" xml:"ServiceName,omitempty" require:"true"`
-	FunctionName *string `json:"FunctionName,omitempty" xml:"FunctionName,omitempty" require:"true"`
-	RoleArn      *string `json:"RoleArn,omitempty" xml:"RoleArn,omitempty" require:"true"`
+	RegionId            *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ServiceName         *string `json:"ServiceName,omitempty" xml:"ServiceName,omitempty" require:"true"`
+	FunctionName        *string `json:"FunctionName,omitempty" xml:"FunctionName,omitempty" require:"true"`
+	RoleArn             *string `json:"RoleArn,omitempty" xml:"RoleArn,omitempty" require:"true"`
+	Qualifier           *string `json:"Qualifier,omitempty" xml:"Qualifier,omitempty" require:"true"`
+	FcBaseUrl           *string `json:"FcBaseUrl,omitempty" xml:"FcBaseUrl,omitempty" require:"true"`
+	FcType              *string `json:"FcType,omitempty" xml:"FcType,omitempty" require:"true"`
+	Path                *string `json:"Path,omitempty" xml:"Path,omitempty" require:"true"`
+	Method              *string `json:"Method,omitempty" xml:"Method,omitempty" require:"true"`
+	ContentTypeCatagory *string `json:"ContentTypeCatagory,omitempty" xml:"ContentTypeCatagory,omitempty" require:"true"`
+	ContentTypeValue    *string `json:"ContentTypeValue,omitempty" xml:"ContentTypeValue,omitempty" require:"true"`
 }
 
 func (s DescribeApiHistoryResponseServiceConfigFunctionComputeConfig) String() string {
@@ -11395,6 +11530,41 @@ func (s *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig) SetFuncti
 
 func (s *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig) SetRoleArn(v string) *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig {
 	s.RoleArn = &v
+	return s
+}
+
+func (s *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig) SetQualifier(v string) *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig {
+	s.Qualifier = &v
+	return s
+}
+
+func (s *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig) SetFcBaseUrl(v string) *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig {
+	s.FcBaseUrl = &v
+	return s
+}
+
+func (s *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig) SetFcType(v string) *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig {
+	s.FcType = &v
+	return s
+}
+
+func (s *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig) SetPath(v string) *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig {
+	s.Path = &v
+	return s
+}
+
+func (s *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig) SetMethod(v string) *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig {
+	s.Method = &v
+	return s
+}
+
+func (s *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig) SetContentTypeCatagory(v string) *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig {
+	s.ContentTypeCatagory = &v
+	return s
+}
+
+func (s *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig) SetContentTypeValue(v string) *DescribeApiHistoryResponseServiceConfigFunctionComputeConfig {
+	s.ContentTypeValue = &v
 	return s
 }
 
@@ -11442,6 +11612,7 @@ type DescribeApiGroupsRequest struct {
 	Tag           []*DescribeApiGroupsRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
 	EnableTagAuth *bool                          `json:"EnableTagAuth,omitempty" xml:"EnableTagAuth,omitempty"`
 	InstanceId    *string                        `json:"InstanceId,omitempty" xml:"InstanceId,omitempty"`
+	Sort          *string                        `json:"Sort,omitempty" xml:"Sort,omitempty"`
 }
 
 func (s DescribeApiGroupsRequest) String() string {
@@ -11489,6 +11660,11 @@ func (s *DescribeApiGroupsRequest) SetEnableTagAuth(v bool) *DescribeApiGroupsRe
 
 func (s *DescribeApiGroupsRequest) SetInstanceId(v string) *DescribeApiGroupsRequest {
 	s.InstanceId = &v
+	return s
+}
+
+func (s *DescribeApiGroupsRequest) SetSort(v string) *DescribeApiGroupsRequest {
+	s.Sort = &v
 	return s
 }
 
@@ -11761,32 +11937,34 @@ func (s *DescribeApiGroupRequestTag) SetValue(v string) *DescribeApiGroupRequest
 }
 
 type DescribeApiGroupResponse struct {
-	RequestId           *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
-	GroupId             *string                                `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
-	GroupName           *string                                `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
-	SubDomain           *string                                `json:"SubDomain,omitempty" xml:"SubDomain,omitempty" require:"true"`
-	Description         *string                                `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
-	CreatedTime         *string                                `json:"CreatedTime,omitempty" xml:"CreatedTime,omitempty" require:"true"`
-	ModifiedTime        *string                                `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
-	RegionId            *string                                `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
-	Status              *string                                `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
-	BillingStatus       *string                                `json:"BillingStatus,omitempty" xml:"BillingStatus,omitempty" require:"true"`
-	IllegalStatus       *string                                `json:"IllegalStatus,omitempty" xml:"IllegalStatus,omitempty" require:"true"`
-	Ipv6Status          *string                                `json:"Ipv6Status,omitempty" xml:"Ipv6Status,omitempty" require:"true"`
-	TrafficLimit        *int                                   `json:"TrafficLimit,omitempty" xml:"TrafficLimit,omitempty" require:"true"`
-	VpcDomain           *string                                `json:"VpcDomain,omitempty" xml:"VpcDomain,omitempty" require:"true"`
-	InstanceType        *string                                `json:"InstanceType,omitempty" xml:"InstanceType,omitempty" require:"true"`
-	InstanceId          *string                                `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
-	InstanceVipList     *string                                `json:"InstanceVipList,omitempty" xml:"InstanceVipList,omitempty" require:"true"`
-	HttpsPolicy         *string                                `json:"HttpsPolicy,omitempty" xml:"HttpsPolicy,omitempty" require:"true"`
-	UserLogConfig       *string                                `json:"UserLogConfig,omitempty" xml:"UserLogConfig,omitempty" require:"true"`
-	CustomTraceConfig   *string                                `json:"CustomTraceConfig,omitempty" xml:"CustomTraceConfig,omitempty" require:"true"`
-	PassthroughHeaders  *string                                `json:"PassthroughHeaders,omitempty" xml:"PassthroughHeaders,omitempty" require:"true"`
-	RpcPattern          *string                                `json:"RpcPattern,omitempty" xml:"RpcPattern,omitempty" require:"true"`
-	CompatibleFlags     *string                                `json:"CompatibleFlags,omitempty" xml:"CompatibleFlags,omitempty" require:"true"`
-	ClassicVpcSubDomain *string                                `json:"ClassicVpcSubDomain,omitempty" xml:"ClassicVpcSubDomain,omitempty" require:"true"`
-	CustomDomains       *DescribeApiGroupResponseCustomDomains `json:"CustomDomains,omitempty" xml:"CustomDomains,omitempty" require:"true" type:"Struct"`
-	StageItems          *DescribeApiGroupResponseStageItems    `json:"StageItems,omitempty" xml:"StageItems,omitempty" require:"true" type:"Struct"`
+	RequestId            *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	GroupId              *string                                `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName            *string                                `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	SubDomain            *string                                `json:"SubDomain,omitempty" xml:"SubDomain,omitempty" require:"true"`
+	Description          *string                                `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreatedTime          *string                                `json:"CreatedTime,omitempty" xml:"CreatedTime,omitempty" require:"true"`
+	ModifiedTime         *string                                `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
+	RegionId             *string                                `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Status               *string                                `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	BillingStatus        *string                                `json:"BillingStatus,omitempty" xml:"BillingStatus,omitempty" require:"true"`
+	IllegalStatus        *string                                `json:"IllegalStatus,omitempty" xml:"IllegalStatus,omitempty" require:"true"`
+	Ipv6Status           *string                                `json:"Ipv6Status,omitempty" xml:"Ipv6Status,omitempty" require:"true"`
+	TrafficLimit         *int                                   `json:"TrafficLimit,omitempty" xml:"TrafficLimit,omitempty" require:"true"`
+	VpcDomain            *string                                `json:"VpcDomain,omitempty" xml:"VpcDomain,omitempty" require:"true"`
+	InstanceType         *string                                `json:"InstanceType,omitempty" xml:"InstanceType,omitempty" require:"true"`
+	InstanceId           *string                                `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	InstanceVipList      *string                                `json:"InstanceVipList,omitempty" xml:"InstanceVipList,omitempty" require:"true"`
+	HttpsPolicy          *string                                `json:"HttpsPolicy,omitempty" xml:"HttpsPolicy,omitempty" require:"true"`
+	UserLogConfig        *string                                `json:"UserLogConfig,omitempty" xml:"UserLogConfig,omitempty" require:"true"`
+	CustomTraceConfig    *string                                `json:"CustomTraceConfig,omitempty" xml:"CustomTraceConfig,omitempty" require:"true"`
+	PassthroughHeaders   *string                                `json:"PassthroughHeaders,omitempty" xml:"PassthroughHeaders,omitempty" require:"true"`
+	DefaultDomain        *string                                `json:"DefaultDomain,omitempty" xml:"DefaultDomain,omitempty" require:"true"`
+	RpcPattern           *string                                `json:"RpcPattern,omitempty" xml:"RpcPattern,omitempty" require:"true"`
+	CompatibleFlags      *string                                `json:"CompatibleFlags,omitempty" xml:"CompatibleFlags,omitempty" require:"true"`
+	ClassicVpcSubDomain  *string                                `json:"ClassicVpcSubDomain,omitempty" xml:"ClassicVpcSubDomain,omitempty" require:"true"`
+	VpcSlbIntranetDomain *string                                `json:"VpcSlbIntranetDomain,omitempty" xml:"VpcSlbIntranetDomain,omitempty" require:"true"`
+	CustomDomains        *DescribeApiGroupResponseCustomDomains `json:"CustomDomains,omitempty" xml:"CustomDomains,omitempty" require:"true" type:"Struct"`
+	StageItems           *DescribeApiGroupResponseStageItems    `json:"StageItems,omitempty" xml:"StageItems,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeApiGroupResponse) String() string {
@@ -11902,6 +12080,11 @@ func (s *DescribeApiGroupResponse) SetPassthroughHeaders(v string) *DescribeApiG
 	return s
 }
 
+func (s *DescribeApiGroupResponse) SetDefaultDomain(v string) *DescribeApiGroupResponse {
+	s.DefaultDomain = &v
+	return s
+}
+
 func (s *DescribeApiGroupResponse) SetRpcPattern(v string) *DescribeApiGroupResponse {
 	s.RpcPattern = &v
 	return s
@@ -11914,6 +12097,11 @@ func (s *DescribeApiGroupResponse) SetCompatibleFlags(v string) *DescribeApiGrou
 
 func (s *DescribeApiGroupResponse) SetClassicVpcSubDomain(v string) *DescribeApiGroupResponse {
 	s.ClassicVpcSubDomain = &v
+	return s
+}
+
+func (s *DescribeApiGroupResponse) SetVpcSlbIntranetDomain(v string) *DescribeApiGroupResponse {
+	s.VpcSlbIntranetDomain = &v
 	return s
 }
 
@@ -13702,10 +13890,17 @@ func (s *DescribeApiResponseServiceConfigVpcConfig) SetPort(v int) *DescribeApiR
 }
 
 type DescribeApiResponseServiceConfigFunctionComputeConfig struct {
-	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
-	ServiceName  *string `json:"ServiceName,omitempty" xml:"ServiceName,omitempty" require:"true"`
-	FunctionName *string `json:"FunctionName,omitempty" xml:"FunctionName,omitempty" require:"true"`
-	RoleArn      *string `json:"RoleArn,omitempty" xml:"RoleArn,omitempty" require:"true"`
+	RegionId            *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ServiceName         *string `json:"ServiceName,omitempty" xml:"ServiceName,omitempty" require:"true"`
+	FunctionName        *string `json:"FunctionName,omitempty" xml:"FunctionName,omitempty" require:"true"`
+	RoleArn             *string `json:"RoleArn,omitempty" xml:"RoleArn,omitempty" require:"true"`
+	Qualifier           *string `json:"Qualifier,omitempty" xml:"Qualifier,omitempty" require:"true"`
+	FcBaseUrl           *string `json:"FcBaseUrl,omitempty" xml:"FcBaseUrl,omitempty" require:"true"`
+	FcType              *string `json:"FcType,omitempty" xml:"FcType,omitempty" require:"true"`
+	Path                *string `json:"Path,omitempty" xml:"Path,omitempty" require:"true"`
+	Method              *string `json:"Method,omitempty" xml:"Method,omitempty" require:"true"`
+	ContentTypeCatagory *string `json:"ContentTypeCatagory,omitempty" xml:"ContentTypeCatagory,omitempty" require:"true"`
+	ContentTypeValue    *string `json:"ContentTypeValue,omitempty" xml:"ContentTypeValue,omitempty" require:"true"`
 }
 
 func (s DescribeApiResponseServiceConfigFunctionComputeConfig) String() string {
@@ -13733,6 +13928,41 @@ func (s *DescribeApiResponseServiceConfigFunctionComputeConfig) SetFunctionName(
 
 func (s *DescribeApiResponseServiceConfigFunctionComputeConfig) SetRoleArn(v string) *DescribeApiResponseServiceConfigFunctionComputeConfig {
 	s.RoleArn = &v
+	return s
+}
+
+func (s *DescribeApiResponseServiceConfigFunctionComputeConfig) SetQualifier(v string) *DescribeApiResponseServiceConfigFunctionComputeConfig {
+	s.Qualifier = &v
+	return s
+}
+
+func (s *DescribeApiResponseServiceConfigFunctionComputeConfig) SetFcBaseUrl(v string) *DescribeApiResponseServiceConfigFunctionComputeConfig {
+	s.FcBaseUrl = &v
+	return s
+}
+
+func (s *DescribeApiResponseServiceConfigFunctionComputeConfig) SetFcType(v string) *DescribeApiResponseServiceConfigFunctionComputeConfig {
+	s.FcType = &v
+	return s
+}
+
+func (s *DescribeApiResponseServiceConfigFunctionComputeConfig) SetPath(v string) *DescribeApiResponseServiceConfigFunctionComputeConfig {
+	s.Path = &v
+	return s
+}
+
+func (s *DescribeApiResponseServiceConfigFunctionComputeConfig) SetMethod(v string) *DescribeApiResponseServiceConfigFunctionComputeConfig {
+	s.Method = &v
+	return s
+}
+
+func (s *DescribeApiResponseServiceConfigFunctionComputeConfig) SetContentTypeCatagory(v string) *DescribeApiResponseServiceConfigFunctionComputeConfig {
+	s.ContentTypeCatagory = &v
+	return s
+}
+
+func (s *DescribeApiResponseServiceConfigFunctionComputeConfig) SetContentTypeValue(v string) *DescribeApiResponseServiceConfigFunctionComputeConfig {
+	s.ContentTypeValue = &v
 	return s
 }
 
@@ -14987,6 +15217,31 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	return nil
 }
 
+func (client *Client) OpenApiGatewayServiceWithOptions(request *OpenApiGatewayServiceRequest, runtime *util.RuntimeOptions) (_result *OpenApiGatewayServiceResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &OpenApiGatewayServiceResponse{}
+	_body, _err := client.DoRequest(tea.String("OpenApiGatewayService"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-07-14"), tea.String("AK,APP,PrivateKey,BearerToken"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) OpenApiGatewayService(request *OpenApiGatewayServiceRequest) (_result *OpenApiGatewayServiceResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &OpenApiGatewayServiceResponse{}
+	_body, _err := client.OpenApiGatewayServiceWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
 func (client *Client) DescribeSummaryDataWithOptions(request *DescribeSummaryDataRequest, runtime *util.RuntimeOptions) (_result *DescribeSummaryDataResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
@@ -15005,6 +15260,31 @@ func (client *Client) DescribeSummaryData(request *DescribeSummaryDataRequest) (
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeSummaryDataResponse{}
 	_body, _err := client.DescribeSummaryDataWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeMarketRemainsQuotaWithOptions(request *DescribeMarketRemainsQuotaRequest, runtime *util.RuntimeOptions) (_result *DescribeMarketRemainsQuotaResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DescribeMarketRemainsQuotaResponse{}
+	_body, _err := client.DoRequest(tea.String("DescribeMarketRemainsQuota"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-07-14"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DescribeMarketRemainsQuota(request *DescribeMarketRemainsQuotaRequest) (_result *DescribeMarketRemainsQuotaResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeMarketRemainsQuotaResponse{}
+	_body, _err := client.DescribeMarketRemainsQuotaWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
