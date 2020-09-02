@@ -8,6 +8,559 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 )
 
+type ModifyDedicatedHostClusterAttributeRequest struct {
+	RegionId                 *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	DedicatedHostClusterId   *string `json:"DedicatedHostClusterId,omitempty" xml:"DedicatedHostClusterId,omitempty" require:"true"`
+	DedicatedHostClusterName *string `json:"DedicatedHostClusterName,omitempty" xml:"DedicatedHostClusterName,omitempty"`
+	Description              *string `json:"Description,omitempty" xml:"Description,omitempty"`
+}
+
+func (s ModifyDedicatedHostClusterAttributeRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ModifyDedicatedHostClusterAttributeRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ModifyDedicatedHostClusterAttributeRequest) SetRegionId(v string) *ModifyDedicatedHostClusterAttributeRequest {
+	s.RegionId = &v
+	return s
+}
+
+func (s *ModifyDedicatedHostClusterAttributeRequest) SetDedicatedHostClusterId(v string) *ModifyDedicatedHostClusterAttributeRequest {
+	s.DedicatedHostClusterId = &v
+	return s
+}
+
+func (s *ModifyDedicatedHostClusterAttributeRequest) SetDedicatedHostClusterName(v string) *ModifyDedicatedHostClusterAttributeRequest {
+	s.DedicatedHostClusterName = &v
+	return s
+}
+
+func (s *ModifyDedicatedHostClusterAttributeRequest) SetDescription(v string) *ModifyDedicatedHostClusterAttributeRequest {
+	s.Description = &v
+	return s
+}
+
+type ModifyDedicatedHostClusterAttributeResponse struct {
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+}
+
+func (s ModifyDedicatedHostClusterAttributeResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ModifyDedicatedHostClusterAttributeResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ModifyDedicatedHostClusterAttributeResponse) SetRequestId(v string) *ModifyDedicatedHostClusterAttributeResponse {
+	s.RequestId = &v
+	return s
+}
+
+type DescribeDedicatedHostClustersRequest struct {
+	Status                   *string                                    `json:"Status,omitempty" xml:"Status,omitempty"`
+	LockReason               *string                                    `json:"LockReason,omitempty" xml:"LockReason,omitempty"`
+	Tag                      []*DescribeDedicatedHostClustersRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	ResourceGroupId          *string                                    `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
+	RegionId                 *string                                    `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ZoneId                   *string                                    `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
+	DedicatedHostClusterIds  *string                                    `json:"DedicatedHostClusterIds,omitempty" xml:"DedicatedHostClusterIds,omitempty"`
+	DedicatedHostClusterName *string                                    `json:"DedicatedHostClusterName,omitempty" xml:"DedicatedHostClusterName,omitempty"`
+	PageNumber               *int                                       `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize                 *int                                       `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+}
+
+func (s DescribeDedicatedHostClustersRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDedicatedHostClustersRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDedicatedHostClustersRequest) SetStatus(v string) *DescribeDedicatedHostClustersRequest {
+	s.Status = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersRequest) SetLockReason(v string) *DescribeDedicatedHostClustersRequest {
+	s.LockReason = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersRequest) SetTag(v []*DescribeDedicatedHostClustersRequestTag) *DescribeDedicatedHostClustersRequest {
+	s.Tag = v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersRequest) SetResourceGroupId(v string) *DescribeDedicatedHostClustersRequest {
+	s.ResourceGroupId = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersRequest) SetRegionId(v string) *DescribeDedicatedHostClustersRequest {
+	s.RegionId = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersRequest) SetZoneId(v string) *DescribeDedicatedHostClustersRequest {
+	s.ZoneId = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersRequest) SetDedicatedHostClusterIds(v string) *DescribeDedicatedHostClustersRequest {
+	s.DedicatedHostClusterIds = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersRequest) SetDedicatedHostClusterName(v string) *DescribeDedicatedHostClustersRequest {
+	s.DedicatedHostClusterName = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersRequest) SetPageNumber(v int) *DescribeDedicatedHostClustersRequest {
+	s.PageNumber = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersRequest) SetPageSize(v int) *DescribeDedicatedHostClustersRequest {
+	s.PageSize = &v
+	return s
+}
+
+type DescribeDedicatedHostClustersRequestTag struct {
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+}
+
+func (s DescribeDedicatedHostClustersRequestTag) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDedicatedHostClustersRequestTag) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDedicatedHostClustersRequestTag) SetKey(v string) *DescribeDedicatedHostClustersRequestTag {
+	s.Key = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersRequestTag) SetValue(v string) *DescribeDedicatedHostClustersRequestTag {
+	s.Value = &v
+	return s
+}
+
+type DescribeDedicatedHostClustersResponse struct {
+	RequestId             *string                                                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount            *int                                                        `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNumber            *int                                                        `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize              *int                                                        `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	DedicatedHostClusters *DescribeDedicatedHostClustersResponseDedicatedHostClusters `json:"DedicatedHostClusters,omitempty" xml:"DedicatedHostClusters,omitempty" require:"true" type:"Struct"`
+}
+
+func (s DescribeDedicatedHostClustersResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDedicatedHostClustersResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDedicatedHostClustersResponse) SetRequestId(v string) *DescribeDedicatedHostClustersResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponse) SetTotalCount(v int) *DescribeDedicatedHostClustersResponse {
+	s.TotalCount = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponse) SetPageNumber(v int) *DescribeDedicatedHostClustersResponse {
+	s.PageNumber = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponse) SetPageSize(v int) *DescribeDedicatedHostClustersResponse {
+	s.PageSize = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponse) SetDedicatedHostClusters(v *DescribeDedicatedHostClustersResponseDedicatedHostClusters) *DescribeDedicatedHostClustersResponse {
+	s.DedicatedHostClusters = v
+	return s
+}
+
+type DescribeDedicatedHostClustersResponseDedicatedHostClusters struct {
+	DedicatedHostCluster []*DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster `json:"DedicatedHostCluster,omitempty" xml:"DedicatedHostCluster,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DescribeDedicatedHostClustersResponseDedicatedHostClusters) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDedicatedHostClustersResponseDedicatedHostClusters) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClusters) SetDedicatedHostCluster(v []*DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster) *DescribeDedicatedHostClustersResponseDedicatedHostClusters {
+	s.DedicatedHostCluster = v
+	return s
+}
+
+type DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster struct {
+	DedicatedHostClusterId       *string                                                                                                     `json:"DedicatedHostClusterId,omitempty" xml:"DedicatedHostClusterId,omitempty" require:"true"`
+	RegionId                     *string                                                                                                     `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ZoneId                       *string                                                                                                     `json:"ZoneId,omitempty" xml:"ZoneId,omitempty" require:"true"`
+	DedicatedHostClusterName     *string                                                                                                     `json:"DedicatedHostClusterName,omitempty" xml:"DedicatedHostClusterName,omitempty" require:"true"`
+	Description                  *string                                                                                                     `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	ResourceGroupId              *string                                                                                                     `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty" require:"true"`
+	Tags                         *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterTags                         `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Struct"`
+	DedicatedHostClusterCapacity *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacity `json:"DedicatedHostClusterCapacity,omitempty" xml:"DedicatedHostClusterCapacity,omitempty" require:"true" type:"Struct"`
+	DedicatedHostIds             *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostIds             `json:"DedicatedHostIds,omitempty" xml:"DedicatedHostIds,omitempty" require:"true" type:"Struct"`
+}
+
+func (s DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster) SetDedicatedHostClusterId(v string) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster {
+	s.DedicatedHostClusterId = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster) SetRegionId(v string) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster {
+	s.RegionId = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster) SetZoneId(v string) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster {
+	s.ZoneId = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster) SetDedicatedHostClusterName(v string) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster {
+	s.DedicatedHostClusterName = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster) SetDescription(v string) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster {
+	s.Description = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster) SetResourceGroupId(v string) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster {
+	s.ResourceGroupId = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster) SetTags(v *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterTags) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster {
+	s.Tags = v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster) SetDedicatedHostClusterCapacity(v *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacity) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster {
+	s.DedicatedHostClusterCapacity = v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster) SetDedicatedHostIds(v *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostIds) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostCluster {
+	s.DedicatedHostIds = v
+	return s
+}
+
+type DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterTags struct {
+	Tag []*DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterTagsTag `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterTags) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterTags) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterTags) SetTag(v []*DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterTagsTag) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterTags {
+	s.Tag = v
+	return s
+}
+
+type DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterTagsTag struct {
+	TagKey   *string `json:"TagKey,omitempty" xml:"TagKey,omitempty" require:"true"`
+	TagValue *string `json:"TagValue,omitempty" xml:"TagValue,omitempty" require:"true"`
+}
+
+func (s DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterTagsTag) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterTagsTag) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterTagsTag) SetTagKey(v string) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterTagsTag {
+	s.TagKey = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterTagsTag) SetTagValue(v string) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterTagsTag {
+	s.TagValue = &v
+	return s
+}
+
+type DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacity struct {
+	TotalVcpus             *int                                                                                                                              `json:"TotalVcpus,omitempty" xml:"TotalVcpus,omitempty" require:"true"`
+	AvailableVcpus         *int                                                                                                                              `json:"AvailableVcpus,omitempty" xml:"AvailableVcpus,omitempty" require:"true"`
+	TotalMemory            *int                                                                                                                              `json:"TotalMemory,omitempty" xml:"TotalMemory,omitempty" require:"true"`
+	AvailableMemory        *int                                                                                                                              `json:"AvailableMemory,omitempty" xml:"AvailableMemory,omitempty" require:"true"`
+	LocalStorageCapacities *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacityLocalStorageCapacities `json:"LocalStorageCapacities,omitempty" xml:"LocalStorageCapacities,omitempty" require:"true" type:"Struct"`
+}
+
+func (s DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacity) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacity) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacity) SetTotalVcpus(v int) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacity {
+	s.TotalVcpus = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacity) SetAvailableVcpus(v int) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacity {
+	s.AvailableVcpus = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacity) SetTotalMemory(v int) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacity {
+	s.TotalMemory = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacity) SetAvailableMemory(v int) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacity {
+	s.AvailableMemory = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacity) SetLocalStorageCapacities(v *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacityLocalStorageCapacities) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacity {
+	s.LocalStorageCapacities = v
+	return s
+}
+
+type DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacityLocalStorageCapacities struct {
+	LocalStorageCapacity []*DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacityLocalStorageCapacitiesLocalStorageCapacity `json:"LocalStorageCapacity,omitempty" xml:"LocalStorageCapacity,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacityLocalStorageCapacities) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacityLocalStorageCapacities) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacityLocalStorageCapacities) SetLocalStorageCapacity(v []*DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacityLocalStorageCapacitiesLocalStorageCapacity) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacityLocalStorageCapacities {
+	s.LocalStorageCapacity = v
+	return s
+}
+
+type DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacityLocalStorageCapacitiesLocalStorageCapacity struct {
+	TotalDisk        *int    `json:"TotalDisk,omitempty" xml:"TotalDisk,omitempty" require:"true"`
+	AvailableDisk    *int    `json:"AvailableDisk,omitempty" xml:"AvailableDisk,omitempty" require:"true"`
+	DataDiskCategory *string `json:"DataDiskCategory,omitempty" xml:"DataDiskCategory,omitempty" require:"true"`
+}
+
+func (s DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacityLocalStorageCapacitiesLocalStorageCapacity) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacityLocalStorageCapacitiesLocalStorageCapacity) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacityLocalStorageCapacitiesLocalStorageCapacity) SetTotalDisk(v int) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacityLocalStorageCapacitiesLocalStorageCapacity {
+	s.TotalDisk = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacityLocalStorageCapacitiesLocalStorageCapacity) SetAvailableDisk(v int) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacityLocalStorageCapacitiesLocalStorageCapacity {
+	s.AvailableDisk = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacityLocalStorageCapacitiesLocalStorageCapacity) SetDataDiskCategory(v string) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostClusterCapacityLocalStorageCapacitiesLocalStorageCapacity {
+	s.DataDiskCategory = &v
+	return s
+}
+
+type DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostIds struct {
+	// DedicatedHostId
+	DedicatedHostId []*string `json:"DedicatedHostId,omitempty" xml:"DedicatedHostId,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostIds) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostIds) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostIds) SetDedicatedHostId(v []*string) *DescribeDedicatedHostClustersResponseDedicatedHostClustersDedicatedHostClusterDedicatedHostIds {
+	s.DedicatedHostId = v
+	return s
+}
+
+type DeleteDedicatedHostClusterRequest struct {
+	RegionId               *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	DedicatedHostClusterId *string `json:"DedicatedHostClusterId,omitempty" xml:"DedicatedHostClusterId,omitempty" require:"true"`
+}
+
+func (s DeleteDedicatedHostClusterRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DeleteDedicatedHostClusterRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DeleteDedicatedHostClusterRequest) SetRegionId(v string) *DeleteDedicatedHostClusterRequest {
+	s.RegionId = &v
+	return s
+}
+
+func (s *DeleteDedicatedHostClusterRequest) SetDedicatedHostClusterId(v string) *DeleteDedicatedHostClusterRequest {
+	s.DedicatedHostClusterId = &v
+	return s
+}
+
+type DeleteDedicatedHostClusterResponse struct {
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+}
+
+func (s DeleteDedicatedHostClusterResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DeleteDedicatedHostClusterResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DeleteDedicatedHostClusterResponse) SetRequestId(v string) *DeleteDedicatedHostClusterResponse {
+	s.RequestId = &v
+	return s
+}
+
+type CreateDedicatedHostClusterRequest struct {
+	RegionId                 *string                                 `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	DryRun                   *bool                                   `json:"DryRun,omitempty" xml:"DryRun,omitempty"`
+	Tag                      []*CreateDedicatedHostClusterRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	ResourceGroupId          *string                                 `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
+	ZoneId                   *string                                 `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
+	DedicatedHostClusterName *string                                 `json:"DedicatedHostClusterName,omitempty" xml:"DedicatedHostClusterName,omitempty"`
+	Description              *string                                 `json:"Description,omitempty" xml:"Description,omitempty"`
+}
+
+func (s CreateDedicatedHostClusterRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateDedicatedHostClusterRequest) GoString() string {
+	return s.String()
+}
+
+func (s *CreateDedicatedHostClusterRequest) SetRegionId(v string) *CreateDedicatedHostClusterRequest {
+	s.RegionId = &v
+	return s
+}
+
+func (s *CreateDedicatedHostClusterRequest) SetDryRun(v bool) *CreateDedicatedHostClusterRequest {
+	s.DryRun = &v
+	return s
+}
+
+func (s *CreateDedicatedHostClusterRequest) SetTag(v []*CreateDedicatedHostClusterRequestTag) *CreateDedicatedHostClusterRequest {
+	s.Tag = v
+	return s
+}
+
+func (s *CreateDedicatedHostClusterRequest) SetResourceGroupId(v string) *CreateDedicatedHostClusterRequest {
+	s.ResourceGroupId = &v
+	return s
+}
+
+func (s *CreateDedicatedHostClusterRequest) SetZoneId(v string) *CreateDedicatedHostClusterRequest {
+	s.ZoneId = &v
+	return s
+}
+
+func (s *CreateDedicatedHostClusterRequest) SetDedicatedHostClusterName(v string) *CreateDedicatedHostClusterRequest {
+	s.DedicatedHostClusterName = &v
+	return s
+}
+
+func (s *CreateDedicatedHostClusterRequest) SetDescription(v string) *CreateDedicatedHostClusterRequest {
+	s.Description = &v
+	return s
+}
+
+type CreateDedicatedHostClusterRequestTag struct {
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+}
+
+func (s CreateDedicatedHostClusterRequestTag) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateDedicatedHostClusterRequestTag) GoString() string {
+	return s.String()
+}
+
+func (s *CreateDedicatedHostClusterRequestTag) SetKey(v string) *CreateDedicatedHostClusterRequestTag {
+	s.Key = &v
+	return s
+}
+
+func (s *CreateDedicatedHostClusterRequestTag) SetValue(v string) *CreateDedicatedHostClusterRequestTag {
+	s.Value = &v
+	return s
+}
+
+type CreateDedicatedHostClusterResponse struct {
+	RequestId              *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DedicatedHostClusterId *string `json:"DedicatedHostClusterId,omitempty" xml:"DedicatedHostClusterId,omitempty" require:"true"`
+}
+
+func (s CreateDedicatedHostClusterResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateDedicatedHostClusterResponse) GoString() string {
+	return s.String()
+}
+
+func (s *CreateDedicatedHostClusterResponse) SetRequestId(v string) *CreateDedicatedHostClusterResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *CreateDedicatedHostClusterResponse) SetDedicatedHostClusterId(v string) *CreateDedicatedHostClusterResponse {
+	s.DedicatedHostClusterId = &v
+	return s
+}
+
 type DescribeDeploymentSetSupportedInstanceTypeFamilyRequest struct {
 	RegionId *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
 }
@@ -463,6 +1016,7 @@ func (s *DescribeNetworkInterfaceAttributeResponseAttachment) SetMemberNetworkIn
 }
 
 type DescribeNetworkInterfaceAttributeResponseAttachmentMemberNetworkInterfaceIds struct {
+	// MemberNetworkInterfaceId
 	MemberNetworkInterfaceId []*string `json:"MemberNetworkInterfaceId,omitempty" xml:"MemberNetworkInterfaceId,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -498,6 +1052,7 @@ func (s *DescribeNetworkInterfaceAttributeResponseSecurityGroupIds) SetSecurityG
 
 type CopySnapshotRequest struct {
 	Tag                            []*CopySnapshotRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	ResourceGroupId                *string                   `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
 	RegionId                       *string                   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
 	DestinationRegionId            *string                   `json:"DestinationRegionId,omitempty" xml:"DestinationRegionId,omitempty" require:"true"`
 	SnapshotId                     *string                   `json:"SnapshotId,omitempty" xml:"SnapshotId,omitempty" require:"true"`
@@ -516,6 +1071,11 @@ func (s CopySnapshotRequest) GoString() string {
 
 func (s *CopySnapshotRequest) SetTag(v []*CopySnapshotRequestTag) *CopySnapshotRequest {
 	s.Tag = v
+	return s
+}
+
+func (s *CopySnapshotRequest) SetResourceGroupId(v string) *CopySnapshotRequest {
+	s.ResourceGroupId = &v
 	return s
 }
 
@@ -1771,6 +2331,7 @@ func (s *DescribeInstanceMaintenanceAttributesResponseMaintenanceAttributesMaint
 }
 
 type DescribeInstanceMaintenanceAttributesResponseMaintenanceAttributesMaintenanceAttributeActionOnMaintenanceSupportedValues struct {
+	// SupportedValue
 	SupportedValue []*string `json:"SupportedValue,omitempty" xml:"SupportedValue,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -2228,6 +2789,7 @@ type DescribeStorageCapacityUnitsRequest struct {
 	Capacity              *int      `json:"Capacity,omitempty" xml:"Capacity,omitempty"`
 	StorageCapacityUnitId []*string `json:"StorageCapacityUnitId,omitempty" xml:"StorageCapacityUnitId,omitempty" type:"Repeated"`
 	Status                []*string `json:"Status,omitempty" xml:"Status,omitempty" type:"Repeated"`
+	AllocationType        *string   `json:"AllocationType,omitempty" xml:"AllocationType,omitempty"`
 }
 
 func (s DescribeStorageCapacityUnitsRequest) String() string {
@@ -2270,6 +2832,11 @@ func (s *DescribeStorageCapacityUnitsRequest) SetStorageCapacityUnitId(v []*stri
 
 func (s *DescribeStorageCapacityUnitsRequest) SetStatus(v []*string) *DescribeStorageCapacityUnitsRequest {
 	s.Status = v
+	return s
+}
+
+func (s *DescribeStorageCapacityUnitsRequest) SetAllocationType(v string) *DescribeStorageCapacityUnitsRequest {
+	s.AllocationType = &v
 	return s
 }
 
@@ -2341,6 +2908,7 @@ type DescribeStorageCapacityUnitsResponseStorageCapacityUnitsStorageCapacityUnit
 	ExpiredTime           *string `json:"ExpiredTime,omitempty" xml:"ExpiredTime,omitempty" require:"true"`
 	StartTime             *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
 	Description           *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	AllocationStatus      *string `json:"AllocationStatus,omitempty" xml:"AllocationStatus,omitempty" require:"true"`
 }
 
 func (s DescribeStorageCapacityUnitsResponseStorageCapacityUnitsStorageCapacityUnit) String() string {
@@ -2393,6 +2961,11 @@ func (s *DescribeStorageCapacityUnitsResponseStorageCapacityUnitsStorageCapacity
 
 func (s *DescribeStorageCapacityUnitsResponseStorageCapacityUnitsStorageCapacityUnit) SetDescription(v string) *DescribeStorageCapacityUnitsResponseStorageCapacityUnitsStorageCapacityUnit {
 	s.Description = &v
+	return s
+}
+
+func (s *DescribeStorageCapacityUnitsResponseStorageCapacityUnitsStorageCapacityUnit) SetAllocationStatus(v string) *DescribeStorageCapacityUnitsResponseStorageCapacityUnitsStorageCapacityUnit {
+	s.AllocationStatus = &v
 	return s
 }
 
@@ -4369,19 +4942,20 @@ func (s *ModifyReservedInstanceAttributeResponse) SetHttpStatusCode(v int) *Modi
 }
 
 type PurchaseReservedInstancesOfferingRequest struct {
-	RegionId             *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
-	ResourceGroupId      *string `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
-	ZoneId               *string `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
-	ReservedInstanceName *string `json:"ReservedInstanceName,omitempty" xml:"ReservedInstanceName,omitempty"`
-	InstanceType         *string `json:"InstanceType,omitempty" xml:"InstanceType,omitempty" require:"true"`
-	Scope                *string `json:"Scope,omitempty" xml:"Scope,omitempty"`
-	InstanceAmount       *int    `json:"InstanceAmount,omitempty" xml:"InstanceAmount,omitempty"`
-	OfferingType         *string `json:"OfferingType,omitempty" xml:"OfferingType,omitempty"`
-	Description          *string `json:"Description,omitempty" xml:"Description,omitempty"`
-	Platform             *string `json:"Platform,omitempty" xml:"Platform,omitempty"`
-	Period               *int    `json:"Period,omitempty" xml:"Period,omitempty"`
-	PeriodUnit           *string `json:"PeriodUnit,omitempty" xml:"PeriodUnit,omitempty"`
-	ClientToken          *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	RegionId             *string                                        `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Tag                  []*PurchaseReservedInstancesOfferingRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	ResourceGroupId      *string                                        `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
+	ZoneId               *string                                        `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
+	ReservedInstanceName *string                                        `json:"ReservedInstanceName,omitempty" xml:"ReservedInstanceName,omitempty"`
+	InstanceType         *string                                        `json:"InstanceType,omitempty" xml:"InstanceType,omitempty" require:"true"`
+	Scope                *string                                        `json:"Scope,omitempty" xml:"Scope,omitempty"`
+	InstanceAmount       *int                                           `json:"InstanceAmount,omitempty" xml:"InstanceAmount,omitempty"`
+	OfferingType         *string                                        `json:"OfferingType,omitempty" xml:"OfferingType,omitempty"`
+	Description          *string                                        `json:"Description,omitempty" xml:"Description,omitempty"`
+	Platform             *string                                        `json:"Platform,omitempty" xml:"Platform,omitempty"`
+	Period               *int                                           `json:"Period,omitempty" xml:"Period,omitempty"`
+	PeriodUnit           *string                                        `json:"PeriodUnit,omitempty" xml:"PeriodUnit,omitempty"`
+	ClientToken          *string                                        `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
 func (s PurchaseReservedInstancesOfferingRequest) String() string {
@@ -4394,6 +4968,11 @@ func (s PurchaseReservedInstancesOfferingRequest) GoString() string {
 
 func (s *PurchaseReservedInstancesOfferingRequest) SetRegionId(v string) *PurchaseReservedInstancesOfferingRequest {
 	s.RegionId = &v
+	return s
+}
+
+func (s *PurchaseReservedInstancesOfferingRequest) SetTag(v []*PurchaseReservedInstancesOfferingRequestTag) *PurchaseReservedInstancesOfferingRequest {
+	s.Tag = v
 	return s
 }
 
@@ -4454,6 +5033,29 @@ func (s *PurchaseReservedInstancesOfferingRequest) SetPeriodUnit(v string) *Purc
 
 func (s *PurchaseReservedInstancesOfferingRequest) SetClientToken(v string) *PurchaseReservedInstancesOfferingRequest {
 	s.ClientToken = &v
+	return s
+}
+
+type PurchaseReservedInstancesOfferingRequestTag struct {
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+}
+
+func (s PurchaseReservedInstancesOfferingRequestTag) String() string {
+	return tea.Prettify(s)
+}
+
+func (s PurchaseReservedInstancesOfferingRequestTag) GoString() string {
+	return s.String()
+}
+
+func (s *PurchaseReservedInstancesOfferingRequestTag) SetKey(v string) *PurchaseReservedInstancesOfferingRequestTag {
+	s.Key = &v
+	return s
+}
+
+func (s *PurchaseReservedInstancesOfferingRequestTag) SetValue(v string) *PurchaseReservedInstancesOfferingRequestTag {
+	s.Value = &v
 	return s
 }
 
@@ -4608,19 +5210,20 @@ func (s *ModifyReservedInstancesResponseReservedInstanceIdSets) SetReservedInsta
 }
 
 type DescribeReservedInstancesRequest struct {
-	RegionId             *string   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
-	PageNumber           *int      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
-	PageSize             *int      `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
-	ZoneId               *string   `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
-	ReservedInstanceId   []*string `json:"ReservedInstanceId,omitempty" xml:"ReservedInstanceId,omitempty" type:"Repeated"`
-	ReservedInstanceName *string   `json:"ReservedInstanceName,omitempty" xml:"ReservedInstanceName,omitempty"`
-	Status               []*string `json:"Status,omitempty" xml:"Status,omitempty" type:"Repeated"`
-	LockReason           *string   `json:"LockReason,omitempty" xml:"LockReason,omitempty"`
-	InstanceType         *string   `json:"InstanceType,omitempty" xml:"InstanceType,omitempty"`
-	InstanceTypeFamily   *string   `json:"InstanceTypeFamily,omitempty" xml:"InstanceTypeFamily,omitempty"`
-	Scope                *string   `json:"Scope,omitempty" xml:"Scope,omitempty"`
-	OfferingType         *string   `json:"OfferingType,omitempty" xml:"OfferingType,omitempty"`
-	AllocationType       *string   `json:"AllocationType,omitempty" xml:"AllocationType,omitempty"`
+	RegionId             *string                                `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Tag                  []*DescribeReservedInstancesRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	PageNumber           *int                                   `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize             *int                                   `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	ZoneId               *string                                `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
+	ReservedInstanceId   []*string                              `json:"ReservedInstanceId,omitempty" xml:"ReservedInstanceId,omitempty" type:"Repeated"`
+	ReservedInstanceName *string                                `json:"ReservedInstanceName,omitempty" xml:"ReservedInstanceName,omitempty"`
+	Status               []*string                              `json:"Status,omitempty" xml:"Status,omitempty" type:"Repeated"`
+	LockReason           *string                                `json:"LockReason,omitempty" xml:"LockReason,omitempty"`
+	InstanceType         *string                                `json:"InstanceType,omitempty" xml:"InstanceType,omitempty"`
+	InstanceTypeFamily   *string                                `json:"InstanceTypeFamily,omitempty" xml:"InstanceTypeFamily,omitempty"`
+	Scope                *string                                `json:"Scope,omitempty" xml:"Scope,omitempty"`
+	OfferingType         *string                                `json:"OfferingType,omitempty" xml:"OfferingType,omitempty"`
+	AllocationType       *string                                `json:"AllocationType,omitempty" xml:"AllocationType,omitempty"`
 }
 
 func (s DescribeReservedInstancesRequest) String() string {
@@ -4633,6 +5236,11 @@ func (s DescribeReservedInstancesRequest) GoString() string {
 
 func (s *DescribeReservedInstancesRequest) SetRegionId(v string) *DescribeReservedInstancesRequest {
 	s.RegionId = &v
+	return s
+}
+
+func (s *DescribeReservedInstancesRequest) SetTag(v []*DescribeReservedInstancesRequestTag) *DescribeReservedInstancesRequest {
+	s.Tag = v
 	return s
 }
 
@@ -4693,6 +5301,29 @@ func (s *DescribeReservedInstancesRequest) SetOfferingType(v string) *DescribeRe
 
 func (s *DescribeReservedInstancesRequest) SetAllocationType(v string) *DescribeReservedInstancesRequest {
 	s.AllocationType = &v
+	return s
+}
+
+type DescribeReservedInstancesRequestTag struct {
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+}
+
+func (s DescribeReservedInstancesRequestTag) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeReservedInstancesRequestTag) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeReservedInstancesRequestTag) SetKey(v string) *DescribeReservedInstancesRequestTag {
+	s.Key = &v
+	return s
+}
+
+func (s *DescribeReservedInstancesRequestTag) SetValue(v string) *DescribeReservedInstancesRequestTag {
+	s.Value = &v
 	return s
 }
 
@@ -4772,6 +5403,7 @@ type DescribeReservedInstancesResponseReservedInstancesReservedInstance struct {
 	ResourceGroupId      *string                                                                           `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty" require:"true"`
 	AllocationStatus     *string                                                                           `json:"AllocationStatus,omitempty" xml:"AllocationStatus,omitempty" require:"true"`
 	OperationLocks       *DescribeReservedInstancesResponseReservedInstancesReservedInstanceOperationLocks `json:"OperationLocks,omitempty" xml:"OperationLocks,omitempty" require:"true" type:"Struct"`
+	Tags                 *DescribeReservedInstancesResponseReservedInstancesReservedInstanceTags           `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeReservedInstancesResponseReservedInstancesReservedInstance) String() string {
@@ -4867,6 +5499,11 @@ func (s *DescribeReservedInstancesResponseReservedInstancesReservedInstance) Set
 	return s
 }
 
+func (s *DescribeReservedInstancesResponseReservedInstancesReservedInstance) SetTags(v *DescribeReservedInstancesResponseReservedInstancesReservedInstanceTags) *DescribeReservedInstancesResponseReservedInstancesReservedInstance {
+	s.Tags = v
+	return s
+}
+
 type DescribeReservedInstancesResponseReservedInstancesReservedInstanceOperationLocks struct {
 	OperationLock []*DescribeReservedInstancesResponseReservedInstancesReservedInstanceOperationLocksOperationLock `json:"OperationLock,omitempty" xml:"OperationLock,omitempty" require:"true" type:"Repeated"`
 }
@@ -4898,6 +5535,46 @@ func (s DescribeReservedInstancesResponseReservedInstancesReservedInstanceOperat
 
 func (s *DescribeReservedInstancesResponseReservedInstancesReservedInstanceOperationLocksOperationLock) SetLockReason(v string) *DescribeReservedInstancesResponseReservedInstancesReservedInstanceOperationLocksOperationLock {
 	s.LockReason = &v
+	return s
+}
+
+type DescribeReservedInstancesResponseReservedInstancesReservedInstanceTags struct {
+	Tag []*DescribeReservedInstancesResponseReservedInstancesReservedInstanceTagsTag `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DescribeReservedInstancesResponseReservedInstancesReservedInstanceTags) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeReservedInstancesResponseReservedInstancesReservedInstanceTags) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeReservedInstancesResponseReservedInstancesReservedInstanceTags) SetTag(v []*DescribeReservedInstancesResponseReservedInstancesReservedInstanceTagsTag) *DescribeReservedInstancesResponseReservedInstancesReservedInstanceTags {
+	s.Tag = v
+	return s
+}
+
+type DescribeReservedInstancesResponseReservedInstancesReservedInstanceTagsTag struct {
+	TagKey   *string `json:"TagKey,omitempty" xml:"TagKey,omitempty" require:"true"`
+	TagValue *string `json:"TagValue,omitempty" xml:"TagValue,omitempty" require:"true"`
+}
+
+func (s DescribeReservedInstancesResponseReservedInstancesReservedInstanceTagsTag) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeReservedInstancesResponseReservedInstancesReservedInstanceTagsTag) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeReservedInstancesResponseReservedInstancesReservedInstanceTagsTag) SetTagKey(v string) *DescribeReservedInstancesResponseReservedInstancesReservedInstanceTagsTag {
+	s.TagKey = &v
+	return s
+}
+
+func (s *DescribeReservedInstancesResponseReservedInstancesReservedInstanceTagsTag) SetTagValue(v string) *DescribeReservedInstancesResponseReservedInstancesReservedInstanceTagsTag {
+	s.TagValue = &v
 	return s
 }
 
@@ -6052,16 +6729,17 @@ func (s *ReleaseDedicatedHostResponse) SetRequestId(v string) *ReleaseDedicatedH
 }
 
 type ModifyInstanceDeploymentRequest struct {
-	RegionId             *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
-	InstanceId           *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
-	DedicatedHostId      *string `json:"DedicatedHostId,omitempty" xml:"DedicatedHostId,omitempty"`
-	DeploymentSetId      *string `json:"DeploymentSetId,omitempty" xml:"DeploymentSetId,omitempty"`
-	DeploymentSetGroupNo *int    `json:"DeploymentSetGroupNo,omitempty" xml:"DeploymentSetGroupNo,omitempty"`
-	Force                *bool   `json:"Force,omitempty" xml:"Force,omitempty"`
-	Affinity             *string `json:"Affinity,omitempty" xml:"Affinity,omitempty"`
-	Tenancy              *string `json:"Tenancy,omitempty" xml:"Tenancy,omitempty"`
-	MigrationType        *string `json:"MigrationType,omitempty" xml:"MigrationType,omitempty"`
-	InstanceType         *string `json:"InstanceType,omitempty" xml:"InstanceType,omitempty"`
+	RegionId               *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	InstanceId             *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	DedicatedHostId        *string `json:"DedicatedHostId,omitempty" xml:"DedicatedHostId,omitempty"`
+	DeploymentSetId        *string `json:"DeploymentSetId,omitempty" xml:"DeploymentSetId,omitempty"`
+	DeploymentSetGroupNo   *int    `json:"DeploymentSetGroupNo,omitempty" xml:"DeploymentSetGroupNo,omitempty"`
+	Force                  *bool   `json:"Force,omitempty" xml:"Force,omitempty"`
+	Affinity               *string `json:"Affinity,omitempty" xml:"Affinity,omitempty"`
+	Tenancy                *string `json:"Tenancy,omitempty" xml:"Tenancy,omitempty"`
+	MigrationType          *string `json:"MigrationType,omitempty" xml:"MigrationType,omitempty"`
+	InstanceType           *string `json:"InstanceType,omitempty" xml:"InstanceType,omitempty"`
+	DedicatedHostClusterId *string `json:"DedicatedHostClusterId,omitempty" xml:"DedicatedHostClusterId,omitempty"`
 }
 
 func (s ModifyInstanceDeploymentRequest) String() string {
@@ -6119,6 +6797,11 @@ func (s *ModifyInstanceDeploymentRequest) SetMigrationType(v string) *ModifyInst
 
 func (s *ModifyInstanceDeploymentRequest) SetInstanceType(v string) *ModifyInstanceDeploymentRequest {
 	s.InstanceType = &v
+	return s
+}
+
+func (s *ModifyInstanceDeploymentRequest) SetDedicatedHostClusterId(v string) *ModifyInstanceDeploymentRequest {
+	s.DedicatedHostClusterId = &v
 	return s
 }
 
@@ -6250,13 +6933,15 @@ func (s *ModifyDedicatedHostAutoReleaseTimeResponse) SetRequestId(v string) *Mod
 }
 
 type ModifyDedicatedHostAttributeRequest struct {
-	RegionId            *string                                               `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
-	DedicatedHostId     *string                                               `json:"DedicatedHostId,omitempty" xml:"DedicatedHostId,omitempty" require:"true"`
-	DedicatedHostName   *string                                               `json:"DedicatedHostName,omitempty" xml:"DedicatedHostName,omitempty"`
-	Description         *string                                               `json:"Description,omitempty" xml:"Description,omitempty"`
-	ActionOnMaintenance *string                                               `json:"ActionOnMaintenance,omitempty" xml:"ActionOnMaintenance,omitempty"`
-	NetworkAttributes   *ModifyDedicatedHostAttributeRequestNetworkAttributes `json:"NetworkAttributes,omitempty" xml:"NetworkAttributes,omitempty" require:"true" type:"Struct"`
-	AutoPlacement       *string                                               `json:"AutoPlacement,omitempty" xml:"AutoPlacement,omitempty"`
+	RegionId               *string                                               `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	DedicatedHostId        *string                                               `json:"DedicatedHostId,omitempty" xml:"DedicatedHostId,omitempty" require:"true"`
+	DedicatedHostName      *string                                               `json:"DedicatedHostName,omitempty" xml:"DedicatedHostName,omitempty"`
+	Description            *string                                               `json:"Description,omitempty" xml:"Description,omitempty"`
+	ActionOnMaintenance    *string                                               `json:"ActionOnMaintenance,omitempty" xml:"ActionOnMaintenance,omitempty"`
+	NetworkAttributes      *ModifyDedicatedHostAttributeRequestNetworkAttributes `json:"NetworkAttributes,omitempty" xml:"NetworkAttributes,omitempty" type:"Struct"`
+	AutoPlacement          *string                                               `json:"AutoPlacement,omitempty" xml:"AutoPlacement,omitempty"`
+	DedicatedHostClusterId *string                                               `json:"DedicatedHostClusterId,omitempty" xml:"DedicatedHostClusterId,omitempty"`
+	CpuOverCommitRatio     *float32                                              `json:"CpuOverCommitRatio,omitempty" xml:"CpuOverCommitRatio,omitempty"`
 }
 
 func (s ModifyDedicatedHostAttributeRequest) String() string {
@@ -6299,6 +6984,16 @@ func (s *ModifyDedicatedHostAttributeRequest) SetNetworkAttributes(v *ModifyDedi
 
 func (s *ModifyDedicatedHostAttributeRequest) SetAutoPlacement(v string) *ModifyDedicatedHostAttributeRequest {
 	s.AutoPlacement = &v
+	return s
+}
+
+func (s *ModifyDedicatedHostAttributeRequest) SetDedicatedHostClusterId(v string) *ModifyDedicatedHostAttributeRequest {
+	s.DedicatedHostClusterId = &v
+	return s
+}
+
+func (s *ModifyDedicatedHostAttributeRequest) SetCpuOverCommitRatio(v float32) *ModifyDedicatedHostAttributeRequest {
+	s.CpuOverCommitRatio = &v
 	return s
 }
 
@@ -6521,6 +7216,8 @@ type DescribeDedicatedHostsResponseDedicatedHostsDedicatedHost struct {
 	ExpiredTime                         *string                                                                                       `json:"ExpiredTime,omitempty" xml:"ExpiredTime,omitempty" require:"true"`
 	AutoReleaseTime                     *string                                                                                       `json:"AutoReleaseTime,omitempty" xml:"AutoReleaseTime,omitempty" require:"true"`
 	ResourceGroupId                     *string                                                                                       `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty" require:"true"`
+	DedicatedHostClusterId              *string                                                                                       `json:"DedicatedHostClusterId,omitempty" xml:"DedicatedHostClusterId,omitempty" require:"true"`
+	CpuOverCommitRatio                  *float32                                                                                      `json:"CpuOverCommitRatio,omitempty" xml:"CpuOverCommitRatio,omitempty" require:"true"`
 	Instances                           *DescribeDedicatedHostsResponseDedicatedHostsDedicatedHostInstances                           `json:"Instances,omitempty" xml:"Instances,omitempty" require:"true" type:"Struct"`
 	OperationLocks                      *DescribeDedicatedHostsResponseDedicatedHostsDedicatedHostOperationLocks                      `json:"OperationLocks,omitempty" xml:"OperationLocks,omitempty" require:"true" type:"Struct"`
 	Tags                                *DescribeDedicatedHostsResponseDedicatedHostsDedicatedHostTags                                `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Struct"`
@@ -6636,6 +7333,16 @@ func (s *DescribeDedicatedHostsResponseDedicatedHostsDedicatedHost) SetAutoRelea
 
 func (s *DescribeDedicatedHostsResponseDedicatedHostsDedicatedHost) SetResourceGroupId(v string) *DescribeDedicatedHostsResponseDedicatedHostsDedicatedHost {
 	s.ResourceGroupId = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostsResponseDedicatedHostsDedicatedHost) SetDedicatedHostClusterId(v string) *DescribeDedicatedHostsResponseDedicatedHostsDedicatedHost {
+	s.DedicatedHostClusterId = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostsResponseDedicatedHostsDedicatedHost) SetCpuOverCommitRatio(v float32) *DescribeDedicatedHostsResponseDedicatedHostsDedicatedHost {
+	s.CpuOverCommitRatio = &v
 	return s
 }
 
@@ -6882,6 +7589,7 @@ func (s *DescribeDedicatedHostsResponseDedicatedHostsDedicatedHostNetworkAttribu
 }
 
 type DescribeDedicatedHostsResponseDedicatedHostsDedicatedHostSupportedInstanceTypeFamilies struct {
+	// SupportedInstanceTypeFamily
 	SupportedInstanceTypeFamily []*string `json:"SupportedInstanceTypeFamily,omitempty" xml:"SupportedInstanceTypeFamily,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -6899,6 +7607,7 @@ func (s *DescribeDedicatedHostsResponseDedicatedHostsDedicatedHostSupportedInsta
 }
 
 type DescribeDedicatedHostsResponseDedicatedHostsDedicatedHostSupportedCustomInstanceTypeFamilies struct {
+	// SupportedCustomInstanceTypeFamily
 	SupportedCustomInstanceTypeFamily []*string `json:"SupportedCustomInstanceTypeFamily,omitempty" xml:"SupportedCustomInstanceTypeFamily,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -6916,6 +7625,7 @@ func (s *DescribeDedicatedHostsResponseDedicatedHostsDedicatedHostSupportedCusto
 }
 
 type DescribeDedicatedHostsResponseDedicatedHostsDedicatedHostSupportedInstanceTypesList struct {
+	// SupportedInstanceTypesList
 	SupportedInstanceTypesList []*string `json:"SupportedInstanceTypesList,omitempty" xml:"SupportedInstanceTypesList,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -7013,6 +7723,8 @@ type DescribeDedicatedHostTypesResponseDedicatedHostTypesDedicatedHostType struc
 	LocalStorageAmount            *int                                                                                                `json:"LocalStorageAmount,omitempty" xml:"LocalStorageAmount,omitempty" require:"true"`
 	LocalStorageCategory          *string                                                                                             `json:"LocalStorageCategory,omitempty" xml:"LocalStorageCategory,omitempty" require:"true"`
 	GPUSpec                       *string                                                                                             `json:"GPUSpec,omitempty" xml:"GPUSpec,omitempty" require:"true"`
+	SupportCpuOverCommitRatio     *bool                                                                                               `json:"SupportCpuOverCommitRatio,omitempty" xml:"SupportCpuOverCommitRatio,omitempty" require:"true"`
+	CpuOverCommitRatioRange       *string                                                                                             `json:"CpuOverCommitRatioRange,omitempty" xml:"CpuOverCommitRatioRange,omitempty" require:"true"`
 	SupportedInstanceTypeFamilies *DescribeDedicatedHostTypesResponseDedicatedHostTypesDedicatedHostTypeSupportedInstanceTypeFamilies `json:"SupportedInstanceTypeFamilies,omitempty" xml:"SupportedInstanceTypeFamilies,omitempty" require:"true" type:"Struct"`
 	SupportedInstanceTypesList    *DescribeDedicatedHostTypesResponseDedicatedHostTypesDedicatedHostTypeSupportedInstanceTypesList    `json:"SupportedInstanceTypesList,omitempty" xml:"SupportedInstanceTypesList,omitempty" require:"true" type:"Struct"`
 }
@@ -7080,6 +7792,16 @@ func (s *DescribeDedicatedHostTypesResponseDedicatedHostTypesDedicatedHostType) 
 	return s
 }
 
+func (s *DescribeDedicatedHostTypesResponseDedicatedHostTypesDedicatedHostType) SetSupportCpuOverCommitRatio(v bool) *DescribeDedicatedHostTypesResponseDedicatedHostTypesDedicatedHostType {
+	s.SupportCpuOverCommitRatio = &v
+	return s
+}
+
+func (s *DescribeDedicatedHostTypesResponseDedicatedHostTypesDedicatedHostType) SetCpuOverCommitRatioRange(v string) *DescribeDedicatedHostTypesResponseDedicatedHostTypesDedicatedHostType {
+	s.CpuOverCommitRatioRange = &v
+	return s
+}
+
 func (s *DescribeDedicatedHostTypesResponseDedicatedHostTypesDedicatedHostType) SetSupportedInstanceTypeFamilies(v *DescribeDedicatedHostTypesResponseDedicatedHostTypesDedicatedHostTypeSupportedInstanceTypeFamilies) *DescribeDedicatedHostTypesResponseDedicatedHostTypesDedicatedHostType {
 	s.SupportedInstanceTypeFamilies = v
 	return s
@@ -7091,6 +7813,7 @@ func (s *DescribeDedicatedHostTypesResponseDedicatedHostTypesDedicatedHostType) 
 }
 
 type DescribeDedicatedHostTypesResponseDedicatedHostTypesDedicatedHostTypeSupportedInstanceTypeFamilies struct {
+	// SupportedInstanceTypeFamily
 	SupportedInstanceTypeFamily []*string `json:"SupportedInstanceTypeFamily,omitempty" xml:"SupportedInstanceTypeFamily,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -7108,6 +7831,7 @@ func (s *DescribeDedicatedHostTypesResponseDedicatedHostTypesDedicatedHostTypeSu
 }
 
 type DescribeDedicatedHostTypesResponseDedicatedHostTypesDedicatedHostTypeSupportedInstanceTypesList struct {
+	// SupportedInstanceTypesList
 	SupportedInstanceTypesList []*string `json:"SupportedInstanceTypesList,omitempty" xml:"SupportedInstanceTypesList,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -7229,24 +7953,26 @@ func (s *DescribeDedicatedHostAutoRenewResponseDedicatedHostRenewAttributesDedic
 }
 
 type AllocateDedicatedHostsRequest struct {
-	RegionId            *string                                         `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
-	Tag                 []*AllocateDedicatedHostsRequestTag             `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
-	ResourceGroupId     *string                                         `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
-	ZoneId              *string                                         `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
-	DedicatedHostName   *string                                         `json:"DedicatedHostName,omitempty" xml:"DedicatedHostName,omitempty"`
-	DedicatedHostType   *string                                         `json:"DedicatedHostType,omitempty" xml:"DedicatedHostType,omitempty" require:"true"`
-	ActionOnMaintenance *string                                         `json:"ActionOnMaintenance,omitempty" xml:"ActionOnMaintenance,omitempty"`
-	NetworkAttributes   *AllocateDedicatedHostsRequestNetworkAttributes `json:"NetworkAttributes,omitempty" xml:"NetworkAttributes,omitempty" require:"true" type:"Struct"`
-	Description         *string                                         `json:"Description,omitempty" xml:"Description,omitempty"`
-	AutoPlacement       *string                                         `json:"AutoPlacement,omitempty" xml:"AutoPlacement,omitempty"`
-	ChargeType          *string                                         `json:"ChargeType,omitempty" xml:"ChargeType,omitempty"`
-	Quantity            *int                                            `json:"Quantity,omitempty" xml:"Quantity,omitempty"`
-	Period              *int                                            `json:"Period,omitempty" xml:"Period,omitempty"`
-	PeriodUnit          *string                                         `json:"PeriodUnit,omitempty" xml:"PeriodUnit,omitempty"`
-	AutoRenew           *bool                                           `json:"AutoRenew,omitempty" xml:"AutoRenew,omitempty"`
-	AutoRenewPeriod     *int                                            `json:"AutoRenewPeriod,omitempty" xml:"AutoRenewPeriod,omitempty"`
-	AutoReleaseTime     *string                                         `json:"AutoReleaseTime,omitempty" xml:"AutoReleaseTime,omitempty"`
-	ClientToken         *string                                         `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	RegionId               *string                                         `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Tag                    []*AllocateDedicatedHostsRequestTag             `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	ResourceGroupId        *string                                         `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
+	ZoneId                 *string                                         `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
+	DedicatedHostName      *string                                         `json:"DedicatedHostName,omitempty" xml:"DedicatedHostName,omitempty"`
+	DedicatedHostClusterId *string                                         `json:"DedicatedHostClusterId,omitempty" xml:"DedicatedHostClusterId,omitempty"`
+	DedicatedHostType      *string                                         `json:"DedicatedHostType,omitempty" xml:"DedicatedHostType,omitempty" require:"true"`
+	ActionOnMaintenance    *string                                         `json:"ActionOnMaintenance,omitempty" xml:"ActionOnMaintenance,omitempty"`
+	NetworkAttributes      *AllocateDedicatedHostsRequestNetworkAttributes `json:"NetworkAttributes,omitempty" xml:"NetworkAttributes,omitempty" type:"Struct"`
+	Description            *string                                         `json:"Description,omitempty" xml:"Description,omitempty"`
+	AutoPlacement          *string                                         `json:"AutoPlacement,omitempty" xml:"AutoPlacement,omitempty"`
+	CpuOverCommitRatio     *float32                                        `json:"CpuOverCommitRatio,omitempty" xml:"CpuOverCommitRatio,omitempty"`
+	ChargeType             *string                                         `json:"ChargeType,omitempty" xml:"ChargeType,omitempty"`
+	Quantity               *int                                            `json:"Quantity,omitempty" xml:"Quantity,omitempty"`
+	Period                 *int                                            `json:"Period,omitempty" xml:"Period,omitempty"`
+	PeriodUnit             *string                                         `json:"PeriodUnit,omitempty" xml:"PeriodUnit,omitempty"`
+	AutoRenew              *bool                                           `json:"AutoRenew,omitempty" xml:"AutoRenew,omitempty"`
+	AutoRenewPeriod        *int                                            `json:"AutoRenewPeriod,omitempty" xml:"AutoRenewPeriod,omitempty"`
+	AutoReleaseTime        *string                                         `json:"AutoReleaseTime,omitempty" xml:"AutoReleaseTime,omitempty"`
+	ClientToken            *string                                         `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
 func (s AllocateDedicatedHostsRequest) String() string {
@@ -7282,6 +8008,11 @@ func (s *AllocateDedicatedHostsRequest) SetDedicatedHostName(v string) *Allocate
 	return s
 }
 
+func (s *AllocateDedicatedHostsRequest) SetDedicatedHostClusterId(v string) *AllocateDedicatedHostsRequest {
+	s.DedicatedHostClusterId = &v
+	return s
+}
+
 func (s *AllocateDedicatedHostsRequest) SetDedicatedHostType(v string) *AllocateDedicatedHostsRequest {
 	s.DedicatedHostType = &v
 	return s
@@ -7304,6 +8035,11 @@ func (s *AllocateDedicatedHostsRequest) SetDescription(v string) *AllocateDedica
 
 func (s *AllocateDedicatedHostsRequest) SetAutoPlacement(v string) *AllocateDedicatedHostsRequest {
 	s.AutoPlacement = &v
+	return s
+}
+
+func (s *AllocateDedicatedHostsRequest) SetCpuOverCommitRatio(v float32) *AllocateDedicatedHostsRequest {
+	s.CpuOverCommitRatio = &v
 	return s
 }
 
@@ -8881,7 +9617,7 @@ type CreateLaunchTemplateVersionRequest struct {
 	InternetMaxBandwidthOut     *int                                                  `json:"InternetMaxBandwidthOut,omitempty" xml:"InternetMaxBandwidthOut,omitempty"`
 	HostName                    *string                                               `json:"HostName,omitempty" xml:"HostName,omitempty"`
 	ZoneId                      *string                                               `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
-	SystemDisk                  *CreateLaunchTemplateVersionRequestSystemDisk         `json:"SystemDisk,omitempty" xml:"SystemDisk,omitempty" require:"true" type:"Struct"`
+	SystemDisk                  *CreateLaunchTemplateVersionRequestSystemDisk         `json:"SystemDisk,omitempty" xml:"SystemDisk,omitempty" type:"Struct"`
 	DataDisk                    []*CreateLaunchTemplateVersionRequestDataDisk         `json:"DataDisk,omitempty" xml:"DataDisk,omitempty" type:"Repeated"`
 	IoOptimized                 *string                                               `json:"IoOptimized,omitempty" xml:"IoOptimized,omitempty"`
 	NetworkInterface            []*CreateLaunchTemplateVersionRequestNetworkInterface `json:"NetworkInterface,omitempty" xml:"NetworkInterface,omitempty" type:"Repeated"`
@@ -9295,7 +10031,7 @@ type CreateLaunchTemplateRequest struct {
 	InternetMaxBandwidthOut     *int                                           `json:"InternetMaxBandwidthOut,omitempty" xml:"InternetMaxBandwidthOut,omitempty"`
 	HostName                    *string                                        `json:"HostName,omitempty" xml:"HostName,omitempty"`
 	ZoneId                      *string                                        `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
-	SystemDisk                  *CreateLaunchTemplateRequestSystemDisk         `json:"SystemDisk,omitempty" xml:"SystemDisk,omitempty" require:"true" type:"Struct"`
+	SystemDisk                  *CreateLaunchTemplateRequestSystemDisk         `json:"SystemDisk,omitempty" xml:"SystemDisk,omitempty" type:"Struct"`
 	DataDisk                    []*CreateLaunchTemplateRequestDataDisk         `json:"DataDisk,omitempty" xml:"DataDisk,omitempty" type:"Repeated"`
 	IoOptimized                 *string                                        `json:"IoOptimized,omitempty" xml:"IoOptimized,omitempty"`
 	NetworkInterface            []*CreateLaunchTemplateRequestNetworkInterface `json:"NetworkInterface,omitempty" xml:"NetworkInterface,omitempty" type:"Repeated"`
@@ -9986,6 +10722,7 @@ func (s *AssignPrivateIpAddressesResponseAssignedPrivateIpAddressesSet) SetPriva
 }
 
 type AssignPrivateIpAddressesResponseAssignedPrivateIpAddressesSetPrivateIpSet struct {
+	// PrivateIpAddress
 	PrivateIpAddress []*string `json:"PrivateIpAddress,omitempty" xml:"PrivateIpAddress,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -11127,8 +11864,8 @@ type DescribeInstancesFullStatusRequest struct {
 	HealthStatus      *string                                             `json:"HealthStatus,omitempty" xml:"HealthStatus,omitempty"`
 	InstanceEventType []*string                                           `json:"InstanceEventType,omitempty" xml:"InstanceEventType,omitempty" type:"Repeated"`
 	EventType         *string                                             `json:"EventType,omitempty" xml:"EventType,omitempty"`
-	NotBefore         *DescribeInstancesFullStatusRequestNotBefore        `json:"NotBefore,omitempty" xml:"NotBefore,omitempty" require:"true" type:"Struct"`
-	EventPublishTime  *DescribeInstancesFullStatusRequestEventPublishTime `json:"EventPublishTime,omitempty" xml:"EventPublishTime,omitempty" require:"true" type:"Struct"`
+	NotBefore         *DescribeInstancesFullStatusRequestNotBefore        `json:"NotBefore,omitempty" xml:"NotBefore,omitempty" type:"Struct"`
+	EventPublishTime  *DescribeInstancesFullStatusRequestEventPublishTime `json:"EventPublishTime,omitempty" xml:"EventPublishTime,omitempty" type:"Struct"`
 	PageNumber        *int                                                `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 	PageSize          *int                                                `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
@@ -11598,8 +12335,8 @@ type DescribeInstanceHistoryEventsRequest struct {
 	EventCycleStatus         *string                                               `json:"EventCycleStatus,omitempty" xml:"EventCycleStatus,omitempty"`
 	InstanceEventType        []*string                                             `json:"InstanceEventType,omitempty" xml:"InstanceEventType,omitempty" type:"Repeated"`
 	EventType                *string                                               `json:"EventType,omitempty" xml:"EventType,omitempty"`
-	NotBefore                *DescribeInstanceHistoryEventsRequestNotBefore        `json:"NotBefore,omitempty" xml:"NotBefore,omitempty" require:"true" type:"Struct"`
-	EventPublishTime         *DescribeInstanceHistoryEventsRequestEventPublishTime `json:"EventPublishTime,omitempty" xml:"EventPublishTime,omitempty" require:"true" type:"Struct"`
+	NotBefore                *DescribeInstanceHistoryEventsRequestNotBefore        `json:"NotBefore,omitempty" xml:"NotBefore,omitempty" type:"Struct"`
+	EventPublishTime         *DescribeInstanceHistoryEventsRequestEventPublishTime `json:"EventPublishTime,omitempty" xml:"EventPublishTime,omitempty" type:"Struct"`
 	ImpactLevel              *string                                               `json:"ImpactLevel,omitempty" xml:"ImpactLevel,omitempty"`
 	PageNumber               *int                                                  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 	PageSize                 *int                                                  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
@@ -11988,7 +12725,7 @@ type DescribeDisksFullStatusRequest struct {
 	Status       *string                                  `json:"Status,omitempty" xml:"Status,omitempty"`
 	HealthStatus *string                                  `json:"HealthStatus,omitempty" xml:"HealthStatus,omitempty"`
 	EventType    *string                                  `json:"EventType,omitempty" xml:"EventType,omitempty"`
-	EventTime    *DescribeDisksFullStatusRequestEventTime `json:"EventTime,omitempty" xml:"EventTime,omitempty" require:"true" type:"Struct"`
+	EventTime    *DescribeDisksFullStatusRequestEventTime `json:"EventTime,omitempty" xml:"EventTime,omitempty" type:"Struct"`
 	PageNumber   *int                                     `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 	PageSize     *int                                     `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
@@ -12411,8 +13148,9 @@ type RunInstancesRequest struct {
 	PasswordInherit             *bool                                  `json:"PasswordInherit,omitempty" xml:"PasswordInherit,omitempty"`
 	ZoneId                      *string                                `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
 	InternetChargeType          *string                                `json:"InternetChargeType,omitempty" xml:"InternetChargeType,omitempty"`
-	SystemDisk                  *RunInstancesRequestSystemDisk         `json:"SystemDisk,omitempty" xml:"SystemDisk,omitempty" require:"true" type:"Struct"`
+	SystemDisk                  *RunInstancesRequestSystemDisk         `json:"SystemDisk,omitempty" xml:"SystemDisk,omitempty" type:"Struct"`
 	DataDisk                    []*RunInstancesRequestDataDisk         `json:"DataDisk,omitempty" xml:"DataDisk,omitempty" type:"Repeated"`
+	Arn                         []*RunInstancesRequestArn              `json:"Arn,omitempty" xml:"Arn,omitempty" type:"Repeated"`
 	IoOptimized                 *string                                `json:"IoOptimized,omitempty" xml:"IoOptimized,omitempty"`
 	NetworkInterface            []*RunInstancesRequestNetworkInterface `json:"NetworkInterface,omitempty" xml:"NetworkInterface,omitempty" type:"Repeated"`
 	UserData                    *string                                `json:"UserData,omitempty" xml:"UserData,omitempty"`
@@ -12451,7 +13189,7 @@ type RunInstancesRequest struct {
 	Tenancy                     *string                                `json:"Tenancy,omitempty" xml:"Tenancy,omitempty"`
 	StorageSetId                *string                                `json:"StorageSetId,omitempty" xml:"StorageSetId,omitempty"`
 	StorageSetPartitionNumber   *int                                   `json:"StorageSetPartitionNumber,omitempty" xml:"StorageSetPartitionNumber,omitempty"`
-	CpuOptions                  *RunInstancesRequestCpuOptions         `json:"CpuOptions,omitempty" xml:"CpuOptions,omitempty" require:"true" type:"Struct"`
+	CpuOptions                  *RunInstancesRequestCpuOptions         `json:"CpuOptions,omitempty" xml:"CpuOptions,omitempty" type:"Struct"`
 	HttpEndpoint                *string                                `json:"HttpEndpoint,omitempty" xml:"HttpEndpoint,omitempty"`
 	HttpTokens                  *string                                `json:"HttpTokens,omitempty" xml:"HttpTokens,omitempty"`
 	HttpPutResponseHopLimit     *int                                   `json:"HttpPutResponseHopLimit,omitempty" xml:"HttpPutResponseHopLimit,omitempty"`
@@ -12557,6 +13295,11 @@ func (s *RunInstancesRequest) SetSystemDisk(v *RunInstancesRequestSystemDisk) *R
 
 func (s *RunInstancesRequest) SetDataDisk(v []*RunInstancesRequestDataDisk) *RunInstancesRequest {
 	s.DataDisk = v
+	return s
+}
+
+func (s *RunInstancesRequest) SetArn(v []*RunInstancesRequestArn) *RunInstancesRequest {
+	s.Arn = v
 	return s
 }
 
@@ -12897,6 +13640,35 @@ func (s *RunInstancesRequestDataDisk) SetAutoSnapshotPolicyId(v string) *RunInst
 
 func (s *RunInstancesRequestDataDisk) SetEncryptAlgorithm(v string) *RunInstancesRequestDataDisk {
 	s.EncryptAlgorithm = &v
+	return s
+}
+
+type RunInstancesRequestArn struct {
+	AssumeRoleFor *int64  `json:"AssumeRoleFor,omitempty" xml:"AssumeRoleFor,omitempty" require:"true"`
+	Rolearn       *string `json:"Rolearn,omitempty" xml:"Rolearn,omitempty" require:"true"`
+	RoleType      *string `json:"RoleType,omitempty" xml:"RoleType,omitempty" require:"true"`
+}
+
+func (s RunInstancesRequestArn) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RunInstancesRequestArn) GoString() string {
+	return s.String()
+}
+
+func (s *RunInstancesRequestArn) SetAssumeRoleFor(v int64) *RunInstancesRequestArn {
+	s.AssumeRoleFor = &v
+	return s
+}
+
+func (s *RunInstancesRequestArn) SetRolearn(v string) *RunInstancesRequestArn {
+	s.Rolearn = &v
+	return s
+}
+
+func (s *RunInstancesRequestArn) SetRoleType(v string) *RunInstancesRequestArn {
+	s.RoleType = &v
 	return s
 }
 
@@ -14549,6 +15321,7 @@ func (s *DescribeCommandsResponseCommandsCommand) SetParameterNames(v *DescribeC
 }
 
 type DescribeCommandsResponseCommandsCommandParameterNames struct {
+	// ParameterName
 	ParameterName []*string `json:"ParameterName,omitempty" xml:"ParameterName,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -15554,6 +16327,7 @@ func (s *DescribeNetworkInterfacesResponseNetworkInterfaceSetsNetworkInterfaceSe
 }
 
 type DescribeNetworkInterfacesResponseNetworkInterfaceSetsNetworkInterfaceSetSecurityGroupIds struct {
+	// SecurityGroupId
 	SecurityGroupId []*string `json:"SecurityGroupId,omitempty" xml:"SecurityGroupId,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -15951,10 +16725,11 @@ func (s *CreateNetworkInterfaceResponseSecurityGroupIds) SetSecurityGroupId(v []
 }
 
 type AttachNetworkInterfaceRequest struct {
-	RegionId               *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
-	NetworkInterfaceId     *string `json:"NetworkInterfaceId,omitempty" xml:"NetworkInterfaceId,omitempty" require:"true"`
-	InstanceId             *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
-	TrunkNetworkInstanceId *string `json:"TrunkNetworkInstanceId,omitempty" xml:"TrunkNetworkInstanceId,omitempty"`
+	RegionId                         *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	NetworkInterfaceId               *string `json:"NetworkInterfaceId,omitempty" xml:"NetworkInterfaceId,omitempty" require:"true"`
+	InstanceId                       *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	TrunkNetworkInstanceId           *string `json:"TrunkNetworkInstanceId,omitempty" xml:"TrunkNetworkInstanceId,omitempty"`
+	WaitForNetworkConfigurationReady *bool   `json:"WaitForNetworkConfigurationReady,omitempty" xml:"WaitForNetworkConfigurationReady,omitempty"`
 }
 
 func (s AttachNetworkInterfaceRequest) String() string {
@@ -15982,6 +16757,11 @@ func (s *AttachNetworkInterfaceRequest) SetInstanceId(v string) *AttachNetworkIn
 
 func (s *AttachNetworkInterfaceRequest) SetTrunkNetworkInstanceId(v string) *AttachNetworkInterfaceRequest {
 	s.TrunkNetworkInstanceId = &v
+	return s
+}
+
+func (s *AttachNetworkInterfaceRequest) SetWaitForNetworkConfigurationReady(v bool) *AttachNetworkInterfaceRequest {
+	s.WaitForNetworkConfigurationReady = &v
 	return s
 }
 
@@ -16243,6 +17023,7 @@ func (s *DescribeRecommendInstanceTypeResponseDataRecommendInstanceTypeZonesZone
 }
 
 type DescribeRecommendInstanceTypeResponseDataRecommendInstanceTypeZonesZoneNetworkTypes struct {
+	// NetworkType
 	NetworkType []*string `json:"NetworkType,omitempty" xml:"NetworkType,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -16314,7 +17095,7 @@ type ModifyPrepayInstanceSpecRequest struct {
 	ClientToken        *string                                    `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 	AutoPay            *bool                                      `json:"AutoPay,omitempty" xml:"AutoPay,omitempty"`
 	MigrateAcrossZone  *bool                                      `json:"MigrateAcrossZone,omitempty" xml:"MigrateAcrossZone,omitempty"`
-	SystemDisk         *ModifyPrepayInstanceSpecRequestSystemDisk `json:"SystemDisk,omitempty" xml:"SystemDisk,omitempty" require:"true" type:"Struct"`
+	SystemDisk         *ModifyPrepayInstanceSpecRequestSystemDisk `json:"SystemDisk,omitempty" xml:"SystemDisk,omitempty" type:"Struct"`
 	RebootTime         *string                                    `json:"RebootTime,omitempty" xml:"RebootTime,omitempty"`
 	EndTime            *string                                    `json:"EndTime,omitempty" xml:"EndTime,omitempty"`
 	RebootWhenFinished *bool                                      `json:"RebootWhenFinished,omitempty" xml:"RebootWhenFinished,omitempty"`
@@ -18050,8 +18831,8 @@ type DescribePriceRequest struct {
 	InstanceNetworkType     *string                         `json:"InstanceNetworkType,omitempty" xml:"InstanceNetworkType,omitempty"`
 	InternetChargeType      *string                         `json:"InternetChargeType,omitempty" xml:"InternetChargeType,omitempty"`
 	InternetMaxBandwidthOut *int                            `json:"InternetMaxBandwidthOut,omitempty" xml:"InternetMaxBandwidthOut,omitempty"`
-	SystemDisk              *DescribePriceRequestSystemDisk `json:"SystemDisk,omitempty" xml:"SystemDisk,omitempty" require:"true" type:"Struct"`
-	DataDisk                []*DescribePriceRequestDataDisk `json:"DataDisk,omitempty" xml:"DataDisk,omitempty" require:"true" type:"Repeated"`
+	SystemDisk              *DescribePriceRequestSystemDisk `json:"SystemDisk,omitempty" xml:"SystemDisk,omitempty" type:"Struct"`
+	DataDisk                []*DescribePriceRequestDataDisk `json:"DataDisk,omitempty" xml:"DataDisk,omitempty" type:"Repeated"`
 	Period                  *int                            `json:"Period,omitempty" xml:"Period,omitempty"`
 	PriceUnit               *string                         `json:"PriceUnit,omitempty" xml:"PriceUnit,omitempty"`
 	Amount                  *int                            `json:"Amount,omitempty" xml:"Amount,omitempty"`
@@ -18708,6 +19489,7 @@ func (s *DescribeDeploymentSetsResponseDeploymentSetsDeploymentSet) SetInstanceI
 }
 
 type DescribeDeploymentSetsResponseDeploymentSetsDeploymentSetInstanceIds struct {
+	// InstanceId
 	InstanceId []*string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -20518,6 +21300,7 @@ func (s *DescribeNatGatewaysResponseNatGatewaysNatGateway) SetBandwidthPackageId
 }
 
 type DescribeNatGatewaysResponseNatGatewaysNatGatewayForwardTableIds struct {
+	// ForwardTableId
 	ForwardTableId []*string `json:"ForwardTableId,omitempty" xml:"ForwardTableId,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -20535,6 +21318,7 @@ func (s *DescribeNatGatewaysResponseNatGatewaysNatGatewayForwardTableIds) SetFor
 }
 
 type DescribeNatGatewaysResponseNatGatewaysNatGatewayBandwidthPackageIds struct {
+	// BandwidthPackageId
 	BandwidthPackageId []*string `json:"BandwidthPackageId,omitempty" xml:"BandwidthPackageId,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -25746,6 +26530,7 @@ func (s *DescribeHaVipsResponseHaVipsHaVip) SetAssociatedEipAddresses(v *Describ
 }
 
 type DescribeHaVipsResponseHaVipsHaVipAssociatedInstances struct {
+	// associatedInstance
 	AssociatedInstance []*string `json:"associatedInstance,omitempty" xml:"associatedInstance,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -25763,6 +26548,7 @@ func (s *DescribeHaVipsResponseHaVipsHaVipAssociatedInstances) SetAssociatedInst
 }
 
 type DescribeHaVipsResponseHaVipsHaVipAssociatedEipAddresses struct {
+	// associatedEipAddresse
 	AssociatedEipAddresse []*string `json:"associatedEipAddresse,omitempty" xml:"associatedEipAddresse,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -26232,16 +27018,18 @@ func (s *DescribeTagsResponseTagsTag) SetResourceTypeCount(v *DescribeTagsRespon
 }
 
 type DescribeTagsResponseTagsTagResourceTypeCount struct {
-	Instance       *int `json:"Instance,omitempty" xml:"Instance,omitempty" require:"true"`
-	Disk           *int `json:"Disk,omitempty" xml:"Disk,omitempty" require:"true"`
-	Volume         *int `json:"Volume,omitempty" xml:"Volume,omitempty" require:"true"`
-	Image          *int `json:"Image,omitempty" xml:"Image,omitempty" require:"true"`
-	Snapshot       *int `json:"Snapshot,omitempty" xml:"Snapshot,omitempty" require:"true"`
-	Securitygroup  *int `json:"Securitygroup,omitempty" xml:"Securitygroup,omitempty" require:"true"`
-	LaunchTemplate *int `json:"LaunchTemplate,omitempty" xml:"LaunchTemplate,omitempty" require:"true"`
-	Eni            *int `json:"Eni,omitempty" xml:"Eni,omitempty" require:"true"`
-	Ddh            *int `json:"Ddh,omitempty" xml:"Ddh,omitempty" require:"true"`
-	KeyPair        *int `json:"KeyPair,omitempty" xml:"KeyPair,omitempty" require:"true"`
+	Instance         *int `json:"Instance,omitempty" xml:"Instance,omitempty" require:"true"`
+	Disk             *int `json:"Disk,omitempty" xml:"Disk,omitempty" require:"true"`
+	Volume           *int `json:"Volume,omitempty" xml:"Volume,omitempty" require:"true"`
+	Image            *int `json:"Image,omitempty" xml:"Image,omitempty" require:"true"`
+	Snapshot         *int `json:"Snapshot,omitempty" xml:"Snapshot,omitempty" require:"true"`
+	Securitygroup    *int `json:"Securitygroup,omitempty" xml:"Securitygroup,omitempty" require:"true"`
+	LaunchTemplate   *int `json:"LaunchTemplate,omitempty" xml:"LaunchTemplate,omitempty" require:"true"`
+	Eni              *int `json:"Eni,omitempty" xml:"Eni,omitempty" require:"true"`
+	Ddh              *int `json:"Ddh,omitempty" xml:"Ddh,omitempty" require:"true"`
+	KeyPair          *int `json:"KeyPair,omitempty" xml:"KeyPair,omitempty" require:"true"`
+	SnapshotPolicy   *int `json:"SnapshotPolicy,omitempty" xml:"SnapshotPolicy,omitempty" require:"true"`
+	ReservedInstance *int `json:"ReservedInstance,omitempty" xml:"ReservedInstance,omitempty" require:"true"`
 }
 
 func (s DescribeTagsResponseTagsTagResourceTypeCount) String() string {
@@ -26299,6 +27087,16 @@ func (s *DescribeTagsResponseTagsTagResourceTypeCount) SetDdh(v int) *DescribeTa
 
 func (s *DescribeTagsResponseTagsTagResourceTypeCount) SetKeyPair(v int) *DescribeTagsResponseTagsTagResourceTypeCount {
 	s.KeyPair = &v
+	return s
+}
+
+func (s *DescribeTagsResponseTagsTagResourceTypeCount) SetSnapshotPolicy(v int) *DescribeTagsResponseTagsTagResourceTypeCount {
+	s.SnapshotPolicy = &v
+	return s
+}
+
+func (s *DescribeTagsResponseTagsTagResourceTypeCount) SetReservedInstance(v int) *DescribeTagsResponseTagsTagResourceTypeCount {
+	s.ReservedInstance = &v
 	return s
 }
 
@@ -27045,7 +27843,7 @@ func (s *ResetDiskResponse) SetRequestId(v string) *ResetDiskResponse {
 type ReplaceSystemDiskRequest struct {
 	InstanceId                  *string                             `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
 	ImageId                     *string                             `json:"ImageId,omitempty" xml:"ImageId,omitempty"`
-	SystemDisk                  *ReplaceSystemDiskRequestSystemDisk `json:"SystemDisk,omitempty" xml:"SystemDisk,omitempty" require:"true" type:"Struct"`
+	SystemDisk                  *ReplaceSystemDiskRequestSystemDisk `json:"SystemDisk,omitempty" xml:"SystemDisk,omitempty" type:"Struct"`
 	ClientToken                 *string                             `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 	UseAdditionalService        *bool                               `json:"UseAdditionalService,omitempty" xml:"UseAdditionalService,omitempty"`
 	Password                    *string                             `json:"Password,omitempty" xml:"Password,omitempty"`
@@ -27724,10 +28522,10 @@ type ModifyInstanceSpecRequest struct {
 	InstanceType            *string                              `json:"InstanceType,omitempty" xml:"InstanceType,omitempty"`
 	InternetMaxBandwidthOut *int                                 `json:"InternetMaxBandwidthOut,omitempty" xml:"InternetMaxBandwidthOut,omitempty"`
 	InternetMaxBandwidthIn  *int                                 `json:"InternetMaxBandwidthIn,omitempty" xml:"InternetMaxBandwidthIn,omitempty"`
-	Temporary               *ModifyInstanceSpecRequestTemporary  `json:"Temporary,omitempty" xml:"Temporary,omitempty" require:"true" type:"Struct"`
+	Temporary               *ModifyInstanceSpecRequestTemporary  `json:"Temporary,omitempty" xml:"Temporary,omitempty" type:"Struct"`
 	Async                   *bool                                `json:"Async,omitempty" xml:"Async,omitempty"`
 	AllowMigrateAcrossZone  *bool                                `json:"AllowMigrateAcrossZone,omitempty" xml:"AllowMigrateAcrossZone,omitempty"`
-	SystemDisk              *ModifyInstanceSpecRequestSystemDisk `json:"SystemDisk,omitempty" xml:"SystemDisk,omitempty" require:"true" type:"Struct"`
+	SystemDisk              *ModifyInstanceSpecRequestSystemDisk `json:"SystemDisk,omitempty" xml:"SystemDisk,omitempty" type:"Struct"`
 	ClientToken             *string                              `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
@@ -28738,6 +29536,7 @@ func (s *DescribeZonesResponseZonesZoneAvailableResourcesResourcesInfo) SetInsta
 }
 
 type DescribeZonesResponseZonesZoneAvailableResourcesResourcesInfoSystemDiskCategories struct {
+	// supportedSystemDiskCategory
 	SupportedSystemDiskCategory []*string `json:"supportedSystemDiskCategory,omitempty" xml:"supportedSystemDiskCategory,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -28755,6 +29554,7 @@ func (s *DescribeZonesResponseZonesZoneAvailableResourcesResourcesInfoSystemDisk
 }
 
 type DescribeZonesResponseZonesZoneAvailableResourcesResourcesInfoDataDiskCategories struct {
+	// supportedDataDiskCategory
 	SupportedDataDiskCategory []*string `json:"supportedDataDiskCategory,omitempty" xml:"supportedDataDiskCategory,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -28772,6 +29572,7 @@ func (s *DescribeZonesResponseZonesZoneAvailableResourcesResourcesInfoDataDiskCa
 }
 
 type DescribeZonesResponseZonesZoneAvailableResourcesResourcesInfoNetworkTypes struct {
+	// supportedNetworkCategory
 	SupportedNetworkCategory []*string `json:"supportedNetworkCategory,omitempty" xml:"supportedNetworkCategory,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -28789,6 +29590,7 @@ func (s *DescribeZonesResponseZonesZoneAvailableResourcesResourcesInfoNetworkTyp
 }
 
 type DescribeZonesResponseZonesZoneAvailableResourcesResourcesInfoInstanceTypes struct {
+	// supportedInstanceType
 	SupportedInstanceType []*string `json:"supportedInstanceType,omitempty" xml:"supportedInstanceType,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -28806,6 +29608,7 @@ func (s *DescribeZonesResponseZonesZoneAvailableResourcesResourcesInfoInstanceTy
 }
 
 type DescribeZonesResponseZonesZoneAvailableResourcesResourcesInfoInstanceTypeFamilies struct {
+	// supportedInstanceTypeFamily
 	SupportedInstanceTypeFamily []*string `json:"supportedInstanceTypeFamily,omitempty" xml:"supportedInstanceTypeFamily,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -28823,6 +29626,7 @@ func (s *DescribeZonesResponseZonesZoneAvailableResourcesResourcesInfoInstanceTy
 }
 
 type DescribeZonesResponseZonesZoneAvailableResourcesResourcesInfoInstanceGenerations struct {
+	// supportedInstanceGeneration
 	SupportedInstanceGeneration []*string `json:"supportedInstanceGeneration,omitempty" xml:"supportedInstanceGeneration,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -28840,6 +29644,7 @@ func (s *DescribeZonesResponseZonesZoneAvailableResourcesResourcesInfoInstanceGe
 }
 
 type DescribeZonesResponseZonesZoneAvailableResourceCreation struct {
+	// ResourceTypes
 	ResourceTypes []*string `json:"ResourceTypes,omitempty" xml:"ResourceTypes,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -28857,6 +29662,7 @@ func (s *DescribeZonesResponseZonesZoneAvailableResourceCreation) SetResourceTyp
 }
 
 type DescribeZonesResponseZonesZoneAvailableDiskCategories struct {
+	// DiskCategories
 	DiskCategories []*string `json:"DiskCategories,omitempty" xml:"DiskCategories,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -28874,6 +29680,7 @@ func (s *DescribeZonesResponseZonesZoneAvailableDiskCategories) SetDiskCategorie
 }
 
 type DescribeZonesResponseZonesZoneAvailableInstanceTypes struct {
+	// InstanceTypes
 	InstanceTypes []*string `json:"InstanceTypes,omitempty" xml:"InstanceTypes,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -28891,6 +29698,7 @@ func (s *DescribeZonesResponseZonesZoneAvailableInstanceTypes) SetInstanceTypes(
 }
 
 type DescribeZonesResponseZonesZoneAvailableVolumeCategories struct {
+	// VolumeCategories
 	VolumeCategories []*string `json:"VolumeCategories,omitempty" xml:"VolumeCategories,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -28908,6 +29716,7 @@ func (s *DescribeZonesResponseZonesZoneAvailableVolumeCategories) SetVolumeCateg
 }
 
 type DescribeZonesResponseZonesZoneAvailableDedicatedHostTypes struct {
+	// DedicatedHostType
 	DedicatedHostType []*string `json:"DedicatedHostType,omitempty" xml:"DedicatedHostType,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -28925,6 +29734,7 @@ func (s *DescribeZonesResponseZonesZoneAvailableDedicatedHostTypes) SetDedicated
 }
 
 type DescribeZonesResponseZonesZoneDedicatedHostGenerations struct {
+	// DedicatedHostGeneration
 	DedicatedHostGeneration []*string `json:"DedicatedHostGeneration,omitempty" xml:"DedicatedHostGeneration,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -29276,6 +30086,7 @@ func (s *DescribeVRoutersResponseVRoutersVRouter) SetRouteTableIds(v *DescribeVR
 }
 
 type DescribeVRoutersResponseVRoutersVRouterRouteTableIds struct {
+	// RouteTableId
 	RouteTableId []*string `json:"RouteTableId,omitempty" xml:"RouteTableId,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -29469,6 +30280,7 @@ func (s *DescribeVpcsResponseVpcsVpc) SetUserCidrs(v *DescribeVpcsResponseVpcsVp
 }
 
 type DescribeVpcsResponseVpcsVpcVSwitchIds struct {
+	// VSwitchId
 	VSwitchId []*string `json:"VSwitchId,omitempty" xml:"VSwitchId,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -29486,6 +30298,7 @@ func (s *DescribeVpcsResponseVpcsVpcVSwitchIds) SetVSwitchId(v []*string) *Descr
 }
 
 type DescribeVpcsResponseVpcsVpcUserCidrs struct {
+	// UserCidr
 	UserCidr []*string `json:"UserCidr,omitempty" xml:"UserCidr,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -29513,7 +30326,7 @@ type DescribeSnapshotsRequest struct {
 	SnapshotName    *string                           `json:"SnapshotName,omitempty" xml:"SnapshotName,omitempty"`
 	Status          *string                           `json:"Status,omitempty" xml:"Status,omitempty"`
 	SnapshotType    *string                           `json:"SnapshotType,omitempty" xml:"SnapshotType,omitempty"`
-	Filter          []*DescribeSnapshotsRequestFilter `json:"Filter,omitempty" xml:"Filter,omitempty" require:"true" type:"Repeated"`
+	Filter          []*DescribeSnapshotsRequestFilter `json:"Filter,omitempty" xml:"Filter,omitempty" type:"Repeated"`
 	Usage           *string                           `json:"Usage,omitempty" xml:"Usage,omitempty"`
 	SourceDiskType  *string                           `json:"SourceDiskType,omitempty" xml:"SourceDiskType,omitempty"`
 	Tag             []*DescribeSnapshotsRequestTag    `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
@@ -31331,7 +32144,7 @@ type DescribeInstancesRequest struct {
 	ImageId                 *string                           `json:"ImageId,omitempty" xml:"ImageId,omitempty"`
 	Status                  *string                           `json:"Status,omitempty" xml:"Status,omitempty"`
 	LockReason              *string                           `json:"LockReason,omitempty" xml:"LockReason,omitempty"`
-	Filter                  []*DescribeInstancesRequestFilter `json:"Filter,omitempty" xml:"Filter,omitempty" require:"true" type:"Repeated"`
+	Filter                  []*DescribeInstancesRequestFilter `json:"Filter,omitempty" xml:"Filter,omitempty" type:"Repeated"`
 	DeviceAvailable         *bool                             `json:"DeviceAvailable,omitempty" xml:"DeviceAvailable,omitempty"`
 	IoOptimized             *bool                             `json:"IoOptimized,omitempty" xml:"IoOptimized,omitempty"`
 	NeedSaleCycle           *bool                             `json:"NeedSaleCycle,omitempty" xml:"NeedSaleCycle,omitempty"`
@@ -32163,6 +32976,7 @@ func (s *DescribeInstancesResponseInstancesInstanceVpcAttributes) SetPrivateIpAd
 }
 
 type DescribeInstancesResponseInstancesInstanceVpcAttributesPrivateIpAddress struct {
+	// IpAddress
 	IpAddress []*string `json:"IpAddress,omitempty" xml:"IpAddress,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -32221,8 +33035,9 @@ func (s *DescribeInstancesResponseInstancesInstanceEipAddress) SetIsSupportUnass
 }
 
 type DescribeInstancesResponseInstancesInstanceDedicatedHostAttribute struct {
-	DedicatedHostId   *string `json:"DedicatedHostId,omitempty" xml:"DedicatedHostId,omitempty" require:"true"`
-	DedicatedHostName *string `json:"DedicatedHostName,omitempty" xml:"DedicatedHostName,omitempty" require:"true"`
+	DedicatedHostId        *string `json:"DedicatedHostId,omitempty" xml:"DedicatedHostId,omitempty" require:"true"`
+	DedicatedHostName      *string `json:"DedicatedHostName,omitempty" xml:"DedicatedHostName,omitempty" require:"true"`
+	DedicatedHostClusterId *string `json:"DedicatedHostClusterId,omitempty" xml:"DedicatedHostClusterId,omitempty" require:"true"`
 }
 
 func (s DescribeInstancesResponseInstancesInstanceDedicatedHostAttribute) String() string {
@@ -32240,6 +33055,11 @@ func (s *DescribeInstancesResponseInstancesInstanceDedicatedHostAttribute) SetDe
 
 func (s *DescribeInstancesResponseInstancesInstanceDedicatedHostAttribute) SetDedicatedHostName(v string) *DescribeInstancesResponseInstancesInstanceDedicatedHostAttribute {
 	s.DedicatedHostName = &v
+	return s
+}
+
+func (s *DescribeInstancesResponseInstancesInstanceDedicatedHostAttribute) SetDedicatedHostClusterId(v string) *DescribeInstancesResponseInstancesInstanceDedicatedHostAttribute {
+	s.DedicatedHostClusterId = &v
 	return s
 }
 
@@ -32348,6 +33168,7 @@ func (s *DescribeInstancesResponseInstancesInstanceMetadataOptions) SetHttpPutRe
 }
 
 type DescribeInstancesResponseInstancesInstanceSecurityGroupIds struct {
+	// SecurityGroupId
 	SecurityGroupId []*string `json:"SecurityGroupId,omitempty" xml:"SecurityGroupId,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -32365,6 +33186,7 @@ func (s *DescribeInstancesResponseInstancesInstanceSecurityGroupIds) SetSecurity
 }
 
 type DescribeInstancesResponseInstancesInstancePublicIpAddress struct {
+	// IpAddress
 	IpAddress []*string `json:"IpAddress,omitempty" xml:"IpAddress,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -32382,6 +33204,7 @@ func (s *DescribeInstancesResponseInstancesInstancePublicIpAddress) SetIpAddress
 }
 
 type DescribeInstancesResponseInstancesInstanceInnerIpAddress struct {
+	// IpAddress
 	IpAddress []*string `json:"IpAddress,omitempty" xml:"IpAddress,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -32399,6 +33222,7 @@ func (s *DescribeInstancesResponseInstancesInstanceInnerIpAddress) SetIpAddress(
 }
 
 type DescribeInstancesResponseInstancesInstanceRdmaIpAddress struct {
+	// IpAddress
 	IpAddress []*string `json:"IpAddress,omitempty" xml:"IpAddress,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -32893,6 +33717,7 @@ func (s *DescribeInstanceAttributeResponseVpcAttributes) SetPrivateIpAddress(v *
 }
 
 type DescribeInstanceAttributeResponseVpcAttributesPrivateIpAddress struct {
+	// IpAddress
 	IpAddress []*string `json:"IpAddress,omitempty" xml:"IpAddress,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -33846,7 +34671,7 @@ type DescribeEipAddressesRequest struct {
 	ISP                    *string                              `json:"ISP,omitempty" xml:"ISP,omitempty"`
 	PageNumber             *int                                 `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 	PageSize               *int                                 `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
-	Filter                 []*DescribeEipAddressesRequestFilter `json:"Filter,omitempty" xml:"Filter,omitempty" require:"true" type:"Repeated"`
+	Filter                 []*DescribeEipAddressesRequestFilter `json:"Filter,omitempty" xml:"Filter,omitempty" type:"Repeated"`
 	LockReason             *string                              `json:"LockReason,omitempty" xml:"LockReason,omitempty"`
 	AssociatedInstanceType *string                              `json:"AssociatedInstanceType,omitempty" xml:"AssociatedInstanceType,omitempty"`
 	AssociatedInstanceId   *string                              `json:"AssociatedInstanceId,omitempty" xml:"AssociatedInstanceId,omitempty"`
@@ -34139,13 +34964,15 @@ type DescribeDisksRequest struct {
 	DeleteAutoSnapshot            *bool                         `json:"DeleteAutoSnapshot,omitempty" xml:"DeleteAutoSnapshot,omitempty"`
 	PageNumber                    *int                          `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 	PageSize                      *int                          `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	NextToken                     *string                       `json:"NextToken,omitempty" xml:"NextToken,omitempty"`
+	MaxResults                    *int                          `json:"MaxResults,omitempty" xml:"MaxResults,omitempty"`
 	DiskName                      *string                       `json:"DiskName,omitempty" xml:"DiskName,omitempty"`
 	AutoSnapshotPolicyId          *string                       `json:"AutoSnapshotPolicyId,omitempty" xml:"AutoSnapshotPolicyId,omitempty"`
 	EnableAutoSnapshot            *bool                         `json:"EnableAutoSnapshot,omitempty" xml:"EnableAutoSnapshot,omitempty"`
 	EnableAutomatedSnapshotPolicy *bool                         `json:"EnableAutomatedSnapshotPolicy,omitempty" xml:"EnableAutomatedSnapshotPolicy,omitempty"`
 	DiskChargeType                *string                       `json:"DiskChargeType,omitempty" xml:"DiskChargeType,omitempty"`
 	LockReason                    *string                       `json:"LockReason,omitempty" xml:"LockReason,omitempty"`
-	Filter                        []*DescribeDisksRequestFilter `json:"Filter,omitempty" xml:"Filter,omitempty" require:"true" type:"Repeated"`
+	Filter                        []*DescribeDisksRequestFilter `json:"Filter,omitempty" xml:"Filter,omitempty" type:"Repeated"`
 	Tag                           []*DescribeDisksRequestTag    `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
 	ResourceGroupId               *string                       `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
 	EnableShared                  *bool                         `json:"EnableShared,omitempty" xml:"EnableShared,omitempty"`
@@ -34225,6 +35052,16 @@ func (s *DescribeDisksRequest) SetPageNumber(v int) *DescribeDisksRequest {
 
 func (s *DescribeDisksRequest) SetPageSize(v int) *DescribeDisksRequest {
 	s.PageSize = &v
+	return s
+}
+
+func (s *DescribeDisksRequest) SetNextToken(v string) *DescribeDisksRequest {
+	s.NextToken = &v
+	return s
+}
+
+func (s *DescribeDisksRequest) SetMaxResults(v int) *DescribeDisksRequest {
+	s.MaxResults = &v
 	return s
 }
 
@@ -34349,6 +35186,7 @@ type DescribeDisksResponse struct {
 	TotalCount *int                        `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
 	PageNumber *int                        `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
 	PageSize   *int                        `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	NextToken  *string                     `json:"NextToken,omitempty" xml:"NextToken,omitempty" require:"true"`
 	Disks      *DescribeDisksResponseDisks `json:"Disks,omitempty" xml:"Disks,omitempty" require:"true" type:"Struct"`
 }
 
@@ -34377,6 +35215,11 @@ func (s *DescribeDisksResponse) SetPageNumber(v int) *DescribeDisksResponse {
 
 func (s *DescribeDisksResponse) SetPageSize(v int) *DescribeDisksResponse {
 	s.PageSize = &v
+	return s
+}
+
+func (s *DescribeDisksResponse) SetNextToken(v string) *DescribeDisksResponse {
+	s.NextToken = &v
 	return s
 }
 
@@ -35525,13 +36368,14 @@ func (s *CreateVpcResponse) SetRouteTableId(v string) *CreateVpcResponse {
 }
 
 type CreateSnapshotRequest struct {
-	DiskId        *string                     `json:"DiskId,omitempty" xml:"DiskId,omitempty" require:"true"`
-	SnapshotName  *string                     `json:"SnapshotName,omitempty" xml:"SnapshotName,omitempty"`
-	Description   *string                     `json:"Description,omitempty" xml:"Description,omitempty"`
-	RetentionDays *int                        `json:"RetentionDays,omitempty" xml:"RetentionDays,omitempty"`
-	Category      *string                     `json:"Category,omitempty" xml:"Category,omitempty"`
-	ClientToken   *string                     `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
-	Tag           []*CreateSnapshotRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	DiskId          *string                     `json:"DiskId,omitempty" xml:"DiskId,omitempty" require:"true"`
+	SnapshotName    *string                     `json:"SnapshotName,omitempty" xml:"SnapshotName,omitempty"`
+	Description     *string                     `json:"Description,omitempty" xml:"Description,omitempty"`
+	RetentionDays   *int                        `json:"RetentionDays,omitempty" xml:"RetentionDays,omitempty"`
+	Category        *string                     `json:"Category,omitempty" xml:"Category,omitempty"`
+	ClientToken     *string                     `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	Tag             []*CreateSnapshotRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	ResourceGroupId *string                     `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
 }
 
 func (s CreateSnapshotRequest) String() string {
@@ -35574,6 +36418,11 @@ func (s *CreateSnapshotRequest) SetClientToken(v string) *CreateSnapshotRequest 
 
 func (s *CreateSnapshotRequest) SetTag(v []*CreateSnapshotRequestTag) *CreateSnapshotRequest {
 	s.Tag = v
+	return s
+}
+
+func (s *CreateSnapshotRequest) SetResourceGroupId(v string) *CreateSnapshotRequest {
+	s.ResourceGroupId = &v
 	return s
 }
 
@@ -35843,7 +36692,7 @@ type CreateInstanceRequest struct {
 	ClientToken                 *string                          `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 	VlanId                      *string                          `json:"VlanId,omitempty" xml:"VlanId,omitempty"`
 	InnerIpAddress              *string                          `json:"InnerIpAddress,omitempty" xml:"InnerIpAddress,omitempty"`
-	SystemDisk                  *CreateInstanceRequestSystemDisk `json:"SystemDisk,omitempty" xml:"SystemDisk,omitempty" require:"true" type:"Struct"`
+	SystemDisk                  *CreateInstanceRequestSystemDisk `json:"SystemDisk,omitempty" xml:"SystemDisk,omitempty" type:"Struct"`
 	DataDisk                    []*CreateInstanceRequestDataDisk `json:"DataDisk,omitempty" xml:"DataDisk,omitempty" type:"Repeated"`
 	Arn                         []*CreateInstanceRequestArn      `json:"Arn,omitempty" xml:"Arn,omitempty" type:"Repeated"`
 	NodeControllerId            *string                          `json:"NodeControllerId,omitempty" xml:"NodeControllerId,omitempty"`
@@ -36741,6 +37590,7 @@ type CopyImageRequest struct {
 	Encrypted              *bool                  `json:"Encrypted,omitempty" xml:"Encrypted,omitempty"`
 	KMSKeyId               *string                `json:"KMSKeyId,omitempty" xml:"KMSKeyId,omitempty"`
 	EncryptAlgorithm       *string                `json:"EncryptAlgorithm,omitempty" xml:"EncryptAlgorithm,omitempty"`
+	ResourceGroupId        *string                `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
 }
 
 func (s CopyImageRequest) String() string {
@@ -36793,6 +37643,11 @@ func (s *CopyImageRequest) SetKMSKeyId(v string) *CopyImageRequest {
 
 func (s *CopyImageRequest) SetEncryptAlgorithm(v string) *CopyImageRequest {
 	s.EncryptAlgorithm = &v
+	return s
+}
+
+func (s *CopyImageRequest) SetResourceGroupId(v string) *CopyImageRequest {
+	s.ResourceGroupId = &v
 	return s
 }
 
@@ -37462,6 +38317,106 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	}
 
 	return nil
+}
+
+func (client *Client) ModifyDedicatedHostClusterAttributeWithOptions(request *ModifyDedicatedHostClusterAttributeRequest, runtime *util.RuntimeOptions) (_result *ModifyDedicatedHostClusterAttributeResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &ModifyDedicatedHostClusterAttributeResponse{}
+	_body, _err := client.DoRequest(tea.String("ModifyDedicatedHostClusterAttribute"), tea.String("HTTPS"), tea.String("POST"), tea.String("2014-05-26"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ModifyDedicatedHostClusterAttribute(request *ModifyDedicatedHostClusterAttributeRequest) (_result *ModifyDedicatedHostClusterAttributeResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ModifyDedicatedHostClusterAttributeResponse{}
+	_body, _err := client.ModifyDedicatedHostClusterAttributeWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeDedicatedHostClustersWithOptions(request *DescribeDedicatedHostClustersRequest, runtime *util.RuntimeOptions) (_result *DescribeDedicatedHostClustersResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DescribeDedicatedHostClustersResponse{}
+	_body, _err := client.DoRequest(tea.String("DescribeDedicatedHostClusters"), tea.String("HTTPS"), tea.String("POST"), tea.String("2014-05-26"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DescribeDedicatedHostClusters(request *DescribeDedicatedHostClustersRequest) (_result *DescribeDedicatedHostClustersResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeDedicatedHostClustersResponse{}
+	_body, _err := client.DescribeDedicatedHostClustersWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DeleteDedicatedHostClusterWithOptions(request *DeleteDedicatedHostClusterRequest, runtime *util.RuntimeOptions) (_result *DeleteDedicatedHostClusterResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DeleteDedicatedHostClusterResponse{}
+	_body, _err := client.DoRequest(tea.String("DeleteDedicatedHostCluster"), tea.String("HTTPS"), tea.String("POST"), tea.String("2014-05-26"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DeleteDedicatedHostCluster(request *DeleteDedicatedHostClusterRequest) (_result *DeleteDedicatedHostClusterResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DeleteDedicatedHostClusterResponse{}
+	_body, _err := client.DeleteDedicatedHostClusterWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) CreateDedicatedHostClusterWithOptions(request *CreateDedicatedHostClusterRequest, runtime *util.RuntimeOptions) (_result *CreateDedicatedHostClusterResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &CreateDedicatedHostClusterResponse{}
+	_body, _err := client.DoRequest(tea.String("CreateDedicatedHostCluster"), tea.String("HTTPS"), tea.String("POST"), tea.String("2014-05-26"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) CreateDedicatedHostCluster(request *CreateDedicatedHostClusterRequest) (_result *CreateDedicatedHostClusterResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &CreateDedicatedHostClusterResponse{}
+	_body, _err := client.CreateDedicatedHostClusterWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
 }
 
 func (client *Client) DescribeDeploymentSetSupportedInstanceTypeFamilyWithOptions(request *DescribeDeploymentSetSupportedInstanceTypeFamilyRequest, runtime *util.RuntimeOptions) (_result *DescribeDeploymentSetSupportedInstanceTypeFamilyResponse, _err error) {
