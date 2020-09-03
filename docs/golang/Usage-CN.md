@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"strings"
 
-	facebody "github.com/alibabacloud-go/Facebody-20191230/client"
+	facebody "github.com/alibabacloud-go/facebody-20191230/client"
 	rpc "github.com/alibabacloud-go/tea-rpc/client"
 	util "github.com/alibabacloud-go/tea-utils/service"
 	credential "github.com/aliyun/credentials-go/credentials"
@@ -30,13 +30,11 @@ func main() {
 	config.SetAccessKeyId("ACCESS_KEY_ID").
 		SetAccessKeySecret("ACCESS_KEY_SECRET").
 		SetRegionId("cn-hangzhou").
-		SetEndpoint("facebody.cn-hangzhou.aliyuncs.com").
-		SetType("access_key")
+		SetEndpoint("facebody.cn-hangzhou.aliyuncs.com")
 
 	// 使用 credential 初始化 config
 	credentialConfig := &credential.Config{
 		AccessKeyId:     config.AccessKeyId,
-		Type:            config.Type,
 		AccessKeySecret: config.AccessKeySecret,
 		SecurityToken:   config.SecurityToken,
 	}
@@ -82,7 +80,7 @@ func main() {
 type Config struct {
 	AccessKeyId          *string                // AccessKey Id
 	AccessKeySecret      *string                // AccessKey Secret
-	Type                 *string                // 凭证类型，如有疑问请参考 https://github.com/aliyun/credentials-go/blob/master/README-CN.md#%E5%87%AD%E8%AF%81%E7%B1%BB%E5%9E%8B
+	Type                 *string                // 凭证类型(弃用)，如有疑问请参考 https://github.com/aliyun/credentials-go/blob/master/README-CN.md#%E5%87%AD%E8%AF%81%E7%B1%BB%E5%9E%8B
 	SecurityToken        *string                // Security Token
 	Endpoint             *string                // endpoint
 	Protocol             *string                // 请求协议
