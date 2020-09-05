@@ -39,8 +39,11 @@ func main() {
 		SecurityToken:   config.SecurityToken,
 	}
 	// 关于 credenial 的创建可以参考 https://github.com/aliyun/credentials-go/blob/master/README-CN.md
-	credential := credential.NewCredential(credentialConfig)
-	config.SetCredential(credential).
+	cred, err := credential.NewCredential(credentialConfig)
+	if err != nil {
+		panic(err)
+	}
+	config.SetCredential(cred).
 		SetEndpoint("facebody.cn-hangzhou.aliyuncs.com")
 
 	// 创建客户端
