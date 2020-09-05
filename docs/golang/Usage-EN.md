@@ -38,8 +38,11 @@ func main() {
 		SecurityToken:   config.SecurityToken,
 	}
 	// If you have any questions, please refer to it https://github.com/aliyun/credentials-go/blob/master/README-CN.md
-	credential := credential.NewCredential(credentialConfig)
-	config.SetCredential(credential).
+	cred, err := credential.NewCredential(credentialConfig)
+	if err != nil {
+		panic(err)
+	}
+	config.SetCredential(cred).
 		SetEndpoint("facebody.cn-hangzhou.aliyuncs.com")
 
 	// init client
