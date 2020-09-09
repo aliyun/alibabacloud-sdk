@@ -17,6 +17,362 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('imageprocess', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model DetectKneeKeypointXRayRequest = {
+  imageUrl: string(name='ImageUrl'),
+  dataFormat: string(name='DataFormat'),
+  orgId: string(name='OrgId'),
+  orgName: string(name='OrgName'),
+  tracerId?: string(name='TracerId'),
+}
+
+model DetectKneeKeypointXRayResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    imageUrl: string(name='ImageUrl'),
+    orgId: string(name='OrgId'),
+    orgName: string(name='OrgName'),
+    keyPoints: [
+      {
+        value: float(name='Value'),
+        tag: {
+          direction: string(name='Direction'),
+          label: string(name='Label'),
+        }(name='Tag'),
+        coordinates: [ integer ](name='Coordinates'),
+      }
+    ](name='KeyPoints'),
+  }(name='Data'),
+}
+
+async function detectKneeKeypointXRay(request: DetectKneeKeypointXRayRequest, runtime: Util.RuntimeOptions): DetectKneeKeypointXRayResponse {
+  Util.validateModel(request);
+  return doRequest('DetectKneeKeypointXRay', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
+}
+
+model DetectKneeKeypointXRayAdvanceRequest = {
+  imageUrlObject: readable(name='ImageUrlObject'),
+  dataFormat: string(name='DataFormat'),
+  orgId: string(name='OrgId'),
+  orgName: string(name='OrgName'),
+  tracerId?: string(name='TracerId'),
+}
+
+async function detectKneeKeypointXRayAdvance(request: DetectKneeKeypointXRayAdvanceRequest, runtime: Util.RuntimeOptions): DetectKneeKeypointXRayResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var detectKneeKeypointXRayreq = new DetectKneeKeypointXRayRequest{};
+  RPCUtil.convert(request, detectKneeKeypointXRayreq);
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageUrlObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  detectKneeKeypointXRayreq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var detectKneeKeypointXRayResp = detectKneeKeypointXRay(detectKneeKeypointXRayreq, runtime);
+  return detectKneeKeypointXRayResp;
+}
+
+model ClassifyFNFRequest = {
+  imageUrl: string(name='ImageUrl'),
+  dataFormat: string(name='DataFormat'),
+  orgId: string(name='OrgId'),
+  orgName: string(name='OrgName'),
+  tracerId?: string(name='TracerId'),
+}
+
+model ClassifyFNFResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    imageUrl: string(name='ImageUrl'),
+    orgId: string(name='OrgId'),
+    orgName: string(name='OrgName'),
+    fractures: [
+      {
+        value: float(name='Value'),
+        tag: {
+          label: string(name='Label'),
+        }(name='Tag'),
+        boxes: [ integer ](name='Boxes'),
+      }
+    ](name='Fractures'),
+  }(name='Data'),
+}
+
+async function classifyFNF(request: ClassifyFNFRequest, runtime: Util.RuntimeOptions): ClassifyFNFResponse {
+  Util.validateModel(request);
+  return doRequest('ClassifyFNF', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
+}
+
+model ClassifyFNFAdvanceRequest = {
+  imageUrlObject: readable(name='ImageUrlObject'),
+  dataFormat: string(name='DataFormat'),
+  orgId: string(name='OrgId'),
+  orgName: string(name='OrgName'),
+  tracerId?: string(name='TracerId'),
+}
+
+async function classifyFNFAdvance(request: ClassifyFNFAdvanceRequest, runtime: Util.RuntimeOptions): ClassifyFNFResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var classifyFNFreq = new ClassifyFNFRequest{};
+  RPCUtil.convert(request, classifyFNFreq);
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageUrlObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  classifyFNFreq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var classifyFNFResp = classifyFNF(classifyFNFreq, runtime);
+  return classifyFNFResp;
+}
+
+model RunCTRegistrationRequest = {
+  referenceList: [
+    {
+      referenceURL: string(name='ReferenceURL'),
+    }
+  ](name='ReferenceList'),
+  dataFormat: string(name='DataFormat'),
+  orgName: string(name='OrgName'),
+  orgId: string(name='OrgId'),
+  dataSourceType: string(name='DataSourceType'),
+  floatingList: [
+    {
+      floatingURL: string(name='FloatingURL'),
+    }
+  ](name='FloatingList'),
+}
+
+model RunCTRegistrationResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    DUrl: string(name='DUrl'),
+    NUrl: string(name='NUrl'),
+  }(name='Data'),
+}
+
+async function runCTRegistration(request: RunCTRegistrationRequest, runtime: Util.RuntimeOptions): RunCTRegistrationResponse {
+  Util.validateModel(request);
+  return doRequest('RunCTRegistration', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
+}
+
+model DetectHipKeypointXRayRequest = {
+  imageUrl: string(name='ImageUrl'),
+  dataFormat: string(name='DataFormat'),
+  orgId: string(name='OrgId'),
+  orgName: string(name='OrgName'),
+  tracerId?: string(name='TracerId'),
+}
+
+model DetectHipKeypointXRayResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    imageUrl: string(name='ImageUrl'),
+    orgId: string(name='OrgId'),
+    orgName: string(name='OrgName'),
+    keyPoints: [
+      {
+        value: float(name='Value'),
+        tag: {
+          direction: string(name='Direction'),
+          label: string(name='Label'),
+        }(name='Tag'),
+        coordinates: [ integer ](name='Coordinates'),
+      }
+    ](name='KeyPoints'),
+  }(name='Data'),
+}
+
+async function detectHipKeypointXRay(request: DetectHipKeypointXRayRequest, runtime: Util.RuntimeOptions): DetectHipKeypointXRayResponse {
+  Util.validateModel(request);
+  return doRequest('DetectHipKeypointXRay', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
+}
+
+model DetectHipKeypointXRayAdvanceRequest = {
+  imageUrlObject: readable(name='ImageUrlObject'),
+  dataFormat: string(name='DataFormat'),
+  orgId: string(name='OrgId'),
+  orgName: string(name='OrgName'),
+  tracerId?: string(name='TracerId'),
+}
+
+async function detectHipKeypointXRayAdvance(request: DetectHipKeypointXRayAdvanceRequest, runtime: Util.RuntimeOptions): DetectHipKeypointXRayResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var detectHipKeypointXRayreq = new DetectHipKeypointXRayRequest{};
+  RPCUtil.convert(request, detectHipKeypointXRayreq);
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageUrlObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  detectHipKeypointXRayreq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var detectHipKeypointXRayResp = detectHipKeypointXRay(detectHipKeypointXRayreq, runtime);
+  return detectHipKeypointXRayResp;
+}
+
+model CalcCACSRequest = {
+  URLList: [
+    {
+      URL: string(name='URL'),
+    }
+  ](name='URLList'),
+  dataFormat: string(name='DataFormat'),
+  orgName: string(name='OrgName'),
+  orgId: string(name='OrgId'),
+  dataSourceType: string(name='DataSourceType'),
+}
+
+model CalcCACSResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    score: string(name='Score'),
+  }(name='Data'),
+}
+
+async function calcCACS(request: CalcCACSRequest, runtime: Util.RuntimeOptions): CalcCACSResponse {
+  Util.validateModel(request);
+  return doRequest('CalcCACS', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
+}
+
 model DetectKneeXRayRequest = {
   url: string(name='Url'),
   dataFormat: string(name='DataFormat'),
@@ -56,29 +412,37 @@ async function detectKneeXRayAdvance(request: DetectKneeXRayAdvanceRequest, runt
     regionId = @regionId,
   };
   var authClient = new OpenPlatform(authConfig);
-
   var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
     product = 'imageprocess',
     regionId = @regionId,
   };
-  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  // Step 1: request OSS api to upload file
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
   var ossConfig = new OSS.Config{
-    accessKeyId = authResponse.accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
-    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
-  var fileObj = new FileForm.FileField{
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var detectKneeXRayreq = new DetectKneeXRayRequest{};
+  RPCUtil.convert(request, detectKneeXRayreq);
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
     filename = authResponse.objectKey,
     content = request.urlObject,
     contentType = '',
   };
-  var ossHeader = new OSS.PostObjectRequest.header{
+  ossHeader = new OSS.PostObjectRequest.header{
     accessKeyId = authResponse.accessKeyId,
     policy = authResponse.encodedPolicy,
     signature = authResponse.signature,
@@ -86,16 +450,11 @@ async function detectKneeXRayAdvance(request: DetectKneeXRayAdvanceRequest, runt
     file = fileObj,
     successActionStatus = '201',
   };
-  var uploadRequest = new OSS.PostObjectRequest{
+  uploadRequest = new OSS.PostObjectRequest{
     bucketName = authResponse.bucket,
     header = ossHeader,
   };
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
   ossClient.postObject(uploadRequest, ossRuntime);
-  // Step 2: request final api
-  var detectKneeXRayreq = new DetectKneeXRayRequest{};
-  RPCUtil.convert(request, detectKneeXRayreq);
   detectKneeXRayreq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
   var detectKneeXRayResp = detectKneeXRay(detectKneeXRayreq, runtime);
   return detectKneeXRayResp;
