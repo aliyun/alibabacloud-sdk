@@ -17,6 +17,93 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('facebody', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model DetectChefCapRequest = {
+  imageURL: string(name='ImageURL'),
+}
+
+model DetectChefCapResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    elements: [
+      {
+        category: string(name='Category'),
+        confidence: float(name='Confidence'),
+        box: [ float ](name='Box'),
+      }
+    ](name='Elements'),
+  }(name='Data'),
+}
+
+async function detectChefCap(request: DetectChefCapRequest, runtime: Util.RuntimeOptions): DetectChefCapResponse {
+  Util.validateModel(request);
+  return doRequest('DetectChefCap', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
+}
+
+model DetectChefCapAdvanceRequest = {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+async function detectChefCapAdvance(request: DetectChefCapAdvanceRequest, runtime: Util.RuntimeOptions): DetectChefCapResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var detectChefCapreq = new DetectChefCapRequest{};
+  RPCUtil.convert(request, detectChefCapreq);
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  detectChefCapreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var detectChefCapResp = detectChefCap(detectChefCapreq, runtime);
+  return detectChefCapResp;
+}
+
 model ExtractPedestrianFeatureAttrRequest = {
   imageURL: string(name='ImageURL'),
   mode?: string(name='Mode'),
@@ -80,7 +167,7 @@ async function extractPedestrianFeatureAttrAdvance(request: ExtractPedestrianFea
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -191,7 +278,7 @@ async function blurFaceAdvance(request: BlurFaceAdvanceRequest, runtime: Util.Ru
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -289,7 +376,7 @@ async function extractPedestrianFeatureAttributeAdvance(request: ExtractPedestri
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -377,7 +464,7 @@ async function detectCelebrityAdvance(request: DetectCelebrityAdvanceRequest, ru
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -465,7 +552,7 @@ async function verifyFaceMaskAdvance(request: VerifyFaceMaskAdvanceRequest, runt
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -585,7 +672,7 @@ async function detectVideoLivingFaceAdvance(request: DetectVideoLivingFaceAdvanc
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -670,7 +757,7 @@ async function swapFacialFeaturesAdvance(request: SwapFacialFeaturesAdvanceReque
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -858,7 +945,7 @@ async function faceMakeupAdvance(request: FaceMakeupAdvanceRequest, runtime: Uti
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -972,7 +1059,7 @@ async function handPostureAdvance(request: HandPostureAdvanceRequest, runtime: U
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -1076,7 +1163,7 @@ async function bodyPostureAdvance(request: BodyPostureAdvanceRequest, runtime: U
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -1165,7 +1252,7 @@ async function detectPedestrianAdvance(request: DetectPedestrianAdvanceRequest, 
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -1252,7 +1339,7 @@ async function faceBeautyAdvance(request: FaceBeautyAdvanceRequest, runtime: Uti
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -1337,7 +1424,7 @@ async function faceFilterAdvance(request: FaceFilterAdvanceRequest, runtime: Uti
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -1418,7 +1505,7 @@ async function enhanceFaceAdvance(request: EnhanceFaceAdvanceRequest, runtime: U
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -1503,7 +1590,7 @@ async function faceTidyupAdvance(request: FaceTidyupAdvanceRequest, runtime: Uti
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -1605,7 +1692,7 @@ async function searchFaceAdvance(request: SearchFaceAdvanceRequest, runtime: Uti
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -1751,7 +1838,7 @@ async function addFaceAdvance(request: AddFaceAdvanceRequest, runtime: Util.Runt
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -1843,7 +1930,7 @@ async function recognizeExpressionAdvance(request: RecognizeExpressionAdvanceReq
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -2009,7 +2096,7 @@ async function detectBodyCountAdvance(request: DetectBodyCountAdvanceRequest, ru
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -2091,7 +2178,7 @@ async function detectMaskAdvance(request: DetectMaskAdvanceRequest, runtime: Uti
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -2184,7 +2271,7 @@ async function recognizeFaceAdvance(request: RecognizeFaceAdvanceRequest, runtim
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
@@ -2291,7 +2378,7 @@ async function detectFaceAdvance(request: DetectFaceAdvanceRequest, runtime: Uti
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
   var fileObj = new FileForm.FileField{};
   var ossHeader = new OSS.PostObjectRequest.header{};
