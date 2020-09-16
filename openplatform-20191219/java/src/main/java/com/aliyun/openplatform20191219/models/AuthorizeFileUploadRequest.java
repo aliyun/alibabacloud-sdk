@@ -11,7 +11,7 @@ public class AuthorizeFileUploadRequest extends TeaModel {
     @NameInMap("RegionId")
     public String regionId;
 
-    public static AuthorizeFileUploadRequest build(java.util.Map<String, ?> map) throws Exception {
+    public static AuthorizeFileUploadRequest build(java.util.Map<String, ?> map) {
         AuthorizeFileUploadRequest self = new AuthorizeFileUploadRequest();
         return TeaModel.build(map, self);
     }
