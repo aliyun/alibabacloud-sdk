@@ -316,6 +316,7 @@ async function blurFaceAdvance(request: BlurFaceAdvanceRequest, runtime: Util.Ru
 }
 
 model ExtractPedestrianFeatureAttributeRequest = {
+  mode?: string(name='Mode'),
   imageURL: string(name='ImageURL'),
 }
 
@@ -346,71 +347,6 @@ model ExtractPedestrianFeatureAttributeResponse = {
 async function extractPedestrianFeatureAttribute(request: ExtractPedestrianFeatureAttributeRequest, runtime: Util.RuntimeOptions): ExtractPedestrianFeatureAttributeResponse {
   Util.validateModel(request);
   return doRequest('ExtractPedestrianFeatureAttribute', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
-}
-
-model ExtractPedestrianFeatureAttributeAdvanceRequest = {
-  imageURLObject: readable(name='ImageURLObject'),
-}
-
-async function extractPedestrianFeatureAttributeAdvance(request: ExtractPedestrianFeatureAttributeAdvanceRequest, runtime: Util.RuntimeOptions): ExtractPedestrianFeatureAttributeResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'facebody',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
-  var extractPedestrianFeatureAttributereq = new ExtractPedestrianFeatureAttributeRequest{};
-  RPCUtil.convert(request, extractPedestrianFeatureAttributereq);
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
-
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.imageURLObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  extractPedestrianFeatureAttributereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var extractPedestrianFeatureAttributeResp = extractPedestrianFeatureAttribute(extractPedestrianFeatureAttributereq, runtime);
-  return extractPedestrianFeatureAttributeResp;
 }
 
 model DetectCelebrityRequest = {
