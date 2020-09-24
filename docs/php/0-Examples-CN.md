@@ -55,9 +55,10 @@ try {
     $response = $client->searchImageByName($request, $runtime);
     var_dump($response->toMap());
 } catch (TeaUnableRetryError $e) {
-    $exception = $e->getLastException();
-    /* @var \AlibabaCloud\Tea\Exception\TeaError $exception */
-    dump($exception->getErrorInfo());
+    var_dump($e->getMessage());
+    var_dump($e->getErrorInfo());
+    var_dump($e->getLastException());
+    var_dump($e->getLastRequest());
 }
 ```
 
