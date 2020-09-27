@@ -32,33 +32,51 @@ from alibabacloud_tea_rpc.models import Config
 '''图像搜索示例'''
 
 
-f = open('pic.jpg', 'rb')
-# 初始化Request
-request = SearchImageByPicAdvanceRequest(
-    instance_name='name',
-    pic_content_object=f
-)
+with open('pic.jpg', 'rb') as f:
+    # 初始化Request
+    request = SearchImageByPicAdvanceRequest(
+        instance_name='name',
+        pic_content_object=f
+    )
+    
+    # 初始化Config
+    config = Config(
+        access_key_id='<your_accsee_key_id>',
+        access_key_secret='<your_access_key_secret>',
+        endpoint='<your_endpoint>',
+        region_id='cn-shanghai',
+        type='access_key'
+    )
+    
+    # 初始化RuntimeObject
+    runtime_option = RuntimeOptions()
+    
+    # 初始化Client
+    client = Client(config)
+    
+    # 调用api
+    response = client.search_image_by_pic_advance(request, runtime_option)
 
-# 初始化Config
-config = Config(
-    access_key_id='<your_accsee_key_id>',
-    access_key_secret='<your_access_key_secret>',
-    endpoint='<your_endpoint>',
-    region_id='cn-shanghai',
-    type='access_key'
-)
+print(response)
+print('request id:', response.request_id)
+print('code:', response.code)
+print('message:', response.msg)
 
-# 初始化RuntimeObject
-runtime_option = RuntimeOptions()
+# head
+print('docs return:', response.head.docs_return)
+print('docs found:', response.head.docs_found)
+print('search time:', response.head.search_time)
 
-# 初始化Client
-client = Client(config)
+# pic info
+print('category id:', response.pic_info.category_id)
+print('region:', response.pic_info.region)
+print('all categories:', response.pic_info.all_categories)
 
-# 调用api
-response = client.search_image_by_pic_advance(request, runtime_option)
+# Auctions
+for aut in response.auctions:
+    print('category id:', aut.category_id)
+    print('product id:', aut.product_id)
 
-print(response.to_map())
-f.close()
 ```
 
 ## 参数说明

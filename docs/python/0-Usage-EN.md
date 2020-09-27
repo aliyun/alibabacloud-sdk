@@ -30,34 +30,50 @@ from alibabacloud_tea_rpc.models import Config
 
 '''ImageSearch Example'''
 
+with open('pic.jpg', 'rb') as f:
+    # init Request
+    request = SearchImageByPicAdvanceRequest(
+        instance_name='name',
+        pic_content_object=f
+    )
 
-f = open('pic.jpg', 'rb')
-# init Request
-request = SearchImageByPicAdvanceRequest(
-    instance_name='name',
-    pic_content_object=f
-)
+    # init Config
+    config = Config(
+        access_key_id='<your_accsee_key_id>',
+        access_key_secret='<your_access_key_secret>',
+        endpoint='<your_endpoint>',
+        region_id='cn-shanghai',
+        type='access_key'
+    )
 
-# init Config
-config = Config(
-    access_key_id='<your_accsee_key_id>',
-    access_key_secret='<your_access_key_secret>',
-    endpoint='<your_endpoint>',
-    region_id='cn-shanghai',
-    type='access_key'
-)
+    # init RuntimeObject
+    runtime_option = RuntimeOptions()
 
-# init RuntimeObject
-runtime_option = RuntimeOptions()
+    # init Client
+    client = Client(config)
 
-# init Client
-client = Client(config)
+    # call api
+    response = client.search_image_by_pic_advance(request, runtime_option)
 
-# call api
-response = client.search_image_by_pic_advance(request, runtime_option)
+print(response)
+print('request id:', response.request_id)
+print('code:', response.code)
+print('message:', response.msg)
 
-print(response.to_map())
-f.close()
+# head
+print('docs return:', response.head.docs_return)
+print('docs found:', response.head.docs_found)
+print('search time:', response.head.search_time)
+
+# pic info
+print('category id:', response.pic_info.category_id)
+print('region:', response.pic_info.region)
+print('all categories:', response.pic_info.all_categories)
+
+# Auctions
+for aut in response.auctions:
+    print('category id:', aut.category_id)
+    print('product id:', aut.product_id)
 ```
 
 ## Parameter Specification
