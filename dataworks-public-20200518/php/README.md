@@ -1,10 +1,10 @@
-[English](README.md) | 简体中文
+English | [简体中文](README-CN.md)
 
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
 ## Alibaba Cloud dataworks-public (20200518) SDK Library for PHP
 
-## 安装
+## Installation
 
 ### Composer
 
@@ -12,19 +12,19 @@
 composer require alibabacloud/dataworks-public-20200518
 ```
 
-## 问题
+## Issues
 
-[提交 Issue](https://github.com/aliyun/alibabacloud-sdk/issues/new)，不符合指南的问题可能会立即关闭。
+[Opening an Issue](https://github.com/aliyun/alibabacloud-sdk/issues/new), Issues not conforming to the guidelines may be closed immediately.
 
-## 发行说明
+## Changelog
 
-每个版本的详细更改记录在[发行说明](./ChangeLog.txt)中。
+Detailed changes for each release are documented in the [release notes](./ChangeLog.txt).
 
-## 相关
+## References
 
-* [最新源码](https://github.com/aliyun/alibabacloud-sdk)
+* [Latest Release](https://github.com/aliyun/alibabacloud-sdk)
 
-## 许可证
+## License
 
 [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
