@@ -17,6 +17,110 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('imageprocess', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model DetectSkinDiseaseRequest = {
+  url: string(name='Url'),
+  orgId: string(name='OrgId'),
+  orgName: string(name='OrgName'),
+}
+
+model DetectSkinDiseaseResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    results: map[string]any(name='Results'),
+  }(name='Data'),
+}
+
+async function detectSkinDisease(request: DetectSkinDiseaseRequest, runtime: Util.RuntimeOptions): DetectSkinDiseaseResponse {
+  Util.validateModel(request);
+  return doRequest('DetectSkinDisease', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
+}
+
+model DetectSkinDiseaseAdvanceRequest = {
+  urlObject: readable(name='UrlObject'),
+  orgId: string(name='OrgId'),
+  orgName: string(name='OrgName'),
+}
+
+async function detectSkinDiseaseAdvance(request: DetectSkinDiseaseAdvanceRequest, runtime: Util.RuntimeOptions): DetectSkinDiseaseResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var detectSkinDiseasereq = new DetectSkinDiseaseRequest{};
+  RPCUtil.convert(request, detectSkinDiseasereq);
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.urlObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  detectSkinDiseasereq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var detectSkinDiseaseResp = detectSkinDisease(detectSkinDiseasereq, runtime);
+  return detectSkinDiseaseResp;
+}
+
+model RunMedQARequest = {
+  question: string(name='Question'),
+  orgId: string(name='OrgId'),
+  orgName: string(name='OrgName'),
+}
+
+model RunMedQAResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    answer: string(name='Answer'),
+    similarQuestion: [ string ](name='SimilarQuestion'),
+  }(name='Data'),
+}
+
+async function runMedQA(request: RunMedQARequest, runtime: Util.RuntimeOptions): RunMedQAResponse {
+  Util.validateModel(request);
+  return doRequest('RunMedQA', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
+}
+
 model DetectKneeKeypointXRayRequest = {
   imageUrl: string(name='ImageUrl'),
   dataFormat: string(name='DataFormat'),
@@ -365,6 +469,7 @@ model CalcCACSResponse = {
   requestId: string(name='RequestId'),
   data: {
     score: string(name='Score'),
+    resultUrl: string(name='ResultUrl'),
   }(name='Data'),
 }
 
