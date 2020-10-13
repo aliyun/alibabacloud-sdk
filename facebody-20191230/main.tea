@@ -17,6 +17,148 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('facebody', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model PedestrianDetectAttributeRequest = {
+  imageURL: string(name='ImageURL'),
+}
+
+model PedestrianDetectAttributeResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    personNumber: integer(name='PersonNumber'),
+    attributes: [
+      {
+        age: {
+          name: string(name='Name'),
+          score: float(name='Score'),
+        }(name='Age'),
+        backpack: {
+          name: string(name='Name'),
+          score: float(name='Score'),
+        }(name='Backpack'),
+        gender: {
+          name: string(name='Name'),
+          score: float(name='Score'),
+        }(name='Gender'),
+        glasses: {
+          name: string(name='Name'),
+          score: float(name='Score'),
+        }(name='Glasses'),
+        handbag: {
+          name: string(name='Name'),
+          score: float(name='Score'),
+        }(name='Handbag'),
+        hat: {
+          name: string(name='Name'),
+          score: float(name='Score'),
+        }(name='Hat'),
+        lowerColor: {
+          name: string(name='Name'),
+          score: float(name='Score'),
+        }(name='LowerColor'),
+        lowerWear: {
+          name: string(name='Name'),
+          score: float(name='Score'),
+        }(name='LowerWear'),
+        orient: {
+          name: string(name='Name'),
+          score: float(name='Score'),
+        }(name='Orient'),
+        shoulderBag: {
+          name: string(name='Name'),
+          score: float(name='Score'),
+        }(name='ShoulderBag'),
+        upperColor: {
+          name: string(name='Name'),
+          score: float(name='Score'),
+        }(name='UpperColor'),
+        upperWear: {
+          name: string(name='Name'),
+          score: float(name='Score'),
+        }(name='UpperWear'),
+      }
+    ](name='Attributes'),
+    boxes: [
+      {
+        score: float(name='Score'),
+        topLeftX: float(name='TopLeftX'),
+        topLeftY: float(name='TopLeftY'),
+        bottomRightX: float(name='BottomRightX'),
+        bottomRightY: float(name='BottomRightY'),
+      }
+    ](name='Boxes'),
+  }(name='Data'),
+}
+
+async function pedestrianDetectAttribute(request: PedestrianDetectAttributeRequest, runtime: Util.RuntimeOptions): PedestrianDetectAttributeResponse {
+  Util.validateModel(request);
+  return doRequest('PedestrianDetectAttribute', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
+}
+
+model PedestrianDetectAttributeAdvanceRequest = {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+async function pedestrianDetectAttributeAdvance(request: PedestrianDetectAttributeAdvanceRequest, runtime: Util.RuntimeOptions): PedestrianDetectAttributeResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var pedestrianDetectAttributereq = new PedestrianDetectAttributeRequest{};
+  RPCUtil.convert(request, pedestrianDetectAttributereq);
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  pedestrianDetectAttributereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var pedestrianDetectAttributeResp = pedestrianDetectAttribute(pedestrianDetectAttributereq, runtime);
+  return pedestrianDetectAttributeResp;
+}
+
 model DetectChefCapRequest = {
   imageURL: string(name='ImageURL'),
 }
