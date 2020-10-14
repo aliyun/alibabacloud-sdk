@@ -85,11 +85,11 @@ type Config struct {
 	AccessKeySecret      *string                // AccessKey Secret
 	Type                 *string                // 凭证类型(弃用)，如有疑问请参考 https://github.com/aliyun/credentials-go/blob/master/README-CN.md#%E5%87%AD%E8%AF%81%E7%B1%BB%E5%9E%8B
 	SecurityToken        *string                // Security Token
-	Endpoint             *string                // endpoint
-	Protocol             *string                // 请求协议
+	Endpoint             *string                // endpoint，例：ecs-cn-hangzhou.aliyuncs.com
+	Protocol             *string                // 请求协议，例：HTTP
 	Credential           credential.Credential  // 凭证，如有疑问请参考：https://github.com/aliyun/credentials-go/blob/master/README-CN.md
-	RegionId             *string                // 区域
-	Network              *string                // 网络类型。例：inner
+	RegionId             *string                // 区域，例：cn-hangzhou
+	Network              *string                // 需访问服务器的网络类型。例：inner，vpc
 	Suffix               *string                // endpoint 后缀
 	UserAgent            *string                // UserAgent
 	ReadTimeout          *int                   // 读超时
