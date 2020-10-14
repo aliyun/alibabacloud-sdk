@@ -87,9 +87,9 @@ type Config struct {
 	SecurityToken        *string                // Security Token
 	Network              *string                // network, such as inner
 	Suffix               *string                // endpoint suffix
-	Endpoint             *string                // endpoint
+	Endpoint             *string                // endpoint, such as ecs-cn-hangzhou.aliyuncs.com
 	Protocol             *string                // http or https
-	RegionId             *string                // region
+	RegionId             *string                // region, such as cn-hangzhou
 	UserAgent            *string                // UserAgent
 	ReadTimeout          *int                   // read timeout
 	ConnectTimeout       *int                   // connect tiemout
