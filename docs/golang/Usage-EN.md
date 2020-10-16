@@ -91,8 +91,8 @@ type Config struct {
 	Protocol             *string                // http or https
 	RegionId             *string                // region, such as cn-hangzhou
 	UserAgent            *string                // UserAgent
-	ReadTimeout          *int                   // read timeout
-	ConnectTimeout       *int                   // connect tiemout
+	ReadTimeout          *int                   // read timeout，unit：millisecond
+	ConnectTimeout       *int                   // connect tiemout，unit：millisecond
 	LocalAddr            *string                // the local network adapter ip
 	HttpProxy            *string                // http proxy
 	HttpsProxy           *string                // https proxy
@@ -110,8 +110,8 @@ type RuntimeOptions struct {
 	MaxAttempts      *int        // maximum number of retries， defaut: 3
 	BackoffPolicy    *string     // retry the sleep strategy, default: no
 	BackoffPeriod    *int        // retry the sleep time,default: 1
-	ReadTimeout      *int        // read timeout
-	ConnectTimeout   *int        // connect timeout
+	ReadTimeout      *int        // read timeout，unit：millisecond
+	ConnectTimeout   *int        // connect timeout，unit：millisecond
 	LocalAddr        *string     // the local network adapter ip
 	HttpProxy        *string     // http proxy
 	HttpsProxy       *string     // https proxy
