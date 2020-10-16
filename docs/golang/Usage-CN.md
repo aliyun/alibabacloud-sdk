@@ -92,8 +92,8 @@ type Config struct {
 	Network              *string                // 需访问服务器的网络类型。例：inner，vpc
 	Suffix               *string                // endpoint 后缀
 	UserAgent            *string                // UserAgent
-	ReadTimeout          *int                   // 读超时
-	ConnectTimeout       *int                   // 连接超时
+	ReadTimeout          *int                   // 读超时，单位：毫秒
+	ConnectTimeout       *int                   // 连接超时，单位：毫秒
 	LocalAddr            *string                // 本地网卡 ip
 	HttpProxy            *string                // http 的代理
 	HttpsProxy           *string                // https 的代理
@@ -111,8 +111,8 @@ type RuntimeOptions struct {
 	MaxAttempts      *int        // 最大重试次数， 默认为 3
 	BackoffPolicy    *string     // 重试休眠策略，默认为 no
 	BackoffPeriod    *int        // 重试休眠时间， 默认为 1
-	ReadTimeout      *int        // 读超时
-	ConnectTimeout   *int        // 连接超时
+	ReadTimeout      *int        // 读超时，单位：毫秒
+	ConnectTimeout   *int        // 连接超时，单位：毫秒
 	LocalAddr        *string     // 本地网卡 ip
 	HttpProxy        *string     // http 的代理
 	HttpsProxy       *string     // https 的代理
