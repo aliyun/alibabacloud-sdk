@@ -97,7 +97,7 @@ type Config struct {
 	LocalAddr            *string                // 本地网卡 ip
 	HttpProxy            *string                // http 的代理
 	HttpsProxy           *string                // https 的代理
-	NoProxy              *string                // 代理白名单
+	NoProxy              *string                // 代理白名单，以 ；分割
 	Socks5Proxy          *string                // socks5 代理
 	Socks5NetWork        *string                // socks5 代理协议
 	MaxIdleConns         *int                   // 最大连接数
@@ -122,3 +122,23 @@ type RuntimeOptions struct {
 	Socks5NetWork    *string     // socks5 代理协议
 }
 ```
+
+## SDK 迁移
+若想将 [老SDK](https://github.com/aliyun/alibaba-cloud-sdk-go) 迁移到 [新SDK](https://github.com/aliyun/alibabacloud-sdk), 可以参考一下几点：
+
+- 新版本默认不开启超时，超时时间的单位为毫秒
+- 新版本默认不开启重试
+- 新版本暂不支持并发
+- `Request` 仅支持配置业务参数
+- `Response` 仅包含 `API` 返回参数
+- `RuntimeOptions` 和 `Config` 中相同的参数， `RuntimeOptions` 的优先级高于 `Config`
+
+- `Config` 删除了 `Debug`, `EnableAsync`, `HttpTransport`, `Transport`, `MaxTaskQueueSize`, `GoRoutinePoolSize` 的配置
+- 原 `Config` 的 `AutoRetry`，改为通过 `RuntimeOptions` 的 `Autoretry` 来配置
+- 原 `Config` 的 `MaxRetryTime`，改为通过 `RuntimeOptions` 的 `MaxAttempts` 来配置
+- 原 `Config` 的 `Timeout`，改为 `ReadTimeout` 来配置
+- 原 `Config` 的 `Scheme`，改为 `Protocol` 来配置
+
+- `Client` 删除了 `logger`, `signer`, `httpClient`, `asyncTaskQueue`, `debug`, `isRunning`, `asyncChanLock` 的配置
+- 原 `Client` 的 `isInsecure`，改为通过 `RuntimeOptions` 的 `IgnoreSSL` 来配置
+- 原 `Client` 的 `Domain`，改为 `Endpoint` 来配置

@@ -121,3 +121,23 @@ type RuntimeOptions struct {
 	Socks5NetWork    *string     // socks5 agency agreement
 }
 ```
+
+## SDK Migration
+ If you wnat to migrate the [Old SDK](https://github.com/aliyun/alibaba-cloud-sdk-go) to the [New SDK](https://github.com/aliyun/alibabacloud-sdk), you can refer to the points:
+
+- The new SDK does not turn on timeouts by default. The timeouts unit is milliseconds
+- New SDK does not enable retry by default
+- Concurrency is not supported in the new SDK
+- `Request` only supports configuring business parameters
+- `Response` contains only the `API` return parameter
+- The same parameter in `RuntimeOptions` and `Config` , `RuntimeOptions` has a higher priority than `Config`
+
+- `Config` removes configuration of `Debug`, `EnableAsync`, `HttpTransport`, `Transport`, `MaxTaskQueueSize`, `GoRoutinePoolSize`
+- The `AutoRetry` of the original `Config`, configured instead by `AutoRetry` of `RuntimeOptions`
+- The `MaxRetryTime` of the original `Config`, configured instead by `MaxRetryTime` of `RuntimeOptions`
+- The `Timeout` of the original `Config`, configured instead by `ReadTimeout`
+- The `Scheme` of the original `Config`, configured instead by `Protocol`
+
+- `Client` removes configuration of `logger`, `signer`, `httpClient`, `asyncTaskQueue`, `Debug`, `isRunning`, `asyncChanLock`
+- The `isInsecure` of the original `Client`, configured instead by `IgnoreSSL` of `RuntimeOptions`
+- The `Domain` of the original `Client`, configured instead by `Endpoint`
