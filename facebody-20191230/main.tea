@@ -17,6 +17,171 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('facebody', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model CountCrowdRequest = {
+  imageURL: string(name='ImageURL'),
+  isShow?: boolean(name='IsShow'),
+}
+
+model CountCrowdResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    peopleNumber: integer(name='PeopleNumber'),
+    hotMap: string(name='HotMap'),
+  }(name='Data'),
+}
+
+async function countCrowd(request: CountCrowdRequest, runtime: Util.RuntimeOptions): CountCrowdResponse {
+  Util.validateModel(request);
+  return doRequest('CountCrowd', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
+}
+
+model CountCrowdAdvanceRequest = {
+  imageURLObject: readable(name='ImageURLObject'),
+  isShow?: boolean(name='IsShow'),
+}
+
+async function countCrowdAdvance(request: CountCrowdAdvanceRequest, runtime: Util.RuntimeOptions): CountCrowdResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var countCrowdreq = new CountCrowdRequest{};
+  RPCUtil.convert(request, countCrowdreq);
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  countCrowdreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var countCrowdResp = countCrowd(countCrowdreq, runtime);
+  return countCrowdResp;
+}
+
+model GenerateHumanAnimeStyleRequest = {
+  imageURL: string(name='ImageURL'),
+}
+
+model GenerateHumanAnimeStyleResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    imageURL: string(name='ImageURL'),
+  }(name='Data'),
+}
+
+async function generateHumanAnimeStyle(request: GenerateHumanAnimeStyleRequest, runtime: Util.RuntimeOptions): GenerateHumanAnimeStyleResponse {
+  Util.validateModel(request);
+  return doRequest('GenerateHumanAnimeStyle', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
+}
+
+model GenerateHumanAnimeStyleAdvanceRequest = {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+async function generateHumanAnimeStyleAdvance(request: GenerateHumanAnimeStyleAdvanceRequest, runtime: Util.RuntimeOptions): GenerateHumanAnimeStyleResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var generateHumanAnimeStylereq = new GenerateHumanAnimeStyleRequest{};
+  RPCUtil.convert(request, generateHumanAnimeStylereq);
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  generateHumanAnimeStylereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var generateHumanAnimeStyleResp = generateHumanAnimeStyle(generateHumanAnimeStylereq, runtime);
+  return generateHumanAnimeStyleResp;
+}
+
 model PedestrianDetectAttributeRequest = {
   imageURL: string(name='ImageURL'),
 }
@@ -459,7 +624,12 @@ async function blurFaceAdvance(request: BlurFaceAdvanceRequest, runtime: Util.Ru
 
 model ExtractPedestrianFeatureAttributeRequest = {
   mode?: string(name='Mode'),
-  imageURL: string(name='ImageURL'),
+  imageURL?: string(name='ImageURL'),
+  urlList?: [
+    {
+      url?: string(name='Url'),
+    }
+  ](name='UrlList'),
 }
 
 model ExtractPedestrianFeatureAttributeResponse = {
@@ -483,6 +653,28 @@ model ExtractPedestrianFeatureAttributeResponse = {
     hairScore: float(name='HairScore'),
     age: string(name='Age'),
     ageScore: float(name='AgeScore'),
+    elements: [
+      {
+        objType: string(name='ObjType'),
+        objTypeScore: float(name='ObjTypeScore'),
+        feature: string(name='Feature'),
+        qualityScore: float(name='QualityScore'),
+        upperColor: string(name='UpperColor'),
+        upperColorScore: float(name='UpperColorScore'),
+        upperType: string(name='UpperType'),
+        upperTypeScore: float(name='UpperTypeScore'),
+        lowerColor: string(name='LowerColor'),
+        lowerColorScore: float(name='LowerColorScore'),
+        lowerType: string(name='LowerType'),
+        lowerTypeScore: float(name='LowerTypeScore'),
+        gender: string(name='Gender'),
+        genderScore: float(name='GenderScore'),
+        hair: string(name='Hair'),
+        hairScore: float(name='HairScore'),
+        age: string(name='Age'),
+        ageScore: float(name='AgeScore'),
+      }
+    ](name='Elements'),
   }(name='Data'),
 }
 
