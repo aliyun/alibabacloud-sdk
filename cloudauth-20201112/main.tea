@@ -1,0 +1,122 @@
+import OSS;
+import OpenPlatform;
+import RPCUtil;
+import RPC;
+import OSSUtil;
+import Util;
+import FileForm;
+import EndpointUtil;
+
+extends RPC;
+
+init(config: RPC.Config){
+  super(config);
+  @endpointRule = 'central';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('cloudauth', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+model LivenessDetectRequest = {
+  bizType?: string(name='BizType'),
+  bizId?: string(name='BizId'),
+  mediaCategory?: string(name='MediaCategory'),
+  mediaUrl?: string(name='MediaUrl'),
+  mediaFile?: string(name='MediaFile'),
+}
+
+model LivenessDetectResponse = {
+  requestId: string(name='RequestId'),
+  code: string(name='Code'),
+  message: string(name='Message'),
+  resultObject: {
+    passed: string(name='Passed'),
+    score: float(name='Score'),
+    frameUrl: string(name='FrameUrl'),
+  }(name='ResultObject'),
+}
+
+async function livenessDetect(request: LivenessDetectRequest, runtime: Util.RuntimeOptions): LivenessDetectResponse {
+  Util.validateModel(request);
+  return doRequest('LivenessDetect', 'HTTPS', 'POST' , '2020-11-12', 'AK', null, request, runtime);
+}
+
+model LivenessDetectAdvanceRequest = {
+  mediaFileObject: readable(name='MediaFileObject'),
+  bizType?: string(name='BizType'),
+  bizId?: string(name='BizId'),
+  mediaCategory?: string(name='MediaCategory'),
+  mediaUrl?: string(name='MediaUrl'),
+}
+
+async function livenessDetectAdvance(request: LivenessDetectAdvanceRequest, runtime: Util.RuntimeOptions): LivenessDetectResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'Cloudauth',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var livenessDetectreq = new LivenessDetectRequest{};
+  RPCUtil.convert(request, livenessDetectreq);
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.mediaFileObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  livenessDetectreq.mediaFile = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var livenessDetectResp = livenessDetect(livenessDetectreq, runtime);
+  return livenessDetectResp;
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
