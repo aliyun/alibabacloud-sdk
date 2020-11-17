@@ -1,0 +1,185 @@
+import OSS;
+import OpenPlatform;
+import RPCUtil;
+import RPC;
+import OSSUtil;
+import Util;
+import FileForm;
+import EndpointUtil;
+
+extends RPC;
+
+init(config: RPC.Config){
+  super(config);
+  @endpointRule = 'central';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('cloudauth', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+model ElementSmartVerifyRequest = {
+  sceneId?: long(name='SceneId'),
+  outerOrderNo?: string(name='OuterOrderNo'),
+  mode?: string(name='Mode'),
+  certType?: string(name='CertType'),
+  certName?: string(name='CertName'),
+  certNo?: string(name='CertNo'),
+  certUrl?: string(name='CertUrl'),
+  certFile?: string(name='CertFile'),
+}
+
+model ElementSmartVerifyResponse = {
+  requestId: string(name='RequestId'),
+  message: string(name='Message'),
+  code: string(name='Code'),
+  resultObject: {
+    passed: string(name='Passed'),
+    subCode: string(name='SubCode'),
+    materialInfo: string(name='MaterialInfo'),
+  }(name='ResultObject'),
+}
+
+async function elementSmartVerify(request: ElementSmartVerifyRequest, runtime: Util.RuntimeOptions): ElementSmartVerifyResponse {
+  Util.validateModel(request);
+  return doRequest('ElementSmartVerify', 'HTTPS', 'POST' , '2020-06-18', 'AK', null, request, runtime);
+}
+
+model ElementSmartVerifyAdvanceRequest = {
+  certFileObject: readable(name='CertFileObject'),
+  sceneId?: long(name='SceneId'),
+  outerOrderNo?: string(name='OuterOrderNo'),
+  mode?: string(name='Mode'),
+  certType?: string(name='CertType'),
+  certName?: string(name='CertName'),
+  certNo?: string(name='CertNo'),
+  certUrl?: string(name='CertUrl'),
+}
+
+async function elementSmartVerifyAdvance(request: ElementSmartVerifyAdvanceRequest, runtime: Util.RuntimeOptions): ElementSmartVerifyResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'Cloudauth',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var elementSmartVerifyreq = new ElementSmartVerifyRequest{};
+  RPCUtil.convert(request, elementSmartVerifyreq);
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.certFileObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  elementSmartVerifyreq.certFile = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var elementSmartVerifyResp = elementSmartVerify(elementSmartVerifyreq, runtime);
+  return elementSmartVerifyResp;
+}
+
+model InitSmartVerifyRequest = {
+  sceneId?: long(name='SceneId'),
+  outerOrderNo?: string(name='OuterOrderNo'),
+  mode?: string(name='Mode'),
+  certType?: string(name='CertType'),
+  metaInfo?: string(name='MetaInfo'),
+  mobile?: string(name='Mobile'),
+  ip?: string(name='Ip'),
+  userId?: string(name='UserId'),
+  certName?: string(name='CertName'),
+  certNo?: string(name='CertNo'),
+  ocr?: string(name='Ocr'),
+  callbackUrl?: string(name='CallbackUrl'),
+  callbackToken?: string(name='CallbackToken'),
+  facePictureBase64?: string(name='FacePictureBase64'),
+  facePictureUrl?: string(name='FacePictureUrl'),
+  certifyId?: string(name='CertifyId'),
+  ossBucketName?: string(name='OssBucketName'),
+  ossObjectName?: string(name='OssObjectName'),
+}
+
+model InitSmartVerifyResponse = {
+  requestId: string(name='RequestId'),
+  message: string(name='Message'),
+  code: string(name='Code'),
+  resultObject: {
+    certifyId: string(name='CertifyId'),
+  }(name='ResultObject'),
+}
+
+async function initSmartVerify(request: InitSmartVerifyRequest, runtime: Util.RuntimeOptions): InitSmartVerifyResponse {
+  Util.validateModel(request);
+  return doRequest('InitSmartVerify', 'HTTPS', 'POST' , '2020-06-18', 'AK', null, request, runtime);
+}
+
+model DescribeSmartVerifyRequest = {
+  sceneId?: long(name='SceneId'),
+  certifyId?: string(name='CertifyId'),
+}
+
+model DescribeSmartVerifyResponse = {
+  requestId: string(name='RequestId'),
+  message: string(name='Message'),
+  code: string(name='Code'),
+  resultObject: {
+    passed: string(name='Passed'),
+    subCode: string(name='SubCode'),
+    materialInfo: string(name='MaterialInfo'),
+    passedScore: float(name='PassedScore'),
+  }(name='ResultObject'),
+}
+
+async function describeSmartVerify(request: DescribeSmartVerifyRequest, runtime: Util.RuntimeOptions): DescribeSmartVerifyResponse {
+  Util.validateModel(request);
+  return doRequest('DescribeSmartVerify', 'HTTPS', 'POST' , '2020-06-18', 'AK', null, request, runtime);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
