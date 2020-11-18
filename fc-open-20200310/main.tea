@@ -1,0 +1,77 @@
+import Util;
+import ROA;
+
+import EndpointUtil;
+
+extends ROA;
+
+const version = '2020-03-10';
+
+init(config: ROA.Config){
+  super(config);
+  @endpointRule = 'regional';
+  @endpointMap = {
+    ap-northeast-1 = 'account-id.ap-northeast-1.fc.aliyuncs.com',
+    ap-south-1 = 'account-id.ap-south-1.fc.aliyuncs.com',
+    ap-southeast-1 = 'account-id.ap-southeast-1.fc.aliyuncs.com',
+    ap-southeast-2 = 'account-id.ap-southeast-2.fc.aliyuncs.com',
+    ap-southeast-3 = 'account-id.ap-southeast-3.fc.aliyuncs.com',
+    ap-southeast-5 = 'account-id.ap-southeast-5.fc.aliyuncs.com',
+    cn-beijing = 'account-id.cn-beijing.fc.aliyuncs.com',
+    cn-chengdu = 'account-id.cn-chengdu.fc.aliyuncs.com',
+    cn-hangzhou = 'account-id.cn-hangzhou.fc.aliyuncs.com',
+    cn-hangzhou-finance = 'account-id.cn-hangzhou-finance.fc.aliyuncs.com',
+    cn-hongkong = 'account-id.cn-hongkong.fc.aliyuncs.com',
+    cn-huhehaote = 'account-id.cn-huhehaote.fc.aliyuncs.com',
+    cn-north-2-gov-1 = 'account-id.cn-north-2-gov-1.fc.aliyuncs.com',
+    cn-qingdao = 'account-id.cn-qingdao.fc.aliyuncs.com',
+    cn-shanghai = 'account-id.cn-shanghai.fc.aliyuncs.com',
+    cn-shenzhen = 'account-id.cn-shenzhen.fc.aliyuncs.com',
+    cn-zhangjiakou = 'account-id.cn-zhangjiakou.fc.aliyuncs.com',
+    eu-central-1 = 'account-id.eu-central-1.fc.aliyuncs.com',
+    eu-west-1 = 'account-id.eu-west-1.fc.aliyuncs.com',
+    us-east-1 = 'account-id.us-east-1.fc.aliyuncs.com',
+    us-west-1 = 'account-id.us-west-1.fc.aliyuncs.com',
+  };
+
+  checkConfig(config);
+  @endpointHost = getEndpoint('fc-open', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpointHost);
+}
+
+
+model OpenFcServiceRequest = {
+  headers?: map[string]string(name='headers'),
+}
+
+model OpenFcServiceResponseBody = {
+  requestId: string(name='RequestId'),
+  orderId: string(name='OrderId'),
+  message: string(name='Message'),
+  errorCode: string(name='ErrorCode'),
+}
+
+model OpenFcServiceResponse = {
+  headers: map[string]string(name='headers'),
+  body: OpenFcServiceResponseBody(name='body'),
+}
+
+async function openFcServiceWithOptions(request: OpenFcServiceRequest, runtime: Util.RuntimeOptions): OpenFcServiceResponse {
+  Util.validateModel(request);
+  return doRequestWithAction('OpenFcService', '2020-03-10', 'HTTPS', 'POST', 'AK,APP,PrivateKey,BearerToken', `/service/open`, null, request.headers, null, runtime);
+}
+
+async function openFcService(request: OpenFcServiceRequest): OpenFcServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return openFcServiceWithOptions(request, runtime);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
