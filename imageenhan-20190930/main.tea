@@ -1,11 +1,11 @@
-import OSS;
-import OpenPlatform;
+import Util;
 import RPCUtil;
 import RPC;
-import OSSUtil;
-import Util;
-import FileForm;
 import EndpointUtil;
+import OSS;
+import OpenPlatform;
+import OSSUtil;
+import FileForm;
 
 extends RPC;
 
@@ -15,6 +15,93 @@ init(config: RPC.Config){
   
   checkConfig(config);
   @endpoint = getEndpoint('imageenhan', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+model ColorizeImageRequest = {
+  imageURL: string(name='ImageURL'),
+}
+
+model ColorizeImageResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    imageURL: string(name='ImageURL'),
+  }(name='Data'),
+}
+
+async function colorizeImage(request: ColorizeImageRequest, runtime: Util.RuntimeOptions): ColorizeImageResponse {
+  Util.validateModel(request);
+  return doRequest('ColorizeImage', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function colorizeImageSimply(request: ColorizeImageRequest): ColorizeImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return colorizeImage(request, runtime);
+}
+
+model ColorizeImageAdvanceRequest = {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+async function colorizeImageAdvance(request: ColorizeImageAdvanceRequest, runtime: Util.RuntimeOptions): ColorizeImageResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageenhan',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var colorizeImageReq = new ColorizeImageRequest{};
+  RPCUtil.convert(request, colorizeImageReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  colorizeImageReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var colorizeImageResp = colorizeImage(colorizeImageReq, runtime);
+  return colorizeImageResp;
 }
 
 model ErasePersonRequest = {
@@ -31,7 +118,12 @@ model ErasePersonResponse = {
 
 async function erasePerson(request: ErasePersonRequest, runtime: Util.RuntimeOptions): ErasePersonResponse {
   Util.validateModel(request);
-  return doRequest('ErasePerson', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('ErasePerson', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function erasePersonSimply(request: ErasePersonRequest): ErasePersonResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return erasePerson(request, runtime);
 }
 
 model ErasePersonAdvanceRequest = {
@@ -70,8 +162,9 @@ async function erasePersonAdvance(request: ErasePersonAdvanceRequest, runtime: U
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   RPCUtil.convert(runtime, ossRuntime);
-  var erasePersonreq = new ErasePersonRequest{};
-  RPCUtil.convert(request, erasePersonreq);
+  var erasePersonReq = new ErasePersonRequest{};
+  RPCUtil.convert(request, erasePersonReq);
+
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
   ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
@@ -95,8 +188,8 @@ async function erasePersonAdvance(request: ErasePersonAdvanceRequest, runtime: U
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  erasePersonreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var erasePersonResp = erasePerson(erasePersonreq, runtime);
+  erasePersonReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var erasePersonResp = erasePerson(erasePersonReq, runtime);
   return erasePersonResp;
 }
 
@@ -114,7 +207,12 @@ model GenerateDynamicImageResponse = {
 
 async function generateDynamicImage(request: GenerateDynamicImageRequest, runtime: Util.RuntimeOptions): GenerateDynamicImageResponse {
   Util.validateModel(request);
-  return doRequest('GenerateDynamicImage', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('GenerateDynamicImage', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function generateDynamicImageSimply(request: GenerateDynamicImageRequest): GenerateDynamicImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return generateDynamicImage(request, runtime);
 }
 
 model GenerateDynamicImageAdvanceRequest = {
@@ -153,8 +251,9 @@ async function generateDynamicImageAdvance(request: GenerateDynamicImageAdvanceR
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   RPCUtil.convert(runtime, ossRuntime);
-  var generateDynamicImagereq = new GenerateDynamicImageRequest{};
-  RPCUtil.convert(request, generateDynamicImagereq);
+  var generateDynamicImageReq = new GenerateDynamicImageRequest{};
+  RPCUtil.convert(request, generateDynamicImageReq);
+
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
   ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
@@ -178,8 +277,8 @@ async function generateDynamicImageAdvance(request: GenerateDynamicImageAdvanceR
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  generateDynamicImagereq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var generateDynamicImageResp = generateDynamicImage(generateDynamicImagereq, runtime);
+  generateDynamicImageReq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var generateDynamicImageResp = generateDynamicImage(generateDynamicImageReq, runtime);
   return generateDynamicImageResp;
 }
 
@@ -200,7 +299,12 @@ model GetAsyncJobResultResponse = {
 
 async function getAsyncJobResult(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
   Util.validateModel(request);
-  return doRequest('GetAsyncJobResult', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('GetAsyncJobResult', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function getAsyncJobResultSimply(request: GetAsyncJobResultRequest): GetAsyncJobResultResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAsyncJobResult(request, runtime);
 }
 
 model ImitatePhotoStyleRequest = {
@@ -217,7 +321,12 @@ model ImitatePhotoStyleResponse = {
 
 async function imitatePhotoStyle(request: ImitatePhotoStyleRequest, runtime: Util.RuntimeOptions): ImitatePhotoStyleResponse {
   Util.validateModel(request);
-  return doRequest('ImitatePhotoStyle', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('ImitatePhotoStyle', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function imitatePhotoStyleSimply(request: ImitatePhotoStyleRequest): ImitatePhotoStyleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return imitatePhotoStyle(request, runtime);
 }
 
 model ImitatePhotoStyleAdvanceRequest = {
@@ -256,8 +365,9 @@ async function imitatePhotoStyleAdvance(request: ImitatePhotoStyleAdvanceRequest
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   RPCUtil.convert(runtime, ossRuntime);
-  var imitatePhotoStylereq = new ImitatePhotoStyleRequest{};
-  RPCUtil.convert(request, imitatePhotoStylereq);
+  var imitatePhotoStyleReq = new ImitatePhotoStyleRequest{};
+  RPCUtil.convert(request, imitatePhotoStyleReq);
+
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
   ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
@@ -281,8 +391,8 @@ async function imitatePhotoStyleAdvance(request: ImitatePhotoStyleAdvanceRequest
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  imitatePhotoStylereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var imitatePhotoStyleResp = imitatePhotoStyle(imitatePhotoStylereq, runtime);
+  imitatePhotoStyleReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var imitatePhotoStyleResp = imitatePhotoStyle(imitatePhotoStyleReq, runtime);
   return imitatePhotoStyleResp;
 }
 
@@ -301,7 +411,12 @@ model EnhanceImageColorResponse = {
 
 async function enhanceImageColor(request: EnhanceImageColorRequest, runtime: Util.RuntimeOptions): EnhanceImageColorResponse {
   Util.validateModel(request);
-  return doRequest('EnhanceImageColor', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('EnhanceImageColor', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function enhanceImageColorSimply(request: EnhanceImageColorRequest): EnhanceImageColorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return enhanceImageColor(request, runtime);
 }
 
 model EnhanceImageColorAdvanceRequest = {
@@ -341,8 +456,9 @@ async function enhanceImageColorAdvance(request: EnhanceImageColorAdvanceRequest
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   RPCUtil.convert(runtime, ossRuntime);
-  var enhanceImageColorreq = new EnhanceImageColorRequest{};
-  RPCUtil.convert(request, enhanceImageColorreq);
+  var enhanceImageColorReq = new EnhanceImageColorRequest{};
+  RPCUtil.convert(request, enhanceImageColorReq);
+
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
   ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
@@ -366,8 +482,8 @@ async function enhanceImageColorAdvance(request: EnhanceImageColorAdvanceRequest
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  enhanceImageColorreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var enhanceImageColorResp = enhanceImageColor(enhanceImageColorreq, runtime);
+  enhanceImageColorReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var enhanceImageColorResp = enhanceImageColor(enhanceImageColorReq, runtime);
   return enhanceImageColorResp;
 }
 
@@ -393,7 +509,12 @@ model RecolorHDImageResponse = {
 
 async function recolorHDImage(request: RecolorHDImageRequest, runtime: Util.RuntimeOptions): RecolorHDImageResponse {
   Util.validateModel(request);
-  return doRequest('RecolorHDImage', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('RecolorHDImage', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function recolorHDImageSimply(request: RecolorHDImageRequest): RecolorHDImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recolorHDImage(request, runtime);
 }
 
 model RecolorHDImageAdvanceRequest = {
@@ -440,8 +561,9 @@ async function recolorHDImageAdvance(request: RecolorHDImageAdvanceRequest, runt
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   RPCUtil.convert(runtime, ossRuntime);
-  var recolorHDImagereq = new RecolorHDImageRequest{};
-  RPCUtil.convert(request, recolorHDImagereq);
+  var recolorHDImageReq = new RecolorHDImageRequest{};
+  RPCUtil.convert(request, recolorHDImageReq);
+
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
   ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
@@ -465,8 +587,8 @@ async function recolorHDImageAdvance(request: RecolorHDImageAdvanceRequest, runt
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  recolorHDImagereq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var recolorHDImageResp = recolorHDImage(recolorHDImagereq, runtime);
+  recolorHDImageReq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var recolorHDImageResp = recolorHDImage(recolorHDImageReq, runtime);
   return recolorHDImageResp;
 }
 
@@ -483,7 +605,12 @@ model AssessCompositionResponse = {
 
 async function assessComposition(request: AssessCompositionRequest, runtime: Util.RuntimeOptions): AssessCompositionResponse {
   Util.validateModel(request);
-  return doRequest('AssessComposition', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('AssessComposition', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function assessCompositionSimply(request: AssessCompositionRequest): AssessCompositionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return assessComposition(request, runtime);
 }
 
 model AssessCompositionAdvanceRequest = {
@@ -521,8 +648,9 @@ async function assessCompositionAdvance(request: AssessCompositionAdvanceRequest
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   RPCUtil.convert(runtime, ossRuntime);
-  var assessCompositionreq = new AssessCompositionRequest{};
-  RPCUtil.convert(request, assessCompositionreq);
+  var assessCompositionReq = new AssessCompositionRequest{};
+  RPCUtil.convert(request, assessCompositionReq);
+
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
   ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
@@ -546,8 +674,8 @@ async function assessCompositionAdvance(request: AssessCompositionAdvanceRequest
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  assessCompositionreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var assessCompositionResp = assessComposition(assessCompositionreq, runtime);
+  assessCompositionReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var assessCompositionResp = assessComposition(assessCompositionReq, runtime);
   return assessCompositionResp;
 }
 
@@ -564,7 +692,12 @@ model AssessSharpnessResponse = {
 
 async function assessSharpness(request: AssessSharpnessRequest, runtime: Util.RuntimeOptions): AssessSharpnessResponse {
   Util.validateModel(request);
-  return doRequest('AssessSharpness', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('AssessSharpness', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function assessSharpnessSimply(request: AssessSharpnessRequest): AssessSharpnessResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return assessSharpness(request, runtime);
 }
 
 model AssessSharpnessAdvanceRequest = {
@@ -602,8 +735,9 @@ async function assessSharpnessAdvance(request: AssessSharpnessAdvanceRequest, ru
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   RPCUtil.convert(runtime, ossRuntime);
-  var assessSharpnessreq = new AssessSharpnessRequest{};
-  RPCUtil.convert(request, assessSharpnessreq);
+  var assessSharpnessReq = new AssessSharpnessRequest{};
+  RPCUtil.convert(request, assessSharpnessReq);
+
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
   ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
@@ -627,8 +761,8 @@ async function assessSharpnessAdvance(request: AssessSharpnessAdvanceRequest, ru
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  assessSharpnessreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var assessSharpnessResp = assessSharpness(assessSharpnessreq, runtime);
+  assessSharpnessReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var assessSharpnessResp = assessSharpness(assessSharpnessReq, runtime);
   return assessSharpnessResp;
 }
 
@@ -645,7 +779,12 @@ model AssessExposureResponse = {
 
 async function assessExposure(request: AssessExposureRequest, runtime: Util.RuntimeOptions): AssessExposureResponse {
   Util.validateModel(request);
-  return doRequest('AssessExposure', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('AssessExposure', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function assessExposureSimply(request: AssessExposureRequest): AssessExposureResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return assessExposure(request, runtime);
 }
 
 model AssessExposureAdvanceRequest = {
@@ -683,8 +822,9 @@ async function assessExposureAdvance(request: AssessExposureAdvanceRequest, runt
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   RPCUtil.convert(runtime, ossRuntime);
-  var assessExposurereq = new AssessExposureRequest{};
-  RPCUtil.convert(request, assessExposurereq);
+  var assessExposureReq = new AssessExposureRequest{};
+  RPCUtil.convert(request, assessExposureReq);
+
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
   ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
@@ -708,8 +848,8 @@ async function assessExposureAdvance(request: AssessExposureAdvanceRequest, runt
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  assessExposurereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var assessExposureResp = assessExposure(assessExposurereq, runtime);
+  assessExposureReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var assessExposureResp = assessExposure(assessExposureReq, runtime);
   return assessExposureResp;
 }
 
@@ -732,7 +872,12 @@ model ImageBlindCharacterWatermarkResponse = {
 
 async function imageBlindCharacterWatermark(request: ImageBlindCharacterWatermarkRequest, runtime: Util.RuntimeOptions): ImageBlindCharacterWatermarkResponse {
   Util.validateModel(request);
-  return doRequest('ImageBlindCharacterWatermark', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('ImageBlindCharacterWatermark', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function imageBlindCharacterWatermarkSimply(request: ImageBlindCharacterWatermarkRequest): ImageBlindCharacterWatermarkResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return imageBlindCharacterWatermark(request, runtime);
 }
 
 model ImageBlindCharacterWatermarkAdvanceRequest = {
@@ -775,8 +920,9 @@ async function imageBlindCharacterWatermarkAdvance(request: ImageBlindCharacterW
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   RPCUtil.convert(runtime, ossRuntime);
-  var imageBlindCharacterWatermarkreq = new ImageBlindCharacterWatermarkRequest{};
-  RPCUtil.convert(request, imageBlindCharacterWatermarkreq);
+  var imageBlindCharacterWatermarkReq = new ImageBlindCharacterWatermarkRequest{};
+  RPCUtil.convert(request, imageBlindCharacterWatermarkReq);
+
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
   ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
@@ -800,8 +946,8 @@ async function imageBlindCharacterWatermarkAdvance(request: ImageBlindCharacterW
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  imageBlindCharacterWatermarkreq.originImageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var imageBlindCharacterWatermarkResp = imageBlindCharacterWatermark(imageBlindCharacterWatermarkreq, runtime);
+  imageBlindCharacterWatermarkReq.originImageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var imageBlindCharacterWatermarkResp = imageBlindCharacterWatermark(imageBlindCharacterWatermarkReq, runtime);
   return imageBlindCharacterWatermarkResp;
 }
 
@@ -822,7 +968,12 @@ model RemoveImageSubtitlesResponse = {
 
 async function removeImageSubtitles(request: RemoveImageSubtitlesRequest, runtime: Util.RuntimeOptions): RemoveImageSubtitlesResponse {
   Util.validateModel(request);
-  return doRequest('RemoveImageSubtitles', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('RemoveImageSubtitles', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function removeImageSubtitlesSimply(request: RemoveImageSubtitlesRequest): RemoveImageSubtitlesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return removeImageSubtitles(request, runtime);
 }
 
 model RemoveImageSubtitlesAdvanceRequest = {
@@ -864,8 +1015,9 @@ async function removeImageSubtitlesAdvance(request: RemoveImageSubtitlesAdvanceR
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   RPCUtil.convert(runtime, ossRuntime);
-  var removeImageSubtitlesreq = new RemoveImageSubtitlesRequest{};
-  RPCUtil.convert(request, removeImageSubtitlesreq);
+  var removeImageSubtitlesReq = new RemoveImageSubtitlesRequest{};
+  RPCUtil.convert(request, removeImageSubtitlesReq);
+
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
   ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
@@ -889,8 +1041,8 @@ async function removeImageSubtitlesAdvance(request: RemoveImageSubtitlesAdvanceR
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  removeImageSubtitlesreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var removeImageSubtitlesResp = removeImageSubtitles(removeImageSubtitlesreq, runtime);
+  removeImageSubtitlesReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var removeImageSubtitlesResp = removeImageSubtitles(removeImageSubtitlesReq, runtime);
   return removeImageSubtitlesResp;
 }
 
@@ -907,7 +1059,12 @@ model RemoveImageWatermarkResponse = {
 
 async function removeImageWatermark(request: RemoveImageWatermarkRequest, runtime: Util.RuntimeOptions): RemoveImageWatermarkResponse {
   Util.validateModel(request);
-  return doRequest('RemoveImageWatermark', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('RemoveImageWatermark', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function removeImageWatermarkSimply(request: RemoveImageWatermarkRequest): RemoveImageWatermarkResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return removeImageWatermark(request, runtime);
 }
 
 model RemoveImageWatermarkAdvanceRequest = {
@@ -945,8 +1102,9 @@ async function removeImageWatermarkAdvance(request: RemoveImageWatermarkAdvanceR
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   RPCUtil.convert(runtime, ossRuntime);
-  var removeImageWatermarkreq = new RemoveImageWatermarkRequest{};
-  RPCUtil.convert(request, removeImageWatermarkreq);
+  var removeImageWatermarkReq = new RemoveImageWatermarkRequest{};
+  RPCUtil.convert(request, removeImageWatermarkReq);
+
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
   ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
@@ -970,8 +1128,8 @@ async function removeImageWatermarkAdvance(request: RemoveImageWatermarkAdvanceR
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  removeImageWatermarkreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var removeImageWatermarkResp = removeImageWatermark(removeImageWatermarkreq, runtime);
+  removeImageWatermarkReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var removeImageWatermarkResp = removeImageWatermark(removeImageWatermarkReq, runtime);
   return removeImageWatermarkResp;
 }
 
@@ -994,7 +1152,12 @@ model ImageBlindPicWatermarkResponse = {
 
 async function imageBlindPicWatermark(request: ImageBlindPicWatermarkRequest, runtime: Util.RuntimeOptions): ImageBlindPicWatermarkResponse {
   Util.validateModel(request);
-  return doRequest('ImageBlindPicWatermark', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('ImageBlindPicWatermark', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function imageBlindPicWatermarkSimply(request: ImageBlindPicWatermarkRequest): ImageBlindPicWatermarkResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return imageBlindPicWatermark(request, runtime);
 }
 
 model ImageBlindPicWatermarkAdvanceRequest = {
@@ -1037,8 +1200,9 @@ async function imageBlindPicWatermarkAdvance(request: ImageBlindPicWatermarkAdva
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   RPCUtil.convert(runtime, ossRuntime);
-  var imageBlindPicWatermarkreq = new ImageBlindPicWatermarkRequest{};
-  RPCUtil.convert(request, imageBlindPicWatermarkreq);
+  var imageBlindPicWatermarkReq = new ImageBlindPicWatermarkRequest{};
+  RPCUtil.convert(request, imageBlindPicWatermarkReq);
+
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
   ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
@@ -1062,8 +1226,8 @@ async function imageBlindPicWatermarkAdvance(request: ImageBlindPicWatermarkAdva
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  imageBlindPicWatermarkreq.originImageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var imageBlindPicWatermarkResp = imageBlindPicWatermark(imageBlindPicWatermarkreq, runtime);
+  imageBlindPicWatermarkReq.originImageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var imageBlindPicWatermarkResp = imageBlindPicWatermark(imageBlindPicWatermarkReq, runtime);
   return imageBlindPicWatermarkResp;
 }
 
@@ -1089,7 +1253,12 @@ model IntelligentCompositionResponse = {
 
 async function intelligentComposition(request: IntelligentCompositionRequest, runtime: Util.RuntimeOptions): IntelligentCompositionResponse {
   Util.validateModel(request);
-  return doRequest('IntelligentComposition', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('IntelligentComposition', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function intelligentCompositionSimply(request: IntelligentCompositionRequest): IntelligentCompositionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return intelligentComposition(request, runtime);
 }
 
 model IntelligentCompositionAdvanceRequest = {
@@ -1128,8 +1297,9 @@ async function intelligentCompositionAdvance(request: IntelligentCompositionAdva
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   RPCUtil.convert(runtime, ossRuntime);
-  var intelligentCompositionreq = new IntelligentCompositionRequest{};
-  RPCUtil.convert(request, intelligentCompositionreq);
+  var intelligentCompositionReq = new IntelligentCompositionRequest{};
+  RPCUtil.convert(request, intelligentCompositionReq);
+
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
   ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
@@ -1153,8 +1323,8 @@ async function intelligentCompositionAdvance(request: IntelligentCompositionAdva
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  intelligentCompositionreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var intelligentCompositionResp = intelligentComposition(intelligentCompositionreq, runtime);
+  intelligentCompositionReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var intelligentCompositionResp = intelligentComposition(intelligentCompositionReq, runtime);
   return intelligentCompositionResp;
 }
 
@@ -1179,7 +1349,12 @@ model ChangeImageSizeResponse = {
 
 async function changeImageSize(request: ChangeImageSizeRequest, runtime: Util.RuntimeOptions): ChangeImageSizeResponse {
   Util.validateModel(request);
-  return doRequest('ChangeImageSize', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('ChangeImageSize', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function changeImageSizeSimply(request: ChangeImageSizeRequest): ChangeImageSizeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return changeImageSize(request, runtime);
 }
 
 model ChangeImageSizeAdvanceRequest = {
@@ -1219,8 +1394,9 @@ async function changeImageSizeAdvance(request: ChangeImageSizeAdvanceRequest, ru
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   RPCUtil.convert(runtime, ossRuntime);
-  var changeImageSizereq = new ChangeImageSizeRequest{};
-  RPCUtil.convert(request, changeImageSizereq);
+  var changeImageSizeReq = new ChangeImageSizeRequest{};
+  RPCUtil.convert(request, changeImageSizeReq);
+
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
   ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
@@ -1244,8 +1420,8 @@ async function changeImageSizeAdvance(request: ChangeImageSizeAdvanceRequest, ru
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  changeImageSizereq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var changeImageSizeResp = changeImageSize(changeImageSizereq, runtime);
+  changeImageSizeReq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var changeImageSizeResp = changeImageSize(changeImageSizeReq, runtime);
   return changeImageSizeResp;
 }
 
@@ -1264,7 +1440,12 @@ model ExtendImageStyleResponse = {
 
 async function extendImageStyle(request: ExtendImageStyleRequest, runtime: Util.RuntimeOptions): ExtendImageStyleResponse {
   Util.validateModel(request);
-  return doRequest('ExtendImageStyle', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('ExtendImageStyle', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function extendImageStyleSimply(request: ExtendImageStyleRequest): ExtendImageStyleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return extendImageStyle(request, runtime);
 }
 
 model MakeSuperResolutionImageRequest = {
@@ -1280,7 +1461,12 @@ model MakeSuperResolutionImageResponse = {
 
 async function makeSuperResolutionImage(request: MakeSuperResolutionImageRequest, runtime: Util.RuntimeOptions): MakeSuperResolutionImageResponse {
   Util.validateModel(request);
-  return doRequest('MakeSuperResolutionImage', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('MakeSuperResolutionImage', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function makeSuperResolutionImageSimply(request: MakeSuperResolutionImageRequest): MakeSuperResolutionImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return makeSuperResolutionImage(request, runtime);
 }
 
 model MakeSuperResolutionImageAdvanceRequest = {
@@ -1318,8 +1504,9 @@ async function makeSuperResolutionImageAdvance(request: MakeSuperResolutionImage
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   RPCUtil.convert(runtime, ossRuntime);
-  var makeSuperResolutionImagereq = new MakeSuperResolutionImageRequest{};
-  RPCUtil.convert(request, makeSuperResolutionImagereq);
+  var makeSuperResolutionImageReq = new MakeSuperResolutionImageRequest{};
+  RPCUtil.convert(request, makeSuperResolutionImageReq);
+
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
   ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
@@ -1343,8 +1530,8 @@ async function makeSuperResolutionImageAdvance(request: MakeSuperResolutionImage
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  makeSuperResolutionImagereq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var makeSuperResolutionImageResp = makeSuperResolutionImage(makeSuperResolutionImagereq, runtime);
+  makeSuperResolutionImageReq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var makeSuperResolutionImageResp = makeSuperResolutionImage(makeSuperResolutionImageReq, runtime);
   return makeSuperResolutionImageResp;
 }
 
@@ -1369,7 +1556,12 @@ model RecolorImageResponse = {
 
 async function recolorImage(request: RecolorImageRequest, runtime: Util.RuntimeOptions): RecolorImageResponse {
   Util.validateModel(request);
-  return doRequest('RecolorImage', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('RecolorImage', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function recolorImageSimply(request: RecolorImageRequest): RecolorImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recolorImage(request, runtime);
 }
 
 function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
