@@ -1,0 +1,61 @@
+import Util;
+
+import RPC;
+import EndpointUtil;
+
+extends RPC;
+
+init(config: RPC.Config){
+  super(config);
+  @endpointRule = 'regional';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('netana', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+model ListIpGeolocationsRequest = {
+  countryCode?: string(name='CountryCode'),
+  cityCode?: string(name='CityCode'),
+  ipv4Prefix?: string(name='Ipv4Prefix'),
+  resourcePoolName?: string(name='ResourcePoolName'),
+  nextToken?: string(name='NextToken'),
+  maxResults?: integer(name='MaxResults'),
+}
+
+model ListIpGeolocationsResponse = {
+  requestId: string(name='RequestId'),
+  nextToken: integer(name='NextToken'),
+  totalCount: integer(name='TotalCount'),
+  maxResults: integer(name='MaxResults'),
+  ipGeolocationModels: {
+    ipGeolocationModel: [
+      {
+        ipv4Prefix: string(name='Ipv4Prefix'),
+        countryCode: string(name='CountryCode'),
+        cityCode: string(name='CityCode'),
+        resourcePoolName: string(name='ResourcePoolName'),
+      }
+    ](name='IpGeolocationModel'),
+  }(name='IpGeolocationModels'),
+}
+
+async function listIpGeolocationsWithOptions(request: ListIpGeolocationsRequest, runtime: Util.RuntimeOptions): ListIpGeolocationsResponse {
+  Util.validateModel(request);
+  return doRequest('ListIpGeolocations', 'HTTPS', 'POST', '2020-10-16', 'AK', null, request, runtime);
+}
+
+async function listIpGeolocations(request: ListIpGeolocationsRequest): ListIpGeolocationsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listIpGeolocationsWithOptions(request, runtime);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
