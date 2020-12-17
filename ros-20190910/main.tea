@@ -1,4 +1,5 @@
 import Util;
+import RPCUtil;
 import RPC;
 import EndpointUtil;
 
@@ -10,6 +11,90 @@ init(config: RPC.Config){
   
   checkConfig(config);
   @endpoint = getEndpoint('ros', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+model GenerateTemplatePolicyRequest = {
+  templateURL?: string(name='TemplateURL'),
+  templateBody?: string(name='TemplateBody'),
+  templateId?: string(name='TemplateId'),
+  templateVersion?: string(name='TemplateVersion'),
+}
+
+model GenerateTemplatePolicyResponse = {
+  requestId: string(name='RequestId'),
+  policy: {
+    version: string(name='Version'),
+    statement: [
+      {
+        resource: string(name='Resource'),
+        effect: string(name='Effect'),
+        action: [ string ](name='Action'),
+      }
+    ](name='Statement'),
+  }(name='Policy'),
+}
+
+async function generateTemplatePolicyWithOptions(request: GenerateTemplatePolicyRequest, runtime: Util.RuntimeOptions): GenerateTemplatePolicyResponse {
+  Util.validateModel(request);
+  return doRequest('GenerateTemplatePolicy', 'HTTPS', 'POST', '2019-09-10', 'AK', null, request, runtime);
+}
+
+async function generateTemplatePolicy(request: GenerateTemplatePolicyRequest): GenerateTemplatePolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return generateTemplatePolicyWithOptions(request, runtime);
+}
+
+model ListTemplateVersionsRequest = {
+  nextToken?: string(name='NextToken'),
+  maxResults?: long(name='MaxResults'),
+  templateId: string(name='TemplateId'),
+}
+
+model ListTemplateVersionsResponse = {
+  requestId: string(name='RequestId'),
+  nextToken: string(name='NextToken'),
+  versions: [
+    {
+      createTime: string(name='CreateTime'),
+      updateTime: string(name='UpdateTime'),
+      templateId: string(name='TemplateId'),
+      templateName: string(name='TemplateName'),
+      templateVersion: string(name='TemplateVersion'),
+      description: string(name='Description'),
+    }
+  ](name='Versions'),
+}
+
+async function listTemplateVersionsWithOptions(request: ListTemplateVersionsRequest, runtime: Util.RuntimeOptions): ListTemplateVersionsResponse {
+  Util.validateModel(request);
+  return doRequest('ListTemplateVersions', 'HTTPS', 'POST', '2019-09-10', 'AK', null, request, runtime);
+}
+
+async function listTemplateVersions(request: ListTemplateVersionsRequest): ListTemplateVersionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listTemplateVersionsWithOptions(request, runtime);
+}
+
+model SetTemplatePermissionRequest = {
+  shareOption: string(name='ShareOption'),
+  versionOption?: string(name='VersionOption'),
+  accountIds: [ string ](name='AccountIds'),
+  templateVersion?: string(name='TemplateVersion'),
+  templateId: string(name='TemplateId'),
+}
+
+model SetTemplatePermissionResponse = {
+  requestId: string(name='RequestId'),
+}
+
+async function setTemplatePermissionWithOptions(request: SetTemplatePermissionRequest, runtime: Util.RuntimeOptions): SetTemplatePermissionResponse {
+  Util.validateModel(request);
+  return doRequest('SetTemplatePermission', 'HTTPS', 'POST', '2019-09-10', 'AK', null, request, runtime);
+}
+
+async function setTemplatePermission(request: SetTemplatePermissionRequest): SetTemplatePermissionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return setTemplatePermissionWithOptions(request, runtime);
 }
 
 model ListStackOperationRisksRequest = {
@@ -55,6 +140,8 @@ model GetTemplateSummaryRequest = {
   templateId?: string(name='TemplateId'),
   templateURL?: string(name='TemplateURL'),
   changeSetId?: string(name='ChangeSetId'),
+  templateVersion?: string(name='TemplateVersion'),
+  stackGroupName?: string(name='StackGroupName'),
 }
 
 model GetTemplateSummaryResponse = {
@@ -206,13 +293,26 @@ model DetectStackGroupDriftRequest = {
   operationPreferences?: map[string]any(name='OperationPreferences'),
 }
 
+model DetectStackGroupDriftShrinkRequest = {
+  clientToken?: string(name='ClientToken'),
+  regionId: string(name='RegionId'),
+  stackGroupName: string(name='StackGroupName'),
+  operationPreferencesShrink?: string(name='OperationPreferences'),
+}
+
 model DetectStackGroupDriftResponse = {
   requestId: string(name='RequestId'),
   operationId: string(name='OperationId'),
 }
 
-async function detectStackGroupDriftWithOptions(request: DetectStackGroupDriftRequest, runtime: Util.RuntimeOptions): DetectStackGroupDriftResponse {
-  Util.validateModel(request);
+async function detectStackGroupDriftWithOptions(tmp: DetectStackGroupDriftRequest, runtime: Util.RuntimeOptions): DetectStackGroupDriftResponse {
+  Util.validateModel(tmp);
+  var request = new DetectStackGroupDriftShrinkRequest{};
+  RPCUtil.convert(tmp, request);
+  if (!Util.isUnset(tmp.operationPreferences)) {
+    request.operationPreferencesShrink = Util.toJSONString(tmp.operationPreferences);
+  }
+
   return doRequest('DetectStackGroupDrift', 'HTTPS', 'POST', '2019-09-10', 'AK', null, request, runtime);
 }
 
@@ -337,6 +437,24 @@ model UpdateStackInstancesRequest = {
   clientToken?: string(name='ClientToken'),
   operationDescription?: string(name='OperationDescription'),
   operationPreferences?: map[string]any(name='OperationPreferences'),
+  timeoutInMinutes?: long(name='TimeoutInMinutes'),
+}
+
+model UpdateStackInstancesShrinkRequest = {
+  regionId: string(name='RegionId'),
+  stackGroupName: string(name='StackGroupName'),
+  parameterOverrides?: [
+    {
+      parameterValue: string(name='ParameterValue'),
+      parameterKey: string(name='ParameterKey'),
+    }
+  ](name='ParameterOverrides'),
+  accountIdsShrink: string(name='AccountIds'),
+  regionIdsShrink: string(name='RegionIds'),
+  clientToken?: string(name='ClientToken'),
+  operationDescription?: string(name='OperationDescription'),
+  operationPreferencesShrink?: string(name='OperationPreferences'),
+  timeoutInMinutes?: long(name='TimeoutInMinutes'),
 }
 
 model UpdateStackInstancesResponse = {
@@ -344,8 +462,22 @@ model UpdateStackInstancesResponse = {
   operationId: string(name='OperationId'),
 }
 
-async function updateStackInstancesWithOptions(request: UpdateStackInstancesRequest, runtime: Util.RuntimeOptions): UpdateStackInstancesResponse {
-  Util.validateModel(request);
+async function updateStackInstancesWithOptions(tmp: UpdateStackInstancesRequest, runtime: Util.RuntimeOptions): UpdateStackInstancesResponse {
+  Util.validateModel(tmp);
+  var request = new UpdateStackInstancesShrinkRequest{};
+  RPCUtil.convert(tmp, request);
+  if (!Util.isUnset(tmp.accountIds)) {
+    request.accountIdsShrink = Util.toJSONString(tmp.accountIds);
+  }
+
+  if (!Util.isUnset(tmp.regionIds)) {
+    request.regionIdsShrink = Util.toJSONString(tmp.regionIds);
+  }
+
+  if (!Util.isUnset(tmp.operationPreferences)) {
+    request.operationPreferencesShrink = Util.toJSONString(tmp.operationPreferences);
+  }
+
   return doRequest('UpdateStackInstances', 'HTTPS', 'POST', '2019-09-10', 'AK', null, request, runtime);
 }
 
@@ -533,6 +665,26 @@ model CreateStackInstancesRequest = {
   clientToken?: string(name='ClientToken'),
   operationDescription?: string(name='OperationDescription'),
   operationPreferences?: map[string]any(name='OperationPreferences'),
+  timeoutInMinutes?: long(name='TimeoutInMinutes'),
+  disableRollback?: boolean(name='DisableRollback'),
+}
+
+model CreateStackInstancesShrinkRequest = {
+  regionId: string(name='RegionId'),
+  stackGroupName: string(name='StackGroupName'),
+  parameterOverrides?: [
+    {
+      parameterValue: string(name='ParameterValue'),
+      parameterKey: string(name='ParameterKey'),
+    }
+  ](name='ParameterOverrides'),
+  accountIdsShrink: string(name='AccountIds'),
+  regionIdsShrink: string(name='RegionIds'),
+  clientToken?: string(name='ClientToken'),
+  operationDescription?: string(name='OperationDescription'),
+  operationPreferencesShrink?: string(name='OperationPreferences'),
+  timeoutInMinutes?: long(name='TimeoutInMinutes'),
+  disableRollback?: boolean(name='DisableRollback'),
 }
 
 model CreateStackInstancesResponse = {
@@ -540,8 +692,22 @@ model CreateStackInstancesResponse = {
   operationId: string(name='OperationId'),
 }
 
-async function createStackInstancesWithOptions(request: CreateStackInstancesRequest, runtime: Util.RuntimeOptions): CreateStackInstancesResponse {
-  Util.validateModel(request);
+async function createStackInstancesWithOptions(tmp: CreateStackInstancesRequest, runtime: Util.RuntimeOptions): CreateStackInstancesResponse {
+  Util.validateModel(tmp);
+  var request = new CreateStackInstancesShrinkRequest{};
+  RPCUtil.convert(tmp, request);
+  if (!Util.isUnset(tmp.accountIds)) {
+    request.accountIdsShrink = Util.toJSONString(tmp.accountIds);
+  }
+
+  if (!Util.isUnset(tmp.regionIds)) {
+    request.regionIdsShrink = Util.toJSONString(tmp.regionIds);
+  }
+
+  if (!Util.isUnset(tmp.operationPreferences)) {
+    request.operationPreferencesShrink = Util.toJSONString(tmp.operationPreferences);
+  }
+
   return doRequest('CreateStackInstances', 'HTTPS', 'POST', '2019-09-10', 'AK', null, request, runtime);
 }
 
@@ -565,6 +731,8 @@ model CreateStackGroupRequest = {
   clientToken?: string(name='ClientToken'),
   administrationRoleName?: string(name='AdministrationRoleName'),
   executionRoleName?: string(name='ExecutionRoleName'),
+  templateId?: string(name='TemplateId'),
+  templateVersion?: string(name='TemplateVersion'),
 }
 
 model CreateStackGroupResponse = {
@@ -639,6 +807,31 @@ model UpdateStackGroupRequest = {
   operationPreferences?: map[string]any(name='OperationPreferences'),
   administrationRoleName?: string(name='AdministrationRoleName'),
   executionRoleName?: string(name='ExecutionRoleName'),
+  templateId?: string(name='TemplateId'),
+  templateVersion?: string(name='TemplateVersion'),
+}
+
+model UpdateStackGroupShrinkRequest = {
+  regionId: string(name='RegionId'),
+  stackGroupName: string(name='StackGroupName'),
+  description?: string(name='Description'),
+  parameters?: [
+    {
+      parameterValue: string(name='ParameterValue'),
+      parameterKey: string(name='ParameterKey'),
+    }
+  ](name='Parameters'),
+  accountIdsShrink?: string(name='AccountIds'),
+  regionIdsShrink?: string(name='RegionIds'),
+  templateBody?: string(name='TemplateBody'),
+  templateURL?: string(name='TemplateURL'),
+  clientToken?: string(name='ClientToken'),
+  operationDescription?: string(name='OperationDescription'),
+  operationPreferencesShrink?: string(name='OperationPreferences'),
+  administrationRoleName?: string(name='AdministrationRoleName'),
+  executionRoleName?: string(name='ExecutionRoleName'),
+  templateId?: string(name='TemplateId'),
+  templateVersion?: string(name='TemplateVersion'),
 }
 
 model UpdateStackGroupResponse = {
@@ -646,8 +839,22 @@ model UpdateStackGroupResponse = {
   operationId: string(name='OperationId'),
 }
 
-async function updateStackGroupWithOptions(request: UpdateStackGroupRequest, runtime: Util.RuntimeOptions): UpdateStackGroupResponse {
-  Util.validateModel(request);
+async function updateStackGroupWithOptions(tmp: UpdateStackGroupRequest, runtime: Util.RuntimeOptions): UpdateStackGroupResponse {
+  Util.validateModel(tmp);
+  var request = new UpdateStackGroupShrinkRequest{};
+  RPCUtil.convert(tmp, request);
+  if (!Util.isUnset(tmp.accountIds)) {
+    request.accountIdsShrink = Util.toJSONString(tmp.accountIds);
+  }
+
+  if (!Util.isUnset(tmp.regionIds)) {
+    request.regionIdsShrink = Util.toJSONString(tmp.regionIds);
+  }
+
+  if (!Util.isUnset(tmp.operationPreferences)) {
+    request.operationPreferencesShrink = Util.toJSONString(tmp.operationPreferences);
+  }
+
   return doRequest('UpdateStackGroup', 'HTTPS', 'POST', '2019-09-10', 'AK', null, request, runtime);
 }
 
@@ -776,13 +983,38 @@ model DeleteStackInstancesRequest = {
   operationPreferences?: map[string]any(name='OperationPreferences'),
 }
 
+model DeleteStackInstancesShrinkRequest = {
+  regionId: string(name='RegionId'),
+  stackGroupName: string(name='StackGroupName'),
+  accountIdsShrink: string(name='AccountIds'),
+  regionIdsShrink: string(name='RegionIds'),
+  retainStacks: boolean(name='RetainStacks'),
+  clientToken?: string(name='ClientToken'),
+  operationDescription?: string(name='OperationDescription'),
+  operationPreferencesShrink?: string(name='OperationPreferences'),
+}
+
 model DeleteStackInstancesResponse = {
   requestId: string(name='RequestId'),
   operationId: string(name='OperationId'),
 }
 
-async function deleteStackInstancesWithOptions(request: DeleteStackInstancesRequest, runtime: Util.RuntimeOptions): DeleteStackInstancesResponse {
-  Util.validateModel(request);
+async function deleteStackInstancesWithOptions(tmp: DeleteStackInstancesRequest, runtime: Util.RuntimeOptions): DeleteStackInstancesResponse {
+  Util.validateModel(tmp);
+  var request = new DeleteStackInstancesShrinkRequest{};
+  RPCUtil.convert(tmp, request);
+  if (!Util.isUnset(tmp.accountIds)) {
+    request.accountIdsShrink = Util.toJSONString(tmp.accountIds);
+  }
+
+  if (!Util.isUnset(tmp.regionIds)) {
+    request.regionIdsShrink = Util.toJSONString(tmp.regionIds);
+  }
+
+  if (!Util.isUnset(tmp.operationPreferences)) {
+    request.operationPreferencesShrink = Util.toJSONString(tmp.operationPreferences);
+  }
+
   return doRequest('DeleteStackInstances', 'HTTPS', 'POST', '2019-09-10', 'AK', null, request, runtime);
 }
 
@@ -926,6 +1158,7 @@ model ListTemplatesRequest = {
       value?: string(name='Value'),
     }
   ](name='Tag'),
+  shareType?: string(name='ShareType'),
 }
 
 model ListTemplatesResponse = {
@@ -940,6 +1173,10 @@ model ListTemplatesResponse = {
       templateId: string(name='TemplateId'),
       templateName: string(name='TemplateName'),
       updateTime: string(name='UpdateTime'),
+      templateVersion: string(name='TemplateVersion'),
+      shareType: string(name='ShareType'),
+      ownerId: string(name='OwnerId'),
+      templateARN: string(name='TemplateARN'),
     }
   ](name='Templates'),
 }
@@ -995,6 +1232,9 @@ model CreateStackRequest = {
   notificationURLs?: [ string ](name='NotificationURLs'),
   ramRoleName?: string(name='RamRoleName'),
   deletionProtection?: string(name='DeletionProtection'),
+  createOption?: string(name='CreateOption'),
+  templateId?: string(name='TemplateId'),
+  templateVersion?: string(name='TemplateVersion'),
 }
 
 model CreateStackResponse = {
@@ -1101,6 +1341,8 @@ model UpdateStackRequest = {
   templateURL?: string(name='TemplateURL'),
   ramRoleName?: string(name='RamRoleName'),
   replacementOption?: string(name='ReplacementOption'),
+  templateId?: string(name='TemplateId'),
+  templateVersion?: string(name='TemplateVersion'),
 }
 
 model UpdateStackResponse = {
@@ -1154,6 +1396,7 @@ model ListStacksResponse = {
       updateTime: string(name='UpdateTime'),
       stackDriftStatus: string(name='StackDriftStatus'),
       driftDetectionTime: string(name='DriftDetectionTime'),
+      stackType: string(name='StackType'),
     }
   ](name='Stacks'),
 }
@@ -1184,6 +1427,8 @@ model PreviewStackRequest = {
   stackName: string(name='StackName'),
   clientToken?: string(name='ClientToken'),
   templateURL?: string(name='TemplateURL'),
+  templateId?: string(name='TemplateId'),
+  templateVersion?: string(name='TemplateVersion'),
 }
 
 model PreviewStackResponse = {
@@ -1236,6 +1481,8 @@ model GetTemplateEstimateCostRequest = {
   ](name='Parameters'),
   templateBody?: string(name='TemplateBody'),
   clientToken?: string(name='ClientToken'),
+  templateId?: string(name='TemplateId'),
+  templateVersion?: string(name='TemplateVersion'),
 }
 
 model GetTemplateEstimateCostResponse = {
@@ -1288,6 +1535,8 @@ model ContinueCreateStackRequest = {
     }
   ](name='Parameters'),
   dryRun?: boolean(name='DryRun'),
+  templateId?: string(name='TemplateId'),
+  templateVersion?: string(name='TemplateVersion'),
 }
 
 model ContinueCreateStackResponse = {
@@ -1373,11 +1622,36 @@ model GetTemplateRequest = {
   regionId?: string(name='RegionId'),
   changeSetId?: string(name='ChangeSetId'),
   templateId?: string(name='TemplateId'),
+  templateVersion?: string(name='TemplateVersion'),
+  templateStage?: string(name='TemplateStage'),
+  includePermission?: string(name='IncludePermission'),
+  stackGroupName?: string(name='StackGroupName'),
 }
 
 model GetTemplateResponse = {
   requestId: string(name='RequestId'),
   templateBody: string(name='TemplateBody'),
+  stackId: string(name='StackId'),
+  templateId: string(name='TemplateId'),
+  stackGroupName: string(name='StackGroupName'),
+  changeSetId: string(name='ChangeSetId'),
+  regionId: string(name='RegionId'),
+  createTime: string(name='CreateTime'),
+  description: string(name='Description'),
+  templateName: string(name='TemplateName'),
+  updateTime: string(name='UpdateTime'),
+  templateVersion: string(name='TemplateVersion'),
+  shareType: string(name='ShareType'),
+  ownerId: string(name='OwnerId'),
+  templateARN: string(name='TemplateARN'),
+  permissions: [
+    {
+      shareOption: string(name='ShareOption'),
+      versionOption: string(name='VersionOption'),
+      templateVersion: string(name='TemplateVersion'),
+      accountId: string(name='AccountId'),
+    }
+  ](name='Permissions'),
 }
 
 async function getTemplateWithOptions(request: GetTemplateRequest, runtime: Util.RuntimeOptions): GetTemplateResponse {
@@ -1477,6 +1751,7 @@ async function listChangeSets(request: ListChangeSetsRequest): ListChangeSetsRes
 model ExecuteChangeSetRequest = {
   regionId: string(name='RegionId'),
   changeSetId: string(name='ChangeSetId'),
+  clientToken?: string(name='ClientToken'),
 }
 
 model ExecuteChangeSetResponse = {
@@ -1762,6 +2037,8 @@ model CreateChangeSetRequest = {
       resourceIdentifier: string(name='ResourceIdentifier'),
     }
   ](name='ResourcesToImport'),
+  templateId?: string(name='TemplateId'),
+  templateVersion?: string(name='TemplateVersion'),
 }
 
 model CreateChangeSetResponse = {
