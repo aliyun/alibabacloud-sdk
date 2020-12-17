@@ -64,134 +64,1158 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-model AttachInstancesRequest {
-  cpuPolicy?: string(name='cpu_policy', description='CPU策略。'),
-  formatDisk?: boolean(name='format_disk', description='是否格式化数据盘。'),
-  imageId?: string(name='image_id', description='自定义镜像ID。'),
-  instances?: [ string ](name='instances', description='待添加的实例列表。'),
-  isEdgeWorker?: boolean(name='is_edge_worker', description='是否为边缘节点。'),
-  keepInstanceName?: boolean(name='keep_instance_name', description='是否保留实例名称。'),
-  keyPair?: string(name='key_pair', description='key_pair名称，与login_password二选一'),
-  nodepoolId?: string(name='nodepool_id', description='节点池ID，欲将节点添加到哪个节点池中。。'),
-  password?: string(name='password', description='password，与key_pair二选一。'),
-  rdsInstances?: [ string ](name='rds_instances', description='RDS实例列表。'),
-  runtime?: {
-    name?: string(name='name', description='容器运行时名称。'),
-    version?: string(name='version', description='容器运行时版本。'),
-  }(name='runtime', description='容器运行时。'),
-  tags?: [ 
-    {
-      key?: string(name='key', description='标签名。'),
-      value?: string(name='value', description='标签值。'),
-    }
-  ](name='tags', description='节点标签。'),
-  userData?: string(name='user_data', description='用户自定义数据。'),
+model Taint {
+  key?: string(name='key', description='key值。'),
+  value?: string(name='value', description='value值。'),
+  effect?: string(name='effect', description='污点生效策略。'),
 }
 
-model AttachInstancesResponseBody = {
-  list?: [ 
+model DataDisk {
+  category?: string(name='category', description='数据盘类型'),
+  size?: long(name='size', description='数据盘大小，取值范围：40～32767'),
+  encrypted?: string(name='encrypted', description='是否对数据盘加密。'),
+  autoSnapshotPolicyId?: string(name='auto_snapshot_policy_id', description='开启云盘备份时的自动备份策略。'),
+}
+
+model DataDisks {
+  category?: string(name='category', description='数据盘类型。取值cloud,cloud-ssd等'),
+  size?: long(name='size', description='数据盘大小。最小值40，单位：GiB'),
+  encrypted?: boolean(name='encrypted', description='是否对数据盘加密。默认值：false。'),
+}
+
+model Runtimes {
+  name?: string(name='name', description='容器运行时名称。'),
+  version?: string(name='version', description='容器运行时版本。'),
+}
+
+model Addon {
+  name?: string(name='name', description='插件名称。'),
+  config?: string(name='config', description='插件配置参数。'),
+  disabled?: boolean(name='disabled', description='是否禁止默认安装。true | false。'),
+}
+
+model MaintenanceWindow {
+  enable?: boolean(name='enable', description='是否开启维护窗口。默认值false。'),
+  maintenanceTime?: string(name='maintenance_time', description='维护起始时间。Golang标准时间格式"15:04:05Z"。'),
+  duration?: string(name='duration', description='维护时长。取值范围1～24，单位为小时。 默认值：3h。'),
+  weeklyPeriod?: string(name='weekly_period', description='维护周期。取值范围为:Monday~Sunday，多个值用逗号分隔。 默认值：Thursday。'),
+}
+
+model Runtime {
+  name?: string(name='name', description='容器运行时名称'),
+  version?: string(name='version', description='容器运行时版本'),
+}
+
+model Taints {
+  key?: string(name='key', description='污点名。'),
+  value?: string(name='value', description='污点值。'),
+  effect?: string(name='effect', description='污点生效策略。'),
+}
+
+model Tag {
+  key?: string(name='key', description='key值。'),
+  value?: string(name='value', description='value值。'),
+}
+
+model Tags {
+  key?: string(name='key', description='标签名。'),
+  value?: string(name='value', description='标签值。'),
+}
+
+model ListTagResourcesRequest {
+  resourceIds?: [ string ](name='resource_ids', description='集群ID列表。'),
+  tags?: [ 
     {
-      code?: string(name='code', description='状态码。'),
-      instanceId?: string(name='instanceId', description='实例ID。'),
-      message?: string(name='message', description='添加结果描述。'),
+      key?: string(name='key', description='标签key。'),
+      value?: string(name='value', description='标签值。'),
     }
-  ](name='list', description='节点信息列表。'),
+  ](name='tags', description='按标签查找。'),
+  nextToken?: string(name='next_token', description='下一次查询Token。'),
+}
+
+model ListTagResourcesResponseBody = {
+  nextToken?: string(name='next_token', description='下一个查询token。'),
+  requestId?: string(name='request_id', description='请求ID。'),
+  tagResources?: {
+    tagResource?: [ 
+      {
+        tagKey?: string(name='tag_key', description='标签key。'),
+        tagValue?: string(name='tag_value', description='标签值。'),
+        resourceId?: string(name='resource_id', description='资源ID。'),
+        resourceType?: string(name='resource_type', description='资源类型。'),
+      }
+    ](name='tag_resource', description='资源标签。'),
+  }(name='tag_resources', description='资源标签列表。'),
+}
+
+model ListTagResourcesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListTagResourcesResponseBody(name='body'),
+}
+
+async function listTagResources(request: ListTagResourcesRequest): ListTagResourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listTagResourcesWithOptions(request, headers, runtime);
+}
+
+async function listTagResourcesWithOptions(request: ListTagResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTagResourcesResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.resourceIds)) {
+    query.resource_ids = request.resourceIds;
+  }
+  if (!Util.isUnset(request.tags)) {
+    query.tags = request.tags;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query.next_token = request.nextToken;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('ListTagResources', '2015-12-15', 'HTTPS', 'GET', 'AK', `/tags`, 'json', req, runtime);
+}
+
+model ModifyClusterRequest {
+  apiServerEip?: boolean(name='api_server_eip', description='集群是否绑定EIP，用于公网访问API Server。 true | false'),
+  apiServerEipId?: string(name='api_server_eip_id', description='集群API Server 公网连接端点。'),
+  deletionProtection?: boolean(name='deletion_protection', description='集群是否开启删除保护。默认值false。'),
+  instanceDeletionProtection?: boolean(name='instance_deletion_protection', description='实例删除保护，防止通过控制台或API误删除释放节点。'),
+  ingressDomainRebinding?: string(name='ingress_domain_rebinding', description='域名是否重新绑定到Ingress的SLB地址。'),
+  ingressLoadbalancerId?: string(name='ingress_loadbalancer_id', description='集群的Ingress SLB的ID。'),
+  resourceGroupId?: string(name='resource_group_id', description='集群资源组ID。'),
+  maintenanceWindow?: MaintenanceWindow(name='maintenance_window'),
+}
+
+model ModifyClusterResponseBody = {
+  clusterId?: string(name='cluster_id', description='集群ID。'),
+  requestId?: string(name='request_id', description='请求ID。'),
   taskId?: string(name='task_id', description='任务ID。'),
 }
 
-model AttachInstancesResponse = {
+model ModifyClusterResponse = {
   headers: map[string]string(name='headers'),
-  body: AttachInstancesResponseBody(name='body'),
+  body: ModifyClusterResponseBody(name='body'),
 }
 
-async function attachInstances(ClusterId: string, request: AttachInstancesRequest): AttachInstancesResponse {
+async function modifyCluster(ClusterId: string, request: ModifyClusterRequest): ModifyClusterResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return attachInstancesWithOptions(ClusterId, request, headers, runtime);
+  return modifyClusterWithOptions(ClusterId, request, headers, runtime);
 }
 
-async function attachInstancesWithOptions(ClusterId: string, request: AttachInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): AttachInstancesResponse {
+async function modifyClusterWithOptions(ClusterId: string, request: ModifyClusterRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyClusterResponse {
   Util.validateModel(request);
   var body : map[string]any= {};
+  if (!Util.isUnset(request.apiServerEip)) {
+    body.api_server_eip = request.apiServerEip;
+  }
+  if (!Util.isUnset(request.apiServerEipId)) {
+    body.api_server_eip_id = request.apiServerEipId;
+  }
+  if (!Util.isUnset(request.deletionProtection)) {
+    body.deletion_protection = request.deletionProtection;
+  }
+  if (!Util.isUnset(request.instanceDeletionProtection)) {
+    body.instance_deletion_protection = request.instanceDeletionProtection;
+  }
+  if (!Util.isUnset(request.ingressDomainRebinding)) {
+    body.ingress_domain_rebinding = request.ingressDomainRebinding;
+  }
+  if (!Util.isUnset(request.ingressLoadbalancerId)) {
+    body.ingress_loadbalancer_id = request.ingressLoadbalancerId;
+  }
+  if (!Util.isUnset(request.resourceGroupId)) {
+    body.resource_group_id = request.resourceGroupId;
+  }
+  if (!Util.isUnset(request.maintenanceWindow)) {
+    body.maintenance_window = request.maintenanceWindow;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('ModifyCluster', '2015-12-15', 'HTTPS', 'PUT', 'AK', `/api/v2/clusters/${ClusterId}`, 'json', req, runtime);
+}
+
+model DescribeClusterAttachScriptsRequest {
+  arch?: string(name='arch', description='节点CPU架构,支持amd64、arm、arm64。'),
+  options?: {
+    allowedClusterAddons?: [ string ](name='allowedClusterAddons', description='需要安装的组件列表，默认为空，不安装。'),
+    enableIptables?: boolean(name='enableIptables', description='是否开启iptables，默认值true。'),
+    flannelIface?: string(name='flannelIface', description='flannel使用的网卡名。默认使用节点默认路由的网卡名。'),
+    gpuVersion?: string(name='gpuVersion', description='表示要接入的节点是否为GPU节点，默认为空。当前支持的GPU版本是Nvidia_Tesla_T4、Nvidia_Tesla_P4、Nvidia_Tesla_P100。'),
+    manageRuntime?: boolean(name='manageRuntime', description='是否由edgeadm安装并检测Runtime，默认false。'),
+    nodeNameOverride?: string(name='nodeNameOverride', description='设置节点名。  - ""（默认值，表示使用主机名。） - "*"（表示随机生成6位的字符串。） - "*.XXX"（表示随机生成6位字符串+XXX后缀。）'),
+    quiet?: string(name='quiet', description='是否使用静默模式安装。'),
+  }(name='options', description='边缘托管版集群节点的接入配置。'),
+}
+
+model DescribeClusterAttachScriptsResponse = {
+  headers: map[string]string(name='headers'),
+  body: string(name='body'),
+}
+
+async function describeClusterAttachScripts(ClusterId: string, request: DescribeClusterAttachScriptsRequest): DescribeClusterAttachScriptsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeClusterAttachScriptsWithOptions(ClusterId, request, headers, runtime);
+}
+
+async function describeClusterAttachScriptsWithOptions(ClusterId: string, request: DescribeClusterAttachScriptsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterAttachScriptsResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.arch)) {
+    body.arch = request.arch;
+  }
+  if (!Util.isUnset(request.options)) {
+    body.options = request.options;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('DescribeClusterAttachScripts', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${ClusterId}/attachscript`, 'string', req, runtime);
+}
+
+model DescribeKubernetesVersionMetadataRequest {
+  region?: string(name='Region', description='地域ID。'),
+  clusterType?: string(name='ClusterType', description='集群类型。'),
+  multiAZ?: boolean(name='MultiAZ', description='是否查询多可用区。'),
+  kubernetesVersion?: string(name='KubernetesVersion', description='要查询的版本，如果为空则查所有版本。'),
+  profile?: string(name='Profile', description='边缘集群标识，用于区分边缘集群，取值：Default或Edge。'),
+}
+
+model DescribeKubernetesVersionMetadataResponse = {
+  headers: map[string]string(name='headers'),
+  body: [ 
+    {
+      capabilities?: map[string]any(name='capabilities', description='Kubernetes版本特性。	'),
+      images?: [ 
+        {
+          imageId?: string(name='image_id', description='镜像ID。	'),
+          imageName?: string(name='image_name', description='镜像名称。	'),
+          platform?: string(name='platform', description='操作系统发行版。取值范围： CentOS,AliyunLinux,Windows,WindowsCore。'),
+          osVersion?: string(name='os_version', description='镜像版本。'),
+          imageType?: string(name='image_type', description='镜像类型。	'),
+          osType?: string(name='os_type', description='操作系统发行版本号。'),
+          imageCategory?: string(name='image_category', description='镜像分类'),
+        }
+      ](name='images', description='ECS系统镜像列表。	'),
+      metaData?: map[string]any(name='meta_data', description='Kubernetes版本元数据信息。	'),
+      runtimes?: [
+        Runtimes
+      ](name='runtimes', description='容器运行时详情。	'),
+      version?: string(name='version', description='Kubernetes版本。	'),
+      multiAz?: string(name='multi_az', description='是否为多可用区。'),
+    }
+  ](name='body'),
+}
+
+async function describeKubernetesVersionMetadata(request: DescribeKubernetesVersionMetadataRequest): DescribeKubernetesVersionMetadataResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeKubernetesVersionMetadataWithOptions(request, headers, runtime);
+}
+
+async function describeKubernetesVersionMetadataWithOptions(request: DescribeKubernetesVersionMetadataRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeKubernetesVersionMetadataResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.region)) {
+    query.Region = request.region;
+  }
+  if (!Util.isUnset(request.clusterType)) {
+    query.ClusterType = request.clusterType;
+  }
+  if (!Util.isUnset(request.multiAZ)) {
+    query.MultiAZ = request.multiAZ;
+  }
+  if (!Util.isUnset(request.kubernetesVersion)) {
+    query.KubernetesVersion = request.kubernetesVersion;
+  }
+  if (!Util.isUnset(request.profile)) {
+    query.Profile = request.profile;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('DescribeKubernetesVersionMetadata', '2015-12-15', 'HTTPS', 'GET', 'AK', `/api/v1/metadata/versions`, 'array', req, runtime);
+}
+
+model DescribeClusterLogsResponse = {
+  headers: map[string]string(name='headers'),
+  body: [ 
+    {
+      ID?: long(name='ID', description='日志ID。'),
+      clusterId?: string(name='cluster_id', description='集群ID。'),
+      clusterLog?: string(name='cluster_log', description='集群日志。'),
+      created?: string(name='created', description='日志创建时间。'),
+      logLevel?: string(name='log_level', description='日志等级。'),
+      updated?: string(name='updated', description='日志更新时间。'),
+    }
+  ](name='body'),
+}
+
+async function describeClusterLogs(ClusterId: string): DescribeClusterLogsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeClusterLogsWithOptions(ClusterId, headers, runtime);
+}
+
+async function describeClusterLogsWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterLogsResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('DescribeClusterLogs', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/${ClusterId}/logs`, 'array', req, runtime);
+}
+
+model CreateKubernetesTriggerRequest {
+  action?: string(name='Action', description='触发器行为。'),
+  clusterId?: string(name='ClusterId', description='集群ID。'),
+  projectId?: string(name='ProjectId', description='项目名称。'),
+  regionId?: string(name='RegionId', description='地域ID。'),
+  type?: string(name='Type', description='触发器类型。'),
+}
+
+model CreateKubernetesTriggerResponseBody = {
+  action?: string(name='action', description='触发器行为。'),
+  clusterId?: string(name='cluster_id', description='集群ID。'),
+  id?: string(name='id', description='触发器ID。'),
+  projectId?: string(name='project_id', description='项目名称。'),
+}
+
+model CreateKubernetesTriggerResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateKubernetesTriggerResponseBody(name='body'),
+}
+
+async function createKubernetesTrigger(request: CreateKubernetesTriggerRequest): CreateKubernetesTriggerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createKubernetesTriggerWithOptions(request, headers, runtime);
+}
+
+async function createKubernetesTriggerWithOptions(request: CreateKubernetesTriggerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateKubernetesTriggerResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.action)) {
+    body.Action = request.action;
+  }
+  if (!Util.isUnset(request.clusterId)) {
+    body.ClusterId = request.clusterId;
+  }
+  if (!Util.isUnset(request.projectId)) {
+    body.ProjectId = request.projectId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    body.RegionId = request.regionId;
+  }
+  if (!Util.isUnset(request.type)) {
+    body.Type = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('CreateKubernetesTrigger', '2015-12-15', 'HTTPS', 'POST', 'AK', `/triggers`, 'json', req, runtime);
+}
+
+model DescribeClusterDetailResponseBody = {
+  clusterId?: string(name='cluster_id', description='集群ID。'),
+  clusterType?: string(name='cluster_type', description='集群类型。'),
+  created?: string(name='created', description='集群创建时间。'),
+  initVersion?: string(name='init_version', description='集群初始化版本。'),
+  currentVersion?: string(name='current_version', description='集群当前版本。'),
+  nextVersion?: string(name='next_version', description='集群可升级版本。'),
+  deletionProtection?: boolean(name='deletion_protection', description='集群是否开启删除保护。'),
+  dockerVersion?: string(name='docker_version', description='集群内Docker版本。'),
+  externalLoadbalancerId?: string(name='external_loadbalancer_id', description='集群Ingress LB实例ID。'),
+  metaData?: string(name='meta_data', description='集群元数据。'),
+  name?: string(name='name', description='集群名称。'),
+  networkMode?: string(name='network_mode', description='集群采用的网络类型，例如：VPC网络。'),
+  regionId?: string(name='region_id', description='集群所在地域ID。'),
+  resourceGroupId?: string(name='resource_group_id', description='集群资源组ID。'),
+  securityGroupId?: string(name='security_group_id', description='集群安全组ID。'),
+  size?: long(name='size', description='集群节点数量。'),
+  state?: string(name='state', description='集群运行状态。'),
+  tags?: [
+    Tags
+  ](name='tags', description='集群标签。'),
+  updated?: string(name='updated', description='集群更新时间。'),
+  vpcId?: string(name='vpc_id', description='集群使用的VPC ID。'),
+  vswitchId?: string(name='vswitch_id', description='集群节点使用的虚拟交换机列表。'),
+  subnetCidr?: string(name='subnet_cidr', description='Pod网络地址段，必须是有效的私有网段，即以下网段及其子网：10.0.0.0/8，172.16-31.0.0/12-16，192.168.0.0/16。不能与 VPC 及VPC 内已有 Kubernetes 集群使用的网段重复，创建成功后不能修改。  有关集群网络规划，请参见：[VPC下 Kubernetes 的网络地址段规划](https://help.aliyun.com/document_detail/～～86500～～)。'),
+  zoneId?: string(name='zone_id', description='集群所在地域内的可用区ID。'),
+  masterUrl?: string(name='master_url', description='集群访问地址。'),
+  privateZone?: boolean(name='private_zone', description='集群是否启用用PrivateZone。  true：启用 false：不启用 默认值：false。'),
+  profile?: string(name='profile', description='面向场景时的集群类型。  Default：非边缘场景集群。 Edge：边缘场景集群。'),
+  clusterSpec?: string(name='cluster_spec', description='托管版集群类型，面向托管集群。  ack.pro.small：专业托管集群。 ack.standard ：标准托管集群。'),
+  workerRamRoleName?: string(name='worker_ram_role_name', description='Worker节点RAM角色名称。'),
+  maintenanceWindow?: MaintenanceWindow(name='maintenance_window'),
+  parameters?: map[string]any(name='parameters', description='创建集群参数。'),
+  outputs?: [ 
+    {
+      outputKey?: string(name='OutputKey', description='资源ID。'),
+      outputValue?: string(name='OutputValue', description='资源名称。'),
+      description?: string(name='Description', description='资源描述。'),
+    }
+  ](name='outputs', description='集群创建的资源列表。'),
+}
+
+model DescribeClusterDetailResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeClusterDetailResponseBody(name='body'),
+}
+
+async function describeClusterDetail(ClusterId: string): DescribeClusterDetailResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeClusterDetailWithOptions(ClusterId, headers, runtime);
+}
+
+async function describeClusterDetailWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterDetailResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('DescribeClusterDetail', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/${ClusterId}`, 'json', req, runtime);
+}
+
+model PauseComponentUpgradeResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function pauseComponentUpgrade(clusterid: string, componentid: string): PauseComponentUpgradeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return pauseComponentUpgradeWithOptions(clusterid, componentid, headers, runtime);
+}
+
+async function pauseComponentUpgradeWithOptions(clusterid: string, componentid: string, headers: map[string]string, runtime: Util.RuntimeOptions): PauseComponentUpgradeResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('PauseComponentUpgrade', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${clusterid}/components/{componentid}/pause`, 'none', req, runtime);
+}
+
+model DescribeClustersRequest {
+  name?: string(name='name', description='集群名称。'),
+  clusterType?: string(name='clusterType', description='集群类型。'),
+}
+
+model DescribeClustersResponse = {
+  headers: map[string]string(name='headers'),
+  body: [ 
+    {
+      clusterId?: string(name='cluster_id', description='集群ID。'),
+      clusterType?: string(name='cluster_type', description='集群类型。'),
+      created?: string(name='created', description='集群创建时间。'),
+      currentVersion?: string(name='current_version', description='集群当前版本。'),
+      dataDiskCategory?: string(name='data_disk_category', description='节点系统盘类型。'),
+      dataDiskSize?: long(name='data_disk_size', description='节点系统盘大小。'),
+      deletionProtection?: boolean(name='deletion_protection', description='集群是否开启删除保护。'),
+      dockerVersion?: string(name='docker_version', description='容器运行时版本。'),
+      externalLoadbalancerId?: string(name='external_loadbalancer_id', description='集群Ingerss SLB实例的ID。'),
+      initVersion?: string(name='init_version', description='集群创建时版本。'),
+      masterUrl?: string(name='master_url', description='集群的endpoint地址。'),
+      metaData?: string(name='meta_data', description='集群元数据。'),
+      name?: string(name='name', description='集群名称。'),
+      networkMode?: string(name='network_mode', description='集群使用的网络类型。'),
+      privateZone?: boolean(name='private_zone', description='集群是否开启Private Zone，默认false。'),
+      profile?: string(name='profile', description='集群标识，区分是否为边缘托管版。'),
+      regionId?: string(name='region_id', description='集群所在地域ID。'),
+      resourceGroupId?: string(name='resource_group_id', description='集群资源组ID。'),
+      securityGroupId?: string(name='security_group_id', description='集群安全组ID。'),
+      size?: long(name='size', description='集群内实例数量。'),
+      state?: string(name='state', description='集群运行状态。'),
+      subnetCidr?: string(name='subnet_cidr', description='POD网络。'),
+      tags?: [ 
+        {
+          key?: string(name='key', description='标签名。'),
+          value?: string(name='value', description='标签值。'),
+        }
+      ](name='tags', description='集群标签。'),
+      updated?: string(name='updated', description='集群更新时间。'),
+      vpcId?: string(name='vpc_id', description='集群使用的VPC ID。'),
+      vswitchCidr?: string(name='vswitch_cidr', description='虚拟交换机网络ID。'),
+      vswitchId?: string(name='vswitch_id', description='节点使用的Vswitch ID。'),
+      workerRamRoleName?: string(name='worker_ram_role_name', description='集群Worker节点RAM角色名称。'),
+      zoneId?: string(name='zone_id', description='集群所在Region内的区域ID。'),
+    }
+  ](name='body'),
+}
+
+async function describeClusters(request: DescribeClustersRequest): DescribeClustersResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeClustersWithOptions(request, headers, runtime);
+}
+
+async function describeClustersWithOptions(request: DescribeClustersRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClustersResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.name)) {
+    query.name = request.name;
+  }
+  if (!Util.isUnset(request.clusterType)) {
+    query.clusterType = request.clusterType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('DescribeClusters', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters`, 'array', req, runtime);
+}
+
+model ModifyClusterNodePoolRequest {
+  autoScaling?: {
+    eipBandwidth?: long(name='eip_bandwidth', description='带宽峰值。'),
+    eipInternetChargeType?: string(name='eip_internet_charge_type', description='EIP计费类型。'),
+    enable?: boolean(name='enable', description='是否开启自动伸缩。'),
+    isBondEip?: boolean(name='is_bond_eip', description='是否绑定EIP。'),
+    maxInstances?: long(name='max_instances', description='最大实例数。'),
+    minInstances?: long(name='min_instances', description='最小实例数。'),
+    type?: string(name='type', description='自动伸缩节点类型。'),
+  }(name='auto_scaling', description='自动伸缩节点池配置。'),
+  kubernetesConfig?: {
+    cmsEnabled?: boolean(name='cms_enabled', description='是否开启云监控。'),
+    cpuPolicy?: string(name='cpu_policy', description='CPU管理策略。'),
+    labels?: [
+      Tags
+    ](name='labels', description='节点标签。'),
+    runtime?: string(name='runtime', description='容器运行时。'),
+    runtimeVersion?: string(name='runtime_version', description='容器运行时版本。'),
+    taints?: [
+      Taints
+    ](name='taints', description='污点配置。'),
+    userData?: string(name='user_data', description='实例自定义数据。'),
+  }(name='kubernetes_config', description='集群配置。'),
+  nodepoolInfo?: {
+    name?: string(name='name', description='节点池名称。'),
+    resourceGroupId?: string(name='resource_group_id', description='资源组ID。'),
+  }(name='nodepool_info', description='节点池配置。'),
+  scalingGroup?: {
+    dataDisks?: [
+      DataDisks
+    ](name='data_disks', description='数据盘配置。'),
+    instanceChargeType?: string(name='instance_charge_type', description='节点付费类型。'),
+    period?: long(name='period', description='包年包月时长'),
+    periodUnit?: string(name='period_unit', description='付费周期'),
+    autoRenew?: boolean(name='auto_renew', description='节点池节点是启用自动续费'),
+    autoRenewPeriod?: long(name='auto_renew_period', description='节点池节点自动续费周期'),
+    platform?: string(name='platform', description='操作系统发行版。'),
+    imageId?: string(name='image_id', description='自定义镜像'),
+    spotStrategy?: string(name='spot_strategy', description='抢占式实例类型'),
+    spotPriceLimit?: [ 
+      {
+        instanceType?: string(name='instance_type', description='抢占式实例规格'),
+        priceLimit?: string(name='price_limit', description='单台实例上限价格，单位：元/小时。'),
+      }
+    ](name='spot_price_limit', description='抢占实例价格上限配置'),
+    instanceTypes?: [ string ](name='instance_types', description='节点实例规格。'),
+    keyPair?: string(name='key_pair', description='密钥对名称，和login_password二选一。'),
+    loginPassword?: string(name='login_password', description='SSH登录密码，和key_pari二选一。'),
+    rdsInstances?: [ string ](name='rds_instances', description='RDS实例列表。'),
+    scalingPolicy?: string(name='scaling_policy', description='扩容策略。'),
+    systemDiskCategory?: string(name='system_disk_category', description='节点系统盘类型。'),
+    systemDiskSize?: long(name='system_disk_size', description='节点系统盘大小。'),
+    tags?: [
+      Tags
+    ](name='tags', description='ECS标签。'),
+    vswitchIds?: [ string ](name='vswitch_ids', description='节点使用的虚拟交换机ID。'),
+  }(name='scaling_group', description='扩容组配置。'),
+  teeConfig?: {
+    teeEnable?: boolean(name='tee_enable', description='是否为加密计算节点池。'),
+  }(name='tee_config', description='加密计算配置。'),
+  management?: {
+    enable?: boolean(name='enable', description='是否启用托管节点池。'),
+    autoRepair?: boolean(name='auto_repair', description='是否开启自动修复。'),
+    upgradeConfig?: {
+      autoUpgrade?: boolean(name='auto_upgrade', description='是否启用自动升级，自修复。'),
+      surge?: long(name='surge', description='额外节点数量。'),
+      surgePercentage?: long(name='surge_percentage', description='额外节点比例， 和surge 二选一。'),
+      maxUnavailable?: long(name='max_unavailable', description='最大不可用节点数量。'),
+    }(name='upgrade_config', description='自动升级配置。'),
+  }(name='management', description='托管版节点池配置。'),
+  updateNodes?: boolean(name='update_nodes', description='是否同步更新节点标签及污点。'),
+}
+
+model ModifyClusterNodePoolResponseBody = {
+  taskId?: string(name='task_id', description='任务ID。'),
+  nodepoolId?: string(name='nodepool_id', description='节点池ID。'),
+}
+
+model ModifyClusterNodePoolResponse = {
+  headers: map[string]string(name='headers'),
+  body: ModifyClusterNodePoolResponseBody(name='body'),
+}
+
+async function modifyClusterNodePool(ClusterId: string, NodepoolId: string, request: ModifyClusterNodePoolRequest): ModifyClusterNodePoolResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modifyClusterNodePoolWithOptions(ClusterId, NodepoolId, request, headers, runtime);
+}
+
+async function modifyClusterNodePoolWithOptions(ClusterId: string, NodepoolId: string, request: ModifyClusterNodePoolRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyClusterNodePoolResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.autoScaling)) {
+    body.auto_scaling = request.autoScaling;
+  }
+  if (!Util.isUnset(request.kubernetesConfig)) {
+    body.kubernetes_config = request.kubernetesConfig;
+  }
+  if (!Util.isUnset(request.nodepoolInfo)) {
+    body.nodepool_info = request.nodepoolInfo;
+  }
+  if (!Util.isUnset(request.scalingGroup)) {
+    body.scaling_group = request.scalingGroup;
+  }
+  if (!Util.isUnset(request.teeConfig)) {
+    body.tee_config = request.teeConfig;
+  }
+  if (!Util.isUnset(request.management)) {
+    body.management = request.management;
+  }
+  if (!Util.isUnset(request.updateNodes)) {
+    body.update_nodes = request.updateNodes;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('ModifyClusterNodePool', '2015-12-15', 'HTTPS', 'PUT', 'AK', `/clusters/${ClusterId}/nodepools/{NodepoolId}`, 'json', req, runtime);
+}
+
+model ResumeUpgradeClusterResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function resumeUpgradeCluster(ClusterId: string): ResumeUpgradeClusterResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return resumeUpgradeClusterWithOptions(ClusterId, headers, runtime);
+}
+
+async function resumeUpgradeClusterWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ResumeUpgradeClusterResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('ResumeUpgradeCluster', '2015-12-15', 'HTTPS', 'POST', 'AK', `/api/v2/clusters/${ClusterId}/upgrade/resume`, 'none', req, runtime);
+}
+
+model ScaleClusterNodePoolRequest {
+  count?: long(name='count', description='扩容节点数量'),
+}
+
+model ScaleClusterNodePoolResponseBody = {
+  taskId?: string(name='task_id', description='任务ID。'),
+}
+
+model ScaleClusterNodePoolResponse = {
+  headers: map[string]string(name='headers'),
+  body: ScaleClusterNodePoolResponseBody(name='body'),
+}
+
+async function scaleClusterNodePool(ClusterId: string, NodepoolId: string, request: ScaleClusterNodePoolRequest): ScaleClusterNodePoolResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return scaleClusterNodePoolWithOptions(ClusterId, NodepoolId, request, headers, runtime);
+}
+
+async function scaleClusterNodePoolWithOptions(ClusterId: string, NodepoolId: string, request: ScaleClusterNodePoolRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ScaleClusterNodePoolResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.count)) {
+    body.count = request.count;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('ScaleClusterNodePool', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${ClusterId}/nodepools/{NodepoolId}`, 'json', req, runtime);
+}
+
+model DescribeClusterNodePoolDetailResponseBody = {
+  autoScaling?: {
+    eipBandwidth?: long(name='eip_bandwidth', description='EIP带宽峰值。'),
+    eipInternetChargeType?: string(name='eip_internet_charge_type', description='EIP实例付费类型。'),
+    enable?: boolean(name='enable', description='是否启用自动伸缩。'),
+    isBondEip?: boolean(name='is_bond_eip', description='是否绑定EIP。'),
+    maxInstances?: long(name='max_instances', description='最大实例数。'),
+    minInstances?: long(name='min_instances', description='最小实例数。'),
+    type?: string(name='type', description='扩容组类型'),
+  }(name='auto_scaling', description='节点池自动伸缩信息。'),
+  kubernetesConfig?: {
+    cmsEnabled?: boolean(name='cms_enabled', description='是否开启云监控'),
+    cpuPolicy?: string(name='cpu_policy', description='CPU管理策略'),
+    labels?: [
+      Tags
+    ](name='labels', description='节点标签。'),
+    runtime?: string(name='runtime', description='容器运行时'),
+    runtimeVersion?: string(name='runtime_version', description='容器运行时版本。'),
+    taints?: [
+      Taints
+    ](name='taints', description='污点配置。'),
+    userData?: string(name='user_data', description='节点自定义数据'),
+  }(name='kubernetes_config', description='节点池所属集群配置。'),
+  nodepoolInfo?: {
+    created?: string(name='created', description='节点池创建时间。'),
+    isDefault?: boolean(name='is_default', description='是否为默认节点池。'),
+    name?: string(name='name', description='节点池名称。'),
+    nodepoolId?: string(name='nodepool_id', description='节点池ID。'),
+    regionId?: string(name='region_id', description='节点池所属地域ID。'),
+    resourceGroupId?: string(name='resource_group_id', description='节点池所属资源组ID。'),
+    type?: string(name='type', description='节点池类型。'),
+    updated?: string(name='updated', description='节点池更新时间。'),
+  }(name='nodepool_info', description='节点池详情。'),
+  scalingGroup?: {
+    autoRenew?: boolean(name='auto_renew', description='节点是否开启自动续费。'),
+    autoRenewPeriod?: long(name='auto_renew_period', description='节点自动续费周期。'),
+    dataDisks?: [
+      DataDisks
+    ](name='data_disks', description='数据盘配置。'),
+    imageId?: string(name='image_id', description='自定义镜像ID。'),
+    instanceChargeType?: string(name='instance_charge_type', description='节点付费类型。'),
+    instanceTypes?: [ string ](name='instance_types', description='节点ECS规格类型。'),
+    multiAzPolicy?: string(name='multi_az_policy', description='多可用区策略。'),
+    period?: long(name='period', description='节点包年包月时长。'),
+    periodUnit?: string(name='period_unit', description='节点付费周期。'),
+    platform?: string(name='platform', description='操作系统发行版。取值： CentOS，AliyunLinux，Windows，WindowsCore。'),
+    ramPolicy?: string(name='ram_policy', description='节点RAM 角色名称。'),
+    spotStrategy?: string(name='spot_strategy', description='抢占式实例类型'),
+    spotPriceLimit?: [ 
+      {
+        instanceType?: string(name='instance_type', description='抢占式实例规格。'),
+        priceLimit?: string(name='price_limit', description='单台实例上限价格，单位：元/小时。'),
+      }
+    ](name='spot_price_limit', description='抢占式实例价格上限配置。'),
+    rdsInstances?: [ string ](name='rds_instances', description='RDS实例列表。'),
+    scalingGroupId?: string(name='scaling_group_id', description='扩容组ID。'),
+    scalingPolicy?: string(name='scaling_policy', description='扩容策略。'),
+    securityGroupId?: string(name='security_group_id', description='节点所属安全组ID。'),
+    systemDiskCategory?: string(name='system_disk_category', description='系统盘类型'),
+    systemDiskSize?: long(name='system_disk_size', description='系统盘大小'),
+    tags?: [
+      Tags
+    ](name='tags', description='ECS标签'),
+    vswitchIds?: [ string ](name='vswitch_ids', description='虚拟交换机ID。'),
+    loginPassword?: string(name='login_password', description='登录密码'),
+    keyPair?: string(name='key_pair', description='密钥对名称'),
+  }(name='scaling_group', description='节点池扩容组信息。'),
+  status?: {
+    failedNodes?: long(name='failed_nodes', description='失败节点数。'),
+    healthyNodes?: long(name='healthy_nodes', description='处于健康状态节点数。'),
+    initialNodes?: long(name='initial_nodes', description='正在初始化节点数。'),
+    offlineNodes?: long(name='offline_nodes', description='离线节点数量。'),
+    removingNodes?: long(name='removing_nodes', description='正在被移除节点数。'),
+    servingNodes?: long(name='serving_nodes', description='工作节点数量。'),
+    state?: string(name='state', description='节点池状态。'),
+    totalNodes?: long(name='total_nodes', description='总节点数。'),
+  }(name='status', description='节点池状态。'),
+  teeConfig?: {
+    teeEnable?: boolean(name='tee_enable', description='是否为加密计算节点池。'),
+  }(name='tee_config', description='加密计算节点池信息。'),
+  management?: {
+    enable?: boolean(name='enable', description='是否开启托管版节点池。'),
+    autoRepair?: boolean(name='auto_repair', description='自动修复。'),
+    upgradeConfig?: {
+      autoUpgrade?: boolean(name='auto_upgrade', description='是否启用自动升级，自修复。'),
+      surge?: long(name='surge', description='额外节点数量。'),
+      surgePercentage?: long(name='surge_percentage', description='额外节点比例， 和surge 二选一。'),
+      maxUnavailable?: long(name='max_unavailable', description='最大不可用节点数量。'),
+    }(name='upgrade_config', description='自动升级配置。'),
+  }(name='management', description='托管版节点池配置。'),
+}
+
+model DescribeClusterNodePoolDetailResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeClusterNodePoolDetailResponseBody(name='body'),
+}
+
+async function describeClusterNodePoolDetail(ClusterId: string, NodepoolId: string): DescribeClusterNodePoolDetailResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeClusterNodePoolDetailWithOptions(ClusterId, NodepoolId, headers, runtime);
+}
+
+async function describeClusterNodePoolDetailWithOptions(ClusterId: string, NodepoolId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterNodePoolDetailResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('DescribeClusterNodePoolDetail', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/${ClusterId}/nodepools/{NodepoolId}`, 'json', req, runtime);
+}
+
+model CreateClusterNodePoolRequest {
+  autoScaling?: {
+    enable?: boolean(name='enable', description='是否开启自动伸缩。'),
+    maxInstances?: long(name='max_instances', description='最大实例数。'),
+    minInstances?: long(name='min_instances', description='最小实例数。'),
+    type?: string(name='type', description='扩容节点类型。'),
+    isBondEip?: boolean(name='is_bond_eip', description='是否绑定EIP。'),
+    eipInternetChargeType?: string(name='eip_internet_charge_type', description='EIP实例规格。'),
+    eipBandwidth?: long(name='eip_bandwidth', description='带宽峰值。'),
+  }(name='auto_scaling', description='自动伸缩节点池配置。'),
+  kubernetesConfig?: {
+    cmsEnabled?: boolean(name='cms_enabled', description='是否开启云监控。'),
+    cpuPolicy?: string(name='cpu_policy', description='CPU管理策略。'),
+    labels?: [
+      Tags
+    ](name='labels', description='节点标签。'),
+    runtime?: string(name='runtime', description='容器运行时。'),
+    runtimeVersion?: string(name='runtime_version', description='容器运行时版本。'),
+    taints?: [
+      Taints
+    ](name='taints', description='污点信息。'),
+    userData?: string(name='user_data', description='节点自定义数据。'),
+  }(name='kubernetes_config', description='集群配置'),
+  nodepoolInfo?: {
+    name?: string(name='name', description='节点池名称'),
+    resourceGroupId?: string(name='resource_group_id', description='资源组ID。'),
+  }(name='nodepool_info', description='节点池配置'),
+  scalingGroup?: {
+    autoRenew?: boolean(name='auto_renew', description='节点是否开启自动续费'),
+    autoRenewPeriod?: long(name='auto_renew_period', description='节点自动续费周期'),
+    dataDisks?: [
+      DataDisks
+    ](name='data_disks', description='数据盘配置。'),
+    imageId?: string(name='image_id', description='自定义镜像。'),
+    instanceChargeType?: string(name='instance_charge_type', description='节点付费类型'),
+    instanceTypes?: [ string ](name='instance_types', description='实例规格。'),
+    keyPair?: string(name='key_pair', description='密钥对名称，和login_password二选一。'),
+    loginPassword?: string(name='login_password', description='SSH登录密码。'),
+    period?: long(name='period', description='节点包年包月时长。'),
+    periodUnit?: string(name='period_unit', description='节点包年包月周期。'),
+    platform?: string(name='platform', description='操作系统发行版'),
+    rdsInstances?: [ string ](name='rds_instances', description='RDS实例列表。'),
+    spotStrategy?: string(name='spot_strategy', description='抢占式实例类型'),
+    spotPriceLimit?: [ 
+      {
+        instanceType?: string(name='instance_type', description='抢占实例规格。'),
+        priceLimit?: string(name='price_limit', description='抢占实例单价。'),
+      }
+    ](name='spot_price_limit', description='抢占实例价格上限配置。'),
+    scalingPolicy?: string(name='scaling_policy', description='自动伸缩。'),
+    securityGroupId?: string(name='security_group_id', description='安全组ID。'),
+    systemDiskCategory?: string(name='system_disk_category', description='节点系统盘类型。'),
+    systemDiskSize?: long(name='system_disk_size', description='节点系统盘大小。'),
+    tags?: [ 
+      {
+        key?: string(name='key', description='key'),
+        value?: string(name='value', description='value'),
+      }
+    ](name='tags', description='ECS标签'),
+    vswitchIds?: [ string ](name='vswitch_ids', description='虚拟交换机ID。'),
+  }(name='scaling_group', description='伸缩组配置'),
+  teeConfig?: {
+    teeEnable?: boolean(name='tee_enable', description='是否为加密计算节点池。'),
+  }(name='tee_config', description='加密计算节点池配置。'),
+  management?: {
+    enable?: boolean(name='enable', description='是否启用托管节点池。'),
+    autoRepair?: boolean(name='auto_repair', description='是否启用自动修复。'),
+    upgradeConfig?: {
+      autoUpgrade?: boolean(name='auto_upgrade', description='是否启用自动升级'),
+      surge?: long(name='surge', description='额外节点数量。'),
+      surgePercentage?: long(name='surge_percentage', description='额外节点比例。和surge二选一。'),
+      maxUnavailable?: long(name='max_unavailable', description='最大不可用节点数量。'),
+    }(name='upgrade_config', description='自动升级配置。'),
+  }(name='management', description='托管节点池配置。'),
+  count?: long(name='count', description='节点数量。'),
+}
+
+model CreateClusterNodePoolResponseBody = {
+  nodepoolId?: string(name='nodepool_id', description='节点池ID'),
+}
+
+model CreateClusterNodePoolResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateClusterNodePoolResponseBody(name='body'),
+}
+
+async function createClusterNodePool(ClusterId: string, request: CreateClusterNodePoolRequest): CreateClusterNodePoolResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createClusterNodePoolWithOptions(ClusterId, request, headers, runtime);
+}
+
+async function createClusterNodePoolWithOptions(ClusterId: string, request: CreateClusterNodePoolRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateClusterNodePoolResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.autoScaling)) {
+    body.auto_scaling = request.autoScaling;
+  }
+  if (!Util.isUnset(request.kubernetesConfig)) {
+    body.kubernetes_config = request.kubernetesConfig;
+  }
+  if (!Util.isUnset(request.nodepoolInfo)) {
+    body.nodepool_info = request.nodepoolInfo;
+  }
+  if (!Util.isUnset(request.scalingGroup)) {
+    body.scaling_group = request.scalingGroup;
+  }
+  if (!Util.isUnset(request.teeConfig)) {
+    body.tee_config = request.teeConfig;
+  }
+  if (!Util.isUnset(request.management)) {
+    body.management = request.management;
+  }
+  if (!Util.isUnset(request.count)) {
+    body.count = request.count;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('CreateClusterNodePool', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${ClusterId}/nodepools`, 'json', req, runtime);
+}
+
+model DescribeClusterUserKubeconfigRequest {
+  privateIpAddress?: boolean(name='PrivateIpAddress', description='ApiServer是否为内网地址。'),
+}
+
+model DescribeClusterUserKubeconfigResponseBody = {
+  config?: string(name='config', description='kubeconfig内容。'),
+}
+
+model DescribeClusterUserKubeconfigResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeClusterUserKubeconfigResponseBody(name='body'),
+}
+
+async function describeClusterUserKubeconfig(ClusterId: string, request: DescribeClusterUserKubeconfigRequest): DescribeClusterUserKubeconfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeClusterUserKubeconfigWithOptions(ClusterId, request, headers, runtime);
+}
+
+async function describeClusterUserKubeconfigWithOptions(ClusterId: string, request: DescribeClusterUserKubeconfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterUserKubeconfigResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.privateIpAddress)) {
+    query.PrivateIpAddress = request.privateIpAddress;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('DescribeClusterUserKubeconfig', '2015-12-15', 'HTTPS', 'GET', 'AK', `/k8s/${ClusterId}/user_config`, 'json', req, runtime);
+}
+
+model ScaleClusterRequest {
+  cloudMonitorFlags?: boolean(name='cloud_monitor_flags', description='节点是否安装云监控插件。'),
+  count?: long(name='count', description='扩容节点数。'),
+  cpuPolicy?: string(name='cpu_policy', description='节点CPU策略。'),
+  disableRollback?: boolean(name='disable_rollback', description='失败是否回滚。'),
+  keyPair?: string(name='key_pair', description='keypair名称，和login_password二选一。'),
+  loginPassword?: string(name='login_password', description='SSH登录密码。和keypair二选一。'),
+  tags?: [ 
+    {
+      key?: string(name='key', description='标签值。'),
+    }
+  ](name='tags', description='集群标签。'),
+  taints?: [ 
+    {
+      effect?: string(name='effect', description='污点生效策略。'),
+      key?: string(name='key', description='污点键。'),
+      value?: string(name='value', description='污点值。'),
+    }
+  ](name='taints', description='节点污点标记。'),
+  vswitchIds?: [ string ](name='vswitch_ids', description='节点交换机ID列表。'),
+  workerAutoRenew?: boolean(name='worker_auto_renew', description='节点是否开启Worker节点自动续费。'),
+  workerAutoRenewPeriod?: long(name='worker_auto_renew_period', description='自动续费周期。'),
+  workerDataDisk?: boolean(name='worker_data_disk', description='是否挂载数据盘。'),
+  workerDataDisks?: [ 
+    {
+      category?: string(name='category', description='数据盘类型。'),
+      encrypted?: string(name='encrypted', description='是否对数据盘加密。'),
+      size?: string(name='size', description='数据盘大小。'),
+    }
+  ](name='worker_data_disks', description='Worker数据盘类型、大小等配置的组合。'),
+  workerInstanceChargeType?: string(name='worker_instance_charge_type', description='节点付费类型。'),
+  workerInstanceTypes?: [ string ](name='worker_instance_types', description='Worker节点ECS规格类型。'),
+  workerPeriod?: long(name='worker_period', description='节点包年包月时长。'),
+  workerPeriodUnit?: string(name='worker_period_unit', description='当指定为PrePaid的时候需要指定周期。'),
+  workerSystemDiskCategory?: string(name='worker_system_disk_category', description='节点系统盘类型。'),
+  workerSystemDiskSize?: long(name='worker_system_disk_size', description='节点系统盘大小'),
+}
+
+model ScaleClusterResponseBody = {
+  clusterId?: string(name='cluster_id', description='集群ID。'),
+  requestId?: string(name='request_id', description='请求ID。'),
+  taskId?: string(name='task_id', description='任务ID。'),
+}
+
+model ScaleClusterResponse = {
+  headers: map[string]string(name='headers'),
+  body: ScaleClusterResponseBody(name='body'),
+}
+
+async function scaleCluster(ClusterId: string, request: ScaleClusterRequest): ScaleClusterResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return scaleClusterWithOptions(ClusterId, request, headers, runtime);
+}
+
+async function scaleClusterWithOptions(ClusterId: string, request: ScaleClusterRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ScaleClusterResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.cloudMonitorFlags)) {
+    body.cloud_monitor_flags = request.cloudMonitorFlags;
+  }
+  if (!Util.isUnset(request.count)) {
+    body.count = request.count;
+  }
   if (!Util.isUnset(request.cpuPolicy)) {
     body.cpu_policy = request.cpuPolicy;
   }
-  if (!Util.isUnset(request.formatDisk)) {
-    body.format_disk = request.formatDisk;
-  }
-  if (!Util.isUnset(request.imageId)) {
-    body.image_id = request.imageId;
-  }
-  if (!Util.isUnset(request.instances)) {
-    body.instances = request.instances;
-  }
-  if (!Util.isUnset(request.isEdgeWorker)) {
-    body.is_edge_worker = request.isEdgeWorker;
-  }
-  if (!Util.isUnset(request.keepInstanceName)) {
-    body.keep_instance_name = request.keepInstanceName;
+  if (!Util.isUnset(request.disableRollback)) {
+    body.disable_rollback = request.disableRollback;
   }
   if (!Util.isUnset(request.keyPair)) {
     body.key_pair = request.keyPair;
   }
-  if (!Util.isUnset(request.nodepoolId)) {
-    body.nodepool_id = request.nodepoolId;
-  }
-  if (!Util.isUnset(request.password)) {
-    body.password = request.password;
-  }
-  if (!Util.isUnset(request.rdsInstances)) {
-    body.rds_instances = request.rdsInstances;
-  }
-  if (!Util.isUnset(request.runtime)) {
-    body.runtime = request.runtime;
+  if (!Util.isUnset(request.loginPassword)) {
+    body.login_password = request.loginPassword;
   }
   if (!Util.isUnset(request.tags)) {
     body.tags = request.tags;
   }
-  if (!Util.isUnset(request.userData)) {
-    body.user_data = request.userData;
+  if (!Util.isUnset(request.taints)) {
+    body.taints = request.taints;
+  }
+  if (!Util.isUnset(request.vswitchIds)) {
+    body.vswitch_ids = request.vswitchIds;
+  }
+  if (!Util.isUnset(request.workerAutoRenew)) {
+    body.worker_auto_renew = request.workerAutoRenew;
+  }
+  if (!Util.isUnset(request.workerAutoRenewPeriod)) {
+    body.worker_auto_renew_period = request.workerAutoRenewPeriod;
+  }
+  if (!Util.isUnset(request.workerDataDisk)) {
+    body.worker_data_disk = request.workerDataDisk;
+  }
+  if (!Util.isUnset(request.workerDataDisks)) {
+    body.worker_data_disks = request.workerDataDisks;
+  }
+  if (!Util.isUnset(request.workerInstanceChargeType)) {
+    body.worker_instance_charge_type = request.workerInstanceChargeType;
+  }
+  if (!Util.isUnset(request.workerInstanceTypes)) {
+    body.worker_instance_types = request.workerInstanceTypes;
+  }
+  if (!Util.isUnset(request.workerPeriod)) {
+    body.worker_period = request.workerPeriod;
+  }
+  if (!Util.isUnset(request.workerPeriodUnit)) {
+    body.worker_period_unit = request.workerPeriodUnit;
+  }
+  if (!Util.isUnset(request.workerSystemDiskCategory)) {
+    body.worker_system_disk_category = request.workerSystemDiskCategory;
+  }
+  if (!Util.isUnset(request.workerSystemDiskSize)) {
+    body.worker_system_disk_size = request.workerSystemDiskSize;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
-    body = body,
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('AttachInstances', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${ClusterId}/attach`, 'json', req, runtime);
+  return doROARequest('ScaleCluster', '2015-12-15', 'HTTPS', 'PUT', 'AK', `/clusters/${ClusterId}`, 'json', req, runtime);
 }
 
-model CancelClusterUpgradeResponse = {
+model DescribeClusterAddonUpgradeStatusResponseBody = {
+  addonInfo?: {
+    category?: string(name='category', description='Addon类别。'),
+    componentName?: string(name='component_name', description='组件名称。'),
+    message?: string(name='message', description='升级说明信息。'),
+    version?: string(name='version', description='组件版本。'),
+    yaml?: string(name='yaml', description='组件配置文件。'),
+  }(name='addon_info', description='组件信息。'),
+  canUpgrade?: boolean(name='can_upgrade', description='是否能够升级。'),
+  template?: string(name='template', description='模板信息，采用base64加密。'),
+}
+
+model DescribeClusterAddonUpgradeStatusResponse = {
   headers: map[string]string(name='headers'),
+  body: DescribeClusterAddonUpgradeStatusResponseBody(name='body'),
 }
 
-async function cancelClusterUpgrade(ClusterId: string): CancelClusterUpgradeResponse {
+async function describeClusterAddonUpgradeStatus(ClusterId: string, ComponentId: string): DescribeClusterAddonUpgradeStatusResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return cancelClusterUpgradeWithOptions(ClusterId, headers, runtime);
+  return describeClusterAddonUpgradeStatusWithOptions(ClusterId, ComponentId, headers, runtime);
 }
 
-async function cancelClusterUpgradeWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): CancelClusterUpgradeResponse {
+async function describeClusterAddonUpgradeStatusWithOptions(ClusterId: string, ComponentId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterAddonUpgradeStatusResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
-  return doROARequest('CancelClusterUpgrade', '2015-12-15', 'HTTPS', 'POST', 'AK', `/api/v2/clusters/${ClusterId}/upgrade/cancel`, 'none', req, runtime);
+  return doROARequest('DescribeClusterAddonUpgradeStatus', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/${ClusterId}/components/{ComponentId}/upgradestatus`, 'json', req, runtime);
 }
 
-model CancelComponentUpgradeResponse = {
+model DescribeAddonsRequest {
+  region?: string(name='region', description='Region ID。'),
+  clusterType?: string(name='cluster_type', description='集群类型，默认为kubernetes。'),
+}
+
+model DescribeAddonsResponseBody = {
+  componentGroups?: [ 
+    {
+      default?: [ string ](name='default', description='默认组件组。'),
+      groupName?: string(name='group_name', description='组件组名称。'),
+      items?: [ 
+        {
+          description?: string(name='description', description='组件描述信息。'),
+          disabled?: boolean(name='disabled', description='是否禁止默认安装。'),
+          name?: string(name='name', description='组件名称。'),
+          required?: string(name='required', description='是否为必需组件。'),
+          version?: string(name='version', description='组件版本。'),
+        }
+      ](name='items', description='组件清单。'),
+    }
+  ](name='ComponentGroups', description='组件分组信息，例如：存储类组件，网络组件等。'),
+  standardComponents?: map[string]StandardComponentsValue(name='StandardComponents', description='标准组件信息，包含各个组件的描述信息。'),
+}
+
+model DescribeAddonsResponse = {
   headers: map[string]string(name='headers'),
+  body: DescribeAddonsResponseBody(name='body'),
 }
 
-async function cancelComponentUpgrade(clusterid: string, componentid: string): CancelComponentUpgradeResponse {
+async function describeAddons(request: DescribeAddonsRequest): DescribeAddonsResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return cancelComponentUpgradeWithOptions(clusterid, componentid, headers, runtime);
+  return describeAddonsWithOptions(request, headers, runtime);
 }
 
-async function cancelComponentUpgradeWithOptions(clusterid: string, componentid: string, headers: map[string]string, runtime: Util.RuntimeOptions): CancelComponentUpgradeResponse {
+async function describeAddonsWithOptions(request: DescribeAddonsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeAddonsResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.region)) {
+    query.region = request.region;
+  }
+  if (!Util.isUnset(request.clusterType)) {
+    query.cluster_type = request.clusterType;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
-  return doROARequest('CancelComponentUpgrade', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${clusterid}/components/{componentid}/cancel`, 'none', req, runtime);
+  return doROARequest('DescribeAddons', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/components/metadata`, 'json', req, runtime);
 }
 
 model CreateClusterRequest {
@@ -208,25 +1232,28 @@ model CreateClusterRequest {
   deletionProtection?: boolean(name='deletion_protection', description='集群是否开启删除保护。'),
   disableRollback?: boolean(name='disable_rollback', description='集群创建失败后是否回滚。'),
   endpointPublicAccess?: boolean(name='endpoint_public_access', description='集群是否运行公网访问。'),
-  imagesId?: string(name='images_id', description='自定义镜像ID。'),
+  formatDisk?: boolean(name='format_disk', description='是否进行数据盘挂载'),
+  imageId?: string(name='image_id', description='自定义镜像ID。'),
+  instances?: [ string ](name='instances', description='已有实例列表。'),
   isEnterpriseSecurityGroup?: boolean(name='is_enterprise_security_group', description='是否自动创建企业安全组，与security_group_id二选一。'),
+  keepInstanceName?: boolean(name='keep_instance_name', description='是否保留实例名称。'),
   keyPair?: string(name='key_pair', description='key_pair名称，和login_password二选一。'),
   kubernetesVersion?: string(name='kubernetes_version', description='集群版本好。'),
   loginPassword?: string(name='login_password', description='SSH登录密码，与key_pair二选一。'),
   masterAutoRenew?: boolean(name='master_auto_renew', description='Master节点是否自动续费。'),
-  masterAutoRenewPeriod?: int64(name='master_auto_renew_period', description='Master节点自动续费周期。'),
-  masterCount?: int64(name='master_count', description='Master节点数量。'),
+  masterAutoRenewPeriod?: long(name='master_auto_renew_period', description='Master节点自动续费周期。'),
+  masterCount?: long(name='master_count', description='Master节点数量。'),
   masterInstanceChargeType?: string(name='master_instance_charge_type', description='Master节点付费类型。'),
   masterInstanceTypes?: [ string ](name='master_instance_types', description='Master节点ECS规格类型。'),
-  masterPeriod?: int64(name='master_period', description='Master节点包年包月时长，当master_instance_charge_type取值为PrePaid时才生效且为必选值。'),
+  masterPeriod?: long(name='master_period', description='Master节点包年包月时长，当master_instance_charge_type取值为PrePaid时才生效且为必选值。'),
   masterPeriodUnit?: string(name='master_period_unit', description='Master节点包年包月周期。'),
   masterSystemDiskCategory?: string(name='master_system_disk_category', description='Master节点系统盘类型。'),
-  masterSystemDiskSize?: int64(name='master_system_disk_size', description='Master节点系统盘大小。'),
+  masterSystemDiskSize?: long(name='master_system_disk_size', description='Master节点系统盘大小。'),
   masterVswitchIds?: [ string ](name='master_vswitch_ids', description='Master节点交换机ID列表。'),
   name?: string(name='name', description='集群名称。'),
   nodeCidrMask?: string(name='node_cidr_mask', description='节点IP数量，这里通过CIDR来指定。'),
   nodePortRange?: string(name='node_port_range', description='节点服务端口范围。'),
-  numOfNodes?: int64(name='num_of_nodes', description='Worker节点数量。'),
+  numOfNodes?: long(name='num_of_nodes', description='Worker节点数量。'),
   osType?: string(name='os_type', description='操作系统。'),
   platform?: string(name='platform', description='操作系统发行版。'),
   podVswitchIds?: [ string ](name='pod_vswitch_ids', description='Pod的虚拟交换机列表，在ENI多网卡模式下，需要传额外的VSwitch ID给addon。'),
@@ -256,12 +1283,12 @@ model CreateClusterRequest {
       value?: string(name='value', description='污点值。'),
     }
   ](name='taints', description='污点信息。'),
-  timeoutMins?: int64(name='timeout_mins', description='集群创建超时时间。'),
+  timeoutMins?: long(name='timeout_mins', description='集群创建超时时间。'),
   userData?: string(name='user_data', description='节点用户自定义数据。'),
   vpcid?: string(name='vpcid', description='集群使用的VPC。'),
   vswitchIds?: [ string ](name='vswitch_ids', description='虚拟交换机列表。List长度范围为[1，3]。当集群类型为托管版或标准serverless集群时，该参数必填。'),
   workerAutoRenew?: boolean(name='worker_auto_renew', description='Worker节点是否自动续费。'),
-  workerAutoRenewPeriod?: int64(name='worker_auto_renew_period', description='Worker节点自动续费周期。'),
+  workerAutoRenewPeriod?: long(name='worker_auto_renew_period', description='Worker节点自动续费周期。'),
   workerDataDisks?: [ 
     {
       autoSnapshotPolicyId?: string(name='auto_snapshot_policy_id', description='数据盘是否开启云盘备份。'),
@@ -272,10 +1299,10 @@ model CreateClusterRequest {
   ](name='worker_data_disks', description='Worker节点数据盘配置。'),
   workerInstanceChargeType?: string(name='worker_instance_charge_type', description='Worker节点付费类型。'),
   workerInstanceTypes?: [ string ](name='worker_instance_types', description='Worker节点ECS实例类型。'),
-  workerPeriod?: int64(name='worker_period', description='Worker节点包年包月时长。'),
+  workerPeriod?: long(name='worker_period', description='Worker节点包年包月时长。'),
   workerPeriodUnit?: string(name='worker_period_unit', description='Worker节点包年包月周期。'),
   workerSystemDiskCategory?: string(name='worker_system_disk_category', description='Worker节点系统盘类型。'),
-  workerSystemDiskSize?: int64(name='worker_system_disk_size', description='Worker节点系统盘大小。'),
+  workerSystemDiskSize?: long(name='worker_system_disk_size', description='Worker节点系统盘大小。'),
   workerVswitchIds?: [ string ](name='worker_vswitch_ids', description='集群使用的虚拟交换机。'),
   zoneId?: string(name='zone_id', description='集群所属地域内的可用区ID。'),
 }
@@ -324,11 +1351,20 @@ async function createClusterWithOptions(request: CreateClusterRequest, headers: 
   if (!Util.isUnset(request.endpointPublicAccess)) {
     body.endpoint_public_access = request.endpointPublicAccess;
   }
-  if (!Util.isUnset(request.imagesId)) {
-    body.images_id = request.imagesId;
+  if (!Util.isUnset(request.formatDisk)) {
+    body.format_disk = request.formatDisk;
+  }
+  if (!Util.isUnset(request.imageId)) {
+    body.image_id = request.imageId;
+  }
+  if (!Util.isUnset(request.instances)) {
+    body.instances = request.instances;
   }
   if (!Util.isUnset(request.isEnterpriseSecurityGroup)) {
     body.is_enterprise_security_group = request.isEnterpriseSecurityGroup;
+  }
+  if (!Util.isUnset(request.keepInstanceName)) {
+    body.keep_instance_name = request.keepInstanceName;
   }
   if (!Util.isUnset(request.keyPair)) {
     body.key_pair = request.keyPair;
@@ -474,700 +1510,284 @@ async function createClusterWithOptions(request: CreateClusterRequest, headers: 
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
-    body = body,
+    body = OpenApiUtil.parseToMap(body),
   };
   return doROARequest('CreateCluster', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters`, 'json', req, runtime);
 }
 
-model CreateClusterNodePoolRequest {
-  autoScaling?: {
-    enable?: boolean(name='enable', description='是否开启自动伸缩。'),
-    maxInstances?: int64(name='max_instances', description='最大实例数。'),
-    minInstances?: int64(name='min_instances', description='最小实例数。'),
-    type?: string(name='type', description='扩容节点类型。'),
-  }(name='auto_scaling', description='自动伸缩配置。'),
-  kubernetesConfig?: {
-    cmsEnabled?: boolean(name='cms_enabled', description='是否开启云监控。'),
-    cpuPolicy?: string(name='cpu_policy', description='CPU管理策略。'),
-    labels?: [ 
-      {
-        key?: string(name='key', description='key'),
-        value?: string(name='value', description='value'),
-      }
-    ](name='labels', description='节点标签。'),
-    runtime?: string(name='runtime', description='容器运行时。'),
-    runtimeVersion?: string(name='runtime_version', description='容器运行时版本。'),
-    taints?: [ 
-      {
-        effect?: string(name='effect', description='污点策略。'),
-        key?: string(name='key', description='key'),
-        value?: string(name='value', description='value'),
-      }
-    ](name='taints', description='污点信息。'),
-    userData?: string(name='user_data', description='节点自定义数据。'),
-  }(name='kubernetes_config', description='集群配置'),
-  nodepoolInfo?: {
-    name?: string(name='name', description='节点池名称'),
-    resourceGroupId?: string(name='resource_group_id', description='资源组ID。'),
-  }(name='nodepool_info', description='节点池配置'),
-  scalingGroup?: {
-    autoRenew?: boolean(name='auto_renew', description='节点是否开启自动续费'),
-    autoRenewPeriod?: int64(name='auto_renew_period', description='节点自动续费周期'),
-    dataDisks?: [ 
-      {
-        category?: string(name='category', description='数据盘类型。'),
-        encrypted?: string(name='encrypted', description='数据盘是否加密。'),
-        size?: int64(name='size', description='数据盘大小。'),
-      }
-    ](name='data_disks', description='数据盘配置。'),
-    imageId?: string(name='image_id', description='自定义镜像。'),
-    instanceChargeType?: string(name='instance_charge_type', description='节点付费类型'),
-    instanceTypes?: [ string ](name='instance_types', description='实例规格。'),
-    keyPair?: string(name='key_pair', description='密钥对名称，和login_password二选一。'),
-    loginPassword?: string(name='login_password', description='SSH登录密码。'),
-    period?: int64(name='period', description='节点包年包月时长。'),
-    periodUnit?: string(name='period_unit', description='节点包年包月周期。'),
-    platform?: string(name='platform', description='操作系统发行版'),
-    rdsInstances?: [ string ](name='rds_instances', description='RDS实例列表。'),
-    scalingPolicy?: string(name='scaling_policy', description='自动伸缩。'),
-    securityGroupId?: string(name='security_group_id', description='安全组ID。'),
-    systemDiskCategory?: string(name='system_disk_category', description='节点系统盘类型。'),
-    systemDiskSize?: int64(name='system_disk_size', description='节点系统盘大小。'),
-    tags?: [ 
-      {
-        key?: string(name='key', description='key'),
-        value?: string(name='value', description='value'),
-      }
-    ](name='tags', description='ECS标签'),
-    vpcId?: string(name='vpc_id', description='VPC网络ID'),
-    vswitchIds?: [ string ](name='vswitch_ids', description='虚拟交换机ID。'),
-  }(name='scaling_group', description='节点池扩容配置'),
-  teeConfig?: {
-    teeEnable?: boolean(name='tee_enable', description='是否为加密计算节点池。'),
-  }(name='tee_config', description='加密计算配置。'),
+model UpgradeClusterRequest {
+  componentName?: string(name='component_name', description='组件名称，集群升级时取值"k8s"。'),
+  nextVersion?: string(name='next_version', description='目标版本。'),
+  version?: string(name='version', description='当前版本。'),
 }
 
-model CreateClusterNodePoolResponseBody = {
-  nodepoolId?: string(name='nodepool_id', description='节点池ID'),
-}
-
-model CreateClusterNodePoolResponse = {
+model UpgradeClusterResponse = {
   headers: map[string]string(name='headers'),
-  body: CreateClusterNodePoolResponseBody(name='body'),
 }
 
-async function createClusterNodePool(ClusterId: string, request: CreateClusterNodePoolRequest): CreateClusterNodePoolResponse {
+async function upgradeCluster(ClusterId: string, request: UpgradeClusterRequest): UpgradeClusterResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return createClusterNodePoolWithOptions(ClusterId, request, headers, runtime);
+  return upgradeClusterWithOptions(ClusterId, request, headers, runtime);
 }
 
-async function createClusterNodePoolWithOptions(ClusterId: string, request: CreateClusterNodePoolRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateClusterNodePoolResponse {
+async function upgradeClusterWithOptions(ClusterId: string, request: UpgradeClusterRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpgradeClusterResponse {
   Util.validateModel(request);
   var body : map[string]any= {};
-  if (!Util.isUnset(request.autoScaling)) {
-    body.auto_scaling = request.autoScaling;
+  if (!Util.isUnset(request.componentName)) {
+    body.component_name = request.componentName;
   }
-  if (!Util.isUnset(request.kubernetesConfig)) {
-    body.kubernetes_config = request.kubernetesConfig;
+  if (!Util.isUnset(request.nextVersion)) {
+    body.next_version = request.nextVersion;
   }
-  if (!Util.isUnset(request.nodepoolInfo)) {
-    body.nodepool_info = request.nodepoolInfo;
-  }
-  if (!Util.isUnset(request.scalingGroup)) {
-    body.scaling_group = request.scalingGroup;
-  }
-  if (!Util.isUnset(request.teeConfig)) {
-    body.tee_config = request.teeConfig;
+  if (!Util.isUnset(request.version)) {
+    body.version = request.version;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
-    body = body,
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('CreateClusterNodePool', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${ClusterId}/nodepools`, 'json', req, runtime);
+  return doROARequest('UpgradeCluster', '2015-12-15', 'HTTPS', 'POST', 'AK', `/api/v2/clusters/${ClusterId}/upgrade`, 'none', req, runtime);
 }
 
-model CreateKubernetesTriggerRequest {
-  action?: string(name='Action', description='触发器行为。'),
-  clusterId?: string(name='ClusterId', description='集群ID。'),
-  projectId?: string(name='ProjectId', description='项目名称。'),
-  regionId?: string(name='RegionId', description='地域ID。'),
-  type?: string(name='Type', description='触发器类型。'),
-}
-
-model CreateKubernetesTriggerResponseBody = {
-  action?: string(name='action', description='触发器行为。'),
-  clusterId?: string(name='cluster_id', description='集群ID。'),
-  id?: string(name='id', description='触发器ID。'),
-  projectId?: string(name='project_id', description='项目名称。'),
-}
-
-model CreateKubernetesTriggerResponse = {
-  headers: map[string]string(name='headers'),
-  body: CreateKubernetesTriggerResponseBody(name='body'),
-}
-
-async function createKubernetesTrigger(request: CreateKubernetesTriggerRequest): CreateKubernetesTriggerResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createKubernetesTriggerWithOptions(request, headers, runtime);
-}
-
-async function createKubernetesTriggerWithOptions(request: CreateKubernetesTriggerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateKubernetesTriggerResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.action)) {
-    body.Action = request.action;
-  }
-  if (!Util.isUnset(request.clusterId)) {
-    body.ClusterId = request.clusterId;
-  }
-  if (!Util.isUnset(request.projectId)) {
-    body.ProjectId = request.projectId;
-  }
-  if (!Util.isUnset(request.regionId)) {
-    body.RegionId = request.regionId;
-  }
-  if (!Util.isUnset(request.type)) {
-    body.Type = request.type;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = body,
-  };
-  return doROARequest('CreateKubernetesTrigger', '2015-12-15', 'HTTPS', 'POST', 'AK', `/triggers`, 'json', req, runtime);
-}
-
-model DeleteClusterRequest {
-  retainResources?: [ string ](name='retain_resources', description='要保留的资源列表。'),
-}
-
-model DeleteClusterResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function deleteCluster(ClusterId: string, request: DeleteClusterRequest): DeleteClusterResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteClusterWithOptions(ClusterId, request, headers, runtime);
-}
-
-async function deleteClusterWithOptions(ClusterId: string, request: DeleteClusterRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteClusterResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.retainResources)) {
-    query.retain_resources = request.retainResources;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  return doROARequest('DeleteCluster', '2015-12-15', 'HTTPS', 'DELETE', 'AK', `/clusters/${ClusterId}`, 'none', req, runtime);
-}
-
-model DeleteClusterNodepoolResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function deleteClusterNodepool(ClusterId: string, NodepoolId: string): DeleteClusterNodepoolResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteClusterNodepoolWithOptions(ClusterId, NodepoolId, headers, runtime);
-}
-
-async function deleteClusterNodepoolWithOptions(ClusterId: string, NodepoolId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteClusterNodepoolResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  return doROARequest('DeleteClusterNodepool', '2015-12-15', 'HTTPS', 'DELETE', 'AK', `/clusters/${ClusterId}/nodepools/{NodepoolId}`, 'none', req, runtime);
-}
-
-model DeleteKubernetesTriggerResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function deleteKubernetesTrigger(Id: string): DeleteKubernetesTriggerResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteKubernetesTriggerWithOptions(Id, headers, runtime);
-}
-
-async function deleteKubernetesTriggerWithOptions(Id: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteKubernetesTriggerResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  return doROARequest('DeleteKubernetesTrigger', '2015-12-15', 'HTTPS', 'DELETE', 'AK', `/triggers/revoke/${Id}`, 'none', req, runtime);
-}
-
-model DescribeAddonsRequest {
-  region?: string(name='region', description='Region ID。'),
-  clusterType?: string(name='cluster_type', description='集群类型，默认为kubernetes。'),
-}
-
-model DescribeAddonsResponseBody = {
-  componentGroups?: [ 
-    {
-      default?: [ string ](name='default', description='默认组件组。'),
-      groupName?: string(name='group_name', description='组件组名称。'),
-      items?: [ 
-        {
-          description?: string(name='description', description='组件描述信息。'),
-          disabled?: boolean(name='disabled', description='是否禁止默认安装。'),
-          name?: string(name='name', description='组件名称。'),
-          required?: string(name='required', description='是否为必需组件。'),
-          version?: string(name='version', description='组件版本。'),
-        }
-      ](name='items', description='组件清单。'),
-    }
-  ](name='ComponentGroups', description='组件分组信息，例如：存储类组件，网络组件等。'),
-  standardComponents?: map[string]object(name='StandardComponents', description='标准组件信息，包含各个组件的描述信息。'),
-}
-
-model DescribeAddonsResponse = {
-  headers: map[string]string(name='headers'),
-  body: DescribeAddonsResponseBody(name='body'),
-}
-
-async function describeAddons(request: DescribeAddonsRequest): DescribeAddonsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeAddonsWithOptions(request, headers, runtime);
-}
-
-async function describeAddonsWithOptions(request: DescribeAddonsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeAddonsResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.region)) {
-    query.region = request.region;
-  }
-  if (!Util.isUnset(request.clusterType)) {
-    query.cluster_type = request.clusterType;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  return doROARequest('DescribeAddons', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/components/metadata`, 'json', req, runtime);
-}
-
-model DescribeClusterAddonUpgradeStatusResponseBody = {
-  addonInfo?: {
-    category?: string(name='category', description='Addon类别。'),
-    componentName?: string(name='component_name', description='组件名称。'),
-    message?: string(name='message', description='升级说明信息。'),
-    version?: string(name='version', description='组件版本。'),
-    yaml?: string(name='yaml', description='组件配置文件。'),
-  }(name='addon_info', description='组件信息。'),
-  canUpgrade?: boolean(name='can_upgrade', description='是否能够升级。'),
-  template?: string(name='template', description='模板信息，采用base64加密。'),
-}
-
-model DescribeClusterAddonUpgradeStatusResponse = {
-  headers: map[string]string(name='headers'),
-  body: DescribeClusterAddonUpgradeStatusResponseBody(name='body'),
-}
-
-async function describeClusterAddonUpgradeStatus(ClusterId: string, ComponentId: string): DescribeClusterAddonUpgradeStatusResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeClusterAddonUpgradeStatusWithOptions(ClusterId, ComponentId, headers, runtime);
-}
-
-async function describeClusterAddonUpgradeStatusWithOptions(ClusterId: string, ComponentId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterAddonUpgradeStatusResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  return doROARequest('DescribeClusterAddonUpgradeStatus', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/${ClusterId}/components/{ComponentId}/upgradestatus`, 'json', req, runtime);
-}
-
-model DescribeClusterAddonsUpgradeStatusRequest {
-  componentIds?: [ string ](name='componentIds', description='组件列表。'),
-}
-
-model DescribeClusterAddonsUpgradeStatusResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-/**
- * 批量查询集群Addon升级状态
-
- */
-async function describeClusterAddonsUpgradeStatus(ClusterId: string, request: DescribeClusterAddonsUpgradeStatusRequest): DescribeClusterAddonsUpgradeStatusResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeClusterAddonsUpgradeStatusWithOptions(ClusterId, request, headers, runtime);
-}
-
-async function describeClusterAddonsUpgradeStatusWithOptions(ClusterId: string, request: DescribeClusterAddonsUpgradeStatusRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterAddonsUpgradeStatusResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.componentIds)) {
-    query.componentIds = request.componentIds;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  return doROARequest('DescribeClusterAddonsUpgradeStatus', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/[ClusterId]/components/upgradestatus`, 'none', req, runtime);
-}
-
-model DescribeClusterAddonsVersionResponse = {
-  headers: map[string]string(name='headers'),
-  body: object(name='body'),
-}
-
-async function describeClusterAddonsVersion(ClusterId: string): DescribeClusterAddonsVersionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeClusterAddonsVersionWithOptions(ClusterId, headers, runtime);
-}
-
-async function describeClusterAddonsVersionWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterAddonsVersionResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  return doROARequest('DescribeClusterAddonsVersion', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/${ClusterId}/components/version`, 'json', req, runtime);
-}
-
-model DescribeClusterAttachScriptsRequest {
-  arch?: string(name='arch', description='节点CPU架构,支持amd64、arm、arm64。'),
-  options?: {
-    allowedClusterAddons?: [ string ](name='allowedClusterAddons', description='需要安装的组件列表，默认为空，不安装。'),
-    enableIptables?: boolean(name='enableIptables', description='是否开启iptables，默认值true。'),
-    flannelIface?: string(name='flannelIface', description='flannel使用的网卡名。默认使用节点默认路由的网卡名。'),
-    gpuVersion?: string(name='gpuVersion', description='表示要接入的节点是否为GPU节点，默认为空。当前支持的GPU版本是Nvidia_Tesla_T4、Nvidia_Tesla_P4、Nvidia_Tesla_P100。'),
-    manageRuntime?: boolean(name='manageRuntime', description='是否由edgeadm安装并检测Runtime，默认false。'),
-    nodeNameOverride?: string(name='nodeNameOverride', description='设置节点名。  - ""（默认值，表示使用主机名。） - "*"（表示随机生成6位的字符串。） - "*.XXX"（表示随机生成6位字符串+XXX后缀。）'),
-    quiet?: string(name='quiet', description='是否使用静默模式安装。'),
-  }(name='options', description='边缘托管版集群节点的接入配置。'),
-}
-
-model DescribeClusterAttachScriptsResponse = {
-  headers: map[string]string(name='headers'),
-  body: string(name='body'),
-}
-
-async function describeClusterAttachScripts(ClusterId: string, request: DescribeClusterAttachScriptsRequest): DescribeClusterAttachScriptsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeClusterAttachScriptsWithOptions(ClusterId, request, headers, runtime);
-}
-
-async function describeClusterAttachScriptsWithOptions(ClusterId: string, request: DescribeClusterAttachScriptsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterAttachScriptsResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.arch)) {
-    body.arch = request.arch;
-  }
-  if (!Util.isUnset(request.options)) {
-    body.options = request.options;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = body,
-  };
-  return doROARequest('DescribeClusterAttachScripts', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${ClusterId}/attachscript`, 'string', req, runtime);
-}
-
-model DescribeClusterDetailResponseBody = {
-  clusterId?: string(name='cluster_id', description='集群ID。'),
-  clusterType?: string(name='cluster_type', description='集群类型。'),
-  created?: string(name='created', description='集群创建时间。'),
-  currentVersion?: string(name='current_version', description='集群当前K8S版本。'),
-  deletionProtection?: boolean(name='deletion_protection', description='集群是否开启删除保护。'),
-  dockerVersion?: string(name='docker_version', description='集群内Docker版本。'),
-  externalLoadbalancerId?: string(name='external_loadbalancer_id', description='集群Ingress SLB ID。'),
-  instanceType?: string(name='instance_type', description='集群实例类型。'),
-  metaData?: string(name='meta_data', description='集群元数据。'),
-  name?: string(name='name', description='集群名称。'),
-  networkMode?: string(name='network_mode', description='集群采用的网络类型，例如：VPC网络。'),
-  regionId?: string(name='region_id', description='集群所在地域ID。'),
-  resourceGroupId?: string(name='resource_group_id', description='集群资源组ID。'),
-  securityGroupId?: string(name='security_group_id', description='集群安全组ID。'),
-  size?: int32(name='size', description='集群节点数量。'),
-  state?: string(name='state', description='集群运行状态。'),
+model AttachInstancesRequest {
+  cpuPolicy?: string(name='cpu_policy', description='CPU策略。'),
+  formatDisk?: boolean(name='format_disk', description='是否格式化数据盘。'),
+  imageId?: string(name='image_id', description='自定义镜像ID。'),
+  instances?: [ string ](name='instances', description='待添加的实例列表。'),
+  isEdgeWorker?: boolean(name='is_edge_worker', description='是否为边缘节点。'),
+  keepInstanceName?: boolean(name='keep_instance_name', description='是否保留实例名称。'),
+  keyPair?: string(name='key_pair', description='key_pair名称，与login_password二选一'),
+  nodepoolId?: string(name='nodepool_id', description='节点池ID，欲将节点添加到哪个节点池中。。'),
+  password?: string(name='password', description='password，与key_pair二选一。'),
+  rdsInstances?: [ string ](name='rds_instances', description='RDS实例列表。'),
+  runtime?: {
+    name?: string(name='name', description='容器运行时名称。'),
+    version?: string(name='version', description='容器运行时版本。'),
+  }(name='runtime', description='容器运行时。'),
   tags?: [ 
     {
       key?: string(name='key', description='标签名。'),
       value?: string(name='value', description='标签值。'),
     }
-  ](name='tags', description='集群标签。'),
-  updated?: string(name='updated', description='集群更新时间。'),
-  vpcId?: string(name='vpc_id', description='集群使用的VPC ID。'),
-  vswitchCidr?: string(name='vswitch_cidr', description='集群使用的虚拟交换机ID。'),
-  vswitchId?: string(name='vswitch_id', description='集群节点使用的虚拟交换机列表。'),
-  zoneId?: string(name='zone_id', description='集群所在地域内的可用区ID。'),
+  ](name='tags', description='节点标签。'),
+  userData?: string(name='user_data', description='用户自定义数据。'),
 }
 
-model DescribeClusterDetailResponse = {
+model AttachInstancesResponseBody = {
+  list?: [ 
+    {
+      code?: string(name='code', description='状态码。'),
+      instanceId?: string(name='instanceId', description='实例ID。'),
+      message?: string(name='message', description='添加结果描述。'),
+    }
+  ](name='list', description='节点信息列表。'),
+  taskId?: string(name='task_id', description='任务ID。'),
+}
+
+model AttachInstancesResponse = {
   headers: map[string]string(name='headers'),
-  body: DescribeClusterDetailResponseBody(name='body'),
+  body: AttachInstancesResponseBody(name='body'),
 }
 
-async function describeClusterDetail(ClusterId: string): DescribeClusterDetailResponse {
+async function attachInstances(ClusterId: string, request: AttachInstancesRequest): AttachInstancesResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return describeClusterDetailWithOptions(ClusterId, headers, runtime);
+  return attachInstancesWithOptions(ClusterId, request, headers, runtime);
 }
 
-async function describeClusterDetailWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterDetailResponse {
+async function attachInstancesWithOptions(ClusterId: string, request: AttachInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): AttachInstancesResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.cpuPolicy)) {
+    body.cpu_policy = request.cpuPolicy;
+  }
+  if (!Util.isUnset(request.formatDisk)) {
+    body.format_disk = request.formatDisk;
+  }
+  if (!Util.isUnset(request.imageId)) {
+    body.image_id = request.imageId;
+  }
+  if (!Util.isUnset(request.instances)) {
+    body.instances = request.instances;
+  }
+  if (!Util.isUnset(request.isEdgeWorker)) {
+    body.is_edge_worker = request.isEdgeWorker;
+  }
+  if (!Util.isUnset(request.keepInstanceName)) {
+    body.keep_instance_name = request.keepInstanceName;
+  }
+  if (!Util.isUnset(request.keyPair)) {
+    body.key_pair = request.keyPair;
+  }
+  if (!Util.isUnset(request.nodepoolId)) {
+    body.nodepool_id = request.nodepoolId;
+  }
+  if (!Util.isUnset(request.password)) {
+    body.password = request.password;
+  }
+  if (!Util.isUnset(request.rdsInstances)) {
+    body.rds_instances = request.rdsInstances;
+  }
+  if (!Util.isUnset(request.runtime)) {
+    body.runtime = request.runtime;
+  }
+  if (!Util.isUnset(request.tags)) {
+    body.tags = request.tags;
+  }
+  if (!Util.isUnset(request.userData)) {
+    body.user_data = request.userData;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('AttachInstances', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${ClusterId}/attach`, 'json', req, runtime);
+}
+
+model DescribeTemplatesRequest {
+  templateType?: string(name='template_type', description='模板类型，部署模板类型，目前一共有2种类型，取值为：kubernetes或compose。'),
+}
+
+model DescribeTemplatesResponseBody = {
+  pageInfo?: {
+    pageNumber?: long(name='page_number', description='分页数。'),
+    pageSize?: long(name='page_size', description='单页大小。'),
+    totalCount?: long(name='total_count', description='结果总数。'),
+  }(name='page_info', description='分页信息。'),
+  templates?: [ 
+    {
+      acl?: string(name='acl', description='模板访问权限，取值为：private、pubilc或shared。。'),
+      created?: string(name='created', description='模板创建时间。'),
+      description?: string(name='description', description='模板描述信息。'),
+      id?: string(name='id', description='模板ID。'),
+      name?: string(name='name', description='模板名称。'),
+      tags?: string(name='tags', description='模板标签，如果不显式指定了，默认为模板名称。'),
+      template?: string(name='template', description='模板详情。'),
+      templateType?: string(name='template_type', description='部署模板类型，目前只有kubernetes一种生效。'),
+      updated?: string(name='updated', description='模板修改时间。'),
+    }
+  ](name='templates', description='模板列表。'),
+}
+
+model DescribeTemplatesResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeTemplatesResponseBody(name='body'),
+}
+
+async function describeTemplates(request: DescribeTemplatesRequest): DescribeTemplatesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeTemplatesWithOptions(request, headers, runtime);
+}
+
+async function describeTemplatesWithOptions(request: DescribeTemplatesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeTemplatesResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.templateType)) {
+    query.template_type = request.templateType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('DescribeTemplates', '2015-12-15', 'HTTPS', 'GET', 'AK', `/templates`, 'json', req, runtime);
+}
+
+model PauseClusterUpgradeResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function pauseClusterUpgrade(ClusterId: string): PauseClusterUpgradeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return pauseClusterUpgradeWithOptions(ClusterId, headers, runtime);
+}
+
+async function pauseClusterUpgradeWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): PauseClusterUpgradeResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
-  return doROARequest('DescribeClusterDetail', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/${ClusterId}`, 'json', req, runtime);
+  return doROARequest('PauseClusterUpgrade', '2015-12-15', 'HTTPS', 'POST', 'AK', `/api/v2/clusters/${ClusterId}/upgrade/pause`, 'none', req, runtime);
 }
 
-model DescribeClusterLogsResponse = {
+model DescribeTemplateAttributeResponse = {
   headers: map[string]string(name='headers'),
   body: [ 
     {
-      ID?: int64(name='ID', description='日志ID。'),
-      clusterId?: string(name='cluster_id', description='集群ID。'),
-      clusterLog?: string(name='cluster_log', description='集群日志。'),
-      created?: string(name='created', description='日志创建时间。'),
-      logLevel?: string(name='log_level', description='日志等级。'),
-      updated?: string(name='updated', description='日志更新时间。'),
+      acl?: string(name='acl', description='编排模板权限。取值：private，public，shared。	'),
+      created?: string(name='created', description='编排模板创建时间。	'),
+      description?: string(name='description', description='编排模板描述。	'),
+      id?: string(name='id', description='编排模板ID，模板每次修改，这个ID都会改变。	'),
+      name?: string(name='name', description='编排模板名称。	'),
+      template?: string(name='template', description='编排模板内容。	'),
+      templateHashCodeVersion?: string(name='template_hash_code_version', description='编排模板ID，该ID主要用于应用中心。	'),
+      templateType?: string(name='template_type', description='编排模板类型，取值：kubernetes。	'),
+      templateWithHistId?: string(name='template_with_hist_id', description='编排模板ID，该ID唯一不随更新而改变。	'),
+      updated?: string(name='updated', description='编排模板修改时间。	'),
     }
   ](name='body'),
 }
 
-async function describeClusterLogs(ClusterId: string): DescribeClusterLogsResponse {
+async function describeTemplateAttribute(TemplateId: string): DescribeTemplateAttributeResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return describeClusterLogsWithOptions(ClusterId, headers, runtime);
+  return describeTemplateAttributeWithOptions(TemplateId, headers, runtime);
 }
 
-async function describeClusterLogsWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterLogsResponse {
+async function describeTemplateAttributeWithOptions(TemplateId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeTemplateAttributeResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
-  return doROARequest('DescribeClusterLogs', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/${ClusterId}/logs`, 'array', req, runtime);
+  return doROARequest('DescribeTemplateAttribute', '2015-12-15', 'HTTPS', 'GET', 'AK', `/templates/${TemplateId}`, 'array', req, runtime);
 }
 
-model DescribeClusterNodePoolDetailResponseBody = {
-  autoScaling?: {
-    eipBandwidth?: int64(name='eip_bandwidth', description='EIP带宽峰值。'),
-    eipInternetChargeType?: string(name='eip_internet_charge_type', description='节点池付费类型。'),
-    enable?: boolean(name='enable', description='是否开启自动伸缩。'),
-    healthCheckType?: string(name='health_check_type', description='健康检查类型。'),
-    isBondEip?: boolean(name='is_bond_eip', description='是否绑定EIP。'),
-    maxInstances?: int64(name='max_instances', description='最大实例数。'),
-    minInstances?: int64(name='min_instances', description='最小实例数。'),
-    type?: string(name='type', description='节点规格类型。'),
-  }(name='auto_scaling', description='节点池自动伸缩信息。'),
-  kubernetesConfig?: {
-    cmsEnabled?: boolean(name='cms_enabled', description='是否开启云监控'),
-    cpuPolicy?: string(name='cpu_policy', description='CPU管理策略'),
-    labels?: [ 
-      {
-        key?: string(name='key', description='标签key'),
-        value?: string(name='value', description='标签值'),
-      }
-    ](name='labels', description='节点标签。'),
-    nodeNameMode?: string(name='node_name_mode', description='节点命名规则。'),
-    overwriteHostname?: boolean(name='overwrite_hostname', description='是否更新主机名。'),
-    runtime?: string(name='runtime', description='容器运行时'),
-    runtimeVersion?: string(name='runtime_version', description='容器运行时版本。'),
-    taints?: [ 
-      {
-        effect?: string(name='effect', description='污点策略。'),
-        key?: string(name='key', description='污点key'),
-        value?: string(name='value', description='污点值'),
-      }
-    ](name='taints', description='污点配置。'),
-    userData?: string(name='user_data', description='节点自定义数据'),
-  }(name='kubernetes_config', description='节点池所属集群配置。'),
-  nodepoolInfo?: {
-    created?: string(name='created', description='节点池创建时间。'),
-    isDefault?: boolean(name='is_default', description='是否为默认节点池。'),
-    name?: string(name='name', description='节点池名称。'),
-    nodepoolId?: string(name='nodepool_id', description='节点池ID。'),
-    regionId?: string(name='region_id', description='节点池所属地域ID。'),
-    resourceGroupId?: string(name='resource_group_id', description='节点池所属资源组ID。'),
-    type?: string(name='type', description='节点池类型。'),
-    updated?: string(name='updated', description='节点池更新时间。'),
-  }(name='nodepool_info', description='节点池详情。'),
-  scalingGroup?: {
-    autoRenew?: boolean(name='auto_renew', description='节点是否开启自动续费。'),
-    autoRenewPeriod?: int64(name='auto_renew_period', description='节点自动续费周期。'),
-    dataDisks?: [ 
-      {
-        category?: string(name='category', description='数据盘类型。'),
-        encrypted?: boolean(name='encrypted', description='是否开启数据盘加密。'),
-        size?: string(name='size', description='数据盘大小。'),
-      }
-    ](name='data_disks', description='数据盘配置。'),
-    imageId?: string(name='image_id', description='自定义镜像ID。'),
-    instanceChargeType?: string(name='instance_charge_type', description='节点付费类型。'),
-    instanceTypes?: [ string ](name='instance_types', description='节点ECS规格类型。'),
-    multiAzPolicy?: string(name='multi_az_policy', description='多可用区策略。'),
-    period?: int64(name='period', description='节点包年包月时长。'),
-    periodUnit?: string(name='period_unit', description='节点付费周期。'),
-    platform?: string(name='platform', description='操作系统发行版。取值： CentOS，AliyunLinux，Windows，WindowsCore。'),
-    ramPolicy?: string(name='ram_policy', description='节点RAM 角色名称。'),
-    rdsInstances?: [ string ](name='rds_instances', description='RDS实例列表。'),
-    scalingGroupId?: string(name='scaling_group_id', description='扩容组ID。'),
-    scalingPolicy?: string(name='scaling_policy', description='扩容策略。'),
-    securityGroupId?: string(name='security_group_id', description='节点所属安全组ID。'),
-    systemDiskCategory?: string(name='system_disk_category', description='系统盘类型'),
-    systemDiskSize?: int64(name='system_disk_size', description='系统盘大小'),
-    tags?: [ 
-      {
-        key?: string(name='key', description='key'),
-        value?: string(name='value', description='value'),
-      }
-    ](name='tags', description='ECS标签'),
-    vswitchIds?: [ string ](name='vswitch_ids', description='虚拟交换机ID。'),
-  }(name='scaling_group', description='节点池扩容组信息。'),
-  status?: {
-    failedNodes?: int64(name='failed_nodes', description='失败节点数。'),
-    healthyNodes?: int64(name='healthy_nodes', description='处于健康状态节点数。'),
-    initialNodes?: int64(name='initial_nodes', description='正在初始化节点数。'),
-    offlineNodes?: int64(name='offline_nodes', description='离线节点数量。'),
-    removingNodes?: int64(name='removing_nodes', description='正在被移除节点数。'),
-    servingNodes?: int64(name='serving_nodes', description='工作节点数量。'),
-    state?: string(name='state', description='节点池状态。'),
-    totalNodes?: int64(name='total_nodes', description='总节点数。'),
-  }(name='status', description='节点池状态。'),
-  teeConfig?: {
-    teeEnable?: boolean(name='tee_enable', description='是否为加密计算节点池。'),
-  }(name='tee_config', description='加密计算节点池信息。'),
+model CreateTemplateRequest {
+  name?: string(name='name'),
+  template?: string(name='template'),
+  tags?: string(name='tags'),
+  templateType?: string(name='template_type'),
 }
 
-model DescribeClusterNodePoolDetailResponse = {
+model CreateTemplateResponseBody = {
+  templateId?: string(name='template_id'),
+}
+
+model CreateTemplateResponse = {
   headers: map[string]string(name='headers'),
-  body: DescribeClusterNodePoolDetailResponseBody(name='body'),
+  body: CreateTemplateResponseBody(name='body'),
 }
 
-async function describeClusterNodePoolDetail(ClusterId: string, NodepoolId: string): DescribeClusterNodePoolDetailResponse {
+async function createTemplate(request: CreateTemplateRequest): CreateTemplateResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return describeClusterNodePoolDetailWithOptions(ClusterId, NodepoolId, headers, runtime);
+  return createTemplateWithOptions(request, headers, runtime);
 }
 
-async function describeClusterNodePoolDetailWithOptions(ClusterId: string, NodepoolId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterNodePoolDetailResponse {
+async function createTemplateWithOptions(request: CreateTemplateRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateTemplateResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.name)) {
+    body.name = request.name;
+  }
+  if (!Util.isUnset(request.template)) {
+    body.template = request.template;
+  }
+  if (!Util.isUnset(request.tags)) {
+    body.tags = request.tags;
+  }
+  if (!Util.isUnset(request.templateType)) {
+    body.template_type = request.templateType;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('DescribeClusterNodePoolDetail', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/${ClusterId}/nodepools/{NodepoolId}`, 'json', req, runtime);
-}
-
-model DescribeClusterNodePoolsResponseBody = {
-  nodepools?: [ 
-    {
-      autoScaling?: {
-        eipBandwidth?: int64(name='eip_bandwidth', description='EIP带宽峰值	'),
-        eipInternetChargeType?: string(name='eip_internet_charge_type', description='EIP付费类型	'),
-        enable?: boolean(name='enable', description='自动伸缩。	'),
-        healthCheckType?: string(name='health_check_type', description='健康检查策略	'),
-        maxInstances?: int64(name='max_instances', description='最大节点数	'),
-        minInstances?: int64(name='min_instances', description='最小节点数	'),
-        type?: string(name='type', description='自动扩容节点类型。	'),
-      }(name='auto_scaling', description='自动伸缩配置。'),
-      kubernetesConfig?: {
-        cmsEnabled?: boolean(name='cms_enabled', description='是否开启云监控	'),
-        cpuPolicy?: string(name='cpu_policy', description='CPU管理策略	'),
-        labels?: [ 
-          {
-            key?: string(name='key', description='key'),
-            value?: string(name='value', description='value'),
-          }
-        ](name='labels', description='ECS标签。	'),
-        nodeNameMode?: string(name='node_name_mode', description='节点命名策略。	'),
-        overwriteHostname?: boolean(name='overwrite_hostname', description='是否覆盖主机名。	'),
-        runtime?: string(name='runtime', description='容器运行时	'),
-        runtimeVersion?: string(name='runtime_version', description='容器运行时版本	'),
-        taints?: [ 
-          {
-            effect?: string(name='effect', description='污点策略。'),
-            key?: string(name='key', description='key'),
-            value?: string(name='value', description='value'),
-          }
-        ](name='taints', description='污点配置'),
-        userData?: string(name='user_data', description='节点自定义数据'),
-      }(name='kubernetes_config', description='集群配置。	'),
-      nodepoolInfo?: {
-        created?: string(name='created', description='节点池创建时间'),
-        isDefault?: boolean(name='is_default', description='默认节点池'),
-        name?: string(name='name', description='节点池名称'),
-        nodepoolId?: string(name='nodepool_id', description='节点池ID'),
-        regionId?: string(name='region_id', description='节点池所在地域ID。'),
-        resourceGroupId?: string(name='resource_group_id', description='资源组ID'),
-        type?: string(name='type', description='节点池类型'),
-        updated?: string(name='updated', description='节点池更新时间'),
-      }(name='nodepool_info', description='节点池信息'),
-      scalingGroup?: {
-        autoRenew?: boolean(name='auto_renew', description='自动续费	'),
-        autoRenewPeriod?: int64(name='auto_renew_period', description='自动付费时长	'),
-        dataDisks?: [ 
-          {
-            category?: string(name='category', description='数据盘类型	'),
-            encrypted?: string(name='encrypted', description='数据盘是否加密	'),
-            size?: int64(name='size', description='数据盘大小	'),
-          }
-        ](name='data_disks', description='数据盘配置	'),
-        imageId?: string(name='image_id', description='镜像ID	'),
-        instanceChargeType?: string(name='instance_charge_type', description='节点付费类型	'),
-        instanceTypes?: [ string ](name='instance_types', description='节点类型	'),
-        multiAzPolicy?: string(name='multi_az_policy', description='多可用去策略	'),
-        period?: int64(name='period', description='包年包月时长	'),
-        periodUnit?: string(name='period_unit', description='自动付费周期	'),
-        platform?: string(name='platform', description='操作系统发行版。	'),
-        ramPolicy?: string(name='ram_policy', description='RAM 角色名称	'),
-        rdsInstances?: [ string ](name='rds_instances', description='RDS列表	'),
-        scalingGroupId?: string(name='scaling_group_id', description='扩容组ID	'),
-        scalingPolicy?: string(name='scaling_policy', description='扩容节点策略	'),
-        securityGroupId?: string(name='security_group_id', description='安全组ID。	'),
-        systemDiskCategory?: string(name='system_disk_category', description='系统盘类型。	'),
-        systemDiskSize?: int64(name='system_disk_size', description='系统盘大小	'),
-        tags?: [ 
-          {
-            key?: string(name='key', description='key'),
-            value?: string(name='value', description='value'),
-          }
-        ](name='tags', description='节点标签	'),
-        vswitchIds?: [ string ](name='vswitch_ids', description='虚拟交换机ID。	'),
-        workerHpcClusterId?: string(name='worker_hpc_cluster_id', description='高性能计算集群ID	'),
-      }(name='scaling_group', description='扩容组配置。	'),
-      status?: {
-        failedNodes?: int64(name='failed_nodes', description='失败的节点数	'),
-        healthyNodes?: int64(name='healthy_nodes', description='处于健康状态的节点数	'),
-        initialNodes?: int64(name='initial_nodes', description='正在创建的节点数	'),
-        offlineNodes?: int64(name='offline_nodes', description='离线节点数	'),
-        removingNodes?: int64(name='removing_nodes', description='真在被移除的节点数。	'),
-        servingNodes?: int64(name='serving_nodes', description='正在工作节点数	'),
-        state?: string(name='state', description='节点池状态	'),
-        totalNodes?: int64(name='total_nodes', description='节点总数	'),
-      }(name='status', description='节点池状态信息。	'),
-      teeConfig?: {
-        teeEnable?: boolean(name='tee_enable', description='是否为加密计算节点池	'),
-      }(name='tee_config', description='加密计算配置。	'),
-    }
-  ](name='nodepools', description='节点池列表。	'),
-}
-
-model DescribeClusterNodePoolsResponse = {
-  headers: map[string]string(name='headers'),
-  body: DescribeClusterNodePoolsResponseBody(name='body'),
-}
-
-async function describeClusterNodePools(ClusterId: string): DescribeClusterNodePoolsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeClusterNodePoolsWithOptions(ClusterId, headers, runtime);
-}
-
-async function describeClusterNodePoolsWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterNodePoolsResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  return doROARequest('DescribeClusterNodePools', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/${ClusterId}/nodepools`, 'json', req, runtime);
+  return doROARequestWithForm('CreateTemplate', '2015-12-15', 'HTTPS', 'POST', 'AK', `/templates`, 'json', req, runtime);
 }
 
 model DescribeClusterNodesRequest {
@@ -1242,53 +1862,104 @@ async function describeClusterNodesWithOptions(ClusterId: string, request: Descr
   return doROARequest('DescribeClusterNodes', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/${ClusterId}/nodes`, 'json', req, runtime);
 }
 
-model DescribeClusterResourcesResponse = {
-  headers: map[string]string(name='headers'),
-  body: [ 
-    {
-      clusterId?: string(name='cluster_id', description='集群ID。'),
-      created?: string(name='created', description='资源创建时间。'),
-      instanceId?: string(name='instance_id', description='资源实例ID。'),
-      resourceInfo?: string(name='resource_info', description='资源元信息。'),
-      resourceType?: string(name='resource_type', description='资源类型。'),
-      state?: string(name='state', description='资源状态。'),
-    }
-  ](name='body'),
+model DeleteClusterRequest {
+  retainAllResources?: boolean(name='retain_all_resources', description='是否保留所有资源,如果设置了该值，将会忽略retain_resources。  true：保留 false：不保留 默认值：fase。'),
+  keepSlb?: boolean(name='keep_slb', description='是否保留SLB。  true：保留 false：不保留 默认值：false。'),
+  retainResources?: [ string ](name='retain_resources', description='要保留的资源列表。'),
 }
 
-async function describeClusterResources(ClusterId: string): DescribeClusterResourcesResponse {
+model DeleteClusterResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function deleteCluster(ClusterId: string, request: DeleteClusterRequest): DeleteClusterResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return describeClusterResourcesWithOptions(ClusterId, headers, runtime);
+  return deleteClusterWithOptions(ClusterId, request, headers, runtime);
 }
 
-async function describeClusterResourcesWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterResourcesResponse {
+async function deleteClusterWithOptions(ClusterId: string, request: DeleteClusterRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteClusterResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.retainResources)) {
+    query.retain_resources = request.retainResources;
+  }
+
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.retainAllResources)) {
+    body.retain_all_resources = request.retainAllResources;
+  }
+  if (!Util.isUnset(request.keepSlb)) {
+    body.keep_slb = request.keepSlb;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequestWithForm('DeleteCluster', '2015-12-15', 'HTTPS', 'DELETE', 'AK', `/clusters/${ClusterId}`, 'none', req, runtime);
+}
+
+model CancelComponentUpgradeResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function cancelComponentUpgrade(clusterid: string, componentid: string): CancelComponentUpgradeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return cancelComponentUpgradeWithOptions(clusterid, componentid, headers, runtime);
+}
+
+async function cancelComponentUpgradeWithOptions(clusterid: string, componentid: string, headers: map[string]string, runtime: Util.RuntimeOptions): CancelComponentUpgradeResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
-  return doROARequest('DescribeClusterResources', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/${ClusterId}/resources`, 'array', req, runtime);
+  return doROARequest('CancelComponentUpgrade', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${clusterid}/components/{componentid}/cancel`, 'none', req, runtime);
 }
 
-model DescribeClusterUserKubeconfigRequest {
-  privateIpAddress?: boolean(name='PrivateIpAddress', description='ApiServer是否为内网地址。'),
+model DescribeClusterAddonsVersionResponseBody = {
+  addonsVersion?: map[string]AddonsVersionValue(name='AddonsVersion', description='组件信息详情。'),
 }
 
-model DescribeClusterUserKubeconfigResponseBody = {
-  config?: string(name='config', description='kubeconfig内容。'),
-}
-
-model DescribeClusterUserKubeconfigResponse = {
+model DescribeClusterAddonsVersionResponse = {
   headers: map[string]string(name='headers'),
-  body: DescribeClusterUserKubeconfigResponseBody(name='body'),
+  body: DescribeClusterAddonsVersionResponseBody(name='body'),
 }
 
-async function describeClusterUserKubeconfig(ClusterId: string, request: DescribeClusterUserKubeconfigRequest): DescribeClusterUserKubeconfigResponse {
+async function describeClusterAddonsVersion(ClusterId: string): DescribeClusterAddonsVersionResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return describeClusterUserKubeconfigWithOptions(ClusterId, request, headers, runtime);
+  return describeClusterAddonsVersionWithOptions(ClusterId, headers, runtime);
 }
 
-async function describeClusterUserKubeconfigWithOptions(ClusterId: string, request: DescribeClusterUserKubeconfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterUserKubeconfigResponse {
+async function describeClusterAddonsVersionWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterAddonsVersionResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('DescribeClusterAddonsVersion', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/${ClusterId}/components/version`, 'json', req, runtime);
+}
+
+model DescribeExternalAgentRequest {
+  privateIpAddress?: string(name='PrivateIpAddress', description='是否获取内网访问凭据。  true：获取内网连接凭据 false：获取公网连接凭据 默认值：false。'),
+}
+
+model DescribeExternalAgentResponseBody = {
+  config?: string(name='config', description='代理配置。'),
+}
+
+model DescribeExternalAgentResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeExternalAgentResponseBody(name='body'),
+}
+
+async function describeExternalAgent(ClusterId: string, request: DescribeExternalAgentRequest): DescribeExternalAgentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeExternalAgentWithOptions(ClusterId, request, headers, runtime);
+}
+
+async function describeExternalAgentWithOptions(ClusterId: string, request: DescribeExternalAgentRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeExternalAgentResponse {
   Util.validateModel(request);
   var query : map[string]any= {};
   if (!Util.isUnset(request.privateIpAddress)) {
@@ -1299,164 +1970,100 @@ async function describeClusterUserKubeconfigWithOptions(ClusterId: string, reque
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('DescribeClusterUserKubeconfig', '2015-12-15', 'HTTPS', 'GET', 'AK', `/k8s/${ClusterId}/user_config`, 'json', req, runtime);
+  return doROARequest('DescribeExternalAgent', '2015-12-15', 'HTTPS', 'GET', 'AK', `/k8s/${ClusterId}/external/agent/deployment`, 'json', req, runtime);
 }
 
-model DescribeClusterV2UserKubeconfigRequest {
-  privateIpAddress?: boolean(name='PrivateIpAddress', description='是否为内网访问。'),
-}
-
-model DescribeClusterV2UserKubeconfigResponseBody = {
-  config?: string(name='config', description='kubeconfig内容。'),
-}
-
-model DescribeClusterV2UserKubeconfigResponse = {
-  headers: map[string]string(name='headers'),
-  body: DescribeClusterV2UserKubeconfigResponseBody(name='body'),
-}
-
-async function describeClusterV2UserKubeconfig(ClusterId: string, request: DescribeClusterV2UserKubeconfigRequest): DescribeClusterV2UserKubeconfigResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeClusterV2UserKubeconfigWithOptions(ClusterId, request, headers, runtime);
-}
-
-async function describeClusterV2UserKubeconfigWithOptions(ClusterId: string, request: DescribeClusterV2UserKubeconfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterV2UserKubeconfigResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.privateIpAddress)) {
-    query.PrivateIpAddress = request.privateIpAddress;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  return doROARequest('DescribeClusterV2UserKubeconfig', '2015-12-15', 'HTTPS', 'GET', 'AK', `/api/v2/k8s/${ClusterId}/user_config`, 'json', req, runtime);
-}
-
-model DescribeClustersRequest {
-  name?: string(name='name', description='集群名称。'),
-  clusterType?: string(name='clusterType', description='集群类型。'),
-}
-
-model DescribeClustersResponse = {
-  headers: map[string]string(name='headers'),
-  body: [ 
+model UnInstallClusterAddonsRequest {
+  addons?: [ 
     {
-      clusterId?: string(name='cluster_id', description='集群ID。'),
-      clusterType?: string(name='cluster_type', description='集群类型。'),
-      created?: string(name='created', description='集群创建时间。'),
-      currentVersion?: string(name='current_version', description='集群当前版本。'),
-      dataDiskCategory?: string(name='data_disk_category', description='节点系统盘类型。'),
-      dataDiskSize?: int64(name='data_disk_size', description='节点系统盘大小。'),
-      deletionProtection?: boolean(name='deletion_protection', description='集群是否开启删除保护。'),
-      dockerVersion?: string(name='docker_version', description='容器运行时版本。'),
-      externalLoadbalancerId?: string(name='external_loadbalancer_id', description='集群Ingerss SLB实例的ID。'),
-      initVersion?: string(name='init_version', description='集群创建时版本。'),
-      masterUrl?: string(name='master_url', description='集群的endpoint地址。'),
-      metaData?: string(name='meta_data', description='集群元数据。'),
-      name?: string(name='name', description='集群名称。'),
-      networkMode?: string(name='network_mode', description='集群使用的网络类型。'),
-      privateZone?: boolean(name='private_zone', description='集群是否开启Private Zone，默认false。'),
-      profile?: string(name='profile', description='集群标识，区分是否为边缘托管版。'),
-      regionId?: string(name='region_id', description='集群所在地域ID。'),
-      resourceGroupId?: string(name='resource_group_id', description='集群资源组ID。'),
-      securityGroupId?: string(name='security_group_id', description='集群安全组ID。'),
-      size?: int64(name='size', description='集群内实例数量。'),
-      state?: string(name='state', description='集群运行状态。'),
-      subnetCidr?: string(name='subnet_cidr', description='POD网络。'),
-      tags?: [ 
-        {
-          key?: string(name='key', description='标签名。'),
-          value?: string(name='value', description='标签值。'),
-        }
-      ](name='tags', description='集群标签。'),
-      updated?: string(name='updated', description='集群更新时间。'),
-      vpcId?: string(name='vpc_id', description='集群使用的VPC ID。'),
-      vswitchCidr?: string(name='vswitch_cidr', description='虚拟交换机网络ID。'),
-      vswitchId?: string(name='vswitch_id', description='节点使用的Vswitch ID。'),
-      workerRamRoleName?: string(name='worker_ram_role_name', description='集群Worker节点RAM角色名称。'),
-      zoneId?: string(name='zone_id', description='集群所在Region内的区域ID。'),
+      name?: string(name='name', description='组件名称。'),
     }
-  ](name='body'),
+  ](name='addons', description='卸载组件列表。'),
 }
 
-async function describeClusters(request: DescribeClustersRequest): DescribeClustersResponse {
+model UnInstallClusterAddonsResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function unInstallClusterAddons(ClusterId: string, request: UnInstallClusterAddonsRequest): UnInstallClusterAddonsResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return describeClustersWithOptions(request, headers, runtime);
+  return unInstallClusterAddonsWithOptions(ClusterId, request, headers, runtime);
 }
 
-async function describeClustersWithOptions(request: DescribeClustersRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClustersResponse {
+async function unInstallClusterAddonsWithOptions(ClusterId: string, request: UnInstallClusterAddonsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UnInstallClusterAddonsResponse {
   Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.name)) {
-    query.name = request.name;
-  }
-  if (!Util.isUnset(request.clusterType)) {
-    query.clusterType = request.clusterType;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
-    query = OpenApiUtil.query(query),
+    body = Util.toArray(request.addons),
   };
-  return doROARequest('DescribeClusters', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters`, 'array', req, runtime);
+  return doROARequest('UnInstallClusterAddons', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${ClusterId}/components/uninstall`, 'none', req, runtime);
+}
+
+model ResumeComponentUpgradeResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function resumeComponentUpgrade(clusterid: string, componentid: string): ResumeComponentUpgradeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return resumeComponentUpgradeWithOptions(clusterid, componentid, headers, runtime);
+}
+
+async function resumeComponentUpgradeWithOptions(clusterid: string, componentid: string, headers: map[string]string, runtime: Util.RuntimeOptions): ResumeComponentUpgradeResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('ResumeComponentUpgrade', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${clusterid}/components/{componentid}/resume`, 'none', req, runtime);
 }
 
 model DescribeClustersV1Request {
-  name?: string(name='Name', description='集群名称。'),
-  clusterType?: string(name='ClusterType', description='集群类型。'),
-  pageSize?: int64(name='page_size', description='单页大小。'),
-  pageNumber?: int64(name='page_number', description='分页数。'),
+  name?: string(name='name', description='通过集群名称进行模糊查询。'),
+  clusterType?: string(name='cluster_type', description='集群类型。  Kubernetes: 专有版集群。 ManagedKubernetes：托管版集群。 Ask：Serverless集群。 ExternalKubernetes：注册集群。 ServiceMesh：ASM集群。'),
+  pageSize?: long(name='page_size', description='单页大小。'),
+  pageNumber?: long(name='page_number', description='分页数。'),
 }
 
 model DescribeClustersV1ResponseBody = {
   clusters?: [ 
     {
-      clusterHealthy?: string(name='cluster_healthy', description='集群健康状态。'),
       clusterId?: string(name='cluster_id', description='集群ID。'),
       clusterType?: string(name='cluster_type', description='集群类型。'),
-      created?: string(name='created', description='集群创建时间。'),
+      created?: string(name='created', description='集群初始化时间。'),
+      initVersion?: string(name='init_version', description='集群初始化版本。'),
       currentVersion?: string(name='current_version', description='集群当前版本。'),
-      dataDiskCategory?: string(name='data_disk_category', description='数据盘类型。'),
-      dataDiskSize?: int64(name='data_disk_size', description='数据盘大小。'),
+      nextVersion?: string(name='next_version', description='集群可升级版本。'),
       deletionProtection?: boolean(name='deletion_protection', description='集群是否开启删除保护。'),
       dockerVersion?: string(name='docker_version', description='集群使用的Docker版本。'),
-      externalLoadbalancerId?: string(name='external_loadbalancer_id', description='集群Ingress对应的SLB的地址。'),
-      initVersion?: string(name='init_version', description='集群初始化版本。'),
-      masterUrl?: string(name='master_url', description='集群访问的端点信息。'),
+      externalLoadbalancerId?: string(name='external_loadbalancer_id', description='集群负载均衡服务的ID。'),
+      masterUrl?: string(name='master_url', description='集群访问地址列表。'),
       metaData?: string(name='meta_data', description='集群元数据信息。'),
       name?: string(name='name', description='集群名称。'),
       networkMode?: string(name='network_mode', description='集群使用的网络类型，例如：VPC网络。'),
-      nodeStatus?: string(name='node_status', description='节点状态。'),
       privateZone?: boolean(name='private_zone', description='集群是否开启Private Zone。'),
       profile?: string(name='profile', description='边缘集群表示，用于区分边缘托管版集群。'),
       regionId?: string(name='region_id', description='地域ID。'),
       resourceGroupId?: string(name='resource_group_id', description='集群资源组ID。'),
       securityGroupId?: string(name='security_group_id', description='集群安全组ID。'),
-      size?: int64(name='size', description='集群节点数。'),
+      size?: long(name='size', description='集群节点数。'),
       state?: string(name='state', description='集群运行状态。'),
       subnetCidr?: string(name='subnet_cidr', description='POD网段地址。'),
-      tags?: [ 
-        {
-          key?: string(name='key', description='标签键。'),
-          value?: string(name='value', description='标签值。'),
-        }
+      tags?: [
+        Tags
       ](name='tags', description='集群标签。'),
       updated?: string(name='updated', description='集群更新时间。'),
       vpcId?: string(name='vpc_id', description='集群所在的VPC ID。'),
-      vswitchCidr?: string(name='vswitch_cidr', description='虚拟交换机CIDR。'),
       vswitchId?: string(name='vswitch_id', description='集群使用的虚拟交换ID。'),
       workerRamRoleName?: string(name='worker_ram_role_name', description='集群Worker RAM角色。'),
       zoneId?: string(name='zone_id', description='可用区ID。'),
+      clusterSpec?: string(name='cluster_spec', description='托管版集群类型，面向托管集群。 • ack.pro.small：专业托管集群。 • ack.standard ：标准托管集群。'),
+      maintenanceWindow?: MaintenanceWindow(name='maintenance_window'),
     }
   ](name='clusters', description='集群详情列表。'),
   pageInfo?: {
-    pageNumber?: int32(name='page_number', description='分页总数。'),
+    pageNumber?: int32(name='page_number', description='分页数。'),
     pageSize?: int32(name='page_size', description='单页大小。'),
-    totalCount?: int32(name='total_count', description='结果总条目数。'),
+    totalCount?: int32(name='total_count', description='结果总数。'),
   }(name='page_info', description='分页信息。'),
 }
 
@@ -1475,10 +2082,10 @@ async function describeClustersV1WithOptions(request: DescribeClustersV1Request,
   Util.validateModel(request);
   var query : map[string]any= {};
   if (!Util.isUnset(request.name)) {
-    query.Name = request.name;
+    query.name = request.name;
   }
   if (!Util.isUnset(request.clusterType)) {
-    query.ClusterType = request.clusterType;
+    query.cluster_type = request.clusterType;
   }
   if (!Util.isUnset(request.pageSize)) {
     query.page_size = request.pageSize;
@@ -1494,183 +2101,187 @@ async function describeClustersV1WithOptions(request: DescribeClustersV1Request,
   return doROARequest('DescribeClustersV1', '2015-12-15', 'HTTPS', 'GET', 'AK', `/api/v1/clusters`, 'json', req, runtime);
 }
 
-model DescribeExternalAgentResponseBody = {
-  config?: string(name='config', description='代理配置。'),
+model ModifyClusterConfigurationRequest {
+  configs?: {
+    key?: string(name='key', description='key。'),
+    value?: string(name='value', description='value。'),
+  }(name='configs', description='配置集合。'),
+  name?: string(name='name', description='配置名称。'),
 }
 
-model DescribeExternalAgentResponse = {
+model ModifyClusterConfigurationResponse = {
   headers: map[string]string(name='headers'),
-  body: DescribeExternalAgentResponseBody(name='body'),
 }
 
-async function describeExternalAgent(ClusterId: string): DescribeExternalAgentResponse {
+async function modifyClusterConfiguration(ClusterId: string, request: ModifyClusterConfigurationRequest): ModifyClusterConfigurationResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return describeExternalAgentWithOptions(ClusterId, headers, runtime);
+  return modifyClusterConfigurationWithOptions(ClusterId, request, headers, runtime);
 }
 
-async function describeExternalAgentWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeExternalAgentResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  return doROARequest('DescribeExternalAgent', '2015-12-15', 'HTTPS', 'GET', 'AK', `/k8s/${ClusterId}/external/agent/deployment`, 'json', req, runtime);
-}
-
-model DescribeKubernetesVersionMetadataRequest {
-  region?: string(name='Region', description='地域ID。'),
-  multiAZ?: boolean(name='MultiAZ', description='是否多可用区。'),
-  clusterType?: string(name='ClusterType', description='集群类型。'),
-  kubernetesVersion?: string(name='KubernetesVersion', description='要查询的版本，如果为空则查所有版本。'),
-  profile?: string(name='Profile', description='边缘集群标识，用于区分边缘集群，取值：Default或Edge。'),
-}
-
-model DescribeKubernetesVersionMetadataResponse = {
-  headers: map[string]string(name='headers'),
-  body: [ 
-    {
-      capabilities?: map[string]any(name='capabilities', description='Kubernetes版本特性。	'),
-      images?: [ 
-        {
-          imageId?: string(name='image_id', description='镜像ID。	'),
-          imageName?: string(name='image_name', description='镜像名称。	'),
-          imageType?: string(name='image_type', description='镜像类型。	'),
-          osType?: string(name='os_type', description='操作系统发行版本号。	'),
-          osVersion?: string(name='os_version', description='操作系统平台类型。取值范围： Windows, Linux（默认）	'),
-          platform?: string(name='platform', description='操作系统发行版。取值范围： CentOS,AliyunLinux,Windows,WindowsCore。	'),
-        }
-      ](name='images', description='ECS系统镜像列表。	'),
-      metaData?: map[string]any(name='meta_data', description='Kubernetes版本元数据信息。	'),
-      multiAz?: string(name='multi_az', description='是否为多可用区。	'),
-      runtimes?: [ 
-        {
-          name?: string(name='name', description='运行时名称。	'),
-          version?: string(name='version', description='运行时版本。	'),
-        }
-      ](name='runtimes', description='容器运行时详情。	'),
-      version?: string(name='version', description='Kubernetes版本。	'),
-    }
-  ](name='body'),
-}
-
-async function describeKubernetesVersionMetadata(request: DescribeKubernetesVersionMetadataRequest): DescribeKubernetesVersionMetadataResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeKubernetesVersionMetadataWithOptions(request, headers, runtime);
-}
-
-async function describeKubernetesVersionMetadataWithOptions(request: DescribeKubernetesVersionMetadataRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeKubernetesVersionMetadataResponse {
+async function modifyClusterConfigurationWithOptions(ClusterId: string, request: ModifyClusterConfigurationRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyClusterConfigurationResponse {
   Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.region)) {
-    query.Region = request.region;
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.configs)) {
+    body.configs = request.configs;
   }
-  if (!Util.isUnset(request.multiAZ)) {
-    query.MultiAZ = request.multiAZ;
-  }
-  if (!Util.isUnset(request.clusterType)) {
-    query.ClusterType = request.clusterType;
-  }
-  if (!Util.isUnset(request.kubernetesVersion)) {
-    query.KubernetesVersion = request.kubernetesVersion;
-  }
-  if (!Util.isUnset(request.profile)) {
-    query.Profile = request.profile;
+  if (!Util.isUnset(request.name)) {
+    body.name = request.name;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
-    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('DescribeKubernetesVersionMetadata', '2015-12-15', 'HTTPS', 'GET', 'AK', `/api/v1/metadata/versions`, 'array', req, runtime);
+  return doROARequest('ModifyClusterConfiguration', '2015-12-15', 'HTTPS', 'PUT', 'AK', `/clusters/${ClusterId}/configuration`, 'none', req, runtime);
 }
 
-model DescribeTemplateAttributeResponse = {
-  headers: map[string]string(name='headers'),
-  body: [ 
+model DescribeTaskInfoResponseBody = {
+  clusterId?: string(name='cluster_id', description='集群ID。'),
+  taskId?: string(name='task_id', description='任务ID。'),
+  created?: string(name='created', description='任务创建时间。'),
+  updated?: string(name='updated', description='任务更新时间。'),
+  state?: string(name='state', description='任务当前状态。'),
+  taskType?: string(name='task_type', description='当前任务类型。'),
+  taskResult?: [ 
     {
-      acl?: string(name='acl', description='编排模板权限。取值：private，public，shared。	'),
-      created?: string(name='created', description='编排模板创建时间。	'),
-      description?: string(name='description', description='编排模板描述。	'),
-      id?: string(name='id', description='编排模板ID，模板每次修改，这个ID都会改变。	'),
-      name?: string(name='name', description='编排模板名称。	'),
-      template?: string(name='template', description='编排模板内容。	'),
-      templateHashCodeVersion?: string(name='template_hash_code_version', description='编排模板ID，该ID主要用于应用中心。	'),
-      templateType?: string(name='template_type', description='编排模板类型，取值：kubernetes。	'),
-      templateWithHistId?: string(name='template_with_hist_id', description='编排模板ID，该ID唯一不随更新而改变。	'),
-      updated?: string(name='updated', description='编排模板修改时间。	'),
+      data?: string(name='data', description='操作的资源，例如：实例ID。'),
+      status?: string(name='status', description='资源的状态。'),
     }
-  ](name='body'),
+  ](name='task_result', description='任务执行详情。'),
 }
 
-async function describeTemplateAttribute(TemplateId: string): DescribeTemplateAttributeResponse {
+model DescribeTaskInfoResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeTaskInfoResponseBody(name='body'),
+}
+
+async function describeTaskInfo(taskId: string): DescribeTaskInfoResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return describeTemplateAttributeWithOptions(TemplateId, headers, runtime);
+  return describeTaskInfoWithOptions(taskId, headers, runtime);
 }
 
-async function describeTemplateAttributeWithOptions(TemplateId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeTemplateAttributeResponse {
+async function describeTaskInfoWithOptions(taskId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeTaskInfoResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
-  return doROARequest('DescribeTemplateAttribute', '2015-12-15', 'HTTPS', 'GET', 'AK', `/templates/${TemplateId}`, 'array', req, runtime);
+  return doROARequest('DescribeTaskInfo', '2015-12-15', 'HTTPS', 'GET', 'AK', `/tasks/${taskId}`, 'json', req, runtime);
 }
 
-model DescribeTemplatesRequest {
-  templateType?: string(name='template_type', description='模板类型，部署模板类型，目前一共有2种类型，取值为：kubernetes或compose。'),
-}
-
-model DescribeTemplatesResponseBody = {
-  pageInfo?: {
-    pageNumber?: int64(name='page_number', description='分页数。'),
-    pageSize?: int64(name='page_size', description='单页大小。'),
-    totalCount?: int64(name='total_count', description='结果总数。'),
-  }(name='page_info', description='分页信息。'),
-  templates?: [ 
-    {
-      acl?: string(name='acl', description='模板访问权限，取值为：private、pubilc或shared。。'),
-      created?: string(name='created', description='模板创建时间。'),
-      description?: string(name='description', description='模板描述信息。'),
-      id?: string(name='id', description='模板ID。'),
-      name?: string(name='name', description='模板名称。'),
-      tags?: string(name='tags', description='模板标签，如果不显式指定了，默认为模板名称。'),
-      template?: string(name='template', description='模板详情。'),
-      templateType?: string(name='template_type', description='部署模板类型，目前只有kubernetes一种生效。'),
-      updated?: string(name='updated', description='模板修改时间。'),
-    }
-  ](name='templates', description='模板列表。'),
-}
-
-model DescribeTemplatesResponse = {
+model CancelClusterUpgradeResponse = {
   headers: map[string]string(name='headers'),
-  body: DescribeTemplatesResponseBody(name='body'),
 }
 
-async function describeTemplates(request: DescribeTemplatesRequest): DescribeTemplatesResponse {
+async function cancelClusterUpgrade(ClusterId: string): CancelClusterUpgradeResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return describeTemplatesWithOptions(request, headers, runtime);
+  return cancelClusterUpgradeWithOptions(ClusterId, headers, runtime);
 }
 
-async function describeTemplatesWithOptions(request: DescribeTemplatesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeTemplatesResponse {
+async function cancelClusterUpgradeWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): CancelClusterUpgradeResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('CancelClusterUpgrade', '2015-12-15', 'HTTPS', 'POST', 'AK', `/api/v2/clusters/${ClusterId}/upgrade/cancel`, 'none', req, runtime);
+}
+
+model UpdateTemplateRequest {
+  description?: string(name='description', description='部署模板描述信息。'),
+  name?: string(name='name', description='部署模板名称。'),
+  tags?: string(name='tags', description='部署模板标签'),
+  template?: string(name='template', description='部署模板yaml。'),
+  templateType?: string(name='template_type', description='部署模板类型。'),
+}
+
+model UpdateTemplateResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function updateTemplate(TemplateId: string, request: UpdateTemplateRequest): UpdateTemplateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateTemplateWithOptions(TemplateId, request, headers, runtime);
+}
+
+async function updateTemplateWithOptions(TemplateId: string, request: UpdateTemplateRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateTemplateResponse {
   Util.validateModel(request);
-  var query : map[string]any= {};
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.description)) {
+    body.description = request.description;
+  }
+  if (!Util.isUnset(request.name)) {
+    body.name = request.name;
+  }
+  if (!Util.isUnset(request.tags)) {
+    body.tags = request.tags;
+  }
+  if (!Util.isUnset(request.template)) {
+    body.template = request.template;
+  }
   if (!Util.isUnset(request.templateType)) {
-    query.template_type = request.templateType;
+    body.template_type = request.templateType;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
-    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('DescribeTemplates', '2015-12-15', 'HTTPS', 'GET', 'AK', `/templates`, 'json', req, runtime);
+  return doROARequest('UpdateTemplate', '2015-12-15', 'HTTPS', 'PUT', 'AK', `/templates/${TemplateId}`, 'none', req, runtime);
+}
+
+model UpgradeClusterAddonsRequest {
+  body?: [ 
+    {
+      componentName?: string(name='component_name', description='组件名称。'),
+      nextVersion?: string(name='next_version', description='可升级版本。'),
+      version?: string(name='version', description='当前版本。'),
+    }
+  ](name='body', description='Request body，类型是对象数组。'),
+}
+
+model UpgradeClusterAddonsResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function upgradeClusterAddons(ClusterId: string, request: UpgradeClusterAddonsRequest): UpgradeClusterAddonsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return upgradeClusterAddonsWithOptions(ClusterId, request, headers, runtime);
+}
+
+async function upgradeClusterAddonsWithOptions(ClusterId: string, request: UpgradeClusterAddonsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpgradeClusterAddonsResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = Util.toArray(request.body),
+  };
+  return doROARequest('UpgradeClusterAddons', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${ClusterId}/components/upgrade`, 'none', req, runtime);
+}
+
+model DeleteKubernetesTriggerResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function deleteKubernetesTrigger(Id: string): DeleteKubernetesTriggerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteKubernetesTriggerWithOptions(Id, headers, runtime);
+}
+
+async function deleteKubernetesTriggerWithOptions(Id: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteKubernetesTriggerResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('DeleteKubernetesTrigger', '2015-12-15', 'HTTPS', 'DELETE', 'AK', `/triggers/revoke/${Id}`, 'none', req, runtime);
 }
 
 model DescribeUserQuotaResponseBody = {
-  amkClusterQuota?: int64(name='amk_cluster_quota', description='托管版集群配额。'),
-  askClusterQuota?: int64(name='ask_cluster_quota', description='Serverless集群配额。'),
-  clusterNodepoolQuota?: int64(name='cluster_nodepool_quota', description='集群节点池配额。'),
-  clusterQuota?: int64(name='cluster_quota', description='专有版集群托管版集群的总配额。'),
-  nodeQuota?: int64(name='node_quota', description='单集群的节点配额。'),
+  amkClusterQuota?: long(name='amk_cluster_quota', description='托管版集群配额。'),
+  askClusterQuota?: long(name='ask_cluster_quota', description='Serverless集群配额。'),
+  clusterNodepoolQuota?: long(name='cluster_nodepool_quota', description='集群节点池配额。'),
+  clusterQuota?: long(name='cluster_quota', description='专有版集群托管版集群的总配额。'),
+  nodeQuota?: long(name='node_quota', description='单集群的节点配额。'),
 }
 
 model DescribeUserQuotaResponse = {
@@ -1691,78 +2302,53 @@ async function describeUserQuotaWithOptions(headers: map[string]string, runtime:
   return doROARequest('DescribeUserQuota', '2015-12-15', 'HTTPS', 'GET', 'AK', `/quota`, 'json', req, runtime);
 }
 
-model GetKubernetesTriggerRequest {
-  namespace?: string(name='Namespace', description='应用所属命名空间。'),
-  type?: string(name='Type', description='应用类型。'),
-  name?: string(name='Name', description='应用名称。'),
-}
-
-model GetKubernetesTriggerResponseBody = {
-  triggers?: [ 
-    {
-      action?: string(name='action', description='触发器行为。'),
-      clusterId?: string(name='cluster_id', description='集群ID。'),
-      id?: string(name='id', description='触发器ID。'),
-      projectId?: string(name='project_id', description='项目ID，格式为：${namepsce}/${应用名}，'),
-      token?: string(name='token', description='触发器Token。'),
-    }
-  ](name='triggers', description='触发器详情。'),
-}
-
-model GetKubernetesTriggerResponse = {
+model DeleteClusterNodepoolResponse = {
   headers: map[string]string(name='headers'),
-  body: GetKubernetesTriggerResponseBody(name='body'),
 }
 
-async function getKubernetesTrigger(ClusterId: string, request: GetKubernetesTriggerRequest): GetKubernetesTriggerResponse {
+async function deleteClusterNodepool(ClusterId: string, NodepoolId: string): DeleteClusterNodepoolResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return getKubernetesTriggerWithOptions(ClusterId, request, headers, runtime);
+  return deleteClusterNodepoolWithOptions(ClusterId, NodepoolId, headers, runtime);
 }
 
-async function getKubernetesTriggerWithOptions(ClusterId: string, request: GetKubernetesTriggerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetKubernetesTriggerResponse {
+async function deleteClusterNodepoolWithOptions(ClusterId: string, NodepoolId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteClusterNodepoolResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('DeleteClusterNodepool', '2015-12-15', 'HTTPS', 'DELETE', 'AK', `/clusters/${ClusterId}/nodepools/{NodepoolId}`, 'none', req, runtime);
+}
+
+model DescribeClusterAddonsUpgradeStatusRequest {
+  componentIds?: [ string ](name='componentIds', description='组件列表。'),
+}
+
+model DescribeClusterAddonsUpgradeStatusResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+/**
+ * 批量查询集群Addon升级状态
+
+ */
+async function describeClusterAddonsUpgradeStatus(ClusterId: string, request: DescribeClusterAddonsUpgradeStatusRequest): DescribeClusterAddonsUpgradeStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeClusterAddonsUpgradeStatusWithOptions(ClusterId, request, headers, runtime);
+}
+
+async function describeClusterAddonsUpgradeStatusWithOptions(ClusterId: string, request: DescribeClusterAddonsUpgradeStatusRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterAddonsUpgradeStatusResponse {
   Util.validateModel(request);
   var query : map[string]any= {};
-  if (!Util.isUnset(request.namespace)) {
-    query.Namespace = request.namespace;
-  }
-  if (!Util.isUnset(request.type)) {
-    query.Type = request.type;
-  }
-  if (!Util.isUnset(request.name)) {
-    query.Name = request.name;
+  if (!Util.isUnset(request.componentIds)) {
+    query.componentIds = request.componentIds;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('GetKubernetesTrigger', '2015-12-15', 'HTTPS', 'GET', 'AK', `/triggers/${ClusterId}`, 'json', req, runtime);
-}
-
-model GetUpgradeStatusResponseBody = {
-  errorMessage?: string(name='error_message', description='错误信息描述。'),
-  precheckReportId?: string(name='precheck_report_id', description='预检查返回ID。'),
-  status?: string(name='status', description='升级状态。'),
-  upgradeStep?: string(name='upgrade_step', description='升级任务执行到哪一步了。'),
-}
-
-model GetUpgradeStatusResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetUpgradeStatusResponseBody(name='body'),
-}
-
-async function getUpgradeStatus(ClusterId: string): GetUpgradeStatusResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getUpgradeStatusWithOptions(ClusterId, headers, runtime);
-}
-
-async function getUpgradeStatusWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetUpgradeStatusResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  return doROARequest('GetUpgradeStatus', '2015-12-15', 'HTTPS', 'GET', 'AK', `/api/v2/clusters/${ClusterId}/upgrade/status`, 'json', req, runtime);
+  return doROARequest('DescribeClusterAddonsUpgradeStatus', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/[ClusterId]/components/upgradestatus`, 'none', req, runtime);
 }
 
 model InstallClusterAddonsRequest {
@@ -1796,600 +2382,151 @@ async function installClusterAddonsWithOptions(ClusterId: string, request: Insta
   return doROARequest('InstallClusterAddons', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${ClusterId}/components/install`, 'none', req, runtime);
 }
 
-model ListTagResourcesRequest {
-  nextToken?: string(name='next_token', description='下一个版本。'),
-  resourceIds?: string(name='resource_ids', description='资源ID。'),
-  tags?: string(name='tags', description='按标签查找。'),
-  resourceType?: string(name='resource_type', description='资源类型，例如：SLB。'),
+model DescribeClusterNodePoolsResponseBody = {
+  nodepools?: [ 
+    {
+      autoScaling?: {
+        eipBandwidth?: long(name='eip_bandwidth', description='EIP带宽峰值'),
+        isBondEip?: boolean(name='is_bond_eip', description='是否绑定EIP'),
+        eipInternetChargeType?: string(name='eip_internet_charge_type', description='EIP实例计费方式'),
+        enable?: boolean(name='enable', description='自动伸缩。	'),
+        maxInstances?: long(name='max_instances', description='最大节点数	'),
+        minInstances?: long(name='min_instances', description='最小节点数	'),
+        type?: string(name='type', description='扩容组类型。'),
+      }(name='auto_scaling', description='自动伸缩配置详情。'),
+      kubernetesConfig?: {
+        cmsEnabled?: boolean(name='cms_enabled', description='是否开启云监控	'),
+        cpuPolicy?: string(name='cpu_policy', description='CPU管理策略	'),
+        labels?: [
+          Tags
+        ](name='labels', description='ECS标签。	'),
+        runtime?: string(name='runtime', description='容器运行时	'),
+        runtimeVersion?: string(name='runtime_version', description='容器运行时版本	'),
+        taints?: [
+          Taints
+        ](name='taints', description='污点配置'),
+        userData?: string(name='user_data', description='节点自定义数据'),
+      }(name='kubernetes_config', description='集群配置信息。'),
+      nodepoolInfo?: {
+        created?: string(name='created', description='节点池创建时间'),
+        isDefault?: boolean(name='is_default', description='是否为默认节点池'),
+        name?: string(name='name', description='节点池名称'),
+        nodepoolId?: string(name='nodepool_id', description='节点池ID'),
+        regionId?: string(name='region_id', description='节点池所在地域ID。'),
+        resourceGroupId?: string(name='resource_group_id', description='资源组ID'),
+        type?: string(name='type', description='节点池类型'),
+        updated?: string(name='updated', description='节点池更新时间'),
+      }(name='nodepool_info', description='节点池配置详情。'),
+      scalingGroup?: {
+        autoRenew?: boolean(name='auto_renew', description='自动续费	'),
+        autoRenewPeriod?: long(name='auto_renew_period', description='自动付费时长	'),
+        dataDisks?: [
+          DataDisks
+        ](name='data_disks', description='数据盘配置	'),
+        imageId?: string(name='image_id', description='镜像ID	'),
+        instanceChargeType?: string(name='instance_charge_type', description='节点付费类型	'),
+        instanceTypes?: [ string ](name='instance_types', description='节点类型	'),
+        multiAzPolicy?: string(name='multi_az_policy', description='多可用去策略	'),
+        period?: long(name='period', description='包年包月时长	'),
+        periodUnit?: string(name='period_unit', description='自动付费周期	'),
+        platform?: string(name='platform', description='操作系统发行版。取值： CentOS，AliyunLinux，Windows，WindowsCore。'),
+        ramPolicy?: string(name='ram_policy', description='RAM 角色名称	'),
+        spotStrategy?: string(name='spot_strategy', description='抢占式实例类型'),
+        spotPriceLimit?: [ 
+          {
+            instanceType?: string(name='instance_type', description='抢占式实例规格。'),
+            priceLimit?: string(name='price_limit', description='单台实例上限价格，单位：元/小时。'),
+          }
+        ](name='spot_price_limit', description='抢占实例价格上限配置。'),
+        rdsInstances?: [ string ](name='rds_instances', description='RDS列表	'),
+        scalingGroupId?: string(name='scaling_group_id', description='扩容组ID	'),
+        scalingPolicy?: string(name='scaling_policy', description='扩容节点策略	'),
+        securityGroupId?: string(name='security_group_id', description='安全组ID。	'),
+        systemDiskCategory?: string(name='system_disk_category', description='系统盘类型。	'),
+        systemDiskSize?: long(name='system_disk_size', description='系统盘大小	'),
+        tags?: [
+          Tags
+        ](name='tags', description='节点标签	'),
+        vswitchIds?: [ string ](name='vswitch_ids', description='虚拟交换机ID。	'),
+        loginPassword?: string(name='login_password', description='登录密码，返回结果是加密的。'),
+        keyPair?: string(name='key_pair', description='密钥对名称，和login_password二选一。'),
+      }(name='scaling_group', description='扩容组配置详情。'),
+      status?: {
+        failedNodes?: long(name='failed_nodes', description='失败的节点数	'),
+        healthyNodes?: long(name='healthy_nodes', description='处于健康状态的节点数	'),
+        initialNodes?: long(name='initial_nodes', description='正在创建的节点数	'),
+        offlineNodes?: long(name='offline_nodes', description='离线节点数	'),
+        removingNodes?: long(name='removing_nodes', description='真在被移除的节点数。	'),
+        servingNodes?: long(name='serving_nodes', description='正在工作节点数	'),
+        state?: string(name='state', description='节点池状态	'),
+        totalNodes?: long(name='total_nodes', description='节点总数	'),
+      }(name='status', description='节点池状态详情。'),
+      teeConfig?: {
+        teeEnable?: boolean(name='tee_enable', description='是否为加密计算节点池	'),
+      }(name='tee_config', description='加密计算配置详情。'),
+      management?: {
+        enable?: boolean(name='enable', description='是否开启托管版节点池。'),
+        autoRepair?: boolean(name='auto_repair', description='是否启用自动修复。'),
+        upgradeConfig?: {
+          autoUpgrade?: boolean(name='auto_upgrade', description='是否启用自动升级，自修复。'),
+          surge?: long(name='surge', description='额外节点数量。'),
+          surgePercentage?: long(name='surge_percentage', description='额外节点比例， 和surge 二选一。'),
+          maxUnavailable?: long(name='max_unavailable', description='最大不可用节点数量。'),
+        }(name='upgrade_config', description='是否启用自动修复。'),
+      }(name='management', description='托管节点池配置。'),
+    }
+  ](name='nodepools', description='节点池列表。	'),
 }
 
-model ListTagResourcesResponseBody = {
-  nextToken?: string(name='next_token', description='下一个查询token。'),
-  requestId?: string(name='request_id', description='请求ID。'),
-  tagResources?: {
-    tagResource?: {
-      resourceId?: string(name='resource_id', description='资源ID。'),
-      resourceType?: string(name='resource_type', description='资源类型'),
-      tagKey?: string(name='tag_key', description='标签key。'),
-      tagValue?: string(name='tag_value', description='标签值。'),
-    }(name='tag_resource', description='资源标签。'),
-  }(name='tag_resources', description='资源标签列表。'),
-}
-
-model ListTagResourcesResponse = {
+model DescribeClusterNodePoolsResponse = {
   headers: map[string]string(name='headers'),
-  body: ListTagResourcesResponseBody(name='body'),
+  body: DescribeClusterNodePoolsResponseBody(name='body'),
 }
 
-async function listTagResources(request: ListTagResourcesRequest): ListTagResourcesResponse {
+async function describeClusterNodePools(ClusterId: string): DescribeClusterNodePoolsResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return listTagResourcesWithOptions(request, headers, runtime);
+  return describeClusterNodePoolsWithOptions(ClusterId, headers, runtime);
 }
 
-async function listTagResourcesWithOptions(request: ListTagResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTagResourcesResponse {
+async function describeClusterNodePoolsWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterNodePoolsResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('DescribeClusterNodePools', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/${ClusterId}/nodepools`, 'json', req, runtime);
+}
+
+model DescribeClusterV2UserKubeconfigRequest {
+  privateIpAddress?: boolean(name='PrivateIpAddress', description='是否为内网访问。'),
+}
+
+model DescribeClusterV2UserKubeconfigResponseBody = {
+  config?: string(name='config', description='kubeconfig内容。'),
+}
+
+model DescribeClusterV2UserKubeconfigResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeClusterV2UserKubeconfigResponseBody(name='body'),
+}
+
+async function describeClusterV2UserKubeconfig(ClusterId: string, request: DescribeClusterV2UserKubeconfigRequest): DescribeClusterV2UserKubeconfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeClusterV2UserKubeconfigWithOptions(ClusterId, request, headers, runtime);
+}
+
+async function describeClusterV2UserKubeconfigWithOptions(ClusterId: string, request: DescribeClusterV2UserKubeconfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterV2UserKubeconfigResponse {
   Util.validateModel(request);
   var query : map[string]any= {};
-  if (!Util.isUnset(request.nextToken)) {
-    query.next_token = request.nextToken;
-  }
-  if (!Util.isUnset(request.resourceIds)) {
-    query.resource_ids = request.resourceIds;
-  }
-  if (!Util.isUnset(request.tags)) {
-    query.tags = request.tags;
-  }
-  if (!Util.isUnset(request.resourceType)) {
-    query.resource_type = request.resourceType;
+  if (!Util.isUnset(request.privateIpAddress)) {
+    query.PrivateIpAddress = request.privateIpAddress;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('ListTagResources', '2015-12-15', 'HTTPS', 'GET', 'AK', `/tags`, 'json', req, runtime);
-}
-
-model ModifyClusterRequest {
-  apiServerEip?: boolean(name='api_server_eip', description='集群是否开启EIP。'),
-  apiServerEipId?: string(name='api_server_eip_id', description='集群的API Server的EIP ID。'),
-  deletionProtection?: boolean(name='deletion_protection', description='集群是否开启删除保护。'),
-  ingressDomainRebinding?: string(name='ingress_domain_rebinding', description='域名是否重新绑定到Ingress的SLB地址。'),
-  ingressLoadbalancerId?: string(name='ingress_loadbalancer_id', description='集群的Ingress SLB的ID。'),
-  resourceGroupId?: string(name='resource_group_id', description='集群资源组ID。'),
-}
-
-model ModifyClusterResponseBody = {
-  clusterId?: string(name='cluster_id', description='集群ID。'),
-  requestId?: string(name='request_id', description='请求ID。'),
-  taskId?: string(name='task_id', description='任务ID。'),
-}
-
-model ModifyClusterResponse = {
-  headers: map[string]string(name='headers'),
-  body: ModifyClusterResponseBody(name='body'),
-}
-
-async function modifyCluster(ClusterId: string, request: ModifyClusterRequest): ModifyClusterResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return modifyClusterWithOptions(ClusterId, request, headers, runtime);
-}
-
-async function modifyClusterWithOptions(ClusterId: string, request: ModifyClusterRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyClusterResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.apiServerEip)) {
-    body.api_server_eip = request.apiServerEip;
-  }
-  if (!Util.isUnset(request.apiServerEipId)) {
-    body.api_server_eip_id = request.apiServerEipId;
-  }
-  if (!Util.isUnset(request.deletionProtection)) {
-    body.deletion_protection = request.deletionProtection;
-  }
-  if (!Util.isUnset(request.ingressDomainRebinding)) {
-    body.ingress_domain_rebinding = request.ingressDomainRebinding;
-  }
-  if (!Util.isUnset(request.ingressLoadbalancerId)) {
-    body.ingress_loadbalancer_id = request.ingressLoadbalancerId;
-  }
-  if (!Util.isUnset(request.resourceGroupId)) {
-    body.resource_group_id = request.resourceGroupId;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = body,
-  };
-  return doROARequest('ModifyCluster', '2015-12-15', 'HTTPS', 'PUT', 'AK', `/api/v2/clusters/${ClusterId}`, 'json', req, runtime);
-}
-
-model ModifyClusterConfigurationRequest {
-  configs?: {
-    key?: string(name='key', description='key。'),
-    value?: string(name='value', description='value。'),
-  }(name='configs', description='配置集合。'),
-  name?: string(name='name', description='配置名称。'),
-}
-
-model ModifyClusterConfigurationResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function modifyClusterConfiguration(ClusterId: string, request: ModifyClusterConfigurationRequest): ModifyClusterConfigurationResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return modifyClusterConfigurationWithOptions(ClusterId, request, headers, runtime);
-}
-
-async function modifyClusterConfigurationWithOptions(ClusterId: string, request: ModifyClusterConfigurationRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyClusterConfigurationResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.configs)) {
-    body.configs = request.configs;
-  }
-  if (!Util.isUnset(request.name)) {
-    body.name = request.name;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = body,
-  };
-  return doROARequest('ModifyClusterConfiguration', '2015-12-15', 'HTTPS', 'PUT', 'AK', `/clusters/${ClusterId}/configuration`, 'none', req, runtime);
-}
-
-model ModifyClusterNodePoolRequest {
-  autoScaling?: {
-    eipBandwidth?: int64(name='eip_bandwidth', description='EIP带宽峰值。'),
-    eipInternetChargeType?: string(name='eip_internet_charge_type', description='EIP付费类型。'),
-    enable?: boolean(name='enable', description='是否开启自动伸缩。'),
-    isBondEip?: boolean(name='is_bond_eip', description='是否绑定EIP。'),
-    maxInstances?: int64(name='max_instances', description='最大实例数。'),
-    minInstances?: int64(name='min_instances', description='最小实例数。'),
-    type?: string(name='type', description='自动伸缩节点类型。'),
-  }(name='auto_scaling', description='自动伸缩配置。'),
-  kubernetesConfig?: {
-    cmsEnabled?: boolean(name='cms_enabled', description='是否开启云监控。'),
-    imageId?: string(name='image_id', description='自定义镜像。'),
-    labels?: [ 
-      {
-        key?: string(name='key', description='key'),
-        value?: string(name='value', description='value'),
-      }
-    ](name='labels', description='节点标签。'),
-    runtime?: string(name='runtime', description='容器运行时。'),
-    runtimeVersion?: string(name='runtime_version', description='容器运行时版本。'),
-    taints?: [ 
-      {
-        effect?: string(name='effect', description='污点策略。'),
-        key?: string(name='key', description='key'),
-        value?: string(name='value', description='value'),
-      }
-    ](name='taints', description='污点配置。'),
-    userData?: string(name='user_data', description='实例自定义数据。'),
-  }(name='kubernetes_config', description='集群配置。'),
-  nodepoolInfo?: {
-    name?: string(name='name', description='节点池名称。'),
-    resourceGroupId?: string(name='resource_group_id', description='资源组ID。'),
-  }(name='nodepool_info', description='节点池配置。'),
-  scalingGroup?: {
-    dataDisks?: [ 
-      {
-        category?: string(name='category', description='数据盘类型。'),
-        encrypted?: string(name='encrypted', description='数据盘是否加密。'),
-        size?: int64(name='size', description='数据盘大小。'),
-      }
-    ](name='data_disks', description='数据盘配置。'),
-    instanceChargeType?: string(name='instance_charge_type', description='节点付费类型。'),
-    instanceTypes?: [ string ](name='instance_types', description='节点实例规格。'),
-    keyPair?: string(name='key_pair', description='密钥对名称，和login_password二选一。'),
-    loginPassword?: string(name='login_password', description='SSH登录密码，和key_pari二选一。'),
-    rdsInstances?: [ string ](name='rds_instances', description='RDS实例列表。'),
-    scalingPolicy?: string(name='scaling_policy', description='扩容策略。'),
-    systemDiskCategory?: string(name='system_disk_category', description='节点系统盘类型。'),
-    systemDiskSize?: int64(name='system_disk_size', description='节点系统盘大小。'),
-    tags?: [ 
-      {
-        key?: string(name='key', description='key'),
-        value?: string(name='value', description='value'),
-      }
-    ](name='tags', description='ECS标签。'),
-    vpcId?: string(name='vpc_id', description='VPC网络ID。'),
-    vswitchIds?: [ string ](name='vswitch_ids', description='节点使用的虚拟交换机ID。'),
-  }(name='scaling_group', description='扩容组配置。'),
-  teeConfig?: {
-    teeEnable?: boolean(name='tee_enable', description='是否为加密计算节点池。'),
-  }(name='tee_config', description='加密计算配置。'),
-  updateNodes?: boolean(name='update_nodes', description='是否同步更新节点标签及污点。'),
-}
-
-model ModifyClusterNodePoolResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function modifyClusterNodePool(ClusterId: string, NodepoolId: string, request: ModifyClusterNodePoolRequest): ModifyClusterNodePoolResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return modifyClusterNodePoolWithOptions(ClusterId, NodepoolId, request, headers, runtime);
-}
-
-async function modifyClusterNodePoolWithOptions(ClusterId: string, NodepoolId: string, request: ModifyClusterNodePoolRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyClusterNodePoolResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.autoScaling)) {
-    body.auto_scaling = request.autoScaling;
-  }
-  if (!Util.isUnset(request.kubernetesConfig)) {
-    body.kubernetes_config = request.kubernetesConfig;
-  }
-  if (!Util.isUnset(request.nodepoolInfo)) {
-    body.nodepool_info = request.nodepoolInfo;
-  }
-  if (!Util.isUnset(request.scalingGroup)) {
-    body.scaling_group = request.scalingGroup;
-  }
-  if (!Util.isUnset(request.teeConfig)) {
-    body.tee_config = request.teeConfig;
-  }
-  if (!Util.isUnset(request.updateNodes)) {
-    body.update_nodes = request.updateNodes;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = body,
-  };
-  return doROARequest('ModifyClusterNodePool', '2015-12-15', 'HTTPS', 'PUT', 'AK', `/clusters/${ClusterId}/nodepools/{NodepoolId}`, 'none', req, runtime);
-}
-
-model ModifyClusterTagsRequest {
-  body?: [ 
-    {
-      key?: string(name='key', description='标签名。'),
-      value?: string(name='value', description='标签值'),
-    }
-  ](name='body', description='标签列表。'),
-}
-
-model ModifyClusterTagsResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function modifyClusterTags(ClusterId: string, request: ModifyClusterTagsRequest): ModifyClusterTagsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return modifyClusterTagsWithOptions(ClusterId, request, headers, runtime);
-}
-
-async function modifyClusterTagsWithOptions(ClusterId: string, request: ModifyClusterTagsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyClusterTagsResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = Util.toArray(request.body),
-  };
-  return doROARequest('ModifyClusterTags', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${ClusterId}/tags`, 'none', req, runtime);
-}
-
-model PauseClusterUpgradeResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function pauseClusterUpgrade(ClusterId: string): PauseClusterUpgradeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return pauseClusterUpgradeWithOptions(ClusterId, headers, runtime);
-}
-
-async function pauseClusterUpgradeWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): PauseClusterUpgradeResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  return doROARequest('PauseClusterUpgrade', '2015-12-15', 'HTTPS', 'POST', 'AK', `/api/v2/clusters/${ClusterId}/upgrade/pause`, 'none', req, runtime);
-}
-
-model PauseComponentUpgradeResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function pauseComponentUpgrade(clusterid: string, componentid: string): PauseComponentUpgradeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return pauseComponentUpgradeWithOptions(clusterid, componentid, headers, runtime);
-}
-
-async function pauseComponentUpgradeWithOptions(clusterid: string, componentid: string, headers: map[string]string, runtime: Util.RuntimeOptions): PauseComponentUpgradeResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  return doROARequest('PauseComponentUpgrade', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${clusterid}/components/{componentid}/pause`, 'none', req, runtime);
-}
-
-model RemoveClusterNodesRequest {
-  drainNode?: boolean(name='drain_node', description='是否排空节点上的Pod。'),
-  nodes?: [ string ](name='nodes', description='要移除的Node列表。'),
-  releaseNode?: boolean(name='release_node', description='是否同时释放ECS。'),
-}
-
-model RemoveClusterNodesResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function removeClusterNodes(ClusterId: string, request: RemoveClusterNodesRequest): RemoveClusterNodesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return removeClusterNodesWithOptions(ClusterId, request, headers, runtime);
-}
-
-async function removeClusterNodesWithOptions(ClusterId: string, request: RemoveClusterNodesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): RemoveClusterNodesResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.drainNode)) {
-    body.drain_node = request.drainNode;
-  }
-  if (!Util.isUnset(request.nodes)) {
-    body.nodes = request.nodes;
-  }
-  if (!Util.isUnset(request.releaseNode)) {
-    body.release_node = request.releaseNode;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = body,
-  };
-  return doROARequest('RemoveClusterNodes', '2015-12-15', 'HTTPS', 'POST', 'AK', `/api/v2/clusters/${ClusterId}/nodes/remove`, 'none', req, runtime);
-}
-
-model ResumeComponentUpgradeResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function resumeComponentUpgrade(clusterid: string, componentid: string): ResumeComponentUpgradeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return resumeComponentUpgradeWithOptions(clusterid, componentid, headers, runtime);
-}
-
-async function resumeComponentUpgradeWithOptions(clusterid: string, componentid: string, headers: map[string]string, runtime: Util.RuntimeOptions): ResumeComponentUpgradeResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  return doROARequest('ResumeComponentUpgrade', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${clusterid}/components/{componentid}/resume`, 'none', req, runtime);
-}
-
-model ResumeUpgradeClusterResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function resumeUpgradeCluster(ClusterId: string): ResumeUpgradeClusterResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return resumeUpgradeClusterWithOptions(ClusterId, headers, runtime);
-}
-
-async function resumeUpgradeClusterWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ResumeUpgradeClusterResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  return doROARequest('ResumeUpgradeCluster', '2015-12-15', 'HTTPS', 'POST', 'AK', `/api/v2/clusters/${ClusterId}/upgrade/resume`, 'none', req, runtime);
-}
-
-model ScaleClusterRequest {
-  cloudMonitorFlags?: boolean(name='cloud_monitor_flags', description='节点是否安装云监控插件。'),
-  count?: int64(name='count', description='扩容节点数。'),
-  cpuPolicy?: string(name='cpu_policy', description='节点CPU策略。'),
-  disableRollback?: boolean(name='disable_rollback', description='失败是否回滚。'),
-  keyPair?: string(name='key_pair', description='keypair名称，和login_password二选一。'),
-  loginPassword?: string(name='login_password', description='SSH登录密码。和keypair二选一。'),
-  tags?: [ 
-    {
-      key?: string(name='key', description='标签值。'),
-    }
-  ](name='tags', description='集群标签。'),
-  taints?: [ 
-    {
-      effect?: string(name='effect', description='污点生效策略。'),
-      key?: string(name='key', description='污点键。'),
-      value?: string(name='value', description='污点值。'),
-    }
-  ](name='taints', description='节点污点标记。'),
-  vswitchIds?: [ string ](name='vswitch_ids', description='节点交换机ID列表。'),
-  workerAutoRenew?: boolean(name='worker_auto_renew', description='节点是否开启Worker节点自动续费。'),
-  workerAutoRenewPeriod?: int64(name='worker_auto_renew_period', description='自动续费周期。'),
-  workerDataDisk?: boolean(name='worker_data_disk', description='是否挂载数据盘。'),
-  workerDataDisks?: [ 
-    {
-      category?: string(name='category', description='数据盘类型。'),
-      encrypted?: string(name='encrypted', description='是否对数据盘加密。'),
-      size?: string(name='size', description='数据盘大小。'),
-    }
-  ](name='worker_data_disks', description='Worker数据盘类型、大小等配置的组合。'),
-  workerInstanceChargeType?: string(name='worker_instance_charge_type', description='节点付费类型。'),
-  workerInstanceTypes?: [ string ](name='worker_instance_types', description='Worker节点ECS规格类型。'),
-  workerPeriod?: int64(name='worker_period', description='节点包年包月时长。'),
-  workerPeriodUnit?: string(name='worker_period_unit', description='当指定为PrePaid的时候需要指定周期。'),
-  workerSystemDiskCategory?: string(name='worker_system_disk_category', description='节点系统盘类型。'),
-  workerSystemDiskSize?: int64(name='worker_system_disk_size', description='节点系统盘大小'),
-}
-
-model ScaleClusterResponseBody = {
-  clusterId?: string(name='cluster_id', description='集群ID。'),
-  requestId?: string(name='request_id', description='请求ID。'),
-  taskId?: string(name='task_id', description='任务ID。'),
-}
-
-model ScaleClusterResponse = {
-  headers: map[string]string(name='headers'),
-  body: ScaleClusterResponseBody(name='body'),
-}
-
-async function scaleCluster(ClusterId: string, request: ScaleClusterRequest): ScaleClusterResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return scaleClusterWithOptions(ClusterId, request, headers, runtime);
-}
-
-async function scaleClusterWithOptions(ClusterId: string, request: ScaleClusterRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ScaleClusterResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.cloudMonitorFlags)) {
-    body.cloud_monitor_flags = request.cloudMonitorFlags;
-  }
-  if (!Util.isUnset(request.count)) {
-    body.count = request.count;
-  }
-  if (!Util.isUnset(request.cpuPolicy)) {
-    body.cpu_policy = request.cpuPolicy;
-  }
-  if (!Util.isUnset(request.disableRollback)) {
-    body.disable_rollback = request.disableRollback;
-  }
-  if (!Util.isUnset(request.keyPair)) {
-    body.key_pair = request.keyPair;
-  }
-  if (!Util.isUnset(request.loginPassword)) {
-    body.login_password = request.loginPassword;
-  }
-  if (!Util.isUnset(request.tags)) {
-    body.tags = request.tags;
-  }
-  if (!Util.isUnset(request.taints)) {
-    body.taints = request.taints;
-  }
-  if (!Util.isUnset(request.vswitchIds)) {
-    body.vswitch_ids = request.vswitchIds;
-  }
-  if (!Util.isUnset(request.workerAutoRenew)) {
-    body.worker_auto_renew = request.workerAutoRenew;
-  }
-  if (!Util.isUnset(request.workerAutoRenewPeriod)) {
-    body.worker_auto_renew_period = request.workerAutoRenewPeriod;
-  }
-  if (!Util.isUnset(request.workerDataDisk)) {
-    body.worker_data_disk = request.workerDataDisk;
-  }
-  if (!Util.isUnset(request.workerDataDisks)) {
-    body.worker_data_disks = request.workerDataDisks;
-  }
-  if (!Util.isUnset(request.workerInstanceChargeType)) {
-    body.worker_instance_charge_type = request.workerInstanceChargeType;
-  }
-  if (!Util.isUnset(request.workerInstanceTypes)) {
-    body.worker_instance_types = request.workerInstanceTypes;
-  }
-  if (!Util.isUnset(request.workerPeriod)) {
-    body.worker_period = request.workerPeriod;
-  }
-  if (!Util.isUnset(request.workerPeriodUnit)) {
-    body.worker_period_unit = request.workerPeriodUnit;
-  }
-  if (!Util.isUnset(request.workerSystemDiskCategory)) {
-    body.worker_system_disk_category = request.workerSystemDiskCategory;
-  }
-  if (!Util.isUnset(request.workerSystemDiskSize)) {
-    body.worker_system_disk_size = request.workerSystemDiskSize;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = body,
-  };
-  return doROARequest('ScaleCluster', '2015-12-15', 'HTTPS', 'PUT', 'AK', `/clusters/${ClusterId}`, 'json', req, runtime);
-}
-
-model ScaleClusterNodePoolRequest {
-  count?: int64(name='count', description='扩容节点数量'),
-  kubernetesConfig?: {
-    cmsEnabled?: boolean(name='cms_enabled', description='节点是否开启云监控'),
-    labels?: [ 
-      {
-        key?: string(name='key', description='key'),
-        value?: string(name='value', description='value'),
-      }
-    ](name='labels', description='节点标签。'),
-    runtime?: string(name='runtime', description='容器运行时名称'),
-    runtimeVersion?: string(name='runtime_version', description='容器运行时版本'),
-    taints?: [ 
-      {
-        effect?: string(name='effect', description='污点策略'),
-        key?: string(name='key', description='key'),
-        value?: string(name='value', description='value'),
-      }
-    ](name='taints', description='污点信息'),
-    userData?: string(name='user_data', description='节点自定义数据'),
-  }(name='kubernetes_config', description='集群配置'),
-  nodepoolInfo?: {
-    resourceGroupId?: string(name='resource_group_id', description='资源组ID'),
-  }(name='nodepool_info', description='节点池信息'),
-  scalingGroup?: {
-    dataDisks?: [ 
-      {
-        category?: string(name='category', description='数据盘类型'),
-        encrypted?: string(name='encrypted', description='数据盘是否加密'),
-        size?: int64(name='size', description='数据盘大小'),
-      }
-    ](name='data_disks', description='数据盘配置'),
-    instanceChargeType?: string(name='instance_charge_type', description='节点付费类型'),
-    instanceTypes?: [ string ](name='instance_types', description='节点实例规格'),
-    keyPair?: string(name='key_pair', description='密钥对名称，和login_password二选一'),
-    loginPassword?: string(name='login_password', description='SSH登录密码，和key_pair二选一'),
-    rdsInstances?: [ string ](name='rds_instances', description='RDS实例列表'),
-    systemDiskCategory?: string(name='system_disk_category', description='系统盘类型'),
-    systemDiskSize?: int64(name='system_disk_size', description='系统盘大小'),
-    tags?: [ 
-      {
-        key?: string(name='key', description='key'),
-        value?: string(name='value', description='value'),
-      }
-    ](name='tags', description='ECS标签'),
-    vpcId?: string(name='vpc_id', description='VPC网络ID'),
-    vswitchIds?: [ string ](name='vswitch_ids', description='虚拟交换机ID'),
-  }(name='scaling_group', description='扩容组配置'),
-  teeConfig?: {
-    teeEnable?: boolean(name='tee_enable', description='是否为加密计算节点池'),
-  }(name='tee_config', description='加密计算配置'),
-  updateNodes?: boolean(name='update_nodes', description='同步更新节点标签及污点'),
-}
-
-model ScaleClusterNodePoolResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function scaleClusterNodePool(ClusterId: string, NodepoolId: string, request: ScaleClusterNodePoolRequest): ScaleClusterNodePoolResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return scaleClusterNodePoolWithOptions(ClusterId, NodepoolId, request, headers, runtime);
-}
-
-async function scaleClusterNodePoolWithOptions(ClusterId: string, NodepoolId: string, request: ScaleClusterNodePoolRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ScaleClusterNodePoolResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.count)) {
-    body.count = request.count;
-  }
-  if (!Util.isUnset(request.kubernetesConfig)) {
-    body.kubernetes_config = request.kubernetesConfig;
-  }
-  if (!Util.isUnset(request.nodepoolInfo)) {
-    body.nodepool_info = request.nodepoolInfo;
-  }
-  if (!Util.isUnset(request.scalingGroup)) {
-    body.scaling_group = request.scalingGroup;
-  }
-  if (!Util.isUnset(request.teeConfig)) {
-    body.tee_config = request.teeConfig;
-  }
-  if (!Util.isUnset(request.updateNodes)) {
-    body.update_nodes = request.updateNodes;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = body,
-  };
-  return doROARequest('ScaleClusterNodePool', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${ClusterId}/nodepools/{NodepoolId}`, 'none', req, runtime);
+  return doROARequest('DescribeClusterV2UserKubeconfig', '2015-12-15', 'HTTPS', 'GET', 'AK', `/api/v2/k8s/${ClusterId}/user_config`, 'json', req, runtime);
 }
 
 model ScaleOutClusterRequest {
@@ -2427,7 +2564,7 @@ model ScaleOutClusterRequest {
     {
       category?: string(name='category', description='数据盘类型。'),
       encrypted?: string(name='encrypted', description='是否对数据盘加密。'),
-      size?: int64(name='size', description='数据盘大小。'),
+      size?: long(name='size', description='数据盘大小。'),
     }
   ](name='worker_data_disks', description='Worker数据盘类型、大小等配置的组合。'),
   workerInstanceChargeType?: string(name='worker_instance_charge_type', description='Worker节点付费类型。'),
@@ -2530,144 +2667,202 @@ async function scaleOutClusterWithOptions(ClusterId: string, request: ScaleOutCl
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
-    body = body,
+    body = OpenApiUtil.parseToMap(body),
   };
   return doROARequest('ScaleOutCluster', '2015-12-15', 'HTTPS', 'POST', 'AK', `/api/v2/clusters/${ClusterId}`, 'json', req, runtime);
 }
 
-model UnInstallClusterAddonsRequest {
-  addons?: [ 
-    {
-      name?: string(name='name', description='组件名称。'),
-    }
-  ](name='addons', description='卸载组件列表。'),
-}
-
-model UnInstallClusterAddonsResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function unInstallClusterAddons(ClusterId: string, request: UnInstallClusterAddonsRequest): UnInstallClusterAddonsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return unInstallClusterAddonsWithOptions(ClusterId, request, headers, runtime);
-}
-
-async function unInstallClusterAddonsWithOptions(ClusterId: string, request: UnInstallClusterAddonsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UnInstallClusterAddonsResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = Util.toArray(request.addons),
-  };
-  return doROARequest('UnInstallClusterAddons', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${ClusterId}/components/uninstall`, 'none', req, runtime);
-}
-
-model UpdateTemplateRequest {
-  description?: string(name='description', description='部署模板描述信息。'),
-  name?: string(name='name', description='部署模板名称。'),
-  tags?: string(name='tags', description='部署模板标签'),
-  template?: string(name='template', description='部署模板yaml。'),
-  templateType?: string(name='template_type', description='部署模板类型。'),
-}
-
-model UpdateTemplateResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function updateTemplate(TemplateId: string, request: UpdateTemplateRequest): UpdateTemplateResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateTemplateWithOptions(TemplateId, request, headers, runtime);
-}
-
-async function updateTemplateWithOptions(TemplateId: string, request: UpdateTemplateRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateTemplateResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.description)) {
-    body.description = request.description;
-  }
-  if (!Util.isUnset(request.name)) {
-    body.name = request.name;
-  }
-  if (!Util.isUnset(request.tags)) {
-    body.tags = request.tags;
-  }
-  if (!Util.isUnset(request.template)) {
-    body.template = request.template;
-  }
-  if (!Util.isUnset(request.templateType)) {
-    body.template_type = request.templateType;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = body,
-  };
-  return doROARequest('UpdateTemplate', '2015-12-15', 'HTTPS', 'PUT', 'AK', `/templates/${TemplateId}`, 'none', req, runtime);
-}
-
-model UpgradeClusterRequest {
-  componentName?: string(name='component_name', description='组件名称，集群升级时取值"k8s"。'),
-  nextVersion?: string(name='next_version', description='目标版本。'),
-  version?: string(name='version', description='当前版本。'),
-}
-
-model UpgradeClusterResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function upgradeCluster(ClusterId: string, request: UpgradeClusterRequest): UpgradeClusterResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return upgradeClusterWithOptions(ClusterId, request, headers, runtime);
-}
-
-async function upgradeClusterWithOptions(ClusterId: string, request: UpgradeClusterRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpgradeClusterResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.componentName)) {
-    body.component_name = request.componentName;
-  }
-  if (!Util.isUnset(request.nextVersion)) {
-    body.next_version = request.nextVersion;
-  }
-  if (!Util.isUnset(request.version)) {
-    body.version = request.version;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = body,
-  };
-  return doROARequest('UpgradeCluster', '2015-12-15', 'HTTPS', 'POST', 'AK', `/api/v2/clusters/${ClusterId}/upgrade`, 'none', req, runtime);
-}
-
-model UpgradeClusterAddonsRequest {
+model ModifyClusterTagsRequest {
   body?: [ 
     {
-      componentName?: string(name='component_name', description='组件名称。'),
-      nextVersion?: string(name='next_version', description='可升级版本。'),
-      version?: string(name='version', description='当前版本。'),
+      key?: string(name='key', description='标签名。'),
+      value?: string(name='value', description='标签值'),
     }
-  ](name='body', description='Request body，类型是对象数组。'),
+  ](name='body', description='标签列表。'),
 }
 
-model UpgradeClusterAddonsResponse = {
+model ModifyClusterTagsResponse = {
   headers: map[string]string(name='headers'),
 }
 
-async function upgradeClusterAddons(ClusterId: string, request: UpgradeClusterAddonsRequest): UpgradeClusterAddonsResponse {
+async function modifyClusterTags(ClusterId: string, request: ModifyClusterTagsRequest): ModifyClusterTagsResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return upgradeClusterAddonsWithOptions(ClusterId, request, headers, runtime);
+  return modifyClusterTagsWithOptions(ClusterId, request, headers, runtime);
 }
 
-async function upgradeClusterAddonsWithOptions(ClusterId: string, request: UpgradeClusterAddonsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpgradeClusterAddonsResponse {
+async function modifyClusterTagsWithOptions(ClusterId: string, request: ModifyClusterTagsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyClusterTagsResponse {
   Util.validateModel(request);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     body = Util.toArray(request.body),
   };
-  return doROARequest('UpgradeClusterAddons', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${ClusterId}/components/upgrade`, 'none', req, runtime);
+  return doROARequest('ModifyClusterTags', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${ClusterId}/tags`, 'none', req, runtime);
+}
+
+model GetKubernetesTriggerRequest {
+  namespace?: string(name='Namespace', description='应用所属命名空间。'),
+  type?: string(name='Type', description='应用类型。'),
+  name?: string(name='Name', description='应用名称。'),
+}
+
+model GetKubernetesTriggerResponseBody = {
+  triggers?: [ 
+    {
+      action?: string(name='action', description='触发器行为。'),
+      clusterId?: string(name='cluster_id', description='集群ID。'),
+      id?: string(name='id', description='触发器ID。'),
+      projectId?: string(name='project_id', description='项目ID，格式为：${namepsce}/${应用名}，'),
+      token?: string(name='token', description='触发器Token。'),
+    }
+  ](name='triggers', description='触发器详情。'),
+}
+
+model GetKubernetesTriggerResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetKubernetesTriggerResponseBody(name='body'),
+}
+
+async function getKubernetesTrigger(ClusterId: string, request: GetKubernetesTriggerRequest): GetKubernetesTriggerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getKubernetesTriggerWithOptions(ClusterId, request, headers, runtime);
+}
+
+async function getKubernetesTriggerWithOptions(ClusterId: string, request: GetKubernetesTriggerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetKubernetesTriggerResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.namespace)) {
+    query.Namespace = request.namespace;
+  }
+  if (!Util.isUnset(request.type)) {
+    query.Type = request.type;
+  }
+  if (!Util.isUnset(request.name)) {
+    query.Name = request.name;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('GetKubernetesTrigger', '2015-12-15', 'HTTPS', 'GET', 'AK', `/triggers/${ClusterId}`, 'json', req, runtime);
+}
+
+model GetUpgradeStatusResponseBody = {
+  errorMessage?: string(name='error_message', description='错误信息描述。'),
+  precheckReportId?: string(name='precheck_report_id', description='预检查返回ID。'),
+  status?: string(name='status', description='升级状态。'),
+  upgradeStep?: string(name='upgrade_step', description='升级任务执行到哪一步了。'),
+  upgradeTask?: {
+    status?: string(name='status', description='任务状态：  emptry、running、success、failed'),
+    message?: string(name='message', description='任务描述信息。'),
+  }(name='upgrade_task', description='升级任务详情。'),
+}
+
+model GetUpgradeStatusResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetUpgradeStatusResponseBody(name='body'),
+}
+
+async function getUpgradeStatus(ClusterId: string): GetUpgradeStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getUpgradeStatusWithOptions(ClusterId, headers, runtime);
+}
+
+async function getUpgradeStatusWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetUpgradeStatusResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('GetUpgradeStatus', '2015-12-15', 'HTTPS', 'GET', 'AK', `/api/v2/clusters/${ClusterId}/upgrade/status`, 'json', req, runtime);
+}
+
+model DescribeClusterResourcesResponse = {
+  headers: map[string]string(name='headers'),
+  body: [ 
+    {
+      clusterId?: string(name='cluster_id', description='集群ID。'),
+      created?: string(name='created', description='资源创建时间。'),
+      instanceId?: string(name='instance_id', description='资源实例ID。'),
+      resourceInfo?: string(name='resource_info', description='资源元信息。'),
+      resourceType?: string(name='resource_type', description='资源类型。'),
+      state?: string(name='state', description='资源状态。'),
+    }
+  ](name='body'),
+}
+
+async function describeClusterResources(ClusterId: string): DescribeClusterResourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeClusterResourcesWithOptions(ClusterId, headers, runtime);
+}
+
+async function describeClusterResourcesWithOptions(ClusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterResourcesResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('DescribeClusterResources', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/${ClusterId}/resources`, 'array', req, runtime);
+}
+
+model DeleteClusterNodesRequest {
+  drainNode?: boolean(name='drain_node', description='是否自动排空节点上的Pod。'),
+  releaseNode?: boolean(name='release_node', description='是否同时释放 ECS'),
+  nodes?: [ string ](name='nodes', description='移除节点列表。'),
+}
+
+model DeleteClusterNodesResponseBody = {
+  requestId?: string(name='requestId', description='请求ID。'),
+}
+
+model DeleteClusterNodesResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteClusterNodesResponseBody(name='body'),
+}
+
+async function deleteClusterNodes(ClusterId: string, request: DeleteClusterNodesRequest): DeleteClusterNodesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteClusterNodesWithOptions(ClusterId, request, headers, runtime);
+}
+
+async function deleteClusterNodesWithOptions(ClusterId: string, request: DeleteClusterNodesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteClusterNodesResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.drainNode)) {
+    body.drain_node = request.drainNode;
+  }
+  if (!Util.isUnset(request.releaseNode)) {
+    body.release_node = request.releaseNode;
+  }
+  if (!Util.isUnset(request.nodes)) {
+    body.nodes = request.nodes;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('DeleteClusterNodes', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${ClusterId}/nodes`, 'json', req, runtime);
+}
+
+model StandardComponentsValue = {
+  description?: string(name='description', description='标准组件信息，包含各个组件的描述信息。'),
+  disabled?: boolean(name='disabled', description='是否禁止默认安装。'),
+  name?: string(name='name', description='组件名称。'),
+  required?: string(name='required', description='是否为必需组件。'),
+  version?: string(name='version', description='组件版本。'),
+}
+
+model AddonsVersionValue = {
+  canUpgrade?: boolean(name='can_upgrade', description='组件是否可升级'),
+  changed?: string(name='changed', description='组件是否升级过。'),
+  componentName?: string(name='component_name', description='组件名称。'),
+  description?: string(name='description', description='组件说明信息。'),
+  message?: string(name='message', description='是否可升级的额外说明信息。'),
+  nextVersion?: string(name='next_version', description='组件下一个可升级版本。'),
+  required?: boolean(name='required', description='组件是否为必需组件'),
+  template?: string(name='template', description='组件最新模板内容。'),
+  version?: string(name='version', description='组件当前版本。'),
 }
 
