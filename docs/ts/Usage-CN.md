@@ -24,7 +24,7 @@ SDK 使用 [credentials-nodejs](https://github.com/aliyun/credentials-nodejs/blo
 ## 使用示例
 
 ```javascript
-import Client from "@alicloud/facebody20191230";
+import Client, * as $facebody from "@alicloud/facebody20191230";
 import * as Util from "@alicloud/tea-util";
 // 创建客户端
 const client = new Client({
@@ -37,7 +37,7 @@ const client = new Client({
 // 初始化 runtimeObject
 const runtimeObject = new Util.RuntimeOptions({});
 // 初始化 request
-const addFaceEntityRequest = new AddFaceEntityRequest({
+const addFaceEntityRequest = new $facebody.AddFaceEntityRequest({
   dbName: "dbName",
   entityId: "entityId",
   labels: "labels"
