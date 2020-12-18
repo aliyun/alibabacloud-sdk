@@ -23,7 +23,7 @@ Before you begin, you need to sign up for an Alibaba Cloud account and retrieve 
 ## Demo
 
 ```javascript
-import Client from "@alicloud/facebody20191230";
+import Client, * as $facebody from "@alicloud/facebody20191230";
 import * as Util from "@alicloud/tea-util";
 // init client
 const client = new Client({
@@ -36,7 +36,7 @@ const client = new Client({
 // init runtimeObject
 const runtimeObject = new Util.RuntimeOptions({});
 // init request
-const addFaceEntityRequest = new AddFaceEntityRequest({
+const addFaceEntityRequest = new $facebody.AddFaceEntityRequest({
   dbName: "dbName",
   entityId: "entityId",
   labels: "labels"
