@@ -1,11 +1,11 @@
-import OSS;
-import OpenPlatform;
+import Util;
 import RPCUtil;
 import RPC;
-import OSSUtil;
-import Util;
-import FileForm;
 import EndpointUtil;
+import OSS;
+import OpenPlatform;
+import OSSUtil;
+import FileForm;
 
 extends RPC;
 
@@ -15,6 +15,101 @@ init(config: RPC.Config){
   
   checkConfig(config);
   @endpoint = getEndpoint('imagerecog', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+model EvaluateCertificateQualityRequest = {
+  imageURL: string(name='ImageURL'),
+  type: string(name='Type'),
+}
+
+model EvaluateCertificateQualityResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    elements: [
+      {
+        value: string(name='Value'),
+        pass: string(name='Pass'),
+        score: string(name='Score'),
+      }
+    ](name='Elements'),
+  }(name='Data'),
+}
+
+async function evaluateCertificateQuality(request: EvaluateCertificateQualityRequest, runtime: Util.RuntimeOptions): EvaluateCertificateQualityResponse {
+  Util.validateModel(request);
+  return doRequest('EvaluateCertificateQuality', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function evaluateCertificateQualitySimply(request: EvaluateCertificateQualityRequest): EvaluateCertificateQualityResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return evaluateCertificateQuality(request, runtime);
+}
+
+model EvaluateCertificateQualityAdvanceRequest = {
+  imageURLObject: readable(name='ImageURLObject'),
+  type: string(name='Type'),
+}
+
+async function evaluateCertificateQualityAdvance(request: EvaluateCertificateQualityAdvanceRequest, runtime: Util.RuntimeOptions): EvaluateCertificateQualityResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imagerecog',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var evaluateCertificateQualityReq = new EvaluateCertificateQualityRequest{};
+  RPCUtil.convert(request, evaluateCertificateQualityReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  evaluateCertificateQualityReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var evaluateCertificateQualityResp = evaluateCertificateQuality(evaluateCertificateQualityReq, runtime);
+  return evaluateCertificateQualityResp;
 }
 
 model DetectFruitsRequest = {
@@ -36,7 +131,12 @@ model DetectFruitsResponse = {
 
 async function detectFruits(request: DetectFruitsRequest, runtime: Util.RuntimeOptions): DetectFruitsResponse {
   Util.validateModel(request);
-  return doRequest('DetectFruits', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('DetectFruits', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function detectFruitsSimply(request: DetectFruitsRequest): DetectFruitsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return detectFruits(request, runtime);
 }
 
 model DetectFruitsAdvanceRequest = {
@@ -56,29 +156,38 @@ async function detectFruitsAdvance(request: DetectFruitsAdvanceRequest, runtime:
     regionId = @regionId,
   };
   var authClient = new OpenPlatform(authConfig);
-
   var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
     product = 'imagerecog',
     regionId = @regionId,
   };
-  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  // Step 1: request OSS api to upload file
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
   var ossConfig = new OSS.Config{
-    accessKeyId = authResponse.accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
-    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
-  var fileObj = new FileForm.FileField{
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var detectFruitsReq = new DetectFruitsRequest{};
+  RPCUtil.convert(request, detectFruitsReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
     filename = authResponse.objectKey,
     content = request.imageURLObject,
     contentType = '',
   };
-  var ossHeader = new OSS.PostObjectRequest.header{
+  ossHeader = new OSS.PostObjectRequest.header{
     accessKeyId = authResponse.accessKeyId,
     policy = authResponse.encodedPolicy,
     signature = authResponse.signature,
@@ -86,18 +195,13 @@ async function detectFruitsAdvance(request: DetectFruitsAdvanceRequest, runtime:
     file = fileObj,
     successActionStatus = '201',
   };
-  var uploadRequest = new OSS.PostObjectRequest{
+  uploadRequest = new OSS.PostObjectRequest{
     bucketName = authResponse.bucket,
     header = ossHeader,
   };
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
   ossClient.postObject(uploadRequest, ossRuntime);
-  // Step 2: request final api
-  var detectFruitsreq = new DetectFruitsRequest{};
-  RPCUtil.convert(request, detectFruitsreq);
-  detectFruitsreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var detectFruitsResp = detectFruits(detectFruitsreq, runtime);
+  detectFruitsReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var detectFruitsResp = detectFruits(detectFruitsReq, runtime);
   return detectFruitsResp;
 }
 
@@ -122,7 +226,12 @@ model ClassifyingRubbishResponse = {
 
 async function classifyingRubbish(request: ClassifyingRubbishRequest, runtime: Util.RuntimeOptions): ClassifyingRubbishResponse {
   Util.validateModel(request);
-  return doRequest('ClassifyingRubbish', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('ClassifyingRubbish', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function classifyingRubbishSimply(request: ClassifyingRubbishRequest): ClassifyingRubbishResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return classifyingRubbish(request, runtime);
 }
 
 model ClassifyingRubbishAdvanceRequest = {
@@ -142,29 +251,38 @@ async function classifyingRubbishAdvance(request: ClassifyingRubbishAdvanceReque
     regionId = @regionId,
   };
   var authClient = new OpenPlatform(authConfig);
-
   var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
     product = 'imagerecog',
     regionId = @regionId,
   };
-  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  // Step 1: request OSS api to upload file
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
   var ossConfig = new OSS.Config{
-    accessKeyId = authResponse.accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
-    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
-  var fileObj = new FileForm.FileField{
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var classifyingRubbishReq = new ClassifyingRubbishRequest{};
+  RPCUtil.convert(request, classifyingRubbishReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
     filename = authResponse.objectKey,
     content = request.imageURLObject,
     contentType = '',
   };
-  var ossHeader = new OSS.PostObjectRequest.header{
+  ossHeader = new OSS.PostObjectRequest.header{
     accessKeyId = authResponse.accessKeyId,
     policy = authResponse.encodedPolicy,
     signature = authResponse.signature,
@@ -172,18 +290,13 @@ async function classifyingRubbishAdvance(request: ClassifyingRubbishAdvanceReque
     file = fileObj,
     successActionStatus = '201',
   };
-  var uploadRequest = new OSS.PostObjectRequest{
+  uploadRequest = new OSS.PostObjectRequest{
     bucketName = authResponse.bucket,
     header = ossHeader,
   };
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
   ossClient.postObject(uploadRequest, ossRuntime);
-  // Step 2: request final api
-  var classifyingRubbishreq = new ClassifyingRubbishRequest{};
-  RPCUtil.convert(request, classifyingRubbishreq);
-  classifyingRubbishreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var classifyingRubbishResp = classifyingRubbish(classifyingRubbishreq, runtime);
+  classifyingRubbishReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var classifyingRubbishResp = classifyingRubbish(classifyingRubbishReq, runtime);
   return classifyingRubbishResp;
 }
 
@@ -206,7 +319,12 @@ model RecognizeVehicleTypeResponse = {
 
 async function recognizeVehicleType(request: RecognizeVehicleTypeRequest, runtime: Util.RuntimeOptions): RecognizeVehicleTypeResponse {
   Util.validateModel(request);
-  return doRequest('RecognizeVehicleType', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('RecognizeVehicleType', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function recognizeVehicleTypeSimply(request: RecognizeVehicleTypeRequest): RecognizeVehicleTypeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeVehicleType(request, runtime);
 }
 
 model RecognizeVehicleTypeAdvanceRequest = {
@@ -226,29 +344,38 @@ async function recognizeVehicleTypeAdvance(request: RecognizeVehicleTypeAdvanceR
     regionId = @regionId,
   };
   var authClient = new OpenPlatform(authConfig);
-
   var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
     product = 'imagerecog',
     regionId = @regionId,
   };
-  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  // Step 1: request OSS api to upload file
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
   var ossConfig = new OSS.Config{
-    accessKeyId = authResponse.accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
-    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
-  var fileObj = new FileForm.FileField{
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var recognizeVehicleTypeReq = new RecognizeVehicleTypeRequest{};
+  RPCUtil.convert(request, recognizeVehicleTypeReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
     filename = authResponse.objectKey,
     content = request.imageURLObject,
     contentType = '',
   };
-  var ossHeader = new OSS.PostObjectRequest.header{
+  ossHeader = new OSS.PostObjectRequest.header{
     accessKeyId = authResponse.accessKeyId,
     policy = authResponse.encodedPolicy,
     signature = authResponse.signature,
@@ -256,18 +383,13 @@ async function recognizeVehicleTypeAdvance(request: RecognizeVehicleTypeAdvanceR
     file = fileObj,
     successActionStatus = '201',
   };
-  var uploadRequest = new OSS.PostObjectRequest{
+  uploadRequest = new OSS.PostObjectRequest{
     bucketName = authResponse.bucket,
     header = ossHeader,
   };
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
   ossClient.postObject(uploadRequest, ossRuntime);
-  // Step 2: request final api
-  var recognizeVehicleTypereq = new RecognizeVehicleTypeRequest{};
-  RPCUtil.convert(request, recognizeVehicleTypereq);
-  recognizeVehicleTypereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var recognizeVehicleTypeResp = recognizeVehicleType(recognizeVehicleTypereq, runtime);
+  recognizeVehicleTypeReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var recognizeVehicleTypeResp = recognizeVehicleType(recognizeVehicleTypeReq, runtime);
   return recognizeVehicleTypeResp;
 }
 
@@ -310,7 +432,12 @@ model RecognizeLogoResponse = {
 
 async function recognizeLogo(request: RecognizeLogoRequest, runtime: Util.RuntimeOptions): RecognizeLogoResponse {
   Util.validateModel(request);
-  return doRequest('RecognizeLogo', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('RecognizeLogo', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function recognizeLogoSimply(request: RecognizeLogoRequest): RecognizeLogoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeLogo(request, runtime);
 }
 
 model TaggingImageRequest = {
@@ -331,7 +458,12 @@ model TaggingImageResponse = {
 
 async function taggingImage(request: TaggingImageRequest, runtime: Util.RuntimeOptions): TaggingImageResponse {
   Util.validateModel(request);
-  return doRequest('TaggingImage', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('TaggingImage', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function taggingImageSimply(request: TaggingImageRequest): TaggingImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return taggingImage(request, runtime);
 }
 
 model TaggingImageAdvanceRequest = {
@@ -351,29 +483,38 @@ async function taggingImageAdvance(request: TaggingImageAdvanceRequest, runtime:
     regionId = @regionId,
   };
   var authClient = new OpenPlatform(authConfig);
-
   var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
     product = 'imagerecog',
     regionId = @regionId,
   };
-  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  // Step 1: request OSS api to upload file
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
   var ossConfig = new OSS.Config{
-    accessKeyId = authResponse.accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
-    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
-  var fileObj = new FileForm.FileField{
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var taggingImageReq = new TaggingImageRequest{};
+  RPCUtil.convert(request, taggingImageReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
     filename = authResponse.objectKey,
     content = request.imageURLObject,
     contentType = '',
   };
-  var ossHeader = new OSS.PostObjectRequest.header{
+  ossHeader = new OSS.PostObjectRequest.header{
     accessKeyId = authResponse.accessKeyId,
     policy = authResponse.encodedPolicy,
     signature = authResponse.signature,
@@ -381,18 +522,13 @@ async function taggingImageAdvance(request: TaggingImageAdvanceRequest, runtime:
     file = fileObj,
     successActionStatus = '201',
   };
-  var uploadRequest = new OSS.PostObjectRequest{
+  uploadRequest = new OSS.PostObjectRequest{
     bucketName = authResponse.bucket,
     header = ossHeader,
   };
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
   ossClient.postObject(uploadRequest, ossRuntime);
-  // Step 2: request final api
-  var taggingImagereq = new TaggingImageRequest{};
-  RPCUtil.convert(request, taggingImagereq);
-  taggingImagereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var taggingImageResp = taggingImage(taggingImagereq, runtime);
+  taggingImageReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var taggingImageResp = taggingImage(taggingImageReq, runtime);
   return taggingImageResp;
 }
 
@@ -414,7 +550,12 @@ model RecognizeSceneResponse = {
 
 async function recognizeScene(request: RecognizeSceneRequest, runtime: Util.RuntimeOptions): RecognizeSceneResponse {
   Util.validateModel(request);
-  return doRequest('RecognizeScene', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('RecognizeScene', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function recognizeSceneSimply(request: RecognizeSceneRequest): RecognizeSceneResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeScene(request, runtime);
 }
 
 model RecognizeSceneAdvanceRequest = {
@@ -434,29 +575,38 @@ async function recognizeSceneAdvance(request: RecognizeSceneAdvanceRequest, runt
     regionId = @regionId,
   };
   var authClient = new OpenPlatform(authConfig);
-
   var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
     product = 'imagerecog',
     regionId = @regionId,
   };
-  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  // Step 1: request OSS api to upload file
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
   var ossConfig = new OSS.Config{
-    accessKeyId = authResponse.accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
-    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
-  var fileObj = new FileForm.FileField{
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var recognizeSceneReq = new RecognizeSceneRequest{};
+  RPCUtil.convert(request, recognizeSceneReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
     filename = authResponse.objectKey,
     content = request.imageURLObject,
     contentType = '',
   };
-  var ossHeader = new OSS.PostObjectRequest.header{
+  ossHeader = new OSS.PostObjectRequest.header{
     accessKeyId = authResponse.accessKeyId,
     policy = authResponse.encodedPolicy,
     signature = authResponse.signature,
@@ -464,18 +614,13 @@ async function recognizeSceneAdvance(request: RecognizeSceneAdvanceRequest, runt
     file = fileObj,
     successActionStatus = '201',
   };
-  var uploadRequest = new OSS.PostObjectRequest{
+  uploadRequest = new OSS.PostObjectRequest{
     bucketName = authResponse.bucket,
     header = ossHeader,
   };
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
   ossClient.postObject(uploadRequest, ossRuntime);
-  // Step 2: request final api
-  var recognizeScenereq = new RecognizeSceneRequest{};
-  RPCUtil.convert(request, recognizeScenereq);
-  recognizeScenereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var recognizeSceneResp = recognizeScene(recognizeScenereq, runtime);
+  recognizeSceneReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var recognizeSceneResp = recognizeScene(recognizeSceneReq, runtime);
   return recognizeSceneResp;
 }
 
@@ -499,7 +644,12 @@ model RecognizeImageColorResponse = {
 
 async function recognizeImageColor(request: RecognizeImageColorRequest, runtime: Util.RuntimeOptions): RecognizeImageColorResponse {
   Util.validateModel(request);
-  return doRequest('RecognizeImageColor', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('RecognizeImageColor', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function recognizeImageColorSimply(request: RecognizeImageColorRequest): RecognizeImageColorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeImageColor(request, runtime);
 }
 
 model RecognizeImageColorAdvanceRequest = {
@@ -520,29 +670,38 @@ async function recognizeImageColorAdvance(request: RecognizeImageColorAdvanceReq
     regionId = @regionId,
   };
   var authClient = new OpenPlatform(authConfig);
-
   var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
     product = 'imagerecog',
     regionId = @regionId,
   };
-  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  // Step 1: request OSS api to upload file
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
   var ossConfig = new OSS.Config{
-    accessKeyId = authResponse.accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
-    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
-  var fileObj = new FileForm.FileField{
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var recognizeImageColorReq = new RecognizeImageColorRequest{};
+  RPCUtil.convert(request, recognizeImageColorReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
     filename = authResponse.objectKey,
     content = request.urlObject,
     contentType = '',
   };
-  var ossHeader = new OSS.PostObjectRequest.header{
+  ossHeader = new OSS.PostObjectRequest.header{
     accessKeyId = authResponse.accessKeyId,
     policy = authResponse.encodedPolicy,
     signature = authResponse.signature,
@@ -550,18 +709,13 @@ async function recognizeImageColorAdvance(request: RecognizeImageColorAdvanceReq
     file = fileObj,
     successActionStatus = '201',
   };
-  var uploadRequest = new OSS.PostObjectRequest{
+  uploadRequest = new OSS.PostObjectRequest{
     bucketName = authResponse.bucket,
     header = ossHeader,
   };
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
   ossClient.postObject(uploadRequest, ossRuntime);
-  // Step 2: request final api
-  var recognizeImageColorreq = new RecognizeImageColorRequest{};
-  RPCUtil.convert(request, recognizeImageColorreq);
-  recognizeImageColorreq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var recognizeImageColorResp = recognizeImageColor(recognizeImageColorreq, runtime);
+  recognizeImageColorReq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var recognizeImageColorResp = recognizeImageColor(recognizeImageColorReq, runtime);
   return recognizeImageColorResp;
 }
 
@@ -587,7 +741,12 @@ model DetectImageElementsResponse = {
 
 async function detectImageElements(request: DetectImageElementsRequest, runtime: Util.RuntimeOptions): DetectImageElementsResponse {
   Util.validateModel(request);
-  return doRequest('DetectImageElements', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('DetectImageElements', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function detectImageElementsSimply(request: DetectImageElementsRequest): DetectImageElementsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return detectImageElements(request, runtime);
 }
 
 model DetectImageElementsAdvanceRequest = {
@@ -607,29 +766,38 @@ async function detectImageElementsAdvance(request: DetectImageElementsAdvanceReq
     regionId = @regionId,
   };
   var authClient = new OpenPlatform(authConfig);
-
   var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
     product = 'imagerecog',
     regionId = @regionId,
   };
-  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  // Step 1: request OSS api to upload file
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
   var ossConfig = new OSS.Config{
-    accessKeyId = authResponse.accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
-    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
-  var fileObj = new FileForm.FileField{
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var detectImageElementsReq = new DetectImageElementsRequest{};
+  RPCUtil.convert(request, detectImageElementsReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
     filename = authResponse.objectKey,
     content = request.urlObject,
     contentType = '',
   };
-  var ossHeader = new OSS.PostObjectRequest.header{
+  ossHeader = new OSS.PostObjectRequest.header{
     accessKeyId = authResponse.accessKeyId,
     policy = authResponse.encodedPolicy,
     signature = authResponse.signature,
@@ -637,18 +805,13 @@ async function detectImageElementsAdvance(request: DetectImageElementsAdvanceReq
     file = fileObj,
     successActionStatus = '201',
   };
-  var uploadRequest = new OSS.PostObjectRequest{
+  uploadRequest = new OSS.PostObjectRequest{
     bucketName = authResponse.bucket,
     header = ossHeader,
   };
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
   ossClient.postObject(uploadRequest, ossRuntime);
-  // Step 2: request final api
-  var detectImageElementsreq = new DetectImageElementsRequest{};
-  RPCUtil.convert(request, detectImageElementsreq);
-  detectImageElementsreq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var detectImageElementsResp = detectImageElements(detectImageElementsreq, runtime);
+  detectImageElementsReq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var detectImageElementsResp = detectImageElements(detectImageElementsReq, runtime);
   return detectImageElementsResp;
 }
 
@@ -665,7 +828,12 @@ model RecognizeImageStyleResponse = {
 
 async function recognizeImageStyle(request: RecognizeImageStyleRequest, runtime: Util.RuntimeOptions): RecognizeImageStyleResponse {
   Util.validateModel(request);
-  return doRequest('RecognizeImageStyle', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+  return doRequest('RecognizeImageStyle', 'HTTPS', 'POST', '2019-09-30', 'AK', null, request, runtime);
+}
+
+async function recognizeImageStyleSimply(request: RecognizeImageStyleRequest): RecognizeImageStyleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeImageStyle(request, runtime);
 }
 
 model RecognizeImageStyleAdvanceRequest = {
@@ -685,29 +853,38 @@ async function recognizeImageStyleAdvance(request: RecognizeImageStyleAdvanceReq
     regionId = @regionId,
   };
   var authClient = new OpenPlatform(authConfig);
-
   var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
     product = 'imagerecog',
     regionId = @regionId,
   };
-  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  // Step 1: request OSS api to upload file
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
   var ossConfig = new OSS.Config{
-    accessKeyId = authResponse.accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
-    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
-  var fileObj = new FileForm.FileField{
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var recognizeImageStyleReq = new RecognizeImageStyleRequest{};
+  RPCUtil.convert(request, recognizeImageStyleReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
     filename = authResponse.objectKey,
     content = request.urlObject,
     contentType = '',
   };
-  var ossHeader = new OSS.PostObjectRequest.header{
+  ossHeader = new OSS.PostObjectRequest.header{
     accessKeyId = authResponse.accessKeyId,
     policy = authResponse.encodedPolicy,
     signature = authResponse.signature,
@@ -715,18 +892,13 @@ async function recognizeImageStyleAdvance(request: RecognizeImageStyleAdvanceReq
     file = fileObj,
     successActionStatus = '201',
   };
-  var uploadRequest = new OSS.PostObjectRequest{
+  uploadRequest = new OSS.PostObjectRequest{
     bucketName = authResponse.bucket,
     header = ossHeader,
   };
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
   ossClient.postObject(uploadRequest, ossRuntime);
-  // Step 2: request final api
-  var recognizeImageStylereq = new RecognizeImageStyleRequest{};
-  RPCUtil.convert(request, recognizeImageStylereq);
-  recognizeImageStylereq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var recognizeImageStyleResp = recognizeImageStyle(recognizeImageStylereq, runtime);
+  recognizeImageStyleReq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var recognizeImageStyleResp = recognizeImageStyle(recognizeImageStyleReq, runtime);
   return recognizeImageStyleResp;
 }
 
