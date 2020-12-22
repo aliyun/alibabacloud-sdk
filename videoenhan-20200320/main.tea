@@ -17,6 +17,281 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('videoenhan', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model ConvertHdrVideoRequest = {
+  videoURL: string(name='VideoURL'),
+  HDRFormat?: string(name='HDRFormat'),
+  maxIlluminance?: integer(name='MaxIlluminance'),
+  bitrate?: integer(name='Bitrate'),
+}
+
+model ConvertHdrVideoResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    videoURL: string(name='VideoURL'),
+  }(name='Data'),
+}
+
+async function convertHdrVideo(request: ConvertHdrVideoRequest, runtime: Util.RuntimeOptions): ConvertHdrVideoResponse {
+  Util.validateModel(request);
+  return doRequest('ConvertHdrVideo', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
+}
+
+async function convertHdrVideoSimply(request: ConvertHdrVideoRequest): ConvertHdrVideoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return convertHdrVideo(request, runtime);
+}
+
+model ConvertHdrVideoAdvanceRequest = {
+  videoURLObject: readable(name='VideoURLObject'),
+  HDRFormat?: string(name='HDRFormat'),
+  maxIlluminance?: integer(name='MaxIlluminance'),
+  bitrate?: integer(name='Bitrate'),
+}
+
+async function convertHdrVideoAdvance(request: ConvertHdrVideoAdvanceRequest, runtime: Util.RuntimeOptions): ConvertHdrVideoResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'videoenhan',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var convertHdrVideoReq = new ConvertHdrVideoRequest{};
+  RPCUtil.convert(request, convertHdrVideoReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.videoURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  convertHdrVideoReq.videoURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var convertHdrVideoResp = convertHdrVideo(convertHdrVideoReq, runtime);
+  return convertHdrVideoResp;
+}
+
+model InterpolateVideoFrameRequest = {
+  videoURL: string(name='VideoURL'),
+  frameRate?: integer(name='FrameRate'),
+  bitrate?: integer(name='Bitrate'),
+}
+
+model InterpolateVideoFrameResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    videoURL: string(name='VideoURL'),
+  }(name='Data'),
+}
+
+async function interpolateVideoFrame(request: InterpolateVideoFrameRequest, runtime: Util.RuntimeOptions): InterpolateVideoFrameResponse {
+  Util.validateModel(request);
+  return doRequest('InterpolateVideoFrame', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
+}
+
+async function interpolateVideoFrameSimply(request: InterpolateVideoFrameRequest): InterpolateVideoFrameResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return interpolateVideoFrame(request, runtime);
+}
+
+model InterpolateVideoFrameAdvanceRequest = {
+  videoURLObject: readable(name='VideoURLObject'),
+  frameRate?: integer(name='FrameRate'),
+  bitrate?: integer(name='Bitrate'),
+}
+
+async function interpolateVideoFrameAdvance(request: InterpolateVideoFrameAdvanceRequest, runtime: Util.RuntimeOptions): InterpolateVideoFrameResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'videoenhan',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var interpolateVideoFrameReq = new InterpolateVideoFrameRequest{};
+  RPCUtil.convert(request, interpolateVideoFrameReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.videoURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  interpolateVideoFrameReq.videoURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var interpolateVideoFrameResp = interpolateVideoFrame(interpolateVideoFrameReq, runtime);
+  return interpolateVideoFrameResp;
+}
+
+model ToneSdrVideoRequest = {
+  videoURL: string(name='VideoURL'),
+  bitrate?: integer(name='Bitrate'),
+  recolorModel?: string(name='RecolorModel'),
+}
+
+model ToneSdrVideoResponse = {
+  requestId: string(name='RequestId'),
+  data: {
+    videoURL: string(name='VideoURL'),
+  }(name='Data'),
+}
+
+async function toneSdrVideo(request: ToneSdrVideoRequest, runtime: Util.RuntimeOptions): ToneSdrVideoResponse {
+  Util.validateModel(request);
+  return doRequest('ToneSdrVideo', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
+}
+
+async function toneSdrVideoSimply(request: ToneSdrVideoRequest): ToneSdrVideoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return toneSdrVideo(request, runtime);
+}
+
+model ToneSdrVideoAdvanceRequest = {
+  videoURLObject: readable(name='VideoURLObject'),
+  bitrate?: integer(name='Bitrate'),
+  recolorModel?: string(name='RecolorModel'),
+}
+
+async function toneSdrVideoAdvance(request: ToneSdrVideoAdvanceRequest, runtime: Util.RuntimeOptions): ToneSdrVideoResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'videoenhan',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var toneSdrVideoReq = new ToneSdrVideoRequest{};
+  RPCUtil.convert(request, toneSdrVideoReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.videoURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  toneSdrVideoReq.videoURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var toneSdrVideoResp = toneSdrVideo(toneSdrVideoReq, runtime);
+  return toneSdrVideoResp;
+}
+
 model EnhanceVideoQualityRequest = {
   videoURL: string(name='VideoURL'),
   outPutWidth?: integer(name='OutPutWidth'),
