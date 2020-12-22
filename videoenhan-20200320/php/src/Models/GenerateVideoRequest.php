@@ -10,7 +10,7 @@ use AlibabaCloud\Tea\Model;
 class GenerateVideoRequest extends Model
 {
     /**
-     * @var array
+     * @var fileList[]
      */
     public $fileList;
 
