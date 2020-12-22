@@ -64,6 +64,11 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+model Runtime {
+  name?: string(name='name', description='容器运行时名称'),
+  version?: string(name='version', description='容器运行时版本'),
+}
+
 model Taint {
   key?: string(name='key', description='key值。'),
   value?: string(name='value', description='value值。'),
@@ -77,9 +82,9 @@ model DataDisk {
   autoSnapshotPolicyId?: string(name='auto_snapshot_policy_id', description='开启云盘备份时的自动备份策略。'),
 }
 
-model Runtimes {
-  name?: string(name='name', description='容器运行时名称。'),
-  version?: string(name='version', description='容器运行时版本。'),
+model Tag {
+  key?: string(name='key', description='key值。'),
+  value?: string(name='value', description='value值。'),
 }
 
 model Addon {
@@ -93,27 +98,6 @@ model MaintenanceWindow {
   maintenanceTime?: string(name='maintenance_time', description='维护起始时间。Golang标准时间格式"15:04:05Z"。'),
   duration?: string(name='duration', description='维护时长。取值范围1～24，单位为小时。 默认值：3h。'),
   weeklyPeriod?: string(name='weekly_period', description='维护周期。取值范围为:Monday~Sunday，多个值用逗号分隔。 默认值：Thursday。'),
-}
-
-model Runtime {
-  name?: string(name='name', description='容器运行时名称'),
-  version?: string(name='version', description='容器运行时版本'),
-}
-
-model Taints {
-  key?: string(name='key', description='污点名。'),
-  value?: string(name='value', description='污点值。'),
-  effect?: string(name='effect', description='污点生效策略。'),
-}
-
-model Tag {
-  key?: string(name='key', description='key值。'),
-  value?: string(name='value', description='value值。'),
-}
-
-model Tags {
-  key?: string(name='key', description='标签名。'),
-  value?: string(name='value', description='标签值。'),
 }
 
 model ListTagResourcesRequest {
@@ -308,7 +292,7 @@ model DescribeKubernetesVersionMetadataResponse = {
       ](name='images', description='ECS系统镜像列表。	'),
       metaData?: map[string]any(name='meta_data', description='Kubernetes版本元数据信息。	'),
       runtimes?: [
-        Runtimes
+        Runtime
       ](name='runtimes', description='容器运行时详情。	'),
       version?: string(name='version', description='Kubernetes版本。	'),
       multiAz?: string(name='multi_az', description='是否为多可用区。'),
@@ -627,6 +611,12 @@ model ModifyClusterNodePoolRequest {
       Tag
     ](name='tags', description='ECS标签。'),
     vswitchIds?: [ string ](name='vswitch_ids', description='节点使用的虚拟交换机ID。'),
+    multiAzPolicy?: string(name='multi_az_policy', description='多可用区伸缩组ECS实例扩缩容策略'),
+    onDemandBaseCapacity?: long(name='on_demand_base_capacity', description='伸缩组所需要按量实例个数的最小值，取值范围：0~1000。当按量实例个数少于该值时，将优先创建按量实例。'),
+    onDemandPercentageAboveBaseCapacity?: long(name='on_demand_percentage_above_base_capacity', description='伸缩组满足最小按量实例数（OnDemandBaseCapacity）要求后，超出的实例中按量实例应占的比例，取值范围：0～100。'),
+    spotInstancePools?: long(name='spot_instance_pools', description='指定可用实例规格的个数，伸缩组将按成本最低的多个规格均衡创建抢占式实例。取值范围：1~10。'),
+    spotInstanceRemedy?: boolean(name='spot_instance_remedy', description='是否开启补齐抢占式实例。开启后，当收到抢占式实例将被回收的系统消息时，伸缩组将尝试创建新的实例，替换掉将被回收的抢占式实例。'),
+    compensateWithOnDemand?: boolean(name='compensate_with_on_demand', description='当MultiAZPolicy取值为COST_OPTIMIZED时，如果因价格、库存等原因无法创建足够的抢占式实例，是否允许自动尝试创建按量实例满足ECS实例数量要求。取值范围：true：允许。false：不允许。默认值：true'),
   }(name='scaling_group', description='扩容组配置。'),
   teeConfig?: {
     teeEnable?: boolean(name='tee_enable', description='是否为加密计算节点池。'),
@@ -784,7 +774,12 @@ model DescribeClusterNodePoolDetailResponseBody = {
     imageId?: string(name='image_id', description='自定义镜像ID。'),
     instanceChargeType?: string(name='instance_charge_type', description='节点付费类型。'),
     instanceTypes?: [ string ](name='instance_types', description='节点ECS规格类型。'),
-    multiAzPolicy?: string(name='multi_az_policy', description='多可用区策略。'),
+    multiAzPolicy?: string(name='multi_az_policy', description='多可用区伸缩组ECS实例扩缩容策略'),
+    onDemandBaseCapacity?: long(name='on_demand_base_capacity', description='伸缩组所需要按量实例个数的最小值，取值范围：0~1000。当按量实例个数少于该值时，将优先创建按量实例。'),
+    onDemandPercentageAboveBaseCapacity?: long(name='on_demand_percentage_above_base_capacity', description='伸缩组满足最小按量实例数（OnDemandBaseCapacity）要求后，超出的实例中按量实例应占的比例，取值范围：0～100。'),
+    spotInstancePools?: long(name='spot_instance_pools', description='指定可用实例规格的个数，伸缩组将按成本最低的多个规格均衡创建抢占式实例。取值范围：1~10。'),
+    spotInstanceRemedy?: boolean(name='spot_instance_remedy', description='是否开启补齐抢占式实例。开启后，当收到抢占式实例将被回收的系统消息时，伸缩组将尝试创建新的实例，替换掉将被回收的抢占式实例。'),
+    compensateWithOnDemand?: boolean(name='compensate_with_on_demand', description='当MultiAZPolicy取值为COST_OPTIMIZED时，如果因价格、库存等原因无法创建足够的抢占式实例，是否允许自动尝试创建按量实例满足ECS实例数量要求。取值范围：true：允许。false：不允许。默认值：true'),
     period?: long(name='period', description='节点包年包月时长。'),
     periodUnit?: string(name='period_unit', description='节点付费周期。'),
     platform?: string(name='platform', description='操作系统发行版。取值： CentOS，AliyunLinux，Windows，WindowsCore。'),
@@ -912,6 +907,12 @@ model CreateClusterNodePoolRequest {
       }
     ](name='tags', description='ECS标签'),
     vswitchIds?: [ string ](name='vswitch_ids', description='虚拟交换机ID。'),
+    multiAzPolicy?: string(name='multi_az_policy', description='多可用区伸缩组ECS实例扩缩容策略'),
+    onDemandBaseCapacity?: long(name='on_demand_base_capacity', description='伸缩组所需要按量实例个数的最小值，取值范围：0~1000。当按量实例个数少于该值时，将优先创建按量实例。'),
+    onDemandPercentageAboveBaseCapacity?: long(name='on_demand_percentage_above_base_capacity', description='伸缩组满足最小按量实例数（OnDemandBaseCapacity）要求后，超出的实例中按量实例应占的比例，取值范围：0～100。'),
+    spotInstancePools?: long(name='spot_instance_pools', description='指定可用实例规格的个数，伸缩组将按成本最低的多个规格均衡创建抢占式实例。取值范围：1~10。'),
+    spotInstanceRemedy?: boolean(name='spot_instance_remedy', description='是否开启补齐抢占式实例。开启后，当收到抢占式实例将被回收的系统消息时，伸缩组将尝试创建新的实例，替换掉将被回收的抢占式实例。'),
+    compensateWithOnDemand?: boolean(name='compensate_with_on_demand', description='当MultiAZPolicy取值为COST_OPTIMIZED时，如果因价格、库存等原因无法创建足够的抢占式实例，是否允许自动尝试创建按量实例满足ECS实例数量要求。取值范围：true：允许。false：不允许。默认值：true'),
   }(name='scaling_group', description='伸缩组配置'),
   teeConfig?: {
     teeEnable?: boolean(name='tee_enable', description='是否为加密计算节点池。'),
@@ -1827,7 +1828,7 @@ async function createTemplateWithOptions(request: CreateTemplateRequest, headers
     headers = headers,
     body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequestWithForm('CreateTemplate', '2015-12-15', 'HTTPS', 'POST', 'AK', `/templates`, 'json', req, runtime);
+  return doROARequest('CreateTemplate', '2015-12-15', 'HTTPS', 'POST', 'AK', `/templates`, 'json', req, runtime);
 }
 
 model DescribeClusterNodesRequest {
@@ -1963,13 +1964,9 @@ async function cancelComponentUpgradeWithOptions(clusterId: string, componentId:
   return doROARequest('CancelComponentUpgrade', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${clusterId}/components/{componentId}/cancel`, 'none', req, runtime);
 }
 
-model DescribeClusterAddonsVersionResponseBody = {
-  addonsVersion?: map[string]AddonsVersionValue(name='AddonsVersion', description='组件信息详情。'),
-}
-
 model DescribeClusterAddonsVersionResponse = {
   headers: map[string]string(name='headers'),
-  body: DescribeClusterAddonsVersionResponseBody(name='body'),
+  body: object(name='body'),
 }
 
 async function describeClusterAddonsVersion(ClusterId: string): DescribeClusterAddonsVersionResponse {
@@ -2469,7 +2466,12 @@ model DescribeClusterNodePoolsResponseBody = {
         imageId?: string(name='image_id', description='镜像ID	'),
         instanceChargeType?: string(name='instance_charge_type', description='节点付费类型	'),
         instanceTypes?: [ string ](name='instance_types', description='节点类型	'),
-        multiAzPolicy?: string(name='multi_az_policy', description='多可用去策略	'),
+        multiAzPolicy?: string(name='multi_az_policy', description='多可用区伸缩组ECS实例扩缩容策略'),
+        onDemandBaseCapacity?: long(name='on_demand_base_capacity', description='伸缩组所需要按量实例个数的最小值，取值范围：0~1000。当按量实例个数少于该值时，将优先创建按量实例。'),
+        onDemandPercentageAboveBaseCapacity?: long(name='on_demand_percentage_above_base_capacity', description='伸缩组满足最小按量实例数（OnDemandBaseCapacity）要求后，超出的实例中按量实例应占的比例，取值范围：0～100。'),
+        spotInstancePools?: long(name='spot_instance_pools', description='指定可用实例规格的个数，伸缩组将按成本最低的多个规格均衡创建抢占式实例。取值范围：1~10。'),
+        spotInstanceRemedy?: boolean(name='spot_instance_remedy', description='是否开启补齐抢占式实例。开启后，当收到抢占式实例将被回收的系统消息时，伸缩组将尝试创建新的实例，替换掉将被回收的抢占式实例。'),
+        compensateWithOnDemand?: boolean(name='compensate_with_on_demand', description='当MultiAZPolicy取值为COST_OPTIMIZED时，如果因价格、库存等原因无法创建足够的抢占式实例，是否允许自动尝试创建按量实例满足ECS实例数量要求。取值范围：true：允许。false：不允许。默认值：true'),
         period?: long(name='period', description='包年包月时长	'),
         periodUnit?: string(name='period_unit', description='自动付费周期	'),
         platform?: string(name='platform', description='操作系统发行版。取值： CentOS，AliyunLinux，Windows，WindowsCore。'),
@@ -2488,7 +2490,7 @@ model DescribeClusterNodePoolsResponseBody = {
         systemDiskCategory?: string(name='system_disk_category', description='系统盘类型。	'),
         systemDiskSize?: long(name='system_disk_size', description='系统盘大小	'),
         tags?: [
-          Tags
+          Tag
         ](name='tags', description='节点标签	'),
         vswitchIds?: [ string ](name='vswitch_ids', description='虚拟交换机ID。	'),
         loginPassword?: string(name='login_password', description='登录密码，返回结果是加密的。'),
@@ -2871,17 +2873,5 @@ model StandardComponentsValue = {
   description?: string(name='description', description='组件描述信息。'),
   required?: string(name='required', description='是否为必需组件。'),
   disabled?: boolean(name='disabled', description='是否禁止默认安装。'),
-}
-
-model AddonsVersionValue = {
-  canUpgrade?: boolean(name='can_upgrade', description='组件是否可升级'),
-  changed?: string(name='changed', description='组件是否升级过。'),
-  componentName?: string(name='component_name', description='组件名称。'),
-  description?: string(name='description', description='组件说明信息。'),
-  message?: string(name='message', description='是否可升级的额外说明信息。'),
-  nextVersion?: string(name='next_version', description='组件下一个可升级版本。'),
-  required?: boolean(name='required', description='组件是否为必需组件'),
-  template?: string(name='template', description='组件最新模板内容。'),
-  version?: string(name='version', description='组件当前版本。'),
 }
 
