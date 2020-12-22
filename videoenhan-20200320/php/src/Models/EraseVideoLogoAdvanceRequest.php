@@ -6,6 +6,7 @@ namespace AlibabaCloud\SDK\Videoenhan\V20200320\Models;
 
 use AlibabaCloud\SDK\Videoenhan\V20200320\Models\EraseVideoLogoAdvanceRequest\boxes;
 use AlibabaCloud\Tea\Model;
+use GuzzleHttp\Psr7\Stream;
 
 class EraseVideoLogoAdvanceRequest extends Model
 {
@@ -15,7 +16,7 @@ class EraseVideoLogoAdvanceRequest extends Model
     public $videoUrlObject;
 
     /**
-     * @var array
+     * @var boxes[]
      */
     public $boxes;
     protected $_name = [
