@@ -17,6 +17,121 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('cloudauth', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model ContrastSmartVerifyRequest = {
+  sceneId: long(name='SceneId'),
+  outerOrderNo: string(name='OuterOrderNo'),
+  mode: string(name='Mode'),
+  certType: string(name='CertType'),
+  mobile?: string(name='Mobile'),
+  ip?: string(name='Ip'),
+  userId?: string(name='UserId'),
+  certName: string(name='CertName'),
+  certNo: string(name='CertNo'),
+  facePicFile?: string(name='FacePicFile'),
+  facePicUrl?: string(name='FacePicUrl'),
+  facePicString?: string(name='FacePicString'),
+}
+
+model ContrastSmartVerifyResponse = {
+  requestId: string(name='RequestId'),
+  message: string(name='Message'),
+  code: string(name='Code'),
+  resultObject: {
+    certifyId: string(name='CertifyId'),
+    passed: string(name='Passed'),
+    subCode: string(name='SubCode'),
+    verifyInfo: string(name='VerifyInfo'),
+    riskInfo: string(name='RiskInfo'),
+  }(name='ResultObject'),
+}
+
+async function contrastSmartVerify(request: ContrastSmartVerifyRequest, runtime: Util.RuntimeOptions): ContrastSmartVerifyResponse {
+  Util.validateModel(request);
+  return doRequest('ContrastSmartVerify', 'HTTPS', 'POST', '2020-06-18', 'AK', null, request, runtime);
+}
+
+async function contrastSmartVerifySimply(request: ContrastSmartVerifyRequest): ContrastSmartVerifyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return contrastSmartVerify(request, runtime);
+}
+
+model ContrastSmartVerifyAdvanceRequest = {
+  facePicFileObject: readable(name='FacePicFileObject'),
+  sceneId: long(name='SceneId'),
+  outerOrderNo: string(name='OuterOrderNo'),
+  mode: string(name='Mode'),
+  certType: string(name='CertType'),
+  mobile?: string(name='Mobile'),
+  ip?: string(name='Ip'),
+  userId?: string(name='UserId'),
+  certName: string(name='CertName'),
+  certNo: string(name='CertNo'),
+  facePicUrl?: string(name='FacePicUrl'),
+  facePicString?: string(name='FacePicString'),
+}
+
+async function contrastSmartVerifyAdvance(request: ContrastSmartVerifyAdvanceRequest, runtime: Util.RuntimeOptions): ContrastSmartVerifyResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'Cloudauth',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  var contrastSmartVerifyReq = new ContrastSmartVerifyRequest{};
+  RPCUtil.convert(request, contrastSmartVerifyReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.facePicFileObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  contrastSmartVerifyReq.facePicFile = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var contrastSmartVerifyResp = contrastSmartVerify(contrastSmartVerifyReq, runtime);
+  return contrastSmartVerifyResp;
+}
+
 model ElementSmartVerifyRequest = {
   sceneId?: long(name='SceneId'),
   outerOrderNo?: string(name='OuterOrderNo'),
