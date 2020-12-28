@@ -1,233 +1,74 @@
+/**
+ *
+ */
 import Util;
-import RPCUtil;
-import RPC;
-import EndpointUtil;
 import OSS;
+import RPC;
 import OpenPlatform;
 import OSSUtil;
 import FileForm;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
 
-extends RPC;
+extends OpenApi;
 
-init(config: RPC.Config){
+init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
   
+
   checkConfig(config);
   @endpoint = getEndpoint('videoenhan', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
-model ConvertHdrVideoRequest = {
-  videoURL: string(name='VideoURL'),
-  HDRFormat?: string(name='HDRFormat'),
-  maxIlluminance?: integer(name='MaxIlluminance'),
-  bitrate?: integer(name='Bitrate'),
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-
-model ConvertHdrVideoResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    videoURL: string(name='VideoURL'),
-  }(name='Data'),
-}
-
-async function convertHdrVideo(request: ConvertHdrVideoRequest, runtime: Util.RuntimeOptions): ConvertHdrVideoResponse {
-  Util.validateModel(request);
-  return doRequest('ConvertHdrVideo', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function convertHdrVideoSimply(request: ConvertHdrVideoRequest): ConvertHdrVideoResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return convertHdrVideo(request, runtime);
-}
-
-model ConvertHdrVideoAdvanceRequest = {
-  videoURLObject: readable(name='VideoURLObject'),
-  HDRFormat?: string(name='HDRFormat'),
-  maxIlluminance?: integer(name='MaxIlluminance'),
-  bitrate?: integer(name='Bitrate'),
-}
-
-async function convertHdrVideoAdvance(request: ConvertHdrVideoAdvanceRequest, runtime: Util.RuntimeOptions): ConvertHdrVideoResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'videoenhan',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
-  var convertHdrVideoReq = new ConvertHdrVideoRequest{};
-  RPCUtil.convert(request, convertHdrVideoReq);
-
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
-
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.videoURLObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  convertHdrVideoReq.videoURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var convertHdrVideoResp = convertHdrVideo(convertHdrVideoReq, runtime);
-  return convertHdrVideoResp;
-}
-
-model InterpolateVideoFrameRequest = {
-  videoURL: string(name='VideoURL'),
-  frameRate?: integer(name='FrameRate'),
-  bitrate?: integer(name='Bitrate'),
-}
-
-model InterpolateVideoFrameResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    videoURL: string(name='VideoURL'),
-  }(name='Data'),
-}
-
-async function interpolateVideoFrame(request: InterpolateVideoFrameRequest, runtime: Util.RuntimeOptions): InterpolateVideoFrameResponse {
-  Util.validateModel(request);
-  return doRequest('InterpolateVideoFrame', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function interpolateVideoFrameSimply(request: InterpolateVideoFrameRequest): InterpolateVideoFrameResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return interpolateVideoFrame(request, runtime);
-}
-
-model InterpolateVideoFrameAdvanceRequest = {
-  videoURLObject: readable(name='VideoURLObject'),
-  frameRate?: integer(name='FrameRate'),
-  bitrate?: integer(name='Bitrate'),
-}
-
-async function interpolateVideoFrameAdvance(request: InterpolateVideoFrameAdvanceRequest, runtime: Util.RuntimeOptions): InterpolateVideoFrameResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'videoenhan',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
-  var interpolateVideoFrameReq = new InterpolateVideoFrameRequest{};
-  RPCUtil.convert(request, interpolateVideoFrameReq);
-
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
-
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.videoURLObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  interpolateVideoFrameReq.videoURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var interpolateVideoFrameResp = interpolateVideoFrame(interpolateVideoFrameReq, runtime);
-  return interpolateVideoFrameResp;
-}
-
-model ToneSdrVideoRequest = {
-  videoURL: string(name='VideoURL'),
-  bitrate?: integer(name='Bitrate'),
+model ToneSdrVideoRequest {
+  videoURL?: string(name='VideoURL'),
+  async?: boolean(name='Async'),
+  bitrate?: int32(name='Bitrate'),
   recolorModel?: string(name='RecolorModel'),
+}
+
+model ToneSdrVideoAdvanceRequest {
+  videoURLObject: readable(name='VideoURLObject'),
+  async?: boolean(name='Async'),
+  bitrate?: int32(name='Bitrate'),
+  recolorModel?: string(name='RecolorModel'),
+}
+
+model ToneSdrVideoResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    videoURL?: string(name='VideoURL'),
+  }(name='Data'),
 }
 
 model ToneSdrVideoResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    videoURL: string(name='VideoURL'),
-  }(name='Data'),
+  headers: map[string]string(name='headers'),
+  body: ToneSdrVideoResponseBody(name='body'),
 }
 
-async function toneSdrVideo(request: ToneSdrVideoRequest, runtime: Util.RuntimeOptions): ToneSdrVideoResponse {
+async function toneSdrVideoWithOptions(request: ToneSdrVideoRequest, runtime: Util.RuntimeOptions): ToneSdrVideoResponse {
   Util.validateModel(request);
-  return doRequest('ToneSdrVideo', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ToneSdrVideo', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function toneSdrVideoSimply(request: ToneSdrVideoRequest): ToneSdrVideoResponse {
+async function toneSdrVideo(request: ToneSdrVideoRequest): ToneSdrVideoResponse {
   var runtime = new Util.RuntimeOptions{};
-  return toneSdrVideo(request, runtime);
-}
-
-model ToneSdrVideoAdvanceRequest = {
-  videoURLObject: readable(name='VideoURLObject'),
-  bitrate?: integer(name='Bitrate'),
-  recolorModel?: string(name='RecolorModel'),
+  return toneSdrVideoWithOptions(request, runtime);
 }
 
 async function toneSdrVideoAdvance(request: ToneSdrVideoAdvanceRequest, runtime: Util.RuntimeOptions): ToneSdrVideoResponse {
@@ -260,13 +101,13 @@ async function toneSdrVideoAdvance(request: ToneSdrVideoAdvanceRequest, runtime:
   var ossHeader = new OSS.PostObjectRequest.header{};
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
+  OpenApiUtil.convert(runtime, ossRuntime);
   var toneSdrVideoReq = new ToneSdrVideoRequest{};
-  RPCUtil.convert(request, toneSdrVideoReq);
+  OpenApiUtil.convert(request, toneSdrVideoReq);
 
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
   ossClient = new OSS(ossConfig);
 
   fileObj = new FileForm.FileField{
@@ -288,45 +129,55 @@ async function toneSdrVideoAdvance(request: ToneSdrVideoAdvanceRequest, runtime:
   };
   ossClient.postObject(uploadRequest, ossRuntime);
   toneSdrVideoReq.videoURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var toneSdrVideoResp = toneSdrVideo(toneSdrVideoReq, runtime);
+  var toneSdrVideoResp = toneSdrVideoWithOptions(toneSdrVideoReq, runtime);
   return toneSdrVideoResp;
 }
 
-model EnhanceVideoQualityRequest = {
-  videoURL: string(name='VideoURL'),
-  outPutWidth?: integer(name='OutPutWidth'),
-  outPutHeight?: integer(name='OutPutHeight'),
-  frameRate?: integer(name='FrameRate'),
+model EnhanceVideoQualityRequest {
+  videoURL?: string(name='VideoURL'),
+  async?: boolean(name='Async'),
+  outPutWidth?: int32(name='OutPutWidth'),
+  outPutHeight?: int32(name='OutPutHeight'),
+  frameRate?: int32(name='FrameRate'),
   HDRFormat?: string(name='HDRFormat'),
-  maxIlluminance?: integer(name='MaxIlluminance'),
-  bitrate?: integer(name='Bitrate'),
+  maxIlluminance?: int32(name='MaxIlluminance'),
+  bitrate?: int32(name='Bitrate'),
 }
 
-model EnhanceVideoQualityResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    videoURL: string(name='VideoURL'),
+model EnhanceVideoQualityAdvanceRequest {
+  videoURLObject: readable(name='VideoURLObject'),
+  async?: boolean(name='Async'),
+  outPutWidth?: int32(name='OutPutWidth'),
+  outPutHeight?: int32(name='OutPutHeight'),
+  frameRate?: int32(name='FrameRate'),
+  HDRFormat?: string(name='HDRFormat'),
+  maxIlluminance?: int32(name='MaxIlluminance'),
+  bitrate?: int32(name='Bitrate'),
+}
+
+model EnhanceVideoQualityResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    videoURL?: string(name='VideoURL'),
   }(name='Data'),
 }
 
-async function enhanceVideoQuality(request: EnhanceVideoQualityRequest, runtime: Util.RuntimeOptions): EnhanceVideoQualityResponse {
+model EnhanceVideoQualityResponse = {
+  headers: map[string]string(name='headers'),
+  body: EnhanceVideoQualityResponseBody(name='body'),
+}
+
+async function enhanceVideoQualityWithOptions(request: EnhanceVideoQualityRequest, runtime: Util.RuntimeOptions): EnhanceVideoQualityResponse {
   Util.validateModel(request);
-  return doRequest('EnhanceVideoQuality', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('EnhanceVideoQuality', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function enhanceVideoQualitySimply(request: EnhanceVideoQualityRequest): EnhanceVideoQualityResponse {
+async function enhanceVideoQuality(request: EnhanceVideoQualityRequest): EnhanceVideoQualityResponse {
   var runtime = new Util.RuntimeOptions{};
-  return enhanceVideoQuality(request, runtime);
-}
-
-model EnhanceVideoQualityAdvanceRequest = {
-  videoURLObject: readable(name='VideoURLObject'),
-  outPutWidth?: integer(name='OutPutWidth'),
-  outPutHeight?: integer(name='OutPutHeight'),
-  frameRate?: integer(name='FrameRate'),
-  HDRFormat?: string(name='HDRFormat'),
-  maxIlluminance?: integer(name='MaxIlluminance'),
-  bitrate?: integer(name='Bitrate'),
+  return enhanceVideoQualityWithOptions(request, runtime);
 }
 
 async function enhanceVideoQualityAdvance(request: EnhanceVideoQualityAdvanceRequest, runtime: Util.RuntimeOptions): EnhanceVideoQualityResponse {
@@ -359,13 +210,13 @@ async function enhanceVideoQualityAdvance(request: EnhanceVideoQualityAdvanceReq
   var ossHeader = new OSS.PostObjectRequest.header{};
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
+  OpenApiUtil.convert(runtime, ossRuntime);
   var enhanceVideoQualityReq = new EnhanceVideoQualityRequest{};
-  RPCUtil.convert(request, enhanceVideoQualityReq);
+  OpenApiUtil.convert(request, enhanceVideoQualityReq);
 
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
   ossClient = new OSS(ossConfig);
 
   fileObj = new FileForm.FileField{
@@ -387,40 +238,50 @@ async function enhanceVideoQualityAdvance(request: EnhanceVideoQualityAdvanceReq
   };
   ossClient.postObject(uploadRequest, ossRuntime);
   enhanceVideoQualityReq.videoURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var enhanceVideoQualityResp = enhanceVideoQuality(enhanceVideoQualityReq, runtime);
+  var enhanceVideoQualityResp = enhanceVideoQualityWithOptions(enhanceVideoQualityReq, runtime);
   return enhanceVideoQualityResp;
 }
 
-model MergeVideoFaceRequest = {
-  videoURL: string(name='VideoURL'),
-  postURL: string(name='PostURL'),
-  referenceURL: string(name='ReferenceURL'),
+model InterpolateVideoFrameRequest {
+  videoURL?: string(name='VideoURL'),
+  async?: boolean(name='Async'),
+  frameRate?: int32(name='FrameRate'),
+  bitrate?: int32(name='Bitrate'),
 }
 
-model MergeVideoFaceResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    videoURL: string(name='VideoURL'),
+model InterpolateVideoFrameAdvanceRequest {
+  videoURLObject: readable(name='VideoURLObject'),
+  async?: boolean(name='Async'),
+  frameRate?: int32(name='FrameRate'),
+  bitrate?: int32(name='Bitrate'),
+}
+
+model InterpolateVideoFrameResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    videoURL?: string(name='VideoURL'),
   }(name='Data'),
 }
 
-async function mergeVideoFace(request: MergeVideoFaceRequest, runtime: Util.RuntimeOptions): MergeVideoFaceResponse {
+model InterpolateVideoFrameResponse = {
+  headers: map[string]string(name='headers'),
+  body: InterpolateVideoFrameResponseBody(name='body'),
+}
+
+async function interpolateVideoFrameWithOptions(request: InterpolateVideoFrameRequest, runtime: Util.RuntimeOptions): InterpolateVideoFrameResponse {
   Util.validateModel(request);
-  return doRequest('MergeVideoFace', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('InterpolateVideoFrame', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function mergeVideoFaceSimply(request: MergeVideoFaceRequest): MergeVideoFaceResponse {
+async function interpolateVideoFrame(request: InterpolateVideoFrameRequest): InterpolateVideoFrameResponse {
   var runtime = new Util.RuntimeOptions{};
-  return mergeVideoFace(request, runtime);
+  return interpolateVideoFrameWithOptions(request, runtime);
 }
 
-model MergeVideoFaceAdvanceRequest = {
-  videoURLObject: readable(name='VideoURLObject'),
-  postURL: string(name='PostURL'),
-  referenceURL: string(name='ReferenceURL'),
-}
-
-async function mergeVideoFaceAdvance(request: MergeVideoFaceAdvanceRequest, runtime: Util.RuntimeOptions): MergeVideoFaceResponse {
+async function interpolateVideoFrameAdvance(request: InterpolateVideoFrameAdvanceRequest, runtime: Util.RuntimeOptions): InterpolateVideoFrameResponse {
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
@@ -450,13 +311,13 @@ async function mergeVideoFaceAdvance(request: MergeVideoFaceAdvanceRequest, runt
   var ossHeader = new OSS.PostObjectRequest.header{};
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
-  var mergeVideoFaceReq = new MergeVideoFaceRequest{};
-  RPCUtil.convert(request, mergeVideoFaceReq);
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var interpolateVideoFrameReq = new InterpolateVideoFrameRequest{};
+  OpenApiUtil.convert(request, interpolateVideoFrameReq);
 
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
   ossClient = new OSS(ossConfig);
 
   fileObj = new FileForm.FileField{
@@ -477,306 +338,60 @@ async function mergeVideoFaceAdvance(request: MergeVideoFaceAdvanceRequest, runt
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  mergeVideoFaceReq.videoURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var mergeVideoFaceResp = mergeVideoFace(mergeVideoFaceReq, runtime);
-  return mergeVideoFaceResp;
+  interpolateVideoFrameReq.videoURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var interpolateVideoFrameResp = interpolateVideoFrameWithOptions(interpolateVideoFrameReq, runtime);
+  return interpolateVideoFrameResp;
 }
 
-model ChangeVideoSizeRequest = {
-  videoUrl: string(name='VideoUrl'),
-  width: integer(name='Width'),
-  height: integer(name='Height'),
-  cropType?: string(name='CropType'),
-  fillType?: string(name='FillType'),
-  tightness?: float(name='Tightness'),
-  r?: integer(name='R'),
-  g?: integer(name='G'),
-  b?: integer(name='B'),
-}
-
-model ChangeVideoSizeResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    videoUrl: string(name='VideoUrl'),
-    videoCoverUrl: string(name='VideoCoverUrl'),
-  }(name='Data'),
-}
-
-async function changeVideoSize(request: ChangeVideoSizeRequest, runtime: Util.RuntimeOptions): ChangeVideoSizeResponse {
-  Util.validateModel(request);
-  return doRequest('ChangeVideoSize', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function changeVideoSizeSimply(request: ChangeVideoSizeRequest): ChangeVideoSizeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return changeVideoSize(request, runtime);
-}
-
-model ChangeVideoSizeAdvanceRequest = {
-  videoUrlObject: readable(name='VideoUrlObject'),
-  width: integer(name='Width'),
-  height: integer(name='Height'),
-  cropType?: string(name='CropType'),
-  fillType?: string(name='FillType'),
-  tightness?: float(name='Tightness'),
-  r?: integer(name='R'),
-  g?: integer(name='G'),
-  b?: integer(name='B'),
-}
-
-async function changeVideoSizeAdvance(request: ChangeVideoSizeAdvanceRequest, runtime: Util.RuntimeOptions): ChangeVideoSizeResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'videoenhan',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
-  var changeVideoSizeReq = new ChangeVideoSizeRequest{};
-  RPCUtil.convert(request, changeVideoSizeReq);
-
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
-
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.videoUrlObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  changeVideoSizeReq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var changeVideoSizeResp = changeVideoSize(changeVideoSizeReq, runtime);
-  return changeVideoSizeResp;
-}
-
-model GenerateVideoRequest = {
-  fileList: [
+model EraseVideoLogoRequest {
+  videoUrl?: string(name='VideoUrl'),
+  async?: boolean(name='Async'),
+  boxes?: [ 
     {
-      fileUrl: string(name='FileUrl'),
-      fileName: string(name='FileName'),
-      type: string(name='Type'),
-    }
-  ](name='FileList'),
-  scene?: string(name='Scene'),
-  width?: integer(name='Width'),
-  height?: integer(name='Height'),
-  style?: string(name='Style'),
-  duration?: float(name='Duration'),
-  durationAdaption?: boolean(name='DurationAdaption'),
-  transitionStyle?: string(name='TransitionStyle'),
-  smartEffect?: boolean(name='SmartEffect'),
-  puzzleEffect?: boolean(name='PuzzleEffect'),
-  mute?: boolean(name='Mute'),
-}
-
-model GenerateVideoResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    videoUrl: string(name='VideoUrl'),
-    videoCoverUrl: string(name='VideoCoverUrl'),
-  }(name='Data'),
-}
-
-async function generateVideo(request: GenerateVideoRequest, runtime: Util.RuntimeOptions): GenerateVideoResponse {
-  Util.validateModel(request);
-  return doRequest('GenerateVideo', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function generateVideoSimply(request: GenerateVideoRequest): GenerateVideoResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return generateVideo(request, runtime);
-}
-
-model GetAsyncJobResultRequest = {
-  jobId: string(name='JobId'),
-}
-
-model GetAsyncJobResultResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    jobId: string(name='JobId'),
-    status: string(name='Status'),
-    result: string(name='Result'),
-    errorCode: string(name='ErrorCode'),
-    errorMessage: string(name='ErrorMessage'),
-  }(name='Data'),
-}
-
-async function getAsyncJobResult(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
-  Util.validateModel(request);
-  return doRequest('GetAsyncJobResult', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function getAsyncJobResultSimply(request: GetAsyncJobResultRequest): GetAsyncJobResultResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getAsyncJobResult(request, runtime);
-}
-
-model SuperResolveVideoRequest = {
-  videoUrl: string(name='VideoUrl'),
-  bitRate?: integer(name='BitRate'),
-}
-
-model SuperResolveVideoResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    videoUrl: string(name='VideoUrl'),
-  }(name='Data'),
-}
-
-async function superResolveVideo(request: SuperResolveVideoRequest, runtime: Util.RuntimeOptions): SuperResolveVideoResponse {
-  Util.validateModel(request);
-  return doRequest('SuperResolveVideo', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function superResolveVideoSimply(request: SuperResolveVideoRequest): SuperResolveVideoResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return superResolveVideo(request, runtime);
-}
-
-model SuperResolveVideoAdvanceRequest = {
-  videoUrlObject: readable(name='VideoUrlObject'),
-  bitRate?: integer(name='BitRate'),
-}
-
-async function superResolveVideoAdvance(request: SuperResolveVideoAdvanceRequest, runtime: Util.RuntimeOptions): SuperResolveVideoResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'videoenhan',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
-  var superResolveVideoReq = new SuperResolveVideoRequest{};
-  RPCUtil.convert(request, superResolveVideoReq);
-
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
-
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.videoUrlObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  superResolveVideoReq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var superResolveVideoResp = superResolveVideo(superResolveVideoReq, runtime);
-  return superResolveVideoResp;
-}
-
-model EraseVideoLogoRequest = {
-  videoUrl: string(name='VideoUrl'),
-  boxes?: [
-    {
-      h?: float(name='H'),
       w?: float(name='W'),
-      x?: float(name='X'),
+      h?: float(name='H'),
       y?: float(name='Y'),
+      x?: float(name='X'),
     }
   ](name='Boxes'),
+}
+
+model EraseVideoLogoAdvanceRequest {
+  videoUrlObject: readable(name='VideoUrlObject'),
+  async?: boolean(name='Async'),
+  boxes?: [ 
+    {
+      w?: float(name='W'),
+      h?: float(name='H'),
+      y?: float(name='Y'),
+      x?: float(name='X'),
+    }
+  ](name='Boxes'),
+}
+
+model EraseVideoLogoResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    videoUrl?: string(name='VideoUrl'),
+  }(name='Data'),
 }
 
 model EraseVideoLogoResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    videoUrl: string(name='VideoUrl'),
-  }(name='Data'),
+  headers: map[string]string(name='headers'),
+  body: EraseVideoLogoResponseBody(name='body'),
 }
 
-async function eraseVideoLogo(request: EraseVideoLogoRequest, runtime: Util.RuntimeOptions): EraseVideoLogoResponse {
+async function eraseVideoLogoWithOptions(request: EraseVideoLogoRequest, runtime: Util.RuntimeOptions): EraseVideoLogoResponse {
   Util.validateModel(request);
-  return doRequest('EraseVideoLogo', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('EraseVideoLogo', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function eraseVideoLogoSimply(request: EraseVideoLogoRequest): EraseVideoLogoResponse {
+async function eraseVideoLogo(request: EraseVideoLogoRequest): EraseVideoLogoResponse {
   var runtime = new Util.RuntimeOptions{};
-  return eraseVideoLogo(request, runtime);
-}
-
-model EraseVideoLogoAdvanceRequest = {
-  videoUrlObject: readable(name='VideoUrlObject'),
-  boxes?: [
-    {
-      h?: float(name='H'),
-      w?: float(name='W'),
-      x?: float(name='X'),
-      y?: float(name='Y'),
-    }
-  ](name='Boxes'),
+  return eraseVideoLogoWithOptions(request, runtime);
 }
 
 async function eraseVideoLogoAdvance(request: EraseVideoLogoAdvanceRequest, runtime: Util.RuntimeOptions): EraseVideoLogoResponse {
@@ -809,13 +424,13 @@ async function eraseVideoLogoAdvance(request: EraseVideoLogoAdvanceRequest, runt
   var ossHeader = new OSS.PostObjectRequest.header{};
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
+  OpenApiUtil.convert(runtime, ossRuntime);
   var eraseVideoLogoReq = new EraseVideoLogoRequest{};
-  RPCUtil.convert(request, eraseVideoLogoReq);
+  OpenApiUtil.convert(request, eraseVideoLogoReq);
 
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
   ossClient = new OSS(ossConfig);
 
   fileObj = new FileForm.FileField{
@@ -837,44 +452,52 @@ async function eraseVideoLogoAdvance(request: EraseVideoLogoAdvanceRequest, runt
   };
   ossClient.postObject(uploadRequest, ossRuntime);
   eraseVideoLogoReq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var eraseVideoLogoResp = eraseVideoLogo(eraseVideoLogoReq, runtime);
+  var eraseVideoLogoResp = eraseVideoLogoWithOptions(eraseVideoLogoReq, runtime);
   return eraseVideoLogoResp;
 }
 
-model EraseVideoSubtitlesRequest = {
-  videoUrl: string(name='VideoUrl'),
-  BX?: float(name='BX'),
-  BY?: float(name='BY'),
-  BW?: float(name='BW'),
-  BH?: float(name='BH'),
+model ConvertHdrVideoRequest {
+  videoURL?: string(name='VideoURL'),
+  async?: boolean(name='Async'),
+  HDRFormat?: string(name='HDRFormat'),
+  maxIlluminance?: int32(name='MaxIlluminance'),
+  bitrate?: int32(name='Bitrate'),
 }
 
-model EraseVideoSubtitlesResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    videoUrl: string(name='VideoUrl'),
+model ConvertHdrVideoAdvanceRequest {
+  videoURLObject: readable(name='VideoURLObject'),
+  async?: boolean(name='Async'),
+  HDRFormat?: string(name='HDRFormat'),
+  maxIlluminance?: int32(name='MaxIlluminance'),
+  bitrate?: int32(name='Bitrate'),
+}
+
+model ConvertHdrVideoResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    videoURL?: string(name='VideoURL'),
   }(name='Data'),
 }
 
-async function eraseVideoSubtitles(request: EraseVideoSubtitlesRequest, runtime: Util.RuntimeOptions): EraseVideoSubtitlesResponse {
+model ConvertHdrVideoResponse = {
+  headers: map[string]string(name='headers'),
+  body: ConvertHdrVideoResponseBody(name='body'),
+}
+
+async function convertHdrVideoWithOptions(request: ConvertHdrVideoRequest, runtime: Util.RuntimeOptions): ConvertHdrVideoResponse {
   Util.validateModel(request);
-  return doRequest('EraseVideoSubtitles', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ConvertHdrVideo', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function eraseVideoSubtitlesSimply(request: EraseVideoSubtitlesRequest): EraseVideoSubtitlesResponse {
+async function convertHdrVideo(request: ConvertHdrVideoRequest): ConvertHdrVideoResponse {
   var runtime = new Util.RuntimeOptions{};
-  return eraseVideoSubtitles(request, runtime);
+  return convertHdrVideoWithOptions(request, runtime);
 }
 
-model EraseVideoSubtitlesAdvanceRequest = {
-  videoUrlObject: readable(name='VideoUrlObject'),
-  BX?: float(name='BX'),
-  BY?: float(name='BY'),
-  BW?: float(name='BW'),
-  BH?: float(name='BH'),
-}
-
-async function eraseVideoSubtitlesAdvance(request: EraseVideoSubtitlesAdvanceRequest, runtime: Util.RuntimeOptions): EraseVideoSubtitlesResponse {
+async function convertHdrVideoAdvance(request: ConvertHdrVideoAdvanceRequest, runtime: Util.RuntimeOptions): ConvertHdrVideoResponse {
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
@@ -904,18 +527,18 @@ async function eraseVideoSubtitlesAdvance(request: EraseVideoSubtitlesAdvanceReq
   var ossHeader = new OSS.PostObjectRequest.header{};
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
-  var eraseVideoSubtitlesReq = new EraseVideoSubtitlesRequest{};
-  RPCUtil.convert(request, eraseVideoSubtitlesReq);
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var convertHdrVideoReq = new ConvertHdrVideoRequest{};
+  OpenApiUtil.convert(request, convertHdrVideoReq);
 
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
   ossClient = new OSS(ossConfig);
 
   fileObj = new FileForm.FileField{
     filename = authResponse.objectKey,
-    content = request.videoUrlObject,
+    content = request.videoURLObject,
     contentType = '',
   };
   ossHeader = new OSS.PostObjectRequest.header{
@@ -931,225 +554,52 @@ async function eraseVideoSubtitlesAdvance(request: EraseVideoSubtitlesAdvanceReq
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  eraseVideoSubtitlesReq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var eraseVideoSubtitlesResp = eraseVideoSubtitles(eraseVideoSubtitlesReq, runtime);
-  return eraseVideoSubtitlesResp;
+  convertHdrVideoReq.videoURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var convertHdrVideoResp = convertHdrVideoWithOptions(convertHdrVideoReq, runtime);
+  return convertHdrVideoResp;
 }
 
-model AbstractEcommerceVideoRequest = {
-  videoUrl: string(name='VideoUrl'),
-  duration: float(name='Duration'),
-  width?: integer(name='Width'),
-  height?: integer(name='Height'),
-}
-
-model AbstractEcommerceVideoResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    videoUrl: string(name='VideoUrl'),
-    videoCoverUrl: string(name='VideoCoverUrl'),
-  }(name='Data'),
-}
-
-async function abstractEcommerceVideo(request: AbstractEcommerceVideoRequest, runtime: Util.RuntimeOptions): AbstractEcommerceVideoResponse {
-  Util.validateModel(request);
-  return doRequest('AbstractEcommerceVideo', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function abstractEcommerceVideoSimply(request: AbstractEcommerceVideoRequest): AbstractEcommerceVideoResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return abstractEcommerceVideo(request, runtime);
-}
-
-model AbstractEcommerceVideoAdvanceRequest = {
-  videoUrlObject: readable(name='VideoUrlObject'),
-  duration: float(name='Duration'),
-  width?: integer(name='Width'),
-  height?: integer(name='Height'),
-}
-
-async function abstractEcommerceVideoAdvance(request: AbstractEcommerceVideoAdvanceRequest, runtime: Util.RuntimeOptions): AbstractEcommerceVideoResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'videoenhan',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
-  var abstractEcommerceVideoReq = new AbstractEcommerceVideoRequest{};
-  RPCUtil.convert(request, abstractEcommerceVideoReq);
-
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
-
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.videoUrlObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  abstractEcommerceVideoReq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var abstractEcommerceVideoResp = abstractEcommerceVideo(abstractEcommerceVideoReq, runtime);
-  return abstractEcommerceVideoResp;
-}
-
-model AbstractFilmVideoRequest = {
-  videoUrl: string(name='VideoUrl'),
-  length: integer(name='Length'),
-}
-
-model AbstractFilmVideoResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    videoUrl: string(name='VideoUrl'),
-  }(name='Data'),
-}
-
-async function abstractFilmVideo(request: AbstractFilmVideoRequest, runtime: Util.RuntimeOptions): AbstractFilmVideoResponse {
-  Util.validateModel(request);
-  return doRequest('AbstractFilmVideo', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function abstractFilmVideoSimply(request: AbstractFilmVideoRequest): AbstractFilmVideoResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return abstractFilmVideo(request, runtime);
-}
-
-model AbstractFilmVideoAdvanceRequest = {
-  videoUrlObject: readable(name='VideoUrlObject'),
-  length: integer(name='Length'),
-}
-
-async function abstractFilmVideoAdvance(request: AbstractFilmVideoAdvanceRequest, runtime: Util.RuntimeOptions): AbstractFilmVideoResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'videoenhan',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
-  var abstractFilmVideoReq = new AbstractFilmVideoRequest{};
-  RPCUtil.convert(request, abstractFilmVideoReq);
-
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
-
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.videoUrlObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  abstractFilmVideoReq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var abstractFilmVideoResp = abstractFilmVideo(abstractFilmVideoReq, runtime);
-  return abstractFilmVideoResp;
-}
-
-model AdjustVideoColorRequest = {
-  videoUrl: string(name='VideoUrl'),
+model AdjustVideoColorRequest {
+  videoUrl?: string(name='VideoUrl'),
+  async?: boolean(name='Async'),
   videoBitrate?: string(name='VideoBitrate'),
   videoCodec?: string(name='VideoCodec'),
   videoFormat?: string(name='VideoFormat'),
-  mode: string(name='Mode'),
+  mode?: string(name='Mode'),
+}
+
+model AdjustVideoColorAdvanceRequest {
+  videoUrlObject: readable(name='VideoUrlObject'),
+  async?: boolean(name='Async'),
+  videoBitrate?: string(name='VideoBitrate'),
+  videoCodec?: string(name='VideoCodec'),
+  videoFormat?: string(name='VideoFormat'),
+  mode?: string(name='Mode'),
+}
+
+model AdjustVideoColorResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    videoUrl?: string(name='VideoUrl'),
+  }(name='Data'),
 }
 
 model AdjustVideoColorResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    videoUrl: string(name='VideoUrl'),
-  }(name='Data'),
+  headers: map[string]string(name='headers'),
+  body: AdjustVideoColorResponseBody(name='body'),
 }
 
-async function adjustVideoColor(request: AdjustVideoColorRequest, runtime: Util.RuntimeOptions): AdjustVideoColorResponse {
+async function adjustVideoColorWithOptions(request: AdjustVideoColorRequest, runtime: Util.RuntimeOptions): AdjustVideoColorResponse {
   Util.validateModel(request);
-  return doRequest('AdjustVideoColor', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('AdjustVideoColor', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function adjustVideoColorSimply(request: AdjustVideoColorRequest): AdjustVideoColorResponse {
+async function adjustVideoColor(request: AdjustVideoColorRequest): AdjustVideoColorResponse {
   var runtime = new Util.RuntimeOptions{};
-  return adjustVideoColor(request, runtime);
-}
-
-model AdjustVideoColorAdvanceRequest = {
-  videoUrlObject: readable(name='VideoUrlObject'),
-  videoBitrate?: string(name='VideoBitrate'),
-  videoCodec?: string(name='VideoCodec'),
-  videoFormat?: string(name='VideoFormat'),
-  mode: string(name='Mode'),
+  return adjustVideoColorWithOptions(request, runtime);
 }
 
 async function adjustVideoColorAdvance(request: AdjustVideoColorAdvanceRequest, runtime: Util.RuntimeOptions): AdjustVideoColorResponse {
@@ -1182,13 +632,13 @@ async function adjustVideoColorAdvance(request: AdjustVideoColorAdvanceRequest, 
   var ossHeader = new OSS.PostObjectRequest.header{};
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
+  OpenApiUtil.convert(runtime, ossRuntime);
   var adjustVideoColorReq = new AdjustVideoColorRequest{};
-  RPCUtil.convert(request, adjustVideoColorReq);
+  OpenApiUtil.convert(request, adjustVideoColorReq);
 
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
   ossClient = new OSS(ossConfig);
 
   fileObj = new FileForm.FileField{
@@ -1210,17 +660,710 @@ async function adjustVideoColorAdvance(request: AdjustVideoColorAdvanceRequest, 
   };
   ossClient.postObject(uploadRequest, ossRuntime);
   adjustVideoColorReq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var adjustVideoColorResp = adjustVideoColor(adjustVideoColorReq, runtime);
+  var adjustVideoColorResp = adjustVideoColorWithOptions(adjustVideoColorReq, runtime);
   return adjustVideoColorResp;
 }
 
-function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
-    return endpoint;
-  }
-
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
-    return endpointMap[regionId];
-  }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+model ChangeVideoSizeRequest {
+  videoUrl?: string(name='VideoUrl'),
+  async?: boolean(name='Async'),
+  width?: int32(name='Width'),
+  height?: int32(name='Height'),
+  cropType?: string(name='CropType'),
+  fillType?: string(name='FillType'),
+  tightness?: float(name='Tightness'),
+  r?: int32(name='R'),
+  g?: int32(name='G'),
+  b?: int32(name='B'),
 }
+
+model ChangeVideoSizeAdvanceRequest {
+  videoUrlObject: readable(name='VideoUrlObject'),
+  async?: boolean(name='Async'),
+  width?: int32(name='Width'),
+  height?: int32(name='Height'),
+  cropType?: string(name='CropType'),
+  fillType?: string(name='FillType'),
+  tightness?: float(name='Tightness'),
+  r?: int32(name='R'),
+  g?: int32(name='G'),
+  b?: int32(name='B'),
+}
+
+model ChangeVideoSizeResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    videoCoverUrl?: string(name='VideoCoverUrl'),
+    videoUrl?: string(name='VideoUrl'),
+  }(name='Data'),
+}
+
+model ChangeVideoSizeResponse = {
+  headers: map[string]string(name='headers'),
+  body: ChangeVideoSizeResponseBody(name='body'),
+}
+
+async function changeVideoSizeWithOptions(request: ChangeVideoSizeRequest, runtime: Util.RuntimeOptions): ChangeVideoSizeResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ChangeVideoSize', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function changeVideoSize(request: ChangeVideoSizeRequest): ChangeVideoSizeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return changeVideoSizeWithOptions(request, runtime);
+}
+
+async function changeVideoSizeAdvance(request: ChangeVideoSizeAdvanceRequest, runtime: Util.RuntimeOptions): ChangeVideoSizeResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'videoenhan',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var changeVideoSizeReq = new ChangeVideoSizeRequest{};
+  OpenApiUtil.convert(request, changeVideoSizeReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.videoUrlObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  changeVideoSizeReq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var changeVideoSizeResp = changeVideoSizeWithOptions(changeVideoSizeReq, runtime);
+  return changeVideoSizeResp;
+}
+
+model SuperResolveVideoRequest {
+  videoUrl?: string(name='VideoUrl'),
+  async?: boolean(name='Async'),
+  bitRate?: int32(name='BitRate'),
+}
+
+model SuperResolveVideoAdvanceRequest {
+  videoUrlObject: readable(name='VideoUrlObject'),
+  async?: boolean(name='Async'),
+  bitRate?: int32(name='BitRate'),
+}
+
+model SuperResolveVideoResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    videoUrl?: string(name='VideoUrl'),
+  }(name='Data'),
+}
+
+model SuperResolveVideoResponse = {
+  headers: map[string]string(name='headers'),
+  body: SuperResolveVideoResponseBody(name='body'),
+}
+
+async function superResolveVideoWithOptions(request: SuperResolveVideoRequest, runtime: Util.RuntimeOptions): SuperResolveVideoResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('SuperResolveVideo', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function superResolveVideo(request: SuperResolveVideoRequest): SuperResolveVideoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return superResolveVideoWithOptions(request, runtime);
+}
+
+async function superResolveVideoAdvance(request: SuperResolveVideoAdvanceRequest, runtime: Util.RuntimeOptions): SuperResolveVideoResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'videoenhan',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var superResolveVideoReq = new SuperResolveVideoRequest{};
+  OpenApiUtil.convert(request, superResolveVideoReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.videoUrlObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  superResolveVideoReq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var superResolveVideoResp = superResolveVideoWithOptions(superResolveVideoReq, runtime);
+  return superResolveVideoResp;
+}
+
+model GetAsyncJobResultRequest {
+  async?: boolean(name='Async'),
+  jobId?: string(name='JobId'),
+}
+
+model GetAsyncJobResultResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    status?: string(name='Status'),
+    errorMessage?: string(name='ErrorMessage'),
+    result?: string(name='Result'),
+    errorCode?: string(name='ErrorCode'),
+    jobId?: string(name='JobId'),
+  }(name='Data'),
+}
+
+model GetAsyncJobResultResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetAsyncJobResultResponseBody(name='body'),
+}
+
+async function getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('GetAsyncJobResult', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function getAsyncJobResult(request: GetAsyncJobResultRequest): GetAsyncJobResultResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAsyncJobResultWithOptions(request, runtime);
+}
+
+model GenerateVideoRequest {
+  async?: boolean(name='Async'),
+  scene?: string(name='Scene'),
+  width?: int32(name='Width'),
+  height?: int32(name='Height'),
+  style?: string(name='Style'),
+  duration?: float(name='Duration'),
+  durationAdaption?: boolean(name='DurationAdaption'),
+  transitionStyle?: string(name='TransitionStyle'),
+  smartEffect?: boolean(name='SmartEffect'),
+  puzzleEffect?: boolean(name='PuzzleEffect'),
+  mute?: boolean(name='Mute'),
+  fileList?: [ 
+    {
+      type?: string(name='Type'),
+      fileUrl?: string(name='FileUrl'),
+      fileName?: string(name='FileName'),
+    }
+  ](name='FileList'),
+}
+
+model GenerateVideoResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    videoCoverUrl?: string(name='VideoCoverUrl'),
+    videoUrl?: string(name='VideoUrl'),
+  }(name='Data'),
+}
+
+model GenerateVideoResponse = {
+  headers: map[string]string(name='headers'),
+  body: GenerateVideoResponseBody(name='body'),
+}
+
+async function generateVideoWithOptions(request: GenerateVideoRequest, runtime: Util.RuntimeOptions): GenerateVideoResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('GenerateVideo', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function generateVideo(request: GenerateVideoRequest): GenerateVideoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return generateVideoWithOptions(request, runtime);
+}
+
+model AbstractEcommerceVideoRequest {
+  videoUrl?: string(name='VideoUrl'),
+  async?: boolean(name='Async'),
+  duration?: float(name='Duration'),
+  width?: int32(name='Width'),
+  height?: int32(name='Height'),
+}
+
+model AbstractEcommerceVideoAdvanceRequest {
+  videoUrlObject: readable(name='VideoUrlObject'),
+  async?: boolean(name='Async'),
+  duration?: float(name='Duration'),
+  width?: int32(name='Width'),
+  height?: int32(name='Height'),
+}
+
+model AbstractEcommerceVideoResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    videoCoverUrl?: string(name='VideoCoverUrl'),
+    videoUrl?: string(name='VideoUrl'),
+  }(name='Data'),
+}
+
+model AbstractEcommerceVideoResponse = {
+  headers: map[string]string(name='headers'),
+  body: AbstractEcommerceVideoResponseBody(name='body'),
+}
+
+async function abstractEcommerceVideoWithOptions(request: AbstractEcommerceVideoRequest, runtime: Util.RuntimeOptions): AbstractEcommerceVideoResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('AbstractEcommerceVideo', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function abstractEcommerceVideo(request: AbstractEcommerceVideoRequest): AbstractEcommerceVideoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return abstractEcommerceVideoWithOptions(request, runtime);
+}
+
+async function abstractEcommerceVideoAdvance(request: AbstractEcommerceVideoAdvanceRequest, runtime: Util.RuntimeOptions): AbstractEcommerceVideoResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'videoenhan',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var abstractEcommerceVideoReq = new AbstractEcommerceVideoRequest{};
+  OpenApiUtil.convert(request, abstractEcommerceVideoReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.videoUrlObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  abstractEcommerceVideoReq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var abstractEcommerceVideoResp = abstractEcommerceVideoWithOptions(abstractEcommerceVideoReq, runtime);
+  return abstractEcommerceVideoResp;
+}
+
+model AbstractFilmVideoRequest {
+  videoUrl?: string(name='VideoUrl'),
+  async?: boolean(name='Async'),
+  length?: int32(name='Length'),
+}
+
+model AbstractFilmVideoAdvanceRequest {
+  videoUrlObject: readable(name='VideoUrlObject'),
+  async?: boolean(name='Async'),
+  length?: int32(name='Length'),
+}
+
+model AbstractFilmVideoResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    videoUrl?: string(name='VideoUrl'),
+  }(name='Data'),
+}
+
+model AbstractFilmVideoResponse = {
+  headers: map[string]string(name='headers'),
+  body: AbstractFilmVideoResponseBody(name='body'),
+}
+
+async function abstractFilmVideoWithOptions(request: AbstractFilmVideoRequest, runtime: Util.RuntimeOptions): AbstractFilmVideoResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('AbstractFilmVideo', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function abstractFilmVideo(request: AbstractFilmVideoRequest): AbstractFilmVideoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return abstractFilmVideoWithOptions(request, runtime);
+}
+
+async function abstractFilmVideoAdvance(request: AbstractFilmVideoAdvanceRequest, runtime: Util.RuntimeOptions): AbstractFilmVideoResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'videoenhan',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var abstractFilmVideoReq = new AbstractFilmVideoRequest{};
+  OpenApiUtil.convert(request, abstractFilmVideoReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.videoUrlObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  abstractFilmVideoReq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var abstractFilmVideoResp = abstractFilmVideoWithOptions(abstractFilmVideoReq, runtime);
+  return abstractFilmVideoResp;
+}
+
+model EraseVideoSubtitlesRequest {
+  videoUrl?: string(name='VideoUrl'),
+  async?: boolean(name='Async'),
+  BX?: float(name='BX'),
+  BY?: float(name='BY'),
+  BW?: float(name='BW'),
+  BH?: float(name='BH'),
+}
+
+model EraseVideoSubtitlesAdvanceRequest {
+  videoUrlObject: readable(name='VideoUrlObject'),
+  async?: boolean(name='Async'),
+  BX?: float(name='BX'),
+  BY?: float(name='BY'),
+  BW?: float(name='BW'),
+  BH?: float(name='BH'),
+}
+
+model EraseVideoSubtitlesResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    videoUrl?: string(name='VideoUrl'),
+  }(name='Data'),
+}
+
+model EraseVideoSubtitlesResponse = {
+  headers: map[string]string(name='headers'),
+  body: EraseVideoSubtitlesResponseBody(name='body'),
+}
+
+async function eraseVideoSubtitlesWithOptions(request: EraseVideoSubtitlesRequest, runtime: Util.RuntimeOptions): EraseVideoSubtitlesResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('EraseVideoSubtitles', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function eraseVideoSubtitles(request: EraseVideoSubtitlesRequest): EraseVideoSubtitlesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return eraseVideoSubtitlesWithOptions(request, runtime);
+}
+
+async function eraseVideoSubtitlesAdvance(request: EraseVideoSubtitlesAdvanceRequest, runtime: Util.RuntimeOptions): EraseVideoSubtitlesResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'videoenhan',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var eraseVideoSubtitlesReq = new EraseVideoSubtitlesRequest{};
+  OpenApiUtil.convert(request, eraseVideoSubtitlesReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.videoUrlObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  eraseVideoSubtitlesReq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var eraseVideoSubtitlesResp = eraseVideoSubtitlesWithOptions(eraseVideoSubtitlesReq, runtime);
+  return eraseVideoSubtitlesResp;
+}
+
+model MergeVideoFaceRequest {
+  videoURL?: string(name='VideoURL'),
+  async?: boolean(name='Async'),
+  postURL?: string(name='PostURL'),
+  referenceURL?: string(name='ReferenceURL'),
+}
+
+model MergeVideoFaceAdvanceRequest {
+  videoURLObject: readable(name='VideoURLObject'),
+  async?: boolean(name='Async'),
+  postURL?: string(name='PostURL'),
+  referenceURL?: string(name='ReferenceURL'),
+}
+
+model MergeVideoFaceResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    videoURL?: string(name='VideoURL'),
+  }(name='Data'),
+}
+
+model MergeVideoFaceResponse = {
+  headers: map[string]string(name='headers'),
+  body: MergeVideoFaceResponseBody(name='body'),
+}
+
+async function mergeVideoFaceWithOptions(request: MergeVideoFaceRequest, runtime: Util.RuntimeOptions): MergeVideoFaceResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('MergeVideoFace', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function mergeVideoFace(request: MergeVideoFaceRequest): MergeVideoFaceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return mergeVideoFaceWithOptions(request, runtime);
+}
+
+async function mergeVideoFaceAdvance(request: MergeVideoFaceAdvanceRequest, runtime: Util.RuntimeOptions): MergeVideoFaceResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'videoenhan',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var mergeVideoFaceReq = new MergeVideoFaceRequest{};
+  OpenApiUtil.convert(request, mergeVideoFaceReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.videoURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  mergeVideoFaceReq.videoURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var mergeVideoFaceResp = mergeVideoFaceWithOptions(mergeVideoFaceReq, runtime);
+  return mergeVideoFaceResp;
+}
+
