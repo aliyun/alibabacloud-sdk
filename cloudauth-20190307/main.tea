@@ -1,128 +1,75 @@
+/**
+ *
+ */
 import Util;
-import RPCUtil;
-import RPC;
-import EndpointUtil;
 import OSS;
+import RPC;
 import OpenPlatform;
 import OSSUtil;
 import FileForm;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
 
-extends RPC;
+extends OpenApi;
 
-init(config: RPC.Config){
+init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'central';
   
+
   checkConfig(config);
   @endpoint = getEndpoint('cloudauth', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
-model DescribeFaceConfigRequest = {
-  sourceIp?: string(name='SourceIp'),
-  lang?: string(name='Lang'),
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model CompareFacesRequest {
+  targetImageType?: string(name='TargetImageType'),
+  sourceImageType?: string(name='SourceImageType'),
+  sourceImageValue?: string(name='SourceImageValue'),
+  targetImageValue?: string(name='TargetImageValue'),
+  bizType?: string(name='BizType'),
 }
 
-model DescribeFaceConfigResponse = {
-  requestId: string(name='RequestId'),
-  items: [
-    {
-      bizType: string(name='BizType'),
-      bizName: string(name='BizName'),
-      gmtUpdated: long(name='GmtUpdated'),
-    }
-  ](name='Items'),
+model CompareFacesResponseBody = {
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  data?: {
+    similarityScore?: float(name='SimilarityScore'),
+    confidenceThresholds?: string(name='ConfidenceThresholds'),
+  }(name='Data'),
+  code?: string(name='Code'),
+  success?: boolean(name='Success'),
 }
 
-async function describeFaceConfig(request: DescribeFaceConfigRequest, runtime: Util.RuntimeOptions): DescribeFaceConfigResponse {
+model CompareFacesResponse = {
+  headers: map[string]string(name='headers'),
+  body: CompareFacesResponseBody(name='body'),
+}
+
+async function compareFacesWithOptions(request: CompareFacesRequest, runtime: Util.RuntimeOptions): CompareFacesResponse {
   Util.validateModel(request);
-  return doRequest('DescribeFaceConfig', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CompareFaces', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function describeFaceConfigSimply(request: DescribeFaceConfigRequest): DescribeFaceConfigResponse {
+async function compareFaces(request: CompareFacesRequest): CompareFacesResponse {
   var runtime = new Util.RuntimeOptions{};
-  return describeFaceConfig(request, runtime);
+  return compareFacesWithOptions(request, runtime);
 }
 
-model UpdateFaceConfigRequest = {
-  sourceIp?: string(name='SourceIp'),
-  lang?: string(name='Lang'),
-  bizType: string(name='BizType'),
-  bizName: string(name='BizName'),
-}
-
-model UpdateFaceConfigResponse = {
-  requestId: string(name='RequestId'),
-}
-
-async function updateFaceConfig(request: UpdateFaceConfigRequest, runtime: Util.RuntimeOptions): UpdateFaceConfigResponse {
-  Util.validateModel(request);
-  return doRequest('UpdateFaceConfig', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function updateFaceConfigSimply(request: UpdateFaceConfigRequest): UpdateFaceConfigResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateFaceConfig(request, runtime);
-}
-
-model CreateFaceConfigRequest = {
-  sourceIp?: string(name='SourceIp'),
-  lang?: string(name='Lang'),
-  bizType: string(name='BizType'),
-  bizName: string(name='BizName'),
-}
-
-model CreateFaceConfigResponse = {
-  requestId: string(name='RequestId'),
-}
-
-async function createFaceConfig(request: CreateFaceConfigRequest, runtime: Util.RuntimeOptions): CreateFaceConfigResponse {
-  Util.validateModel(request);
-  return doRequest('CreateFaceConfig', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function createFaceConfigSimply(request: CreateFaceConfigRequest): CreateFaceConfigResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createFaceConfig(request, runtime);
-}
-
-model LivenessFaceVerifyRequest = {
-  sceneId?: long(name='SceneId'),
-  outerOrderNo?: string(name='OuterOrderNo'),
-  productCode?: string(name='ProductCode'),
-  faceContrastPicture?: string(name='FaceContrastPicture'),
-  deviceToken?: string(name='DeviceToken'),
-  mobile?: string(name='Mobile'),
-  ip?: string(name='Ip'),
-  userId?: string(name='UserId'),
-  faceContrastPictureUrl?: string(name='FaceContrastPictureUrl'),
-  certifyId?: string(name='CertifyId'),
-  ossBucketName?: string(name='OssBucketName'),
-  ossObjectName?: string(name='OssObjectName'),
-  model?: string(name='Model'),
-}
-
-model LivenessFaceVerifyResponse = {
-  requestId: string(name='RequestId'),
-  message: string(name='Message'),
-  code: string(name='Code'),
-  resultObject: {
-    passed: string(name='Passed'),
-    materialInfo: string(name='MaterialInfo'),
-    subCode: string(name='SubCode'),
-  }(name='ResultObject'),
-}
-
-async function livenessFaceVerify(request: LivenessFaceVerifyRequest, runtime: Util.RuntimeOptions): LivenessFaceVerifyResponse {
-  Util.validateModel(request);
-  return doRequest('LivenessFaceVerify', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function livenessFaceVerifySimply(request: LivenessFaceVerifyRequest): LivenessFaceVerifyResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return livenessFaceVerify(request, runtime);
-}
-
-model CompareFaceVerifyRequest = {
+model CompareFaceVerifyRequest {
   sceneId?: long(name='SceneId'),
   outerOrderNo?: string(name='OuterOrderNo'),
   productCode?: string(name='ProductCode'),
@@ -138,142 +85,35 @@ model CompareFaceVerifyRequest = {
   targetOssObjectName?: string(name='TargetOssObjectName'),
 }
 
-model CompareFaceVerifyResponse = {
-  requestId: string(name='RequestId'),
-  message: string(name='Message'),
-  code: string(name='Code'),
-  resultObject: {
-    passed: string(name='Passed'),
-    verifyScore: float(name='VerifyScore'),
+model CompareFaceVerifyResponseBody = {
+  resultObject?: {
+    verifyScore?: float(name='VerifyScore'),
+    passed?: string(name='Passed'),
   }(name='ResultObject'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
 }
 
-async function compareFaceVerify(request: CompareFaceVerifyRequest, runtime: Util.RuntimeOptions): CompareFaceVerifyResponse {
+model CompareFaceVerifyResponse = {
+  headers: map[string]string(name='headers'),
+  body: CompareFaceVerifyResponseBody(name='body'),
+}
+
+async function compareFaceVerifyWithOptions(request: CompareFaceVerifyRequest, runtime: Util.RuntimeOptions): CompareFaceVerifyResponse {
   Util.validateModel(request);
-  return doRequest('CompareFaceVerify', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CompareFaceVerify', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function compareFaceVerifySimply(request: CompareFaceVerifyRequest): CompareFaceVerifyResponse {
+async function compareFaceVerify(request: CompareFaceVerifyRequest): CompareFaceVerifyResponse {
   var runtime = new Util.RuntimeOptions{};
-  return compareFaceVerify(request, runtime);
+  return compareFaceVerifyWithOptions(request, runtime);
 }
 
-model DescribeSdkUrlRequest = {
-  id: long(name='Id'),
-  debug?: boolean(name='Debug'),
-}
-
-model DescribeSdkUrlResponse = {
-  requestId: string(name='RequestId'),
-  sdkUrl: string(name='SdkUrl'),
-}
-
-async function describeSdkUrl(request: DescribeSdkUrlRequest, runtime: Util.RuntimeOptions): DescribeSdkUrlResponse {
-  Util.validateModel(request);
-  return doRequest('DescribeSdkUrl', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function describeSdkUrlSimply(request: DescribeSdkUrlRequest): DescribeSdkUrlResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeSdkUrl(request, runtime);
-}
-
-model DescribeUpdatePackageResultRequest = {
-  taskId: string(name='TaskId'),
-}
-
-model DescribeUpdatePackageResultResponse = {
-  requestId: string(name='RequestId'),
-  appInfo: {
-    id: long(name='Id'),
-    name: string(name='Name'),
-    packageName: string(name='PackageName'),
-    icon: string(name='Icon'),
-    startDate: string(name='StartDate'),
-    endDate: string(name='EndDate'),
-    type: integer(name='Type'),
-    packageInfo: {
-      version: string(name='Version'),
-    }(name='PackageInfo'),
-    debugPackageInfo: {
-      version: string(name='Version'),
-    }(name='DebugPackageInfo'),
-  }(name='AppInfo'),
-}
-
-async function describeUpdatePackageResult(request: DescribeUpdatePackageResultRequest, runtime: Util.RuntimeOptions): DescribeUpdatePackageResultResponse {
-  Util.validateModel(request);
-  return doRequest('DescribeUpdatePackageResult', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function describeUpdatePackageResultSimply(request: DescribeUpdatePackageResultRequest): DescribeUpdatePackageResultResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeUpdatePackageResult(request, runtime);
-}
-
-model UpdateAppPackageRequest = {
-  id?: long(name='Id'),
-  packageUrl: string(name='PackageUrl'),
-  platform?: string(name='Platform'),
-  debug?: boolean(name='Debug'),
-}
-
-model UpdateAppPackageResponse = {
-  requestId: string(name='RequestId'),
-  taskId: string(name='TaskId'),
-}
-
-async function updateAppPackage(request: UpdateAppPackageRequest, runtime: Util.RuntimeOptions): UpdateAppPackageResponse {
-  Util.validateModel(request);
-  return doRequest('UpdateAppPackage', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function updateAppPackageSimply(request: UpdateAppPackageRequest): UpdateAppPackageResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateAppPackage(request, runtime);
-}
-
-model DescribeAppInfoRequest = {
-  pageSize?: integer(name='PageSize'),
-  currentPage?: integer(name='CurrentPage'),
-  platform?: string(name='Platform'),
-}
-
-model DescribeAppInfoResponse = {
-  requestId: string(name='RequestId'),
-  pageSize: integer(name='PageSize'),
-  currentPage: integer(name='CurrentPage'),
-  totalCount: integer(name='TotalCount'),
-  appInfoList: [
-    {
-      id: long(name='Id'),
-      name: string(name='Name'),
-      packageName: string(name='PackageName'),
-      icon: string(name='Icon'),
-      startDate: string(name='StartDate'),
-      endDate: string(name='EndDate'),
-      type: integer(name='Type'),
-      packageInfo: {
-        version: string(name='Version'),
-      }(name='PackageInfo'),
-      debugPackageInfo: {
-        version: string(name='Version'),
-      }(name='DebugPackageInfo'),
-    }
-  ](name='AppInfoList'),
-}
-
-async function describeAppInfo(request: DescribeAppInfoRequest, runtime: Util.RuntimeOptions): DescribeAppInfoResponse {
-  Util.validateModel(request);
-  return doRequest('DescribeAppInfo', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function describeAppInfoSimply(request: DescribeAppInfoRequest): DescribeAppInfoResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeAppInfo(request, runtime);
-}
-
-model ContrastFaceVerifyRequest = {
+model ContrastFaceVerifyRequest {
   sceneId?: long(name='SceneId'),
   outerOrderNo?: string(name='OuterOrderNo'),
   productCode?: string(name='ProductCode'),
@@ -293,29 +133,7 @@ model ContrastFaceVerifyRequest = {
   faceContrastFile?: string(name='FaceContrastFile'),
 }
 
-model ContrastFaceVerifyResponse = {
-  requestId: string(name='RequestId'),
-  message: string(name='Message'),
-  code: string(name='Code'),
-  resultObject: {
-    passed: string(name='Passed'),
-    identityInfo: string(name='IdentityInfo'),
-    materialInfo: string(name='MaterialInfo'),
-    subCode: string(name='SubCode'),
-  }(name='ResultObject'),
-}
-
-async function contrastFaceVerify(request: ContrastFaceVerifyRequest, runtime: Util.RuntimeOptions): ContrastFaceVerifyResponse {
-  Util.validateModel(request);
-  return doRequest('ContrastFaceVerify', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function contrastFaceVerifySimply(request: ContrastFaceVerifyRequest): ContrastFaceVerifyResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return contrastFaceVerify(request, runtime);
-}
-
-model ContrastFaceVerifyAdvanceRequest = {
+model ContrastFaceVerifyAdvanceRequest {
   faceContrastFileObject: readable(name='FaceContrastFileObject'),
   sceneId?: long(name='SceneId'),
   outerOrderNo?: string(name='OuterOrderNo'),
@@ -333,6 +151,36 @@ model ContrastFaceVerifyAdvanceRequest = {
   ossBucketName?: string(name='OssBucketName'),
   ossObjectName?: string(name='OssObjectName'),
   model?: string(name='Model'),
+}
+
+model ContrastFaceVerifyResponseBody = {
+  resultObject?: {
+    materialInfo?: string(name='MaterialInfo'),
+    subCode?: string(name='SubCode'),
+    identityInfo?: string(name='IdentityInfo'),
+    passed?: string(name='Passed'),
+  }(name='ResultObject'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
+}
+
+model ContrastFaceVerifyResponse = {
+  headers: map[string]string(name='headers'),
+  body: ContrastFaceVerifyResponseBody(name='body'),
+}
+
+async function contrastFaceVerifyWithOptions(request: ContrastFaceVerifyRequest, runtime: Util.RuntimeOptions): ContrastFaceVerifyResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ContrastFaceVerify', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function contrastFaceVerify(request: ContrastFaceVerifyRequest): ContrastFaceVerifyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return contrastFaceVerifyWithOptions(request, runtime);
 }
 
 async function contrastFaceVerifyAdvance(request: ContrastFaceVerifyAdvanceRequest, runtime: Util.RuntimeOptions): ContrastFaceVerifyResponse {
@@ -365,13 +213,13 @@ async function contrastFaceVerifyAdvance(request: ContrastFaceVerifyAdvanceReque
   var ossHeader = new OSS.PostObjectRequest.header{};
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
+  OpenApiUtil.convert(runtime, ossRuntime);
   var contrastFaceVerifyReq = new ContrastFaceVerifyRequest{};
-  RPCUtil.convert(request, contrastFaceVerifyReq);
+  OpenApiUtil.convert(request, contrastFaceVerifyReq);
 
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
   ossClient = new OSS(ossConfig);
 
   fileObj = new FileForm.FileField{
@@ -393,11 +241,1015 @@ async function contrastFaceVerifyAdvance(request: ContrastFaceVerifyAdvanceReque
   };
   ossClient.postObject(uploadRequest, ossRuntime);
   contrastFaceVerifyReq.faceContrastFile = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var contrastFaceVerifyResp = contrastFaceVerify(contrastFaceVerifyReq, runtime);
+  var contrastFaceVerifyResp = contrastFaceVerifyWithOptions(contrastFaceVerifyReq, runtime);
   return contrastFaceVerifyResp;
 }
 
-model InitDeviceRequest = {
+model CreateAuthKeyRequest {
+  sourceIp?: string(name='SourceIp'),
+  lang?: string(name='Lang'),
+  bizType?: string(name='BizType'),
+  userDeviceId?: string(name='UserDeviceId'),
+  test?: boolean(name='Test'),
+  authYears?: int32(name='AuthYears'),
+}
+
+model CreateAuthKeyResponseBody = {
+  requestId?: string(name='RequestId'),
+  authKey?: string(name='AuthKey'),
+}
+
+model CreateAuthKeyResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateAuthKeyResponseBody(name='body'),
+}
+
+async function createAuthKeyWithOptions(request: CreateAuthKeyRequest, runtime: Util.RuntimeOptions): CreateAuthKeyResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CreateAuthKey', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function createAuthKey(request: CreateAuthKeyRequest): CreateAuthKeyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createAuthKeyWithOptions(request, runtime);
+}
+
+model CreateFaceConfigRequest {
+  sourceIp?: string(name='SourceIp'),
+  lang?: string(name='Lang'),
+  bizType?: string(name='BizType'),
+  bizName?: string(name='BizName'),
+}
+
+model CreateFaceConfigResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model CreateFaceConfigResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateFaceConfigResponseBody(name='body'),
+}
+
+async function createFaceConfigWithOptions(request: CreateFaceConfigRequest, runtime: Util.RuntimeOptions): CreateFaceConfigResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CreateFaceConfig', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function createFaceConfig(request: CreateFaceConfigRequest): CreateFaceConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createFaceConfigWithOptions(request, runtime);
+}
+
+model CreateRPSDKRequest {
+  sourceIp?: string(name='SourceIp'),
+  lang?: string(name='Lang'),
+  appUrl?: string(name='AppUrl'),
+  platform?: string(name='Platform'),
+}
+
+model CreateRPSDKResponseBody = {
+  taskId?: string(name='TaskId'),
+  requestId?: string(name='RequestId'),
+}
+
+model CreateRPSDKResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateRPSDKResponseBody(name='body'),
+}
+
+async function createRPSDKWithOptions(request: CreateRPSDKRequest, runtime: Util.RuntimeOptions): CreateRPSDKResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CreateRPSDK', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function createRPSDK(request: CreateRPSDKRequest): CreateRPSDKResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createRPSDKWithOptions(request, runtime);
+}
+
+model CreateVerifySDKRequest {
+  sourceIp?: string(name='SourceIp'),
+  lang?: string(name='Lang'),
+  appUrl?: string(name='AppUrl'),
+  platform?: string(name='Platform'),
+}
+
+model CreateVerifySDKResponseBody = {
+  taskId?: string(name='TaskId'),
+  requestId?: string(name='RequestId'),
+}
+
+model CreateVerifySDKResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateVerifySDKResponseBody(name='body'),
+}
+
+async function createVerifySDKWithOptions(request: CreateVerifySDKRequest, runtime: Util.RuntimeOptions): CreateVerifySDKResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CreateVerifySDK', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function createVerifySDK(request: CreateVerifySDKRequest): CreateVerifySDKResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createVerifySDKWithOptions(request, runtime);
+}
+
+model CreateVerifySettingRequest {
+  sourceIp?: string(name='SourceIp'),
+  bizType?: string(name='BizType'),
+  bizName?: string(name='BizName'),
+  solution?: string(name='Solution'),
+  guideStep?: boolean(name='GuideStep'),
+  privacyStep?: boolean(name='PrivacyStep'),
+  resultStep?: boolean(name='ResultStep'),
+}
+
+model CreateVerifySettingResponseBody = {
+  requestId?: string(name='RequestId'),
+  stepList?: [ string ](name='StepList'),
+  bizName?: string(name='BizName'),
+  bizType?: string(name='BizType'),
+  solution?: string(name='Solution'),
+}
+
+model CreateVerifySettingResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateVerifySettingResponseBody(name='body'),
+}
+
+async function createVerifySettingWithOptions(request: CreateVerifySettingRequest, runtime: Util.RuntimeOptions): CreateVerifySettingResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CreateVerifySetting', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function createVerifySetting(request: CreateVerifySettingRequest): CreateVerifySettingResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createVerifySettingWithOptions(request, runtime);
+}
+
+model CreateWhitelistRequest {
+  sourceIp?: string(name='SourceIp'),
+  lang?: string(name='Lang'),
+  bizType?: string(name='BizType'),
+  bizId?: string(name='BizId'),
+  idCardNum?: string(name='IdCardNum'),
+  validDay?: string(name='ValidDay'),
+}
+
+model CreateWhitelistResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model CreateWhitelistResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateWhitelistResponseBody(name='body'),
+}
+
+async function createWhitelistWithOptions(request: CreateWhitelistRequest, runtime: Util.RuntimeOptions): CreateWhitelistResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CreateWhitelist', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function createWhitelist(request: CreateWhitelistRequest): CreateWhitelistResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createWhitelistWithOptions(request, runtime);
+}
+
+model DeleteWhitelistRequest {
+  sourceIp?: string(name='SourceIp'),
+  lang?: string(name='Lang'),
+  ids?: string(name='Ids'),
+}
+
+model DeleteWhitelistResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model DeleteWhitelistResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteWhitelistResponseBody(name='body'),
+}
+
+async function deleteWhitelistWithOptions(request: DeleteWhitelistRequest, runtime: Util.RuntimeOptions): DeleteWhitelistResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DeleteWhitelist', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function deleteWhitelist(request: DeleteWhitelistRequest): DeleteWhitelistResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteWhitelistWithOptions(request, runtime);
+}
+
+model DescribeAppInfoRequest {
+  sourceIp?: string(name='SourceIp'),
+  pageSize?: int32(name='PageSize'),
+  currentPage?: int32(name='CurrentPage'),
+  platform?: string(name='Platform'),
+}
+
+model DescribeAppInfoResponseBody = {
+  totalCount?: int32(name='TotalCount'),
+  requestId?: string(name='RequestId'),
+  pageSize?: int32(name='PageSize'),
+  currentPage?: int32(name='CurrentPage'),
+  appInfoList?: [ 
+    {
+      type?: int32(name='Type'),
+      endDate?: string(name='EndDate'),
+      packageName?: string(name='PackageName'),
+      debugPackageInfo?: {
+        version?: string(name='Version'),
+      }(name='DebugPackageInfo'),
+      icon?: string(name='Icon'),
+      startDate?: string(name='StartDate'),
+      packageInfo?: {
+        version?: string(name='Version'),
+      }(name='PackageInfo'),
+      name?: string(name='Name'),
+      id?: long(name='Id'),
+    }
+  ](name='AppInfoList'),
+}
+
+model DescribeAppInfoResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeAppInfoResponseBody(name='body'),
+}
+
+async function describeAppInfoWithOptions(request: DescribeAppInfoRequest, runtime: Util.RuntimeOptions): DescribeAppInfoResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeAppInfo', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeAppInfo(request: DescribeAppInfoRequest): DescribeAppInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeAppInfoWithOptions(request, runtime);
+}
+
+model DescribeDeviceInfoRequest {
+  sourceIp?: string(name='SourceIp'),
+  lang?: string(name='Lang'),
+  totalCount?: int32(name='TotalCount'),
+  pageSize?: int32(name='PageSize'),
+  currentPage?: int32(name='CurrentPage'),
+  deviceId?: string(name='DeviceId'),
+  bizType?: string(name='BizType'),
+  userDeviceId?: string(name='UserDeviceId'),
+  expiredStartDay?: string(name='ExpiredStartDay'),
+  expiredEndDay?: string(name='ExpiredEndDay'),
+}
+
+model DescribeDeviceInfoResponseBody = {
+  deviceInfoList?: {
+    deviceInfo?: [ 
+    {
+      userDeviceId?: string(name='UserDeviceId'),
+      deviceId?: string(name='DeviceId'),
+      expiredDay?: string(name='ExpiredDay'),
+      beginDay?: string(name='BeginDay'),
+      bizType?: string(name='BizType'),
+    }
+  ](name='DeviceInfo')
+  }(name='DeviceInfoList'),
+  totalCount?: int32(name='TotalCount'),
+  requestId?: string(name='RequestId'),
+  pageSize?: int32(name='PageSize'),
+  currentPage?: int32(name='CurrentPage'),
+}
+
+model DescribeDeviceInfoResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeDeviceInfoResponseBody(name='body'),
+}
+
+async function describeDeviceInfoWithOptions(request: DescribeDeviceInfoRequest, runtime: Util.RuntimeOptions): DescribeDeviceInfoResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeDeviceInfo', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeDeviceInfo(request: DescribeDeviceInfoRequest): DescribeDeviceInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeDeviceInfoWithOptions(request, runtime);
+}
+
+model DescribeFaceConfigRequest {
+  sourceIp?: string(name='SourceIp'),
+  lang?: string(name='Lang'),
+}
+
+model DescribeFaceConfigResponseBody = {
+  requestId?: string(name='RequestId'),
+  items?: [ 
+    {
+      gmtUpdated?: long(name='GmtUpdated'),
+      bizName?: string(name='BizName'),
+      bizType?: string(name='BizType'),
+    }
+  ](name='Items'),
+}
+
+model DescribeFaceConfigResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeFaceConfigResponseBody(name='body'),
+}
+
+async function describeFaceConfigWithOptions(request: DescribeFaceConfigRequest, runtime: Util.RuntimeOptions): DescribeFaceConfigResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeFaceConfig', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeFaceConfig(request: DescribeFaceConfigRequest): DescribeFaceConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeFaceConfigWithOptions(request, runtime);
+}
+
+model DescribeFaceUsageRequest {
+  sourceIp?: string(name='SourceIp'),
+  startDate?: string(name='StartDate'),
+  endDate?: string(name='EndDate'),
+}
+
+model DescribeFaceUsageResponseBody = {
+  totalCount?: int32(name='TotalCount'),
+  faceUsageList?: [ 
+    {
+      date?: string(name='Date'),
+      totalCount?: long(name='TotalCount'),
+    }
+  ](name='FaceUsageList'),
+  requestId?: string(name='RequestId'),
+}
+
+model DescribeFaceUsageResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeFaceUsageResponseBody(name='body'),
+}
+
+async function describeFaceUsageWithOptions(request: DescribeFaceUsageRequest, runtime: Util.RuntimeOptions): DescribeFaceUsageResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeFaceUsage', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeFaceUsage(request: DescribeFaceUsageRequest): DescribeFaceUsageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeFaceUsageWithOptions(request, runtime);
+}
+
+model DescribeFaceVerifyRequest {
+  sceneId?: long(name='SceneId'),
+  certifyId?: string(name='CertifyId'),
+}
+
+model DescribeFaceVerifyResponseBody = {
+  resultObject?: {
+    materialInfo?: string(name='MaterialInfo'),
+    subCode?: string(name='SubCode'),
+    identityInfo?: string(name='IdentityInfo'),
+    deviceToken?: string(name='DeviceToken'),
+    passed?: string(name='Passed'),
+  }(name='ResultObject'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
+}
+
+model DescribeFaceVerifyResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeFaceVerifyResponseBody(name='body'),
+}
+
+async function describeFaceVerifyWithOptions(request: DescribeFaceVerifyRequest, runtime: Util.RuntimeOptions): DescribeFaceVerifyResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeFaceVerify', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeFaceVerify(request: DescribeFaceVerifyRequest): DescribeFaceVerifyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeFaceVerifyWithOptions(request, runtime);
+}
+
+model DescribeOssUploadTokenRequest {
+  sourceIp?: string(name='SourceIp'),
+}
+
+model DescribeOssUploadTokenResponseBody = {
+  requestId?: string(name='RequestId'),
+  ossUploadToken?: {
+    key?: string(name='Key'),
+    token?: string(name='Token'),
+    secret?: string(name='Secret'),
+    expired?: long(name='Expired'),
+    path?: string(name='Path'),
+    endPoint?: string(name='EndPoint'),
+    bucket?: string(name='Bucket'),
+  }(name='OssUploadToken'),
+}
+
+model DescribeOssUploadTokenResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeOssUploadTokenResponseBody(name='body'),
+}
+
+async function describeOssUploadTokenWithOptions(request: DescribeOssUploadTokenRequest, runtime: Util.RuntimeOptions): DescribeOssUploadTokenResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeOssUploadToken', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeOssUploadToken(request: DescribeOssUploadTokenRequest): DescribeOssUploadTokenResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeOssUploadTokenWithOptions(request, runtime);
+}
+
+model DescribeRPSDKRequest {
+  sourceIp?: string(name='SourceIp'),
+  lang?: string(name='Lang'),
+  taskId?: string(name='TaskId'),
+}
+
+model DescribeRPSDKResponseBody = {
+  sdkUrl?: string(name='SdkUrl'),
+  requestId?: string(name='RequestId'),
+}
+
+model DescribeRPSDKResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeRPSDKResponseBody(name='body'),
+}
+
+async function describeRPSDKWithOptions(request: DescribeRPSDKRequest, runtime: Util.RuntimeOptions): DescribeRPSDKResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeRPSDK', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeRPSDK(request: DescribeRPSDKRequest): DescribeRPSDKResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeRPSDKWithOptions(request, runtime);
+}
+
+model DescribeSdkUrlRequest {
+  sourceIp?: string(name='SourceIp'),
+  id?: long(name='Id'),
+  debug?: boolean(name='Debug'),
+}
+
+model DescribeSdkUrlResponseBody = {
+  sdkUrl?: string(name='SdkUrl'),
+  requestId?: string(name='RequestId'),
+}
+
+model DescribeSdkUrlResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeSdkUrlResponseBody(name='body'),
+}
+
+async function describeSdkUrlWithOptions(request: DescribeSdkUrlRequest, runtime: Util.RuntimeOptions): DescribeSdkUrlResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeSdkUrl', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeSdkUrl(request: DescribeSdkUrlRequest): DescribeSdkUrlResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeSdkUrlWithOptions(request, runtime);
+}
+
+model DescribeUpdatePackageResultRequest {
+  sourceIp?: string(name='SourceIp'),
+  taskId?: string(name='TaskId'),
+}
+
+model DescribeUpdatePackageResultResponseBody = {
+  requestId?: string(name='RequestId'),
+  appInfo?: {
+    type?: int32(name='Type'),
+    endDate?: string(name='EndDate'),
+    packageName?: string(name='PackageName'),
+    debugPackageInfo?: {
+      version?: string(name='Version'),
+    }(name='DebugPackageInfo'),
+    icon?: string(name='Icon'),
+    startDate?: string(name='StartDate'),
+    packageInfo?: {
+      version?: string(name='Version'),
+    }(name='PackageInfo'),
+    name?: string(name='Name'),
+    id?: long(name='Id'),
+  }(name='AppInfo'),
+}
+
+model DescribeUpdatePackageResultResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeUpdatePackageResultResponseBody(name='body'),
+}
+
+async function describeUpdatePackageResultWithOptions(request: DescribeUpdatePackageResultRequest, runtime: Util.RuntimeOptions): DescribeUpdatePackageResultResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeUpdatePackageResult', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeUpdatePackageResult(request: DescribeUpdatePackageResultRequest): DescribeUpdatePackageResultResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeUpdatePackageResultWithOptions(request, runtime);
+}
+
+model DescribeUploadInfoRequest {
+  sourceIp?: string(name='SourceIp'),
+  biz?: string(name='Biz'),
+}
+
+model DescribeUploadInfoResponseBody = {
+  policy?: string(name='Policy'),
+  expire?: long(name='Expire'),
+  requestId?: string(name='RequestId'),
+  accessid?: string(name='Accessid'),
+  signature?: string(name='Signature'),
+  host?: string(name='Host'),
+  folder?: string(name='Folder'),
+}
+
+model DescribeUploadInfoResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeUploadInfoResponseBody(name='body'),
+}
+
+async function describeUploadInfoWithOptions(request: DescribeUploadInfoRequest, runtime: Util.RuntimeOptions): DescribeUploadInfoResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeUploadInfo', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeUploadInfo(request: DescribeUploadInfoRequest): DescribeUploadInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeUploadInfoWithOptions(request, runtime);
+}
+
+model DescribeUserStatusRequest {
+  sourceIp?: string(name='SourceIp'),
+}
+
+model DescribeUserStatusResponseBody = {
+  requestId?: string(name='RequestId'),
+  enabled?: boolean(name='Enabled'),
+}
+
+model DescribeUserStatusResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeUserStatusResponseBody(name='body'),
+}
+
+async function describeUserStatusWithOptions(request: DescribeUserStatusRequest, runtime: Util.RuntimeOptions): DescribeUserStatusResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeUserStatus', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeUserStatus(request: DescribeUserStatusRequest): DescribeUserStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeUserStatusWithOptions(request, runtime);
+}
+
+model DescribeVerifyRecordsRequest {
+  sourceIp?: string(name='SourceIp'),
+  totalCount?: int32(name='TotalCount'),
+  pageSize?: int32(name='PageSize'),
+  currentPage?: int32(name='CurrentPage'),
+  bizType?: string(name='BizType'),
+  startDate?: string(name='StartDate'),
+  endDate?: string(name='EndDate'),
+  bizId?: string(name='BizId'),
+  idCardNum?: string(name='IdCardNum'),
+  statusList?: string(name='StatusList'),
+  queryId?: string(name='QueryId'),
+}
+
+model DescribeVerifyRecordsResponseBody = {
+  totalCount?: int32(name='TotalCount'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  currentPage?: int32(name='CurrentPage'),
+  queryId?: string(name='QueryId'),
+  recordsList?: [ 
+    {
+      status?: int32(name='Status'),
+      finishTime?: long(name='FinishTime'),
+      material?: {
+        idCardNumber?: string(name='IdCardNumber'),
+        faceImageUrl?: string(name='FaceImageUrl'),
+        idCardName?: string(name='IdCardName'),
+        idCardInfo?: {
+          endDate?: string(name='EndDate'),
+          sex?: string(name='Sex'),
+          authority?: string(name='Authority'),
+          address?: string(name='Address'),
+          number?: string(name='Number'),
+          startDate?: string(name='StartDate'),
+          nationality?: string(name='Nationality'),
+          backImageUrl?: string(name='BackImageUrl'),
+          birth?: string(name='Birth'),
+          name?: string(name='Name'),
+          frontImageUrl?: string(name='FrontImageUrl'),
+        }(name='IdCardInfo'),
+      }(name='Material'),
+      idCardFaceComparisonScore?: float(name='IdCardFaceComparisonScore'),
+      bizId?: string(name='BizId'),
+      verifyId?: string(name='VerifyId'),
+      authorityComparisonScore?: float(name='AuthorityComparisonScore'),
+      dataStats?: string(name='DataStats'),
+      bizType?: string(name='BizType'),
+    }
+  ](name='RecordsList'),
+}
+
+model DescribeVerifyRecordsResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeVerifyRecordsResponseBody(name='body'),
+}
+
+async function describeVerifyRecordsWithOptions(request: DescribeVerifyRecordsRequest, runtime: Util.RuntimeOptions): DescribeVerifyRecordsResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeVerifyRecords', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeVerifyRecords(request: DescribeVerifyRecordsRequest): DescribeVerifyRecordsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeVerifyRecordsWithOptions(request, runtime);
+}
+
+model DescribeVerifyResultRequest {
+  bizId?: string(name='BizId'),
+  bizType?: string(name='BizType'),
+}
+
+model DescribeVerifyResultResponseBody = {
+  verifyStatus?: int32(name='VerifyStatus'),
+  requestId?: string(name='RequestId'),
+  material?: {
+    idCardNumber?: string(name='IdCardNumber'),
+    faceGlobalUrl?: string(name='FaceGlobalUrl'),
+    faceImageUrl?: string(name='FaceImageUrl'),
+    faceMask?: boolean(name='FaceMask'),
+    idCardName?: string(name='IdCardName'),
+    videoUrls?: [ string ](name='VideoUrls'),
+    idCardInfo?: {
+      endDate?: string(name='EndDate'),
+      authority?: string(name='Authority'),
+      address?: string(name='Address'),
+      number?: string(name='Number'),
+      startDate?: string(name='StartDate'),
+      backImageUrl?: string(name='BackImageUrl'),
+      nationality?: string(name='Nationality'),
+      birth?: string(name='Birth'),
+      name?: string(name='Name'),
+      frontImageUrl?: string(name='FrontImageUrl'),
+    }(name='IdCardInfo'),
+    faceQuality?: string(name='FaceQuality'),
+  }(name='Material'),
+  authorityComparisionScore?: float(name='AuthorityComparisionScore'),
+  faceComparisonScore?: float(name='FaceComparisonScore'),
+  idCardFaceComparisonScore?: float(name='IdCardFaceComparisonScore'),
+}
+
+model DescribeVerifyResultResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeVerifyResultResponseBody(name='body'),
+}
+
+async function describeVerifyResultWithOptions(request: DescribeVerifyResultRequest, runtime: Util.RuntimeOptions): DescribeVerifyResultResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeVerifyResult', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeVerifyResult(request: DescribeVerifyResultRequest): DescribeVerifyResultResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeVerifyResultWithOptions(request, runtime);
+}
+
+model DescribeVerifySDKRequest {
+  sourceIp?: string(name='SourceIp'),
+  lang?: string(name='Lang'),
+  taskId?: string(name='TaskId'),
+}
+
+model DescribeVerifySDKResponseBody = {
+  sdkUrl?: string(name='SdkUrl'),
+  requestId?: string(name='RequestId'),
+}
+
+model DescribeVerifySDKResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeVerifySDKResponseBody(name='body'),
+}
+
+async function describeVerifySDKWithOptions(request: DescribeVerifySDKRequest, runtime: Util.RuntimeOptions): DescribeVerifySDKResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeVerifySDK', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeVerifySDK(request: DescribeVerifySDKRequest): DescribeVerifySDKResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeVerifySDKWithOptions(request, runtime);
+}
+
+model DescribeVerifySettingRequest {
+  sourceIp?: string(name='SourceIp'),
+}
+
+model DescribeVerifySettingResponseBody = {
+  requestId?: string(name='RequestId'),
+  verifySettingList?: [ 
+    {
+      stepList?: [ string ](name='StepList'),
+      bizName?: string(name='BizName'),
+      solution?: string(name='Solution'),
+      bizType?: string(name='BizType'),
+    }
+  ](name='VerifySettingList'),
+}
+
+model DescribeVerifySettingResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeVerifySettingResponseBody(name='body'),
+}
+
+async function describeVerifySettingWithOptions(request: DescribeVerifySettingRequest, runtime: Util.RuntimeOptions): DescribeVerifySettingResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeVerifySetting', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeVerifySetting(request: DescribeVerifySettingRequest): DescribeVerifySettingResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeVerifySettingWithOptions(request, runtime);
+}
+
+model DescribeVerifyTokenRequest {
+  idCardBackImageUrl?: string(name='IdCardBackImageUrl'),
+  bizType?: string(name='BizType'),
+  failedRedirectUrl?: string(name='FailedRedirectUrl'),
+  faceRetainedImageUrl?: string(name='FaceRetainedImageUrl'),
+  callbackSeed?: string(name='CallbackSeed'),
+  idCardFrontImageUrl?: string(name='IdCardFrontImageUrl'),
+  userId?: string(name='UserId'),
+  bizId?: string(name='BizId'),
+  name?: string(name='Name'),
+  idCardNumber?: string(name='IdCardNumber'),
+  passedRedirectUrl?: string(name='PassedRedirectUrl'),
+  callbackUrl?: string(name='CallbackUrl'),
+  userIp?: string(name='UserIp'),
+  userPhoneNumber?: string(name='UserPhoneNumber'),
+  userRegistTime?: long(name='UserRegistTime'),
+}
+
+model DescribeVerifyTokenResponseBody = {
+  verifyPageUrl?: string(name='VerifyPageUrl'),
+  requestId?: string(name='RequestId'),
+  ossUploadToken?: {
+    key?: string(name='Key'),
+    token?: string(name='Token'),
+    secret?: string(name='Secret'),
+    expired?: long(name='Expired'),
+    path?: string(name='Path'),
+    endPoint?: string(name='EndPoint'),
+    bucket?: string(name='Bucket'),
+  }(name='OssUploadToken'),
+  verifyToken?: string(name='VerifyToken'),
+}
+
+model DescribeVerifyTokenResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeVerifyTokenResponseBody(name='body'),
+}
+
+async function describeVerifyTokenWithOptions(request: DescribeVerifyTokenRequest, runtime: Util.RuntimeOptions): DescribeVerifyTokenResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeVerifyToken', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeVerifyToken(request: DescribeVerifyTokenRequest): DescribeVerifyTokenResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeVerifyTokenWithOptions(request, runtime);
+}
+
+model DescribeVerifyUsageRequest {
+  sourceIp?: string(name='SourceIp'),
+  bizType?: string(name='BizType'),
+  startDate?: string(name='StartDate'),
+  endDate?: string(name='EndDate'),
+}
+
+model DescribeVerifyUsageResponseBody = {
+  totalCount?: int32(name='TotalCount'),
+  verifyUsageList?: [ 
+    {
+      passCount?: long(name='PassCount'),
+      failCount?: long(name='FailCount'),
+      date?: string(name='Date'),
+      totalCount?: long(name='TotalCount'),
+      bizType?: string(name='BizType'),
+    }
+  ](name='VerifyUsageList'),
+  requestId?: string(name='RequestId'),
+}
+
+model DescribeVerifyUsageResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeVerifyUsageResponseBody(name='body'),
+}
+
+async function describeVerifyUsageWithOptions(request: DescribeVerifyUsageRequest, runtime: Util.RuntimeOptions): DescribeVerifyUsageResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeVerifyUsage', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeVerifyUsage(request: DescribeVerifyUsageRequest): DescribeVerifyUsageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeVerifyUsageWithOptions(request, runtime);
+}
+
+model DescribeWhitelistRequest {
+  sourceIp?: string(name='SourceIp'),
+  lang?: string(name='Lang'),
+  bizType?: string(name='BizType'),
+  bizId?: string(name='BizId'),
+  idCardNum?: string(name='IdCardNum'),
+  validStartDate?: string(name='ValidStartDate'),
+  validEndDate?: string(name='ValidEndDate'),
+  valid?: string(name='Valid'),
+  pageSize?: int32(name='PageSize'),
+  currentPage?: int32(name='CurrentPage'),
+}
+
+model DescribeWhitelistResponseBody = {
+  totalCount?: int32(name='TotalCount'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  currentPage?: int32(name='CurrentPage'),
+  items?: [ 
+    {
+      endDate?: long(name='EndDate'),
+      gmtCreate?: long(name='GmtCreate'),
+      bizId?: string(name='BizId'),
+      startDate?: long(name='StartDate'),
+      idCardNum?: string(name='IdCardNum'),
+      gmtModified?: long(name='GmtModified'),
+      valid?: int32(name='Valid'),
+      id?: long(name='Id'),
+      bizType?: string(name='BizType'),
+      uid?: long(name='Uid'),
+    }
+  ](name='Items'),
+}
+
+model DescribeWhitelistResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeWhitelistResponseBody(name='body'),
+}
+
+async function describeWhitelistWithOptions(request: DescribeWhitelistRequest, runtime: Util.RuntimeOptions): DescribeWhitelistResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeWhitelist', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeWhitelist(request: DescribeWhitelistRequest): DescribeWhitelistResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeWhitelistWithOptions(request, runtime);
+}
+
+model DetectFaceAttributesRequest {
+  materialValue?: string(name='MaterialValue'),
+  bizType?: string(name='BizType'),
+}
+
+model DetectFaceAttributesResponseBody = {
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  data?: {
+    imgHeight?: int32(name='ImgHeight'),
+    imgWidth?: int32(name='ImgWidth'),
+    faceInfos?: {
+      faceAttributesDetectInfo?: [ 
+      {
+        faceAttributes?: {
+          glasses?: string(name='Glasses'),
+          facequal?: float(name='Facequal'),
+          integrity?: int32(name='Integrity'),
+          smiling?: {
+            value?: float(name='Value'),
+            threshold?: float(name='Threshold'),
+          }(name='Smiling'),
+          facetype?: string(name='Facetype'),
+          respirator?: string(name='Respirator'),
+          headpose?: {
+            pitchAngle?: float(name='PitchAngle'),
+            rollAngle?: float(name='RollAngle'),
+            yawAngle?: float(name='YawAngle'),
+          }(name='Headpose'),
+          blur?: float(name='Blur'),
+        }(name='FaceAttributes'),
+        faceRect?: {
+          top?: int32(name='Top'),
+          width?: int32(name='Width'),
+          height?: int32(name='Height'),
+          left?: int32(name='Left'),
+        }(name='FaceRect'),
+      }
+    ](name='FaceAttributesDetectInfo')
+    }(name='FaceInfos'),
+  }(name='Data'),
+  code?: string(name='Code'),
+  success?: boolean(name='Success'),
+}
+
+model DetectFaceAttributesResponse = {
+  headers: map[string]string(name='headers'),
+  body: DetectFaceAttributesResponseBody(name='body'),
+}
+
+async function detectFaceAttributesWithOptions(request: DetectFaceAttributesRequest, runtime: Util.RuntimeOptions): DetectFaceAttributesResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DetectFaceAttributes', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function detectFaceAttributes(request: DetectFaceAttributesRequest): DetectFaceAttributesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return detectFaceAttributesWithOptions(request, runtime);
+}
+
+model InitDeviceRequest {
   certifyId?: string(name='CertifyId'),
   outerOrderNo?: string(name='OuterOrderNo'),
   channel?: string(name='Channel'),
@@ -413,40 +1265,48 @@ model InitDeviceRequest = {
   webUmidToken?: string(name='WebUmidToken'),
 }
 
-model InitDeviceResponse = {
-  requestId: string(name='RequestId'),
-  message: string(name='Message'),
-  code: string(name='Code'),
-  resultObject: {
-    certifyId: string(name='CertifyId'),
-    protocol: string(name='Protocol'),
-    extParams: string(name='ExtParams'),
-    retCode: string(name='RetCode'),
-    retCodeSub: string(name='RetCodeSub'),
-    retMessageSub: string(name='RetMessageSub'),
-    message: string(name='Message'),
-    ossEndPoint: string(name='OssEndPoint'),
-    accessKeyId: string(name='AccessKeyId'),
-    accessKeySecret: string(name='AccessKeySecret'),
-    securityToken: string(name='SecurityToken'),
-    bucketName: string(name='BucketName'),
-    fileNamePrefix: string(name='FileNamePrefix'),
-    fileName: string(name='FileName'),
-    presignedUrl: string(name='PresignedUrl'),
+model InitDeviceResponseBody = {
+  resultObject?: {
+    ossEndPoint?: string(name='OssEndPoint'),
+    retCodeSub?: string(name='RetCodeSub'),
+    protocol?: string(name='Protocol'),
+    message?: string(name='Message'),
+    extParams?: string(name='ExtParams'),
+    certifyId?: string(name='CertifyId'),
+    fileName?: string(name='FileName'),
+    accessKeyId?: string(name='AccessKeyId'),
+    presignedUrl?: string(name='PresignedUrl'),
+    securityToken?: string(name='SecurityToken'),
+    bucketName?: string(name='BucketName'),
+    fileNamePrefix?: string(name='FileNamePrefix'),
+    accessKeySecret?: string(name='AccessKeySecret'),
+    retMessageSub?: string(name='RetMessageSub'),
+    retCode?: string(name='RetCode'),
   }(name='ResultObject'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
 }
 
-async function initDevice(request: InitDeviceRequest, runtime: Util.RuntimeOptions): InitDeviceResponse {
+model InitDeviceResponse = {
+  headers: map[string]string(name='headers'),
+  body: InitDeviceResponseBody(name='body'),
+}
+
+async function initDeviceWithOptions(request: InitDeviceRequest, runtime: Util.RuntimeOptions): InitDeviceResponse {
   Util.validateModel(request);
-  return doRequest('InitDevice', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('InitDevice', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function initDeviceSimply(request: InitDeviceRequest): InitDeviceResponse {
+async function initDevice(request: InitDeviceRequest): InitDeviceResponse {
   var runtime = new Util.RuntimeOptions{};
-  return initDevice(request, runtime);
+  return initDeviceWithOptions(request, runtime);
 }
 
-model InitFaceVerifyRequest = {
+model InitFaceVerifyRequest {
   sceneId?: long(name='SceneId'),
   outerOrderNo?: string(name='OuterOrderNo'),
   productCode?: string(name='ProductCode'),
@@ -468,387 +1328,179 @@ model InitFaceVerifyRequest = {
   callbackToken?: string(name='CallbackToken'),
 }
 
+model InitFaceVerifyResponseBody = {
+  resultObject?: {
+    certifyId?: string(name='CertifyId'),
+    certifyUrl?: string(name='CertifyUrl'),
+  }(name='ResultObject'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
+}
+
 model InitFaceVerifyResponse = {
-  requestId: string(name='RequestId'),
-  message: string(name='Message'),
-  code: string(name='Code'),
-  resultObject: {
-    certifyId: string(name='CertifyId'),
-    certifyUrl: string(name='CertifyUrl'),
-  }(name='ResultObject'),
+  headers: map[string]string(name='headers'),
+  body: InitFaceVerifyResponseBody(name='body'),
 }
 
-async function initFaceVerify(request: InitFaceVerifyRequest, runtime: Util.RuntimeOptions): InitFaceVerifyResponse {
+async function initFaceVerifyWithOptions(request: InitFaceVerifyRequest, runtime: Util.RuntimeOptions): InitFaceVerifyResponse {
   Util.validateModel(request);
-  return doRequest('InitFaceVerify', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('InitFaceVerify', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function initFaceVerifySimply(request: InitFaceVerifyRequest): InitFaceVerifyResponse {
+async function initFaceVerify(request: InitFaceVerifyRequest): InitFaceVerifyResponse {
   var runtime = new Util.RuntimeOptions{};
-  return initFaceVerify(request, runtime);
+  return initFaceVerifyWithOptions(request, runtime);
 }
 
-model DescribeFaceVerifyRequest = {
+model LivenessFaceVerifyRequest {
   sceneId?: long(name='SceneId'),
+  outerOrderNo?: string(name='OuterOrderNo'),
+  productCode?: string(name='ProductCode'),
+  faceContrastPicture?: string(name='FaceContrastPicture'),
+  deviceToken?: string(name='DeviceToken'),
+  mobile?: string(name='Mobile'),
+  ip?: string(name='Ip'),
+  userId?: string(name='UserId'),
+  faceContrastPictureUrl?: string(name='FaceContrastPictureUrl'),
   certifyId?: string(name='CertifyId'),
+  ossBucketName?: string(name='OssBucketName'),
+  ossObjectName?: string(name='OssObjectName'),
+  model?: string(name='Model'),
 }
 
-model DescribeFaceVerifyResponse = {
-  requestId: string(name='RequestId'),
-  message: string(name='Message'),
-  code: string(name='Code'),
-  resultObject: {
-    passed: string(name='Passed'),
-    identityInfo: string(name='IdentityInfo'),
-    materialInfo: string(name='MaterialInfo'),
-    deviceToken: string(name='DeviceToken'),
-    subCode: string(name='SubCode'),
+model LivenessFaceVerifyResponseBody = {
+  resultObject?: {
+    materialInfo?: string(name='MaterialInfo'),
+    subCode?: string(name='SubCode'),
+    passed?: string(name='Passed'),
   }(name='ResultObject'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
 }
 
-async function describeFaceVerify(request: DescribeFaceVerifyRequest, runtime: Util.RuntimeOptions): DescribeFaceVerifyResponse {
+model LivenessFaceVerifyResponse = {
+  headers: map[string]string(name='headers'),
+  body: LivenessFaceVerifyResponseBody(name='body'),
+}
+
+async function livenessFaceVerifyWithOptions(request: LivenessFaceVerifyRequest, runtime: Util.RuntimeOptions): LivenessFaceVerifyResponse {
   Util.validateModel(request);
-  return doRequest('DescribeFaceVerify', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('LivenessFaceVerify', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function describeFaceVerifySimply(request: DescribeFaceVerifyRequest): DescribeFaceVerifyResponse {
+async function livenessFaceVerify(request: LivenessFaceVerifyRequest): LivenessFaceVerifyResponse {
   var runtime = new Util.RuntimeOptions{};
-  return describeFaceVerify(request, runtime);
+  return livenessFaceVerifyWithOptions(request, runtime);
 }
 
-model VerifyDeviceRequest = {
-  certifyId?: string(name='CertifyId'),
-  certifyData?: string(name='CertifyData'),
-  appVersion?: string(name='AppVersion'),
-  extInfo?: string(name='ExtInfo'),
-}
-
-model VerifyDeviceResponse = {
-  requestId: string(name='RequestId'),
-  code: string(name='Code'),
-  message: string(name='Message'),
-  resultObject: {
-    validationRetCode: string(name='ValidationRetCode'),
-    productRetCode: string(name='ProductRetCode'),
-    retCodeSub: string(name='RetCodeSub'),
-    retMessageSub: string(name='RetMessageSub'),
-    hasNext: string(name='HasNext'),
-    extParams: string(name='ExtParams'),
-  }(name='ResultObject'),
-}
-
-async function verifyDevice(request: VerifyDeviceRequest, runtime: Util.RuntimeOptions): VerifyDeviceResponse {
-  Util.validateModel(request);
-  return doRequest('VerifyDevice', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function verifyDeviceSimply(request: VerifyDeviceRequest): VerifyDeviceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return verifyDevice(request, runtime);
-}
-
-model ModifyDeviceInfoRequest = {
-  deviceId: string(name='DeviceId'),
+model ModifyDeviceInfoRequest {
+  sourceIp?: string(name='SourceIp'),
+  lang?: string(name='Lang'),
+  deviceId?: string(name='DeviceId'),
   userDeviceId?: string(name='UserDeviceId'),
   bizType?: string(name='BizType'),
   duration?: string(name='Duration'),
   expiredDay?: string(name='ExpiredDay'),
 }
 
-model ModifyDeviceInfoResponse = {
-  requestId: string(name='RequestId'),
-  deviceId: string(name='DeviceId'),
-  userDeviceId: string(name='UserDeviceId'),
-  bizType: string(name='BizType'),
-  beginDay: string(name='BeginDay'),
-  expiredDay: string(name='ExpiredDay'),
-}
-
-async function modifyDeviceInfo(request: ModifyDeviceInfoRequest, runtime: Util.RuntimeOptions): ModifyDeviceInfoResponse {
-  Util.validateModel(request);
-  return doRequest('ModifyDeviceInfo', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function modifyDeviceInfoSimply(request: ModifyDeviceInfoRequest): ModifyDeviceInfoResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return modifyDeviceInfo(request, runtime);
-}
-
-model DescribeVerifySDKRequest = {
-  taskId: string(name='TaskId'),
-}
-
-model DescribeVerifySDKResponse = {
-  requestId: string(name='RequestId'),
-  sdkUrl: string(name='SdkUrl'),
-}
-
-async function describeVerifySDK(request: DescribeVerifySDKRequest, runtime: Util.RuntimeOptions): DescribeVerifySDKResponse {
-  Util.validateModel(request);
-  return doRequest('DescribeVerifySDK', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function describeVerifySDKSimply(request: DescribeVerifySDKRequest): DescribeVerifySDKResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeVerifySDK(request, runtime);
-}
-
-model DescribeDeviceInfoRequest = {
-  pageSize?: integer(name='PageSize'),
-  currentPage?: integer(name='CurrentPage'),
+model ModifyDeviceInfoResponseBody = {
+  expiredDay?: string(name='ExpiredDay'),
+  beginDay?: string(name='BeginDay'),
+  requestId?: string(name='RequestId'),
   deviceId?: string(name='DeviceId'),
   bizType?: string(name='BizType'),
   userDeviceId?: string(name='UserDeviceId'),
-  expiredStartDay?: string(name='ExpiredStartDay'),
-  expiredEndDay?: string(name='ExpiredEndDay'),
 }
 
-model DescribeDeviceInfoResponse = {
-  requestId: string(name='RequestId'),
-  pageSize: integer(name='PageSize'),
-  currentPage: integer(name='CurrentPage'),
-  totalCount: integer(name='TotalCount'),
-  deviceInfoList: {
-    deviceInfo: [
-      {
-        deviceId: string(name='DeviceId'),
-        userDeviceId: string(name='UserDeviceId'),
-        bizType: string(name='BizType'),
-        beginDay: string(name='BeginDay'),
-        expiredDay: string(name='ExpiredDay'),
-      }
-    ](name='DeviceInfo'),
-  }(name='DeviceInfoList'),
+model ModifyDeviceInfoResponse = {
+  headers: map[string]string(name='headers'),
+  body: ModifyDeviceInfoResponseBody(name='body'),
 }
 
-async function describeDeviceInfo(request: DescribeDeviceInfoRequest, runtime: Util.RuntimeOptions): DescribeDeviceInfoResponse {
+async function modifyDeviceInfoWithOptions(request: ModifyDeviceInfoRequest, runtime: Util.RuntimeOptions): ModifyDeviceInfoResponse {
   Util.validateModel(request);
-  return doRequest('DescribeDeviceInfo', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ModifyDeviceInfo', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function describeDeviceInfoSimply(request: DescribeDeviceInfoRequest): DescribeDeviceInfoResponse {
+async function modifyDeviceInfo(request: ModifyDeviceInfoRequest): ModifyDeviceInfoResponse {
   var runtime = new Util.RuntimeOptions{};
-  return describeDeviceInfo(request, runtime);
+  return modifyDeviceInfoWithOptions(request, runtime);
 }
 
-model CreateVerifySDKRequest = {
-  appUrl: string(name='AppUrl'),
+model UpdateAppPackageRequest {
+  sourceIp?: string(name='SourceIp'),
+  id?: long(name='Id'),
+  packageUrl?: string(name='PackageUrl'),
   platform?: string(name='Platform'),
+  debug?: boolean(name='Debug'),
 }
 
-model CreateVerifySDKResponse = {
-  requestId: string(name='RequestId'),
-  taskId: string(name='TaskId'),
+model UpdateAppPackageResponseBody = {
+  taskId?: string(name='TaskId'),
+  requestId?: string(name='RequestId'),
 }
 
-async function createVerifySDK(request: CreateVerifySDKRequest, runtime: Util.RuntimeOptions): CreateVerifySDKResponse {
+model UpdateAppPackageResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateAppPackageResponseBody(name='body'),
+}
+
+async function updateAppPackageWithOptions(request: UpdateAppPackageRequest, runtime: Util.RuntimeOptions): UpdateAppPackageResponse {
   Util.validateModel(request);
-  return doRequest('CreateVerifySDK', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('UpdateAppPackage', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function createVerifySDKSimply(request: CreateVerifySDKRequest): CreateVerifySDKResponse {
+async function updateAppPackage(request: UpdateAppPackageRequest): UpdateAppPackageResponse {
   var runtime = new Util.RuntimeOptions{};
-  return createVerifySDK(request, runtime);
+  return updateAppPackageWithOptions(request, runtime);
 }
 
-model CreateAuthKeyRequest = {
+model UpdateFaceConfigRequest {
+  sourceIp?: string(name='SourceIp'),
+  lang?: string(name='Lang'),
   bizType?: string(name='BizType'),
-  userDeviceId?: string(name='UserDeviceId'),
-  test?: boolean(name='Test'),
-  authYears?: integer(name='AuthYears'),
+  bizName?: string(name='BizName'),
 }
 
-model CreateAuthKeyResponse = {
-  requestId: string(name='RequestId'),
-  authKey: string(name='AuthKey'),
+model UpdateFaceConfigResponseBody = {
+  requestId?: string(name='RequestId'),
 }
 
-async function createAuthKey(request: CreateAuthKeyRequest, runtime: Util.RuntimeOptions): CreateAuthKeyResponse {
+model UpdateFaceConfigResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateFaceConfigResponseBody(name='body'),
+}
+
+async function updateFaceConfigWithOptions(request: UpdateFaceConfigRequest, runtime: Util.RuntimeOptions): UpdateFaceConfigResponse {
   Util.validateModel(request);
-  return doRequest('CreateAuthKey', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('UpdateFaceConfig', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function createAuthKeySimply(request: CreateAuthKeyRequest): CreateAuthKeyResponse {
+async function updateFaceConfig(request: UpdateFaceConfigRequest): UpdateFaceConfigResponse {
   var runtime = new Util.RuntimeOptions{};
-  return createAuthKey(request, runtime);
+  return updateFaceConfigWithOptions(request, runtime);
 }
 
-model DetectFaceAttributesRequest = {
-  materialValue: string(name='MaterialValue'),
+model UpdateVerifySettingRequest {
+  sourceIp?: string(name='SourceIp'),
   bizType?: string(name='BizType'),
-}
-
-model DetectFaceAttributesResponse = {
-  requestId: string(name='RequestId'),
-  success: boolean(name='Success'),
-  code: string(name='Code'),
-  message: string(name='Message'),
-  data: {
-    imgWidth: integer(name='ImgWidth'),
-    imgHeight: integer(name='ImgHeight'),
-    faceInfos: {
-      faceAttributesDetectInfo: [
-        {
-          faceRect: {
-            top: integer(name='Top'),
-            left: integer(name='Left'),
-            width: integer(name='Width'),
-            height: integer(name='Height'),
-          }(name='FaceRect'),
-          faceAttributes: {
-            age: integer(name='Age'),
-            glasses: string(name='Glasses'),
-            facetype: string(name='Facetype'),
-            blur: float(name='Blur'),
-            ethnicity: string(name='Ethnicity'),
-            gender: {
-              score: float(name='Score'),
-              value: string(name='Value'),
-            }(name='Gender'),
-            smiling: {
-              value: float(name='Value'),
-              threshold: float(name='Threshold'),
-            }(name='Smiling'),
-            headpose: {
-              pitchAngle: float(name='PitchAngle'),
-              rollAngle: float(name='RollAngle'),
-              yawAngle: float(name='YawAngle'),
-            }(name='Headpose'),
-          }(name='FaceAttributes'),
-        }
-      ](name='FaceAttributesDetectInfo'),
-    }(name='FaceInfos'),
-  }(name='Data'),
-}
-
-async function detectFaceAttributes(request: DetectFaceAttributesRequest, runtime: Util.RuntimeOptions): DetectFaceAttributesResponse {
-  Util.validateModel(request);
-  return doRequest('DetectFaceAttributes', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function detectFaceAttributesSimply(request: DetectFaceAttributesRequest): DetectFaceAttributesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return detectFaceAttributes(request, runtime);
-}
-
-model CompareFacesRequest = {
-  targetImageType?: string(name='TargetImageType'),
-  sourceImageType?: string(name='SourceImageType'),
-  sourceImageValue?: string(name='SourceImageValue'),
-  targetImageValue?: string(name='TargetImageValue'),
-  bizType?: string(name='BizType'),
-}
-
-model CompareFacesResponse = {
-  requestId: string(name='RequestId'),
-  success: boolean(name='Success'),
-  code: string(name='Code'),
-  message: string(name='Message'),
-  data: {
-    similarityScore: float(name='SimilarityScore'),
-    confidenceThresholds: string(name='ConfidenceThresholds'),
-  }(name='Data'),
-}
-
-async function compareFaces(request: CompareFacesRequest, runtime: Util.RuntimeOptions): CompareFacesResponse {
-  Util.validateModel(request);
-  return doRequest('CompareFaces', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function compareFacesSimply(request: CompareFacesRequest): CompareFacesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return compareFaces(request, runtime);
-}
-
-model DescribeFaceUsageRequest = {
-  startDate: string(name='StartDate'),
-  endDate: string(name='EndDate'),
-}
-
-model DescribeFaceUsageResponse = {
-  requestId: string(name='RequestId'),
-  totalCount: integer(name='TotalCount'),
-  faceUsageList: [
-    {
-      date: string(name='Date'),
-      totalCount: long(name='TotalCount'),
-    }
-  ](name='FaceUsageList'),
-}
-
-async function describeFaceUsage(request: DescribeFaceUsageRequest, runtime: Util.RuntimeOptions): DescribeFaceUsageResponse {
-  Util.validateModel(request);
-  return doRequest('DescribeFaceUsage', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function describeFaceUsageSimply(request: DescribeFaceUsageRequest): DescribeFaceUsageResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeFaceUsage(request, runtime);
-}
-
-model DescribeVerifyRecordsRequest = {
-  totalCount?: integer(name='TotalCount'),
-  pageSize: integer(name='PageSize'),
-  currentPage: integer(name='CurrentPage'),
-  bizType?: string(name='BizType'),
-  startDate?: string(name='StartDate'),
-  endDate?: string(name='EndDate'),
-  bizId?: string(name='BizId'),
-  idCardNum?: string(name='IdCardNum'),
-  statusList?: string(name='StatusList'),
-  queryId?: string(name='QueryId'),
-}
-
-model DescribeVerifyRecordsResponse = {
-  requestId: string(name='RequestId'),
-  totalCount: integer(name='TotalCount'),
-  pageSize: integer(name='PageSize'),
-  currentPage: integer(name='CurrentPage'),
-  queryId: string(name='QueryId'),
-  recordsList: [
-    {
-      bizType: string(name='BizType'),
-      bizId: string(name='BizId'),
-      dataStats: string(name='DataStats'),
-      verifyId: string(name='VerifyId'),
-      finishTime: long(name='FinishTime'),
-      status: integer(name='Status'),
-      idCardFaceComparisonScore: float(name='IdCardFaceComparisonScore'),
-      authorityComparisonScore: float(name='AuthorityComparisonScore'),
-      material: {
-        faceImageUrl: string(name='FaceImageUrl'),
-        idCardName: string(name='IdCardName'),
-        idCardNumber: string(name='IdCardNumber'),
-        idCardInfo: {
-          frontImageUrl: string(name='FrontImageUrl'),
-          backImageUrl: string(name='BackImageUrl'),
-          name: string(name='Name'),
-          number: string(name='Number'),
-          address: string(name='Address'),
-          birth: string(name='Birth'),
-          sex: string(name='Sex'),
-          nationality: string(name='Nationality'),
-          authority: string(name='Authority'),
-          startDate: string(name='StartDate'),
-          endDate: string(name='EndDate'),
-        }(name='IdCardInfo'),
-      }(name='Material'),
-    }
-  ](name='RecordsList'),
-}
-
-async function describeVerifyRecords(request: DescribeVerifyRecordsRequest, runtime: Util.RuntimeOptions): DescribeVerifyRecordsResponse {
-  Util.validateModel(request);
-  return doRequest('DescribeVerifyRecords', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function describeVerifyRecordsSimply(request: DescribeVerifyRecordsRequest): DescribeVerifyRecordsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeVerifyRecords(request, runtime);
-}
-
-model UpdateVerifySettingRequest = {
-  bizType: string(name='BizType'),
   bizName?: string(name='BizName'),
   solution?: string(name='Solution'),
   guideStep?: boolean(name='GuideStep'),
@@ -856,362 +1508,125 @@ model UpdateVerifySettingRequest = {
   resultStep?: boolean(name='ResultStep'),
 }
 
-model UpdateVerifySettingResponse = {
-  requestId: string(name='RequestId'),
-  bizType: string(name='BizType'),
-  bizName: string(name='BizName'),
-  solution: string(name='Solution'),
-  stepList: [ string ] (name='StepList'),
-}
-
-async function updateVerifySetting(request: UpdateVerifySettingRequest, runtime: Util.RuntimeOptions): UpdateVerifySettingResponse {
-  Util.validateModel(request);
-  return doRequest('UpdateVerifySetting', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function updateVerifySettingSimply(request: UpdateVerifySettingRequest): UpdateVerifySettingResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateVerifySetting(request, runtime);
-}
-
-model CreateVerifySettingRequest = {
-  bizType: string(name='BizType'),
-  bizName: string(name='BizName'),
-  solution: string(name='Solution'),
-  guideStep?: boolean(name='GuideStep'),
-  privacyStep?: boolean(name='PrivacyStep'),
-  resultStep?: boolean(name='ResultStep'),
-}
-
-model CreateVerifySettingResponse = {
-  requestId: string(name='RequestId'),
-  bizType: string(name='BizType'),
-  bizName: string(name='BizName'),
-  solution: string(name='Solution'),
-  stepList: [ string ] (name='StepList'),
-}
-
-async function createVerifySetting(request: CreateVerifySettingRequest, runtime: Util.RuntimeOptions): CreateVerifySettingResponse {
-  Util.validateModel(request);
-  return doRequest('CreateVerifySetting', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function createVerifySettingSimply(request: CreateVerifySettingRequest): CreateVerifySettingResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createVerifySetting(request, runtime);
-}
-
-model DescribeVerifySettingRequest = {
-}
-
-model DescribeVerifySettingResponse = {
-  requestId: string(name='RequestId'),
-  verifySettingList: [
-    {
-      bizType: string(name='BizType'),
-      bizName: string(name='BizName'),
-      solution: string(name='Solution'),
-      stepList: [ string ](name='StepList'),
-    }
-  ](name='VerifySettingList'),
-}
-
-async function describeVerifySetting(request: DescribeVerifySettingRequest, runtime: Util.RuntimeOptions): DescribeVerifySettingResponse {
-  Util.validateModel(request);
-  return doRequest('DescribeVerifySetting', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function describeVerifySettingSimply(request: DescribeVerifySettingRequest): DescribeVerifySettingResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeVerifySetting(request, runtime);
-}
-
-model DescribeVerifyUsageRequest = {
+model UpdateVerifySettingResponseBody = {
+  requestId?: string(name='RequestId'),
+  stepList?: [ string ](name='StepList'),
+  bizName?: string(name='BizName'),
   bizType?: string(name='BizType'),
-  startDate: string(name='StartDate'),
-  endDate: string(name='EndDate'),
+  solution?: string(name='Solution'),
 }
 
-model DescribeVerifyUsageResponse = {
-  requestId: string(name='RequestId'),
-  totalCount: integer(name='TotalCount'),
-  verifyUsageList: [
-    {
-      bizType: string(name='BizType'),
-      date: string(name='Date'),
-      totalCount: long(name='TotalCount'),
-      passCount: long(name='PassCount'),
-      failCount: long(name='FailCount'),
-    }
-  ](name='VerifyUsageList'),
+model UpdateVerifySettingResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateVerifySettingResponseBody(name='body'),
 }
 
-async function describeVerifyUsage(request: DescribeVerifyUsageRequest, runtime: Util.RuntimeOptions): DescribeVerifyUsageResponse {
+async function updateVerifySettingWithOptions(request: UpdateVerifySettingRequest, runtime: Util.RuntimeOptions): UpdateVerifySettingResponse {
   Util.validateModel(request);
-  return doRequest('DescribeVerifyUsage', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('UpdateVerifySetting', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function describeVerifyUsageSimply(request: DescribeVerifyUsageRequest): DescribeVerifyUsageResponse {
+async function updateVerifySetting(request: UpdateVerifySettingRequest): UpdateVerifySettingResponse {
   var runtime = new Util.RuntimeOptions{};
-  return describeVerifyUsage(request, runtime);
+  return updateVerifySettingWithOptions(request, runtime);
 }
 
-model DescribeUserStatusRequest = {
+model VerifyDeviceRequest {
+  certifyId?: string(name='CertifyId'),
+  certifyData?: string(name='CertifyData'),
+  appVersion?: string(name='AppVersion'),
+  extInfo?: string(name='ExtInfo'),
 }
 
-model DescribeUserStatusResponse = {
-  requestId: string(name='RequestId'),
-  enabled: boolean(name='Enabled'),
+model VerifyDeviceResponseBody = {
+  resultObject?: {
+    retCodeSub?: string(name='RetCodeSub'),
+    productRetCode?: string(name='ProductRetCode'),
+    hasNext?: string(name='HasNext'),
+    retMessageSub?: string(name='RetMessageSub'),
+    extParams?: string(name='ExtParams'),
+    validationRetCode?: string(name='ValidationRetCode'),
+  }(name='ResultObject'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
 }
 
-async function describeUserStatus(request: DescribeUserStatusRequest, runtime: Util.RuntimeOptions): DescribeUserStatusResponse {
+model VerifyDeviceResponse = {
+  headers: map[string]string(name='headers'),
+  body: VerifyDeviceResponseBody(name='body'),
+}
+
+async function verifyDeviceWithOptions(request: VerifyDeviceRequest, runtime: Util.RuntimeOptions): VerifyDeviceResponse {
   Util.validateModel(request);
-  return doRequest('DescribeUserStatus', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('VerifyDevice', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function describeUserStatusSimply(request: DescribeUserStatusRequest): DescribeUserStatusResponse {
+async function verifyDevice(request: VerifyDeviceRequest): VerifyDeviceResponse {
   var runtime = new Util.RuntimeOptions{};
-  return describeUserStatus(request, runtime);
+  return verifyDeviceWithOptions(request, runtime);
 }
 
-model DescribeUploadInfoRequest = {
-  biz?: string(name='Biz'),
-}
-
-model DescribeUploadInfoResponse = {
-  requestId: string(name='RequestId'),
-  accessid: string(name='Accessid'),
-  policy: string(name='Policy'),
-  signature: string(name='Signature'),
-  folder: string(name='Folder'),
-  host: string(name='Host'),
-  expire: long(name='Expire'),
-}
-
-async function describeUploadInfo(request: DescribeUploadInfoRequest, runtime: Util.RuntimeOptions): DescribeUploadInfoResponse {
-  Util.validateModel(request);
-  return doRequest('DescribeUploadInfo', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function describeUploadInfoSimply(request: DescribeUploadInfoRequest): DescribeUploadInfoResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeUploadInfo(request, runtime);
-}
-
-model DescribeRPSDKRequest = {
-  sourceIp?: string(name='SourceIp'),
-  lang?: string(name='Lang'),
-  taskId: string(name='TaskId'),
-}
-
-model DescribeRPSDKResponse = {
-  requestId: string(name='RequestId'),
-  sdkUrl: string(name='SdkUrl'),
-}
-
-async function describeRPSDK(request: DescribeRPSDKRequest, runtime: Util.RuntimeOptions): DescribeRPSDKResponse {
-  Util.validateModel(request);
-  return doRequest('DescribeRPSDK', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function describeRPSDKSimply(request: DescribeRPSDKRequest): DescribeRPSDKResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeRPSDK(request, runtime);
-}
-
-model CreateRPSDKRequest = {
-  sourceIp?: string(name='SourceIp'),
-  lang?: string(name='Lang'),
-  appUrl: string(name='AppUrl'),
-  platform?: string(name='Platform'),
-}
-
-model CreateRPSDKResponse = {
-  requestId: string(name='RequestId'),
-  taskId: string(name='TaskId'),
-}
-
-async function createRPSDK(request: CreateRPSDKRequest, runtime: Util.RuntimeOptions): CreateRPSDKResponse {
-  Util.validateModel(request);
-  return doRequest('CreateRPSDK', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function createRPSDKSimply(request: CreateRPSDKRequest): CreateRPSDKResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createRPSDK(request, runtime);
-}
-
-model VerifyMaterialRequest = {
+model VerifyMaterialRequest {
   idCardBackImageUrl?: string(name='IdCardBackImageUrl'),
-  faceImageUrl: string(name='FaceImageUrl'),
-  bizType: string(name='BizType'),
-  bizId: string(name='BizId'),
-  name: string(name='Name'),
-  idCardNumber: string(name='IdCardNumber'),
+  faceImageUrl?: string(name='FaceImageUrl'),
+  bizType?: string(name='BizType'),
+  bizId?: string(name='BizId'),
+  name?: string(name='Name'),
+  idCardNumber?: string(name='IdCardNumber'),
   idCardFrontImageUrl?: string(name='IdCardFrontImageUrl'),
   userId?: string(name='UserId'),
+}
+
+model VerifyMaterialResponseBody = {
+  verifyStatus?: int32(name='VerifyStatus'),
+  requestId?: string(name='RequestId'),
+  material?: {
+    idCardNumber?: string(name='IdCardNumber'),
+    faceGlobalUrl?: string(name='FaceGlobalUrl'),
+    faceImageUrl?: string(name='FaceImageUrl'),
+    faceMask?: string(name='FaceMask'),
+    idCardName?: string(name='IdCardName'),
+    idCardInfo?: {
+      endDate?: string(name='EndDate'),
+      authority?: string(name='Authority'),
+      address?: string(name='Address'),
+      number?: string(name='Number'),
+      startDate?: string(name='StartDate'),
+      backImageUrl?: string(name='BackImageUrl'),
+      nationality?: string(name='Nationality'),
+      birth?: string(name='Birth'),
+      name?: string(name='Name'),
+      frontImageUrl?: string(name='FrontImageUrl'),
+    }(name='IdCardInfo'),
+    faceQuality?: string(name='FaceQuality'),
+  }(name='Material'),
+  authorityComparisionScore?: float(name='AuthorityComparisionScore'),
+  verifyToken?: string(name='VerifyToken'),
+  idCardFaceComparisonScore?: float(name='IdCardFaceComparisonScore'),
 }
 
 model VerifyMaterialResponse = {
-  requestId: string(name='RequestId'),
-  verifyToken: string(name='VerifyToken'),
-  verifyStatus: integer(name='VerifyStatus'),
-  authorityComparisionScore: float(name='AuthorityComparisionScore'),
-  idCardFaceComparisonScore: float(name='IdCardFaceComparisonScore'),
-  material: {
-    faceImageUrl: string(name='FaceImageUrl'),
-    idCardName: string(name='IdCardName'),
-    idCardNumber: string(name='IdCardNumber'),
-    faceQuality: string(name='FaceQuality'),
-    faceGlobalUrl: string(name='FaceGlobalUrl'),
-    faceMask: string(name='FaceMask'),
-    idCardInfo: {
-      number: string(name='Number'),
-      address: string(name='Address'),
-      nationality: string(name='Nationality'),
-      endDate: string(name='EndDate'),
-      frontImageUrl: string(name='FrontImageUrl'),
-      authority: string(name='Authority'),
-      sex: string(name='Sex'),
-      name: string(name='Name'),
-      birth: string(name='Birth'),
-      backImageUrl: string(name='BackImageUrl'),
-      startDate: string(name='StartDate'),
-    }(name='IdCardInfo'),
-  }(name='Material'),
+  headers: map[string]string(name='headers'),
+  body: VerifyMaterialResponseBody(name='body'),
 }
 
-async function verifyMaterial(request: VerifyMaterialRequest, runtime: Util.RuntimeOptions): VerifyMaterialResponse {
+async function verifyMaterialWithOptions(request: VerifyMaterialRequest, runtime: Util.RuntimeOptions): VerifyMaterialResponse {
   Util.validateModel(request);
-  return doRequest('VerifyMaterial', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('VerifyMaterial', '2019-03-07', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function verifyMaterialSimply(request: VerifyMaterialRequest): VerifyMaterialResponse {
+async function verifyMaterial(request: VerifyMaterialRequest): VerifyMaterialResponse {
   var runtime = new Util.RuntimeOptions{};
-  return verifyMaterial(request, runtime);
+  return verifyMaterialWithOptions(request, runtime);
 }
 
-model DescribeVerifyResultRequest = {
-  bizId: string(name='BizId'),
-  bizType: string(name='BizType'),
-}
-
-model DescribeVerifyResultResponse = {
-  requestId: string(name='RequestId'),
-  verifyStatus: integer(name='VerifyStatus'),
-  authorityComparisionScore: float(name='AuthorityComparisionScore'),
-  faceComparisonScore: float(name='FaceComparisonScore'),
-  idCardFaceComparisonScore: float(name='IdCardFaceComparisonScore'),
-  material: {
-    faceImageUrl: string(name='FaceImageUrl'),
-    idCardName: string(name='IdCardName'),
-    idCardNumber: string(name='IdCardNumber'),
-    faceQuality: string(name='FaceQuality'),
-    faceGlobalUrl: string(name='FaceGlobalUrl'),
-    faceMask: boolean(name='FaceMask'),
-    idCardInfo: {
-      number: string(name='Number'),
-      address: string(name='Address'),
-      nationality: string(name='Nationality'),
-      endDate: string(name='EndDate'),
-      frontImageUrl: string(name='FrontImageUrl'),
-      authority: string(name='Authority'),
-      sex: string(name='Sex'),
-      name: string(name='Name'),
-      birth: string(name='Birth'),
-      backImageUrl: string(name='BackImageUrl'),
-      startDate: string(name='StartDate'),
-    }(name='IdCardInfo'),
-    videoUrls: [ string ](name='VideoUrls'),
-  }(name='Material'),
-}
-
-async function describeVerifyResult(request: DescribeVerifyResultRequest, runtime: Util.RuntimeOptions): DescribeVerifyResultResponse {
-  Util.validateModel(request);
-  return doRequest('DescribeVerifyResult', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function describeVerifyResultSimply(request: DescribeVerifyResultRequest): DescribeVerifyResultResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeVerifyResult(request, runtime);
-}
-
-model DescribeOssUploadTokenRequest = {
-}
-
-model DescribeOssUploadTokenResponse = {
-  requestId: string(name='RequestId'),
-  ossUploadToken: {
-    bucket: string(name='Bucket'),
-    endPoint: string(name='EndPoint'),
-    path: string(name='Path'),
-    expired: long(name='Expired'),
-    secret: string(name='Secret'),
-    key: string(name='Key'),
-    token: string(name='Token'),
-  }(name='OssUploadToken'),
-}
-
-async function describeOssUploadToken(request: DescribeOssUploadTokenRequest, runtime: Util.RuntimeOptions): DescribeOssUploadTokenResponse {
-  Util.validateModel(request);
-  return doRequest('DescribeOssUploadToken', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function describeOssUploadTokenSimply(request: DescribeOssUploadTokenRequest): DescribeOssUploadTokenResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeOssUploadToken(request, runtime);
-}
-
-model DescribeVerifyTokenRequest = {
-  idCardBackImageUrl?: string(name='IdCardBackImageUrl'),
-  bizType: string(name='BizType'),
-  failedRedirectUrl?: string(name='FailedRedirectUrl'),
-  faceRetainedImageUrl?: string(name='FaceRetainedImageUrl'),
-  callbackSeed?: string(name='CallbackSeed'),
-  idCardFrontImageUrl?: string(name='IdCardFrontImageUrl'),
-  userId?: string(name='UserId'),
-  bizId: string(name='BizId'),
-  name?: string(name='Name'),
-  idCardNumber?: string(name='IdCardNumber'),
-  passedRedirectUrl?: string(name='PassedRedirectUrl'),
-  callbackUrl?: string(name='CallbackUrl'),
-  userIp?: string(name='UserIp'),
-  userPhoneNumber?: string(name='UserPhoneNumber'),
-  userRegistTime?: long(name='UserRegistTime'),
-}
-
-model DescribeVerifyTokenResponse = {
-  requestId: string(name='RequestId'),
-  verifyPageUrl: string(name='VerifyPageUrl'),
-  verifyToken: string(name='VerifyToken'),
-  ossUploadToken: {
-    bucket: string(name='Bucket'),
-    endPoint: string(name='EndPoint'),
-    path: string(name='Path'),
-    expired: long(name='Expired'),
-    secret: string(name='Secret'),
-    key: string(name='Key'),
-    token: string(name='Token'),
-  }(name='OssUploadToken'),
-}
-
-async function describeVerifyToken(request: DescribeVerifyTokenRequest, runtime: Util.RuntimeOptions): DescribeVerifyTokenResponse {
-  Util.validateModel(request);
-  return doRequest('DescribeVerifyToken', 'HTTPS', 'POST', '2019-03-07', 'AK', null, request, runtime);
-}
-
-async function describeVerifyTokenSimply(request: DescribeVerifyTokenRequest): DescribeVerifyTokenResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeVerifyToken(request, runtime);
-}
-
-function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
-    return endpoint;
-  }
-
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
-    return endpointMap[regionId];
-  }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
-}
