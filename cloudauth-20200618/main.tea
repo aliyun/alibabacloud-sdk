@@ -1,23 +1,38 @@
+/**
+ *
+ */
 import Util;
-import RPCUtil;
-import RPC;
-import EndpointUtil;
 import OSS;
+import RPC;
 import OpenPlatform;
 import OSSUtil;
 import FileForm;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
 
-extends RPC;
+extends OpenApi;
 
-init(config: RPC.Config){
+init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'central';
   
+
   checkConfig(config);
   @endpoint = getEndpoint('cloudauth', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
-model ContrastSmartVerifyRequest = {
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model ContrastSmartVerifyRequest {
   sceneId?: long(name='SceneId'),
   outerOrderNo?: string(name='OuterOrderNo'),
   mode?: string(name='Mode'),
@@ -32,30 +47,7 @@ model ContrastSmartVerifyRequest = {
   facePicString?: string(name='FacePicString'),
 }
 
-model ContrastSmartVerifyResponse = {
-  requestId: string(name='RequestId'),
-  message: string(name='Message'),
-  code: string(name='Code'),
-  resultObject: {
-    certifyId: string(name='CertifyId'),
-    passed: string(name='Passed'),
-    subCode: string(name='SubCode'),
-    verifyInfo: string(name='VerifyInfo'),
-    riskInfo: string(name='RiskInfo'),
-  }(name='ResultObject'),
-}
-
-async function contrastSmartVerify(request: ContrastSmartVerifyRequest, runtime: Util.RuntimeOptions): ContrastSmartVerifyResponse {
-  Util.validateModel(request);
-  return doRequest('ContrastSmartVerify', 'HTTPS', 'POST', '2020-06-18', 'AK', null, request, runtime);
-}
-
-async function contrastSmartVerifySimply(request: ContrastSmartVerifyRequest): ContrastSmartVerifyResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return contrastSmartVerify(request, runtime);
-}
-
-model ContrastSmartVerifyAdvanceRequest = {
+model ContrastSmartVerifyAdvanceRequest {
   facePicFileObject: readable(name='FacePicFileObject'),
   sceneId?: long(name='SceneId'),
   outerOrderNo?: string(name='OuterOrderNo'),
@@ -68,6 +60,37 @@ model ContrastSmartVerifyAdvanceRequest = {
   certNo?: string(name='CertNo'),
   facePicUrl?: string(name='FacePicUrl'),
   facePicString?: string(name='FacePicString'),
+}
+
+model ContrastSmartVerifyResponseBody = {
+  resultObject?: {
+    verifyInfo?: string(name='VerifyInfo'),
+    subCode?: string(name='SubCode'),
+    certifyId?: string(name='CertifyId'),
+    riskInfo?: string(name='RiskInfo'),
+    passed?: string(name='Passed'),
+  }(name='ResultObject'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
+}
+
+model ContrastSmartVerifyResponse = {
+  headers: map[string]string(name='headers'),
+  body: ContrastSmartVerifyResponseBody(name='body'),
+}
+
+async function contrastSmartVerifyWithOptions(request: ContrastSmartVerifyRequest, runtime: Util.RuntimeOptions): ContrastSmartVerifyResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ContrastSmartVerify', '2020-06-18', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function contrastSmartVerify(request: ContrastSmartVerifyRequest): ContrastSmartVerifyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return contrastSmartVerifyWithOptions(request, runtime);
 }
 
 async function contrastSmartVerifyAdvance(request: ContrastSmartVerifyAdvanceRequest, runtime: Util.RuntimeOptions): ContrastSmartVerifyResponse {
@@ -100,13 +123,13 @@ async function contrastSmartVerifyAdvance(request: ContrastSmartVerifyAdvanceReq
   var ossHeader = new OSS.PostObjectRequest.header{};
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
+  OpenApiUtil.convert(runtime, ossRuntime);
   var contrastSmartVerifyReq = new ContrastSmartVerifyRequest{};
-  RPCUtil.convert(request, contrastSmartVerifyReq);
+  OpenApiUtil.convert(request, contrastSmartVerifyReq);
 
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
   ossClient = new OSS(ossConfig);
 
   fileObj = new FileForm.FileField{
@@ -128,11 +151,46 @@ async function contrastSmartVerifyAdvance(request: ContrastSmartVerifyAdvanceReq
   };
   ossClient.postObject(uploadRequest, ossRuntime);
   contrastSmartVerifyReq.facePicFile = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var contrastSmartVerifyResp = contrastSmartVerify(contrastSmartVerifyReq, runtime);
+  var contrastSmartVerifyResp = contrastSmartVerifyWithOptions(contrastSmartVerifyReq, runtime);
   return contrastSmartVerifyResp;
 }
 
-model ElementSmartVerifyRequest = {
+model DescribeSmartVerifyRequest {
+  sceneId?: long(name='SceneId'),
+  certifyId?: string(name='CertifyId'),
+}
+
+model DescribeSmartVerifyResponseBody = {
+  resultObject?: {
+    passedScore?: float(name='PassedScore'),
+    materialInfo?: string(name='MaterialInfo'),
+    subCode?: string(name='SubCode'),
+    passed?: string(name='Passed'),
+  }(name='ResultObject'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
+}
+
+model DescribeSmartVerifyResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeSmartVerifyResponseBody(name='body'),
+}
+
+async function describeSmartVerifyWithOptions(request: DescribeSmartVerifyRequest, runtime: Util.RuntimeOptions): DescribeSmartVerifyResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeSmartVerify', '2020-06-18', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeSmartVerify(request: DescribeSmartVerifyRequest): DescribeSmartVerifyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeSmartVerifyWithOptions(request, runtime);
+}
+
+model ElementSmartVerifyRequest {
   sceneId?: long(name='SceneId'),
   outerOrderNo?: string(name='OuterOrderNo'),
   mode?: string(name='Mode'),
@@ -143,28 +201,7 @@ model ElementSmartVerifyRequest = {
   certFile?: string(name='CertFile'),
 }
 
-model ElementSmartVerifyResponse = {
-  requestId: string(name='RequestId'),
-  message: string(name='Message'),
-  code: string(name='Code'),
-  resultObject: {
-    passed: string(name='Passed'),
-    subCode: string(name='SubCode'),
-    materialInfo: string(name='MaterialInfo'),
-  }(name='ResultObject'),
-}
-
-async function elementSmartVerify(request: ElementSmartVerifyRequest, runtime: Util.RuntimeOptions): ElementSmartVerifyResponse {
-  Util.validateModel(request);
-  return doRequest('ElementSmartVerify', 'HTTPS', 'POST', '2020-06-18', 'AK', null, request, runtime);
-}
-
-async function elementSmartVerifySimply(request: ElementSmartVerifyRequest): ElementSmartVerifyResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return elementSmartVerify(request, runtime);
-}
-
-model ElementSmartVerifyAdvanceRequest = {
+model ElementSmartVerifyAdvanceRequest {
   certFileObject: readable(name='CertFileObject'),
   sceneId?: long(name='SceneId'),
   outerOrderNo?: string(name='OuterOrderNo'),
@@ -173,6 +210,35 @@ model ElementSmartVerifyAdvanceRequest = {
   certName?: string(name='CertName'),
   certNo?: string(name='CertNo'),
   certUrl?: string(name='CertUrl'),
+}
+
+model ElementSmartVerifyResponseBody = {
+  resultObject?: {
+    materialInfo?: string(name='MaterialInfo'),
+    subCode?: string(name='SubCode'),
+    passed?: string(name='Passed'),
+  }(name='ResultObject'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
+}
+
+model ElementSmartVerifyResponse = {
+  headers: map[string]string(name='headers'),
+  body: ElementSmartVerifyResponseBody(name='body'),
+}
+
+async function elementSmartVerifyWithOptions(request: ElementSmartVerifyRequest, runtime: Util.RuntimeOptions): ElementSmartVerifyResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ElementSmartVerify', '2020-06-18', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function elementSmartVerify(request: ElementSmartVerifyRequest): ElementSmartVerifyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return elementSmartVerifyWithOptions(request, runtime);
 }
 
 async function elementSmartVerifyAdvance(request: ElementSmartVerifyAdvanceRequest, runtime: Util.RuntimeOptions): ElementSmartVerifyResponse {
@@ -205,13 +271,13 @@ async function elementSmartVerifyAdvance(request: ElementSmartVerifyAdvanceReque
   var ossHeader = new OSS.PostObjectRequest.header{};
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
+  OpenApiUtil.convert(runtime, ossRuntime);
   var elementSmartVerifyReq = new ElementSmartVerifyRequest{};
-  RPCUtil.convert(request, elementSmartVerifyReq);
+  OpenApiUtil.convert(request, elementSmartVerifyReq);
 
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
   ossClient = new OSS(ossConfig);
 
   fileObj = new FileForm.FileField{
@@ -233,11 +299,11 @@ async function elementSmartVerifyAdvance(request: ElementSmartVerifyAdvanceReque
   };
   ossClient.postObject(uploadRequest, ossRuntime);
   elementSmartVerifyReq.certFile = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var elementSmartVerifyResp = elementSmartVerify(elementSmartVerifyReq, runtime);
+  var elementSmartVerifyResp = elementSmartVerifyWithOptions(elementSmartVerifyReq, runtime);
   return elementSmartVerifyResp;
 }
 
-model InitSmartVerifyRequest = {
+model InitSmartVerifyRequest {
   sceneId?: long(name='SceneId'),
   outerOrderNo?: string(name='OuterOrderNo'),
   mode?: string(name='Mode'),
@@ -258,59 +324,30 @@ model InitSmartVerifyRequest = {
   ossObjectName?: string(name='OssObjectName'),
 }
 
+model InitSmartVerifyResponseBody = {
+  resultObject?: {
+    certifyId?: string(name='CertifyId'),
+  }(name='ResultObject'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
+}
+
 model InitSmartVerifyResponse = {
-  requestId: string(name='RequestId'),
-  message: string(name='Message'),
-  code: string(name='Code'),
-  resultObject: {
-    certifyId: string(name='CertifyId'),
-  }(name='ResultObject'),
+  headers: map[string]string(name='headers'),
+  body: InitSmartVerifyResponseBody(name='body'),
 }
 
-async function initSmartVerify(request: InitSmartVerifyRequest, runtime: Util.RuntimeOptions): InitSmartVerifyResponse {
+async function initSmartVerifyWithOptions(request: InitSmartVerifyRequest, runtime: Util.RuntimeOptions): InitSmartVerifyResponse {
   Util.validateModel(request);
-  return doRequest('InitSmartVerify', 'HTTPS', 'POST', '2020-06-18', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('InitSmartVerify', '2020-06-18', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function initSmartVerifySimply(request: InitSmartVerifyRequest): InitSmartVerifyResponse {
+async function initSmartVerify(request: InitSmartVerifyRequest): InitSmartVerifyResponse {
   var runtime = new Util.RuntimeOptions{};
-  return initSmartVerify(request, runtime);
+  return initSmartVerifyWithOptions(request, runtime);
 }
 
-model DescribeSmartVerifyRequest = {
-  sceneId?: long(name='SceneId'),
-  certifyId?: string(name='CertifyId'),
-}
-
-model DescribeSmartVerifyResponse = {
-  requestId: string(name='RequestId'),
-  message: string(name='Message'),
-  code: string(name='Code'),
-  resultObject: {
-    passed: string(name='Passed'),
-    subCode: string(name='SubCode'),
-    materialInfo: string(name='MaterialInfo'),
-    passedScore: float(name='PassedScore'),
-  }(name='ResultObject'),
-}
-
-async function describeSmartVerify(request: DescribeSmartVerifyRequest, runtime: Util.RuntimeOptions): DescribeSmartVerifyResponse {
-  Util.validateModel(request);
-  return doRequest('DescribeSmartVerify', 'HTTPS', 'POST', '2020-06-18', 'AK', null, request, runtime);
-}
-
-async function describeSmartVerifySimply(request: DescribeSmartVerifyRequest): DescribeSmartVerifyResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeSmartVerify(request, runtime);
-}
-
-function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
-    return endpoint;
-  }
-
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
-    return endpointMap[regionId];
-  }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
-}
