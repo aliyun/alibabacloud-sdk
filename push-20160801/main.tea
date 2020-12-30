@@ -1,14 +1,18 @@
+/**
+ *
+ */
 import Util;
+import OpenApi;
 
-import RPC;
 import EndpointUtil;
 
-extends RPC;
+extends OpenApi;
 
-init(config: RPC.Config){
+init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
-  @endpointMap = {
+  
+@endpointMap = {
     ap-northeast-1 = 'cloudpush.aliyuncs.com',
     ap-northeast-2-pop = 'cloudpush.aliyuncs.com',
     ap-south-1 = 'cloudpush.aliyuncs.com',
@@ -69,257 +73,65 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('push', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
-model QueryDeviceCountRequest = {
-  appKey: long(name='AppKey'),
-  target: string(name='Target'),
-  targetValue: string(name='TargetValue'),
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model BindAliasRequest {
+  appKey?: long(name='AppKey'),
+  deviceId?: string(name='DeviceId'),
+  aliasName?: string(name='AliasName'),
 }
 
-model QueryDeviceCountResponse = {
-  requestId: string(name='RequestId'),
-  deviceCount: long(name='DeviceCount'),
+model BindAliasResponseBody = {
+  requestId?: string(name='RequestId'),
 }
 
-async function queryDeviceCountWithOptions(request: QueryDeviceCountRequest, runtime: Util.RuntimeOptions): QueryDeviceCountResponse {
+model BindAliasResponse = {
+  headers: map[string]string(name='headers'),
+  body: BindAliasResponseBody(name='body'),
+}
+
+async function bindAliasWithOptions(request: BindAliasRequest, runtime: Util.RuntimeOptions): BindAliasResponse {
   Util.validateModel(request);
-  return doRequest('QueryDeviceCount', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('BindAlias', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function queryDeviceCount(request: QueryDeviceCountRequest): QueryDeviceCountResponse {
+async function bindAlias(request: BindAliasRequest): BindAliasResponse {
   var runtime = new Util.RuntimeOptions{};
-  return queryDeviceCountWithOptions(request, runtime);
+  return bindAliasWithOptions(request, runtime);
 }
 
-model QueryPushRecordsRequest = {
-  appKey: long(name='AppKey'),
-  startTime: string(name='StartTime'),
-  endTime: string(name='EndTime'),
-  pushType?: string(name='PushType'),
-  target?: string(name='Target'),
-  source?: string(name='Source'),
-  keyword?: string(name='Keyword'),
-  nextToken?: string(name='NextToken'),
-  pageSize?: integer(name='PageSize'),
+model BindPhoneRequest {
+  appKey?: long(name='AppKey'),
+  deviceId?: string(name='DeviceId'),
+  phoneNumber?: string(name='PhoneNumber'),
 }
 
-model QueryPushRecordsResponse = {
-  requestId: string(name='RequestId'),
-  nextToken: string(name='NextToken'),
-  pageSize: integer(name='PageSize'),
-  pushInfos: {
-    pushInfo: [
-      {
-        appKey: long(name='AppKey'),
-        messageId: string(name='MessageId'),
-        pushType: string(name='PushType'),
-        deviceType: string(name='DeviceType'),
-        target: string(name='Target'),
-        source: string(name='Source'),
-        pushTime: string(name='PushTime'),
-        title: string(name='Title'),
-        body: string(name='Body'),
-        status: string(name='Status'),
-      }
-    ](name='PushInfo'),
-  }(name='PushInfos'),
-}
-
-async function queryPushRecordsWithOptions(request: QueryPushRecordsRequest, runtime: Util.RuntimeOptions): QueryPushRecordsResponse {
-  Util.validateModel(request);
-  return doRequest('QueryPushRecords', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
-}
-
-async function queryPushRecords(request: QueryPushRecordsRequest): QueryPushRecordsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryPushRecordsWithOptions(request, runtime);
-}
-
-model ContinuouslyPushRequest = {
-  appKey: long(name='AppKey'),
-  messageId: string(name='MessageId'),
-  target: string(name='Target'),
-  targetValue: string(name='TargetValue'),
-}
-
-model ContinuouslyPushResponse = {
-  requestId: string(name='RequestId'),
-  messageId: string(name='MessageId'),
-}
-
-async function continuouslyPushWithOptions(request: ContinuouslyPushRequest, runtime: Util.RuntimeOptions): ContinuouslyPushResponse {
-  Util.validateModel(request);
-  return doRequest('ContinuouslyPush', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
-}
-
-async function continuouslyPush(request: ContinuouslyPushRequest): ContinuouslyPushResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return continuouslyPushWithOptions(request, runtime);
-}
-
-model CompleteContinuouslyPushRequest = {
-  appKey: long(name='AppKey'),
-  messageId: string(name='MessageId'),
-}
-
-model CompleteContinuouslyPushResponse = {
-  requestId: string(name='RequestId'),
-  messageId: string(name='MessageId'),
-}
-
-async function completeContinuouslyPushWithOptions(request: CompleteContinuouslyPushRequest, runtime: Util.RuntimeOptions): CompleteContinuouslyPushResponse {
-  Util.validateModel(request);
-  return doRequest('CompleteContinuouslyPush', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
-}
-
-async function completeContinuouslyPush(request: CompleteContinuouslyPushRequest): CompleteContinuouslyPushResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return completeContinuouslyPushWithOptions(request, runtime);
-}
-
-model MassPushRequest = {
-  appKey: long(name='AppKey'),
-  pushTask: [
-    {
-      pushType: string(name='PushType'),
-      deviceType: string(name='DeviceType'),
-      target: string(name='Target'),
-      targetValue: string(name='TargetValue'),
-      title?: string(name='Title'),
-      body: string(name='Body'),
-      jobKey?: string(name='JobKey'),
-      sendSpeed?: integer(name='SendSpeed'),
-      storeOffline?: boolean(name='StoreOffline'),
-      pushTime?: string(name='PushTime'),
-      expireTime?: string(name='ExpireTime'),
-      iOSApnsEnv?: string(name='iOSApnsEnv'),
-      iOSRemind?: boolean(name='iOSRemind'),
-      iOSRemindBody?: string(name='iOSRemindBody'),
-      iOSBadge?: integer(name='iOSBadge'),
-      iOSBadgeAutoIncrement?: boolean(name='iOSBadgeAutoIncrement'),
-      iOSSilentNotification?: boolean(name='iOSSilentNotification'),
-      iOSMusic?: string(name='iOSMusic'),
-      iOSSubtitle?: string(name='iOSSubtitle'),
-      iOSNotificationCategory?: string(name='iOSNotificationCategory'),
-      iOSMutableContent?: boolean(name='iOSMutableContent'),
-      iOSExtParameters?: string(name='iOSExtParameters'),
-      androidNotifyType?: string(name='AndroidNotifyType'),
-      androidOpenType?: string(name='AndroidOpenType'),
-      androidActivity?: string(name='AndroidActivity'),
-      androidMusic?: string(name='AndroidMusic'),
-      androidOpenUrl?: string(name='AndroidOpenUrl'),
-      androidXiaoMiActivity?: string(name='AndroidXiaoMiActivity'),
-      androidXiaoMiNotifyTitle?: string(name='AndroidXiaoMiNotifyTitle'),
-      androidXiaoMiNotifyBody?: string(name='AndroidXiaoMiNotifyBody'),
-      androidPopupActivity?: string(name='AndroidPopupActivity'),
-      androidPopupTitle?: string(name='AndroidPopupTitle'),
-      androidPopupBody?: string(name='AndroidPopupBody'),
-      androidNotificationBarType?: integer(name='AndroidNotificationBarType'),
-      androidNotificationBarPriority?: integer(name='AndroidNotificationBarPriority'),
-      androidExtParameters?: string(name='AndroidExtParameters'),
-      androidRemind?: boolean(name='AndroidRemind'),
-      androidNotificationChannel?: string(name='AndroidNotificationChannel'),
-      androidNotificationXiaomiChannel?: string(name='AndroidNotificationXiaomiChannel'),
-      androidNotificationVivoChannel?: string(name='AndroidNotificationVivoChannel'),
-      androidNotificationHuaweiChannel?: string(name='AndroidNotificationHuaweiChannel'),
-      androidNotificationNotifyId?: integer(name='AndroidNotificationNotifyId'),
-      iOSNotificationCollapseId?: string(name='iOSNotificationCollapseId'),
-    }
-  ](name='PushTask'),
-}
-
-model MassPushResponse = {
-  requestId: string(name='RequestId'),
-  messageIds: {
-    messageId: [ string ](name='MessageId'),
-  }(name='MessageIds'),
-}
-
-async function massPushWithOptions(request: MassPushRequest, runtime: Util.RuntimeOptions): MassPushResponse {
-  Util.validateModel(request);
-  return doRequest('MassPush', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
-}
-
-async function massPush(request: MassPushRequest): MassPushResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return massPushWithOptions(request, runtime);
-}
-
-model QueryDevicesByAliasRequest = {
-  appKey: long(name='AppKey'),
-  alias: string(name='Alias'),
-}
-
-model QueryDevicesByAliasResponse = {
-  requestId: string(name='RequestId'),
-  deviceIds: {
-    deviceId: [ string ](name='DeviceId'),
-  }(name='DeviceIds'),
-}
-
-async function queryDevicesByAliasWithOptions(request: QueryDevicesByAliasRequest, runtime: Util.RuntimeOptions): QueryDevicesByAliasResponse {
-  Util.validateModel(request);
-  return doRequest('QueryDevicesByAlias', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
-}
-
-async function queryDevicesByAlias(request: QueryDevicesByAliasRequest): QueryDevicesByAliasResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryDevicesByAliasWithOptions(request, runtime);
-}
-
-model QueryDevicesByAccountRequest = {
-  appKey: long(name='AppKey'),
-  account: string(name='Account'),
-}
-
-model QueryDevicesByAccountResponse = {
-  requestId: string(name='RequestId'),
-  deviceIds: {
-    deviceId: [ string ](name='DeviceId'),
-  }(name='DeviceIds'),
-}
-
-async function queryDevicesByAccountWithOptions(request: QueryDevicesByAccountRequest, runtime: Util.RuntimeOptions): QueryDevicesByAccountResponse {
-  Util.validateModel(request);
-  return doRequest('QueryDevicesByAccount', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
-}
-
-async function queryDevicesByAccount(request: QueryDevicesByAccountRequest): QueryDevicesByAccountResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryDevicesByAccountWithOptions(request, runtime);
-}
-
-model UnbindPhoneRequest = {
-  appKey: long(name='AppKey'),
-  deviceId: string(name='DeviceId'),
-}
-
-model UnbindPhoneResponse = {
-  requestId: string(name='RequestId'),
-}
-
-async function unbindPhoneWithOptions(request: UnbindPhoneRequest, runtime: Util.RuntimeOptions): UnbindPhoneResponse {
-  Util.validateModel(request);
-  return doRequest('UnbindPhone', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
-}
-
-async function unbindPhone(request: UnbindPhoneRequest): UnbindPhoneResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return unbindPhoneWithOptions(request, runtime);
-}
-
-model BindPhoneRequest = {
-  appKey: long(name='AppKey'),
-  deviceId: string(name='DeviceId'),
-  phoneNumber: string(name='PhoneNumber'),
+model BindPhoneResponseBody = {
+  requestId?: string(name='RequestId'),
 }
 
 model BindPhoneResponse = {
-  requestId: string(name='RequestId'),
+  headers: map[string]string(name='headers'),
+  body: BindPhoneResponseBody(name='body'),
 }
 
 async function bindPhoneWithOptions(request: BindPhoneRequest, runtime: Util.RuntimeOptions): BindPhoneResponse {
   Util.validateModel(request);
-  return doRequest('BindPhone', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('BindPhone', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function bindPhone(request: BindPhoneRequest): BindPhoneResponse {
@@ -327,65 +139,83 @@ async function bindPhone(request: BindPhoneRequest): BindPhoneResponse {
   return bindPhoneWithOptions(request, runtime);
 }
 
-model RemoveTagRequest = {
-  appKey: long(name='AppKey'),
-  tagName: string(name='TagName'),
+model BindTagRequest {
+  appKey?: long(name='AppKey'),
+  clientKey?: string(name='ClientKey'),
+  keyType?: string(name='KeyType'),
+  tagName?: string(name='TagName'),
 }
 
-model RemoveTagResponse = {
-  requestId: string(name='RequestId'),
+model BindTagResponseBody = {
+  requestId?: string(name='RequestId'),
 }
 
-async function removeTagWithOptions(request: RemoveTagRequest, runtime: Util.RuntimeOptions): RemoveTagResponse {
+model BindTagResponse = {
+  headers: map[string]string(name='headers'),
+  body: BindTagResponseBody(name='body'),
+}
+
+async function bindTagWithOptions(request: BindTagRequest, runtime: Util.RuntimeOptions): BindTagResponse {
   Util.validateModel(request);
-  return doRequest('RemoveTag', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('BindTag', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function removeTag(request: RemoveTagRequest): RemoveTagResponse {
+async function bindTag(request: BindTagRequest): BindTagResponse {
   var runtime = new Util.RuntimeOptions{};
-  return removeTagWithOptions(request, runtime);
+  return bindTagWithOptions(request, runtime);
 }
 
-model CheckDevicesRequest = {
-  appKey: long(name='AppKey'),
-  deviceIds: string(name='DeviceIds'),
+model CancelPushRequest {
+  appKey?: long(name='AppKey'),
+  messageId?: long(name='MessageId'),
 }
 
-model CheckDevicesResponse = {
-  requestId: string(name='RequestId'),
-  deviceCheckInfos: {
-    deviceCheckInfo: [
-      {
-        deviceId: string(name='DeviceId'),
-        available: boolean(name='Available'),
-      }
-    ](name='DeviceCheckInfo'),
-  }(name='DeviceCheckInfos'),
+model CancelPushResponseBody = {
+  requestId?: string(name='RequestId'),
 }
 
-async function checkDevicesWithOptions(request: CheckDevicesRequest, runtime: Util.RuntimeOptions): CheckDevicesResponse {
+model CancelPushResponse = {
+  headers: map[string]string(name='headers'),
+  body: CancelPushResponseBody(name='body'),
+}
+
+async function cancelPushWithOptions(request: CancelPushRequest, runtime: Util.RuntimeOptions): CancelPushResponse {
   Util.validateModel(request);
-  return doRequest('CheckDevices', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CancelPush', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function checkDevices(request: CheckDevicesRequest): CheckDevicesResponse {
+async function cancelPush(request: CancelPushRequest): CancelPushResponse {
   var runtime = new Util.RuntimeOptions{};
-  return checkDevicesWithOptions(request, runtime);
+  return cancelPushWithOptions(request, runtime);
 }
 
-model CheckDeviceRequest = {
-  appKey: long(name='AppKey'),
-  deviceId: string(name='DeviceId'),
+model CheckDeviceRequest {
+  appKey?: long(name='AppKey'),
+  deviceId?: string(name='DeviceId'),
+}
+
+model CheckDeviceResponseBody = {
+  requestId?: string(name='RequestId'),
+  available?: boolean(name='Available'),
 }
 
 model CheckDeviceResponse = {
-  requestId: string(name='RequestId'),
-  available: boolean(name='Available'),
+  headers: map[string]string(name='headers'),
+  body: CheckDeviceResponseBody(name='body'),
 }
 
 async function checkDeviceWithOptions(request: CheckDeviceRequest, runtime: Util.RuntimeOptions): CheckDeviceResponse {
   Util.validateModel(request);
-  return doRequest('CheckDevice', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CheckDevice', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function checkDevice(request: CheckDeviceRequest): CheckDeviceResponse {
@@ -393,382 +223,252 @@ async function checkDevice(request: CheckDeviceRequest): CheckDeviceResponse {
   return checkDeviceWithOptions(request, runtime);
 }
 
-model UnbindTagRequest = {
-  appKey: long(name='AppKey'),
-  clientKey: string(name='ClientKey'),
-  keyType: string(name='KeyType'),
-  tagName: string(name='TagName'),
+model CheckDevicesRequest {
+  appKey?: long(name='AppKey'),
+  deviceIds?: string(name='DeviceIds'),
 }
 
-model UnbindTagResponse = {
-  requestId: string(name='RequestId'),
+model CheckDevicesResponseBody = {
+  requestId?: string(name='RequestId'),
+  deviceCheckInfos?: {
+    deviceCheckInfo?: [ 
+    {
+      deviceId?: string(name='DeviceId'),
+      available?: boolean(name='Available'),
+    }
+  ](name='DeviceCheckInfo')
+  }(name='DeviceCheckInfos'),
 }
 
-async function unbindTagWithOptions(request: UnbindTagRequest, runtime: Util.RuntimeOptions): UnbindTagResponse {
+model CheckDevicesResponse = {
+  headers: map[string]string(name='headers'),
+  body: CheckDevicesResponseBody(name='body'),
+}
+
+async function checkDevicesWithOptions(request: CheckDevicesRequest, runtime: Util.RuntimeOptions): CheckDevicesResponse {
   Util.validateModel(request);
-  return doRequest('UnbindTag', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CheckDevices', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function unbindTag(request: UnbindTagRequest): UnbindTagResponse {
+async function checkDevices(request: CheckDevicesRequest): CheckDevicesResponse {
   var runtime = new Util.RuntimeOptions{};
-  return unbindTagWithOptions(request, runtime);
+  return checkDevicesWithOptions(request, runtime);
 }
 
-model UnbindAliasRequest = {
-  appKey: long(name='AppKey'),
-  deviceId: string(name='DeviceId'),
-  aliasName?: string(name='AliasName'),
-  unbindAll?: boolean(name='UnbindAll'),
+model CompleteContinuouslyPushRequest {
+  appKey?: long(name='AppKey'),
+  messageId?: string(name='MessageId'),
 }
 
-model UnbindAliasResponse = {
-  requestId: string(name='RequestId'),
+model CompleteContinuouslyPushResponseBody = {
+  requestId?: string(name='RequestId'),
+  messageId?: string(name='MessageId'),
 }
 
-async function unbindAliasWithOptions(request: UnbindAliasRequest, runtime: Util.RuntimeOptions): UnbindAliasResponse {
+model CompleteContinuouslyPushResponse = {
+  headers: map[string]string(name='headers'),
+  body: CompleteContinuouslyPushResponseBody(name='body'),
+}
+
+async function completeContinuouslyPushWithOptions(request: CompleteContinuouslyPushRequest, runtime: Util.RuntimeOptions): CompleteContinuouslyPushResponse {
   Util.validateModel(request);
-  return doRequest('UnbindAlias', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CompleteContinuouslyPush', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function unbindAlias(request: UnbindAliasRequest): UnbindAliasResponse {
+async function completeContinuouslyPush(request: CompleteContinuouslyPushRequest): CompleteContinuouslyPushResponse {
   var runtime = new Util.RuntimeOptions{};
-  return unbindAliasWithOptions(request, runtime);
+  return completeContinuouslyPushWithOptions(request, runtime);
 }
 
-model QueryUniqueDeviceStatRequest = {
-  appKey: long(name='AppKey'),
-  startTime: string(name='StartTime'),
-  endTime: string(name='EndTime'),
-  granularity: string(name='Granularity'),
+model ContinuouslyPushRequest {
+  appKey?: long(name='AppKey'),
+  messageId?: string(name='MessageId'),
+  target?: string(name='Target'),
+  targetValue?: string(name='TargetValue'),
 }
 
-model QueryUniqueDeviceStatResponse = {
-  requestId: string(name='RequestId'),
-  appDeviceStats: {
-    appDeviceStat: [
-      {
-        time: string(name='Time'),
-        count: long(name='Count'),
-      }
-    ](name='AppDeviceStat'),
-  }(name='AppDeviceStats'),
+model ContinuouslyPushResponseBody = {
+  requestId?: string(name='RequestId'),
+  messageId?: string(name='MessageId'),
 }
 
-async function queryUniqueDeviceStatWithOptions(request: QueryUniqueDeviceStatRequest, runtime: Util.RuntimeOptions): QueryUniqueDeviceStatResponse {
+model ContinuouslyPushResponse = {
+  headers: map[string]string(name='headers'),
+  body: ContinuouslyPushResponseBody(name='body'),
+}
+
+async function continuouslyPushWithOptions(request: ContinuouslyPushRequest, runtime: Util.RuntimeOptions): ContinuouslyPushResponse {
   Util.validateModel(request);
-  return doRequest('QueryUniqueDeviceStat', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ContinuouslyPush', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function queryUniqueDeviceStat(request: QueryUniqueDeviceStatRequest): QueryUniqueDeviceStatResponse {
+async function continuouslyPush(request: ContinuouslyPushRequest): ContinuouslyPushResponse {
   var runtime = new Util.RuntimeOptions{};
-  return queryUniqueDeviceStatWithOptions(request, runtime);
+  return continuouslyPushWithOptions(request, runtime);
 }
 
-model QueryTagsRequest = {
-  appKey: long(name='AppKey'),
-  clientKey: string(name='ClientKey'),
-  keyType: string(name='KeyType'),
+model ListSummaryAppsResponseBody = {
+  requestId?: string(name='RequestId'),
+  summaryAppInfos?: {
+    summaryAppInfo?: [ 
+    {
+      appName?: string(name='AppName'),
+      appKey?: long(name='AppKey'),
+    }
+  ](name='SummaryAppInfo')
+  }(name='SummaryAppInfos'),
 }
 
-model QueryTagsResponse = {
-  requestId: string(name='RequestId'),
-  tagInfos: {
-    tagInfo: [
-      {
-        tagName: string(name='TagName'),
-      }
-    ](name='TagInfo'),
+model ListSummaryAppsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListSummaryAppsResponseBody(name='body'),
+}
+
+async function listSummaryAppsWithOptions(runtime: Util.RuntimeOptions): ListSummaryAppsResponse {
+  var req = new OpenApi.OpenApiRequest{};
+  return doRPCRequest('ListSummaryApps', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function listSummaryApps(): ListSummaryAppsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listSummaryAppsWithOptions(runtime);
+}
+
+model ListTagsRequest {
+  appKey?: long(name='AppKey'),
+}
+
+model ListTagsResponseBody = {
+  tagInfos?: {
+    tagInfo?: [ 
+    {
+      tagName?: string(name='TagName'),
+    }
+  ](name='TagInfo')
   }(name='TagInfos'),
+  requestId?: string(name='RequestId'),
 }
 
-async function queryTagsWithOptions(request: QueryTagsRequest, runtime: Util.RuntimeOptions): QueryTagsResponse {
+model ListTagsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListTagsResponseBody(name='body'),
+}
+
+async function listTagsWithOptions(request: ListTagsRequest, runtime: Util.RuntimeOptions): ListTagsResponse {
   Util.validateModel(request);
-  return doRequest('QueryTags', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ListTags', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function queryTags(request: QueryTagsRequest): QueryTagsResponse {
+async function listTags(request: ListTagsRequest): ListTagsResponse {
   var runtime = new Util.RuntimeOptions{};
-  return queryTagsWithOptions(request, runtime);
+  return listTagsWithOptions(request, runtime);
 }
 
-model QueryPushStatByMsgRequest = {
-  appKey: long(name='AppKey'),
-  messageId: long(name='MessageId'),
+model MassPushRequest {
+  appKey?: long(name='AppKey'),
+  pushTask?: [ 
+    {
+      jobKey?: string(name='JobKey'),
+      iOSNotificationCollapseId?: string(name='iOSNotificationCollapseId'),
+      iOSSilentNotification?: boolean(name='iOSSilentNotification'),
+      storeOffline?: boolean(name='StoreOffline'),
+      iOSNotificationCategory?: string(name='iOSNotificationCategory'),
+      iOSSubtitle?: string(name='iOSSubtitle'),
+      androidNotificationChannel?: string(name='AndroidNotificationChannel'),
+      androidNotificationHuaweiChannel?: string(name='AndroidNotificationHuaweiChannel'),
+      iOSApnsEnv?: string(name='iOSApnsEnv'),
+      iOSBadgeAutoIncrement?: boolean(name='iOSBadgeAutoIncrement'),
+      androidXiaoMiNotifyTitle?: string(name='AndroidXiaoMiNotifyTitle'),
+      androidNotificationXiaomiChannel?: string(name='AndroidNotificationXiaomiChannel'),
+      androidXiaoMiActivity?: string(name='AndroidXiaoMiActivity'),
+      androidPopupTitle?: string(name='AndroidPopupTitle'),
+      iOSRemindBody?: string(name='iOSRemindBody'),
+      androidActivity?: string(name='AndroidActivity'),
+      androidNotifyType?: string(name='AndroidNotifyType'),
+      iOSMutableContent?: boolean(name='iOSMutableContent'),
+      target?: string(name='Target'),
+      androidOpenUrl?: string(name='AndroidOpenUrl'),
+      androidNotificationNotifyId?: int32(name='AndroidNotificationNotifyId'),
+      expireTime?: string(name='ExpireTime'),
+      androidNotificationVivoChannel?: string(name='AndroidNotificationVivoChannel'),
+      androidOpenType?: string(name='AndroidOpenType'),
+      deviceType?: string(name='DeviceType'),
+      androidPopupActivity?: string(name='AndroidPopupActivity'),
+      androidRemind?: boolean(name='AndroidRemind'),
+      androidPopupBody?: string(name='AndroidPopupBody'),
+      androidExtParameters?: string(name='AndroidExtParameters'),
+      iOSExtParameters?: string(name='iOSExtParameters'),
+      androidXiaoMiNotifyBody?: string(name='AndroidXiaoMiNotifyBody'),
+      body?: string(name='Body'),
+      androidNotificationBarType?: int32(name='AndroidNotificationBarType'),
+      androidNotificationBarPriority?: int32(name='AndroidNotificationBarPriority'),
+      targetValue?: string(name='TargetValue'),
+      iOSMusic?: string(name='iOSMusic'),
+      iOSRemind?: boolean(name='iOSRemind'),
+      pushType?: string(name='PushType'),
+      iOSBadge?: int32(name='iOSBadge'),
+      sendSpeed?: int32(name='SendSpeed'),
+      title?: string(name='Title'),
+      pushTime?: string(name='PushTime'),
+      androidMusic?: string(name='AndroidMusic'),
+    }
+  ](name='PushTask'),
 }
 
-model QueryPushStatByMsgResponse = {
-  requestId: string(name='RequestId'),
-  pushStats: {
-    pushStat: [
-      {
-        messageId: string(name='MessageId'),
-        acceptCount: long(name='AcceptCount'),
-        sentCount: long(name='SentCount'),
-        receivedCount: long(name='ReceivedCount'),
-        openedCount: long(name='OpenedCount'),
-        deletedCount: long(name='DeletedCount'),
-        smsSentCount: long(name='SmsSentCount'),
-        smsSkipCount: long(name='SmsSkipCount'),
-        smsFailedCount: long(name='SmsFailedCount'),
-        smsReceiveSuccessCount: long(name='SmsReceiveSuccessCount'),
-        smsReceiveFailedCount: long(name='SmsReceiveFailedCount'),
-      }
-    ](name='PushStat'),
-  }(name='PushStats'),
+model MassPushResponseBody = {
+  requestId?: string(name='RequestId'),
+  messageIds?: {
+    messageId?: [ string ](name='MessageId')
+  }(name='MessageIds'),
 }
 
-async function queryPushStatByMsgWithOptions(request: QueryPushStatByMsgRequest, runtime: Util.RuntimeOptions): QueryPushStatByMsgResponse {
+model MassPushResponse = {
+  headers: map[string]string(name='headers'),
+  body: MassPushResponseBody(name='body'),
+}
+
+async function massPushWithOptions(request: MassPushRequest, runtime: Util.RuntimeOptions): MassPushResponse {
   Util.validateModel(request);
-  return doRequest('QueryPushStatByMsg', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('MassPush', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function queryPushStatByMsg(request: QueryPushStatByMsgRequest): QueryPushStatByMsgResponse {
+async function massPush(request: MassPushRequest): MassPushResponse {
   var runtime = new Util.RuntimeOptions{};
-  return queryPushStatByMsgWithOptions(request, runtime);
+  return massPushWithOptions(request, runtime);
 }
 
-model QueryPushStatByAppRequest = {
-  appKey: long(name='AppKey'),
-  startTime: string(name='StartTime'),
-  endTime: string(name='EndTime'),
-  granularity: string(name='Granularity'),
-}
-
-model QueryPushStatByAppResponse = {
-  requestId: string(name='RequestId'),
-  appPushStats: {
-    appPushStat: [
-      {
-        time: string(name='Time'),
-        acceptCount: long(name='AcceptCount'),
-        sentCount: long(name='SentCount'),
-        receivedCount: long(name='ReceivedCount'),
-        openedCount: long(name='OpenedCount'),
-        deletedCount: long(name='DeletedCount'),
-        smsSentCount: long(name='SmsSentCount'),
-        smsSkipCount: long(name='SmsSkipCount'),
-        smsFailedCount: long(name='SmsFailedCount'),
-        smsReceiveSuccessCount: long(name='SmsReceiveSuccessCount'),
-        smsReceiveFailedCount: long(name='SmsReceiveFailedCount'),
-      }
-    ](name='AppPushStat'),
-  }(name='AppPushStats'),
-}
-
-async function queryPushStatByAppWithOptions(request: QueryPushStatByAppRequest, runtime: Util.RuntimeOptions): QueryPushStatByAppResponse {
-  Util.validateModel(request);
-  return doRequest('QueryPushStatByApp', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
-}
-
-async function queryPushStatByApp(request: QueryPushStatByAppRequest): QueryPushStatByAppResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryPushStatByAppWithOptions(request, runtime);
-}
-
-model QueryDeviceStatRequest = {
-  appKey: long(name='AppKey'),
-  startTime: string(name='StartTime'),
-  endTime: string(name='EndTime'),
-  deviceType: string(name='DeviceType'),
-  queryType: string(name='QueryType'),
-}
-
-model QueryDeviceStatResponse = {
-  requestId: string(name='RequestId'),
-  appDeviceStats: {
-    appDeviceStat: [
-      {
-        time: string(name='Time'),
-        count: long(name='Count'),
-        deviceType: string(name='DeviceType'),
-      }
-    ](name='AppDeviceStat'),
-  }(name='AppDeviceStats'),
-}
-
-async function queryDeviceStatWithOptions(request: QueryDeviceStatRequest, runtime: Util.RuntimeOptions): QueryDeviceStatResponse {
-  Util.validateModel(request);
-  return doRequest('QueryDeviceStat', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
-}
-
-async function queryDeviceStat(request: QueryDeviceStatRequest): QueryDeviceStatResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryDeviceStatWithOptions(request, runtime);
-}
-
-model QueryDeviceInfoRequest = {
-  appKey: long(name='AppKey'),
-  deviceId: string(name='DeviceId'),
-}
-
-model QueryDeviceInfoResponse = {
-  requestId: string(name='RequestId'),
-  deviceInfo: {
-    deviceId: string(name='DeviceId'),
-    deviceType: string(name='DeviceType'),
-    account: string(name='Account'),
-    deviceToken: string(name='DeviceToken'),
-    tags: string(name='Tags'),
-    alias: string(name='Alias'),
-    lastOnlineTime: string(name='LastOnlineTime'),
-    online: boolean(name='Online'),
-    phoneNumber: string(name='PhoneNumber'),
-    pushEnabled: boolean(name='PushEnabled'),
-  }(name='DeviceInfo'),
-}
-
-async function queryDeviceInfoWithOptions(request: QueryDeviceInfoRequest, runtime: Util.RuntimeOptions): QueryDeviceInfoResponse {
-  Util.validateModel(request);
-  return doRequest('QueryDeviceInfo', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
-}
-
-async function queryDeviceInfo(request: QueryDeviceInfoRequest): QueryDeviceInfoResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryDeviceInfoWithOptions(request, runtime);
-}
-
-model QueryAliasesRequest = {
-  appKey: long(name='AppKey'),
-  deviceId: string(name='DeviceId'),
-}
-
-model QueryAliasesResponse = {
-  requestId: string(name='RequestId'),
-  aliasInfos: {
-    aliasInfo: [
-      {
-        aliasName: string(name='AliasName'),
-      }
-    ](name='AliasInfo'),
-  }(name='AliasInfos'),
-}
-
-async function queryAliasesWithOptions(request: QueryAliasesRequest, runtime: Util.RuntimeOptions): QueryAliasesResponse {
-  Util.validateModel(request);
-  return doRequest('QueryAliases', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
-}
-
-async function queryAliases(request: QueryAliasesRequest): QueryAliasesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryAliasesWithOptions(request, runtime);
-}
-
-model PushNoticeToiOSRequest = {
-  appKey: long(name='AppKey'),
-  target: string(name='Target'),
-  targetValue: string(name='TargetValue'),
-  apnsEnv: string(name='ApnsEnv'),
+model PushRequest {
+  appKey?: long(name='AppKey'),
+  pushType?: string(name='PushType'),
+  deviceType?: string(name='DeviceType'),
+  target?: string(name='Target'),
+  targetValue?: string(name='TargetValue'),
   title?: string(name='Title'),
-  body: string(name='Body'),
+  body?: string(name='Body'),
   jobKey?: string(name='JobKey'),
-  extParameters?: string(name='ExtParameters'),
-}
-
-model PushNoticeToiOSResponse = {
-  requestId: string(name='RequestId'),
-  messageId: string(name='MessageId'),
-}
-
-async function pushNoticeToiOSWithOptions(request: PushNoticeToiOSRequest, runtime: Util.RuntimeOptions): PushNoticeToiOSResponse {
-  Util.validateModel(request);
-  return doRequest('PushNoticeToiOS', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
-}
-
-async function pushNoticeToiOS(request: PushNoticeToiOSRequest): PushNoticeToiOSResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return pushNoticeToiOSWithOptions(request, runtime);
-}
-
-model PushNoticeToAndroidRequest = {
-  appKey: long(name='AppKey'),
-  target: string(name='Target'),
-  targetValue: string(name='TargetValue'),
-  title: string(name='Title'),
-  body: string(name='Body'),
-  jobKey?: string(name='JobKey'),
-  extParameters?: string(name='ExtParameters'),
-}
-
-model PushNoticeToAndroidResponse = {
-  requestId: string(name='RequestId'),
-  messageId: string(name='MessageId'),
-}
-
-async function pushNoticeToAndroidWithOptions(request: PushNoticeToAndroidRequest, runtime: Util.RuntimeOptions): PushNoticeToAndroidResponse {
-  Util.validateModel(request);
-  return doRequest('PushNoticeToAndroid', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
-}
-
-async function pushNoticeToAndroid(request: PushNoticeToAndroidRequest): PushNoticeToAndroidResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return pushNoticeToAndroidWithOptions(request, runtime);
-}
-
-model PushMessageToiOSRequest = {
-  appKey: long(name='AppKey'),
-  target: string(name='Target'),
-  targetValue: string(name='TargetValue'),
-  title: string(name='Title'),
-  body: string(name='Body'),
-  jobKey?: string(name='JobKey'),
-}
-
-model PushMessageToiOSResponse = {
-  requestId: string(name='RequestId'),
-  messageId: string(name='MessageId'),
-}
-
-async function pushMessageToiOSWithOptions(request: PushMessageToiOSRequest, runtime: Util.RuntimeOptions): PushMessageToiOSResponse {
-  Util.validateModel(request);
-  return doRequest('PushMessageToiOS', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
-}
-
-async function pushMessageToiOS(request: PushMessageToiOSRequest): PushMessageToiOSResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return pushMessageToiOSWithOptions(request, runtime);
-}
-
-model PushMessageToAndroidRequest = {
-  appKey: long(name='AppKey'),
-  target: string(name='Target'),
-  targetValue: string(name='TargetValue'),
-  title: string(name='Title'),
-  body: string(name='Body'),
-  jobKey?: string(name='JobKey'),
-}
-
-model PushMessageToAndroidResponse = {
-  requestId: string(name='RequestId'),
-  messageId: string(name='MessageId'),
-}
-
-async function pushMessageToAndroidWithOptions(request: PushMessageToAndroidRequest, runtime: Util.RuntimeOptions): PushMessageToAndroidResponse {
-  Util.validateModel(request);
-  return doRequest('PushMessageToAndroid', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
-}
-
-async function pushMessageToAndroid(request: PushMessageToAndroidRequest): PushMessageToAndroidResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return pushMessageToAndroidWithOptions(request, runtime);
-}
-
-model PushRequest = {
-  appKey: long(name='AppKey'),
-  pushType: string(name='PushType'),
-  deviceType: string(name='DeviceType'),
-  target: string(name='Target'),
-  targetValue: string(name='TargetValue'),
-  title?: string(name='Title'),
-  body: string(name='Body'),
-  jobKey?: string(name='JobKey'),
-  sendSpeed?: integer(name='SendSpeed'),
+  sendSpeed?: int32(name='SendSpeed'),
   storeOffline?: boolean(name='StoreOffline'),
   pushTime?: string(name='PushTime'),
   expireTime?: string(name='ExpireTime'),
   iOSApnsEnv?: string(name='iOSApnsEnv'),
   iOSRemind?: boolean(name='iOSRemind'),
   iOSRemindBody?: string(name='iOSRemindBody'),
-  iOSBadge?: integer(name='iOSBadge'),
+  iOSBadge?: int32(name='iOSBadge'),
   iOSBadgeAutoIncrement?: boolean(name='iOSBadgeAutoIncrement'),
   iOSSilentNotification?: boolean(name='iOSSilentNotification'),
   iOSMusic?: string(name='iOSMusic'),
@@ -787,8 +487,8 @@ model PushRequest = {
   androidPopupActivity?: string(name='AndroidPopupActivity'),
   androidPopupTitle?: string(name='AndroidPopupTitle'),
   androidPopupBody?: string(name='AndroidPopupBody'),
-  androidNotificationBarType?: integer(name='AndroidNotificationBarType'),
-  androidNotificationBarPriority?: integer(name='AndroidNotificationBarPriority'),
+  androidNotificationBarType?: int32(name='AndroidNotificationBarType'),
+  androidNotificationBarPriority?: int32(name='AndroidNotificationBarPriority'),
   androidExtParameters?: string(name='AndroidExtParameters'),
   androidRemind?: boolean(name='AndroidRemind'),
   androidNotificationChannel?: string(name='AndroidNotificationChannel'),
@@ -796,22 +496,30 @@ model PushRequest = {
   smsTemplateName?: string(name='SmsTemplateName'),
   smsSignName?: string(name='SmsSignName'),
   smsParams?: string(name='SmsParams'),
-  smsDelaySecs?: integer(name='SmsDelaySecs'),
-  smsSendPolicy?: integer(name='SmsSendPolicy'),
+  smsDelaySecs?: int32(name='SmsDelaySecs'),
+  smsSendPolicy?: int32(name='SmsSendPolicy'),
   androidNotificationVivoChannel?: string(name='AndroidNotificationVivoChannel'),
   androidNotificationHuaweiChannel?: string(name='AndroidNotificationHuaweiChannel'),
-  androidNotificationNotifyId?: integer(name='AndroidNotificationNotifyId'),
+  androidNotificationNotifyId?: int32(name='AndroidNotificationNotifyId'),
   iOSNotificationCollapseId?: string(name='iOSNotificationCollapseId'),
 }
 
+model PushResponseBody = {
+  requestId?: string(name='RequestId'),
+  messageId?: string(name='MessageId'),
+}
+
 model PushResponse = {
-  requestId: string(name='RequestId'),
-  messageId: string(name='MessageId'),
+  headers: map[string]string(name='headers'),
+  body: PushResponseBody(name='body'),
 }
 
 async function pushWithOptions(request: PushRequest, runtime: Util.RuntimeOptions): PushResponse {
   Util.validateModel(request);
-  return doRequest('Push', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('Push', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function push(request: PushRequest): PushResponse {
@@ -819,123 +527,664 @@ async function push(request: PushRequest): PushResponse {
   return pushWithOptions(request, runtime);
 }
 
-model ListTagsRequest = {
-  appKey: long(name='AppKey'),
+model PushMessageToAndroidRequest {
+  appKey?: long(name='AppKey'),
+  target?: string(name='Target'),
+  targetValue?: string(name='TargetValue'),
+  title?: string(name='Title'),
+  body?: string(name='Body'),
+  jobKey?: string(name='JobKey'),
 }
 
-model ListTagsResponse = {
-  requestId: string(name='RequestId'),
-  tagInfos: {
-    tagInfo: [
-      {
-        tagName: string(name='TagName'),
-      }
-    ](name='TagInfo'),
+model PushMessageToAndroidResponseBody = {
+  requestId?: string(name='RequestId'),
+  messageId?: string(name='MessageId'),
+}
+
+model PushMessageToAndroidResponse = {
+  headers: map[string]string(name='headers'),
+  body: PushMessageToAndroidResponseBody(name='body'),
+}
+
+async function pushMessageToAndroidWithOptions(request: PushMessageToAndroidRequest, runtime: Util.RuntimeOptions): PushMessageToAndroidResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('PushMessageToAndroid', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function pushMessageToAndroid(request: PushMessageToAndroidRequest): PushMessageToAndroidResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return pushMessageToAndroidWithOptions(request, runtime);
+}
+
+model PushMessageToiOSRequest {
+  appKey?: long(name='AppKey'),
+  target?: string(name='Target'),
+  targetValue?: string(name='TargetValue'),
+  title?: string(name='Title'),
+  body?: string(name='Body'),
+  jobKey?: string(name='JobKey'),
+}
+
+model PushMessageToiOSResponseBody = {
+  requestId?: string(name='RequestId'),
+  messageId?: string(name='MessageId'),
+}
+
+model PushMessageToiOSResponse = {
+  headers: map[string]string(name='headers'),
+  body: PushMessageToiOSResponseBody(name='body'),
+}
+
+async function pushMessageToiOSWithOptions(request: PushMessageToiOSRequest, runtime: Util.RuntimeOptions): PushMessageToiOSResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('PushMessageToiOS', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function pushMessageToiOS(request: PushMessageToiOSRequest): PushMessageToiOSResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return pushMessageToiOSWithOptions(request, runtime);
+}
+
+model PushNoticeToAndroidRequest {
+  appKey?: long(name='AppKey'),
+  target?: string(name='Target'),
+  targetValue?: string(name='TargetValue'),
+  title?: string(name='Title'),
+  body?: string(name='Body'),
+  jobKey?: string(name='JobKey'),
+  extParameters?: string(name='ExtParameters'),
+}
+
+model PushNoticeToAndroidResponseBody = {
+  requestId?: string(name='RequestId'),
+  messageId?: string(name='MessageId'),
+}
+
+model PushNoticeToAndroidResponse = {
+  headers: map[string]string(name='headers'),
+  body: PushNoticeToAndroidResponseBody(name='body'),
+}
+
+async function pushNoticeToAndroidWithOptions(request: PushNoticeToAndroidRequest, runtime: Util.RuntimeOptions): PushNoticeToAndroidResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('PushNoticeToAndroid', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function pushNoticeToAndroid(request: PushNoticeToAndroidRequest): PushNoticeToAndroidResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return pushNoticeToAndroidWithOptions(request, runtime);
+}
+
+model PushNoticeToiOSRequest {
+  appKey?: long(name='AppKey'),
+  target?: string(name='Target'),
+  targetValue?: string(name='TargetValue'),
+  apnsEnv?: string(name='ApnsEnv'),
+  title?: string(name='Title'),
+  body?: string(name='Body'),
+  jobKey?: string(name='JobKey'),
+  extParameters?: string(name='ExtParameters'),
+}
+
+model PushNoticeToiOSResponseBody = {
+  requestId?: string(name='RequestId'),
+  messageId?: string(name='MessageId'),
+}
+
+model PushNoticeToiOSResponse = {
+  headers: map[string]string(name='headers'),
+  body: PushNoticeToiOSResponseBody(name='body'),
+}
+
+async function pushNoticeToiOSWithOptions(request: PushNoticeToiOSRequest, runtime: Util.RuntimeOptions): PushNoticeToiOSResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('PushNoticeToiOS', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function pushNoticeToiOS(request: PushNoticeToiOSRequest): PushNoticeToiOSResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return pushNoticeToiOSWithOptions(request, runtime);
+}
+
+model QueryAliasesRequest {
+  appKey?: long(name='AppKey'),
+  deviceId?: string(name='DeviceId'),
+}
+
+model QueryAliasesResponseBody = {
+  requestId?: string(name='RequestId'),
+  aliasInfos?: {
+    aliasInfo?: [ 
+    {
+      aliasName?: string(name='AliasName'),
+    }
+  ](name='AliasInfo')
+  }(name='AliasInfos'),
+}
+
+model QueryAliasesResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryAliasesResponseBody(name='body'),
+}
+
+async function queryAliasesWithOptions(request: QueryAliasesRequest, runtime: Util.RuntimeOptions): QueryAliasesResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('QueryAliases', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function queryAliases(request: QueryAliasesRequest): QueryAliasesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryAliasesWithOptions(request, runtime);
+}
+
+model QueryDeviceCountRequest {
+  appKey?: long(name='AppKey'),
+  target?: string(name='Target'),
+  targetValue?: string(name='TargetValue'),
+}
+
+model QueryDeviceCountResponseBody = {
+  requestId?: string(name='RequestId'),
+  deviceCount?: long(name='DeviceCount'),
+}
+
+model QueryDeviceCountResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryDeviceCountResponseBody(name='body'),
+}
+
+async function queryDeviceCountWithOptions(request: QueryDeviceCountRequest, runtime: Util.RuntimeOptions): QueryDeviceCountResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('QueryDeviceCount', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function queryDeviceCount(request: QueryDeviceCountRequest): QueryDeviceCountResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryDeviceCountWithOptions(request, runtime);
+}
+
+model QueryDeviceInfoRequest {
+  appKey?: long(name='AppKey'),
+  deviceId?: string(name='DeviceId'),
+}
+
+model QueryDeviceInfoResponseBody = {
+  requestId?: string(name='RequestId'),
+  deviceInfo?: {
+    account?: string(name='Account'),
+    lastOnlineTime?: string(name='LastOnlineTime'),
+    phoneNumber?: string(name='PhoneNumber'),
+    pushEnabled?: boolean(name='PushEnabled'),
+    deviceType?: string(name='DeviceType'),
+    deviceId?: string(name='DeviceId'),
+    online?: boolean(name='Online'),
+    tags?: string(name='Tags'),
+    deviceToken?: string(name='DeviceToken'),
+    alias?: string(name='Alias'),
+  }(name='DeviceInfo'),
+}
+
+model QueryDeviceInfoResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryDeviceInfoResponseBody(name='body'),
+}
+
+async function queryDeviceInfoWithOptions(request: QueryDeviceInfoRequest, runtime: Util.RuntimeOptions): QueryDeviceInfoResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('QueryDeviceInfo', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function queryDeviceInfo(request: QueryDeviceInfoRequest): QueryDeviceInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryDeviceInfoWithOptions(request, runtime);
+}
+
+model QueryDevicesByAccountRequest {
+  appKey?: long(name='AppKey'),
+  account?: string(name='Account'),
+}
+
+model QueryDevicesByAccountResponseBody = {
+  deviceIds?: {
+    deviceId?: [ string ](name='DeviceId')
+  }(name='DeviceIds'),
+  requestId?: string(name='RequestId'),
+}
+
+model QueryDevicesByAccountResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryDevicesByAccountResponseBody(name='body'),
+}
+
+async function queryDevicesByAccountWithOptions(request: QueryDevicesByAccountRequest, runtime: Util.RuntimeOptions): QueryDevicesByAccountResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('QueryDevicesByAccount', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function queryDevicesByAccount(request: QueryDevicesByAccountRequest): QueryDevicesByAccountResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryDevicesByAccountWithOptions(request, runtime);
+}
+
+model QueryDevicesByAliasRequest {
+  appKey?: long(name='AppKey'),
+  alias?: string(name='Alias'),
+}
+
+model QueryDevicesByAliasResponseBody = {
+  deviceIds?: {
+    deviceId?: [ string ](name='DeviceId')
+  }(name='DeviceIds'),
+  requestId?: string(name='RequestId'),
+}
+
+model QueryDevicesByAliasResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryDevicesByAliasResponseBody(name='body'),
+}
+
+async function queryDevicesByAliasWithOptions(request: QueryDevicesByAliasRequest, runtime: Util.RuntimeOptions): QueryDevicesByAliasResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('QueryDevicesByAlias', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function queryDevicesByAlias(request: QueryDevicesByAliasRequest): QueryDevicesByAliasResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryDevicesByAliasWithOptions(request, runtime);
+}
+
+model QueryDeviceStatRequest {
+  appKey?: long(name='AppKey'),
+  startTime?: string(name='StartTime'),
+  endTime?: string(name='EndTime'),
+  deviceType?: string(name='DeviceType'),
+  queryType?: string(name='QueryType'),
+}
+
+model QueryDeviceStatResponseBody = {
+  requestId?: string(name='RequestId'),
+  appDeviceStats?: {
+    appDeviceStat?: [ 
+    {
+      time?: string(name='Time'),
+      deviceType?: string(name='DeviceType'),
+      count?: long(name='Count'),
+    }
+  ](name='AppDeviceStat')
+  }(name='AppDeviceStats'),
+}
+
+model QueryDeviceStatResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryDeviceStatResponseBody(name='body'),
+}
+
+async function queryDeviceStatWithOptions(request: QueryDeviceStatRequest, runtime: Util.RuntimeOptions): QueryDeviceStatResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('QueryDeviceStat', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function queryDeviceStat(request: QueryDeviceStatRequest): QueryDeviceStatResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryDeviceStatWithOptions(request, runtime);
+}
+
+model QueryPushRecordsRequest {
+  appKey?: long(name='AppKey'),
+  startTime?: string(name='StartTime'),
+  endTime?: string(name='EndTime'),
+  pushType?: string(name='PushType'),
+  target?: string(name='Target'),
+  source?: string(name='Source'),
+  keyword?: string(name='Keyword'),
+  nextToken?: string(name='NextToken'),
+  pageSize?: int32(name='PageSize'),
+  page?: int32(name='Page'),
+}
+
+model QueryPushRecordsResponseBody = {
+  pushInfos?: {
+    pushInfo?: [ 
+    {
+      status?: string(name='Status'),
+      messageId?: string(name='MessageId'),
+      appKey?: long(name='AppKey'),
+      deviceType?: string(name='DeviceType'),
+      pushType?: string(name='PushType'),
+      body?: string(name='Body'),
+      title?: string(name='Title'),
+      source?: string(name='Source'),
+      pushTime?: string(name='PushTime'),
+      target?: string(name='Target'),
+    }
+  ](name='PushInfo')
+  }(name='PushInfos'),
+  nextToken?: string(name='NextToken'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  total?: int32(name='Total'),
+  page?: int32(name='Page'),
+}
+
+model QueryPushRecordsResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryPushRecordsResponseBody(name='body'),
+}
+
+async function queryPushRecordsWithOptions(request: QueryPushRecordsRequest, runtime: Util.RuntimeOptions): QueryPushRecordsResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('QueryPushRecords', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function queryPushRecords(request: QueryPushRecordsRequest): QueryPushRecordsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryPushRecordsWithOptions(request, runtime);
+}
+
+model QueryPushStatByAppRequest {
+  appKey?: long(name='AppKey'),
+  startTime?: string(name='StartTime'),
+  endTime?: string(name='EndTime'),
+  granularity?: string(name='Granularity'),
+}
+
+model QueryPushStatByAppResponseBody = {
+  requestId?: string(name='RequestId'),
+  appPushStats?: {
+    appPushStat?: [ 
+    {
+      time?: string(name='Time'),
+      deletedCount?: long(name='DeletedCount'),
+      openedCount?: long(name='OpenedCount'),
+      smsReceiveSuccessCount?: long(name='SmsReceiveSuccessCount'),
+      smsSkipCount?: long(name='SmsSkipCount'),
+      smsReceiveFailedCount?: long(name='SmsReceiveFailedCount'),
+      smsFailedCount?: long(name='SmsFailedCount'),
+      receivedCount?: long(name='ReceivedCount'),
+      sentCount?: long(name='SentCount'),
+      smsSentCount?: long(name='SmsSentCount'),
+      acceptCount?: long(name='AcceptCount'),
+    }
+  ](name='AppPushStat')
+  }(name='AppPushStats'),
+}
+
+model QueryPushStatByAppResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryPushStatByAppResponseBody(name='body'),
+}
+
+async function queryPushStatByAppWithOptions(request: QueryPushStatByAppRequest, runtime: Util.RuntimeOptions): QueryPushStatByAppResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('QueryPushStatByApp', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function queryPushStatByApp(request: QueryPushStatByAppRequest): QueryPushStatByAppResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryPushStatByAppWithOptions(request, runtime);
+}
+
+model QueryPushStatByMsgRequest {
+  appKey?: long(name='AppKey'),
+  messageId?: long(name='MessageId'),
+}
+
+model QueryPushStatByMsgResponseBody = {
+  requestId?: string(name='RequestId'),
+  pushStats?: {
+    pushStat?: [ 
+    {
+      messageId?: string(name='MessageId'),
+      deletedCount?: long(name='DeletedCount'),
+      openedCount?: long(name='OpenedCount'),
+      smsReceiveSuccessCount?: long(name='SmsReceiveSuccessCount'),
+      smsSkipCount?: long(name='SmsSkipCount'),
+      smsReceiveFailedCount?: long(name='SmsReceiveFailedCount'),
+      smsFailedCount?: long(name='SmsFailedCount'),
+      receivedCount?: long(name='ReceivedCount'),
+      sentCount?: long(name='SentCount'),
+      smsSentCount?: long(name='SmsSentCount'),
+      acceptCount?: long(name='AcceptCount'),
+    }
+  ](name='PushStat')
+  }(name='PushStats'),
+}
+
+model QueryPushStatByMsgResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryPushStatByMsgResponseBody(name='body'),
+}
+
+async function queryPushStatByMsgWithOptions(request: QueryPushStatByMsgRequest, runtime: Util.RuntimeOptions): QueryPushStatByMsgResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('QueryPushStatByMsg', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function queryPushStatByMsg(request: QueryPushStatByMsgRequest): QueryPushStatByMsgResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryPushStatByMsgWithOptions(request, runtime);
+}
+
+model QueryTagsRequest {
+  appKey?: long(name='AppKey'),
+  clientKey?: string(name='ClientKey'),
+  keyType?: string(name='KeyType'),
+}
+
+model QueryTagsResponseBody = {
+  tagInfos?: {
+    tagInfo?: [ 
+    {
+      tagName?: string(name='TagName'),
+    }
+  ](name='TagInfo')
   }(name='TagInfos'),
+  requestId?: string(name='RequestId'),
 }
 
-async function listTagsWithOptions(request: ListTagsRequest, runtime: Util.RuntimeOptions): ListTagsResponse {
+model QueryTagsResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryTagsResponseBody(name='body'),
+}
+
+async function queryTagsWithOptions(request: QueryTagsRequest, runtime: Util.RuntimeOptions): QueryTagsResponse {
   Util.validateModel(request);
-  return doRequest('ListTags', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('QueryTags', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function listTags(request: ListTagsRequest): ListTagsResponse {
+async function queryTags(request: QueryTagsRequest): QueryTagsResponse {
   var runtime = new Util.RuntimeOptions{};
-  return listTagsWithOptions(request, runtime);
+  return queryTagsWithOptions(request, runtime);
 }
 
-model ListSummaryAppsRequest = {
+model QueryUniqueDeviceStatRequest {
+  appKey?: long(name='AppKey'),
+  startTime?: string(name='StartTime'),
+  endTime?: string(name='EndTime'),
+  granularity?: string(name='Granularity'),
 }
 
-model ListSummaryAppsResponse = {
-  requestId: string(name='RequestId'),
-  summaryAppInfos: {
-    summaryAppInfo: [
-      {
-        appName: string(name='AppName'),
-        appKey: long(name='AppKey'),
-      }
-    ](name='SummaryAppInfo'),
-  }(name='SummaryAppInfos'),
+model QueryUniqueDeviceStatResponseBody = {
+  requestId?: string(name='RequestId'),
+  appDeviceStats?: {
+    appDeviceStat?: [ 
+    {
+      time?: string(name='Time'),
+      count?: long(name='Count'),
+    }
+  ](name='AppDeviceStat')
+  }(name='AppDeviceStats'),
 }
 
-async function listSummaryAppsWithOptions(request: ListSummaryAppsRequest, runtime: Util.RuntimeOptions): ListSummaryAppsResponse {
+model QueryUniqueDeviceStatResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryUniqueDeviceStatResponseBody(name='body'),
+}
+
+async function queryUniqueDeviceStatWithOptions(request: QueryUniqueDeviceStatRequest, runtime: Util.RuntimeOptions): QueryUniqueDeviceStatResponse {
   Util.validateModel(request);
-  return doRequest('ListSummaryApps', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('QueryUniqueDeviceStat', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function listSummaryApps(request: ListSummaryAppsRequest): ListSummaryAppsResponse {
+async function queryUniqueDeviceStat(request: QueryUniqueDeviceStatRequest): QueryUniqueDeviceStatResponse {
   var runtime = new Util.RuntimeOptions{};
-  return listSummaryAppsWithOptions(request, runtime);
+  return queryUniqueDeviceStatWithOptions(request, runtime);
 }
 
-model BindTagRequest = {
-  appKey: long(name='AppKey'),
-  clientKey: string(name='ClientKey'),
-  keyType: string(name='KeyType'),
-  tagName: string(name='TagName'),
+model RemoveTagRequest {
+  appKey?: long(name='AppKey'),
+  tagName?: string(name='TagName'),
 }
 
-model BindTagResponse = {
-  requestId: string(name='RequestId'),
+model RemoveTagResponseBody = {
+  requestId?: string(name='RequestId'),
 }
 
-async function bindTagWithOptions(request: BindTagRequest, runtime: Util.RuntimeOptions): BindTagResponse {
+model RemoveTagResponse = {
+  headers: map[string]string(name='headers'),
+  body: RemoveTagResponseBody(name='body'),
+}
+
+async function removeTagWithOptions(request: RemoveTagRequest, runtime: Util.RuntimeOptions): RemoveTagResponse {
   Util.validateModel(request);
-  return doRequest('BindTag', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RemoveTag', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function bindTag(request: BindTagRequest): BindTagResponse {
+async function removeTag(request: RemoveTagRequest): RemoveTagResponse {
   var runtime = new Util.RuntimeOptions{};
-  return bindTagWithOptions(request, runtime);
+  return removeTagWithOptions(request, runtime);
 }
 
-model BindAliasRequest = {
-  appKey: long(name='AppKey'),
-  deviceId: string(name='DeviceId'),
-  aliasName: string(name='AliasName'),
+model UnbindAliasRequest {
+  appKey?: long(name='AppKey'),
+  deviceId?: string(name='DeviceId'),
+  aliasName?: string(name='AliasName'),
+  unbindAll?: boolean(name='UnbindAll'),
 }
 
-model BindAliasResponse = {
-  requestId: string(name='RequestId'),
+model UnbindAliasResponseBody = {
+  requestId?: string(name='RequestId'),
 }
 
-async function bindAliasWithOptions(request: BindAliasRequest, runtime: Util.RuntimeOptions): BindAliasResponse {
+model UnbindAliasResponse = {
+  headers: map[string]string(name='headers'),
+  body: UnbindAliasResponseBody(name='body'),
+}
+
+async function unbindAliasWithOptions(request: UnbindAliasRequest, runtime: Util.RuntimeOptions): UnbindAliasResponse {
   Util.validateModel(request);
-  return doRequest('BindAlias', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('UnbindAlias', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function bindAlias(request: BindAliasRequest): BindAliasResponse {
+async function unbindAlias(request: UnbindAliasRequest): UnbindAliasResponse {
   var runtime = new Util.RuntimeOptions{};
-  return bindAliasWithOptions(request, runtime);
+  return unbindAliasWithOptions(request, runtime);
 }
 
-model CancelPushRequest = {
-  appKey: long(name='AppKey'),
-  messageId: long(name='MessageId'),
+model UnbindPhoneRequest {
+  appKey?: long(name='AppKey'),
+  deviceId?: string(name='DeviceId'),
 }
 
-model CancelPushResponse = {
-  requestId: string(name='RequestId'),
+model UnbindPhoneResponseBody = {
+  requestId?: string(name='RequestId'),
 }
 
-async function cancelPushWithOptions(request: CancelPushRequest, runtime: Util.RuntimeOptions): CancelPushResponse {
+model UnbindPhoneResponse = {
+  headers: map[string]string(name='headers'),
+  body: UnbindPhoneResponseBody(name='body'),
+}
+
+async function unbindPhoneWithOptions(request: UnbindPhoneRequest, runtime: Util.RuntimeOptions): UnbindPhoneResponse {
   Util.validateModel(request);
-  return doRequest('CancelPush', 'HTTPS', 'POST', '2016-08-01', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('UnbindPhone', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function cancelPush(request: CancelPushRequest): CancelPushResponse {
+async function unbindPhone(request: UnbindPhoneRequest): UnbindPhoneResponse {
   var runtime = new Util.RuntimeOptions{};
-  return cancelPushWithOptions(request, runtime);
+  return unbindPhoneWithOptions(request, runtime);
 }
 
-function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
-    return endpoint;
-  }
-
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
-    return endpointMap[regionId];
-  }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+model UnbindTagRequest {
+  appKey?: long(name='AppKey'),
+  clientKey?: string(name='ClientKey'),
+  keyType?: string(name='KeyType'),
+  tagName?: string(name='TagName'),
 }
+
+model UnbindTagResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model UnbindTagResponse = {
+  headers: map[string]string(name='headers'),
+  body: UnbindTagResponseBody(name='body'),
+}
+
+async function unbindTagWithOptions(request: UnbindTagRequest, runtime: Util.RuntimeOptions): UnbindTagResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('UnbindTag', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function unbindTag(request: UnbindTagRequest): UnbindTagResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return unbindTagWithOptions(request, runtime);
+}
+
