@@ -1,36 +1,20 @@
+/**
+ *
+ */
 import Util;
+import OpenApi;
 
-import RPC;
 import EndpointUtil;
 
-extends RPC;
+extends OpenApi;
 
-init(config: RPC.Config){
+init(config: OpenApi.Config){
   super(config);
   @endpointRule = '';
   
+
   checkConfig(config);
   @endpoint = getEndpoint('databot', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
-}
-
-model QueryDatabotRequest = {
-  sessionId: string(name='SessionId'),
-}
-
-model QueryDatabotResponse = {
-  costTime: long(name='CostTime'),
-  requestId: string(name='RequestId'),
-  data: map[string]any(name='Data'),
-}
-
-async function queryDatabotWithOptions(request: QueryDatabotRequest, runtime: Util.RuntimeOptions): QueryDatabotResponse {
-  Util.validateModel(request);
-  return doRequest('QueryDatabot', 'HTTPS', 'POST', '2020-03-30', 'AK', null, request, runtime);
-}
-
-async function queryDatabot(request: QueryDatabotRequest): QueryDatabotResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryDatabotWithOptions(request, runtime);
 }
 
 function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
@@ -43,3 +27,33 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+model QueryDatabotRequest {
+  accessId?: string(name='AccessId'),
+  query?: string(name='Query'),
+  sessionId?: string(name='SessionId'),
+}
+
+model QueryDatabotResponseBody = {
+  costTime?: long(name='CostTime'),
+  requestId?: string(name='RequestId'),
+  data?: map[string]any(name='Data'),
+}
+
+model QueryDatabotResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryDatabotResponseBody(name='body'),
+}
+
+async function queryDatabotWithOptions(request: QueryDatabotRequest, runtime: Util.RuntimeOptions): QueryDatabotResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('QueryDatabot', '2020-03-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function queryDatabot(request: QueryDatabotRequest): QueryDatabotResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryDatabotWithOptions(request, runtime);
+}
+
