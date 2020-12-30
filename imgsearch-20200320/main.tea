@@ -1,186 +1,74 @@
-import OSS;
-import OpenPlatform;
-import RPCUtil;
-import RPC;
-import OSSUtil;
+/**
+ *
+ */
 import Util;
+import OSS;
+import RPC;
+import OpenPlatform;
+import OSSUtil;
 import FileForm;
+import OpenApi;
+import OpenApiUtil;
 import EndpointUtil;
 
-extends RPC;
+extends OpenApi;
 
-init(config: RPC.Config){
+init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
   
+
   checkConfig(config);
   @endpoint = getEndpoint('imgsearch', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
-model ListImageDbsRequest = {
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-
-model ListImageDbsResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    dbList: [
-      {
-        name: string(name='Name'),
-      }
-    ](name='DbList'),
-  }(name='Data'),
-}
-
-async function listImageDbs(request: ListImageDbsRequest, runtime: Util.RuntimeOptions): ListImageDbsResponse {
-  Util.validateModel(request);
-  return doRequest('ListImageDbs', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
-}
-
-model ListImagesRequest = {
-  dbName: string(name='DbName'),
-  token?: string(name='Token'),
-  offset?: integer(name='Offset'),
-  limit?: integer(name='Limit'),
-  order?: string(name='Order'),
-  entityIdPrefix?: string(name='EntityIdPrefix'),
-}
-
-model ListImagesResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    token: string(name='Token'),
-    totalCount: integer(name='TotalCount'),
-    imageList: [
-      {
-        dataId: string(name='DataId'),
-        extraData: string(name='ExtraData'),
-        entityId: string(name='EntityId'),
-        updatedAt: long(name='UpdatedAt'),
-        createdAt: long(name='CreatedAt'),
-      }
-    ](name='ImageList'),
-  }(name='Data'),
-}
-
-async function listImages(request: ListImagesRequest, runtime: Util.RuntimeOptions): ListImagesResponse {
-  Util.validateModel(request);
-  return doRequest('ListImages', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
-}
-
-model SearchImageRequest = {
-  dbName: string(name='DbName'),
-  imageUrl: string(name='ImageUrl'),
-  limit: integer(name='Limit'),
-}
-
-model SearchImageResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    matchList: [
-      {
-        dataId: string(name='DataId'),
-        extraData: string(name='ExtraData'),
-        entityId: string(name='EntityId'),
-        imageUrl: string(name='ImageUrl'),
-        score: float(name='Score'),
-      }
-    ](name='MatchList'),
-  }(name='Data'),
-}
-
-async function searchImage(request: SearchImageRequest, runtime: Util.RuntimeOptions): SearchImageResponse {
-  Util.validateModel(request);
-  return doRequest('SearchImage', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
-}
-
-model SearchImageAdvanceRequest = {
-  imageUrlObject: readable(name='ImageUrlObject'),
-  dbName: string(name='DbName'),
-  limit: integer(name='Limit'),
-}
-
-async function searchImageAdvance(request: SearchImageAdvanceRequest, runtime: Util.RuntimeOptions): SearchImageResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'imgsearch',
-    regionId = @regionId,
-  };
-  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  // Step 1: request OSS api to upload file
-  var ossConfig = new OSS.Config{
-    accessKeyId = authResponse.accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient = new OSS(ossConfig);
-
-  var fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.imageUrlObject,
-    contentType = '',
-  };
-  var ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  var uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
-  ossClient.postObject(uploadRequest, ossRuntime);
-  // Step 2: request final api
-  var searchImagereq = new SearchImageRequest{};
-  RPCUtil.convert(request, searchImagereq);
-  searchImagereq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var searchImageResp = searchImage(searchImagereq, runtime);
-  return searchImageResp;
-}
-
-model AddImageRequest = {
-  dbName: string(name='DbName'),
-  imageUrl: string(name='ImageUrl'),
+model AddImageRequest {
+  dbName?: string(name='DbName'),
+  imageUrl?: string(name='ImageUrl'),
   extraData?: string(name='ExtraData'),
-  entityId: string(name='EntityId'),
+  entityId?: string(name='EntityId'),
+}
+
+model AddImageAdvanceRequest {
+  imageUrlObject: readable(name='ImageUrlObject'),
+  dbName?: string(name='DbName'),
+  extraData?: string(name='ExtraData'),
+  entityId?: string(name='EntityId'),
+}
+
+model AddImageResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    dataId?: string(name='DataId'),
+  }(name='Data'),
 }
 
 model AddImageResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    dataId: string(name='DataId'),
-  }(name='Data'),
+  headers: map[string]string(name='headers'),
+  body: AddImageResponseBody(name='body'),
 }
 
-async function addImage(request: AddImageRequest, runtime: Util.RuntimeOptions): AddImageResponse {
+async function addImageWithOptions(request: AddImageRequest, runtime: Util.RuntimeOptions): AddImageResponse {
   Util.validateModel(request);
-  return doRequest('AddImage', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('AddImage', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-model AddImageAdvanceRequest = {
-  imageUrlObject: readable(name='ImageUrlObject'),
-  dbName: string(name='DbName'),
-  extraData?: string(name='ExtraData'),
-  entityId: string(name='EntityId'),
+async function addImage(request: AddImageRequest): AddImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return addImageWithOptions(request, runtime);
 }
 
 async function addImageAdvance(request: AddImageAdvanceRequest, runtime: Util.RuntimeOptions): AddImageResponse {
@@ -196,29 +84,38 @@ async function addImageAdvance(request: AddImageAdvanceRequest, runtime: Util.Ru
     regionId = @regionId,
   };
   var authClient = new OpenPlatform(authConfig);
-
   var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
     product = 'imgsearch',
     regionId = @regionId,
   };
-  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  // Step 1: request OSS api to upload file
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
   var ossConfig = new OSS.Config{
-    accessKeyId = authResponse.accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
-    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
-  var fileObj = new FileForm.FileField{
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var addImageReq = new AddImageRequest{};
+  OpenApiUtil.convert(request, addImageReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
     filename = authResponse.objectKey,
     content = request.imageUrlObject,
     contentType = '',
   };
-  var ossHeader = new OSS.PostObjectRequest.header{
+  ossHeader = new OSS.PostObjectRequest.header{
     accessKeyId = authResponse.accessKeyId,
     policy = authResponse.encodedPolicy,
     signature = authResponse.signature,
@@ -226,68 +123,269 @@ async function addImageAdvance(request: AddImageAdvanceRequest, runtime: Util.Ru
     file = fileObj,
     successActionStatus = '201',
   };
-  var uploadRequest = new OSS.PostObjectRequest{
+  uploadRequest = new OSS.PostObjectRequest{
     bucketName = authResponse.bucket,
     header = ossHeader,
   };
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
   ossClient.postObject(uploadRequest, ossRuntime);
-  // Step 2: request final api
-  var addImagereq = new AddImageRequest{};
-  RPCUtil.convert(request, addImagereq);
-  addImagereq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var addImageResp = addImage(addImagereq, runtime);
+  addImageReq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var addImageResp = addImageWithOptions(addImageReq, runtime);
   return addImageResp;
 }
 
-model DeleteImageDbRequest = {
-  name: string(name='Name'),
+model CreateImageDbRequest {
+  name?: string(name='Name'),
 }
 
-model DeleteImageDbResponse = {
-  requestId: string(name='RequestId'),
-}
-
-async function deleteImageDb(request: DeleteImageDbRequest, runtime: Util.RuntimeOptions): DeleteImageDbResponse {
-  Util.validateModel(request);
-  return doRequest('DeleteImageDb', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
-}
-
-model CreateImageDbRequest = {
-  name: string(name='Name'),
+model CreateImageDbResponseBody = {
+  requestId?: string(name='RequestId'),
 }
 
 model CreateImageDbResponse = {
-  requestId: string(name='RequestId'),
+  headers: map[string]string(name='headers'),
+  body: CreateImageDbResponseBody(name='body'),
 }
 
-async function createImageDb(request: CreateImageDbRequest, runtime: Util.RuntimeOptions): CreateImageDbResponse {
+async function createImageDbWithOptions(request: CreateImageDbRequest, runtime: Util.RuntimeOptions): CreateImageDbResponse {
   Util.validateModel(request);
-  return doRequest('CreateImageDb', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CreateImageDb', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-model DeleteImageRequest = {
-  dbName: string(name='DbName'),
-  entityId: string(name='EntityId'),
+async function createImageDb(request: CreateImageDbRequest): CreateImageDbResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createImageDbWithOptions(request, runtime);
+}
+
+model DeleteImageRequest {
+  dbName?: string(name='DbName'),
+  entityId?: string(name='EntityId'),
+}
+
+model DeleteImageResponseBody = {
+  requestId?: string(name='RequestId'),
 }
 
 model DeleteImageResponse = {
-  requestId: string(name='RequestId'),
+  headers: map[string]string(name='headers'),
+  body: DeleteImageResponseBody(name='body'),
 }
 
-async function deleteImage(request: DeleteImageRequest, runtime: Util.RuntimeOptions): DeleteImageResponse {
+async function deleteImageWithOptions(request: DeleteImageRequest, runtime: Util.RuntimeOptions): DeleteImageResponse {
   Util.validateModel(request);
-  return doRequest('DeleteImage', 'HTTPS', 'POST' , '2020-03-20', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DeleteImage', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
-    return endpoint;
-  }
-
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
-    return endpointMap[regionId];
-  }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+async function deleteImage(request: DeleteImageRequest): DeleteImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteImageWithOptions(request, runtime);
 }
+
+model DeleteImageDbRequest {
+  name?: string(name='Name'),
+}
+
+model DeleteImageDbResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model DeleteImageDbResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteImageDbResponseBody(name='body'),
+}
+
+async function deleteImageDbWithOptions(request: DeleteImageDbRequest, runtime: Util.RuntimeOptions): DeleteImageDbResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DeleteImageDb', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function deleteImageDb(request: DeleteImageDbRequest): DeleteImageDbResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteImageDbWithOptions(request, runtime);
+}
+
+model ListImageDbsResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    dbList?: [ 
+      {
+        name?: string(name='Name'),
+      }
+    ](name='DbList'),
+  }(name='Data'),
+}
+
+model ListImageDbsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListImageDbsResponseBody(name='body'),
+}
+
+async function listImageDbsWithOptions(runtime: Util.RuntimeOptions): ListImageDbsResponse {
+  var req = new OpenApi.OpenApiRequest{};
+  return doRPCRequest('ListImageDbs', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function listImageDbs(): ListImageDbsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listImageDbsWithOptions(runtime);
+}
+
+model ListImagesRequest {
+  dbName?: string(name='DbName'),
+  token?: string(name='Token'),
+  offset?: int32(name='Offset'),
+  limit?: int32(name='Limit'),
+  order?: string(name='Order'),
+  entityIdPrefix?: string(name='EntityIdPrefix'),
+}
+
+model ListImagesResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    imageList?: [ 
+      {
+        entityId?: string(name='EntityId'),
+        createdAt?: long(name='CreatedAt'),
+        updatedAt?: long(name='UpdatedAt'),
+        dataId?: string(name='DataId'),
+        extraData?: string(name='ExtraData'),
+      }
+    ](name='ImageList'),
+    token?: string(name='Token'),
+    totalCount?: int32(name='TotalCount'),
+  }(name='Data'),
+}
+
+model ListImagesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListImagesResponseBody(name='body'),
+}
+
+async function listImagesWithOptions(request: ListImagesRequest, runtime: Util.RuntimeOptions): ListImagesResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ListImages', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function listImages(request: ListImagesRequest): ListImagesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listImagesWithOptions(request, runtime);
+}
+
+model SearchImageRequest {
+  dbName?: string(name='DbName'),
+  imageUrl?: string(name='ImageUrl'),
+  limit?: int32(name='Limit'),
+}
+
+model SearchImageAdvanceRequest {
+  imageUrlObject: readable(name='ImageUrlObject'),
+  dbName?: string(name='DbName'),
+  limit?: int32(name='Limit'),
+}
+
+model SearchImageResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    matchList?: [ 
+      {
+        imageUrl?: string(name='ImageUrl'),
+        entityId?: string(name='EntityId'),
+        score?: float(name='Score'),
+        dataId?: string(name='DataId'),
+        extraData?: string(name='ExtraData'),
+      }
+    ](name='MatchList'),
+  }(name='Data'),
+}
+
+model SearchImageResponse = {
+  headers: map[string]string(name='headers'),
+  body: SearchImageResponseBody(name='body'),
+}
+
+async function searchImageWithOptions(request: SearchImageRequest, runtime: Util.RuntimeOptions): SearchImageResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('SearchImage', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function searchImage(request: SearchImageRequest): SearchImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return searchImageWithOptions(request, runtime);
+}
+
+async function searchImageAdvance(request: SearchImageAdvanceRequest, runtime: Util.RuntimeOptions): SearchImageResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imgsearch',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var searchImageReq = new SearchImageRequest{};
+  OpenApiUtil.convert(request, searchImageReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageUrlObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  searchImageReq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var searchImageResp = searchImageWithOptions(searchImageReq, runtime);
+  return searchImageResp;
+}
+
