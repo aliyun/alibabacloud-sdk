@@ -1,0 +1,393 @@
+/**
+ *
+ */
+import Util;
+import OSS;
+import RPC;
+import OpenPlatform;
+import OSSUtil;
+import FileForm;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+
+  checkConfig(config);
+  @endpoint = getEndpoint('imagesearch', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model DeleteImageRequest {
+  instanceName?: string(name='InstanceName'),
+  productId?: string(name='ProductId'),
+  picName?: string(name='PicName'),
+}
+
+model DeleteImageResponseBody = {
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  code?: int32(name='Code'),
+  success?: boolean(name='Success'),
+}
+
+model DeleteImageResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteImageResponseBody(name='body'),
+}
+
+async function deleteImageWithOptions(request: DeleteImageRequest, runtime: Util.RuntimeOptions): DeleteImageResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DeleteImage', '2020-12-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function deleteImage(request: DeleteImageRequest): DeleteImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteImageWithOptions(request, runtime);
+}
+
+model AddImageRequest {
+  instanceName?: string(name='InstanceName'),
+  categoryId?: int32(name='CategoryId'),
+  productId?: string(name='ProductId'),
+  picName?: string(name='PicName'),
+  picContent?: string(name='PicContent'),
+  crop?: boolean(name='Crop'),
+  region?: string(name='Region'),
+  customContent?: string(name='CustomContent'),
+  intAttr?: int32(name='IntAttr'),
+  strAttr?: string(name='StrAttr'),
+}
+
+model AddImageAdvanceRequest {
+  picContentObject: readable(name='PicContentObject'),
+  instanceName?: string(name='InstanceName'),
+  categoryId?: int32(name='CategoryId'),
+  productId?: string(name='ProductId'),
+  picName?: string(name='PicName'),
+  crop?: boolean(name='Crop'),
+  region?: string(name='Region'),
+  customContent?: string(name='CustomContent'),
+  intAttr?: int32(name='IntAttr'),
+  strAttr?: string(name='StrAttr'),
+}
+
+model AddImageResponseBody = {
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  code?: int32(name='Code'),
+  picInfo?: {
+    region?: string(name='Region'),
+    categoryId?: int32(name='CategoryId'),
+  }(name='PicInfo'),
+  success?: boolean(name='Success'),
+}
+
+model AddImageResponse = {
+  headers: map[string]string(name='headers'),
+  body: AddImageResponseBody(name='body'),
+}
+
+async function addImageWithOptions(request: AddImageRequest, runtime: Util.RuntimeOptions): AddImageResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('AddImage', '2020-12-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function addImage(request: AddImageRequest): AddImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return addImageWithOptions(request, runtime);
+}
+
+async function addImageAdvance(request: AddImageAdvanceRequest, runtime: Util.RuntimeOptions): AddImageResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ImageSearch',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var addImageReq = new AddImageRequest{};
+  OpenApiUtil.convert(request, addImageReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.picContentObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  addImageReq.picContent = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var addImageResp = addImageWithOptions(addImageReq, runtime);
+  return addImageResp;
+}
+
+model SearchImageByPicRequest {
+  categoryId?: int32(name='CategoryId'),
+  instanceName?: string(name='InstanceName'),
+  picContent?: string(name='PicContent'),
+  crop?: boolean(name='Crop'),
+  region?: string(name='Region'),
+  num?: int32(name='Num'),
+  start?: int32(name='Start'),
+  type?: string(name='Type'),
+  filter?: string(name='Filter'),
+}
+
+model SearchImageByPicAdvanceRequest {
+  picContentObject: readable(name='PicContentObject'),
+  categoryId?: int32(name='CategoryId'),
+  instanceName?: string(name='InstanceName'),
+  crop?: boolean(name='Crop'),
+  region?: string(name='Region'),
+  num?: int32(name='Num'),
+  start?: int32(name='Start'),
+  type?: string(name='Type'),
+  filter?: string(name='Filter'),
+}
+
+model SearchImageByPicResponseBody = {
+  msg?: string(name='Msg'),
+  head?: {
+    docsFound?: int32(name='DocsFound'),
+    docsReturn?: int32(name='DocsReturn'),
+    searchTime?: int32(name='SearchTime'),
+  }(name='Head'),
+  requestId?: string(name='RequestId'),
+  auctions?: [ 
+    {
+      picName?: string(name='PicName'),
+      intAttr?: int32(name='IntAttr'),
+      categoryId?: int32(name='CategoryId'),
+      productId?: string(name='ProductId'),
+      strAttr?: string(name='StrAttr'),
+      sortExprValues?: string(name='SortExprValues'),
+      customContent?: string(name='CustomContent'),
+      score?: float(name='Score'),
+    }
+  ](name='Auctions'),
+  code?: int32(name='Code'),
+  picInfo?: {
+    region?: string(name='Region'),
+    categoryId?: int32(name='CategoryId'),
+    multiRegion?: [ 
+      {
+        region?: string(name='Region'),
+      }
+    ](name='MultiRegion'),
+    allCategories?: [ 
+      {
+        name?: string(name='Name'),
+        id?: int32(name='Id'),
+      }
+    ](name='AllCategories'),
+  }(name='PicInfo'),
+  success?: boolean(name='Success'),
+}
+
+model SearchImageByPicResponse = {
+  headers: map[string]string(name='headers'),
+  body: SearchImageByPicResponseBody(name='body'),
+}
+
+async function searchImageByPicWithOptions(request: SearchImageByPicRequest, runtime: Util.RuntimeOptions): SearchImageByPicResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('SearchImageByPic', '2020-12-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function searchImageByPic(request: SearchImageByPicRequest): SearchImageByPicResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return searchImageByPicWithOptions(request, runtime);
+}
+
+async function searchImageByPicAdvance(request: SearchImageByPicAdvanceRequest, runtime: Util.RuntimeOptions): SearchImageByPicResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ImageSearch',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var searchImageByPicReq = new SearchImageByPicRequest{};
+  OpenApiUtil.convert(request, searchImageByPicReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.picContentObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  searchImageByPicReq.picContent = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var searchImageByPicResp = searchImageByPicWithOptions(searchImageByPicReq, runtime);
+  return searchImageByPicResp;
+}
+
+model SearchImageByNameRequest {
+  categoryId?: int32(name='CategoryId'),
+  instanceName?: string(name='InstanceName'),
+  productId?: string(name='ProductId'),
+  picName?: string(name='PicName'),
+  num?: int32(name='Num'),
+  start?: int32(name='Start'),
+  type?: string(name='Type'),
+  filter?: string(name='Filter'),
+}
+
+model SearchImageByNameResponseBody = {
+  msg?: string(name='Msg'),
+  head?: {
+    docsFound?: int32(name='DocsFound'),
+    docsReturn?: int32(name='DocsReturn'),
+    searchTime?: int32(name='SearchTime'),
+  }(name='Head'),
+  requestId?: string(name='RequestId'),
+  auctions?: [ 
+    {
+      picName?: string(name='PicName'),
+      intAttr?: int32(name='IntAttr'),
+      categoryId?: int32(name='CategoryId'),
+      productId?: string(name='ProductId'),
+      strAttr?: string(name='StrAttr'),
+      sortExprValues?: string(name='SortExprValues'),
+      customContent?: string(name='CustomContent'),
+      score?: float(name='Score'),
+    }
+  ](name='Auctions'),
+  code?: int32(name='Code'),
+  picInfo?: {
+    region?: string(name='Region'),
+    categoryId?: int32(name='CategoryId'),
+    multiRegion?: [ 
+      {
+        region?: string(name='Region'),
+      }
+    ](name='MultiRegion'),
+    allCategories?: [ 
+      {
+        name?: string(name='Name'),
+        id?: int32(name='Id'),
+      }
+    ](name='AllCategories'),
+  }(name='PicInfo'),
+  success?: boolean(name='Success'),
+}
+
+model SearchImageByNameResponse = {
+  headers: map[string]string(name='headers'),
+  body: SearchImageByNameResponseBody(name='body'),
+}
+
+async function searchImageByNameWithOptions(request: SearchImageByNameRequest, runtime: Util.RuntimeOptions): SearchImageByNameResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('SearchImageByName', '2020-12-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function searchImageByName(request: SearchImageByNameRequest): SearchImageByNameResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return searchImageByNameWithOptions(request, runtime);
+}
+
