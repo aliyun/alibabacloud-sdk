@@ -1,392 +1,87 @@
+/**
+ *
+ */
 import Util;
-import RPCUtil;
-import RPC;
-import EndpointUtil;
 import OSS;
+import RPC;
 import OpenPlatform;
 import OSSUtil;
 import FileForm;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
 
-extends RPC;
+extends OpenApi;
 
-init(config: RPC.Config){
+init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
   
+
   checkConfig(config);
   @endpoint = getEndpoint('imageprocess', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
-model DetectRibFractureRequest = {
-  URLList: [
-    {
-      URL: string(name='URL'),
-    }
-  ](name='URLList'),
-  dataFormat: string(name='DataFormat'),
-  orgName: string(name='OrgName'),
-  orgId: string(name='OrgId'),
-  sourceType: string(name='SourceType'),
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-
-model DetectRibFractureResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    resultURL: string(name='ResultURL'),
-    detections: [
-      {
-        fractureId: integer(name='FractureId'),
-        fractureConfidence: float(name='FractureConfidence'),
-        fractureCategory: string(name='FractureCategory'),
-        coordinates: [ integer ](name='Coordinates'),
-        coordinateImage: [ integer ](name='CoordinateImage'),
-      }
-    ](name='Detections'),
-    spacing: [ float ](name='Spacing'),
-    origin: [ float ](name='Origin'),
-  }(name='Data'),
-}
-
-async function detectRibFracture(request: DetectRibFractureRequest, runtime: Util.RuntimeOptions): DetectRibFractureResponse {
-  Util.validateModel(request);
-  return doRequest('DetectRibFracture', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function detectRibFractureSimply(request: DetectRibFractureRequest): DetectRibFractureResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return detectRibFracture(request, runtime);
-}
-
-model ScreenChestCTRequest = {
-  dataFormat: string(name='DataFormat'),
-  orgName: string(name='OrgName'),
-  orgId: string(name='OrgId'),
-  URLList: [
-    {
-      URL: string(name='URL'),
-    }
-  ](name='URLList'),
-}
-
-model ScreenChestCTResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    lungNodule: {
-      series: [
-        {
-          seriesInstanceUid: string(name='SeriesInstanceUid'),
-          report: string(name='Report'),
-          elements: [
-            {
-              category: string(name='Category'),
-              confidence: float(name='Confidence'),
-              diameter: float(name='Diameter'),
-              lobe: string(name='Lobe'),
-              lung: string(name='Lung'),
-              x: float(name='X'),
-              z: float(name='Z'),
-              y: float(name='Y'),
-              imageX: float(name='ImageX'),
-              imageY: float(name='ImageY'),
-              imageZ: float(name='ImageZ'),
-              SOPInstanceUID: string(name='SOPInstanceUID'),
-              volume: float(name='Volume'),
-              meanValue: float(name='MeanValue'),
-            }
-          ](name='Elements'),
-          origin: [ float ](name='Origin'),
-          spacing: [ float ](name='Spacing'),
-        }
-      ](name='Series'),
-    }(name='LungNodule'),
-    CACS: {
-      score: string(name='Score'),
-      resultUrl: string(name='ResultUrl'),
-    }(name='CACS'),
-    covid: {
-      newProbability: string(name='NewProbability'),
-      normalProbability: string(name='NormalProbability'),
-      otherProbability: string(name='OtherProbability'),
-      lesionRatio: string(name='LesionRatio'),
-      mask: string(name='Mask'),
-    }(name='Covid'),
-  }(name='Data'),
-}
-
-async function screenChestCT(request: ScreenChestCTRequest, runtime: Util.RuntimeOptions): ScreenChestCTResponse {
-  Util.validateModel(request);
-  return doRequest('ScreenChestCT', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function screenChestCTSimply(request: ScreenChestCTRequest): ScreenChestCTResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return screenChestCT(request, runtime);
-}
-
-model DetectSkinDiseaseRequest = {
-  url: string(name='Url'),
-  orgId: string(name='OrgId'),
-  orgName: string(name='OrgName'),
-}
-
-model DetectSkinDiseaseResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    results: map[string]any(name='Results'),
-  }(name='Data'),
-}
-
-async function detectSkinDisease(request: DetectSkinDiseaseRequest, runtime: Util.RuntimeOptions): DetectSkinDiseaseResponse {
-  Util.validateModel(request);
-  return doRequest('DetectSkinDisease', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function detectSkinDiseaseSimply(request: DetectSkinDiseaseRequest): DetectSkinDiseaseResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return detectSkinDisease(request, runtime);
-}
-
-model DetectSkinDiseaseAdvanceRequest = {
-  urlObject: readable(name='UrlObject'),
-  orgId: string(name='OrgId'),
-  orgName: string(name='OrgName'),
-}
-
-async function detectSkinDiseaseAdvance(request: DetectSkinDiseaseAdvanceRequest, runtime: Util.RuntimeOptions): DetectSkinDiseaseResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'imageprocess',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
-  var detectSkinDiseaseReq = new DetectSkinDiseaseRequest{};
-  RPCUtil.convert(request, detectSkinDiseaseReq);
-
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
-
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.urlObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  detectSkinDiseaseReq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var detectSkinDiseaseResp = detectSkinDisease(detectSkinDiseaseReq, runtime);
-  return detectSkinDiseaseResp;
-}
-
-model RunMedQARequest = {
-  question: string(name='Question'),
-  orgId: string(name='OrgId'),
-  orgName: string(name='OrgName'),
-}
-
-model RunMedQAResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    answer: string(name='Answer'),
-    similarQuestion: [ string ](name='SimilarQuestion'),
-  }(name='Data'),
-}
-
-async function runMedQA(request: RunMedQARequest, runtime: Util.RuntimeOptions): RunMedQAResponse {
-  Util.validateModel(request);
-  return doRequest('RunMedQA', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function runMedQASimply(request: RunMedQARequest): RunMedQAResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return runMedQA(request, runtime);
-}
-
-model DetectKneeKeypointXRayRequest = {
-  imageUrl: string(name='ImageUrl'),
-  dataFormat: string(name='DataFormat'),
-  orgId: string(name='OrgId'),
-  orgName: string(name='OrgName'),
+model ClassifyFNFRequest {
+  imageUrl?: string(name='ImageUrl'),
+  dataFormat?: string(name='DataFormat'),
+  orgId?: string(name='OrgId'),
+  orgName?: string(name='OrgName'),
   tracerId?: string(name='TracerId'),
 }
 
-model DetectKneeKeypointXRayResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    imageUrl: string(name='ImageUrl'),
-    orgId: string(name='OrgId'),
-    orgName: string(name='OrgName'),
-    keyPoints: [
-      {
-        value: float(name='Value'),
-        tag: {
-          direction: string(name='Direction'),
-          label: string(name='Label'),
-        }(name='Tag'),
-        coordinates: [ integer ](name='Coordinates'),
-      }
-    ](name='KeyPoints'),
-  }(name='Data'),
-}
-
-async function detectKneeKeypointXRay(request: DetectKneeKeypointXRayRequest, runtime: Util.RuntimeOptions): DetectKneeKeypointXRayResponse {
-  Util.validateModel(request);
-  return doRequest('DetectKneeKeypointXRay', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function detectKneeKeypointXRaySimply(request: DetectKneeKeypointXRayRequest): DetectKneeKeypointXRayResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return detectKneeKeypointXRay(request, runtime);
-}
-
-model DetectKneeKeypointXRayAdvanceRequest = {
+model ClassifyFNFAdvanceRequest {
   imageUrlObject: readable(name='ImageUrlObject'),
-  dataFormat: string(name='DataFormat'),
-  orgId: string(name='OrgId'),
-  orgName: string(name='OrgName'),
+  dataFormat?: string(name='DataFormat'),
+  orgId?: string(name='OrgId'),
+  orgName?: string(name='OrgName'),
   tracerId?: string(name='TracerId'),
 }
 
-async function detectKneeKeypointXRayAdvance(request: DetectKneeKeypointXRayAdvanceRequest, runtime: Util.RuntimeOptions): DetectKneeKeypointXRayResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'imageprocess',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
-  var detectKneeKeypointXRayReq = new DetectKneeKeypointXRayRequest{};
-  RPCUtil.convert(request, detectKneeKeypointXRayReq);
-
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
-
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.imageUrlObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  detectKneeKeypointXRayReq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var detectKneeKeypointXRayResp = detectKneeKeypointXRay(detectKneeKeypointXRayReq, runtime);
-  return detectKneeKeypointXRayResp;
-}
-
-model ClassifyFNFRequest = {
-  imageUrl: string(name='ImageUrl'),
-  dataFormat: string(name='DataFormat'),
-  orgId: string(name='OrgId'),
-  orgName: string(name='OrgName'),
-  tracerId?: string(name='TracerId'),
+model ClassifyFNFResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    fractures?: [ 
+      {
+        value?: float(name='Value'),
+        boxes?: [ int32 ](name='Boxes'),
+        tag?: {
+          label?: string(name='Label'),
+        }(name='Tag'),
+      }
+    ](name='Fractures'),
+    imageUrl?: string(name='ImageUrl'),
+    orgId?: string(name='OrgId'),
+    orgName?: string(name='OrgName'),
+  }(name='Data'),
 }
 
 model ClassifyFNFResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    imageUrl: string(name='ImageUrl'),
-    orgId: string(name='OrgId'),
-    orgName: string(name='OrgName'),
-    fractures: [
-      {
-        value: float(name='Value'),
-        tag: {
-          label: string(name='Label'),
-        }(name='Tag'),
-        boxes: [ integer ](name='Boxes'),
-      }
-    ](name='Fractures'),
-  }(name='Data'),
+  headers: map[string]string(name='headers'),
+  body: ClassifyFNFResponseBody(name='body'),
 }
 
-async function classifyFNF(request: ClassifyFNFRequest, runtime: Util.RuntimeOptions): ClassifyFNFResponse {
+async function classifyFNFWithOptions(request: ClassifyFNFRequest, runtime: Util.RuntimeOptions): ClassifyFNFResponse {
   Util.validateModel(request);
-  return doRequest('ClassifyFNF', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ClassifyFNF', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function classifyFNFSimply(request: ClassifyFNFRequest): ClassifyFNFResponse {
+async function classifyFNF(request: ClassifyFNFRequest): ClassifyFNFResponse {
   var runtime = new Util.RuntimeOptions{};
-  return classifyFNF(request, runtime);
-}
-
-model ClassifyFNFAdvanceRequest = {
-  imageUrlObject: readable(name='ImageUrlObject'),
-  dataFormat: string(name='DataFormat'),
-  orgId: string(name='OrgId'),
-  orgName: string(name='OrgName'),
-  tracerId?: string(name='TracerId'),
+  return classifyFNFWithOptions(request, runtime);
 }
 
 async function classifyFNFAdvance(request: ClassifyFNFAdvanceRequest, runtime: Util.RuntimeOptions): ClassifyFNFResponse {
@@ -419,13 +114,13 @@ async function classifyFNFAdvance(request: ClassifyFNFAdvanceRequest, runtime: U
   var ossHeader = new OSS.PostObjectRequest.header{};
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
+  OpenApiUtil.convert(runtime, ossRuntime);
   var classifyFNFReq = new ClassifyFNFRequest{};
-  RPCUtil.convert(request, classifyFNFReq);
+  OpenApiUtil.convert(request, classifyFNFReq);
 
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
   ossClient = new OSS(ossConfig);
 
   fileObj = new FileForm.FileField{
@@ -447,88 +142,288 @@ async function classifyFNFAdvance(request: ClassifyFNFAdvanceRequest, runtime: U
   };
   ossClient.postObject(uploadRequest, ossRuntime);
   classifyFNFReq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var classifyFNFResp = classifyFNF(classifyFNFReq, runtime);
+  var classifyFNFResp = classifyFNFWithOptions(classifyFNFReq, runtime);
   return classifyFNFResp;
 }
 
-model RunCTRegistrationRequest = {
-  referenceList: [
+model DetectLungNoduleRequest {
+  async?: boolean(name='Async'),
+  dataFormat?: string(name='DataFormat'),
+  orgName?: string(name='OrgName'),
+  orgId?: string(name='OrgId'),
+  URLList?: [ 
     {
-      referenceURL: string(name='ReferenceURL'),
+      URL?: string(name='URL'),
+    }
+  ](name='URLList'),
+  threshold?: float(name='Threshold'),
+}
+
+model DetectLungNoduleResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    series?: [ 
+      {
+        seriesInstanceUid?: string(name='SeriesInstanceUid'),
+        elements?: [ 
+          {
+            z?: float(name='Z'),
+            lobe?: string(name='Lobe'),
+            meanValue?: float(name='MeanValue'),
+            imageZ?: float(name='ImageZ'),
+            lung?: string(name='Lung'),
+            confidence?: float(name='Confidence'),
+            SOPInstanceUID?: string(name='SOPInstanceUID'),
+            imageX?: float(name='ImageX'),
+            y?: float(name='Y'),
+            category?: string(name='Category'),
+            volume?: float(name='Volume'),
+            imageY?: float(name='ImageY'),
+            diameter?: float(name='Diameter'),
+            x?: float(name='X'),
+          }
+        ](name='Elements'),
+        origin?: [ float ](name='Origin'),
+        report?: string(name='Report'),
+        spacing?: [ float ](name='Spacing'),
+      }
+    ](name='Series'),
+  }(name='Data'),
+}
+
+model DetectLungNoduleResponse = {
+  headers: map[string]string(name='headers'),
+  body: DetectLungNoduleResponseBody(name='body'),
+}
+
+async function detectLungNoduleWithOptions(request: DetectLungNoduleRequest, runtime: Util.RuntimeOptions): DetectLungNoduleResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DetectLungNodule', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function detectLungNodule(request: DetectLungNoduleRequest): DetectLungNoduleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return detectLungNoduleWithOptions(request, runtime);
+}
+
+model RunCTRegistrationRequest {
+  async?: boolean(name='Async'),
+  dataFormat?: string(name='DataFormat'),
+  orgName?: string(name='OrgName'),
+  orgId?: string(name='OrgId'),
+  dataSourceType?: string(name='DataSourceType'),
+  referenceList?: [ 
+    {
+      referenceURL?: string(name='ReferenceURL'),
     }
   ](name='ReferenceList'),
-  dataFormat: string(name='DataFormat'),
-  orgName: string(name='OrgName'),
-  orgId: string(name='OrgId'),
-  dataSourceType: string(name='DataSourceType'),
-  floatingList: [
+  floatingList?: [ 
     {
-      floatingURL: string(name='FloatingURL'),
+      floatingURL?: string(name='FloatingURL'),
     }
   ](name='FloatingList'),
 }
 
-model RunCTRegistrationResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    DUrl: string(name='DUrl'),
-    NUrl: string(name='NUrl'),
+model RunCTRegistrationResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    DUrl?: string(name='DUrl'),
+    NUrl?: string(name='NUrl'),
   }(name='Data'),
 }
 
-async function runCTRegistration(request: RunCTRegistrationRequest, runtime: Util.RuntimeOptions): RunCTRegistrationResponse {
+model RunCTRegistrationResponse = {
+  headers: map[string]string(name='headers'),
+  body: RunCTRegistrationResponseBody(name='body'),
+}
+
+async function runCTRegistrationWithOptions(request: RunCTRegistrationRequest, runtime: Util.RuntimeOptions): RunCTRegistrationResponse {
   Util.validateModel(request);
-  return doRequest('RunCTRegistration', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RunCTRegistration', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function runCTRegistrationSimply(request: RunCTRegistrationRequest): RunCTRegistrationResponse {
+async function runCTRegistration(request: RunCTRegistrationRequest): RunCTRegistrationResponse {
   var runtime = new Util.RuntimeOptions{};
-  return runCTRegistration(request, runtime);
+  return runCTRegistrationWithOptions(request, runtime);
 }
 
-model DetectHipKeypointXRayRequest = {
-  imageUrl: string(name='ImageUrl'),
-  dataFormat: string(name='DataFormat'),
-  orgId: string(name='OrgId'),
-  orgName: string(name='OrgName'),
+model TranslateMedRequest {
+  fromLanguage?: string(name='FromLanguage'),
+  toLanguage?: string(name='ToLanguage'),
+  text?: string(name='Text'),
+}
+
+model TranslateMedResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    words?: long(name='Words'),
+    text?: string(name='Text'),
+  }(name='Data'),
+}
+
+model TranslateMedResponse = {
+  headers: map[string]string(name='headers'),
+  body: TranslateMedResponseBody(name='body'),
+}
+
+async function translateMedWithOptions(request: TranslateMedRequest, runtime: Util.RuntimeOptions): TranslateMedResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('TranslateMed', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function translateMed(request: TranslateMedRequest): TranslateMedResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return translateMedWithOptions(request, runtime);
+}
+
+model DetectSpineMRIRequest {
+  dataFormat?: string(name='DataFormat'),
+  orgName?: string(name='OrgName'),
+  orgId?: string(name='OrgId'),
+  URLList?: [ 
+    {
+      URL?: string(name='URL'),
+    }
+  ](name='URLList'),
+}
+
+model DetectSpineMRIResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    discs?: [ 
+      {
+        identification?: string(name='Identification'),
+        disease?: string(name='Disease'),
+        location?: [ float ](name='Location'),
+      }
+    ](name='Discs'),
+    vertebras?: [ 
+      {
+        identification?: string(name='Identification'),
+        disease?: string(name='Disease'),
+        location?: [ float ](name='Location'),
+      }
+    ](name='Vertebras'),
+  }(name='Data'),
+}
+
+model DetectSpineMRIResponse = {
+  headers: map[string]string(name='headers'),
+  body: DetectSpineMRIResponseBody(name='body'),
+}
+
+async function detectSpineMRIWithOptions(request: DetectSpineMRIRequest, runtime: Util.RuntimeOptions): DetectSpineMRIResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DetectSpineMRI', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function detectSpineMRI(request: DetectSpineMRIRequest): DetectSpineMRIResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return detectSpineMRIWithOptions(request, runtime);
+}
+
+model CalcCACSRequest {
+  async?: boolean(name='Async'),
+  dataFormat?: string(name='DataFormat'),
+  orgName?: string(name='OrgName'),
+  orgId?: string(name='OrgId'),
+  dataSourceType?: string(name='DataSourceType'),
+  URLList?: [ 
+    {
+      URL?: string(name='URL'),
+    }
+  ](name='URLList'),
+}
+
+model CalcCACSResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    resultUrl?: string(name='ResultUrl'),
+    score?: string(name='Score'),
+  }(name='Data'),
+}
+
+model CalcCACSResponse = {
+  headers: map[string]string(name='headers'),
+  body: CalcCACSResponseBody(name='body'),
+}
+
+async function calcCACSWithOptions(request: CalcCACSRequest, runtime: Util.RuntimeOptions): CalcCACSResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CalcCACS', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function calcCACS(request: CalcCACSRequest): CalcCACSResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return calcCACSWithOptions(request, runtime);
+}
+
+model DetectHipKeypointXRayRequest {
+  imageUrl?: string(name='ImageUrl'),
+  dataFormat?: string(name='DataFormat'),
+  orgId?: string(name='OrgId'),
+  orgName?: string(name='OrgName'),
   tracerId?: string(name='TracerId'),
+}
+
+model DetectHipKeypointXRayAdvanceRequest {
+  imageUrlObject: readable(name='ImageUrlObject'),
+  dataFormat?: string(name='DataFormat'),
+  orgId?: string(name='OrgId'),
+  orgName?: string(name='OrgName'),
+  tracerId?: string(name='TracerId'),
+}
+
+model DetectHipKeypointXRayResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    keyPoints?: [ 
+      {
+        value?: float(name='Value'),
+        coordinates?: [ int32 ](name='Coordinates'),
+        tag?: {
+          direction?: string(name='Direction'),
+          label?: string(name='Label'),
+        }(name='Tag'),
+      }
+    ](name='KeyPoints'),
+    imageUrl?: string(name='ImageUrl'),
+    orgId?: string(name='OrgId'),
+    orgName?: string(name='OrgName'),
+  }(name='Data'),
 }
 
 model DetectHipKeypointXRayResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    imageUrl: string(name='ImageUrl'),
-    orgId: string(name='OrgId'),
-    orgName: string(name='OrgName'),
-    keyPoints: [
-      {
-        value: float(name='Value'),
-        tag: {
-          direction: string(name='Direction'),
-          label: string(name='Label'),
-        }(name='Tag'),
-        coordinates: [ integer ](name='Coordinates'),
-      }
-    ](name='KeyPoints'),
-  }(name='Data'),
+  headers: map[string]string(name='headers'),
+  body: DetectHipKeypointXRayResponseBody(name='body'),
 }
 
-async function detectHipKeypointXRay(request: DetectHipKeypointXRayRequest, runtime: Util.RuntimeOptions): DetectHipKeypointXRayResponse {
+async function detectHipKeypointXRayWithOptions(request: DetectHipKeypointXRayRequest, runtime: Util.RuntimeOptions): DetectHipKeypointXRayResponse {
   Util.validateModel(request);
-  return doRequest('DetectHipKeypointXRay', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DetectHipKeypointXRay', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function detectHipKeypointXRaySimply(request: DetectHipKeypointXRayRequest): DetectHipKeypointXRayResponse {
+async function detectHipKeypointXRay(request: DetectHipKeypointXRayRequest): DetectHipKeypointXRayResponse {
   var runtime = new Util.RuntimeOptions{};
-  return detectHipKeypointXRay(request, runtime);
-}
-
-model DetectHipKeypointXRayAdvanceRequest = {
-  imageUrlObject: readable(name='ImageUrlObject'),
-  dataFormat: string(name='DataFormat'),
-  orgId: string(name='OrgId'),
-  orgName: string(name='OrgName'),
-  tracerId?: string(name='TracerId'),
+  return detectHipKeypointXRayWithOptions(request, runtime);
 }
 
 async function detectHipKeypointXRayAdvance(request: DetectHipKeypointXRayAdvanceRequest, runtime: Util.RuntimeOptions): DetectHipKeypointXRayResponse {
@@ -561,13 +456,13 @@ async function detectHipKeypointXRayAdvance(request: DetectHipKeypointXRayAdvanc
   var ossHeader = new OSS.PostObjectRequest.header{};
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
+  OpenApiUtil.convert(runtime, ossRuntime);
   var detectHipKeypointXRayReq = new DetectHipKeypointXRayRequest{};
-  RPCUtil.convert(request, detectHipKeypointXRayReq);
+  OpenApiUtil.convert(request, detectHipKeypointXRayReq);
 
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
   ossClient = new OSS(ossConfig);
 
   fileObj = new FileForm.FileField{
@@ -589,73 +484,198 @@ async function detectHipKeypointXRayAdvance(request: DetectHipKeypointXRayAdvanc
   };
   ossClient.postObject(uploadRequest, ossRuntime);
   detectHipKeypointXRayReq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var detectHipKeypointXRayResp = detectHipKeypointXRay(detectHipKeypointXRayReq, runtime);
+  var detectHipKeypointXRayResp = detectHipKeypointXRayWithOptions(detectHipKeypointXRayReq, runtime);
   return detectHipKeypointXRayResp;
 }
 
-model CalcCACSRequest = {
-  URLList: [
-    {
-      URL: string(name='URL'),
-    }
-  ](name='URLList'),
-  dataFormat: string(name='DataFormat'),
-  orgName: string(name='OrgName'),
-  orgId: string(name='OrgId'),
-  dataSourceType: string(name='DataSourceType'),
+model DetectKneeKeypointXRayRequest {
+  imageUrl?: string(name='ImageUrl'),
+  dataFormat?: string(name='DataFormat'),
+  orgId?: string(name='OrgId'),
+  orgName?: string(name='OrgName'),
+  tracerId?: string(name='TracerId'),
 }
 
-model CalcCACSResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    score: string(name='Score'),
-    resultUrl: string(name='ResultUrl'),
+model DetectKneeKeypointXRayAdvanceRequest {
+  imageUrlObject: readable(name='ImageUrlObject'),
+  dataFormat?: string(name='DataFormat'),
+  orgId?: string(name='OrgId'),
+  orgName?: string(name='OrgName'),
+  tracerId?: string(name='TracerId'),
+}
+
+model DetectKneeKeypointXRayResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    keyPoints?: [ 
+      {
+        value?: float(name='Value'),
+        coordinates?: [ int32 ](name='Coordinates'),
+        tag?: {
+          direction?: string(name='Direction'),
+          label?: string(name='Label'),
+        }(name='Tag'),
+      }
+    ](name='KeyPoints'),
+    imageUrl?: string(name='ImageUrl'),
+    orgId?: string(name='OrgId'),
+    orgName?: string(name='OrgName'),
   }(name='Data'),
 }
 
-async function calcCACS(request: CalcCACSRequest, runtime: Util.RuntimeOptions): CalcCACSResponse {
+model DetectKneeKeypointXRayResponse = {
+  headers: map[string]string(name='headers'),
+  body: DetectKneeKeypointXRayResponseBody(name='body'),
+}
+
+async function detectKneeKeypointXRayWithOptions(request: DetectKneeKeypointXRayRequest, runtime: Util.RuntimeOptions): DetectKneeKeypointXRayResponse {
   Util.validateModel(request);
-  return doRequest('CalcCACS', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DetectKneeKeypointXRay', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function calcCACSSimply(request: CalcCACSRequest): CalcCACSResponse {
+async function detectKneeKeypointXRay(request: DetectKneeKeypointXRayRequest): DetectKneeKeypointXRayResponse {
   var runtime = new Util.RuntimeOptions{};
-  return calcCACS(request, runtime);
+  return detectKneeKeypointXRayWithOptions(request, runtime);
 }
 
-model DetectKneeXRayRequest = {
-  url: string(name='Url'),
-  dataFormat: string(name='DataFormat'),
-  orgName: string(name='OrgName'),
-  orgId: string(name='OrgId'),
+async function detectKneeKeypointXRayAdvance(request: DetectKneeKeypointXRayAdvanceRequest, runtime: Util.RuntimeOptions): DetectKneeKeypointXRayResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var detectKneeKeypointXRayReq = new DetectKneeKeypointXRayRequest{};
+  OpenApiUtil.convert(request, detectKneeKeypointXRayReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageUrlObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  detectKneeKeypointXRayReq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var detectKneeKeypointXRayResp = detectKneeKeypointXRayWithOptions(detectKneeKeypointXRayReq, runtime);
+  return detectKneeKeypointXRayResp;
 }
 
-model DetectKneeXRayResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    KLDetections: [
+model RunMedQARequest {
+  question?: string(name='Question'),
+  orgId?: string(name='OrgId'),
+  orgName?: string(name='OrgName'),
+}
+
+model RunMedQAResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    answer?: string(name='Answer'),
+    similarQuestion?: [ string ](name='SimilarQuestion'),
+  }(name='Data'),
+}
+
+model RunMedQAResponse = {
+  headers: map[string]string(name='headers'),
+  body: RunMedQAResponseBody(name='body'),
+}
+
+async function runMedQAWithOptions(request: RunMedQARequest, runtime: Util.RuntimeOptions): RunMedQAResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RunMedQA', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function runMedQA(request: RunMedQARequest): RunMedQAResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return runMedQAWithOptions(request, runtime);
+}
+
+model DetectKneeXRayRequest {
+  url?: string(name='Url'),
+  dataFormat?: string(name='DataFormat'),
+  orgName?: string(name='OrgName'),
+  orgId?: string(name='OrgId'),
+}
+
+model DetectKneeXRayAdvanceRequest {
+  urlObject: readable(name='UrlObject'),
+  dataFormat?: string(name='DataFormat'),
+  orgName?: string(name='OrgName'),
+  orgId?: string(name='OrgId'),
+}
+
+model DetectKneeXRayResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    KLDetections?: [ 
       {
-        detections: [ float ](name='Detections'),
+        detections?: [ float ](name='Detections'),
       }
     ](name='KLDetections'),
   }(name='Data'),
 }
 
-async function detectKneeXRay(request: DetectKneeXRayRequest, runtime: Util.RuntimeOptions): DetectKneeXRayResponse {
+model DetectKneeXRayResponse = {
+  headers: map[string]string(name='headers'),
+  body: DetectKneeXRayResponseBody(name='body'),
+}
+
+async function detectKneeXRayWithOptions(request: DetectKneeXRayRequest, runtime: Util.RuntimeOptions): DetectKneeXRayResponse {
   Util.validateModel(request);
-  return doRequest('DetectKneeXRay', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DetectKneeXRay', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function detectKneeXRaySimply(request: DetectKneeXRayRequest): DetectKneeXRayResponse {
+async function detectKneeXRay(request: DetectKneeXRayRequest): DetectKneeXRayResponse {
   var runtime = new Util.RuntimeOptions{};
-  return detectKneeXRay(request, runtime);
-}
-
-model DetectKneeXRayAdvanceRequest = {
-  urlObject: readable(name='UrlObject'),
-  dataFormat: string(name='DataFormat'),
-  orgName: string(name='OrgName'),
-  orgId: string(name='OrgId'),
+  return detectKneeXRayWithOptions(request, runtime);
 }
 
 async function detectKneeXRayAdvance(request: DetectKneeXRayAdvanceRequest, runtime: Util.RuntimeOptions): DetectKneeXRayResponse {
@@ -688,13 +708,13 @@ async function detectKneeXRayAdvance(request: DetectKneeXRayAdvanceRequest, runt
   var ossHeader = new OSS.PostObjectRequest.header{};
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
+  OpenApiUtil.convert(runtime, ossRuntime);
   var detectKneeXRayReq = new DetectKneeXRayRequest{};
-  RPCUtil.convert(request, detectKneeXRayReq);
+  OpenApiUtil.convert(request, detectKneeXRayReq);
 
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
   ossClient = new OSS(ossConfig);
 
   fileObj = new FileForm.FileField{
@@ -716,192 +736,305 @@ async function detectKneeXRayAdvance(request: DetectKneeXRayAdvanceRequest, runt
   };
   ossClient.postObject(uploadRequest, ossRuntime);
   detectKneeXRayReq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var detectKneeXRayResp = detectKneeXRay(detectKneeXRayReq, runtime);
+  var detectKneeXRayResp = detectKneeXRayWithOptions(detectKneeXRayReq, runtime);
   return detectKneeXRayResp;
 }
 
-model DetectSpineMRIRequest = {
-  URLList: [
-    {
-      URL: string(name='URL'),
-    }
-  ](name='URLList'),
-  dataFormat: string(name='DataFormat'),
-  orgName: string(name='OrgName'),
-  orgId: string(name='OrgId'),
+model GetAsyncJobResultRequest {
+  async?: boolean(name='Async'),
+  jobId?: string(name='JobId'),
 }
 
-model DetectSpineMRIResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    discs: [
-      {
-        disease: string(name='Disease'),
-        identification: string(name='Identification'),
-        location: [ float ](name='Location'),
-      }
-    ](name='Discs'),
-    vertebras: [
-      {
-        disease: string(name='Disease'),
-        identification: string(name='Identification'),
-        location: [ float ](name='Location'),
-      }
-    ](name='Vertebras'),
+model GetAsyncJobResultResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    status?: string(name='Status'),
+    errorMessage?: string(name='ErrorMessage'),
+    result?: string(name='Result'),
+    errorCode?: string(name='ErrorCode'),
+    jobId?: string(name='JobId'),
   }(name='Data'),
-}
-
-async function detectSpineMRI(request: DetectSpineMRIRequest, runtime: Util.RuntimeOptions): DetectSpineMRIResponse {
-  Util.validateModel(request);
-  return doRequest('DetectSpineMRI', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function detectSpineMRISimply(request: DetectSpineMRIRequest): DetectSpineMRIResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return detectSpineMRI(request, runtime);
-}
-
-model TranslateMedRequest = {
-  fromLanguage: string(name='FromLanguage'),
-  toLanguage: string(name='ToLanguage'),
-  text: string(name='Text'),
-}
-
-model TranslateMedResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    text: string(name='Text'),
-    words: long(name='Words'),
-  }(name='Data'),
-}
-
-async function translateMed(request: TranslateMedRequest, runtime: Util.RuntimeOptions): TranslateMedResponse {
-  Util.validateModel(request);
-  return doRequest('TranslateMed', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function translateMedSimply(request: TranslateMedRequest): TranslateMedResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return translateMed(request, runtime);
-}
-
-model DetectLungNoduleRequest = {
-  URLList: [
-    {
-      URL: string(name='URL'),
-    }
-  ](name='URLList'),
-  dataFormat: string(name='DataFormat'),
-  orgName: string(name='OrgName'),
-  orgId: string(name='OrgId'),
-}
-
-model DetectLungNoduleResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    series: [
-      {
-        seriesInstanceUid: string(name='SeriesInstanceUid'),
-        report: string(name='Report'),
-        elements: [
-          {
-            category: string(name='Category'),
-            confidence: float(name='Confidence'),
-            diameter: float(name='Diameter'),
-            lobe: string(name='Lobe'),
-            lung: string(name='Lung'),
-            x: float(name='X'),
-            z: float(name='Z'),
-            y: float(name='Y'),
-            imageX: float(name='ImageX'),
-            imageY: float(name='ImageY'),
-            imageZ: float(name='ImageZ'),
-            SOPInstanceUID: string(name='SOPInstanceUID'),
-            volume: float(name='Volume'),
-            meanValue: float(name='MeanValue'),
-          }
-        ](name='Elements'),
-        origin: [ float ](name='Origin'),
-        spacing: [ float ](name='Spacing'),
-      }
-    ](name='Series'),
-  }(name='Data'),
-}
-
-async function detectLungNodule(request: DetectLungNoduleRequest, runtime: Util.RuntimeOptions): DetectLungNoduleResponse {
-  Util.validateModel(request);
-  return doRequest('DetectLungNodule', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function detectLungNoduleSimply(request: DetectLungNoduleRequest): DetectLungNoduleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return detectLungNodule(request, runtime);
-}
-
-model DetectCovid19CadRequest = {
-  URLList: [
-    {
-      URL: string(name='URL'),
-    }
-  ](name='URLList'),
-  dataFormat: string(name='DataFormat'),
-  orgName: string(name='OrgName'),
-  orgId: string(name='OrgId'),
-}
-
-model DetectCovid19CadResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    newProbability: string(name='NewProbability'),
-    normalProbability: string(name='NormalProbability'),
-    otherProbability: string(name='OtherProbability'),
-    lesionRatio: string(name='LesionRatio'),
-    mask: string(name='Mask'),
-  }(name='Data'),
-}
-
-async function detectCovid19Cad(request: DetectCovid19CadRequest, runtime: Util.RuntimeOptions): DetectCovid19CadResponse {
-  Util.validateModel(request);
-  return doRequest('DetectCovid19Cad', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
-}
-
-async function detectCovid19CadSimply(request: DetectCovid19CadRequest): DetectCovid19CadResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return detectCovid19Cad(request, runtime);
-}
-
-model GetAsyncJobResultRequest = {
-  jobId: string(name='JobId'),
 }
 
 model GetAsyncJobResultResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    jobId: string(name='JobId'),
-    status: string(name='Status'),
-    result: string(name='Result'),
-    errorCode: string(name='ErrorCode'),
-    errorMessage: string(name='ErrorMessage'),
+  headers: map[string]string(name='headers'),
+  body: GetAsyncJobResultResponseBody(name='body'),
+}
+
+async function getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('GetAsyncJobResult', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function getAsyncJobResult(request: GetAsyncJobResultRequest): GetAsyncJobResultResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAsyncJobResultWithOptions(request, runtime);
+}
+
+model DetectRibFractureRequest {
+  async?: boolean(name='Async'),
+  dataFormat?: string(name='DataFormat'),
+  orgName?: string(name='OrgName'),
+  orgId?: string(name='OrgId'),
+  sourceType?: string(name='SourceType'),
+  URLList?: [ 
+    {
+      URL?: string(name='URL'),
+    }
+  ](name='URLList'),
+}
+
+model DetectRibFractureResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    detections?: [ 
+      {
+        coordinates?: [ int32 ](name='Coordinates'),
+        fractureId?: int32(name='FractureId'),
+        coordinateImage?: [ int32 ](name='CoordinateImage'),
+        fractureConfidence?: float(name='FractureConfidence'),
+        fractureCategory?: string(name='FractureCategory'),
+      }
+    ](name='Detections'),
+    origin?: [ float ](name='Origin'),
+    resultURL?: string(name='ResultURL'),
+    spacing?: [ float ](name='Spacing'),
   }(name='Data'),
 }
 
-async function getAsyncJobResult(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
+model DetectRibFractureResponse = {
+  headers: map[string]string(name='headers'),
+  body: DetectRibFractureResponseBody(name='body'),
+}
+
+async function detectRibFractureWithOptions(request: DetectRibFractureRequest, runtime: Util.RuntimeOptions): DetectRibFractureResponse {
   Util.validateModel(request);
-  return doRequest('GetAsyncJobResult', 'HTTPS', 'POST', '2020-03-20', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DetectRibFracture', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function getAsyncJobResultSimply(request: GetAsyncJobResultRequest): GetAsyncJobResultResponse {
+async function detectRibFracture(request: DetectRibFractureRequest): DetectRibFractureResponse {
   var runtime = new Util.RuntimeOptions{};
-  return getAsyncJobResult(request, runtime);
+  return detectRibFractureWithOptions(request, runtime);
 }
 
-function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
-    return endpoint;
-  }
-
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
-    return endpointMap[regionId];
-  }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+model DetectCovid19CadRequest {
+  async?: boolean(name='Async'),
+  dataFormat?: string(name='DataFormat'),
+  orgName?: string(name='OrgName'),
+  orgId?: string(name='OrgId'),
+  URLList?: [ 
+    {
+      URL?: string(name='URL'),
+    }
+  ](name='URLList'),
 }
+
+model DetectCovid19CadResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    normalProbability?: string(name='NormalProbability'),
+    newProbability?: string(name='NewProbability'),
+    lesionRatio?: string(name='LesionRatio'),
+    otherProbability?: string(name='OtherProbability'),
+    mask?: string(name='Mask'),
+  }(name='Data'),
+}
+
+model DetectCovid19CadResponse = {
+  headers: map[string]string(name='headers'),
+  body: DetectCovid19CadResponseBody(name='body'),
+}
+
+async function detectCovid19CadWithOptions(request: DetectCovid19CadRequest, runtime: Util.RuntimeOptions): DetectCovid19CadResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DetectCovid19Cad', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function detectCovid19Cad(request: DetectCovid19CadRequest): DetectCovid19CadResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return detectCovid19CadWithOptions(request, runtime);
+}
+
+model ScreenChestCTRequest {
+  async?: boolean(name='Async'),
+  dataFormat?: string(name='DataFormat'),
+  orgName?: string(name='OrgName'),
+  orgId?: string(name='OrgId'),
+  URLList?: [ 
+    {
+      URL?: string(name='URL'),
+    }
+  ](name='URLList'),
+}
+
+model ScreenChestCTResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    lungNodule?: {
+      series?: [ 
+        {
+          seriesInstanceUid?: string(name='SeriesInstanceUid'),
+          elements?: [ 
+            {
+              z?: float(name='Z'),
+              lobe?: string(name='Lobe'),
+              meanValue?: float(name='MeanValue'),
+              imageZ?: float(name='ImageZ'),
+              lung?: string(name='Lung'),
+              confidence?: float(name='Confidence'),
+              SOPInstanceUID?: string(name='SOPInstanceUID'),
+              imageX?: float(name='ImageX'),
+              y?: float(name='Y'),
+              category?: string(name='Category'),
+              volume?: float(name='Volume'),
+              imageY?: float(name='ImageY'),
+              diameter?: float(name='Diameter'),
+              x?: float(name='X'),
+            }
+          ](name='Elements'),
+          origin?: [ float ](name='Origin'),
+          report?: string(name='Report'),
+          spacing?: [ float ](name='Spacing'),
+        }
+      ](name='Series'),
+    }(name='LungNodule'),
+    CACS?: {
+      resultUrl?: string(name='ResultUrl'),
+      score?: string(name='Score'),
+    }(name='CACS'),
+    covid?: {
+      normalProbability?: string(name='NormalProbability'),
+      newProbability?: string(name='NewProbability'),
+      lesionRatio?: string(name='LesionRatio'),
+      otherProbability?: string(name='OtherProbability'),
+      mask?: string(name='Mask'),
+    }(name='Covid'),
+  }(name='Data'),
+}
+
+model ScreenChestCTResponse = {
+  headers: map[string]string(name='headers'),
+  body: ScreenChestCTResponseBody(name='body'),
+}
+
+async function screenChestCTWithOptions(request: ScreenChestCTRequest, runtime: Util.RuntimeOptions): ScreenChestCTResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ScreenChestCT', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function screenChestCT(request: ScreenChestCTRequest): ScreenChestCTResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return screenChestCTWithOptions(request, runtime);
+}
+
+model DetectSkinDiseaseRequest {
+  url?: string(name='Url'),
+  orgId?: string(name='OrgId'),
+  orgName?: string(name='OrgName'),
+}
+
+model DetectSkinDiseaseAdvanceRequest {
+  urlObject: readable(name='UrlObject'),
+  orgId?: string(name='OrgId'),
+  orgName?: string(name='OrgName'),
+}
+
+model DetectSkinDiseaseResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    results?: map[string]any(name='Results'),
+  }(name='Data'),
+}
+
+model DetectSkinDiseaseResponse = {
+  headers: map[string]string(name='headers'),
+  body: DetectSkinDiseaseResponseBody(name='body'),
+}
+
+async function detectSkinDiseaseWithOptions(request: DetectSkinDiseaseRequest, runtime: Util.RuntimeOptions): DetectSkinDiseaseResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DetectSkinDisease', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function detectSkinDisease(request: DetectSkinDiseaseRequest): DetectSkinDiseaseResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return detectSkinDiseaseWithOptions(request, runtime);
+}
+
+async function detectSkinDiseaseAdvance(request: DetectSkinDiseaseAdvanceRequest, runtime: Util.RuntimeOptions): DetectSkinDiseaseResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var detectSkinDiseaseReq = new DetectSkinDiseaseRequest{};
+  OpenApiUtil.convert(request, detectSkinDiseaseReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.urlObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  detectSkinDiseaseReq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var detectSkinDiseaseResp = detectSkinDiseaseWithOptions(detectSkinDiseaseReq, runtime);
+  return detectSkinDiseaseResp;
+}
+
