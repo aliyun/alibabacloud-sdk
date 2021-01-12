@@ -1,0 +1,89 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = 'regional';
+  
+@endpointMap = {
+    cn-hangzhou = 'et-industry.cn-hangzhou.aliyuncs.com',
+  };
+
+  checkConfig(config);
+  @endpoint = getEndpoint('et-industry-openapi', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model OpenApiInvokeRequest {
+  serviceId?: string(name='serviceId', description='服务Id'),
+  type?: string(name='type', description='类型，EXPERIMENT-画布,NODE-节点'),
+  nodeId?: string(name='nodeId', description='节点id'),
+  params?: string(name='params'),
+  jobId?: string(name='jobId', description='任务id，需要全局唯一'),
+}
+
+model OpenApiInvokeResponseBody = {
+  success?: boolean(name='success', description='是否成功'),
+  code?: string(name='code', description='返回码'),
+  message?: string(name='message', description='消息'),
+  data?: string(name='data', description='结果'),
+  rid?: string(name='rid'),
+  innerCode?: string(name='innerCode', description='内部, 统一错误码'),
+}
+
+model OpenApiInvokeResponse = {
+  headers: map[string]string(name='headers'),
+  body: OpenApiInvokeResponseBody(name='body'),
+}
+
+async function openApiInvoke(request: OpenApiInvokeRequest): OpenApiInvokeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return openApiInvokeWithOptions(request, headers, runtime);
+}
+
+async function openApiInvokeWithOptions(request: OpenApiInvokeRequest, headers: map[string]string, runtime: Util.RuntimeOptions): OpenApiInvokeResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.serviceId)) {
+    query.serviceId = request.serviceId;
+  }
+  if (!Util.isUnset(request.type)) {
+    query.type = request.type;
+  }
+  if (!Util.isUnset(request.nodeId)) {
+    query.nodeId = request.nodeId;
+  }
+
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.params)) {
+    body.params = request.params;
+  }
+  if (!Util.isUnset(request.jobId)) {
+    body.jobId = request.jobId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('OpenApiInvoke', '2021-01-05', 'HTTPS', 'POST', 'AK', `/aics/api/openapi/invoke`, 'json', req, runtime);
+}
+
