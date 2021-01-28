@@ -1,11 +1,11 @@
-import OSS;
-import OpenPlatform;
+import Util;
 import RPCUtil;
 import RPC;
-import OSSUtil;
-import Util;
-import FileForm;
 import EndpointUtil;
+import OSS;
+import OpenPlatform;
+import OSSUtil;
+import FileForm;
 
 extends RPC;
 
@@ -38,7 +38,12 @@ model LivenessDetectResponse = {
 
 async function livenessDetect(request: LivenessDetectRequest, runtime: Util.RuntimeOptions): LivenessDetectResponse {
   Util.validateModel(request);
-  return doRequest('LivenessDetect', 'HTTPS', 'POST' , '2020-11-12', 'AK', null, request, runtime);
+  return doRequest('LivenessDetect', 'HTTPS', 'POST', '2020-11-12', 'AK', null, request, runtime);
+}
+
+async function livenessDetectSimply(request: LivenessDetectRequest): LivenessDetectResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return livenessDetect(request, runtime);
 }
 
 model LivenessDetectAdvanceRequest = {
@@ -80,8 +85,9 @@ async function livenessDetectAdvance(request: LivenessDetectAdvanceRequest, runt
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   RPCUtil.convert(runtime, ossRuntime);
-  var livenessDetectreq = new LivenessDetectRequest{};
-  RPCUtil.convert(request, livenessDetectreq);
+  var livenessDetectReq = new LivenessDetectRequest{};
+  RPCUtil.convert(request, livenessDetectReq);
+
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
   ossConfig.endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
@@ -105,8 +111,8 @@ async function livenessDetectAdvance(request: LivenessDetectAdvanceRequest, runt
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  livenessDetectreq.mediaFile = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var livenessDetectResp = livenessDetect(livenessDetectreq, runtime);
+  livenessDetectReq.mediaFile = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var livenessDetectResp = livenessDetect(livenessDetectReq, runtime);
   return livenessDetectResp;
 }
 
