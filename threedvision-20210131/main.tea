@@ -1,0 +1,256 @@
+/**
+ *
+ */
+import Util;
+import OSS;
+import RPC;
+import OpenPlatform;
+import OSSUtil;
+import FileForm;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('threedvision', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model ReconstructBodyBySingleImageRequest {
+  imageURL?: string(name='ImageURL', description='A short description of struct'),
+}
+
+model ReconstructBodyBySingleImageAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model ReconstructBodyBySingleImageResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  data?: {
+    depthURL?: string(name='DepthURL'),
+    meshURL?: string(name='MeshURL'),
+  }(name='Data'),
+}
+
+model ReconstructBodyBySingleImageResponse = {
+  headers: map[string]string(name='headers'),
+  body: ReconstructBodyBySingleImageResponseBody(name='body'),
+}
+
+async function reconstructBodyBySingleImageWithOptions(request: ReconstructBodyBySingleImageRequest, runtime: Util.RuntimeOptions): ReconstructBodyBySingleImageResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ReconstructBodyBySingleImage', '2021-01-31', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function reconstructBodyBySingleImage(request: ReconstructBodyBySingleImageRequest): ReconstructBodyBySingleImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return reconstructBodyBySingleImageWithOptions(request, runtime);
+}
+
+async function reconstructBodyBySingleImageAdvance(request: ReconstructBodyBySingleImageAdvanceRequest, runtime: Util.RuntimeOptions): ReconstructBodyBySingleImageResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'threedvision',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var reconstructBodyBySingleImageReq = new ReconstructBodyBySingleImageRequest{};
+  OpenApiUtil.convert(request, reconstructBodyBySingleImageReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  reconstructBodyBySingleImageReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var reconstructBodyBySingleImageResp = reconstructBodyBySingleImageWithOptions(reconstructBodyBySingleImageReq, runtime);
+  return reconstructBodyBySingleImageResp;
+}
+
+model EstimateMonocularImageDepthRequest {
+  imageURL?: string(name='ImageURL', description='A short description of struct'),
+}
+
+model EstimateMonocularImageDepthAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model EstimateMonocularImageDepthResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  data?: {
+    depthMapUrl?: string(name='DepthMapUrl'),
+    depthToColorUrl?: string(name='DepthToColorUrl'),
+  }(name='Data'),
+}
+
+model EstimateMonocularImageDepthResponse = {
+  headers: map[string]string(name='headers'),
+  body: EstimateMonocularImageDepthResponseBody(name='body'),
+}
+
+async function estimateMonocularImageDepthWithOptions(request: EstimateMonocularImageDepthRequest, runtime: Util.RuntimeOptions): EstimateMonocularImageDepthResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('EstimateMonocularImageDepth', '2021-01-31', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function estimateMonocularImageDepth(request: EstimateMonocularImageDepthRequest): EstimateMonocularImageDepthResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return estimateMonocularImageDepthWithOptions(request, runtime);
+}
+
+async function estimateMonocularImageDepthAdvance(request: EstimateMonocularImageDepthAdvanceRequest, runtime: Util.RuntimeOptions): EstimateMonocularImageDepthResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'threedvision',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var estimateMonocularImageDepthReq = new EstimateMonocularImageDepthRequest{};
+  OpenApiUtil.convert(request, estimateMonocularImageDepthReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  estimateMonocularImageDepthReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var estimateMonocularImageDepthResp = estimateMonocularImageDepthWithOptions(estimateMonocularImageDepthReq, runtime);
+  return estimateMonocularImageDepthResp;
+}
+
+model EstimateStereoImageDepthRequest {
+  leftImageURL?: string(name='LeftImageURL', description='A short description of struct'),
+  rightImageURL?: string(name='RightImageURL'),
+}
+
+model EstimateStereoImageDepthResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  data?: {
+    disparityMapURL?: string(name='DisparityMapURL'),
+    disparityVisURL?: string(name='DisparityVisURL'),
+  }(name='Data'),
+}
+
+model EstimateStereoImageDepthResponse = {
+  headers: map[string]string(name='headers'),
+  body: EstimateStereoImageDepthResponseBody(name='body'),
+}
+
+async function estimateStereoImageDepthWithOptions(request: EstimateStereoImageDepthRequest, runtime: Util.RuntimeOptions): EstimateStereoImageDepthResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('EstimateStereoImageDepth', '2021-01-31', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function estimateStereoImageDepth(request: EstimateStereoImageDepthRequest): EstimateStereoImageDepthResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return estimateStereoImageDepthWithOptions(request, runtime);
+}
+
