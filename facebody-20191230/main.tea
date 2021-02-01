@@ -17,7 +17,6 @@ init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
   
-
   checkConfig(config);
   @endpoint = getEndpoint('facebody', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -1136,6 +1135,45 @@ async function generateHumanAnimeStyleAdvance(request: GenerateHumanAnimeStyleAd
   return generateHumanAnimeStyleResp;
 }
 
+model QueryFaceImageTemplateRequest {
+  userId?: string(name='UserId', description='A short description of struct'),
+  templateId?: string(name='TemplateId'),
+}
+
+model QueryFaceImageTemplateResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  data?: {
+    elements?: [ 
+      {
+        createTime?: string(name='CreateTime'),
+        updateTime?: string(name='UpdateTime'),
+        userId?: string(name='UserId'),
+        templateId?: string(name='TemplateId'),
+        templateURL?: string(name='TemplateURL'),
+      }
+    ](name='Elements'),
+  }(name='Data'),
+}
+
+model QueryFaceImageTemplateResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryFaceImageTemplateResponseBody(name='body'),
+}
+
+async function queryFaceImageTemplateWithOptions(request: QueryFaceImageTemplateRequest, runtime: Util.RuntimeOptions): QueryFaceImageTemplateResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = query,
+  };
+  return doRPCRequest('QueryFaceImageTemplate', '2019-12-30', 'HTTPS', 'GET', 'AK', 'json', req, runtime);
+}
+
+async function queryFaceImageTemplate(request: QueryFaceImageTemplateRequest): QueryFaceImageTemplateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryFaceImageTemplateWithOptions(request, runtime);
+}
+
 model DetectFaceRequest {
   imageType?: int32(name='ImageType'),
   imageURL?: string(name='ImageURL'),
@@ -1947,6 +1985,105 @@ async function recognizeExpressionAdvance(request: RecognizeExpressionAdvanceReq
   return recognizeExpressionResp;
 }
 
+model MergeImageFaceRequest {
+  userId?: string(name='UserId', description='A short description of struct'),
+  templateId?: string(name='TemplateId'),
+  imageURL?: string(name='ImageURL'),
+}
+
+model MergeImageFaceAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+  userId?: string(name='UserId', description='A short description of struct'),
+  templateId?: string(name='TemplateId'),
+}
+
+model MergeImageFaceResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  data?: {
+    imageURL?: string(name='ImageURL'),
+  }(name='Data'),
+}
+
+model MergeImageFaceResponse = {
+  headers: map[string]string(name='headers'),
+  body: MergeImageFaceResponseBody(name='body'),
+}
+
+async function mergeImageFaceWithOptions(request: MergeImageFaceRequest, runtime: Util.RuntimeOptions): MergeImageFaceResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('MergeImageFace', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function mergeImageFace(request: MergeImageFaceRequest): MergeImageFaceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return mergeImageFaceWithOptions(request, runtime);
+}
+
+async function mergeImageFaceAdvance(request: MergeImageFaceAdvanceRequest, runtime: Util.RuntimeOptions): MergeImageFaceResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var mergeImageFaceReq = new MergeImageFaceRequest{};
+  OpenApiUtil.convert(request, mergeImageFaceReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  mergeImageFaceReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var mergeImageFaceResp = mergeImageFaceWithOptions(mergeImageFaceReq, runtime);
+  return mergeImageFaceResp;
+}
+
 model DeleteBodyPersonRequest {
   dbId?: long(name='DbId', description='数据库ID'),
   personId?: long(name='PersonId', description='人员ID'),
@@ -2650,6 +2787,101 @@ async function addFaceAdvance(request: AddFaceAdvanceRequest, runtime: Util.Runt
   return addFaceResp;
 }
 
+model GenerateHumanSketchStyleRequest {
+  imageURL?: string(name='ImageURL', description='A short description of struct'),
+}
+
+model GenerateHumanSketchStyleAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model GenerateHumanSketchStyleResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  data?: {
+    imageURL?: string(name='ImageURL', description='出参图片地址'),
+  }(name='Data'),
+}
+
+model GenerateHumanSketchStyleResponse = {
+  headers: map[string]string(name='headers'),
+  body: GenerateHumanSketchStyleResponseBody(name='body'),
+}
+
+async function generateHumanSketchStyleWithOptions(request: GenerateHumanSketchStyleRequest, runtime: Util.RuntimeOptions): GenerateHumanSketchStyleResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('GenerateHumanSketchStyle', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function generateHumanSketchStyle(request: GenerateHumanSketchStyleRequest): GenerateHumanSketchStyleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return generateHumanSketchStyleWithOptions(request, runtime);
+}
+
+async function generateHumanSketchStyleAdvance(request: GenerateHumanSketchStyleAdvanceRequest, runtime: Util.RuntimeOptions): GenerateHumanSketchStyleResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var generateHumanSketchStyleReq = new GenerateHumanSketchStyleRequest{};
+  OpenApiUtil.convert(request, generateHumanSketchStyleReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  generateHumanSketchStyleReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var generateHumanSketchStyleResp = generateHumanSketchStyleWithOptions(generateHumanSketchStyleReq, runtime);
+  return generateHumanSketchStyleResp;
+}
+
 model DeleteBodyDbRequest {
   id?: long(name='Id', description='数据库ID'),
 }
@@ -3303,6 +3535,33 @@ async function recognizePublicFace(request: RecognizePublicFaceRequest): Recogni
   return recognizePublicFaceWithOptions(request, runtime);
 }
 
+model DeleteFaceImageTemplateRequest {
+  userId?: string(name='UserId', description='A short description of struct'),
+  templateId?: string(name='TemplateId'),
+}
+
+model DeleteFaceImageTemplateResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model DeleteFaceImageTemplateResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteFaceImageTemplateResponseBody(name='body'),
+}
+
+async function deleteFaceImageTemplateWithOptions(request: DeleteFaceImageTemplateRequest, runtime: Util.RuntimeOptions): DeleteFaceImageTemplateResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DeleteFaceImageTemplate', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function deleteFaceImageTemplate(request: DeleteFaceImageTemplateRequest): DeleteFaceImageTemplateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteFaceImageTemplateWithOptions(request, runtime);
+}
+
 model CreateFaceDbRequest {
   name?: string(name='Name'),
 }
@@ -3431,6 +3690,103 @@ async function searchBodyTraceWithOptions(tmpReq: SearchBodyTraceRequest, runtim
 async function searchBodyTrace(request: SearchBodyTraceRequest): SearchBodyTraceResponse {
   var runtime = new Util.RuntimeOptions{};
   return searchBodyTraceWithOptions(request, runtime);
+}
+
+model AddFaceImageTemplateRequest {
+  userId?: string(name='UserId', description='A short description of struct'),
+  imageURL?: string(name='ImageURL'),
+}
+
+model AddFaceImageTemplateAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+  userId?: string(name='UserId', description='A short description of struct'),
+}
+
+model AddFaceImageTemplateResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  data?: {
+    templateId?: string(name='TemplateId'),
+  }(name='Data'),
+}
+
+model AddFaceImageTemplateResponse = {
+  headers: map[string]string(name='headers'),
+  body: AddFaceImageTemplateResponseBody(name='body'),
+}
+
+async function addFaceImageTemplateWithOptions(request: AddFaceImageTemplateRequest, runtime: Util.RuntimeOptions): AddFaceImageTemplateResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('AddFaceImageTemplate', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function addFaceImageTemplate(request: AddFaceImageTemplateRequest): AddFaceImageTemplateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return addFaceImageTemplateWithOptions(request, runtime);
+}
+
+async function addFaceImageTemplateAdvance(request: AddFaceImageTemplateAdvanceRequest, runtime: Util.RuntimeOptions): AddFaceImageTemplateResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var addFaceImageTemplateReq = new AddFaceImageTemplateRequest{};
+  OpenApiUtil.convert(request, addFaceImageTemplateReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  addFaceImageTemplateReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var addFaceImageTemplateResp = addFaceImageTemplateWithOptions(addFaceImageTemplateReq, runtime);
+  return addFaceImageTemplateResp;
 }
 
 model CountCrowdRequest {
