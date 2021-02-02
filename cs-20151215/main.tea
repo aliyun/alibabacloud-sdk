@@ -49,7 +49,6 @@ init(config: OpenApi.Config){
     eu-west-1-oxs = 'cs.aliyuncs.com',
     rus-west-1-pop = 'cs.aliyuncs.com',
   };
-
   checkConfig(config);
   @endpoint = getEndpoint('cs', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -444,6 +443,38 @@ async function createKubernetesTriggerWithOptions(request: CreateKubernetesTrigg
   return doROARequest('CreateKubernetesTrigger', '2015-12-15', 'HTTPS', 'POST', 'AK', `/triggers`, 'json', req, runtime);
 }
 
+model GrantPermissionsRequest {
+  body?: [ 
+    {
+      cluster?: string(name='cluster', description='授权目标集群id'),
+      isCustom?: boolean(name='is_custom', description='该授权是否是自定义授权'),
+      roleName?: string(name='role_name', description='预置的角色名称'),
+      roleType?: string(name='role_type', description='授权类型'),
+      namespace?: string(name='namespace', description='命名空间名称'),
+      isRamRole?: boolean(name='is_ram_role', description='是否是 RAM 角色授权'),
+    }
+  ](name='body', description='请求体参数'),
+}
+
+model GrantPermissionsResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function grantPermissions(uid: string, request: GrantPermissionsRequest): GrantPermissionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return grantPermissionsWithOptions(uid, request, headers, runtime);
+}
+
+async function grantPermissionsWithOptions(uid: string, request: GrantPermissionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GrantPermissionsResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = Util.toArray(request.body),
+  };
+  return doROARequest('GrantPermissions', '2015-12-15', 'HTTPS', 'POST', 'AK', `/permissions/users/${uid}`, 'none', req, runtime);
+}
+
 model DescribeClusterDetailResponseBody = {
   clusterId?: string(name='cluster_id', description='集群ID。'),
   clusterType?: string(name='cluster_type', description='集群类型。'),
@@ -494,6 +525,33 @@ async function describeClusterDetailWithOptions(ClusterId: string, headers: map[
     headers = headers,
   };
   return doROARequest('DescribeClusterDetail', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/${ClusterId}`, 'json', req, runtime);
+}
+
+model DescribeUserPermissionResponse = {
+  headers: map[string]string(name='headers'),
+  body: [ 
+    {
+      resourceId?: string(name='resource_id', description='集群访问配置'),
+      resourceType?: string(name='resource_type', description='授权类型'),
+      roleName?: string(name='role_name', description='自定义角色名称'),
+      roleType?: string(name='role_type', description='预置的角色类型'),
+      isOwner?: long(name='is_owner', description='是否为集群 owner 的授权'),
+      isRamRole?: long(name='is_ram_role', description='是否为ram 角色授权'),
+    }
+  ](name='body'),
+}
+
+async function describeUserPermission(uid: string): DescribeUserPermissionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeUserPermissionWithOptions(uid, headers, runtime);
+}
+
+async function describeUserPermissionWithOptions(uid: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeUserPermissionResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('DescribeUserPermission', '2015-12-15', 'HTTPS', 'GET', 'AK', `/permissions/users/${uid}`, 'array', req, runtime);
 }
 
 model ModifyClusterNodePoolRequest {
