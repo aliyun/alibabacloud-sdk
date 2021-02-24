@@ -1,0 +1,289 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('dingtalk', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model BatchCreateHeaders {
+  commonHeaders?: map[string]string,
+  xAcsDingtalkAccessToken?: string(name='x-acs-dingtalk-access-token'),
+}
+
+model BatchCreateRequest {
+  cardBizCode?: string(name='cardBizCode', description='卡片业务类型，打卡写死：industry_center'),
+  data?: {
+    canReissueCard?: boolean(name='canReissueCard', description='是否可以补卡'),
+    cardCycle?: long(name='cardCycle', description='打卡周期,单位为天'),
+    cardFrequency?: [ long ](name='cardFrequency', description='打卡的频次设置："cardFrequency":[             1,//周天             2,//周一             3,//周二             4,//周三             5,//周四             6,//周五             7//周六         ]'),
+    cardRuleItemParamList?: [ 
+      {
+        cardTaskCode?: string(name='cardTaskCode', description='卡片taskCode'),
+        relationId?: string(name='relationId', description='关联的外部Id'),
+        cardRuleAttr?: string(name='cardRuleAttr', description='扩展属性，存放配音难度、每日配音视频的url等'),
+        dailyDubbing?: long(name='dailyDubbing', description='每日配音数'),
+        relationTitle?: string(name='relationTitle', description='关联内容标题（会在打卡详页页展示）'),
+        relationUrl?: string(name='relationUrl', description='relationUrl（点击打卡内容后跳转的链接）（点击卡片内容后跳转的链接）'),
+      }
+    ](name='cardRuleItemParamList'),
+    classIds?: [ string ](name='classIds', description='班级列表'),
+    classNames?: [ string ](name='classNames', description='班级名称列表'),
+    content?: string(name='content', description='打卡的内容'),
+    effectDate?: float(name='effectDate', description='卡片生效时间'),
+    medias?: string(name='medias', description='上传相册，图片，录音，盯盘的信息'),
+    needMetering?: boolean(name='needMetering', description='计量开启'),
+    orgClassStudentGroupList?: [ 
+      {
+        corpId?: string(name='corpId', description='组织id'),
+        classList?: [ 
+          {
+            classId?: float(name='classId', description='班级id'),
+            className?: string(name='className', description='班级名称'),
+            students?: [ 
+              {
+                stuName?: string(name='stuName', description='学生名称'),
+                stuId?: string(name='stuId', description='学生id'),
+              }
+            ](name='students', description='班级学生'),
+          }
+        ](name='classList', description='班级列表'),
+      }
+    ](name='orgClassStudentGroupList'),
+    remindHour?: long(name='remindHour', description='提醒时间（小时）'),
+    remindMinute?: long(name='remindMinute', description='提醒时间（分钟）'),
+    targetRole?: string(name='targetRole', description='默认：student_guardian'),
+    templateId?: float(name='templateId', description='打卡模板id'),
+    title?: string(name='title', description='卡片标题'),
+    unitOfMeasurement?: string(name='unitOfMeasurement', description='计量单位'),
+  }(name='data', description='卡片详细数据'),
+  identifier?: string(name='identifier', description='卡片幂等唯一键'),
+  sourceType?: string(name='sourceType', description='isv业务类型'),
+  userid?: string(name='userid', description='老师用户id'),
+  dingCorpId?: string(name='dingCorpId', description='老师corpId'),
+  jsVersion?: long(name='jsVersion', description='小程序版本号'),
+}
+
+model BatchCreateResponseBody = {
+  result?: {
+    corpIdCardIdMap?: map[string]string(name='corpIdCardIdMap'),
+  }(name='result', description='result'),
+}
+
+model BatchCreateResponse = {
+  headers: map[string]string(name='headers'),
+  body: BatchCreateResponseBody(name='body'),
+}
+
+async function batchCreate(request: BatchCreateRequest): BatchCreateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new BatchCreateHeaders{};
+  return batchCreateWithOptions(request, headers, runtime);
+}
+
+async function batchCreateWithOptions(request: BatchCreateRequest, headers: BatchCreateHeaders, runtime: Util.RuntimeOptions): BatchCreateResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.cardBizCode)) {
+    body.cardBizCode = request.cardBizCode;
+  }
+  if (!Util.isUnset(request.data)) {
+    body.data = request.data;
+  }
+  if (!Util.isUnset(request.identifier)) {
+    body.identifier = request.identifier;
+  }
+  if (!Util.isUnset(request.sourceType)) {
+    body.sourceType = request.sourceType;
+  }
+  if (!Util.isUnset(request.userid)) {
+    body.userid = request.userid;
+  }
+  if (!Util.isUnset(request.dingCorpId)) {
+    body.dingCorpId = request.dingCorpId;
+  }
+  if (!Util.isUnset(request.jsVersion)) {
+    body.jsVersion = request.jsVersion;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xAcsDingtalkAccessToken)) {
+    realHeaders.x-acs-dingtalk-access-token = headers.xAcsDingtalkAccessToken;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('BatchCreate', 'edu_1.0', 'HTTP', 'POST', 'AK', `/edu/cards`, 'json', req, runtime);
+}
+
+model BatchOrgCreateHWHeaders {
+  commonHeaders?: map[string]string,
+  xAcsDingtalkAccessToken?: string(name='x-acs-dingtalk-access-token'),
+}
+
+model BatchOrgCreateHWRequest {
+  hwMedia?: string(name='hwMedia'),
+  hwContent?: string(name='hwContent'),
+  hwTitle?: string(name='hwTitle'),
+  courseName?: string(name='courseName'),
+  hwPhoto?: string(name='hwPhoto'),
+  hwVideo?: string(name='hwVideo'),
+  teacherName?: string(name='teacherName'),
+  teacherUserId?: string(name='teacherUserId'),
+  identifier?: string(name='identifier'),
+  attributes?: string(name='attributes'),
+  targetRole?: string(name='targetRole'),
+  bizCode?: string(name='bizCode'),
+  status?: string(name='status'),
+  scheduledRelease?: string(name='scheduledRelease'),
+  scheduledTime?: string(name='scheduledTime'),
+  hwDeadlineOpen?: string(name='hwDeadlineOpen'),
+  hwDeadline?: float(name='hwDeadline'),
+  hwType?: string(name='hwType'),
+  openSelectItemList?: [ 
+    {
+      corpId?: string(name='corpId'),
+      selectedClassesDesc?: string(name='selectedClassesDesc'),
+      classList?: [ 
+        {
+          classId?: string(name='classId'),
+          className?: string(name='className'),
+          all?: boolean(name='all'),
+          students?: [ 
+            {
+              name?: string(name='name'),
+              staffId?: string(name='staffId'),
+              avatar?: string(name='avatar'),
+            }
+          ](name='students'),
+        }
+      ](name='classList'),
+    }
+  ](name='openSelectItemList'),
+  dingOrgId?: long(name='dingOrgId'),
+}
+
+model BatchOrgCreateHWResponseBody = {
+  result?: {
+    publishList?: [ 
+      {
+        corpid?: string(name='corpid'),
+        hwid?: float(name='hwid'),
+      }
+    ](name='publishList'),
+  }(name='result'),
+}
+
+model BatchOrgCreateHWResponse = {
+  headers: map[string]string(name='headers'),
+  body: BatchOrgCreateHWResponseBody(name='body'),
+}
+
+async function batchOrgCreateHW(request: BatchOrgCreateHWRequest): BatchOrgCreateHWResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new BatchOrgCreateHWHeaders{};
+  return batchOrgCreateHWWithOptions(request, headers, runtime);
+}
+
+async function batchOrgCreateHWWithOptions(request: BatchOrgCreateHWRequest, headers: BatchOrgCreateHWHeaders, runtime: Util.RuntimeOptions): BatchOrgCreateHWResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.hwMedia)) {
+    body.hwMedia = request.hwMedia;
+  }
+  if (!Util.isUnset(request.hwContent)) {
+    body.hwContent = request.hwContent;
+  }
+  if (!Util.isUnset(request.hwTitle)) {
+    body.hwTitle = request.hwTitle;
+  }
+  if (!Util.isUnset(request.courseName)) {
+    body.courseName = request.courseName;
+  }
+  if (!Util.isUnset(request.hwPhoto)) {
+    body.hwPhoto = request.hwPhoto;
+  }
+  if (!Util.isUnset(request.hwVideo)) {
+    body.hwVideo = request.hwVideo;
+  }
+  if (!Util.isUnset(request.teacherName)) {
+    body.teacherName = request.teacherName;
+  }
+  if (!Util.isUnset(request.teacherUserId)) {
+    body.teacherUserId = request.teacherUserId;
+  }
+  if (!Util.isUnset(request.identifier)) {
+    body.identifier = request.identifier;
+  }
+  if (!Util.isUnset(request.attributes)) {
+    body.attributes = request.attributes;
+  }
+  if (!Util.isUnset(request.targetRole)) {
+    body.targetRole = request.targetRole;
+  }
+  if (!Util.isUnset(request.bizCode)) {
+    body.bizCode = request.bizCode;
+  }
+  if (!Util.isUnset(request.status)) {
+    body.status = request.status;
+  }
+  if (!Util.isUnset(request.scheduledRelease)) {
+    body.scheduledRelease = request.scheduledRelease;
+  }
+  if (!Util.isUnset(request.scheduledTime)) {
+    body.scheduledTime = request.scheduledTime;
+  }
+  if (!Util.isUnset(request.hwDeadlineOpen)) {
+    body.hwDeadlineOpen = request.hwDeadlineOpen;
+  }
+  if (!Util.isUnset(request.hwDeadline)) {
+    body.hwDeadline = request.hwDeadline;
+  }
+  if (!Util.isUnset(request.hwType)) {
+    body.hwType = request.hwType;
+  }
+  if (!Util.isUnset(request.openSelectItemList)) {
+    body.openSelectItemList = request.openSelectItemList;
+  }
+  if (!Util.isUnset(request.dingOrgId)) {
+    body.dingOrgId = request.dingOrgId;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xAcsDingtalkAccessToken)) {
+    realHeaders.x-acs-dingtalk-access-token = headers.xAcsDingtalkAccessToken;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('BatchOrgCreateHW', 'edu_1.0', 'HTTP', 'POST', 'AK', `/edu/homeworks`, 'json', req, runtime);
+}
+
