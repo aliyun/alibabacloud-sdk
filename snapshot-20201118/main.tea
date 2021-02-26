@@ -26,9 +26,51 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+model GetSnapshotInfoRequest {
+  clientToken?: string(name='ClientToken', description='幂等参数'),
+  snapshotId?: string(name='SnapshotId', description='待读取数据的快照名称'),
+}
+
+model GetSnapshotInfoResponseBody = {
+  volumeSize?: long(name='VolumeSize', description='快照大小，单位 GB，最小 1GB'),
+  volumeUsedSize?: long(name='VolumeUsedSize', description='快照非空数据大小，单位 Bytes'),
+  blockSize?: long(name='BlockSize', description='快照数据快大小，单位 Bytes'),
+  blockCount?: long(name='BlockCount', description='快照数据块总数量'),
+  status?: string(name='Status', description='快照状态'),
+  createTime?: long(name='CreateTime', description='快照创建UTC时间，单位微妙'),
+}
+
+model GetSnapshotInfoResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetSnapshotInfoResponseBody(name='body'),
+}
+
+async function getSnapshotInfo(request: GetSnapshotInfoRequest): GetSnapshotInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getSnapshotInfoWithOptions(request, headers, runtime);
+}
+
+async function getSnapshotInfoWithOptions(request: GetSnapshotInfoRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetSnapshotInfoResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.clientToken)) {
+    query.ClientToken = request.clientToken;
+  }
+  if (!Util.isUnset(request.snapshotId)) {
+    query.SnapshotId = request.snapshotId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('GetSnapshotInfo', '2020-11-18', 'HTTPS', 'GET', 'AK', `/snapshots/info`, 'json', req, runtime);
+}
+
 model GetSnapshotBlockRequest {
   clientToken?: string(name='ClientToken', description='幂等参数'),
-  blockIndex?: string(name='BlockIndex', description='待读取的数据块索引，从零开始。从 ListChangedBlocks 或者 ListSnapshotBlocks 返回'),
+  blockIndex?: long(name='BlockIndex', description='待读取的数据块索引，从零开始。从 ListChangedBlocks 或者 ListSnapshotBlocks 返回'),
   blockToken?: string(name='BlockToken', description='待读取的数据块Token，从零开始。从 ListChangedBlocks 或者 ListSnapshotBlocks 返回'),
   snapshotId?: string(name='SnapshotId', description='待读取数据的快照名称'),
 }
@@ -78,26 +120,27 @@ async function getSnapshotBlockWithOptions(request: GetSnapshotBlockRequest, hea
 }
 
 model ListChangedBlocksRequest {
-  nextToken?: string(name='NextToken'),
-  maxResults?: int32(name='MaxResults'),
-  clientToken?: string(name='ClientToken'),
-  firstSnapshotId?: string(name='FirstSnapshotId'),
-  secondSnapshotId?: string(name='SecondSnapshotId'),
-  startingBlockIndex?: long(name='StartingBlockIndex'),
+  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始'),
+  maxResults?: long(name='MaxResults', description='本次读取的最大数据记录数量，最小 100，最大 10000'),
+  clientToken?: string(name='ClientToken', description='幂等参数'),
+  firstSnapshotId?: string(name='FirstSnapshotId', description='待比较的第一个快照名称，最大 64 字节'),
+  secondSnapshotId?: string(name='SecondSnapshotId', description='待比较的第二个快照名称，最大 64 字节'),
+  startingBlockIndex?: long(name='StartingBlockIndex', description='两个快照比较的起始数据块 index，从零开始'),
 }
 
 model ListChangedBlocksResponseBody = {
-  nextToken?: string(name='NextToken'),
-  expiryTime?: long(name='ExpiryTime'),
-  blockSize?: int32(name='BlockSize'),
-  volumeSize?: int32(name='VolumeSize'),
+  nextToken?: string(name='NextToken', description='下一页结果的 token，为空时代表无新增页，最大长度 256 字节'),
   changedBlocks?: [ 
     {
-      firstBlockToken?: string(name='FirstBlockToken'),
-      blockIndex?: long(name='BlockIndex'),
-      secondBlockToken?: string(name='SecondBlockToken'),
+      blockIndex?: long(name='BlockIndex', description='数据块的索引值，从零开始'),
+      firstBlockToken?: string(name='FirstBlockToken', description='FirstSnapshotId 中数据块的 Token，用于后续的数据读取，第一个快照未变化时可省略。最大长度 256 字节'),
+      secondBlockToken?: string(name='SecondBlockToken', description='SecondBlockToken指定的快照中相对于 FirstBlockIndex 变化的数据块 Token，用于后续读取数据。最大长度 256 字节'),
     }
-  ](name='ChangedBlocks'),
+  ](name='ChangedBlocks', description='两个快照差异的数据块列表'),
+  expiryTime?: long(name='ExpiryTime', description='差异数据块 token 过期时间戳'),
+  volumeSize?: long(name='VolumeSize', description='快照大小，单位 GB，最小 1GB'),
+  blockSize?: long(name='BlockSize', description='数据块大小，单位 Byte'),
+  blockCount?: long(name='BlockCount', description='变化数据块数量'),
 }
 
 model ListChangedBlocksResponse = {
@@ -141,24 +184,25 @@ async function listChangedBlocksWithOptions(request: ListChangedBlocksRequest, h
 }
 
 model ListSnapshotBlocksRequest {
-  nextToken?: string(name='NextToken'),
-  maxResults?: int32(name='MaxResults'),
-  clientToken?: string(name='ClientToken'),
-  snapshotId?: string(name='SnapshotId'),
-  startingBlockIndex?: long(name='StartingBlockIndex'),
+  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始'),
+  maxResults?: long(name='MaxResults', description='本次读取的最大数据记录数量，最小 100， 最大 10000'),
+  clientToken?: string(name='ClientToken', description='幂等参数'),
+  snapshotId?: string(name='SnapshotId', description='待列出数据块的快照名称'),
+  startingBlockIndex?: long(name='StartingBlockIndex', description='列出快照中数据块起始索引值，从零开始'),
 }
 
 model ListSnapshotBlocksResponseBody = {
-  nextToken?: string(name='NextToken'),
-  expiryTime?: long(name='ExpiryTime'),
-  blockSize?: int32(name='BlockSize'),
-  volumeSize?: int32(name='VolumeSize'),
+  nextToken?: string(name='NextToken', description='下一页结果的 token，为空时代表无新增页，最大  256 字节'),
   blocks?: [ 
     {
-      blockIndex?: long(name='BlockIndex'),
-      blockToken?: string(name='BlockToken'),
+      blockIndex?: long(name='BlockIndex', description='数据块的索引值，从零开始'),
+      blockToken?: string(name='BlockToken', description='数据块的 Token，用于后续的数据读取。最大长度 256 字节'),
     }
-  ](name='Blocks'),
+  ](name='Blocks', description='快照数据块信息列表'),
+  expiryTime?: long(name='ExpiryTime', description='BlockToken 过期时间戳'),
+  volumeSize?: long(name='VolumeSize', description='快照大小，单位 GB，最小 1GB'),
+  blockSize?: long(name='BlockSize', description='数据块大小，单位 Byte'),
+  blockCount?: long(name='BlockCount', description='快照总数据块数量'),
 }
 
 model ListSnapshotBlocksResponse = {
