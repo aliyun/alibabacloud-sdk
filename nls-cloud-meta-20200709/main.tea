@@ -1,0 +1,55 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+
+import EndpointUtil;
+
+extends OpenApi;
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('nls-cloud-meta', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model CreateTokenResponseBody = {
+  requestId?: string(name='RequestId'),
+  errMsg?: string(name='ErrMsg'),
+  token?: {
+    expireTime?: int32(name='ExpireTime'),
+    userId?: string(name='UserId'),
+    id?: string(name='Id'),
+  }(name='Token'),
+  nlsRequestId?: string(name='NlsRequestId'),
+  errCode?: int32(name='ErrCode'),
+}
+
+model CreateTokenResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateTokenResponseBody(name='body'),
+}
+
+async function createTokenWithOptions(runtime: Util.RuntimeOptions): CreateTokenResponse {
+  var req = new OpenApi.OpenApiRequest{};
+  return doRPCRequest('CreateToken', '2020-07-09', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function createToken(): CreateTokenResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createTokenWithOptions(runtime);
+}
+
