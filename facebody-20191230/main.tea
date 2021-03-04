@@ -3333,6 +3333,110 @@ async function getBodyPerson(request: GetBodyPersonRequest): GetBodyPersonRespon
   return getBodyPersonWithOptions(request, runtime);
 }
 
+model RecognizeHandGestureRequest {
+  appId?: string(name='AppId', description='A short description of struct'),
+  imageURL?: string(name='ImageURL'),
+  gestureType?: string(name='GestureType'),
+}
+
+model RecognizeHandGestureAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+  appId?: string(name='AppId', description='A short description of struct'),
+  gestureType?: string(name='GestureType'),
+}
+
+model RecognizeHandGestureResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  data?: {
+    type?: string(name='Type'),
+    x?: long(name='X'),
+    y?: long(name='Y'),
+    width?: long(name='Width'),
+    height?: long(name='Height'),
+    score?: float(name='Score'),
+  }(name='Data'),
+}
+
+model RecognizeHandGestureResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeHandGestureResponseBody(name='body'),
+}
+
+async function recognizeHandGestureWithOptions(request: RecognizeHandGestureRequest, runtime: Util.RuntimeOptions): RecognizeHandGestureResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeHandGesture', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeHandGesture(request: RecognizeHandGestureRequest): RecognizeHandGestureResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeHandGestureWithOptions(request, runtime);
+}
+
+async function recognizeHandGestureAdvance(request: RecognizeHandGestureAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeHandGestureResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeHandGestureReq = new RecognizeHandGestureRequest{};
+  OpenApiUtil.convert(request, recognizeHandGestureReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  recognizeHandGestureReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var recognizeHandGestureResp = recognizeHandGestureWithOptions(recognizeHandGestureReq, runtime);
+  return recognizeHandGestureResp;
+}
+
 model DeleteFaceDbRequest {
   name?: string(name='Name'),
 }
