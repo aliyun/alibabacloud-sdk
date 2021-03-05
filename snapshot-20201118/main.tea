@@ -33,11 +33,12 @@ model GetSnapshotInfoRequest {
 
 model GetSnapshotInfoResponseBody = {
   volumeSize?: long(name='VolumeSize', description='快照大小，单位 GB，最小 1GB'),
-  volumeUsedSize?: long(name='VolumeUsedSize', description='快照非空数据大小，单位 Bytes'),
   blockSize?: long(name='BlockSize', description='快照数据快大小，单位 Bytes'),
   blockCount?: long(name='BlockCount', description='快照数据块总数量'),
+  validBlockCount?: long(name='ValidBlockCount', description='快照中非空数据块总数量'),
   status?: string(name='Status', description='快照状态'),
   createTime?: long(name='CreateTime', description='快照创建UTC时间，单位微妙'),
+  encrypted?: boolean(name='Encrypted', description='快照是否为加密快照'),
 }
 
 model GetSnapshotInfoResponse = {
@@ -107,7 +108,7 @@ async function getSnapshotBlockWithOptions(request: GetSnapshotBlockRequest, hea
     query = OpenApiUtil.query(query),
   };
   var res = new GetSnapshotBlockResponse{};
-  var tmp = doROARequest('GetSnapshotBlock', '2020-11-18', 'HTTPS', 'GET', 'AK', `/snapshots/block`, 'binary', req, runtime);
+  var tmp = Util.assertAsMap(doROARequest('GetSnapshotBlock', '2020-11-18', 'HTTPS', 'GET', 'AK', `/snapshots/block`, 'binary', req, runtime));
   if (!Util.isUnset(tmp.body)) {
     var respBody = Util.assertAsReadable(tmp.body);
     res.body = respBody;
@@ -138,9 +139,10 @@ model ListChangedBlocksResponseBody = {
     }
   ](name='ChangedBlocks', description='两个快照差异的数据块列表'),
   expiryTime?: long(name='ExpiryTime', description='差异数据块 token 过期时间戳'),
-  volumeSize?: long(name='VolumeSize', description='快照大小，单位 GB，最小 1GB'),
+  volumeSize?: long(name='VolumeSize', description='第二个快照大小，单位 GB，最小 1GB'),
   blockSize?: long(name='BlockSize', description='数据块大小，单位 Byte'),
-  blockCount?: long(name='BlockCount', description='变化数据块数量'),
+  blockCount?: long(name='BlockCount', description='本次查询中变化数据块数量'),
+  totalBlockCount?: long(name='TotalBlockCount', description='两个快照差异数据块总数量'),
 }
 
 model ListChangedBlocksResponse = {
@@ -198,11 +200,12 @@ model ListSnapshotBlocksResponseBody = {
       blockIndex?: long(name='BlockIndex', description='数据块的索引值，从零开始'),
       blockToken?: string(name='BlockToken', description='数据块的 Token，用于后续的数据读取。最大长度 256 字节'),
     }
-  ](name='Blocks', description='快照数据块信息列表'),
+  ](name='Blocks', description='快照有效数据块信息列表，不包含空数据块'),
   expiryTime?: long(name='ExpiryTime', description='BlockToken 过期时间戳'),
   volumeSize?: long(name='VolumeSize', description='快照大小，单位 GB，最小 1GB'),
   blockSize?: long(name='BlockSize', description='数据块大小，单位 Byte'),
-  blockCount?: long(name='BlockCount', description='快照总数据块数量'),
+  blockCount?: long(name='BlockCount', description='本次查询中快照有效数据块数量'),
+  totalBlockCount?: long(name='TotalBlockCount', description='快照有效数据块总数量'),
 }
 
 model ListSnapshotBlocksResponse = {
