@@ -65,6 +65,103 @@ async function getAsyncJobResult(request: GetAsyncJobResultRequest): GetAsyncJob
   return getAsyncJobResultWithOptions(request, runtime);
 }
 
+model SegmentGreenScreenVideoRequest {
+  videoURL?: string(name='VideoURL', description='A short description of struct'),
+  async?: boolean(name='Async'),
+}
+
+model SegmentGreenScreenVideoAdvanceRequest {
+  videoURLObject: readable(name='VideoURLObject'),
+  async?: boolean(name='Async'),
+}
+
+model SegmentGreenScreenVideoResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  data?: {
+    videoURL?: string(name='VideoURL'),
+  }(name='Data'),
+}
+
+model SegmentGreenScreenVideoResponse = {
+  headers: map[string]string(name='headers'),
+  body: SegmentGreenScreenVideoResponseBody(name='body'),
+}
+
+async function segmentGreenScreenVideoWithOptions(request: SegmentGreenScreenVideoRequest, runtime: Util.RuntimeOptions): SegmentGreenScreenVideoResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('SegmentGreenScreenVideo', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function segmentGreenScreenVideo(request: SegmentGreenScreenVideoRequest): SegmentGreenScreenVideoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return segmentGreenScreenVideoWithOptions(request, runtime);
+}
+
+async function segmentGreenScreenVideoAdvance(request: SegmentGreenScreenVideoAdvanceRequest, runtime: Util.RuntimeOptions): SegmentGreenScreenVideoResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'videoseg',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var segmentGreenScreenVideoReq = new SegmentGreenScreenVideoRequest{};
+  OpenApiUtil.convert(request, segmentGreenScreenVideoReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.videoURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  segmentGreenScreenVideoReq.videoURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var segmentGreenScreenVideoResp = segmentGreenScreenVideoWithOptions(segmentGreenScreenVideoReq, runtime);
+  return segmentGreenScreenVideoResp;
+}
+
 model SegmentHalfBodyRequest {
   videoUrl?: string(name='VideoUrl'),
   async?: boolean(name='Async'),
@@ -257,102 +354,5 @@ async function segmentVideoBodyAdvance(request: SegmentVideoBodyAdvanceRequest, 
   segmentVideoBodyReq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
   var segmentVideoBodyResp = segmentVideoBodyWithOptions(segmentVideoBodyReq, runtime);
   return segmentVideoBodyResp;
-}
-
-model SegmentGreenScreenVideoRequest {
-  videoURL?: string(name='VideoURL', description='A short description of struct'),
-  async?: boolean(name='Async'),
-}
-
-model SegmentGreenScreenVideoAdvanceRequest {
-  videoURLObject: readable(name='VideoURLObject'),
-  async?: boolean(name='Async'),
-}
-
-model SegmentGreenScreenVideoResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  data?: {
-    videoURL?: string(name='VideoURL'),
-  }(name='Data'),
-}
-
-model SegmentGreenScreenVideoResponse = {
-  headers: map[string]string(name='headers'),
-  body: SegmentGreenScreenVideoResponseBody(name='body'),
-}
-
-async function segmentGreenScreenVideoWithOptions(request: SegmentGreenScreenVideoRequest, runtime: Util.RuntimeOptions): SegmentGreenScreenVideoResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('SegmentGreenScreenVideo', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function segmentGreenScreenVideo(request: SegmentGreenScreenVideoRequest): SegmentGreenScreenVideoResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return segmentGreenScreenVideoWithOptions(request, runtime);
-}
-
-async function segmentGreenScreenVideoAdvance(request: SegmentGreenScreenVideoAdvanceRequest, runtime: Util.RuntimeOptions): SegmentGreenScreenVideoResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'videoseg',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var segmentGreenScreenVideoReq = new SegmentGreenScreenVideoRequest{};
-  OpenApiUtil.convert(request, segmentGreenScreenVideoReq);
-
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
-
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.videoURLObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  segmentGreenScreenVideoReq.videoURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var segmentGreenScreenVideoResp = segmentGreenScreenVideoWithOptions(segmentGreenScreenVideoReq, runtime);
-  return segmentGreenScreenVideoResp;
 }
 
