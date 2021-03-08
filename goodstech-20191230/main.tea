@@ -1,15 +1,19 @@
-import OSS;
-import OpenPlatform;
-import RPCUtil;
-import RPC;
-import OSSUtil;
+/**
+ *
+ */
 import Util;
+import OSS;
+import RPC;
+import OpenPlatform;
+import OSSUtil;
 import FileForm;
+import OpenApi;
+import OpenApiUtil;
 import EndpointUtil;
 
-extends RPC;
+extends OpenApi;
 
-init(config: RPC.Config){
+init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
   
@@ -17,112 +21,55 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('goodstech', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
-model RecognizeFurnitureAttributeRequest = {
-  imageURL: string(name='ImageURL'),
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model RecognizeFurnitureSpuRequest {
+  imageURL?: string(name='ImageURL'),
+  XLength?: float(name='XLength'),
+  YLength?: float(name='YLength'),
+  ZLength?: float(name='ZLength'),
 }
 
-model RecognizeFurnitureAttributeResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    predStyleId: string(name='PredStyleId'),
-    predStyle: string(name='PredStyle'),
-    predProbability: float(name='PredProbability'),
-  }(name='Data'),
-}
-
-async function recognizeFurnitureAttribute(request: RecognizeFurnitureAttributeRequest, runtime: Util.RuntimeOptions): RecognizeFurnitureAttributeResponse {
-  Util.validateModel(request);
-  return doRequest('RecognizeFurnitureAttribute', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
-}
-
-model RecognizeFurnitureAttributeAdvanceRequest = {
+model RecognizeFurnitureSpuAdvanceRequest {
   imageURLObject: readable(name='ImageURLObject'),
+  XLength?: float(name='XLength'),
+  YLength?: float(name='YLength'),
+  ZLength?: float(name='ZLength'),
 }
 
-async function recognizeFurnitureAttributeAdvance(request: RecognizeFurnitureAttributeAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeFurnitureAttributeResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'goodstech',
-    regionId = @regionId,
-  };
-  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  // Step 1: request OSS api to upload file
-  var ossConfig = new OSS.Config{
-    accessKeyId = authResponse.accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient = new OSS(ossConfig);
-
-  var fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.imageURLObject,
-    contentType = '',
-  };
-  var ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  var uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
-  ossClient.postObject(uploadRequest, ossRuntime);
-  // Step 2: request final api
-  var recognizeFurnitureAttributereq = new RecognizeFurnitureAttributeRequest{};
-  RPCUtil.convert(request, recognizeFurnitureAttributereq);
-  recognizeFurnitureAttributereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var recognizeFurnitureAttributeResp = recognizeFurnitureAttribute(recognizeFurnitureAttributereq, runtime);
-  return recognizeFurnitureAttributeResp;
-}
-
-model RecognizeFurnitureSpuRequest = {
-  imageURL: string(name='ImageURL'),
-  XLength: float(name='XLength'),
-  YLength: float(name='YLength'),
-  ZLength: float(name='ZLength'),
+model RecognizeFurnitureSpuResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    predCateId?: string(name='PredCateId'),
+    predCate?: string(name='PredCate'),
+    predProbability?: float(name='PredProbability'),
+  }(name='Data'),
 }
 
 model RecognizeFurnitureSpuResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    predCateId: string(name='PredCateId'),
-    predCate: string(name='PredCate'),
-    predProbability: float(name='PredProbability'),
-  }(name='Data'),
+  headers: map[string]string(name='headers'),
+  body: RecognizeFurnitureSpuResponseBody(name='body'),
 }
 
-async function recognizeFurnitureSpu(request: RecognizeFurnitureSpuRequest, runtime: Util.RuntimeOptions): RecognizeFurnitureSpuResponse {
+async function recognizeFurnitureSpuWithOptions(request: RecognizeFurnitureSpuRequest, runtime: Util.RuntimeOptions): RecognizeFurnitureSpuResponse {
   Util.validateModel(request);
-  return doRequest('RecognizeFurnitureSpu', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeFurnitureSpu', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-model RecognizeFurnitureSpuAdvanceRequest = {
-  imageURLObject: readable(name='ImageURLObject'),
-  XLength: float(name='XLength'),
-  YLength: float(name='YLength'),
-  ZLength: float(name='ZLength'),
+async function recognizeFurnitureSpu(request: RecognizeFurnitureSpuRequest): RecognizeFurnitureSpuResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeFurnitureSpuWithOptions(request, runtime);
 }
 
 async function recognizeFurnitureSpuAdvance(request: RecognizeFurnitureSpuAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeFurnitureSpuResponse {
@@ -138,29 +85,38 @@ async function recognizeFurnitureSpuAdvance(request: RecognizeFurnitureSpuAdvanc
     regionId = @regionId,
   };
   var authClient = new OpenPlatform(authConfig);
-
   var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
     product = 'goodstech',
     regionId = @regionId,
   };
-  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  // Step 1: request OSS api to upload file
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
   var ossConfig = new OSS.Config{
-    accessKeyId = authResponse.accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
-    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
-  var fileObj = new FileForm.FileField{
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeFurnitureSpuReq = new RecognizeFurnitureSpuRequest{};
+  OpenApiUtil.convert(request, recognizeFurnitureSpuReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
     filename = authResponse.objectKey,
     content = request.imageURLObject,
     contentType = '',
   };
-  var ossHeader = new OSS.PostObjectRequest.header{
+  ossHeader = new OSS.PostObjectRequest.header{
     accessKeyId = authResponse.accessKeyId,
     policy = authResponse.encodedPolicy,
     signature = authResponse.signature,
@@ -168,45 +124,53 @@ async function recognizeFurnitureSpuAdvance(request: RecognizeFurnitureSpuAdvanc
     file = fileObj,
     successActionStatus = '201',
   };
-  var uploadRequest = new OSS.PostObjectRequest{
+  uploadRequest = new OSS.PostObjectRequest{
     bucketName = authResponse.bucket,
     header = ossHeader,
   };
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
   ossClient.postObject(uploadRequest, ossRuntime);
-  // Step 2: request final api
-  var recognizeFurnitureSpureq = new RecognizeFurnitureSpuRequest{};
-  RPCUtil.convert(request, recognizeFurnitureSpureq);
-  recognizeFurnitureSpureq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var recognizeFurnitureSpuResp = recognizeFurnitureSpu(recognizeFurnitureSpureq, runtime);
+  recognizeFurnitureSpuReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var recognizeFurnitureSpuResp = recognizeFurnitureSpuWithOptions(recognizeFurnitureSpuReq, runtime);
   return recognizeFurnitureSpuResp;
 }
 
-model ClassifyCommodityRequest = {
-  imageURL: string(name='ImageURL'),
+model ClassifyCommodityRequest {
+  imageURL?: string(name='ImageURL'),
 }
 
-model ClassifyCommodityResponse = {
-  requestId: string(name='RequestId'),
-  data: {
-    categories: [
+model ClassifyCommodityAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model ClassifyCommodityResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    categories?: [ 
       {
-        score: float(name='Score'),
-        categoryName: string(name='CategoryName'),
-        categoryId: string(name='CategoryId'),
+        score?: float(name='Score'),
+        categoryId?: string(name='CategoryId'),
+        categoryName?: string(name='CategoryName'),
       }
     ](name='Categories'),
   }(name='Data'),
 }
 
-async function classifyCommodity(request: ClassifyCommodityRequest, runtime: Util.RuntimeOptions): ClassifyCommodityResponse {
-  Util.validateModel(request);
-  return doRequest('ClassifyCommodity', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
+model ClassifyCommodityResponse = {
+  headers: map[string]string(name='headers'),
+  body: ClassifyCommodityResponseBody(name='body'),
 }
 
-model ClassifyCommodityAdvanceRequest = {
-  imageURLObject: readable(name='ImageURLObject'),
+async function classifyCommodityWithOptions(request: ClassifyCommodityRequest, runtime: Util.RuntimeOptions): ClassifyCommodityResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ClassifyCommodity', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function classifyCommodity(request: ClassifyCommodityRequest): ClassifyCommodityResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return classifyCommodityWithOptions(request, runtime);
 }
 
 async function classifyCommodityAdvance(request: ClassifyCommodityAdvanceRequest, runtime: Util.RuntimeOptions): ClassifyCommodityResponse {
@@ -222,29 +186,38 @@ async function classifyCommodityAdvance(request: ClassifyCommodityAdvanceRequest
     regionId = @regionId,
   };
   var authClient = new OpenPlatform(authConfig);
-
   var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
     product = 'goodstech',
     regionId = @regionId,
   };
-  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  // Step 1: request OSS api to upload file
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
   var ossConfig = new OSS.Config{
-    accessKeyId = authResponse.accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
-    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
     protocol = @protocol,
     regionId = @regionId,
   };
-  var ossClient = new OSS(ossConfig);
+  var ossClient : OSS = null;
 
-  var fileObj = new FileForm.FileField{
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var classifyCommodityReq = new ClassifyCommodityRequest{};
+  OpenApiUtil.convert(request, classifyCommodityReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
     filename = authResponse.objectKey,
     content = request.imageURLObject,
     contentType = '',
   };
-  var ossHeader = new OSS.PostObjectRequest.header{
+  ossHeader = new OSS.PostObjectRequest.header{
     accessKeyId = authResponse.accessKeyId,
     policy = authResponse.encodedPolicy,
     signature = authResponse.signature,
@@ -252,28 +225,110 @@ async function classifyCommodityAdvance(request: ClassifyCommodityAdvanceRequest
     file = fileObj,
     successActionStatus = '201',
   };
-  var uploadRequest = new OSS.PostObjectRequest{
+  uploadRequest = new OSS.PostObjectRequest{
     bucketName = authResponse.bucket,
     header = ossHeader,
   };
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
   ossClient.postObject(uploadRequest, ossRuntime);
-  // Step 2: request final api
-  var classifyCommodityreq = new ClassifyCommodityRequest{};
-  RPCUtil.convert(request, classifyCommodityreq);
-  classifyCommodityreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var classifyCommodityResp = classifyCommodity(classifyCommodityreq, runtime);
+  classifyCommodityReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var classifyCommodityResp = classifyCommodityWithOptions(classifyCommodityReq, runtime);
   return classifyCommodityResp;
 }
 
-function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
-    return endpoint;
-  }
-
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
-    return endpointMap[regionId];
-  }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+model RecognizeFurnitureAttributeRequest {
+  imageURL?: string(name='ImageURL'),
 }
+
+model RecognizeFurnitureAttributeAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model RecognizeFurnitureAttributeResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    predStyle?: string(name='PredStyle'),
+    predProbability?: float(name='PredProbability'),
+    predStyleId?: string(name='PredStyleId'),
+  }(name='Data'),
+}
+
+model RecognizeFurnitureAttributeResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeFurnitureAttributeResponseBody(name='body'),
+}
+
+async function recognizeFurnitureAttributeWithOptions(request: RecognizeFurnitureAttributeRequest, runtime: Util.RuntimeOptions): RecognizeFurnitureAttributeResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeFurnitureAttribute', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeFurnitureAttribute(request: RecognizeFurnitureAttributeRequest): RecognizeFurnitureAttributeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeFurnitureAttributeWithOptions(request, runtime);
+}
+
+async function recognizeFurnitureAttributeAdvance(request: RecognizeFurnitureAttributeAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeFurnitureAttributeResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'goodstech',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeFurnitureAttributeReq = new RecognizeFurnitureAttributeRequest{};
+  OpenApiUtil.convert(request, recognizeFurnitureAttributeReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  recognizeFurnitureAttributeReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var recognizeFurnitureAttributeResp = recognizeFurnitureAttributeWithOptions(recognizeFurnitureAttributeReq, runtime);
+  return recognizeFurnitureAttributeResp;
+}
+
