@@ -467,11 +467,8 @@ async function recognizeFaceAdvance(request: RecognizeFaceAdvanceRequest, runtim
 model VerifyFaceMaskRequest {
   imageURL?: string(name='ImageURL'),
   refUrl?: string(name='RefUrl'),
-}
-
-model VerifyFaceMaskAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-  refUrl?: string(name='RefUrl'),
+  imageData?: bytes(name='ImageData'),
+  refData?: bytes(name='RefData'),
 }
 
 model VerifyFaceMaskResponseBody = {
@@ -504,77 +501,22 @@ async function verifyFaceMask(request: VerifyFaceMaskRequest): VerifyFaceMaskRes
   return verifyFaceMaskWithOptions(request, runtime);
 }
 
-async function verifyFaceMaskAdvance(request: VerifyFaceMaskAdvanceRequest, runtime: Util.RuntimeOptions): VerifyFaceMaskResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'facebody',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var verifyFaceMaskReq = new VerifyFaceMaskRequest{};
-  OpenApiUtil.convert(request, verifyFaceMaskReq);
-
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
-
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.imageURLObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  verifyFaceMaskReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var verifyFaceMaskResp = verifyFaceMaskWithOptions(verifyFaceMaskReq, runtime);
-  return verifyFaceMaskResp;
-}
-
 model DetectIPCPedestrianRequest {
   continueOnError?: boolean(name='ContinueOnError'),
   imageData?: string(name='ImageData'),
   width?: int32(name='Width'),
   height?: int32(name='Height'),
-  URLList?: [ 
-    {
-    }
-  ](name='URLList'),
+  imageURL?: string(name='ImageURL'),
+  dataId?: string(name='DataId'),
+}
+
+model DetectIPCPedestrianAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+  continueOnError?: boolean(name='ContinueOnError'),
+  imageData?: string(name='ImageData'),
+  width?: int32(name='Width'),
+  height?: int32(name='Height'),
+  dataId?: string(name='DataId'),
 }
 
 model DetectIPCPedestrianResponseBody = {
@@ -609,6 +551,68 @@ async function detectIPCPedestrianWithOptions(request: DetectIPCPedestrianReques
 async function detectIPCPedestrian(request: DetectIPCPedestrianRequest): DetectIPCPedestrianResponse {
   var runtime = new Util.RuntimeOptions{};
   return detectIPCPedestrianWithOptions(request, runtime);
+}
+
+async function detectIPCPedestrianAdvance(request: DetectIPCPedestrianAdvanceRequest, runtime: Util.RuntimeOptions): DetectIPCPedestrianResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var detectIPCPedestrianReq = new DetectIPCPedestrianRequest{};
+  OpenApiUtil.convert(request, detectIPCPedestrianReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  detectIPCPedestrianReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var detectIPCPedestrianResp = detectIPCPedestrianWithOptions(detectIPCPedestrianReq, runtime);
+  return detectIPCPedestrianResp;
 }
 
 model GetFaceEntityRequest {
@@ -650,9 +654,11 @@ async function getFaceEntity(request: GetFaceEntityRequest): GetFaceEntityRespon
 
 model CompareFaceRequest {
   qualityScoreThreshold?: float(name='QualityScoreThreshold', description='质量分阈值，取值范围 [0.0, 100.0],   0.0或空  表示不做质量分判断逻辑。'),
+  imageType?: int32(name='ImageType'),
   imageURLA?: string(name='ImageURLA'),
   imageURLB?: string(name='ImageURLB'),
-  imageType?: int32(name='ImageType'),
+  imageDataA?: bytes(name='ImageDataA'),
+  imageDataB?: bytes(name='ImageDataB'),
 }
 
 model CompareFaceResponseBody = {
@@ -1456,8 +1462,10 @@ model RecognizeActionRequest {
   URLList?: [ 
     {
       URL?: string(name='URL'),
+      imageData?: bytes(name='imageData'),
     }
   ](name='URLList'),
+  videoData?: bytes(name='VideoData'),
 }
 
 model RecognizeActionResponseBody = {
@@ -2222,15 +2230,11 @@ async function detectPedestrianAdvance(request: DetectPedestrianAdvanceRequest, 
 }
 
 model SwapFacialFeaturesRequest {
+  editPart?: string(name='EditPart'),
   sourceImageURL?: string(name='SourceImageURL'),
-  editPart?: string(name='EditPart'),
   targetImageURL?: string(name='TargetImageURL'),
-}
-
-model SwapFacialFeaturesAdvanceRequest {
-  sourceImageURLObject: readable(name='SourceImageURLObject'),
-  editPart?: string(name='EditPart'),
-  targetImageURL?: string(name='TargetImageURL'),
+  sourceImageData?: bytes(name='SourceImageData'),
+  targetImageData?: bytes(name='TargetImageData'),
 }
 
 model SwapFacialFeaturesResponseBody = {
@@ -2256,68 +2260,6 @@ async function swapFacialFeaturesWithOptions(request: SwapFacialFeaturesRequest,
 async function swapFacialFeatures(request: SwapFacialFeaturesRequest): SwapFacialFeaturesResponse {
   var runtime = new Util.RuntimeOptions{};
   return swapFacialFeaturesWithOptions(request, runtime);
-}
-
-async function swapFacialFeaturesAdvance(request: SwapFacialFeaturesAdvanceRequest, runtime: Util.RuntimeOptions): SwapFacialFeaturesResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'facebody',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var swapFacialFeaturesReq = new SwapFacialFeaturesRequest{};
-  OpenApiUtil.convert(request, swapFacialFeaturesReq);
-
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
-
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.sourceImageURLObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  swapFacialFeaturesReq.sourceImageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var swapFacialFeaturesResp = swapFacialFeaturesWithOptions(swapFacialFeaturesReq, runtime);
-  return swapFacialFeaturesResp;
 }
 
 model SearchFaceRequest {
