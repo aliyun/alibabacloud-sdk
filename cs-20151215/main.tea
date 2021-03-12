@@ -101,9 +101,19 @@ model MaintenanceWindow {
 
 model ListTagResourcesRequest {
   resourceIds?: [ string ](name='resource_ids', description='集群ID列表。'),
+  resourceType?: string(name='resource_type', description='资源类型，只支持Cluster'),
+  regionId?: string(name='region_id', description='地域ID'),
   tags?: [
     Tag
   ](name='tags', description='按标签查找。'),
+  nextToken?: string(name='next_token', description='下一次查询Token。'),
+}
+
+model ListTagResourcesShrinkRequest {
+  resourceIdsShrink?: string(name='resource_ids', description='集群ID列表。'),
+  resourceType?: string(name='resource_type', description='资源类型，只支持Cluster'),
+  regionId?: string(name='region_id', description='地域ID'),
+  tagsShrink?: string(name='tags', description='按标签查找。'),
   nextToken?: string(name='next_token', description='下一次查询Token。'),
 }
 
@@ -133,14 +143,28 @@ async function listTagResources(request: ListTagResourcesRequest): ListTagResour
   return listTagResourcesWithOptions(request, headers, runtime);
 }
 
-async function listTagResourcesWithOptions(request: ListTagResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTagResourcesResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.resourceIds)) {
-    query.resource_ids = request.resourceIds;
+async function listTagResourcesWithOptions(tmpReq: ListTagResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTagResourcesResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListTagResourcesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.resourceIds)) {
+    request.resourceIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.resourceIds, 'resource_ids', 'json');
   }
-  if (!Util.isUnset(request.tags)) {
-    query.tags = request.tags;
+  if (!Util.isUnset(tmpReq.tags)) {
+    request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'tags', 'json');
+  }
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.resourceIdsShrink)) {
+    query.resource_ids = request.resourceIdsShrink;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query.resource_type = request.resourceType;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query.region_id = request.regionId;
+  }
+  if (!Util.isUnset(request.tagsShrink)) {
+    query.tags = request.tagsShrink;
   }
   if (!Util.isUnset(request.nextToken)) {
     query.next_token = request.nextToken;
@@ -2020,7 +2044,7 @@ async function createTemplateWithOptions(request: CreateTemplateRequest, headers
 }
 
 model DescribeClusterNodesRequest {
-  instanceIds?: [ string ](name='instanceIds', description='节点实例ID，按照实例ID进行过滤。  节点池ID不为空时会忽略此字段。'),
+  instanceIds?: string(name='instanceIds', description='节点实例ID，按照实例ID进行过滤。  节点池ID不为空时会忽略此字段。多节点用逗号分割'),
   nodepoolId?: string(name='nodepool_id', description='节点池ID。'),
   state?: string(name='state', description='节点状态。默认值：all。'),
   pageSize?: string(name='pageSize', description='每页大小。'),
@@ -2102,6 +2126,12 @@ model DeleteClusterRequest {
   retainResources?: [ string ](name='retain_resources', description='要保留的资源列表。'),
 }
 
+model DeleteClusterShrinkRequest {
+  retainAllResources?: boolean(name='retain_all_resources', description='是否保留所有资源,如果设置了该值，将会忽略retain_resources。  true：保留 false：不保留 默认值：fase。'),
+  keepSlb?: boolean(name='keep_slb', description='是否保留SLB。  true：保留 false：不保留 默认值：false。'),
+  retainResourcesShrink?: string(name='retain_resources', description='要保留的资源列表。'),
+}
+
 model DeleteClusterResponse = {
   headers: map[string]string(name='headers'),
 }
@@ -2112,27 +2142,29 @@ async function deleteCluster(ClusterId: string, request: DeleteClusterRequest): 
   return deleteClusterWithOptions(ClusterId, request, headers, runtime);
 }
 
-async function deleteClusterWithOptions(ClusterId: string, request: DeleteClusterRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteClusterResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.retainResources)) {
-    query.retain_resources = request.retainResources;
+async function deleteClusterWithOptions(ClusterId: string, tmpReq: DeleteClusterRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteClusterResponse {
+  Util.validateModel(tmpReq);
+  var request = new DeleteClusterShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.retainResources)) {
+    request.retainResourcesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.retainResources, 'retain_resources', 'json');
   }
-
-  var body : map[string]any= {};
+  var query : map[string]any= {};
   if (!Util.isUnset(request.retainAllResources)) {
-    body.retain_all_resources = request.retainAllResources;
+    query.retain_all_resources = request.retainAllResources;
   }
   if (!Util.isUnset(request.keepSlb)) {
-    body.keep_slb = request.keepSlb;
+    query.keep_slb = request.keepSlb;
+  }
+  if (!Util.isUnset(request.retainResourcesShrink)) {
+    query.retain_resources = request.retainResourcesShrink;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequestWithForm('DeleteCluster', '2015-12-15', 'HTTPS', 'DELETE', 'AK', `/clusters/${ClusterId}`, 'none', req, runtime);
+  return doROARequest('DeleteCluster', '2015-12-15', 'HTTPS', 'DELETE', 'AK', `/clusters/${ClusterId}`, 'none', req, runtime);
 }
 
 model CancelComponentUpgradeResponse = {
@@ -2639,6 +2671,10 @@ model DescribeClusterAddonsUpgradeStatusRequest {
   componentIds?: [ string ](name='componentIds', description='组件名称列表。'),
 }
 
+model DescribeClusterAddonsUpgradeStatusShrinkRequest {
+  componentIdsShrink?: string(name='componentIds', description='组件名称列表。'),
+}
+
 model DescribeClusterAddonsUpgradeStatusResponse = {
   headers: map[string]string(name='headers'),
   body: object(name='body'),
@@ -2650,18 +2686,23 @@ async function describeClusterAddonsUpgradeStatus(ClusterId: string, request: De
   return describeClusterAddonsUpgradeStatusWithOptions(ClusterId, request, headers, runtime);
 }
 
-async function describeClusterAddonsUpgradeStatusWithOptions(ClusterId: string, request: DescribeClusterAddonsUpgradeStatusRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterAddonsUpgradeStatusResponse {
-  Util.validateModel(request);
+async function describeClusterAddonsUpgradeStatusWithOptions(ClusterId: string, tmpReq: DescribeClusterAddonsUpgradeStatusRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterAddonsUpgradeStatusResponse {
+  Util.validateModel(tmpReq);
+  var request = new DescribeClusterAddonsUpgradeStatusShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.componentIds)) {
+    request.componentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.componentIds, 'componentIds', 'json');
+  }
   var query : map[string]any= {};
-  if (!Util.isUnset(request.componentIds)) {
-    query.componentIds = request.componentIds;
+  if (!Util.isUnset(request.componentIdsShrink)) {
+    query.componentIds = request.componentIdsShrink;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('DescribeClusterAddonsUpgradeStatus', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/[ClusterId]/components/upgradestatus`, 'json', req, runtime);
+  return doROARequest('DescribeClusterAddonsUpgradeStatus', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/${ClusterId}/components/upgradestatus`, 'json', req, runtime);
 }
 
 model DescribeWorkflowsResponseBody = {
@@ -3097,6 +3138,70 @@ async function scaleOutClusterWithOptions(ClusterId: string, request: ScaleOutCl
     body = OpenApiUtil.parseToMap(body),
   };
   return doROARequest('ScaleOutCluster', '2015-12-15', 'HTTPS', 'POST', 'AK', `/api/v2/clusters/${ClusterId}`, 'json', req, runtime);
+}
+
+model DescribeEventsRequest {
+  clusterId?: string(name='cluster_id', description='集群ID'),
+  type?: string(name='type', description='事件类型'),
+  pageSize?: long(name='page_size', description='页数'),
+  pageNumber?: long(name='page_number', description='没页记录数量'),
+}
+
+model DescribeEventsResponseBody = {
+  events?: [ 
+    {
+      eventId?: string(name='event_id', description='事件ID'),
+      type?: string(name='type', description='事件类型'),
+      source?: string(name='source', description='事件源'),
+      subject?: string(name='subject', description='事件'),
+      time?: string(name='time', description='事件开始事件'),
+      clusterId?: string(name='cluster_id', description='集群ID'),
+      data?: {
+        level?: string(name='level', description='事件级别'),
+        reason?: string(name='reason', description='事件状态'),
+        message?: string(name='message', description='事件详情'),
+      }(name='data', description='事件描述'),
+    }
+  ](name='events'),
+  pageInfo?: {
+    pageSize?: long(name='page_size', description='页数'),
+    pageNumber?: long(name='page_number', description='每页记录数量'),
+    totalCount?: long(name='total_count', description='结果总数'),
+  }(name='page_info'),
+}
+
+model DescribeEventsResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeEventsResponseBody(name='body'),
+}
+
+async function describeEvents(request: DescribeEventsRequest): DescribeEventsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeEventsWithOptions(request, headers, runtime);
+}
+
+async function describeEventsWithOptions(request: DescribeEventsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeEventsResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.clusterId)) {
+    query.cluster_id = request.clusterId;
+  }
+  if (!Util.isUnset(request.type)) {
+    query.type = request.type;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query.page_size = request.pageSize;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query.page_number = request.pageNumber;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('DescribeEvents', '2015-12-15', 'HTTPS', 'GET', 'AK', `/events`, 'json', req, runtime);
 }
 
 model UpdateK8sClusterUserConfigExpireResponse = {
