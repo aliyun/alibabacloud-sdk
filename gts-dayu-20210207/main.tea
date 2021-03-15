@@ -1,0 +1,60 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('gts-dayu', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model MtlBuildApiRequest {
+  pipelineId?: long(name='pipelineId', description='pipelineId'),
+  empId?: bytes(name='empId', description='empId'),
+}
+
+model MtlBuildApiResponseBody = {
+  hostIp?: string(name='HostIp', description='hostIp'),
+  message?: string(name='Message', description='message'),
+  data?: boolean(name='Data', description='data'),
+  code?: string(name='Code', description='code'),
+  success?: boolean(name='Success', description='success'),
+}
+
+model MtlBuildApiResponse = {
+  headers: map[string]string(name='headers'),
+  body: MtlBuildApiResponseBody(name='body'),
+}
+
+async function mtlBuildApiWithOptions(request: MtlBuildApiRequest, runtime: Util.RuntimeOptions): MtlBuildApiResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = query,
+  };
+  return doRPCRequest('MtlBuildApi', '2021-02-07', 'HTTPS', 'GET', 'AK', 'json', req, runtime);
+}
+
+async function mtlBuildApi(request: MtlBuildApiRequest): MtlBuildApiResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return mtlBuildApiWithOptions(request, runtime);
+}
+
