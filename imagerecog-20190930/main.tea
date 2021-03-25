@@ -31,544 +31,6 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-model GetAsyncJobResultRequest {
-  jobId?: string(name='JobId'),
-  async?: string(name='Async'),
-}
-
-model GetAsyncJobResultResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    status?: string(name='Status'),
-    errorMessage?: string(name='ErrorMessage'),
-    result?: string(name='Result'),
-    errorCode?: string(name='ErrorCode'),
-    jobId?: string(name='JobId'),
-  }(name='Data'),
-}
-
-model GetAsyncJobResultResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetAsyncJobResultResponseBody(name='body'),
-}
-
-async function getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
-  Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
-  var req = new OpenApi.OpenApiRequest{ 
-    query = query,
-  };
-  return doRPCRequest('GetAsyncJobResult', '2019-09-30', 'HTTPS', 'GET', 'AK', 'json', req, runtime);
-}
-
-async function getAsyncJobResult(request: GetAsyncJobResultRequest): GetAsyncJobResultResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getAsyncJobResultWithOptions(request, runtime);
-}
-
-model DetectImageElementsRequest {
-  url?: string(name='Url'),
-}
-
-model DetectImageElementsAdvanceRequest {
-  urlObject: readable(name='UrlObject'),
-}
-
-model DetectImageElementsResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    elements?: [ 
-      {
-        type?: string(name='Type'),
-        width?: int32(name='Width'),
-        height?: int32(name='Height'),
-        y?: int32(name='Y'),
-        score?: float(name='Score'),
-        x?: int32(name='X'),
-      }
-    ](name='Elements'),
-  }(name='Data'),
-}
-
-model DetectImageElementsResponse = {
-  headers: map[string]string(name='headers'),
-  body: DetectImageElementsResponseBody(name='body'),
-}
-
-async function detectImageElementsWithOptions(request: DetectImageElementsRequest, runtime: Util.RuntimeOptions): DetectImageElementsResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DetectImageElements', '2019-09-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function detectImageElements(request: DetectImageElementsRequest): DetectImageElementsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return detectImageElementsWithOptions(request, runtime);
-}
-
-async function detectImageElementsAdvance(request: DetectImageElementsAdvanceRequest, runtime: Util.RuntimeOptions): DetectImageElementsResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'imagerecog',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var detectImageElementsReq = new DetectImageElementsRequest{};
-  OpenApiUtil.convert(request, detectImageElementsReq);
-
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
-
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.urlObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  detectImageElementsReq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var detectImageElementsResp = detectImageElementsWithOptions(detectImageElementsReq, runtime);
-  return detectImageElementsResp;
-}
-
-model RecognizeVehicleTypeRequest {
-  imageURL?: string(name='ImageURL'),
-}
-
-model RecognizeVehicleTypeAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-}
-
-model RecognizeVehicleTypeResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    elements?: [ 
-      {
-        score?: float(name='Score'),
-        name?: string(name='Name'),
-      }
-    ](name='Elements'),
-    threshold?: float(name='Threshold'),
-  }(name='Data'),
-}
-
-model RecognizeVehicleTypeResponse = {
-  headers: map[string]string(name='headers'),
-  body: RecognizeVehicleTypeResponseBody(name='body'),
-}
-
-async function recognizeVehicleTypeWithOptions(request: RecognizeVehicleTypeRequest, runtime: Util.RuntimeOptions): RecognizeVehicleTypeResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RecognizeVehicleType', '2019-09-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function recognizeVehicleType(request: RecognizeVehicleTypeRequest): RecognizeVehicleTypeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeVehicleTypeWithOptions(request, runtime);
-}
-
-async function recognizeVehicleTypeAdvance(request: RecognizeVehicleTypeAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeVehicleTypeResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'imagerecog',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeVehicleTypeReq = new RecognizeVehicleTypeRequest{};
-  OpenApiUtil.convert(request, recognizeVehicleTypeReq);
-
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
-
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.imageURLObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  recognizeVehicleTypeReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var recognizeVehicleTypeResp = recognizeVehicleTypeWithOptions(recognizeVehicleTypeReq, runtime);
-  return recognizeVehicleTypeResp;
-}
-
-model RecognizeFoodRequest {
-  imageURL?: string(name='ImageURL', description='A short description of struct'),
-}
-
-model RecognizeFoodAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-}
-
-model RecognizeFoodResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  data?: {
-    topFives?: [ 
-      {
-        category?: string(name='Category'),
-        score?: float(name='Score'),
-        calorie?: string(name='Calorie'),
-      }
-    ](name='TopFives'),
-  }(name='Data'),
-}
-
-model RecognizeFoodResponse = {
-  headers: map[string]string(name='headers'),
-  body: RecognizeFoodResponseBody(name='body'),
-}
-
-async function recognizeFoodWithOptions(request: RecognizeFoodRequest, runtime: Util.RuntimeOptions): RecognizeFoodResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RecognizeFood', '2019-09-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function recognizeFood(request: RecognizeFoodRequest): RecognizeFoodResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeFoodWithOptions(request, runtime);
-}
-
-async function recognizeFoodAdvance(request: RecognizeFoodAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeFoodResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'imagerecog',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeFoodReq = new RecognizeFoodRequest{};
-  OpenApiUtil.convert(request, recognizeFoodReq);
-
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
-
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.imageURLObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  recognizeFoodReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var recognizeFoodResp = recognizeFoodWithOptions(recognizeFoodReq, runtime);
-  return recognizeFoodResp;
-}
-
-model RecognizeImageStyleRequest {
-  url?: string(name='Url'),
-}
-
-model RecognizeImageStyleAdvanceRequest {
-  urlObject: readable(name='UrlObject'),
-}
-
-model RecognizeImageStyleResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    styles?: [ string ](name='Styles'),
-  }(name='Data'),
-}
-
-model RecognizeImageStyleResponse = {
-  headers: map[string]string(name='headers'),
-  body: RecognizeImageStyleResponseBody(name='body'),
-}
-
-async function recognizeImageStyleWithOptions(request: RecognizeImageStyleRequest, runtime: Util.RuntimeOptions): RecognizeImageStyleResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RecognizeImageStyle', '2019-09-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function recognizeImageStyle(request: RecognizeImageStyleRequest): RecognizeImageStyleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeImageStyleWithOptions(request, runtime);
-}
-
-async function recognizeImageStyleAdvance(request: RecognizeImageStyleAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeImageStyleResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'imagerecog',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeImageStyleReq = new RecognizeImageStyleRequest{};
-  OpenApiUtil.convert(request, recognizeImageStyleReq);
-
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
-
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.urlObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  recognizeImageStyleReq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var recognizeImageStyleResp = recognizeImageStyleWithOptions(recognizeImageStyleReq, runtime);
-  return recognizeImageStyleResp;
-}
-
-model RecognizeSceneRequest {
-  imageType?: int32(name='ImageType'),
-  imageURL?: string(name='ImageURL'),
-}
-
-model RecognizeSceneAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-  imageType?: int32(name='ImageType'),
-}
-
-model RecognizeSceneResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    tags?: [ 
-      {
-        value?: string(name='Value'),
-        confidence?: float(name='Confidence'),
-      }
-    ](name='Tags'),
-  }(name='Data'),
-}
-
-model RecognizeSceneResponse = {
-  headers: map[string]string(name='headers'),
-  body: RecognizeSceneResponseBody(name='body'),
-}
-
-async function recognizeSceneWithOptions(request: RecognizeSceneRequest, runtime: Util.RuntimeOptions): RecognizeSceneResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RecognizeScene', '2019-09-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function recognizeScene(request: RecognizeSceneRequest): RecognizeSceneResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeSceneWithOptions(request, runtime);
-}
-
-async function recognizeSceneAdvance(request: RecognizeSceneAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeSceneResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'imagerecog',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeSceneReq = new RecognizeSceneRequest{};
-  OpenApiUtil.convert(request, recognizeSceneReq);
-
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
-
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.imageURLObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  recognizeSceneReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var recognizeSceneResp = recognizeSceneWithOptions(recognizeSceneReq, runtime);
-  return recognizeSceneResp;
-}
-
 model ClassifyingRubbishRequest {
   imageURL?: string(name='ImageURL'),
 }
@@ -773,48 +235,49 @@ async function detectFruitsAdvance(request: DetectFruitsAdvanceRequest, runtime:
   return detectFruitsResp;
 }
 
-model RecognizeImageColorRequest {
+model DetectImageElementsRequest {
   url?: string(name='Url'),
-  colorCount?: int32(name='ColorCount'),
 }
 
-model RecognizeImageColorAdvanceRequest {
+model DetectImageElementsAdvanceRequest {
   urlObject: readable(name='UrlObject'),
-  colorCount?: int32(name='ColorCount'),
 }
 
-model RecognizeImageColorResponseBody = {
+model DetectImageElementsResponseBody = {
   requestId?: string(name='RequestId'),
   data?: {
-    colorTemplateList?: [ 
+    elements?: [ 
       {
-        color?: string(name='Color'),
-        percentage?: float(name='Percentage'),
-        label?: string(name='Label'),
+        type?: string(name='Type'),
+        width?: int32(name='Width'),
+        height?: int32(name='Height'),
+        y?: int32(name='Y'),
+        score?: float(name='Score'),
+        x?: int32(name='X'),
       }
-    ](name='ColorTemplateList'),
+    ](name='Elements'),
   }(name='Data'),
 }
 
-model RecognizeImageColorResponse = {
+model DetectImageElementsResponse = {
   headers: map[string]string(name='headers'),
-  body: RecognizeImageColorResponseBody(name='body'),
+  body: DetectImageElementsResponseBody(name='body'),
 }
 
-async function recognizeImageColorWithOptions(request: RecognizeImageColorRequest, runtime: Util.RuntimeOptions): RecognizeImageColorResponse {
+async function detectImageElementsWithOptions(request: DetectImageElementsRequest, runtime: Util.RuntimeOptions): DetectImageElementsResponse {
   Util.validateModel(request);
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('RecognizeImageColor', '2019-09-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  return doRPCRequest('DetectImageElements', '2019-09-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function recognizeImageColor(request: RecognizeImageColorRequest): RecognizeImageColorResponse {
+async function detectImageElements(request: DetectImageElementsRequest): DetectImageElementsResponse {
   var runtime = new Util.RuntimeOptions{};
-  return recognizeImageColorWithOptions(request, runtime);
+  return detectImageElementsWithOptions(request, runtime);
 }
 
-async function recognizeImageColorAdvance(request: RecognizeImageColorAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeImageColorResponse {
+async function detectImageElementsAdvance(request: DetectImageElementsAdvanceRequest, runtime: Util.RuntimeOptions): DetectImageElementsResponse {
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
@@ -845,8 +308,8 @@ async function recognizeImageColorAdvance(request: RecognizeImageColorAdvanceReq
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeImageColorReq = new RecognizeImageColorRequest{};
-  OpenApiUtil.convert(request, recognizeImageColorReq);
+  var detectImageElementsReq = new DetectImageElementsRequest{};
+  OpenApiUtil.convert(request, detectImageElementsReq);
 
   authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
   ossConfig.accessKeyId = authResponse.accessKeyId;
@@ -871,168 +334,9 @@ async function recognizeImageColorAdvance(request: RecognizeImageColorAdvanceReq
     header = ossHeader,
   };
   ossClient.postObject(uploadRequest, ossRuntime);
-  recognizeImageColorReq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var recognizeImageColorResp = recognizeImageColorWithOptions(recognizeImageColorReq, runtime);
-  return recognizeImageColorResp;
-}
-
-model RecognizeLogoRequest {
-  tasks?: [ 
-    {
-      imageURL?: string(name='ImageURL'),
-    }
-  ](name='Tasks'),
-}
-
-model RecognizeLogoResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    elements?: [ 
-      {
-        imageURL?: string(name='ImageURL'),
-        taskId?: string(name='TaskId'),
-        results?: [ 
-          {
-            suggestion?: string(name='Suggestion'),
-            logosData?: [ 
-              {
-                type?: string(name='Type'),
-                w?: float(name='W'),
-                h?: float(name='H'),
-                y?: float(name='Y'),
-                name?: string(name='Name'),
-                x?: float(name='X'),
-              }
-            ](name='LogosData'),
-            label?: string(name='Label'),
-            rate?: float(name='Rate'),
-          }
-        ](name='Results'),
-      }
-    ](name='Elements'),
-  }(name='Data'),
-}
-
-model RecognizeLogoResponse = {
-  headers: map[string]string(name='headers'),
-  body: RecognizeLogoResponseBody(name='body'),
-}
-
-async function recognizeLogoWithOptions(request: RecognizeLogoRequest, runtime: Util.RuntimeOptions): RecognizeLogoResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RecognizeLogo', '2019-09-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function recognizeLogo(request: RecognizeLogoRequest): RecognizeLogoResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeLogoWithOptions(request, runtime);
-}
-
-model TaggingImageRequest {
-  imageType?: int32(name='ImageType'),
-  imageURL?: string(name='ImageURL'),
-  async?: boolean(name='Async'),
-}
-
-model TaggingImageAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-  imageType?: int32(name='ImageType'),
-  async?: boolean(name='Async'),
-}
-
-model TaggingImageResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    tags?: [ 
-      {
-        value?: string(name='Value'),
-        confidence?: float(name='Confidence'),
-      }
-    ](name='Tags'),
-  }(name='Data'),
-}
-
-model TaggingImageResponse = {
-  headers: map[string]string(name='headers'),
-  body: TaggingImageResponseBody(name='body'),
-}
-
-async function taggingImageWithOptions(request: TaggingImageRequest, runtime: Util.RuntimeOptions): TaggingImageResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('TaggingImage', '2019-09-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function taggingImage(request: TaggingImageRequest): TaggingImageResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return taggingImageWithOptions(request, runtime);
-}
-
-async function taggingImageAdvance(request: TaggingImageAdvanceRequest, runtime: Util.RuntimeOptions): TaggingImageResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'imagerecog',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var taggingImageReq = new TaggingImageRequest{};
-  OpenApiUtil.convert(request, taggingImageReq);
-
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
-
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.imageURLObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  taggingImageReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var taggingImageResp = taggingImageWithOptions(taggingImageReq, runtime);
-  return taggingImageResp;
+  detectImageElementsReq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var detectImageElementsResp = detectImageElementsWithOptions(detectImageElementsReq, runtime);
+  return detectImageElementsResp;
 }
 
 model EvaluateCertificateQualityRequest {
@@ -1136,5 +440,694 @@ async function evaluateCertificateQualityAdvance(request: EvaluateCertificateQua
   evaluateCertificateQualityReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
   var evaluateCertificateQualityResp = evaluateCertificateQualityWithOptions(evaluateCertificateQualityReq, runtime);
   return evaluateCertificateQualityResp;
+}
+
+model GetAsyncJobResultRequest {
+  jobId?: string(name='JobId'),
+}
+
+model GetAsyncJobResultResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    status?: string(name='Status'),
+    errorMessage?: string(name='ErrorMessage'),
+    result?: string(name='Result'),
+    errorCode?: string(name='ErrorCode'),
+    jobId?: string(name='JobId'),
+  }(name='Data'),
+}
+
+model GetAsyncJobResultResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetAsyncJobResultResponseBody(name='body'),
+}
+
+async function getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = query,
+  };
+  return doRPCRequest('GetAsyncJobResult', '2019-09-30', 'HTTPS', 'GET', 'AK', 'json', req, runtime);
+}
+
+async function getAsyncJobResult(request: GetAsyncJobResultRequest): GetAsyncJobResultResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAsyncJobResultWithOptions(request, runtime);
+}
+
+model RecognizeFoodRequest {
+  imageURL?: string(name='ImageURL', description='A short description of struct'),
+}
+
+model RecognizeFoodAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model RecognizeFoodResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  data?: {
+    topFives?: [ 
+      {
+        category?: string(name='Category'),
+        score?: float(name='Score'),
+        calorie?: string(name='Calorie'),
+      }
+    ](name='TopFives'),
+  }(name='Data'),
+}
+
+model RecognizeFoodResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeFoodResponseBody(name='body'),
+}
+
+async function recognizeFoodWithOptions(request: RecognizeFoodRequest, runtime: Util.RuntimeOptions): RecognizeFoodResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeFood', '2019-09-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeFood(request: RecognizeFoodRequest): RecognizeFoodResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeFoodWithOptions(request, runtime);
+}
+
+async function recognizeFoodAdvance(request: RecognizeFoodAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeFoodResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imagerecog',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeFoodReq = new RecognizeFoodRequest{};
+  OpenApiUtil.convert(request, recognizeFoodReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  recognizeFoodReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var recognizeFoodResp = recognizeFoodWithOptions(recognizeFoodReq, runtime);
+  return recognizeFoodResp;
+}
+
+model RecognizeImageColorRequest {
+  url?: string(name='Url'),
+  colorCount?: int32(name='ColorCount'),
+}
+
+model RecognizeImageColorAdvanceRequest {
+  urlObject: readable(name='UrlObject'),
+  colorCount?: int32(name='ColorCount'),
+}
+
+model RecognizeImageColorResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    colorTemplateList?: [ 
+      {
+        color?: string(name='Color'),
+        percentage?: float(name='Percentage'),
+        label?: string(name='Label'),
+      }
+    ](name='ColorTemplateList'),
+  }(name='Data'),
+}
+
+model RecognizeImageColorResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeImageColorResponseBody(name='body'),
+}
+
+async function recognizeImageColorWithOptions(request: RecognizeImageColorRequest, runtime: Util.RuntimeOptions): RecognizeImageColorResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeImageColor', '2019-09-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeImageColor(request: RecognizeImageColorRequest): RecognizeImageColorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeImageColorWithOptions(request, runtime);
+}
+
+async function recognizeImageColorAdvance(request: RecognizeImageColorAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeImageColorResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imagerecog',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeImageColorReq = new RecognizeImageColorRequest{};
+  OpenApiUtil.convert(request, recognizeImageColorReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.urlObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  recognizeImageColorReq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var recognizeImageColorResp = recognizeImageColorWithOptions(recognizeImageColorReq, runtime);
+  return recognizeImageColorResp;
+}
+
+model RecognizeImageStyleRequest {
+  url?: string(name='Url'),
+}
+
+model RecognizeImageStyleAdvanceRequest {
+  urlObject: readable(name='UrlObject'),
+}
+
+model RecognizeImageStyleResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    styles?: [ string ](name='Styles'),
+  }(name='Data'),
+}
+
+model RecognizeImageStyleResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeImageStyleResponseBody(name='body'),
+}
+
+async function recognizeImageStyleWithOptions(request: RecognizeImageStyleRequest, runtime: Util.RuntimeOptions): RecognizeImageStyleResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeImageStyle', '2019-09-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeImageStyle(request: RecognizeImageStyleRequest): RecognizeImageStyleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeImageStyleWithOptions(request, runtime);
+}
+
+async function recognizeImageStyleAdvance(request: RecognizeImageStyleAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeImageStyleResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imagerecog',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeImageStyleReq = new RecognizeImageStyleRequest{};
+  OpenApiUtil.convert(request, recognizeImageStyleReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.urlObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  recognizeImageStyleReq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var recognizeImageStyleResp = recognizeImageStyleWithOptions(recognizeImageStyleReq, runtime);
+  return recognizeImageStyleResp;
+}
+
+model RecognizeLogoRequest {
+  tasks?: [ 
+    {
+      imageURL?: string(name='ImageURL'),
+    }
+  ](name='Tasks'),
+}
+
+model RecognizeLogoResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    elements?: [ 
+      {
+        imageURL?: string(name='ImageURL'),
+        taskId?: string(name='TaskId'),
+        results?: [ 
+          {
+            suggestion?: string(name='Suggestion'),
+            logosData?: [ 
+              {
+                type?: string(name='Type'),
+                w?: float(name='W'),
+                h?: float(name='H'),
+                y?: float(name='Y'),
+                name?: string(name='Name'),
+                x?: float(name='X'),
+              }
+            ](name='LogosData'),
+            label?: string(name='Label'),
+            rate?: float(name='Rate'),
+          }
+        ](name='Results'),
+      }
+    ](name='Elements'),
+  }(name='Data'),
+}
+
+model RecognizeLogoResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeLogoResponseBody(name='body'),
+}
+
+async function recognizeLogoWithOptions(request: RecognizeLogoRequest, runtime: Util.RuntimeOptions): RecognizeLogoResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeLogo', '2019-09-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeLogo(request: RecognizeLogoRequest): RecognizeLogoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeLogoWithOptions(request, runtime);
+}
+
+model RecognizeSceneRequest {
+  imageURL?: string(name='ImageURL'),
+}
+
+model RecognizeSceneAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model RecognizeSceneResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    tags?: [ 
+      {
+        value?: string(name='Value'),
+        confidence?: float(name='Confidence'),
+      }
+    ](name='Tags'),
+  }(name='Data'),
+}
+
+model RecognizeSceneResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeSceneResponseBody(name='body'),
+}
+
+async function recognizeSceneWithOptions(request: RecognizeSceneRequest, runtime: Util.RuntimeOptions): RecognizeSceneResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeScene', '2019-09-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeScene(request: RecognizeSceneRequest): RecognizeSceneResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeSceneWithOptions(request, runtime);
+}
+
+async function recognizeSceneAdvance(request: RecognizeSceneAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeSceneResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imagerecog',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeSceneReq = new RecognizeSceneRequest{};
+  OpenApiUtil.convert(request, recognizeSceneReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  recognizeSceneReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var recognizeSceneResp = recognizeSceneWithOptions(recognizeSceneReq, runtime);
+  return recognizeSceneResp;
+}
+
+model RecognizeVehicleTypeRequest {
+  imageURL?: string(name='ImageURL'),
+}
+
+model RecognizeVehicleTypeAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model RecognizeVehicleTypeResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    elements?: [ 
+      {
+        score?: float(name='Score'),
+        name?: string(name='Name'),
+      }
+    ](name='Elements'),
+    threshold?: float(name='Threshold'),
+  }(name='Data'),
+}
+
+model RecognizeVehicleTypeResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeVehicleTypeResponseBody(name='body'),
+}
+
+async function recognizeVehicleTypeWithOptions(request: RecognizeVehicleTypeRequest, runtime: Util.RuntimeOptions): RecognizeVehicleTypeResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeVehicleType', '2019-09-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeVehicleType(request: RecognizeVehicleTypeRequest): RecognizeVehicleTypeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeVehicleTypeWithOptions(request, runtime);
+}
+
+async function recognizeVehicleTypeAdvance(request: RecognizeVehicleTypeAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeVehicleTypeResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imagerecog',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeVehicleTypeReq = new RecognizeVehicleTypeRequest{};
+  OpenApiUtil.convert(request, recognizeVehicleTypeReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  recognizeVehicleTypeReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var recognizeVehicleTypeResp = recognizeVehicleTypeWithOptions(recognizeVehicleTypeReq, runtime);
+  return recognizeVehicleTypeResp;
+}
+
+model TaggingImageRequest {
+  imageURL?: string(name='ImageURL'),
+}
+
+model TaggingImageAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model TaggingImageResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    tags?: [ 
+      {
+        value?: string(name='Value'),
+        confidence?: float(name='Confidence'),
+      }
+    ](name='Tags'),
+  }(name='Data'),
+}
+
+model TaggingImageResponse = {
+  headers: map[string]string(name='headers'),
+  body: TaggingImageResponseBody(name='body'),
+}
+
+async function taggingImageWithOptions(request: TaggingImageRequest, runtime: Util.RuntimeOptions): TaggingImageResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('TaggingImage', '2019-09-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function taggingImage(request: TaggingImageRequest): TaggingImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return taggingImageWithOptions(request, runtime);
+}
+
+async function taggingImageAdvance(request: TaggingImageAdvanceRequest, runtime: Util.RuntimeOptions): TaggingImageResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imagerecog',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var taggingImageReq = new TaggingImageRequest{};
+  OpenApiUtil.convert(request, taggingImageReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  taggingImageReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var taggingImageResp = taggingImageWithOptions(taggingImageReq, runtime);
+  return taggingImageResp;
 }
 
