@@ -1,0 +1,61 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+
+import EndpointUtil;
+
+extends OpenApi;
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = 'regional';
+  
+  @endpointMap = {
+    cn-hangzhou = 'saf.cn-shanghai.aliyuncs.com',
+  };
+  checkConfig(config);
+  @endpoint = getEndpoint('saf', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model ExecuteRequestRequest {
+  serviceParameters?: string(name='ServiceParameters'),
+  service?: string(name='Service'),
+}
+
+model ExecuteRequestResponseBody = {
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  data?: map[string]any(name='Data'),
+  code?: int32(name='Code'),
+}
+
+model ExecuteRequestResponse = {
+  headers: map[string]string(name='headers'),
+  body: ExecuteRequestResponseBody(name='body'),
+}
+
+async function executeRequestWithOptions(request: ExecuteRequestRequest, runtime: Util.RuntimeOptions): ExecuteRequestResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ExecuteRequest', '2021-03-08-test', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function executeRequest(request: ExecuteRequestRequest): ExecuteRequestResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return executeRequestWithOptions(request, runtime);
+}
+
