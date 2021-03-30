@@ -83,31 +83,147 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-model FieldSchemaModel {
-  name?: string(name='Name', description='列名'),
-  type?: string(name='Type', description='列的数据类型'),
-  comment?: string(name='Comment', description='列的描述信息'),
-  schemaName?: string(name='SchemaName', description='对应的数据库名'),
-  tableName?: string(name='TableName', description='对应的表名'),
-  mappedName?: string(name='MappedName', description='映射名称'),
-  dataType?: string(name='DataType', description='数据的类型'),
-  isPrimaryKey?: boolean(name='IsPrimaryKey', description='是否为主键'),
-  createTime?: long(name='CreateTime', description='创建时间'),
-  updateTime?: long(name='UpdateTime', description='更新时间'),
-   PkPosition?: int32(name=' PkPosition', description='主键位置'),
-  isPartitionKey?: boolean(name='IsPartitionKey', description='是否为分区字段'),
+model AddPartitionsRequest {
+  partition?: [ 
+    {
+      dbName?: string(name='DbName', description='数据库名称'),
+      parameters?: map[string]string(name='Parameters', description='分区属性'),
+      storageDescriptor?: {
+        col?: [ 
+          {
+            comment?: string(name='Comment', description='列注释'),
+            name?: string(name='Name', description='列名'),
+            type?: string(name='Type', description='列类型'),
+          }
+        ](name='Col', description='表的列信息'),
+        inputFormat?: string(name='InputFormat', description='表的 inputFormat'),
+        location?: string(name='Location', description='表路径'),
+        outputFormat?: string(name='OutputFormat', description='表的 outputFormat'),
+        parameters?: map[string]string(name='Parameters', description='StorageDescriptor 的属性'),
+        serDeInfo?: {
+          name?: string(name='Name', description='SerDe 的名字'),
+          parameters?: map[string]string(name='Parameters', description='SerDe 的'),
+          serializationLib?: string(name='SerializationLib', description='SerDe 的 serializationLib 信息'),
+        }(name='SerDeInfo', description='表的 serDeInfo'),
+      }(name='StorageDescriptor', description='分区的 StorageDescriptor '),
+      tableName?: string(name='TableName', description='表名'),
+      values?: [ string ](name='Values', description='需要添加的分区'),
+    }
+  ](name='Partition', description='添加的分区'),
 }
 
-model DatabaseModel {
-  DBId?: string(name='DBId', description='数据库 ID'),
-  tenantId?: string(name='TenantId', description='数据库所属的阿里云UID	'),
-  name?: string(name='Name', description='数据库名称'),
-  locationURI ?: string(name='LocationURI ', description='数据库地址'),
-  description?: string(name='Description', description='数据库描述	'),
-  parameters?: map[string]string(name='Parameters', description='数据库参数	'),
-  ownerName?: string(name='OwnerName', description='数据库所属 DLA userName	'),
-  ownerType?: string(name='OwnerType', description='数据库所属用户类型'),
-  catalogType?: string(name='CatalogType', description='数据库类型'),
+model AddPartitionsShrinkRequest {
+  partitionShrink?: string(name='Partition', description='添加的分区'),
+}
+
+model AddPartitionsResponseBody = {
+  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
+  data?: long(name='Data', description='成功添加的分区个数'),
+  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
+  requestId?: string(name='RequestId', description='请求的 ID'),
+  success?: boolean(name='Success', description='标识本次请求是否成功'),
+}
+
+model AddPartitionsResponse = {
+  headers: map[string]string(name='headers'),
+  body: AddPartitionsResponseBody(name='body'),
+}
+
+async function addPartitionsWithOptions(tmpReq: AddPartitionsRequest, runtime: Util.RuntimeOptions): AddPartitionsResponse {
+  Util.validateModel(tmpReq);
+  var request = new AddPartitionsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.partition)) {
+    request.partitionShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.partition, 'Partition', 'json');
+  }
+  var query = {};
+  query["Partition"] = request.partitionShrink;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'AddPartitions',
+    version = '2020-09-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function addPartitions(request: AddPartitionsRequest): AddPartitionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return addPartitionsWithOptions(request, runtime);
+}
+
+model AlterDatabaseRequest {
+  name?: string(name='Name', description='修改数据库的新名称'),
+  description?: string(name='Description', description='数据库描述'),
+  locationUri?: string(name='LocationUri', description='数据库的'),
+  oldDbName?: string(name='OldDbName', description='修改数据库的旧名称'),
+  parameters?: map[string]string(name='Parameters', description='数据库的'),
+}
+
+model AlterDatabaseShrinkRequest {
+  name?: string(name='Name', description='修改数据库的新名称'),
+  description?: string(name='Description', description='数据库描述'),
+  locationUri?: string(name='LocationUri', description='数据库的'),
+  oldDbName?: string(name='OldDbName', description='修改数据库的旧名称'),
+  parametersShrink?: string(name='Parameters', description='数据库的'),
+}
+
+model AlterDatabaseResponseBody = {
+  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
+  data?: string(name='Data', description='null'),
+  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
+  requestId?: string(name='RequestId', description='请求的 ID'),
+  success?: boolean(name='Success', description='标识本次请求是否成功'),
+}
+
+model AlterDatabaseResponse = {
+  headers: map[string]string(name='headers'),
+  body: AlterDatabaseResponseBody(name='body'),
+}
+
+async function alterDatabaseWithOptions(tmpReq: AlterDatabaseRequest, runtime: Util.RuntimeOptions): AlterDatabaseResponse {
+  Util.validateModel(tmpReq);
+  var request = new AlterDatabaseShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.parameters)) {
+    request.parametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.parameters, 'Parameters', 'json');
+  }
+  var query = {};
+  query["Name"] = request.name;
+  query["Description"] = request.description;
+  query["LocationUri"] = request.locationUri;
+  query["OldDbName"] = request.oldDbName;
+  query["Parameters"] = request.parametersShrink;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'AlterDatabase',
+    version = '2020-09-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function alterDatabase(request: AlterDatabaseRequest): AlterDatabaseResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return alterDatabaseWithOptions(request, runtime);
 }
 
 model AlterTableRequest {
@@ -157,10 +273,29 @@ async function alterTableWithOptions(tmpReq: AlterTableRequest, runtime: Util.Ru
   if (!Util.isUnset(tmpReq.col)) {
     request.colShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.col, 'Col', 'json');
   }
+  var query = {};
+  query["OldDbName"] = request.oldDbName;
+  query["OldTableName"] = request.oldTableName;
+  query["NewDbName"] = request.newDbName;
+  query["NewTableName"] = request.newTableName;
+  query["Parameters"] = request.parametersShrink;
+  query["Col"] = request.colShrink;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('AlterTable', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'AlterTable',
+    version = '2020-09-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function alterTable(request: AlterTableRequest): AlterTableResponse {
@@ -168,141 +303,66 @@ async function alterTable(request: AlterTableRequest): AlterTableResponse {
   return alterTableWithOptions(request, runtime);
 }
 
-model CountDatabasesByNameAndTagsRequest {
-  dbNamePattern?: string(name='DbNamePattern', description='数据库名称模式'),
-  excludeTagPattern?: string(name='ExcludeTagPattern', description='不包含的标签模式'),
-  includeTagPattern?: string(name='IncludeTagPattern', description='包含的标签模式'),
+model CreateDatabaseRequest {
+  name?: string(name='Name', description='创建数据库的名字'),
+  description?: string(name='Description', description='数据库描述'),
+  locationUri?: string(name='LocationUri', description='数据库的 location'),
+  parameters?: map[string]string(name='Parameters', description='数据库属性'),
 }
 
-model CountDatabasesByNameAndTagsResponseBody = {
-  requestId?: string(name='RequestId', description='请求的 ID	'),
+model CreateDatabaseShrinkRequest {
+  name?: string(name='Name', description='创建数据库的名字'),
+  description?: string(name='Description', description='数据库描述'),
+  locationUri?: string(name='LocationUri', description='数据库的 location'),
+  parametersShrink?: string(name='Parameters', description='数据库属性'),
+}
+
+model CreateDatabaseResponseBody = {
   code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
-  success?: boolean(name='Success', description='标识本次请求是否成功'),
-  data?: long(name='Data', description='符合条件库的数量'),
-}
-
-model CountDatabasesByNameAndTagsResponse = {
-  headers: map[string]string(name='headers'),
-  body: CountDatabasesByNameAndTagsResponseBody(name='body'),
-}
-
-async function countDatabasesByNameAndTagsWithOptions(request: CountDatabasesByNameAndTagsRequest, runtime: Util.RuntimeOptions): CountDatabasesByNameAndTagsResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('CountDatabasesByNameAndTags', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function countDatabasesByNameAndTags(request: CountDatabasesByNameAndTagsRequest): CountDatabasesByNameAndTagsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return countDatabasesByNameAndTagsWithOptions(request, runtime);
-}
-
-model DropPartitionRequest {
-  dbName?: string(name='DbName', description='数据库名称'),
-  tableName?: string(name='TableName', description='表名'),
-  partValues?: [ string ](name='PartValues', description='需要删除的分区'),
-}
-
-model DropPartitionShrinkRequest {
-  dbName?: string(name='DbName', description='数据库名称'),
-  tableName?: string(name='TableName', description='表名'),
-  partValuesShrink?: string(name='PartValues', description='需要删除的分区'),
-}
-
-model DropPartitionResponseBody = {
-  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  data?: boolean(name='Data', description='删除分区是否成功'),
+  data?: long(name='Data', description='成功创建库的库ID'),
   message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
   requestId?: string(name='RequestId', description='请求的 ID'),
   success?: boolean(name='Success', description='标识本次请求是否成功'),
 }
 
-model DropPartitionResponse = {
+model CreateDatabaseResponse = {
   headers: map[string]string(name='headers'),
-  body: DropPartitionResponseBody(name='body'),
+  body: CreateDatabaseResponseBody(name='body'),
 }
 
-async function dropPartitionWithOptions(tmpReq: DropPartitionRequest, runtime: Util.RuntimeOptions): DropPartitionResponse {
+async function createDatabaseWithOptions(tmpReq: CreateDatabaseRequest, runtime: Util.RuntimeOptions): CreateDatabaseResponse {
   Util.validateModel(tmpReq);
-  var request = new DropPartitionShrinkRequest{};
+  var request = new CreateDatabaseShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.partValues)) {
-    request.partValuesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.partValues, 'PartValues', 'json');
+  if (!Util.isUnset(tmpReq.parameters)) {
+    request.parametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.parameters, 'Parameters', 'json');
   }
+  var query = {};
+  query["Name"] = request.name;
+  query["Description"] = request.description;
+  query["LocationUri"] = request.locationUri;
+  query["Parameters"] = request.parametersShrink;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('DropPartition', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function dropPartition(request: DropPartitionRequest): DropPartitionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return dropPartitionWithOptions(request, runtime);
-}
-
-model GetDatabaseObjectsByFilterRequest {
-  catalogTypes?: [ string ](name='CatalogTypes', description='数据库类型列表'),
-  likeLocations?: [ string ](name='LikeLocations', description='数据库位置列表'),
-  locations?: [ string ](name='Locations', description='数据库类型列表'),
-}
-
-model GetDatabaseObjectsByFilterShrinkRequest {
-  catalogTypesShrink?: string(name='CatalogTypes', description='数据库类型列表'),
-  likeLocationsShrink?: string(name='LikeLocations', description='数据库位置列表'),
-  locationsShrink?: string(name='Locations', description='数据库类型列表'),
-}
-
-model GetDatabaseObjectsByFilterResponseBody = {
-  requestId?: string(name='RequestId', description='请求的 ID	'),
-  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
-  success?: boolean(name='Success', description='标识本次请求是否成功'),
-  data?: [ 
-    {
-      description?: string(name='Description', description='数据库描述	'),
-      locationUri?: string(name='LocationUri', description='数据库位置'),
-      name?: string(name='Name', description='数据库名称'),
-      ownerName?: string(name='OwnerName', description='数据库所属 DLA userName'),
-      parameters?: map[string]string(name='Parameters', description='数据库参数'),
-      tenantId?: string(name='TenantId', description='数据库所属的阿里云UID	'),
-      DBId?: long(name='DBId', description='数据库的 ID'),
-      catalogType?: string(name='CatalogType', description='数据库的类型	'),
-      createTime?: long(name='CreateTime', description='创建时间'),
-      updateTime?: long(name='UpdateTime', description='更新时间'),
-    }
-  ](name='Data', description='返回的数据库列表'),
-}
-
-model GetDatabaseObjectsByFilterResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetDatabaseObjectsByFilterResponseBody(name='body'),
-}
-
-async function getDatabaseObjectsByFilterWithOptions(tmpReq: GetDatabaseObjectsByFilterRequest, runtime: Util.RuntimeOptions): GetDatabaseObjectsByFilterResponse {
-  Util.validateModel(tmpReq);
-  var request = new GetDatabaseObjectsByFilterShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.catalogTypes)) {
-    request.catalogTypesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.catalogTypes, 'CatalogTypes', 'json');
-  }
-  if (!Util.isUnset(tmpReq.likeLocations)) {
-    request.likeLocationsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.likeLocations, 'LikeLocations', 'json');
-  }
-  if (!Util.isUnset(tmpReq.locations)) {
-    request.locationsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.locations, 'Locations', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+  var params = new OpenApi.Params{
+    action = 'CreateDatabase',
+    version = '2020-09-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
   };
-  return doRPCRequest('GetDatabaseObjectsByFilter', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
-async function getDatabaseObjectsByFilter(request: GetDatabaseObjectsByFilterRequest): GetDatabaseObjectsByFilterResponse {
+async function createDatabase(request: CreateDatabaseRequest): CreateDatabaseResponse {
   var runtime = new Util.RuntimeOptions{};
-  return getDatabaseObjectsByFilterWithOptions(request, runtime);
+  return createDatabaseWithOptions(request, runtime);
 }
 
 model CreateTableRequest {
@@ -376,15 +436,141 @@ async function createTableWithOptions(tmpReq: CreateTableRequest, runtime: Util.
   if (!Util.isUnset(tmpReq.storageDescriptor)) {
     request.storageDescriptorShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.storageDescriptor, 'StorageDescriptor', 'json');
   }
+  var query = {};
+  query["DbName"] = request.dbName;
+  query["TableName"] = request.tableName;
+  query["PartitionKeys"] = request.partitionKeysShrink;
+  query["Parameters"] = request.parametersShrink;
+  query["StorageDescriptor"] = request.storageDescriptorShrink;
+  query["ViewOriginalText"] = request.viewOriginalText;
+  query["ViewExpandedText"] = request.viewExpandedText;
+  query["TableType"] = request.tableType;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('CreateTable', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateTable',
+    version = '2020-09-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function createTable(request: CreateTableRequest): CreateTableResponse {
   var runtime = new Util.RuntimeOptions{};
   return createTableWithOptions(request, runtime);
+}
+
+model DropDatabaseRequest {
+  name?: string(name='Name', description='需要删除的数据库名称'),
+  cascade?: boolean(name='Cascade', description='如果设置为ture，那么数据库里面有表会先把表删除，再删除数据库；如果设置为false，那么数据库里面有表则不能删除数据库。'),
+}
+
+model DropDatabaseResponseBody = {
+  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
+  data?: string(name='Data', description='null'),
+  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
+  requestId?: string(name='RequestId', description='请求的 ID'),
+  success?: boolean(name='Success', description='标识本次请求是否成功'),
+}
+
+model DropDatabaseResponse = {
+  headers: map[string]string(name='headers'),
+  body: DropDatabaseResponseBody(name='body'),
+}
+
+async function dropDatabaseWithOptions(request: DropDatabaseRequest, runtime: Util.RuntimeOptions): DropDatabaseResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["Name"] = request.name;
+  query["Cascade"] = request.cascade;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'DropDatabase',
+    version = '2020-09-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function dropDatabase(request: DropDatabaseRequest): DropDatabaseResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return dropDatabaseWithOptions(request, runtime);
+}
+
+model DropPartitionRequest {
+  dbName?: string(name='DbName', description='数据库名称'),
+  tableName?: string(name='TableName', description='表名'),
+  partValues?: [ string ](name='PartValues', description='需要删除的分区'),
+}
+
+model DropPartitionShrinkRequest {
+  dbName?: string(name='DbName', description='数据库名称'),
+  tableName?: string(name='TableName', description='表名'),
+  partValuesShrink?: string(name='PartValues', description='需要删除的分区'),
+}
+
+model DropPartitionResponseBody = {
+  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
+  data?: boolean(name='Data', description='删除分区是否成功'),
+  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
+  requestId?: string(name='RequestId', description='请求的 ID'),
+  success?: boolean(name='Success', description='标识本次请求是否成功'),
+}
+
+model DropPartitionResponse = {
+  headers: map[string]string(name='headers'),
+  body: DropPartitionResponseBody(name='body'),
+}
+
+async function dropPartitionWithOptions(tmpReq: DropPartitionRequest, runtime: Util.RuntimeOptions): DropPartitionResponse {
+  Util.validateModel(tmpReq);
+  var request = new DropPartitionShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.partValues)) {
+    request.partValuesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.partValues, 'PartValues', 'json');
+  }
+  var query = {};
+  query["DbName"] = request.dbName;
+  query["TableName"] = request.tableName;
+  query["PartValues"] = request.partValuesShrink;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'DropPartition',
+    version = '2020-09-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function dropPartition(request: DropPartitionRequest): DropPartitionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return dropPartitionWithOptions(request, runtime);
 }
 
 model DropTableRequest {
@@ -407,10 +593,25 @@ model DropTableResponse = {
 
 async function dropTableWithOptions(request: DropTableRequest, runtime: Util.RuntimeOptions): DropTableResponse {
   Util.validateModel(request);
+  var query = {};
+  query["DbName"] = request.dbName;
+  query["TableName"] = request.tableName;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('DropTable', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'DropTable',
+    version = '2020-09-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function dropTable(request: DropTableRequest): DropTableResponse {
@@ -418,255 +619,89 @@ async function dropTable(request: DropTableRequest): DropTableResponse {
   return dropTableWithOptions(request, runtime);
 }
 
-model GetTableObjectsByNameRequest {
-  DBName?: string(name='DBName', description='数据库名称'),
-  tableNames?: [ string ](name='TableNames', description='表名称'),
-}
-
-model GetTableObjectsByNameShrinkRequest {
-  DBName?: string(name='DBName', description='数据库名称'),
-  tableNamesShrink?: string(name='TableNames', description='表名称'),
-}
-
-model GetTableObjectsByNameResponseBody = {
+model GetAllDatabasesResponseBody = {
   code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  data?: [ 
-    {
-      createTime?: long(name='CreateTime', description='表的创建时间'),
-      dbName?: string(name='DbName', description='数据库名称'),
-      lastAccessTime?: long(name='LastAccessTime', description='最后一次访问时间'),
-      owner?: string(name='Owner', description='表的所属用户'),
-      parameters?: map[string]string(name='Parameters', description='表属性'),
-      partitionKeys?: [ 
-        {
-          comment?: string(name='Comment', description='分区注释'),
-          name?: string(name='Name', description='分区名称'),
-          type?: string(name='Type', description='分区类型'),
-        }
-      ](name='PartitionKeys', description='分区信息'),
-      storageDescriptor?: {
-        cols?: [ 
-          {
-            comment?: string(name='Comment', description='列注释'),
-            name?: string(name='Name', description='列名称'),
-            type?: string(name='Type', description='列类型'),
-          }
-        ](name='Cols', description='表的列信息'),
-        inputFormat?: string(name='InputFormat', description='表的 inputFormat'),
-        location?: string(name='Location', description='表路径'),
-        outputFormat?: string(name='OutputFormat', description='表的 outputFormat'),
-        parameters?: map[string]any(name='Parameters', description='SD 的属性'),
-        serDeInfo?: {
-          name?: string(name='Name', description='SerDe 的名称'),
-          parameters?: map[string]string(name='Parameters', description='SerDe 的属性'),
-          serializationLib?: string(name='SerializationLib', description='SerDe 的 serializationLib'),
-        }(name='SerDeInfo', description='表的 SerDe 信息'),
-      }(name='StorageDescriptor', description='表的 sd 信息'),
-      tableName?: string(name='TableName', description='表的名称'),
-      tableType?: string(name='TableType', description='表的类型'),
-      viewExpandedText?: string(name='ViewExpandedText', description='如果表是视图，则存储扩展视图SQL'),
-      viewOriginalText?: string(name='ViewOriginalText', description='如果表是视图，则存储原生视图SQL'),
-      tblId?: long(name='TblId', description='表 ID'),
-      DBId?: long(name='DBId', description='数据库 ID'),
-    }
-  ](name='Data', description='查询到的所有表'),
+  data?: [ string ](name='Data', description='返回的数据库列表'),
   message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
   requestId?: string(name='RequestId', description='请求的 ID'),
   success?: boolean(name='Success', description='标识本次请求是否成功'),
 }
 
-model GetTableObjectsByNameResponse = {
+model GetAllDatabasesResponse = {
   headers: map[string]string(name='headers'),
-  body: GetTableObjectsByNameResponseBody(name='body'),
+  body: GetAllDatabasesResponseBody(name='body'),
 }
 
-async function getTableObjectsByNameWithOptions(tmpReq: GetTableObjectsByNameRequest, runtime: Util.RuntimeOptions): GetTableObjectsByNameResponse {
-  Util.validateModel(tmpReq);
-  var request = new GetTableObjectsByNameShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.tableNames)) {
-    request.tableNamesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tableNames, 'TableNames', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+async function getAllDatabasesWithOptions(runtime: Util.RuntimeOptions): GetAllDatabasesResponse {
+  var req = new OpenApi.OpenApiRequest{};
+  var params = new OpenApi.Params{
+    action = 'GetAllDatabases',
+    version = '2020-09-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
   };
-  return doRPCRequest('GetTableObjectsByName', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
-async function getTableObjectsByName(request: GetTableObjectsByNameRequest): GetTableObjectsByNameResponse {
+async function getAllDatabases(): GetAllDatabasesResponse {
   var runtime = new Util.RuntimeOptions{};
-  return getTableObjectsByNameWithOptions(request, runtime);
+  return getAllDatabasesWithOptions(runtime);
 }
 
-model GetDatabaseObjectsByNamePrefixRequest {
-  dbNamePattern?: string(name='DbNamePattern', description='数据库名称模式'),
+model GetAllTablesRequest {
+  dbName?: string(name='DbName', description='数据库名称'),
 }
 
-model GetDatabaseObjectsByNamePrefixResponseBody = {
-  requestId?: string(name='RequestId', description='请求的 ID	'),
+model GetAllTablesResponseBody = {
   code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
+  data?: [ string ](name='Data', description='请求数据库低下的所有表'),
   message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
+  requestId?: string(name='RequestId', description='请求的 ID'),
   success?: boolean(name='Success', description='标识本次请求是否成功'),
-  data?: [ 
-    {
-      description?: string(name='Description', description='数据库描述	'),
-      locationUri?: string(name='LocationUri', description='数据库位置'),
-      name?: string(name='Name', description='数据库名称'),
-      ownerName?: string(name='OwnerName', description='数据库所属 DLA userName'),
-      parameters?: map[string]string(name='Parameters', description='数据库参数'),
-      tenantId?: string(name='TenantId', description='数据库所属的阿里云UID	'),
-      DBId?: long(name='DBId', description='数据库的 ID'),
-      catalogType?: string(name='CatalogType', description='数据库的类型	'),
-      createTime?: long(name='CreateTime', description='创建时间'),
-      updateTime?: long(name='UpdateTime', description='更新时间'),
-    }
-  ](name='Data', description='返回的数据库列表'),
 }
 
-model GetDatabaseObjectsByNamePrefixResponse = {
+model GetAllTablesResponse = {
   headers: map[string]string(name='headers'),
-  body: GetDatabaseObjectsByNamePrefixResponseBody(name='body'),
+  body: GetAllTablesResponseBody(name='body'),
 }
 
-async function getDatabaseObjectsByNamePrefixWithOptions(request: GetDatabaseObjectsByNamePrefixRequest, runtime: Util.RuntimeOptions): GetDatabaseObjectsByNamePrefixResponse {
+async function getAllTablesWithOptions(request: GetAllTablesRequest, runtime: Util.RuntimeOptions): GetAllTablesResponse {
   Util.validateModel(request);
+  var query = {};
+  query["DbName"] = request.dbName;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('GetDatabaseObjectsByNamePrefix', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function getDatabaseObjectsByNamePrefix(request: GetDatabaseObjectsByNamePrefixRequest): GetDatabaseObjectsByNamePrefixResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getDatabaseObjectsByNamePrefixWithOptions(request, runtime);
-}
-
-model AddPartitionsRequest {
-  partition?: [ 
-    {
-      dbName?: string(name='DbName', description='数据库名称'),
-      parameters?: map[string]string(name='Parameters', description='分区属性'),
-      storageDescriptor?: {
-        col?: [ 
-          {
-            comment?: string(name='Comment', description='列注释'),
-            name?: string(name='Name', description='列名'),
-            type?: string(name='Type', description='列类型'),
-          }
-        ](name='Col', description='表的列信息'),
-        inputFormat?: string(name='InputFormat', description='表的 inputFormat'),
-        location?: string(name='Location', description='表路径'),
-        outputFormat?: string(name='OutputFormat', description='表的 outputFormat'),
-        parameters?: map[string]string(name='Parameters', description='StorageDescriptor 的属性'),
-        serDeInfo?: {
-          name?: string(name='Name', description='SerDe 的名字'),
-          parameters?: map[string]string(name='Parameters', description='SerDe 的'),
-          serializationLib?: string(name='SerializationLib', description='SerDe 的 serializationLib 信息'),
-        }(name='SerDeInfo', description='表的 serDeInfo'),
-      }(name='StorageDescriptor', description='分区的 StorageDescriptor '),
-      tableName?: string(name='TableName', description='表名'),
-      values?: [ string ](name='Values', description='需要添加的分区'),
-    }
-  ](name='Partition', description='添加的分区'),
-}
-
-model AddPartitionsShrinkRequest {
-  partitionShrink?: string(name='Partition', description='添加的分区'),
-}
-
-model AddPartitionsResponseBody = {
-  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  data?: long(name='Data', description='成功添加的分区个数'),
-  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
-  requestId?: string(name='RequestId', description='请求的 ID'),
-  success?: boolean(name='Success', description='标识本次请求是否成功'),
-}
-
-model AddPartitionsResponse = {
-  headers: map[string]string(name='headers'),
-  body: AddPartitionsResponseBody(name='body'),
-}
-
-async function addPartitionsWithOptions(tmpReq: AddPartitionsRequest, runtime: Util.RuntimeOptions): AddPartitionsResponse {
-  Util.validateModel(tmpReq);
-  var request = new AddPartitionsShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.partition)) {
-    request.partitionShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.partition, 'Partition', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+  var params = new OpenApi.Params{
+    action = 'GetAllTables',
+    version = '2020-09-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
   };
-  return doRPCRequest('AddPartitions', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
-async function addPartitions(request: AddPartitionsRequest): AddPartitionsResponse {
+async function getAllTables(request: GetAllTablesRequest): GetAllTablesResponse {
   var runtime = new Util.RuntimeOptions{};
-  return addPartitionsWithOptions(request, runtime);
+  return getAllTablesWithOptions(request, runtime);
 }
 
-model GrantPrivilegesRequest {
-  privilegeBag?: {
-    hiveObjectPrivilege?: [ 
-      {
-        hiveObjectRef?: {
-          dbName?: string(name='DbName', description='数据库名称'),
-          hiveObjectType?: string(name='HiveObjectType', description='授权粒度'),
-          tableName?: string(name='TableName', description='表名'),
-        }(name='HiveObjectRef', description='HiveObjectRef'),
-        principalName?: string(name='PrincipalName', description='给谁授权'),
-        principalType?: string(name='PrincipalType', description='授权类型，只能为 USER'),
-        privilegeGrantInfo?: {
-          grantOption?: boolean(name='GrantOption', description='权限是否可以传递'),
-          grantor?: string(name='Grantor', description='授权者'),
-          principalType?: string(name='PrincipalType', description='授权者的类型，只能为 USER'),
-          privilege?: string(name='Privilege', description='权限'),
-        }(name='PrivilegeGrantInfo', description='授权者的信息'),
-      }
-    ](name='HiveObjectPrivilege', description='权限信息'),
-  }(name='PrivilegeBag', description='权限信息'),
-}
-
-model GrantPrivilegesShrinkRequest {
-  privilegeBagShrink?: string(name='PrivilegeBag', description='权限信息'),
-}
-
-model GrantPrivilegesResponseBody = {
-  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  data?: boolean(name='Data', description='授权是否成功'),
-  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
-  requestId?: string(name='RequestId', description='请求的 ID'),
-  success?: boolean(name='Success', description='标识本次请求是否成功'),
-}
-
-model GrantPrivilegesResponse = {
-  headers: map[string]string(name='headers'),
-  body: GrantPrivilegesResponseBody(name='body'),
-}
-
-async function grantPrivilegesWithOptions(tmpReq: GrantPrivilegesRequest, runtime: Util.RuntimeOptions): GrantPrivilegesResponse {
-  Util.validateModel(tmpReq);
-  var request = new GrantPrivilegesShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.privilegeBag)) {
-    request.privilegeBagShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.privilegeBag, 'PrivilegeBag', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('GrantPrivileges', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function grantPrivileges(request: GrantPrivilegesRequest): GrantPrivilegesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return grantPrivilegesWithOptions(request, runtime);
-}
-
-model GetDatabaseObjectByNameRequest {
+model GetDatabaseRequest {
   name?: string(name='Name', description='数据库名称'),
 }
 
-model GetDatabaseObjectByNameResponseBody = {
+model GetDatabaseResponseBody = {
   code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
   databaseModel?: {
     description?: string(name='Description', description='数据库描述'),
@@ -675,286 +710,42 @@ model GetDatabaseObjectByNameResponseBody = {
     ownerName?: string(name='OwnerName', description='数据库所属 DLA userName'),
     parameters?: map[string]string(name='Parameters', description='数据库参数'),
     tenantId?: string(name='TenantId', description='数据库所属的阿里云UID'),
-    DBId?: long(name='DBId', description='数据库的 ID'),
-    catalogType?: string(name='CatalogType', description='数据库的类型'),
-    createTime?: long(name='CreateTime', description='创建时间'),
-    updateTime?: long(name='UpdateTime', description='修改时间'),
   }(name='DatabaseModel', description='返回的数据库结构'),
   message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
   requestId?: string(name='RequestId', description='请求的 ID'),
   success?: boolean(name='Success', description='标识本次请求是否成功'),
 }
 
-model GetDatabaseObjectByNameResponse = {
+model GetDatabaseResponse = {
   headers: map[string]string(name='headers'),
-  body: GetDatabaseObjectByNameResponseBody(name='body'),
+  body: GetDatabaseResponseBody(name='body'),
 }
 
-async function getDatabaseObjectByNameWithOptions(request: GetDatabaseObjectByNameRequest, runtime: Util.RuntimeOptions): GetDatabaseObjectByNameResponse {
+async function getDatabaseWithOptions(request: GetDatabaseRequest, runtime: Util.RuntimeOptions): GetDatabaseResponse {
   Util.validateModel(request);
+  var query = {};
+  query["Name"] = request.name;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('GetDatabaseObjectByName', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function getDatabaseObjectByName(request: GetDatabaseObjectByNameRequest): GetDatabaseObjectByNameResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getDatabaseObjectByNameWithOptions(request, runtime);
-}
-
-model GetPartitionsRequest {
-  dbName?: string(name='DbName', description='数据库名'),
-  tableName?: string(name='TableName', description='表名'),
-  maxParts?: int32(name='MaxParts', description='获取多少分区'),
-}
-
-model GetPartitionsResponseBody = {
-  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
-  partitions?: [ 
-    {
-      createTime?: long(name='CreateTime', description='分区创建时间'),
-      dbName?: string(name='DbName', description='数据库名'),
-      parameters?: map[string]string(name='Parameters', description='分区属性'),
-      storageDescriptorModel?: {
-        cols?: [ 
-          {
-            comment?: string(name='Comment', description='列注释'),
-            name?: string(name='Name', description='列名'),
-            type?: string(name='Type', description='列类型'),
-          }
-        ](name='Cols', description='表的列'),
-        inputFormat?: string(name='InputFormat', description='表的InputFormat'),
-        location?: string(name='Location', description='表的路径'),
-        outputFormat?: string(name='OutputFormat', description='表的OutputFormat'),
-        parameters?: map[string]string(name='Parameters', description='表属性'),
-        serDeInfoModel?: {
-          name?: string(name='Name', description='SerDe名称'),
-          parameters?: map[string]string(name='Parameters', description='SerDe属性'),
-          serializationLib?: string(name='SerializationLib', description='SerDe的serializationLib'),
-        }(name='SerDeInfoModel', description='表的 SerDe 信息'),
-      }(name='StorageDescriptorModel', description='分区的 SD 信息'),
-      tableName?: string(name='TableName', description='表名'),
-      values?: [ string ](name='Values', description='分区的值'),
-    }
-  ](name='Partitions', description='获取的分区'),
-  requestId?: string(name='RequestId', description='请求的 ID'),
-  success?: boolean(name='Success', description='标识本次请求是否成功'),
-}
-
-model GetPartitionsResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetPartitionsResponseBody(name='body'),
-}
-
-async function getPartitionsWithOptions(request: GetPartitionsRequest, runtime: Util.RuntimeOptions): GetPartitionsResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+  var params = new OpenApi.Params{
+    action = 'GetDatabase',
+    version = '2020-09-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
   };
-  return doRPCRequest('GetPartitions', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
-async function getPartitions(request: GetPartitionsRequest): GetPartitionsResponse {
+async function getDatabase(request: GetDatabaseRequest): GetDatabaseResponse {
   var runtime = new Util.RuntimeOptions{};
-  return getPartitionsWithOptions(request, runtime);
-}
-
-model GetDatabaseObjectsResponseBody = {
-  requestId?: string(name='RequestId', description='请求的 ID	'),
-  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
-  success?: boolean(name='Success', description='标识本次请求是否成功'),
-  data?: [ 
-    {
-      description?: string(name='Description', description='数据库描述'),
-      locationUri?: string(name='LocationUri', description='数据库位置'),
-      name?: string(name='Name', description='数据库名称'),
-      ownerName?: string(name='OwnerName', description='数据库所属 DLA userName'),
-      parameters?: map[string]string(name='Parameters', description='数据库参数'),
-      tenantId?: string(name='TenantId', description='数据库所属的阿里云UID'),
-      DBId?: long(name='DBId', description='数据库的 ID'),
-      catalogType?: string(name='CatalogType', description='数据库的类型'),
-      createTime?: long(name='CreateTime', description='创建时间'),
-      updateTime?: long(name='UpdateTime', description='修改时间'),
-    }
-  ](name='Data', description='返回的数据库列表'),
-}
-
-model GetDatabaseObjectsResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetDatabaseObjectsResponseBody(name='body'),
-}
-
-async function getDatabaseObjectsWithOptions(runtime: Util.RuntimeOptions): GetDatabaseObjectsResponse {
-  var req = new OpenApi.OpenApiRequest{};
-  return doRPCRequest('GetDatabaseObjects', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function getDatabaseObjects(): GetDatabaseObjectsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getDatabaseObjectsWithOptions(runtime);
-}
-
-model CreateDatabaseRequest {
-  name?: string(name='Name', description='创建数据库的名字'),
-  description?: string(name='Description', description='数据库描述'),
-  locationUri?: string(name='LocationUri', description='数据库的 location'),
-  parameters?: map[string]string(name='Parameters', description='数据库属性'),
-}
-
-model CreateDatabaseShrinkRequest {
-  name?: string(name='Name', description='创建数据库的名字'),
-  description?: string(name='Description', description='数据库描述'),
-  locationUri?: string(name='LocationUri', description='数据库的 location'),
-  parametersShrink?: string(name='Parameters', description='数据库属性'),
-}
-
-model CreateDatabaseResponseBody = {
-  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  data?: long(name='Data', description='成功创建库的库ID'),
-  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
-  requestId?: string(name='RequestId', description='请求的 ID'),
-  success?: boolean(name='Success', description='标识本次请求是否成功'),
-}
-
-model CreateDatabaseResponse = {
-  headers: map[string]string(name='headers'),
-  body: CreateDatabaseResponseBody(name='body'),
-}
-
-async function createDatabaseWithOptions(tmpReq: CreateDatabaseRequest, runtime: Util.RuntimeOptions): CreateDatabaseResponse {
-  Util.validateModel(tmpReq);
-  var request = new CreateDatabaseShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.parameters)) {
-    request.parametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.parameters, 'Parameters', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('CreateDatabase', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function createDatabase(request: CreateDatabaseRequest): CreateDatabaseResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createDatabaseWithOptions(request, runtime);
-}
-
-model GetColumnObjectsRequest {
-  tableId?: string(name='TableId', description='表ID'),
-}
-
-model GetColumnObjectsResponseBody = {
-  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
-  requestId?: string(name='RequestId', description='请求的 ID'),
-  success?: boolean(name='Success', description='标识本次请求是否成功'),
-  data?: [ 
-    {
-      name?: string(name='Name', description='列名'),
-      type?: string(name='Type', description='列的数据类型'),
-      comment?: string(name='Comment', description='列的描述信息'),
-      schemaName?: string(name='SchemaName', description='对应的数据库名'),
-      tableName?: string(name='TableName', description='对应的表名'),
-      mappedName?: string(name='MappedName', description='映射名称'),
-      dataType?: string(name='DataType', description='数据的类型'),
-      isPrimaryKey?: boolean(name='IsPrimaryKey', description='是否为主键'),
-      createTime?: long(name='CreateTime', description='创建时间'),
-      updateTime?: long(name='UpdateTime', description='更新时间'),
-      pkPosition?: int32(name='PkPosition', description='主键位置'),
-      isPartitionKey?: boolean(name='IsPartitionKey', description='是否为分区字段'),
-    }
-  ](name='Data', description='请求到的所有列'),
-}
-
-model GetColumnObjectsResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetColumnObjectsResponseBody(name='body'),
-}
-
-async function getColumnObjectsWithOptions(request: GetColumnObjectsRequest, runtime: Util.RuntimeOptions): GetColumnObjectsResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('GetColumnObjects', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function getColumnObjects(request: GetColumnObjectsRequest): GetColumnObjectsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getColumnObjectsWithOptions(request, runtime);
-}
-
-model AlterDatabaseRequest {
-  name?: string(name='Name', description='修改数据库的新名称'),
-  description?: string(name='Description', description='数据库描述'),
-  locationUri?: string(name='LocationUri', description='数据库的'),
-  oldDbName?: string(name='OldDbName', description='修改数据库的旧名称'),
-  parameters?: map[string]string(name='Parameters', description='数据库的'),
-}
-
-model AlterDatabaseShrinkRequest {
-  name?: string(name='Name', description='修改数据库的新名称'),
-  description?: string(name='Description', description='数据库描述'),
-  locationUri?: string(name='LocationUri', description='数据库的'),
-  oldDbName?: string(name='OldDbName', description='修改数据库的旧名称'),
-  parametersShrink?: string(name='Parameters', description='数据库的'),
-}
-
-model AlterDatabaseResponseBody = {
-  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  data?: string(name='Data', description='null'),
-  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
-  requestId?: string(name='RequestId', description='请求的 ID'),
-  success?: boolean(name='Success', description='标识本次请求是否成功'),
-}
-
-model AlterDatabaseResponse = {
-  headers: map[string]string(name='headers'),
-  body: AlterDatabaseResponseBody(name='body'),
-}
-
-async function alterDatabaseWithOptions(tmpReq: AlterDatabaseRequest, runtime: Util.RuntimeOptions): AlterDatabaseResponse {
-  Util.validateModel(tmpReq);
-  var request = new AlterDatabaseShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.parameters)) {
-    request.parametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.parameters, 'Parameters', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('AlterDatabase', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function alterDatabase(request: AlterDatabaseRequest): AlterDatabaseResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return alterDatabaseWithOptions(request, runtime);
-}
-
-model GetDatabaseTagsResponseBody = {
-  requestId?: string(name='RequestId', description='请求的 ID	'),
-  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
-  success?: boolean(name='Success', description='标识本次请求是否成功'),
-  data?: [ string ](name='Data', description='返回的tags列表'),
-}
-
-model GetDatabaseTagsResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetDatabaseTagsResponseBody(name='body'),
-}
-
-async function getDatabaseTagsWithOptions(runtime: Util.RuntimeOptions): GetDatabaseTagsResponse {
-  var req = new OpenApi.OpenApiRequest{};
-  return doRPCRequest('GetDatabaseTags', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function getDatabaseTags(): GetDatabaseTagsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getDatabaseTagsWithOptions(runtime);
+  return getDatabaseWithOptions(request, runtime);
 }
 
 model GetPartitionRequest {
@@ -1013,10 +804,26 @@ async function getPartitionWithOptions(tmpReq: GetPartitionRequest, runtime: Uti
   if (!Util.isUnset(tmpReq.values)) {
     request.valuesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.values, 'Values', 'json');
   }
+  var query = {};
+  query["DbName"] = request.dbName;
+  query["TableName"] = request.tableName;
+  query["Values"] = request.valuesShrink;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('GetPartition', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetPartition',
+    version = '2020-09-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getPartition(request: GetPartitionRequest): GetPartitionResponse {
@@ -1024,171 +831,78 @@ async function getPartition(request: GetPartitionRequest): GetPartitionResponse 
   return getPartitionWithOptions(request, runtime);
 }
 
-model GetDatabaseObjectByIdRequest {
-  dbId?: string(name='DbId', description='数据库ID'),
+model GetPartitionsRequest {
+  dbName?: string(name='DbName', description='数据库名'),
+  tableName?: string(name='TableName', description='表名'),
+  maxParts?: int32(name='MaxParts', description='获取多少分区'),
 }
 
-model GetDatabaseObjectByIdResponseBody = {
+model GetPartitionsResponseBody = {
   code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  databaseModel?: {
-    description?: string(name='Description', description='数据库描述'),
-    locationUri?: string(name='LocationUri', description='数据库地址'),
-    name?: string(name='Name', description='数据库名称'),
-    ownerName?: string(name='OwnerName', description='数据库所属 DLA userName'),
-    parameters?: map[string]string(name='Parameters', description='数据库参数'),
-    tenantId?: string(name='TenantId', description='数据库所属的阿里云UID'),
-    DBId?: long(name='DBId', description='数据库的 ID'),
-    catalogType?: string(name='CatalogType', description='数据库的类型'),
-    createTime?: long(name='CreateTime', description='创建时间'),
-    updateTime?: long(name='UpdateTime', description='修改时间'),
-  }(name='DatabaseModel', description='返回的数据库结构'),
   message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
-  requestId?: string(name='RequestId', description='请求的 ID'),
-  success?: boolean(name='Success', description='标识本次请求是否成功'),
-}
-
-model GetDatabaseObjectByIdResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetDatabaseObjectByIdResponseBody(name='body'),
-}
-
-async function getDatabaseObjectByIdWithOptions(request: GetDatabaseObjectByIdRequest, runtime: Util.RuntimeOptions): GetDatabaseObjectByIdResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('GetDatabaseObjectById', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function getDatabaseObjectById(request: GetDatabaseObjectByIdRequest): GetDatabaseObjectByIdResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getDatabaseObjectByIdWithOptions(request, runtime);
-}
-
-model GetTableObjectsByDatabaseIdRequest {
-  DBId?: long(name='DBId', description='数据库ID'),
-}
-
-model GetTableObjectsByDatabaseIdResponseBody = {
-  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  data?: [ 
+  partitions?: [ 
     {
-      createTime?: long(name='CreateTime', description='表的创建时间'),
-      dbName?: string(name='DbName', description='数据库名称'),
-      lastAccessTime?: long(name='LastAccessTime', description='最后一次访问时间'),
-      owner?: string(name='Owner', description='表的所属用户'),
-      parameters?: map[string]string(name='Parameters', description='表属性'),
-      partitionKeys?: [ 
-        {
-          comment?: string(name='Comment', description='分区注释'),
-          name?: string(name='Name', description='分区名称'),
-          type?: string(name='Type', description='分区类型'),
-        }
-      ](name='PartitionKeys', description='分区信息'),
-      storageDescriptor?: {
+      createTime?: long(name='CreateTime', description='分区创建时间'),
+      dbName?: string(name='DbName', description='数据库名'),
+      parameters?: map[string]string(name='Parameters', description='分区属性'),
+      storageDescriptorModel?: {
         cols?: [ 
           {
             comment?: string(name='Comment', description='列注释'),
-            name?: string(name='Name', description='列名称'),
+            name?: string(name='Name', description='列名'),
             type?: string(name='Type', description='列类型'),
           }
-        ](name='Cols', description='表的列信息'),
-        inputFormat?: string(name='InputFormat', description='表的 inputFormat'),
-        location?: string(name='Location', description='表路径'),
-        outputFormat?: string(name='OutputFormat', description='表的 outputFormat'),
-        parameters?: map[string]any(name='Parameters', description='SD 的属性'),
-        serDeInfo?: {
-          name?: string(name='Name', description='SerDe 的名称'),
-          parameters?: map[string]string(name='Parameters', description='SerDe 的属性'),
-          serializationLib?: string(name='SerializationLib', description='SerDe 的 serializationLib'),
-        }(name='SerDeInfo', description='表的 SerDe 信息'),
-      }(name='StorageDescriptor', description='表的 sd 信息'),
-      tableName?: string(name='TableName', description='表的名称'),
-      tableType?: string(name='TableType', description='表的类型'),
-      viewExpandedText?: string(name='ViewExpandedText', description='如果表是视图，则存储扩展视图SQL'),
-      viewOriginalText?: string(name='ViewOriginalText', description='如果表是视图，则存储原生视图SQL'),
-      tblId?: long(name='TblId', description='表 ID'),
-      DBId?: long(name='DBId', description='数据库 ID'),
+        ](name='Cols', description='表的列'),
+        inputFormat?: string(name='InputFormat', description='表的InputFormat'),
+        location?: string(name='Location', description='表的路径'),
+        outputFormat?: string(name='OutputFormat', description='表的OutputFormat'),
+        parameters?: map[string]string(name='Parameters', description='表属性'),
+        serDeInfoModel?: {
+          name?: string(name='Name', description='SerDe名称'),
+          parameters?: map[string]string(name='Parameters', description='SerDe属性'),
+          serializationLib?: string(name='SerializationLib', description='SerDe的serializationLib'),
+        }(name='SerDeInfoModel', description='表的 SerDe 信息'),
+      }(name='StorageDescriptorModel', description='分区的 SD 信息'),
+      tableName?: string(name='TableName', description='表名'),
+      values?: [ string ](name='Values', description='分区的值'),
     }
-  ](name='Data', description='查询到的所有表'),
-  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
+  ](name='Partitions', description='获取的分区'),
   requestId?: string(name='RequestId', description='请求的 ID'),
   success?: boolean(name='Success', description='标识本次请求是否成功'),
 }
 
-model GetTableObjectsByDatabaseIdResponse = {
+model GetPartitionsResponse = {
   headers: map[string]string(name='headers'),
-  body: GetTableObjectsByDatabaseIdResponseBody(name='body'),
+  body: GetPartitionsResponseBody(name='body'),
 }
 
-async function getTableObjectsByDatabaseIdWithOptions(request: GetTableObjectsByDatabaseIdRequest, runtime: Util.RuntimeOptions): GetTableObjectsByDatabaseIdResponse {
+async function getPartitionsWithOptions(request: GetPartitionsRequest, runtime: Util.RuntimeOptions): GetPartitionsResponse {
   Util.validateModel(request);
+  var query = {};
+  query["DbName"] = request.dbName;
+  query["TableName"] = request.tableName;
+  query["MaxParts"] = request.maxParts;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('GetTableObjectsByDatabaseId', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function getTableObjectsByDatabaseId(request: GetTableObjectsByDatabaseIdRequest): GetTableObjectsByDatabaseIdResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getTableObjectsByDatabaseIdWithOptions(request, runtime);
-}
-
-model RevokePrivilegesRequest {
-  privilegeBag?: {
-    hiveObjectPrivilege?: [ 
-      {
-        hiveObjectRef?: {
-          dbName?: string(name='DbName', description='数据库名称'),
-          hiveObjectType?: string(name='HiveObjectType', description='授权粒度'),
-          tableName?: string(name='TableName', description='表名'),
-        }(name='HiveObjectRef', description='HiveObjectRef'),
-        principalName?: string(name='PrincipalName', description='给谁授权'),
-        principalType?: string(name='PrincipalType', description='授权类型，只能为 USER'),
-        privilegeGrantInfo?: {
-          grantOption?: boolean(name='GrantOption', description='权限是否可以传递'),
-          grantor?: string(name='Grantor', description='授权者'),
-          principalType?: string(name='PrincipalType', description='授权者的类型，只能为 USER'),
-          privilege?: string(name='Privilege', description='权限'),
-        }(name='PrivilegeGrantInfo', description='授权者的信息'),
-      }
-    ](name='HiveObjectPrivilege', description='权限信息'),
-  }(name='PrivilegeBag', description='权限信息'),
-}
-
-model RevokePrivilegesShrinkRequest {
-  privilegeBagShrink?: string(name='PrivilegeBag', description='权限信息'),
-}
-
-model RevokePrivilegesResponseBody = {
-  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  data?: boolean(name='Data', description='取消权限是否成功'),
-  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
-  requestId?: string(name='RequestId', description='请求的 ID'),
-  success?: boolean(name='Success', description='标识本次请求是否成功'),
-}
-
-model RevokePrivilegesResponse = {
-  headers: map[string]string(name='headers'),
-  body: RevokePrivilegesResponseBody(name='body'),
-}
-
-async function revokePrivilegesWithOptions(tmpReq: RevokePrivilegesRequest, runtime: Util.RuntimeOptions): RevokePrivilegesResponse {
-  Util.validateModel(tmpReq);
-  var request = new RevokePrivilegesShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.privilegeBag)) {
-    request.privilegeBagShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.privilegeBag, 'PrivilegeBag', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+  var params = new OpenApi.Params{
+    action = 'GetPartitions',
+    version = '2020-09-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
   };
-  return doRPCRequest('RevokePrivileges', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
-async function revokePrivileges(request: RevokePrivilegesRequest): RevokePrivilegesResponse {
+async function getPartitions(request: GetPartitionsRequest): GetPartitionsResponse {
   var runtime = new Util.RuntimeOptions{};
-  return revokePrivilegesWithOptions(request, runtime);
+  return getPartitionsWithOptions(request, runtime);
 }
 
 model GetTableRequest {
@@ -1246,10 +960,25 @@ model GetTableResponse = {
 
 async function getTableWithOptions(request: GetTableRequest, runtime: Util.RuntimeOptions): GetTableResponse {
   Util.validateModel(request);
+  var query = {};
+  query["DbName"] = request.dbName;
+  query["TableName"] = request.tableName;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('GetTable', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetTable',
+    version = '2020-09-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getTable(request: GetTableRequest): GetTableResponse {
@@ -1257,171 +986,145 @@ async function getTable(request: GetTableRequest): GetTableResponse {
   return getTableWithOptions(request, runtime);
 }
 
-model GetAllTablesRequest {
-  dbName?: string(name='DbName', description='数据库名称'),
+model GrantPrivilegesRequest {
+  privilegeBag?: {
+    hiveObjectPrivilege?: [ 
+      {
+        hiveObjectRef?: {
+          dbName?: string(name='DbName', description='数据库名称'),
+          hiveObjectType?: string(name='HiveObjectType', description='授权粒度'),
+          tableName?: string(name='TableName', description='表名'),
+        }(name='HiveObjectRef', description='HiveObjectRef'),
+        principalName?: string(name='PrincipalName', description='给谁授权'),
+        principalType?: string(name='PrincipalType', description='授权类型，只能为 USER'),
+        privilegeGrantInfo?: {
+          grantOption?: boolean(name='GrantOption', description='权限是否可以传递'),
+          grantor?: string(name='Grantor', description='授权者'),
+          principalType?: string(name='PrincipalType', description='授权者的类型，只能为 USER'),
+          privilege?: string(name='Privilege', description='权限'),
+        }(name='PrivilegeGrantInfo', description='授权者的信息'),
+      }
+    ](name='HiveObjectPrivilege', description='权限信息'),
+  }(name='PrivilegeBag', description='权限信息'),
 }
 
-model GetAllTablesResponseBody = {
+model GrantPrivilegesShrinkRequest {
+  privilegeBagShrink?: string(name='PrivilegeBag', description='权限信息'),
+}
+
+model GrantPrivilegesResponseBody = {
   code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  data?: [ string ](name='Data', description='请求数据库低下的所有表'),
+  data?: boolean(name='Data', description='授权是否成功'),
   message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
   requestId?: string(name='RequestId', description='请求的 ID'),
   success?: boolean(name='Success', description='标识本次请求是否成功'),
 }
 
-model GetAllTablesResponse = {
+model GrantPrivilegesResponse = {
   headers: map[string]string(name='headers'),
-  body: GetAllTablesResponseBody(name='body'),
+  body: GrantPrivilegesResponseBody(name='body'),
 }
 
-async function getAllTablesWithOptions(request: GetAllTablesRequest, runtime: Util.RuntimeOptions): GetAllTablesResponse {
-  Util.validateModel(request);
+async function grantPrivilegesWithOptions(tmpReq: GrantPrivilegesRequest, runtime: Util.RuntimeOptions): GrantPrivilegesResponse {
+  Util.validateModel(tmpReq);
+  var request = new GrantPrivilegesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.privilegeBag)) {
+    request.privilegeBagShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.privilegeBag, 'PrivilegeBag', 'json');
+  }
+  var query = {};
+  query["PrivilegeBag"] = request.privilegeBagShrink;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('GetAllTables', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GrantPrivileges',
+    version = '2020-09-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-async function getAllTables(request: GetAllTablesRequest): GetAllTablesResponse {
+async function grantPrivileges(request: GrantPrivilegesRequest): GrantPrivilegesResponse {
   var runtime = new Util.RuntimeOptions{};
-  return getAllTablesWithOptions(request, runtime);
+  return grantPrivilegesWithOptions(request, runtime);
 }
 
-model DropDatabaseRequest {
-  name?: string(name='Name', description='需要删除的数据库名称'),
-  cascade?: boolean(name='Cascade', description='如果设置为ture，那么数据库里面有表会先把表删除，再删除数据库；如果设置为false，那么数据库里面有表则不能删除数据库。'),
+model RevokePrivilegesRequest {
+  privilegeBag?: {
+    hiveObjectPrivilege?: [ 
+      {
+        hiveObjectRef?: {
+          dbName?: string(name='DbName', description='数据库名称'),
+          hiveObjectType?: string(name='HiveObjectType', description='授权粒度'),
+          tableName?: string(name='TableName', description='表名'),
+        }(name='HiveObjectRef', description='HiveObjectRef'),
+        principalName?: string(name='PrincipalName', description='给谁授权'),
+        principalType?: string(name='PrincipalType', description='授权类型，只能为 USER'),
+        privilegeGrantInfo?: {
+          grantOption?: boolean(name='GrantOption', description='权限是否可以传递'),
+          grantor?: string(name='Grantor', description='授权者'),
+          principalType?: string(name='PrincipalType', description='授权者的类型，只能为 USER'),
+          privilege?: string(name='Privilege', description='权限'),
+        }(name='PrivilegeGrantInfo', description='授权者的信息'),
+      }
+    ](name='HiveObjectPrivilege', description='权限信息'),
+  }(name='PrivilegeBag', description='权限信息'),
 }
 
-model DropDatabaseResponseBody = {
+model RevokePrivilegesShrinkRequest {
+  privilegeBagShrink?: string(name='PrivilegeBag', description='权限信息'),
+}
+
+model RevokePrivilegesResponseBody = {
   code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  data?: string(name='Data', description='null'),
+  data?: boolean(name='Data', description='取消权限是否成功'),
   message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
   requestId?: string(name='RequestId', description='请求的 ID'),
   success?: boolean(name='Success', description='标识本次请求是否成功'),
 }
 
-model DropDatabaseResponse = {
+model RevokePrivilegesResponse = {
   headers: map[string]string(name='headers'),
-  body: DropDatabaseResponseBody(name='body'),
+  body: RevokePrivilegesResponseBody(name='body'),
 }
 
-async function dropDatabaseWithOptions(request: DropDatabaseRequest, runtime: Util.RuntimeOptions): DropDatabaseResponse {
-  Util.validateModel(request);
+async function revokePrivilegesWithOptions(tmpReq: RevokePrivilegesRequest, runtime: Util.RuntimeOptions): RevokePrivilegesResponse {
+  Util.validateModel(tmpReq);
+  var request = new RevokePrivilegesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.privilegeBag)) {
+    request.privilegeBagShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.privilegeBag, 'PrivilegeBag', 'json');
+  }
+  var query = {};
+  query["PrivilegeBag"] = request.privilegeBagShrink;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('DropDatabase', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function dropDatabase(request: DropDatabaseRequest): DropDatabaseResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return dropDatabaseWithOptions(request, runtime);
-}
-
-model GetAllDatabasesResponseBody = {
-  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  data?: [ string ](name='Data', description='返回的数据库列表'),
-  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
-  requestId?: string(name='RequestId', description='请求的 ID'),
-  success?: boolean(name='Success', description='标识本次请求是否成功'),
-}
-
-model GetAllDatabasesResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetAllDatabasesResponseBody(name='body'),
-}
-
-async function getAllDatabasesWithOptions(runtime: Util.RuntimeOptions): GetAllDatabasesResponse {
-  var req = new OpenApi.OpenApiRequest{};
-  return doRPCRequest('GetAllDatabases', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function getAllDatabases(): GetAllDatabasesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getAllDatabasesWithOptions(runtime);
-}
-
-model GetDatabaseObjectsByNameAndTagsRequest {
-  dbNamePattern?: string(name='DbNamePattern', description='数据库名称模式'),
-  excludeTagPattern?: string(name='ExcludeTagPattern', description='不包含的标签模式'),
-  includeTagPattern?: string(name='IncludeTagPattern', description='包含的标签模式'),
-  pageStart?: long(name='PageStart', description='分页开始位置'),
-  pageEnd?: long(name='PageEnd', description='分页结束位置'),
-}
-
-model GetDatabaseObjectsByNameAndTagsResponseBody = {
-  requestId?: string(name='RequestId', description='请求的 ID	'),
-  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
-  success?: boolean(name='Success', description='标识本次请求是否成功'),
-  data?: [ 
-    {
-      description?: string(name='Description', description='数据库描述	'),
-      locationUri?: string(name='LocationUri', description='数据库位置'),
-      name?: string(name='Name', description='数据库名称'),
-      ownerName?: string(name='OwnerName', description='数据库所属 DLA userName'),
-      parameters?: map[string]string(name='Parameters', description='数据库参数'),
-      tenantId?: string(name='TenantId', description='数据库所属的阿里云UID	'),
-      DBId?: long(name='DBId', description='数据库的 ID'),
-      catalogType?: string(name='CatalogType', description='数据库的类型	'),
-      createTime?: long(name='CreateTime', description='创建时间'),
-      updateTime?: long(name='UpdateTime', description='更新时间'),
-    }
-  ](name='Data', description='返回的数据库列表'),
-}
-
-model GetDatabaseObjectsByNameAndTagsResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetDatabaseObjectsByNameAndTagsResponseBody(name='body'),
-}
-
-async function getDatabaseObjectsByNameAndTagsWithOptions(request: GetDatabaseObjectsByNameAndTagsRequest, runtime: Util.RuntimeOptions): GetDatabaseObjectsByNameAndTagsResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+  var params = new OpenApi.Params{
+    action = 'RevokePrivileges',
+    version = '2020-09-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
   };
-  return doRPCRequest('GetDatabaseObjectsByNameAndTags', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
-async function getDatabaseObjectsByNameAndTags(request: GetDatabaseObjectsByNameAndTagsRequest): GetDatabaseObjectsByNameAndTagsResponse {
+async function revokePrivileges(request: RevokePrivilegesRequest): RevokePrivilegesResponse {
   var runtime = new Util.RuntimeOptions{};
-  return getDatabaseObjectsByNameAndTagsWithOptions(request, runtime);
-}
-
-model GetDatabaseRequest {
-  name?: string(name='Name', description='数据库名称'),
-}
-
-model GetDatabaseResponseBody = {
-  code?: string(name='Code', description='如果后端处理出现错误，则表示错误的类型'),
-  databaseModel?: {
-    description?: string(name='Description', description='数据库描述'),
-    locationUri?: string(name='LocationUri', description='数据库地址'),
-    name?: string(name='Name', description='数据库名称'),
-    ownerName?: string(name='OwnerName', description='数据库所属 DLA userName'),
-    parameters?: map[string]string(name='Parameters', description='数据库参数'),
-    tenantId?: string(name='TenantId', description='数据库所属的阿里云UID'),
-  }(name='DatabaseModel', description='返回的数据库结构'),
-  message?: string(name='Message', description='如果后端处理出现错误，则表示错误的信息'),
-  requestId?: string(name='RequestId', description='请求的 ID'),
-  success?: boolean(name='Success', description='标识本次请求是否成功'),
-}
-
-model GetDatabaseResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetDatabaseResponseBody(name='body'),
-}
-
-async function getDatabaseWithOptions(request: GetDatabaseRequest, runtime: Util.RuntimeOptions): GetDatabaseResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('GetDatabase', '2020-09-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function getDatabase(request: GetDatabaseRequest): GetDatabaseResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getDatabaseWithOptions(request, runtime);
+  return revokePrivilegesWithOptions(request, runtime);
 }
 
