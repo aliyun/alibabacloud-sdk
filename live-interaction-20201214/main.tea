@@ -1111,13 +1111,13 @@ model GetIMConfigResponseBody = {
   result?: {
     imConfig?: {
       msgConfig?: {
-        msgRecallTimeInterval?: long(name='MsgRecallTimeInterval', description='消息撤回时间'),
+        clientMsgRecallTimeIntervalMinute?: long(name='ClientMsgRecallTimeIntervalMinute', description='消息撤回时间，分钟'),
       }(name='MsgConfig', description='消息配置'),
       callbackConfig?: {
-        backendUrl?: string(name='BackendUrl', description='回调url，支持外部url'),
+        callbackUrl?: string(name='CallbackUrl', description='回调url，支持外部url'),
         signatureKey?: string(name='SignatureKey', description='加签密钥-key'),
         signatureValue?: string(name='SignatureValue', description='加签密钥-value'),
-        apiIds?: [ string ](name='ApiIds', description='已开通的回调方法Id列表'),
+        apis?: map[string]boolean(name='Apis', description='已开通的回调方法Id列表'),
       }(name='CallbackConfig', description='回调配置'),
     }(name='ImConfig', description='im相关配置'),
   }(name='Result', description='返回结果'),
@@ -1652,6 +1652,65 @@ async function importSingleConversation(request: ImportSingleConversationRequest
   return importSingleConversationWithOptions(request, runtime);
 }
 
+model UpdateCallbackConfigRequest {
+  appId?: string(name='AppId', description='应用Id'),
+  requestParams?: {
+    callbackUrl?: string(name='CallbackUrl', description='回调url'),
+    signatureKey?: string(name='SignatureKey', description='加签密钥-key'),
+    signatureValue?: string(name='SignatureValue', description='加签密钥-value'),
+    apis?: map[string]boolean(name='Apis', description='回调api列表'),
+  }(name='RequestParams'),
+}
+
+model UpdateCallbackConfigShrinkRequest {
+  appId?: string(name='AppId', description='应用Id'),
+  requestParamsShrink?: string(name='RequestParams'),
+}
+
+model UpdateCallbackConfigResponseBody = {
+  message?: string(name='Message', description='desc'),
+  requestId?: string(name='RequestId', description='requestId'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='httpStatusCode'),
+  code?: string(name='Code', description='code'),
+  success?: boolean(name='Success', description='success'),
+  result?: {
+    imConfig?: {
+      msgConfig?: {
+        msgRecallTimeInterval?: long(name='MsgRecallTimeInterval', description='消息撤回时间间隔，毫秒'),
+      }(name='MsgConfig', description='消息配置'),
+      callbackConfig?: {
+        backendUrl?: string(name='BackendUrl', description='回调url'),
+        signatureKey?: string(name='SignatureKey', description='加签密钥-key'),
+        signatureValue?: string(name='SignatureValue', description='加签密钥-value'),
+        apiIds?: [ string ](name='ApiIds', description='回调方法列表'),
+      }(name='CallbackConfig', description='回调配置'),
+    }(name='ImConfig', description='im相关配置'),
+  }(name='Result', description='result'),
+}
+
+model UpdateCallbackConfigResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateCallbackConfigResponseBody(name='body'),
+}
+
+async function updateCallbackConfigWithOptions(tmpReq: UpdateCallbackConfigRequest, runtime: Util.RuntimeOptions): UpdateCallbackConfigResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateCallbackConfigShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.requestParams)) {
+    request.requestParamsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.requestParams, 'RequestParams', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('UpdateCallbackConfig', '2020-12-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function updateCallbackConfig(request: UpdateCallbackConfigRequest): UpdateCallbackConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateCallbackConfigWithOptions(request, runtime);
+}
+
 model InitTenantRequest {
   request?: {
     domain?: string(name='domain', description='应用appKey'),
@@ -1991,8 +2050,7 @@ model DestroyRoomResponseBody = {
   errorCode?: string(name='errorCode', description='错误码'),
   errorMsg?: string(name='errorMsg', description='错误信息'),
   requestId?: string(name='RequestId'),
-  result?: boolean(name='result', description='是否销毁成功'),
-  responseSuccess?: boolean(name='ResponseSuccess'),
+  responseSuccess?: boolean(name='ResponseSuccess', description='是否销毁成功'),
 }
 
 model DestroyRoomResponse = {
@@ -2058,7 +2116,7 @@ async function kickOff(request: KickOffRequest): KickOffResponse {
 
 model UpdateMsgRecallIntervalRequest {
   requestParams?: {
-    msgRecallInterval?: long(name='MsgRecallInterval', description='消息撤回时间间隔'),
+    clientMsgRecallIntervalMinute?: long(name='ClientMsgRecallIntervalMinute', description='消息撤回时间间隔'),
   }(name='RequestParams', description='请求'),
   appId?: string(name='AppId', description='应用Id'),
 }
