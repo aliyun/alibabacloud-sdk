@@ -1,0 +1,1308 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('pai-dlc', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model EnvVar {
+  name?: string(name='Name', description='环境变量名称'),
+  value?: string(name='Value', description='环境变量值'),
+}
+
+model JobSpec {
+  type?: string(name='Type', description='类型'),
+  image?: string(name='Image', description='镜像'),
+  podCount?: long(name='PodCount', description='实例数量'),
+  ecsSpec?: string(name='EcsSpec', description='Ecs实例规格'),
+  extraPodSpec?: ExtraPodSpec(name='ExtraPodSpec', description='额外的Pod配置'),
+}
+
+model ExtraPodSpec {
+  sideCarContainers?: [
+    ContainerSpec
+  ](name='SideCarContainers', description='伴随容器'),
+  initContainers?: [
+    ContainerSpec
+  ](name='InitContainers', description='初始化容器'),
+  podLabels?: map[string]string(name='PodLabels', description='Pod标签'),
+  podAnnotations?: map[string]string(name='PodAnnotations', description='Pod注解'),
+  sharedVolumeMountPaths?: [ string ](name='SharedVolumeMountPaths', description='容器间共享的本地目录'),
+}
+
+model ContainerSpec {
+  name?: string(name='Name', description='容器名称'),
+  image?: string(name='Image', description='容器镜像地址'),
+  command?: [ string ](name='Command', description='用户命令'),
+  args?: [ string ](name='Args', description='命令参数'),
+  workingDir?: string(name='WorkingDir', description='容器内工作目录'),
+  env?: [
+    EnvVar
+  ](name='Env', description='环境变量'),
+}
+
+model AliyunAccounts {
+  aliyunUid?: string(name='AliyunUid', description='Aliyun账号的UID'),
+  employeeId?: string(name='EmployeeId', description='弹内用户的工号'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='这条记录的创建时间'),
+  gmtModifyTime?: string(name='GmtModifyTime', description='这条记录的上次修改时间'),
+}
+
+model CodeSourceItem {
+  codeSourceId?: string(name='CodeSourceId', description='代码源ID'),
+  displayName?: string(name='DisplayName', description='代码源配置的名字'),
+  description?: string(name='Description', description='代码源详细描述'),
+  codeRepo?: string(name='CodeRepo', description='代码仓库地址'),
+  codeBranch?: string(name='CodeBranch', description='代码分支'),
+  codeCommit?: string(name='CodeCommit', description='代码Commit ID'),
+  codeRepoUserName?: string(name='CodeRepoUserName', description='访问代码仓库的用户名'),
+  codeRepoAccessToken?: string(name='CodeRepoAccessToken', description='访问代码仓库所用的AccessToken'),
+  userId?: string(name='UserId', description='代码源配置的用户ID'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='创建时间'),
+  gmtModifyTime?: string(name='GmtModifyTime', description='修改时间'),
+}
+
+model DataSourceItem {
+  dataSourceType?: string(name='DataSourceType', description='数据源类型'),
+  dataSourceId?: string(name='DataSourceId', description='数据源Id'),
+  displayName?: string(name='DisplayName', description='数据源显示名称'),
+  description?: string(name='Description', description='数据源描述'),
+  fileSystemId?: string(name='FileSystemId', description='阿里云NAS文件系统Id'),
+  mountPath?: string(name='MountPath', description='本地挂载目录'),
+  userId?: string(name='UserId', description='创建人Id'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='创建时间（UTC）'),
+  gmtModifyTime?: string(name='GmtModifyTime', description='修改时间（UTC）'),
+}
+
+model EcsSpec {
+  instanceType?: string(name='InstanceType', description='规格类型'),
+  cpu?: int32(name='Cpu', description='cpu数量'),
+  gpu?: int32(name='Gpu', description='gpu数量'),
+  gpuType?: string(name='GpuType', description='gpu类型'),
+  memory?: int32(name='Memory', description='Memory数量'),
+}
+
+model ImageItem {
+  imageTag?: string(name='ImageTag', description='镜像Tag'),
+  imageUrl?: string(name='ImageUrl', description='镜像地址'),
+  imageUrlVpc?: string(name='ImageUrlVpc', description='镜像vpc地址'),
+  imageProviderType?: string(name='ImageProviderType', description='镜像类型'),
+  acceleratorType?: string(name='AcceleratorType', description='加速器类型'),
+  framework?: string(name='Framework', description='镜像包含的框架类型'),
+}
+
+model JobItem {
+  jobId?: string(name='JobId', description='作业Id'),
+  jobType?: string(name='JobType', description='作业类型'),
+  displayName?: string(name='DisplayName', description='作业显示名称'),
+  userId?: string(name='UserId', description='作业提交人Id'),
+  status?: string(name='Status', description='作业状态'),
+  reasonCode?: string(name='ReasonCode', description='状态详情码'),
+  reasonMessage?: string(name='ReasonMessage', description='状态详情'),
+  jobSpecs?: [
+    JobSpec
+  ](name='JobSpecs', description='作业规格配置'),
+  userCommand?: string(name='UserCommand', description='用户命令'),
+  dataSources?: [ 
+    {
+      dataSourceId?: string(name='DataSourceId', description='数据源Id'),
+    }
+  ](name='DataSources', description='数据源配置列表'),
+  codeSource?: {
+    codeSourceId?: string(name='CodeSourceId', description='代码源Id'),
+    branch?: string(name='Branch', description='代码分支'),
+    commit?: string(name='Commit', description='代码Commit'),
+  }(name='CodeSource', description='代码源配置'),
+  thirdpartyLibs?: [ string ](name='ThirdpartyLibs', description='三方库配置列表'),
+  thirdpartyLibDir?: string(name='ThirdpartyLibDir', description='三方库(requirements.txt)文件路径'),
+  envs?: map[string]string(name='Envs', description='环境变量配置'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='作业创建时间（UTC）'),
+  gmtFinishTime?: string(name='GmtFinishTime', description='作业结束时间（UTC）'),
+  duration?: long(name='Duration', description='作业运行时长，单位：秒'),
+}
+
+model CreateCodeSourceRequest {
+  displayName?: string(name='DisplayName', description='代码源配置名称'),
+  description?: string(name='Description', description='代码源详细描述'),
+  codeRepo?: string(name='CodeRepo', description='代码仓库地址'),
+  codeBranch?: string(name='CodeBranch', description='代码分支'),
+  mountPath?: string(name='MountPath', description='代码本地挂载目录，默认挂载到/root/code/下'),
+}
+
+model CreateCodeSourceResponseBody = {
+  codeSourceId?: string(name='CodeSourceId', description='创建的代码源配置的ID'),
+  requestId?: string(name='RequestId', description='请求ID'),
+}
+
+model CreateCodeSourceResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateCodeSourceResponseBody(name='body'),
+}
+
+async function createCodeSource(request: CreateCodeSourceRequest): CreateCodeSourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createCodeSourceWithOptions(request, headers, runtime);
+}
+
+async function createCodeSourceWithOptions(request: CreateCodeSourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateCodeSourceResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.displayName)) {
+    body.DisplayName = request.displayName;
+  }
+  if (!Util.isUnset(request.description)) {
+    body.Description = request.description;
+  }
+  if (!Util.isUnset(request.codeRepo)) {
+    body.CodeRepo = request.codeRepo;
+  }
+  if (!Util.isUnset(request.codeBranch)) {
+    body.CodeBranch = request.codeBranch;
+  }
+  if (!Util.isUnset(request.mountPath)) {
+    body.MountPath = request.mountPath;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('CreateCodeSource', '2020-12-03', 'HTTPS', 'POST', 'AK', `/api/v1/codesources`, 'json', req, runtime);
+}
+
+model CreateDataSourceRequest {
+  dataSourceType?: string(name='DataSourceType', description='数据源类型'),
+  displayName?: string(name='DisplayName', description='数据源显示名称'),
+  description?: string(name='Description', description='数据源描述'),
+  fileSystemId?: string(name='FileSystemId', description='文件系统Id'),
+  mountPath?: string(name='MountPath', description='本地挂载目录'),
+}
+
+model CreateDataSourceResponseBody = {
+  dataSourceId?: string(name='DataSourceId', description='数据源Id'),
+  requestId?: string(name='RequestId', description='请求Id'),
+}
+
+model CreateDataSourceResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateDataSourceResponseBody(name='body'),
+}
+
+async function createDataSource(request: CreateDataSourceRequest): CreateDataSourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createDataSourceWithOptions(request, headers, runtime);
+}
+
+async function createDataSourceWithOptions(request: CreateDataSourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateDataSourceResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.dataSourceType)) {
+    body.DataSourceType = request.dataSourceType;
+  }
+  if (!Util.isUnset(request.displayName)) {
+    body.DisplayName = request.displayName;
+  }
+  if (!Util.isUnset(request.description)) {
+    body.Description = request.description;
+  }
+  if (!Util.isUnset(request.fileSystemId)) {
+    body.FileSystemId = request.fileSystemId;
+  }
+  if (!Util.isUnset(request.mountPath)) {
+    body.MountPath = request.mountPath;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('CreateDataSource', '2020-12-03', 'HTTPS', 'POST', 'AK', `/api/v1/datasources`, 'json', req, runtime);
+}
+
+model CreateJobRequest {
+  displayName?: string(name='DisplayName', description='作业显示名称'),
+  jobType?: string(name='JobType', description='作业类型'),
+  jobSpecs?: [
+    JobSpec
+  ](name='JobSpecs', description='作业规格配置'),
+  userCommand?: string(name='UserCommand', description='作业命令'),
+  dataSources?: [ 
+    {
+      dataSourceId?: string(name='DataSourceId', description='数据源Id'),
+    }
+  ](name='DataSources', description='数据源配置列表'),
+  codeSource?: {
+    codeSourceId?: string(name='CodeSourceId', description='代码源Id'),
+    branch?: string(name='Branch', description='代码分支'),
+    commit?: string(name='Commit', description='代码Commit'),
+  }(name='CodeSource', description='代码源配置'),
+  userVpc?: {
+    vpcId?: string(name='VpcId', description='用户VPC的id'),
+    switchId?: string(name='SwitchId', description='用户交换机的id'),
+    securityGroupId?: string(name='SecurityGroupId', description='用户安全组的id'),
+    extendedCIDRs?: [ string ](name='ExtendedCIDRs', description='扩展网段'),
+  }(name='UserVpc', description='用户VPC'),
+  thirdpartyLibs?: [ string ](name='ThirdpartyLibs', description='三方库配置列表'),
+  thirdpartyLibDir?: string(name='ThirdpartyLibDir', description='三方库(requirements.txt)文件路径'),
+  envs?: map[string]string(name='Envs', description='环境变量配置'),
+}
+
+model CreateJobResponseBody = {
+  jobId?: string(name='JobId', description='作业Id'),
+  requestId?: string(name='RequestId', description='请求Id'),
+}
+
+model CreateJobResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateJobResponseBody(name='body'),
+}
+
+async function createJob(request: CreateJobRequest): CreateJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createJobWithOptions(request, headers, runtime);
+}
+
+async function createJobWithOptions(request: CreateJobRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateJobResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.displayName)) {
+    body.DisplayName = request.displayName;
+  }
+  if (!Util.isUnset(request.jobType)) {
+    body.JobType = request.jobType;
+  }
+  if (!Util.isUnset(request.jobSpecs)) {
+    body.JobSpecs = request.jobSpecs;
+  }
+  if (!Util.isUnset(request.userCommand)) {
+    body.UserCommand = request.userCommand;
+  }
+  if (!Util.isUnset(request.dataSources)) {
+    body.DataSources = request.dataSources;
+  }
+  if (!Util.isUnset(request.codeSource)) {
+    body.CodeSource = request.codeSource;
+  }
+  if (!Util.isUnset(request.userVpc)) {
+    body.UserVpc = request.userVpc;
+  }
+  if (!Util.isUnset(request.thirdpartyLibs)) {
+    body.ThirdpartyLibs = request.thirdpartyLibs;
+  }
+  if (!Util.isUnset(request.thirdpartyLibDir)) {
+    body.ThirdpartyLibDir = request.thirdpartyLibDir;
+  }
+  if (!Util.isUnset(request.envs)) {
+    body.Envs = request.envs;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('CreateJob', '2020-12-03', 'HTTPS', 'POST', 'AK', `/api/v1/jobs`, 'json', req, runtime);
+}
+
+model DeleteCodeSourceResponseBody = {
+  codeSourceId?: string(name='CodeSourceId', description='被删除的代码源配置ID'),
+  requestId?: string(name='RequestId'),
+}
+
+model DeleteCodeSourceResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteCodeSourceResponseBody(name='body'),
+}
+
+async function deleteCodeSource(CodeSourceId: string): DeleteCodeSourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteCodeSourceWithOptions(CodeSourceId, headers, runtime);
+}
+
+async function deleteCodeSourceWithOptions(CodeSourceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteCodeSourceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('DeleteCodeSource', '2020-12-03', 'HTTPS', 'DELETE', 'AK', `/api/v1/codesources/${CodeSourceId}`, 'json', req, runtime);
+}
+
+model DeleteDataSourceResponseBody = {
+  dataSourceId?: string(name='DataSourceId', description='数据源Id'),
+  requestId?: string(name='RequestId', description='请求Id'),
+}
+
+model DeleteDataSourceResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteDataSourceResponseBody(name='body'),
+}
+
+async function deleteDataSource(DataSourceId: string): DeleteDataSourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteDataSourceWithOptions(DataSourceId, headers, runtime);
+}
+
+async function deleteDataSourceWithOptions(DataSourceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteDataSourceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('DeleteDataSource', '2020-12-03', 'HTTPS', 'DELETE', 'AK', `/api/v1/datasources/${DataSourceId}`, 'json', req, runtime);
+}
+
+model DeleteJobResponseBody = {
+  httpCode?: string(name='HttpCode'),
+  requestId?: string(name='RequestId'),
+  data?: string(name='Data'),
+}
+
+model DeleteJobResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteJobResponseBody(name='body'),
+}
+
+async function deleteJob(Name: string): DeleteJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteJobWithOptions(Name, headers, runtime);
+}
+
+async function deleteJobWithOptions(Name: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteJobResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('DeleteJob', '2020-12-03', 'HTTPS', 'DELETE', 'AK', `/api/v1/jobs/${Name}`, 'json', req, runtime);
+}
+
+model GetCodeSourceResponseBody = {
+  codeSourceId?: string(name='CodeSourceId', description='代码源配置ID'),
+  displayName?: string(name='DisplayName', description='代码源配置名字'),
+  description?: string(name='Description', description='详细描述'),
+  codeRepo?: string(name='CodeRepo', description='代码仓库地址'),
+  codeBranch?: string(name='CodeBranch', description='代码仓库分支'),
+  codeCommit?: string(name='CodeCommit', description='代码Commit'),
+  codeRepoUserName?: string(name='CodeRepoUserName', description='代码仓库的用户名'),
+  codeRepoAccessToken?: string(name='CodeRepoAccessToken', description='访问代码仓库的token'),
+  mountPath?: string(name='MountPath', description='代码本地挂载目录，默认挂载到/root/code/下'),
+  userId?: string(name='UserId', description='代码配置源的创建者ID'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='创建时间'),
+  gmtModifyTime?: string(name='GmtModifyTime', description='修改时间'),
+  requestId?: string(name='RequestId', description='请求ID'),
+}
+
+model GetCodeSourceResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetCodeSourceResponseBody(name='body'),
+}
+
+async function getCodeSource(CodeSourceId: string): GetCodeSourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getCodeSourceWithOptions(CodeSourceId, headers, runtime);
+}
+
+async function getCodeSourceWithOptions(CodeSourceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetCodeSourceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('GetCodeSource', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/codesources/${CodeSourceId}`, 'json', req, runtime);
+}
+
+model GetDataSourceResponseBody = {
+  dataSourceType?: string(name='DataSourceType', description='数据源类型'),
+  dataSourceId?: string(name='DataSourceId', description='数据源Id'),
+  displayName?: string(name='DisplayName', description='数据源显示名称'),
+  description?: string(name='Description', description='数据源描述'),
+  fileSystemId?: string(name='FileSystemId', description='阿里云NAS文件系统Id'),
+  mountPath?: string(name='MountPath', description='本地挂载目录'),
+  userId?: string(name='UserId', description='创建人Id'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='创建时间（UTC）'),
+  gmtModifyTime?: string(name='GmtModifyTime', description='修改时间（UTC）'),
+  requestId?: string(name='RequestId', description='请求Id'),
+}
+
+model GetDataSourceResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetDataSourceResponseBody(name='body'),
+}
+
+async function getDataSource(DataSourceId: string): GetDataSourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getDataSourceWithOptions(DataSourceId, headers, runtime);
+}
+
+async function getDataSourceWithOptions(DataSourceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetDataSourceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('GetDataSource', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/datasources/${DataSourceId}`, 'json', req, runtime);
+}
+
+model GetJobResponseBody = {
+  jobId?: string(name='JobId', description='作业Id'),
+  jobType?: string(name='JobType', description='作业类型'),
+  displayName?: string(name='DisplayName', description='作业显示名称'),
+  userId?: string(name='UserId', description='作业提交人Id'),
+  status?: string(name='Status', description='作业状态'),
+  reasonCode?: string(name='ReasonCode', description='状态详情码'),
+  reasonMessage?: string(name='ReasonMessage', description='状态详情'),
+  jobSpecs?: [
+    JobSpec
+  ](name='JobSpecs', description='作业规格配置'),
+  userCommand?: string(name='UserCommand', description='用户命令'),
+  dataSources?: [ 
+    {
+      dataSourceId?: string(name='DataSourceId', description='数据源Id'),
+    }
+  ](name='DataSources', description='数据源配置列表'),
+  codeSource?: {
+    codeSourceId?: string(name='CodeSourceId', description='代码源Id'),
+    branch?: string(name='Branch', description='代码分支'),
+    commit?: string(name='Commit', description='代码Commit'),
+  }(name='CodeSource', description='代码源配置'),
+  thirdpartyLibs?: [ string ](name='ThirdpartyLibs', description='三方库配置列表'),
+  thirdpartyLibDir?: string(name='ThirdpartyLibDir', description='三方库(requirements.txt)文件路径'),
+  envs?: map[string]string(name='Envs', description='环境变量配置'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='作业创建时间（UTC）'),
+  gmtFinishTime?: string(name='GmtFinishTime', description='作业结束时间（UTC）'),
+  duration?: long(name='Duration', description='作业运行时长（s）'),
+  pods?: [ 
+    {
+      type?: string(name='Type', description='Pod类型'),
+      podId?: string(name='PodId', description='Pod Id'),
+      status?: string(name='Status', description='Pod状态'),
+      ip?: string(name='Ip', description='Pod Ip'),
+      gmtGreateTime?: string(name='GmtGreateTime', description='Pod创建时间（UTC）'),
+      gmtStartTime?: string(name='GmtStartTime', description='Pod启动时间（UTC）'),
+      gmtFinishTime?: string(name='GmtFinishTime', description='Pod结束时间（UTC）'),
+    }
+  ](name='Pods', description='作业所以运行Pod列表'),
+  requestId?: string(name='RequestId', description='请求Id'),
+}
+
+model GetJobResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetJobResponseBody(name='body'),
+}
+
+async function getJob(JobId: string): GetJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getJobWithOptions(JobId, headers, runtime);
+}
+
+async function getJobWithOptions(JobId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetJobResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('GetJob', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/jobs/${JobId}`, 'json', req, runtime);
+}
+
+model GetJobEventsRequest {
+  maxEventsNum?: int32(name='MaxEventsNum', description='获取事件的最大数目，默认值：2000'),
+  startTime?: string(name='StartTime', description='查询事件的时间区间的起始时间，默认值是7天前。'),
+  endTime?: string(name='EndTime', description='查询事件的时间区间的截止时间，默认值是当前。'),
+}
+
+model GetJobEventsResponseBody = {
+  jobId?: string(name='JobId', description='作业ID'),
+  events?: [ string ](name='Events', description='事件'),
+  requestId?: int32(name='RequestId', description='请求ID'),
+}
+
+model GetJobEventsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetJobEventsResponseBody(name='body'),
+}
+
+async function getJobEvents(JobId: string, request: GetJobEventsRequest): GetJobEventsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getJobEventsWithOptions(JobId, request, headers, runtime);
+}
+
+async function getJobEventsWithOptions(JobId: string, request: GetJobEventsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetJobEventsResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.maxEventsNum)) {
+    query.MaxEventsNum = request.maxEventsNum;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query.StartTime = request.startTime;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query.EndTime = request.endTime;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('GetJobEvents', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/jobs/${JobId}/events`, 'json', req, runtime);
+}
+
+model GetPodEventsRequest {
+  maxEventsNum?: int32(name='MaxEventsNum', description='返回的事件最大数量'),
+  startTime?: string(name='StartTime', description='起始时间'),
+  endTime?: string(name='EndTime', description='截止时间'),
+}
+
+model GetPodEventsResponseBody = {
+  jobId?: string(name='JobId', description='作业ID'),
+  podId?: string(name='PodId', description='运行示例ID'),
+  events?: [ string ](name='Events', description='事件列表'),
+  requestId?: string(name='RequestId', description='请求ID'),
+}
+
+model GetPodEventsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetPodEventsResponseBody(name='body'),
+}
+
+async function getPodEvents(JobId: string, PodId: string, request: GetPodEventsRequest): GetPodEventsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getPodEventsWithOptions(JobId, PodId, request, headers, runtime);
+}
+
+async function getPodEventsWithOptions(JobId: string, PodId: string, request: GetPodEventsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetPodEventsResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.maxEventsNum)) {
+    query.MaxEventsNum = request.maxEventsNum;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query.StartTime = request.startTime;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query.EndTime = request.endTime;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('GetPodEvents', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/jobs/${JobId}/pods/${PodId}/events`, 'json', req, runtime);
+}
+
+model GetPodLogsRequest {
+  maxLines?: int32(name='MaxLines', description='返回的日志的最大行数，默认值：2000。'),
+  startTime?: string(name='StartTime', description='查询的起始时间，默认值：7天前。'),
+  endTime?: string(name='EndTime', description='查询的截止时间，默认值：当前。'),
+  downloadToFile?: boolean(name='DownloadToFile', description='是否下载日志文件，默认：false。'),
+}
+
+model GetPodLogsResponseBody = {
+  jobId?: string(name='JobId', description='作业ID'),
+  podId?: string(name='PodId', description='实例ID'),
+  logs?: [ string ](name='Logs', description='日志列表'),
+  requestId?: string(name='RequestId', description='请求ID'),
+}
+
+model GetPodLogsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetPodLogsResponseBody(name='body'),
+}
+
+async function getPodLogs(JobId: string, PodId: string, request: GetPodLogsRequest): GetPodLogsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getPodLogsWithOptions(JobId, PodId, request, headers, runtime);
+}
+
+async function getPodLogsWithOptions(JobId: string, PodId: string, request: GetPodLogsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetPodLogsResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.maxLines)) {
+    query.MaxLines = request.maxLines;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query.StartTime = request.startTime;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query.EndTime = request.endTime;
+  }
+  if (!Util.isUnset(request.downloadToFile)) {
+    query.DownloadToFile = request.downloadToFile;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('GetPodLogs', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/jobs/${JobId}/pods/${PodId}/logs`, 'json', req, runtime);
+}
+
+model GetSecurityGroupResponseBody = {
+  requestId?: string(name='RequestId', description='请求id'),
+  vpcId?: string(name='VpcId', description='所属vpc的id'),
+  securityGroupId?: string(name='SecurityGroupId', description='安全组id'),
+  securityGroupName?: string(name='SecurityGroupName', description='安全组名称'),
+}
+
+model GetSecurityGroupResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetSecurityGroupResponseBody(name='body'),
+}
+
+async function getSecurityGroup(SecurityGroupId: string): GetSecurityGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getSecurityGroupWithOptions(SecurityGroupId, headers, runtime);
+}
+
+async function getSecurityGroupWithOptions(SecurityGroupId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetSecurityGroupResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('GetSecurityGroup', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/securitygroups/${SecurityGroupId}`, 'json', req, runtime);
+}
+
+model GetSwitchResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  vpcId?: string(name='VpcId', description='所属VPC的id'),
+  vSwitchId?: string(name='VSwitchId', description='交换机的id'),
+  vSwitchName?: string(name='VSwitchName', description='交换机的名称'),
+  cidrBlock?: string(name='CidrBlock', description='网段'),
+}
+
+model GetSwitchResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetSwitchResponseBody(name='body'),
+}
+
+async function getSwitch(SwitchId: string): GetSwitchResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getSwitchWithOptions(SwitchId, headers, runtime);
+}
+
+async function getSwitchWithOptions(SwitchId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetSwitchResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('GetSwitch', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/switches/${SwitchId}`, 'json', req, runtime);
+}
+
+model GetTaskEventsRequest {
+  maxEventsNum?: int32(name='MaxEventsNum'),
+  startTime?: string(name='StartTime'),
+  endTime?: string(name='EndTime'),
+}
+
+model GetTaskEventsResponseBody = {
+  httpCode?: string(name='HttpCode'),
+  message?: string(name='Message'),
+  requestId?: int32(name='RequestId'),
+  data?: {
+    jobName?: string(name='JobName'),
+    taskName?: string(name='TaskName'),
+    events?: [ string ](name='Events'),
+  }(name='Data'),
+  code?: string(name='Code'),
+}
+
+model GetTaskEventsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetTaskEventsResponseBody(name='body'),
+}
+
+async function getTaskEvents(JobName: string, TaskName: string, request: GetTaskEventsRequest): GetTaskEventsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getTaskEventsWithOptions(JobName, TaskName, request, headers, runtime);
+}
+
+async function getTaskEventsWithOptions(JobName: string, TaskName: string, request: GetTaskEventsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetTaskEventsResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.maxEventsNum)) {
+    query.MaxEventsNum = request.maxEventsNum;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query.StartTime = request.startTime;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query.EndTime = request.endTime;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('GetTaskEvents', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/jobs/${JobName}/tasks/${TaskName}/events`, 'json', req, runtime);
+}
+
+model GetTaskLogsRequest {
+  maxLines?: int32(name='MaxLines'),
+  startTime?: string(name='StartTime'),
+  endTime?: string(name='EndTime'),
+  downloadNeed?: boolean(name='DownloadNeed'),
+}
+
+model GetTaskLogsResponseBody = {
+  httpCode?: string(name='HttpCode'),
+  message?: string(name='Message'),
+  requestId?: int32(name='RequestId'),
+  data?: {
+    jobName?: string(name='JobName'),
+    logs?: [ string ](name='Logs'),
+    taskName?: string(name='TaskName'),
+  }(name='Data'),
+  code?: string(name='Code'),
+}
+
+model GetTaskLogsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetTaskLogsResponseBody(name='body'),
+}
+
+async function getTaskLogs(JobName: string, TaskName: string, request: GetTaskLogsRequest): GetTaskLogsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getTaskLogsWithOptions(JobName, TaskName, request, headers, runtime);
+}
+
+async function getTaskLogsWithOptions(JobName: string, TaskName: string, request: GetTaskLogsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetTaskLogsResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.maxLines)) {
+    query.MaxLines = request.maxLines;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query.StartTime = request.startTime;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query.EndTime = request.endTime;
+  }
+  if (!Util.isUnset(request.downloadNeed)) {
+    query.DownloadNeed = request.downloadNeed;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('GetTaskLogs', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/jobs/${JobName}/tasks/${TaskName}/logs`, 'json', req, runtime);
+}
+
+model GetUserAuthorizationResponseBody = {
+  isPassed?: boolean(name='IsPassed', description='是否通过鉴权'),
+  requestId?: int32(name='RequestId', description='请求ID'),
+}
+
+model GetUserAuthorizationResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetUserAuthorizationResponseBody(name='body'),
+}
+
+async function getUserAuthorization(UserId: string): GetUserAuthorizationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getUserAuthorizationWithOptions(UserId, headers, runtime);
+}
+
+async function getUserAuthorizationWithOptions(UserId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetUserAuthorizationResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('GetUserAuthorization', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/users/${UserId}/authorization`, 'json', req, runtime);
+}
+
+model GetVpcResponseBody = {
+  vpcId?: int32(name='VpcId', description='Vpc的ID'),
+  vpcName?: string(name='VpcName', description='Vpc名称'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model GetVpcResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetVpcResponseBody(name='body'),
+}
+
+async function getVpc(VpcId: string): GetVpcResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getVpcWithOptions(VpcId, headers, runtime);
+}
+
+async function getVpcWithOptions(VpcId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetVpcResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('GetVpc', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/vpcs/${VpcId}`, 'json', req, runtime);
+}
+
+model ListCodeSourcesRequest {
+  displayName?: string(name='DisplayName', description='代码源显示名称，支持模糊匹配'),
+  pageNumber?: int32(name='PageNumber', description='取第几页的数据'),
+  pageSize?: int32(name='PageSize', description='分页大小'),
+  sortBy?: string(name='SortBy', description='用于排序的字段名，可选字段名：\'DisplayName\' \'GmtCreateTime\' \'GmtModifyTime\''),
+  order?: string(name='Order', description='排序顺序, 枚举值 desc 或者 asc'),
+}
+
+model ListCodeSourcesResponseBody = {
+  codeSources?: [
+    CodeSourceItem
+  ](name='CodeSources', description='代码源配置列表'),
+  totalCount?: long(name='TotalCount', description='符合过滤条件的代码源配置的总数量'),
+  requestId?: string(name='RequestId', description='请求Id'),
+}
+
+model ListCodeSourcesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListCodeSourcesResponseBody(name='body'),
+}
+
+async function listCodeSources(request: ListCodeSourcesRequest): ListCodeSourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listCodeSourcesWithOptions(request, headers, runtime);
+}
+
+async function listCodeSourcesWithOptions(request: ListCodeSourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListCodeSourcesResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.displayName)) {
+    query.DisplayName = request.displayName;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query.PageNumber = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query.PageSize = request.pageSize;
+  }
+  if (!Util.isUnset(request.sortBy)) {
+    query.SortBy = request.sortBy;
+  }
+  if (!Util.isUnset(request.order)) {
+    query.Order = request.order;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('ListCodeSources', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/codesources`, 'json', req, runtime);
+}
+
+model ListDataSourcesRequest {
+  dataSourceType?: string(name='DataSourceType', description='数据源类型'),
+  displayName?: string(name='DisplayName', description='数据源显示名称，支持模糊查询'),
+  pageNumber?: int32(name='PageNumber', description='查询第几页数据'),
+  pageSize?: int32(name='PageSize', description='设置查询的分页大写'),
+  sortBy?: string(name='SortBy', description='按返回字段排序'),
+  order?: string(name='Order', description='排序顺序'),
+}
+
+model ListDataSourcesResponseBody = {
+  dataSources?: [
+    DataSourceItem
+  ](name='DataSources', description='数据源配置列表'),
+  totalCount?: long(name='TotalCount', description='符合条件的数据源总数量'),
+  requestId?: string(name='RequestId', description='请求Id'),
+}
+
+model ListDataSourcesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListDataSourcesResponseBody(name='body'),
+}
+
+async function listDataSources(request: ListDataSourcesRequest): ListDataSourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listDataSourcesWithOptions(request, headers, runtime);
+}
+
+async function listDataSourcesWithOptions(request: ListDataSourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListDataSourcesResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.dataSourceType)) {
+    query.DataSourceType = request.dataSourceType;
+  }
+  if (!Util.isUnset(request.displayName)) {
+    query.DisplayName = request.displayName;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query.PageNumber = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query.PageSize = request.pageSize;
+  }
+  if (!Util.isUnset(request.sortBy)) {
+    query.SortBy = request.sortBy;
+  }
+  if (!Util.isUnset(request.order)) {
+    query.Order = request.order;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('ListDataSources', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/datasources`, 'json', req, runtime);
+}
+
+model ListEcsSpecsRequest {
+  sortBy?: string(name='SortBy', description='按返回字段排序'),
+  order?: string(name='Order', description='排序顺序'),
+  pageNumber?: int32(name='PageNumber', description='查询第几页数据'),
+  pageSize?: int32(name='PageSize', description='设置查询的分页大写'),
+}
+
+model ListEcsSpecsResponseBody = {
+  requestId?: string(name='requestId', description='请求Id'),
+  ecsSpec?: [
+    EcsSpec
+  ](name='EcsSpec', description='ECS规格'),
+  totalCount?: long(name='TotalCount', description='符合过滤条件的总数量'),
+}
+
+model ListEcsSpecsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListEcsSpecsResponseBody(name='body'),
+}
+
+async function listEcsSpecs(request: ListEcsSpecsRequest): ListEcsSpecsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listEcsSpecsWithOptions(request, headers, runtime);
+}
+
+async function listEcsSpecsWithOptions(request: ListEcsSpecsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListEcsSpecsResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.sortBy)) {
+    query.SortBy = request.sortBy;
+  }
+  if (!Util.isUnset(request.order)) {
+    query.Order = request.order;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query.PageNumber = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query.PageSize = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('ListEcsSpecs', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/ecsspecs`, 'json', req, runtime);
+}
+
+model ListImagesRequest {
+  imageProviderType?: string(name='ImageProviderType', description='镜像类型'),
+  acceleratorType?: string(name='AcceleratorType', description='加速器类型'),
+  framework?: string(name='Framework', description='镜像包含的框架类型'),
+  sortBy?: string(name='SortBy', description='按返回字段排序'),
+  order?: string(name='Order', description='排序顺序'),
+}
+
+model ListImagesResponseBody = {
+  images?: [
+    ImageItem
+  ](name='Images', description='镜像详情列表'),
+  totalCount?: long(name='TotalCount', description='2'),
+  requestId?: string(name='RequestId', description='请求Id'),
+}
+
+model ListImagesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListImagesResponseBody(name='body'),
+}
+
+async function listImages(request: ListImagesRequest): ListImagesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listImagesWithOptions(request, headers, runtime);
+}
+
+async function listImagesWithOptions(request: ListImagesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListImagesResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.imageProviderType)) {
+    query.ImageProviderType = request.imageProviderType;
+  }
+  if (!Util.isUnset(request.acceleratorType)) {
+    query.AcceleratorType = request.acceleratorType;
+  }
+  if (!Util.isUnset(request.framework)) {
+    query.Framework = request.framework;
+  }
+  if (!Util.isUnset(request.sortBy)) {
+    query.SortBy = request.sortBy;
+  }
+  if (!Util.isUnset(request.order)) {
+    query.Order = request.order;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('ListImages', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/images`, 'json', req, runtime);
+}
+
+model ListJobsRequest {
+  displayName?: string(name='DisplayName', description='作业显示名称，支持模糊查询'),
+  jobType?: string(name='JobType', description='作业类型'),
+  status?: string(name='Status', description='作业状态'),
+  startTime?: string(name='StartTime', description='起始时间'),
+  endTime?: string(name='EndTime', description='截止时间'),
+  pageNumber?: int32(name='PageNumber', description='当前页'),
+  pageSize?: int32(name='PageSize', description='每页返回的作业数'),
+  sortBy?: string(name='SortBy', description='按返回字段排序'),
+  order?: string(name='Order', description='排序顺序'),
+}
+
+model ListJobsResponseBody = {
+  jobs?: [
+    JobItem
+  ](name='Jobs', description='作业列表'),
+  totalCount?: long(name='TotalCount', description='符合过滤条件的总作业数'),
+  requestId?: string(name='RequestId', description='请求Id'),
+}
+
+model ListJobsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListJobsResponseBody(name='body'),
+}
+
+async function listJobs(request: ListJobsRequest): ListJobsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listJobsWithOptions(request, headers, runtime);
+}
+
+async function listJobsWithOptions(request: ListJobsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListJobsResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.displayName)) {
+    query.DisplayName = request.displayName;
+  }
+  if (!Util.isUnset(request.jobType)) {
+    query.JobType = request.jobType;
+  }
+  if (!Util.isUnset(request.status)) {
+    query.Status = request.status;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query.StartTime = request.startTime;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query.EndTime = request.endTime;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query.PageNumber = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query.PageSize = request.pageSize;
+  }
+  if (!Util.isUnset(request.sortBy)) {
+    query.SortBy = request.sortBy;
+  }
+  if (!Util.isUnset(request.order)) {
+    query.Order = request.order;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('ListJobs', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/jobs`, 'json', req, runtime);
+}
+
+model ListSecurityGroupsRequest {
+  vpcId?: string(name='VpcId', description='所属Vpc'),
+  pageNumber?: int32(name='PageNumber', description='取第几页的数据'),
+  pageSize?: int32(name='PageSize', description='分页大小'),
+}
+
+model ListSecurityGroupsResponseBody = {
+  securityGroups?: [ 
+    {
+      securityGroupId?: string(name='SecurityGroupId', description='安全组Id'),
+      securityGroupName?: string(name='SecurityGroupName', description='安全组名称'),
+      vpcId?: string(name='VpcId', description='所属VPC ID'),
+      description?: string(name='Description', description='描述'),
+    }
+  ](name='SecurityGroups', description='代码源配置列表'),
+  totalCount?: long(name='TotalCount', description='符合过滤条件的代码源配置的总数量'),
+  requestId?: string(name='RequestId', description='请求Id'),
+}
+
+model ListSecurityGroupsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListSecurityGroupsResponseBody(name='body'),
+}
+
+async function listSecurityGroups(request: ListSecurityGroupsRequest): ListSecurityGroupsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listSecurityGroupsWithOptions(request, headers, runtime);
+}
+
+async function listSecurityGroupsWithOptions(request: ListSecurityGroupsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListSecurityGroupsResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.vpcId)) {
+    query.VpcId = request.vpcId;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query.PageNumber = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query.PageSize = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('ListSecurityGroups', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/securitygroups`, 'json', req, runtime);
+}
+
+model ListSwitchesRequest {
+  vpcId?: string(name='VpcId', description='所属VPC id'),
+  pageNumber?: int32(name='PageNumber', description='取第几页的数据'),
+  pageSize?: int32(name='PageSize', description='分页大小'),
+}
+
+model ListSwitchesResponseBody = {
+  switches?: [ 
+    {
+      vSwitchId?: string(name='VSwitchId', description='交换机id'),
+      vSwitchName?: string(name='VSwitchName', description='交换机名称'),
+      vpcId?: string(name='VpcId', description='所属VPCid'),
+      description?: string(name='Description', description='描述'),
+      cidrBlock?: string(name='CidrBlock', description='网段'),
+    }
+  ](name='Switches', description='代码源配置列表'),
+  totalCount?: long(name='TotalCount', description='符合过滤条件的代码源配置的总数量'),
+  requestId?: string(name='RequestId', description='请求Id'),
+}
+
+model ListSwitchesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListSwitchesResponseBody(name='body'),
+}
+
+async function listSwitches(request: ListSwitchesRequest): ListSwitchesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listSwitchesWithOptions(request, headers, runtime);
+}
+
+async function listSwitchesWithOptions(request: ListSwitchesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListSwitchesResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.vpcId)) {
+    query.VpcId = request.vpcId;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query.PageNumber = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query.PageSize = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('ListSwitches', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/switches`, 'json', req, runtime);
+}
+
+model ListVpcsRequest {
+  pageNumber?: int32(name='PageNumber', description='取第几页的数据'),
+  pageSize?: int32(name='PageSize', description='分页大小'),
+}
+
+model ListVpcsResponseBody = {
+  vpcs?: [ 
+    {
+      vpcId?: string(name='VpcId', description='vpc的id'),
+      vpcName?: string(name='VpcName', description='VPC的名称。'),
+    }
+  ](name='Vpcs', description='代码源配置列表'),
+  totalCount?: long(name='TotalCount', description='符合过滤条件的代码源配置的总数量'),
+  requestId?: string(name='RequestId', description='请求Id'),
+}
+
+model ListVpcsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListVpcsResponseBody(name='body'),
+}
+
+async function listVpcs(request: ListVpcsRequest): ListVpcsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listVpcsWithOptions(request, headers, runtime);
+}
+
+async function listVpcsWithOptions(request: ListVpcsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListVpcsResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.pageNumber)) {
+    query.PageNumber = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query.PageSize = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('ListVpcs', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/vpcs`, 'json', req, runtime);
+}
+
+model StopJobResponseBody = {
+  jobId?: string(name='JobId', description='作业Id'),
+  requestId?: string(name='RequestId', description='请求Id'),
+}
+
+model StopJobResponse = {
+  headers: map[string]string(name='headers'),
+  body: StopJobResponseBody(name='body'),
+}
+
+async function stopJob(JobId: string): StopJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return stopJobWithOptions(JobId, headers, runtime);
+}
+
+async function stopJobWithOptions(JobId: string, headers: map[string]string, runtime: Util.RuntimeOptions): StopJobResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('StopJob', '2020-12-03', 'HTTPS', 'POST', 'AK', `/api/v1/jobs/${JobId}/stop`, 'json', req, runtime);
+}
+
