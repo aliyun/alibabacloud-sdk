@@ -12,7 +12,7 @@ init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
   
-@endpointMap = {
+  @endpointMap = {
     cn-qingdao = 'ddosbgp.aliyuncs.com',
     cn-beijing = 'ddosbgp.aliyuncs.com',
     cn-zhangjiakou = 'ddosbgp.aliyuncs.com',
@@ -34,7 +34,6 @@ init(config: OpenApi.Config){
     cn-shanghai-finance-1 = 'ddosbgp.aliyuncs.com',
     cn-north-2-gov-1 = 'ddosbgp.aliyuncs.com',
   };
-
   checkConfig(config);
   @endpoint = getEndpoint('ddosbgp', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -50,7 +49,6 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 model AddIpRequest {
-  sourceIp?: string(name='SourceIp'),
   ipList?: string(name='IpList'),
   instanceId?: string(name='InstanceId'),
   regionId?: string(name='RegionId'),
@@ -79,8 +77,35 @@ async function addIp(request: AddIpRequest): AddIpResponse {
   return addIpWithOptions(request, runtime);
 }
 
+model CheckAccessLogAuthRequest {
+  regionId?: string(name='RegionId'),
+  resourceGroupId?: string(name='ResourceGroupId'),
+}
+
+model CheckAccessLogAuthResponseBody = {
+  requestId?: string(name='RequestId'),
+  accessLogAuth?: boolean(name='AccessLogAuth'),
+}
+
+model CheckAccessLogAuthResponse = {
+  headers: map[string]string(name='headers'),
+  body: CheckAccessLogAuthResponseBody(name='body'),
+}
+
+async function checkAccessLogAuthWithOptions(request: CheckAccessLogAuthRequest, runtime: Util.RuntimeOptions): CheckAccessLogAuthResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CheckAccessLogAuth', '2018-07-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function checkAccessLogAuth(request: CheckAccessLogAuthRequest): CheckAccessLogAuthResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return checkAccessLogAuthWithOptions(request, runtime);
+}
+
 model CheckGrantRequest {
-  sourceIp?: string(name='SourceIp'),
   resourceGroupId?: string(name='ResourceGroupId'),
   regionId?: string(name='RegionId'),
 }
@@ -110,7 +135,6 @@ async function checkGrant(request: CheckGrantRequest): CheckGrantResponse {
 }
 
 model ConfigSchedruleOnDemandRequest {
-  sourceIp?: string(name='SourceIp'),
   instanceId?: string(name='InstanceId'),
   ruleName?: string(name='RuleName'),
   ruleConditionMbps?: string(name='RuleConditionMbps'),
@@ -148,7 +172,6 @@ async function configSchedruleOnDemand(request: ConfigSchedruleOnDemandRequest):
 }
 
 model CreateSchedruleOnDemandRequest {
-  sourceIp?: string(name='SourceIp'),
   instanceId?: string(name='InstanceId'),
   ruleName?: string(name='RuleName'),
   ruleConditionMbps?: string(name='RuleConditionMbps'),
@@ -186,7 +209,6 @@ async function createSchedruleOnDemand(request: CreateSchedruleOnDemandRequest):
 }
 
 model DeleteBlackholeRequest {
-  sourceIp?: string(name='SourceIp'),
   ip?: string(name='Ip'),
   instanceId?: string(name='InstanceId'),
   resourceGroupId?: string(name='ResourceGroupId'),
@@ -216,7 +238,6 @@ async function deleteBlackhole(request: DeleteBlackholeRequest): DeleteBlackhole
 }
 
 model DeleteIpRequest {
-  sourceIp?: string(name='SourceIp'),
   ipList?: string(name='IpList'),
   instanceId?: string(name='InstanceId'),
   resourceGroupId?: string(name='ResourceGroupId'),
@@ -246,7 +267,6 @@ async function deleteIp(request: DeleteIpRequest): DeleteIpResponse {
 }
 
 model DeleteSchedruleOnDemandRequest {
-  sourceIp?: string(name='SourceIp'),
   instanceId?: string(name='InstanceId'),
   ruleName?: string(name='RuleName'),
   regionId?: string(name='RegionId'),
@@ -275,7 +295,6 @@ async function deleteSchedruleOnDemand(request: DeleteSchedruleOnDemandRequest):
 }
 
 model DescribeDdosEventRequest {
-  sourceIp?: string(name='SourceIp'),
   startTime?: int32(name='StartTime'),
   endTime?: int32(name='EndTime'),
   pageSize?: int32(name='PageSize'),
@@ -320,7 +339,6 @@ async function describeDdosEvent(request: DescribeDdosEventRequest): DescribeDdo
 }
 
 model DescribeExcpetionCountRequest {
-  sourceIp?: string(name='SourceIp'),
   resourceGroupId?: string(name='ResourceGroupId'),
   regionId?: string(name='RegionId'),
 }
@@ -350,7 +368,6 @@ async function describeExcpetionCount(request: DescribeExcpetionCountRequest): D
 }
 
 model DescribeInstanceListRequest {
-  sourceIp?: string(name='SourceIp'),
   resourceGroupId?: string(name='ResourceGroupId'),
   instanceIdList?: string(name='InstanceIdList'),
   remark?: string(name='Remark'),
@@ -408,8 +425,6 @@ async function describeInstanceList(request: DescribeInstanceListRequest): Descr
 }
 
 model DescribeInstanceSpecsRequest {
-  sourceIp?: string(name='SourceIp'),
-  lang?: string(name='Lang'),
   instanceIdList?: string(name='InstanceIdList'),
   regionId?: string(name='RegionId'),
   resourceGroupId?: string(name='ResourceGroupId'),
@@ -423,11 +438,15 @@ model DescribeInstanceSpecsResponseBody = {
         packBasicThre?: int32(name='PackBasicThre'),
         bindIpCount?: int32(name='BindIpCount'),
         packAdvThre?: int32(name='PackAdvThre'),
+        normalBandwidth?: int32(name='NormalBandwidth'),
         ipBasicThre?: int32(name='IpBasicThre'),
         ipAdvanceThre?: int32(name='IpAdvanceThre'),
         ipSpec?: int32(name='IpSpec'),
       }(name='PackConfig'),
+      isFullDefenseMode?: int32(name='IsFullDefenseMode'),
       region?: string(name='Region'),
+      availableDefenseTimes?: int32(name='AvailableDefenseTimes'),
+      totalDefenseTimes?: int32(name='TotalDefenseTimes'),
       availableDeleteBlackholeCount?: string(name='AvailableDeleteBlackholeCount'),
       instanceId?: string(name='InstanceId'),
     }
@@ -453,7 +472,6 @@ async function describeInstanceSpecs(request: DescribeInstanceSpecsRequest): Des
 }
 
 model DescribeOnDemandDdosEventRequest {
-  sourceIp?: string(name='SourceIp'),
   startTime?: int32(name='StartTime'),
   endTime?: int32(name='EndTime'),
   pageSize?: int32(name='PageSize'),
@@ -498,7 +516,6 @@ async function describeOnDemandDdosEvent(request: DescribeOnDemandDdosEventReque
 }
 
 model DescribeOnDemandInstanceStatusRequest {
-  sourceIp?: string(name='SourceIp'),
   regionId?: string(name='RegionId'),
   instanceIdList?: [ string ](name='InstanceIdList'),
 }
@@ -537,8 +554,6 @@ async function describeOnDemandInstanceStatus(request: DescribeOnDemandInstanceS
 }
 
 model DescribeOpEntitiesRequest {
-  sourceIp?: string(name='SourceIp'),
-  lang?: string(name='Lang'),
   currentPage?: int32(name='CurrentPage'),
   pageSize?: int32(name='PageSize'),
   startTime?: long(name='StartTime'),
@@ -584,7 +599,6 @@ async function describeOpEntities(request: DescribeOpEntitiesRequest): DescribeO
 }
 
 model DescribePackIpListRequest {
-  sourceIp?: string(name='SourceIp'),
   pageNo?: int32(name='PageNo'),
   pageSize?: int32(name='PageSize'),
   instanceId?: string(name='InstanceId'),
@@ -672,7 +686,6 @@ async function describePackPaidTraffic(request: DescribePackPaidTrafficRequest):
 }
 
 model DescribeRegionsRequest {
-  sourceIp?: string(name='SourceIp'),
   resourceGroupId?: string(name='ResourceGroupId'),
   regionId?: string(name='RegionId'),
 }
@@ -821,13 +834,13 @@ async function describeResourcePackUsage(request: DescribeResourcePackUsageReque
 }
 
 model DescribeTrafficRequest {
-  sourceIp?: string(name='SourceIp'),
   instanceId?: string(name='InstanceId'),
   ipnet?: string(name='Ipnet'),
   ip?: string(name='Ip'),
   startTime?: int32(name='StartTime'),
   endTime?: int32(name='EndTime'),
   interval?: int32(name='Interval'),
+  flowType?: string(name='FlowType'),
   resourceGroupId?: string(name='ResourceGroupId'),
   regionId?: string(name='RegionId'),
 }
@@ -865,13 +878,72 @@ async function describeTraffic(request: DescribeTrafficRequest): DescribeTraffic
   return describeTrafficWithOptions(request, runtime);
 }
 
-model ListTagKeysRequest {
-  sourceIp?: string(name='SourceIp'),
+model GetSlsOpenStatusRequest {
   regionId?: string(name='RegionId'),
-  tagOwnerUid?: string(name='TagOwnerUid'),
-  tagOwnerBid?: string(name='TagOwnerBid'),
+  resourceGroupId?: string(name='ResourceGroupId'),
+}
+
+model GetSlsOpenStatusResponseBody = {
+  requestId?: string(name='RequestId'),
+  slsOpenStatus?: boolean(name='SlsOpenStatus'),
+}
+
+model GetSlsOpenStatusResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetSlsOpenStatusResponseBody(name='body'),
+}
+
+async function getSlsOpenStatusWithOptions(request: GetSlsOpenStatusRequest, runtime: Util.RuntimeOptions): GetSlsOpenStatusResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('GetSlsOpenStatus', '2018-07-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function getSlsOpenStatus(request: GetSlsOpenStatusRequest): GetSlsOpenStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSlsOpenStatusWithOptions(request, runtime);
+}
+
+model ListOpenedAccessLogInstancesRequest {
+  resourceGroupId?: string(name='ResourceGroupId'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+}
+
+model ListOpenedAccessLogInstancesResponseBody = {
+  totalCount?: int32(name='TotalCount'),
+  requestId?: string(name='RequestId'),
+  slsConfigStatus?: [ 
+    {
+      instanceId?: string(name='InstanceId'),
+      enable?: boolean(name='Enable'),
+    }
+  ](name='SlsConfigStatus'),
+}
+
+model ListOpenedAccessLogInstancesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListOpenedAccessLogInstancesResponseBody(name='body'),
+}
+
+async function listOpenedAccessLogInstancesWithOptions(request: ListOpenedAccessLogInstancesRequest, runtime: Util.RuntimeOptions): ListOpenedAccessLogInstancesResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ListOpenedAccessLogInstances', '2018-07-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function listOpenedAccessLogInstances(request: ListOpenedAccessLogInstancesRequest): ListOpenedAccessLogInstancesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listOpenedAccessLogInstancesWithOptions(request, runtime);
+}
+
+model ListTagKeysRequest {
+  regionId?: string(name='RegionId'),
   resourceType?: string(name='ResourceType'),
-  scope?: string(name='Scope'),
   pageSize?: int32(name='PageSize'),
   currentPage?: int32(name='CurrentPage'),
   resourceGroupId?: string(name='ResourceGroupId'),
@@ -909,13 +981,9 @@ async function listTagKeys(request: ListTagKeysRequest): ListTagKeysResponse {
 }
 
 model ListTagResourcesRequest {
-  sourceIp?: string(name='SourceIp'),
   resourceGroupId?: string(name='ResourceGroupId'),
   regionId?: string(name='RegionId'),
-  tagOwnerUid?: string(name='TagOwnerUid'),
-  tagOwnerBid?: string(name='TagOwnerBid'),
   resourceType?: string(name='ResourceType'),
-  scope?: string(name='Scope'),
   nextToken?: string(name='NextToken'),
   resourceId?: [ string ](name='ResourceId'),
   tag?: [ 
@@ -960,8 +1028,6 @@ async function listTagResources(request: ListTagResourcesRequest): ListTagResour
 }
 
 model ModifyRemarkRequest {
-  sourceIp?: string(name='SourceIp'),
-  lang?: string(name='Lang'),
   instanceId?: string(name='InstanceId'),
   remark?: string(name='Remark'),
   resourceGroupId?: string(name='ResourceGroupId'),
@@ -991,7 +1057,6 @@ async function modifyRemark(request: ModifyRemarkRequest): ModifyRemarkResponse 
 }
 
 model QuerySchedruleOnDemandRequest {
-  sourceIp?: string(name='SourceIp'),
   instanceId?: string(name='InstanceId'),
   regionId?: string(name='RegionId'),
 }
@@ -1041,7 +1106,6 @@ async function querySchedruleOnDemand(request: QuerySchedruleOnDemandRequest): Q
 }
 
 model SetInstanceModeOnDemandRequest {
-  sourceIp?: string(name='SourceIp'),
   mode?: string(name='Mode'),
   regionId?: string(name='RegionId'),
   instanceIdList?: [ string ](name='InstanceIdList'),
@@ -1070,13 +1134,9 @@ async function setInstanceModeOnDemand(request: SetInstanceModeOnDemandRequest):
 }
 
 model TagResourcesRequest {
-  sourceIp?: string(name='SourceIp'),
   resourceGroupId?: string(name='ResourceGroupId'),
   regionId?: string(name='RegionId'),
-  tagOwnerUid?: string(name='TagOwnerUid'),
-  tagOwnerBid?: string(name='TagOwnerBid'),
   resourceType?: string(name='ResourceType'),
-  scope?: string(name='Scope'),
   resourceId?: [ string ](name='ResourceId'),
   tag?: [ 
     {
@@ -1109,11 +1169,8 @@ async function tagResources(request: TagResourcesRequest): TagResourcesResponse 
 }
 
 model UntagResourcesRequest {
-  sourceIp?: string(name='SourceIp'),
   resourceGroupId?: string(name='ResourceGroupId'),
   regionId?: string(name='RegionId'),
-  tagOwnerUid?: string(name='TagOwnerUid'),
-  tagOwnerBid?: string(name='TagOwnerBid'),
   resourceType?: string(name='ResourceType'),
   all?: boolean(name='All'),
   resourceId?: [ string ](name='ResourceId'),
