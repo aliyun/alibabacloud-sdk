@@ -31,6 +31,232 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+model ReconstructBodyBySingleImageRequest {
+  imageURL?: string(name='ImageURL', description='A short description of struct'),
+}
+
+model ReconstructBodyBySingleImageAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model ReconstructBodyBySingleImageResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  data?: {
+    depthURL?: string(name='DepthURL'),
+    meshURL?: string(name='MeshURL'),
+  }(name='Data'),
+}
+
+model ReconstructBodyBySingleImageResponse = {
+  headers: map[string]string(name='headers'),
+  body: ReconstructBodyBySingleImageResponseBody(name='body'),
+}
+
+async function reconstructBodyBySingleImageWithOptions(request: ReconstructBodyBySingleImageRequest, runtime: Util.RuntimeOptions): ReconstructBodyBySingleImageResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ReconstructBodyBySingleImage', '2021-01-31', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function reconstructBodyBySingleImage(request: ReconstructBodyBySingleImageRequest): ReconstructBodyBySingleImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return reconstructBodyBySingleImageWithOptions(request, runtime);
+}
+
+async function reconstructBodyBySingleImageAdvance(request: ReconstructBodyBySingleImageAdvanceRequest, runtime: Util.RuntimeOptions): ReconstructBodyBySingleImageResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'threedvision',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var reconstructBodyBySingleImageReq = new ReconstructBodyBySingleImageRequest{};
+  OpenApiUtil.convert(request, reconstructBodyBySingleImageReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  reconstructBodyBySingleImageReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var reconstructBodyBySingleImageResp = reconstructBodyBySingleImageWithOptions(reconstructBodyBySingleImageReq, runtime);
+  return reconstructBodyBySingleImageResp;
+}
+
+model ReconstructThreeDMultiViewRequest {
+  zipFileUrl?: string(name='ZipFileUrl', description='A short description of struct'),
+  mode?: string(name='Mode'),
+}
+
+model ReconstructThreeDMultiViewAdvanceRequest {
+  zipFileUrlObject: readable(name='ZipFileUrlObject'),
+  mode?: string(name='Mode'),
+}
+
+model ReconstructThreeDMultiViewResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  data?: {
+    pointCloudURL?: string(name='PointCloudURL'),
+  }(name='Data'),
+}
+
+model ReconstructThreeDMultiViewResponse = {
+  headers: map[string]string(name='headers'),
+  body: ReconstructThreeDMultiViewResponseBody(name='body'),
+}
+
+async function reconstructThreeDMultiViewWithOptions(request: ReconstructThreeDMultiViewRequest, runtime: Util.RuntimeOptions): ReconstructThreeDMultiViewResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ReconstructThreeDMultiView', '2021-01-31', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function reconstructThreeDMultiView(request: ReconstructThreeDMultiViewRequest): ReconstructThreeDMultiViewResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return reconstructThreeDMultiViewWithOptions(request, runtime);
+}
+
+async function reconstructThreeDMultiViewAdvance(request: ReconstructThreeDMultiViewAdvanceRequest, runtime: Util.RuntimeOptions): ReconstructThreeDMultiViewResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'threedvision',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var reconstructThreeDMultiViewReq = new ReconstructThreeDMultiViewRequest{};
+  OpenApiUtil.convert(request, reconstructThreeDMultiViewReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.zipFileUrlObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  reconstructThreeDMultiViewReq.zipFileUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var reconstructThreeDMultiViewResp = reconstructThreeDMultiViewWithOptions(reconstructThreeDMultiViewReq, runtime);
+  return reconstructThreeDMultiViewResp;
+}
+
+model GetAsyncJobResultRequest {
+  jobId?: string(name='JobId'),
+}
+
+model GetAsyncJobResultResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    status?: string(name='Status'),
+    errorMessage?: string(name='ErrorMessage'),
+    result?: string(name='Result'),
+    errorCode?: string(name='ErrorCode'),
+    jobId?: string(name='JobId'),
+  }(name='Data'),
+}
+
+model GetAsyncJobResultResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetAsyncJobResultResponseBody(name='body'),
+}
+
+async function getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('GetAsyncJobResult', '2021-01-31', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function getAsyncJobResult(request: GetAsyncJobResultRequest): GetAsyncJobResultResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAsyncJobResultWithOptions(request, runtime);
+}
+
 model EstimateMonocularImageDepthRequest {
   imageURL?: string(name='ImageURL', description='A short description of struct'),
 }
