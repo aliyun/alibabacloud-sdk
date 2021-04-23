@@ -69,11 +69,15 @@ async function reconstructBodyBySingleImageAdvance(request: ReconstructBodyBySin
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
   var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
+    endpoint = openPlatformEndpoint,
     protocol = @protocol,
     regionId = @regionId,
   };
@@ -166,11 +170,15 @@ async function reconstructThreeDMultiViewAdvance(request: ReconstructThreeDMulti
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
   var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
+    endpoint = openPlatformEndpoint,
     protocol = @protocol,
     regionId = @regionId,
   };
@@ -295,11 +303,15 @@ async function estimateMonocularImageDepthAdvance(request: EstimateMonocularImag
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
   var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
+    endpoint = openPlatformEndpoint,
     protocol = @protocol,
     regionId = @regionId,
   };
@@ -382,5 +394,107 @@ async function estimateStereoImageDepthWithOptions(request: EstimateStereoImageD
 async function estimateStereoImageDepth(request: EstimateStereoImageDepthRequest): EstimateStereoImageDepthResponse {
   var runtime = new Util.RuntimeOptions{};
   return estimateStereoImageDepthWithOptions(request, runtime);
+}
+
+model EstimateStereoVideoDepthRequest {
+  videoURL?: string(name='VideoURL', description='A short description of struct'),
+  sampleRate?: string(name='SampleRate'),
+}
+
+model EstimateStereoVideoDepthAdvanceRequest {
+  videoURLObject: readable(name='VideoURLObject'),
+  sampleRate?: string(name='SampleRate'),
+}
+
+model EstimateStereoVideoDepthResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  data?: {
+    depthUrl?: string(name='DepthUrl'),
+    depthVisUrl?: string(name='DepthVisUrl'),
+  }(name='Data'),
+}
+
+model EstimateStereoVideoDepthResponse = {
+  headers: map[string]string(name='headers'),
+  body: EstimateStereoVideoDepthResponseBody(name='body'),
+}
+
+async function estimateStereoVideoDepthWithOptions(request: EstimateStereoVideoDepthRequest, runtime: Util.RuntimeOptions): EstimateStereoVideoDepthResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('EstimateStereoVideoDepth', '2021-01-31', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function estimateStereoVideoDepth(request: EstimateStereoVideoDepthRequest): EstimateStereoVideoDepthResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return estimateStereoVideoDepthWithOptions(request, runtime);
+}
+
+async function estimateStereoVideoDepthAdvance(request: EstimateStereoVideoDepthAdvanceRequest, runtime: Util.RuntimeOptions): EstimateStereoVideoDepthResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'threedvision',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var estimateStereoVideoDepthReq = new EstimateStereoVideoDepthRequest{};
+  OpenApiUtil.convert(request, estimateStereoVideoDepthReq);
+
+  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  ossConfig.accessKeyId = authResponse.accessKeyId;
+  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+  ossClient = new OSS(ossConfig);
+
+  fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.videoURLObject,
+    contentType = '',
+  };
+  ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  ossClient.postObject(uploadRequest, ossRuntime);
+  estimateStereoVideoDepthReq.videoURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var estimateStereoVideoDepthResp = estimateStereoVideoDepthWithOptions(estimateStereoVideoDepthReq, runtime);
+  return estimateStereoVideoDepthResp;
 }
 
