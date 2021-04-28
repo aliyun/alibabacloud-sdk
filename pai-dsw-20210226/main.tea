@@ -1,0 +1,719 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('pai-dsw', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model EcsSpec {
+  instanceType?: string(name='InstanceType', description='实例类型'),
+  cpu?: long(name='Cpu', description='cpu数量'),
+  gpu?: long(name='Gpu', description='gpu卡数'),
+  memoryInGiB?: long(name='MemoryInGiB', description='内存(GiB)'),
+  systemDiskCategory?: string(name='SystemDiskCategory', description='磁盘类型'),
+  systemDiskSizeInGiB?: long(name='SystemDiskSizeInGiB', description='磁盘大小(GiB)'),
+  gpuType?: string(name='GpuType', description='GPU卡类型'),
+}
+
+model InstanceSnapshot {
+  instanceId?: string(name='InstanceId', description='实例ID'),
+  instanceSnapshotId?: string(name='InstanceSnapshotId', description='实例快照ID'),
+  instanceSnapshotStatus?: string(name='InstanceSnapshotStatus', description='实例快照状态'),
+  instanceSnapshotName?: string(name='InstanceSnapshotName', description='实例快照名称'),
+  instanceSnapshotTag?: string(name='InstanceSnapshotTag', description='实例快照标签'),
+  instanceSnapshotRepoUrl?: string(name='InstanceSnapshotRepoUrl', description='实例快照存储地址'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='实例快照保存时间（GMT）'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', description='实例快照修改时间（GMT）'),
+  instanceSnapshotDescription?: string(name='InstanceSnapshotDescription', description='实例快照描述'),
+}
+
+model Image {
+  imageId?: string(name='ImageId', description='镜像ID'),
+  imageName?: string(name='ImageName', description='镜像名称'),
+  instanceId?: string(name='InstanceId', description='实例ID'),
+  acceleratorType?: string(name='AcceleratorType', description='资源类型'),
+  framework?: string(name='Framework', description='算法框架'),
+  frameworkVersion?: string(name='FrameworkVersion', description='算法框架版本'),
+  OS?: string(name='OS', description='镜像操作系统分发版'),
+  OSVersion?: string(name='OSVersion', description='分发版版本'),
+  cudaVersion?: string(name='CudaVersion', description='Cuda版本'),
+  type?: string(name='Type', description='镜像类型'),
+}
+
+model InstanceShutdownTimer {
+  instanceId?: string(name='InstanceId', description='实例ID'),
+  scheduleTime?: string(name='ScheduleTime', description='定时关机时间'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', description='定时关机创建时间'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='定时关机修改时间'),
+}
+
+model Instance {
+  instanceId?: string(name='InstanceId', description='实例ID'),
+  instanceName?: string(name='InstanceName', description='实例名称'),
+  ecsSpec?: string(name='EcsSpec', description='ecs规格'),
+  instanceStatus?: string(name='InstanceStatus', description='实例状态'),
+  jupyterlabUrl?: string(name='JupyterlabUrl', description='jupyter链接'),
+  webIdeUrl?: string(name='WebIdeUrl', description='webIde链接'),
+  terminalUrl?: string(name='TerminalUrl', description='命令行终端链接'),
+  accumulativeRunningTimeInMinutes?: long(name='AccumulativeRunningTimeInMinutes', description='累计运行时间(分钟)'),
+  imageId?: string(name='ImageId', description='镜像ID'),
+  imageUrl?: string(name='ImageUrl', description='镜像链接'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='创建时间(GMT)'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', description='修改时间(GMT)'),
+  userId?: string(name='UserId', description='用户ID'),
+  nasFileSystemId?: string(name='NasFileSystemId', description='nas文件系统ID'),
+  userVpc?: UserVpc(name='UserVpc', description='被打通VPC配置'),
+  instanceShutdownTimer?: InstanceShutdownTimer(name='InstanceShutdownTimer', description='定时关机任务'),
+}
+
+model UserVpc {
+  vpcId?: string(name='VpcId', description='虚拟网络ID'),
+  vswitchId?: string(name='VswitchId', description='虚拟交换机ID'),
+  roleArn?: string(name='RoleArn', description='角色标识码'),
+  securityGroupId?: string(name='SecurityGroupId', description='安全组ID'),
+}
+
+model CreateInstanceSnapshotRequest {
+  instanceSnapshotName?: string(name='InstanceSnapshotName', description='实例快照名称'),
+  instanceSnapshotRepoUrl?: string(name='InstanceSnapshotRepoUrl', description='实例快照存储地址（可选）'),
+  instanceSnapshotDescription?: string(name='InstanceSnapshotDescription', description='实例快照描述'),
+}
+
+model CreateInstanceSnapshotResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID'),
+  instanceId?: string(name='InstanceId', description='实例ID'),
+  instanceSnapshotId?: string(name='InstanceSnapshotId', description='实例快照ID'),
+}
+
+model CreateInstanceSnapshotResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateInstanceSnapshotResponseBody(name='body'),
+}
+
+async function createInstanceSnapshot(InstanceId: string, request: CreateInstanceSnapshotRequest): CreateInstanceSnapshotResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createInstanceSnapshotWithOptions(InstanceId, request, headers, runtime);
+}
+
+async function createInstanceSnapshotWithOptions(InstanceId: string, request: CreateInstanceSnapshotRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateInstanceSnapshotResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.instanceSnapshotName)) {
+    body.InstanceSnapshotName = request.instanceSnapshotName;
+  }
+  if (!Util.isUnset(request.instanceSnapshotRepoUrl)) {
+    body.InstanceSnapshotRepoUrl = request.instanceSnapshotRepoUrl;
+  }
+  if (!Util.isUnset(request.instanceSnapshotDescription)) {
+    body.InstanceSnapshotDescription = request.instanceSnapshotDescription;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('CreateInstanceSnapshot', '2021-02-26', 'HTTPS', 'POST', 'AK', `/api/v1/instances/${InstanceId}/snapshots`, 'json', req, runtime);
+}
+
+model DeleteInstanceShutdownTimerResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID'),
+  instanceId?: string(name='InstanceId', description='实例ID'),
+}
+
+model DeleteInstanceShutdownTimerResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteInstanceShutdownTimerResponseBody(name='body'),
+}
+
+async function deleteInstanceShutdownTimer(InstanceId: string): DeleteInstanceShutdownTimerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteInstanceShutdownTimerWithOptions(InstanceId, headers, runtime);
+}
+
+async function deleteInstanceShutdownTimerWithOptions(InstanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteInstanceShutdownTimerResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('DeleteInstanceShutdownTimer', '2021-02-26', 'HTTPS', 'DELETE', 'AK', `/api/v1/instances/${InstanceId}/shutdownTimer`, 'json', req, runtime);
+}
+
+model GetInstanceShutdownTimerResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID'),
+  instanceId?: string(name='InstanceId', description='实例ID'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='任务创建时间(GMT)'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', description='任务修改时间(GMT)'),
+  scheduleTime?: string(name='ScheduleTime', description='定时关机时间(GMT)'),
+}
+
+model GetInstanceShutdownTimerResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetInstanceShutdownTimerResponseBody(name='body'),
+}
+
+async function getInstanceShutdownTimer(InstanceId: string): GetInstanceShutdownTimerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getInstanceShutdownTimerWithOptions(InstanceId, headers, runtime);
+}
+
+async function getInstanceShutdownTimerWithOptions(InstanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetInstanceShutdownTimerResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('GetInstanceShutdownTimer', '2021-02-26', 'HTTPS', 'GET', 'AK', `/api/v1/instances/${InstanceId}/shutdownTimer`, 'json', req, runtime);
+}
+
+model StopInstanceResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID'),
+  instanceId?: string(name='InstanceId', description='实例ID'),
+}
+
+model StopInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  body: StopInstanceResponseBody(name='body'),
+}
+
+async function stopInstance(InstanceId: string): StopInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return stopInstanceWithOptions(InstanceId, headers, runtime);
+}
+
+async function stopInstanceWithOptions(InstanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): StopInstanceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('StopInstance', '2021-02-26', 'HTTPS', 'PUT', 'AK', `/api/v1/instances/${InstanceId}/stop`, 'json', req, runtime);
+}
+
+model UpdateInstanceRequest {
+  instanceName?: string(name='InstanceName', description='修改后实例名称'),
+}
+
+model UpdateInstanceResponseBody = {
+  instanceId?: string(name='InstanceId', description='实例ID'),
+  requestId?: string(name='RequestId', description='请求ID'),
+}
+
+model UpdateInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateInstanceResponseBody(name='body'),
+}
+
+async function updateInstance(InstanceId: string, request: UpdateInstanceRequest): UpdateInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateInstanceWithOptions(InstanceId, request, headers, runtime);
+}
+
+async function updateInstanceWithOptions(InstanceId: string, request: UpdateInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateInstanceResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.instanceName)) {
+    body.InstanceName = request.instanceName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('UpdateInstance', '2021-02-26', 'HTTPS', 'PUT', 'AK', `/api/v1/instances/${InstanceId}`, 'json', req, runtime);
+}
+
+model ListEcsSpecsRequest {
+  acceleratorTypeEquals?: string(name='AcceleratorTypeEquals', description='每页返回的实例数'),
+}
+
+model ListEcsSpecsResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID'),
+  ecsSpecs?: [
+    EcsSpec
+  ](name='EcsSpecs', description='请求ecs规格列表'),
+  totalCount?: long(name='TotalCount', description='符合要求的ecs规格数量'),
+}
+
+model ListEcsSpecsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListEcsSpecsResponseBody(name='body'),
+}
+
+async function listEcsSpecs(request: ListEcsSpecsRequest): ListEcsSpecsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listEcsSpecsWithOptions(request, headers, runtime);
+}
+
+async function listEcsSpecsWithOptions(request: ListEcsSpecsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListEcsSpecsResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.acceleratorTypeEquals)) {
+    query.AcceleratorTypeEquals = request.acceleratorTypeEquals;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('ListEcsSpecs', '2021-02-26', 'HTTPS', 'GET', 'AK', `/api/v1/ecsSpecs`, 'json', req, runtime);
+}
+
+model DeleteInstanceSnapshotResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID'),
+  instanceId?: string(name='InstanceId', description='实例ID'),
+  instanceSnapshotId?: string(name='InstanceSnapshotId', description='实例快照ID'),
+}
+
+model DeleteInstanceSnapshotResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteInstanceSnapshotResponseBody(name='body'),
+}
+
+async function deleteInstanceSnapshot(InstanceId: string, InstanceSnapshotId: string): DeleteInstanceSnapshotResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteInstanceSnapshotWithOptions(InstanceId, InstanceSnapshotId, headers, runtime);
+}
+
+async function deleteInstanceSnapshotWithOptions(InstanceId: string, InstanceSnapshotId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteInstanceSnapshotResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('DeleteInstanceSnapshot', '2021-02-26', 'HTTPS', 'DELETE', 'AK', `/api/v1/instances/${InstanceId}/snapshots/${InstanceSnapshotId}`, 'json', req, runtime);
+}
+
+model UpdateInstanceSnapshotRequest {
+  instanceSnapshotName?: string(name='InstanceSnapshotName', description='实例快照名称'),
+}
+
+model UpdateInstanceSnapshotResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID'),
+  instanceId?: string(name='InstanceId', description='实例ID'),
+  instanceSnapshotId?: string(name='InstanceSnapshotId', description='实例镜像ID'),
+}
+
+model UpdateInstanceSnapshotResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateInstanceSnapshotResponseBody(name='body'),
+}
+
+async function updateInstanceSnapshot(InstanceId: string, InstanceSnapshotId: string, request: UpdateInstanceSnapshotRequest): UpdateInstanceSnapshotResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateInstanceSnapshotWithOptions(InstanceId, InstanceSnapshotId, request, headers, runtime);
+}
+
+async function updateInstanceSnapshotWithOptions(InstanceId: string, InstanceSnapshotId: string, request: UpdateInstanceSnapshotRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateInstanceSnapshotResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.instanceSnapshotName)) {
+    body.InstanceSnapshotName = request.instanceSnapshotName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('UpdateInstanceSnapshot', '2021-02-26', 'HTTPS', 'PUT', 'AK', `/api/v1/instances/${InstanceId}/snapshots/${InstanceSnapshotId}`, 'json', req, runtime);
+}
+
+model CreateInstanceRequest {
+  instanceName?: string(name='InstanceName', description='实例名称'),
+  ecsSpec?: string(name='EcsSpec', description='实例规格'),
+  imageId?: string(name='ImageId', description='镜像id'),
+  nasFileSystemId?: string(name='NasFileSystemId', description='nas文件系统id'),
+  userVpc?: UserVpc(name='UserVpc', description='打通的vpc网络配置'),
+  imageUrl?: string(name='ImageUrl', description='镜像地址'),
+}
+
+model CreateInstanceResponseBody = {
+  instanceId?: string(name='InstanceId', description='实例ID'),
+  requestId?: string(name='RequestId', description='请求ID'),
+}
+
+model CreateInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateInstanceResponseBody(name='body'),
+}
+
+async function createInstance(request: CreateInstanceRequest): CreateInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createInstanceWithOptions(request, headers, runtime);
+}
+
+async function createInstanceWithOptions(request: CreateInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateInstanceResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.instanceName)) {
+    body.InstanceName = request.instanceName;
+  }
+  if (!Util.isUnset(request.ecsSpec)) {
+    body.EcsSpec = request.ecsSpec;
+  }
+  if (!Util.isUnset(request.imageId)) {
+    body.ImageId = request.imageId;
+  }
+  if (!Util.isUnset(request.nasFileSystemId)) {
+    body.NasFileSystemId = request.nasFileSystemId;
+  }
+  if (!Util.isUnset(request.userVpc)) {
+    body.UserVpc = request.userVpc;
+  }
+  if (!Util.isUnset(request.imageUrl)) {
+    body.ImageUrl = request.imageUrl;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('CreateInstance', '2021-02-26', 'HTTPS', 'POST', 'AK', `/api/v1/instances/`, 'json', req, runtime);
+}
+
+model GetAuthorizationResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID'),
+  authorized?: boolean(name='Authorized', description='是否已经给DSW服务账号授权'),
+  authorizationFailedCode?: string(name='AuthorizationFailedCode', description='授权失败错误代码'),
+  authorizationFailedMessage?: string(name='AuthorizationFailedMessage', description='授权失败错误消息'),
+}
+
+model GetAuthorizationResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetAuthorizationResponseBody(name='body'),
+}
+
+async function getAuthorization(): GetAuthorizationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getAuthorizationWithOptions(headers, runtime);
+}
+
+async function getAuthorizationWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): GetAuthorizationResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('GetAuthorization', '2021-02-26', 'HTTPS', 'GET', 'AK', `/api/v1/authorization`, 'json', req, runtime);
+}
+
+model ListImagesRequest {
+  acceleratorTypeEquals?: string(name='AcceleratorTypeEquals', description='资源类型'),
+  imageTypeEquals?: string(name='ImageTypeEquals', description='镜像类型'),
+  imageNameContains?: string(name='ImageNameContains', description='容器名称关键字'),
+}
+
+model ListImagesResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID'),
+  images?: [
+    Image
+  ](name='Images', description='镜像列表'),
+}
+
+model ListImagesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListImagesResponseBody(name='body'),
+}
+
+async function listImages(request: ListImagesRequest): ListImagesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listImagesWithOptions(request, headers, runtime);
+}
+
+async function listImagesWithOptions(request: ListImagesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListImagesResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.acceleratorTypeEquals)) {
+    query.AcceleratorTypeEquals = request.acceleratorTypeEquals;
+  }
+  if (!Util.isUnset(request.imageTypeEquals)) {
+    query.ImageTypeEquals = request.imageTypeEquals;
+  }
+  if (!Util.isUnset(request.imageNameContains)) {
+    query.ImageNameContains = request.imageNameContains;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('ListImages', '2021-02-26', 'HTTPS', 'GET', 'AK', `/api/v1/images`, 'json', req, runtime);
+}
+
+model FoobarResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request'),
+}
+
+model FoobarResponse = {
+  headers: map[string]string(name='headers'),
+  body: FoobarResponseBody(name='body'),
+}
+
+async function foobar(): FoobarResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return foobarWithOptions(headers, runtime);
+}
+
+async function foobarWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): FoobarResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('Foobar', '2021-02-26', 'HTTPS', 'GET', 'AK', `/api/v1/foobar`, 'json', req, runtime);
+}
+
+model ListInstanceSnapshotsResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID'),
+  instanceSnapshots?: [
+    InstanceSnapshot
+  ](name='InstanceSnapshots', description='镜像快照列表'),
+}
+
+model ListInstanceSnapshotsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListInstanceSnapshotsResponseBody(name='body'),
+}
+
+async function listInstanceSnapshots(InstanceId: string): ListInstanceSnapshotsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listInstanceSnapshotsWithOptions(InstanceId, headers, runtime);
+}
+
+async function listInstanceSnapshotsWithOptions(InstanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListInstanceSnapshotsResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('ListInstanceSnapshots', '2021-02-26', 'HTTPS', 'GET', 'AK', `/api/v1/instances/${InstanceId}/snapshots`, 'json', req, runtime);
+}
+
+model CreateInstanceShutdownTimerRequest {
+  scheduleTime?: string(name='ScheduleTime', description='定时关机时间(GMT)'),
+}
+
+model CreateInstanceShutdownTimerResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID'),
+  instanceId?: string(name='InstanceId', description='实例ID'),
+}
+
+model CreateInstanceShutdownTimerResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateInstanceShutdownTimerResponseBody(name='body'),
+}
+
+async function createInstanceShutdownTimer(InstanceId: string, request: CreateInstanceShutdownTimerRequest): CreateInstanceShutdownTimerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createInstanceShutdownTimerWithOptions(InstanceId, request, headers, runtime);
+}
+
+async function createInstanceShutdownTimerWithOptions(InstanceId: string, request: CreateInstanceShutdownTimerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateInstanceShutdownTimerResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.scheduleTime)) {
+    body.ScheduleTime = request.scheduleTime;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('CreateInstanceShutdownTimer', '2021-02-26', 'HTTPS', 'POST', 'AK', `/api/v1/instances/${InstanceId}/shutdownTimer`, 'json', req, runtime);
+}
+
+model GetInstanceResponseBody = {
+  instanceName?: string(name='InstanceName', description='实例名称'),
+  instanceId?: string(name='InstanceId', description='实例ID'),
+  requestId?: string(name='RequestId', description='请求ID'),
+  ecsSpec?: string(name='EcsSpec', description='ecs规格'),
+  instanceStatus?: string(name='InstanceStatus', description='实例状态'),
+  jupyterlabUrl?: string(name='JupyterlabUrl', description='jupyter链接'),
+  webIdeUrl?: string(name='WebIdeUrl', description='web ide链接'),
+  terminalUrl?: string(name='TerminalUrl', description='命令行终端链接'),
+  accumulativeRunningTimeInMinutes?: long(name='AccumulativeRunningTimeInMinutes', description='累计运行时间(分钟)'),
+  imageId?: string(name='ImageId', description='镜像ID'),
+  imageUrl?: string(name='ImageUrl', description='镜像链接'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='实例创建时间(GMT)'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', description='实例修改时间(GMT)'),
+  userId?: string(name='UserId', description='用户ID'),
+  nasFileSystemId?: string(name='NasFileSystemId', description='nas文件系统ID'),
+  userVpc?: UserVpc(name='UserVpc', description='被打通VPC配置'),
+  instanceShutdownTimer?: InstanceShutdownTimer(name='InstanceShutdownTimer', description='定时关机任务'),
+}
+
+model GetInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetInstanceResponseBody(name='body'),
+}
+
+async function getInstance(InstanceId: string): GetInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getInstanceWithOptions(InstanceId, headers, runtime);
+}
+
+async function getInstanceWithOptions(InstanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetInstanceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('GetInstance', '2021-02-26', 'HTTPS', 'GET', 'AK', `/api/v1/instances/${InstanceId}`, 'json', req, runtime);
+}
+
+model ListInstancesRequest {
+  instanceNameContains?: string(name='InstanceNameContains', description='实例名称关键字'),
+  instanceStatusEquals?: string(name='InstanceStatusEquals', description='实例状态'),
+  pageNumber?: string(name='PageNumber', description='当前页'),
+  pageSize?: string(name='PageSize', description='每页返回的实例数'),
+  sortOrder?: string(name='SortOrder', description='升序降序'),
+  sortBy?: string(name='SortBy', description='排序字段'),
+}
+
+model ListInstancesResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID'),
+  instances?: [
+    Instance
+  ](name='Instances', description='实例列表'),
+  pageNumber?: long(name='PageNumber', description='当前页'),
+  pageSize?: long(name='PageSize', description='每页返回的实例数'),
+  totalCount?: long(name='TotalCount', description='符合条件的实例数'),
+}
+
+model ListInstancesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListInstancesResponseBody(name='body'),
+}
+
+async function listInstances(request: ListInstancesRequest): ListInstancesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listInstancesWithOptions(request, headers, runtime);
+}
+
+async function listInstancesWithOptions(request: ListInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListInstancesResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.instanceNameContains)) {
+    query.InstanceNameContains = request.instanceNameContains;
+  }
+  if (!Util.isUnset(request.instanceStatusEquals)) {
+    query.InstanceStatusEquals = request.instanceStatusEquals;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query.PageNumber = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query.PageSize = request.pageSize;
+  }
+  if (!Util.isUnset(request.sortOrder)) {
+    query.SortOrder = request.sortOrder;
+  }
+  if (!Util.isUnset(request.sortBy)) {
+    query.SortBy = request.sortBy;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('ListInstances', '2021-02-26', 'HTTPS', 'GET', 'AK', `/api/v1/instances`, 'json', req, runtime);
+}
+
+model GetInstanceSnapshotResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID'),
+  instanceId?: string(name='InstanceId', description='实例ID'),
+  instanceSnapshotId?: string(name='InstanceSnapshotId', description='实例快照ID'),
+  instanceSnapshotStatus?: string(name='InstanceSnapshotStatus', description='实例快照状态'),
+  instanceSnapshotName?: string(name='InstanceSnapshotName', description='实例快照名称'),
+  instanceSnapshotTag?: string(name='InstanceSnapshotTag', description='实例快照标签'),
+  instanceSnapshotRepoUrl?: string(name='InstanceSnapshotRepoUrl', description='实例快照存储地址'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='实例快照保存时间（GMT）'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', description='实例快照修改时间（GMT）'),
+  instanceSnapshotDescription?: string(name='InstanceSnapshotDescription', description='实例快照描述'),
+}
+
+model GetInstanceSnapshotResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetInstanceSnapshotResponseBody(name='body'),
+}
+
+async function getInstanceSnapshot(InstanceId: string, InstanceSnapshotId: string): GetInstanceSnapshotResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getInstanceSnapshotWithOptions(InstanceId, InstanceSnapshotId, headers, runtime);
+}
+
+async function getInstanceSnapshotWithOptions(InstanceId: string, InstanceSnapshotId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetInstanceSnapshotResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('GetInstanceSnapshot', '2021-02-26', 'HTTPS', 'GET', 'AK', `/api/v1/instances/${InstanceId}/snapshots/${InstanceSnapshotId}`, 'json', req, runtime);
+}
+
+model StartInstanceResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID'),
+  instanceId?: string(name='InstanceId', description='实例ID'),
+}
+
+model StartInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  body: StartInstanceResponseBody(name='body'),
+}
+
+async function startInstance(InstanceId: string): StartInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return startInstanceWithOptions(InstanceId, headers, runtime);
+}
+
+async function startInstanceWithOptions(InstanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): StartInstanceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('StartInstance', '2021-02-26', 'HTTPS', 'PUT', 'AK', `/api/v1/instances/${InstanceId}/start`, 'json', req, runtime);
+}
+
+model DeleteInstanceResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID'),
+  instanceId?: string(name='InstanceId', description='实例ID'),
+}
+
+model DeleteInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteInstanceResponseBody(name='body'),
+}
+
+async function deleteInstance(InstanceId: string): DeleteInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteInstanceWithOptions(InstanceId, headers, runtime);
+}
+
+async function deleteInstanceWithOptions(InstanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteInstanceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('DeleteInstance', '2021-02-26', 'HTTPS', 'DELETE', 'AK', `/api/v1/instances/${InstanceId}`, 'json', req, runtime);
+}
+
