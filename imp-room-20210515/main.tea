@@ -1,0 +1,117 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('imp-room', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model GetLoginTokenRequest {
+  appId?: string(name='AppId', description='AppId'),
+  requestParams?: {
+    appUid?: string(name='AppUid', description='用户ID'),
+    appKey?: string(name='AppKey', description='AppKey'),
+    deviceId?: string(name='DeviceId', description='设备ID'),
+  }(name='RequestParams'),
+}
+
+model GetLoginTokenShrinkRequest {
+  appId?: string(name='AppId', description='AppId'),
+  requestParamsShrink?: string(name='RequestParams'),
+}
+
+model GetLoginTokenResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  code?: string(name='Code'),
+  message?: string(name='Message'),
+  result?: {
+    accessToken?: string(name='AccessToken', description='登录Tokon'),
+    refreshToken?: string(name='RefreshToken', description='更新Token'),
+    accessTokenExpiredTime?: long(name='AccessTokenExpiredTime', description='登录Token过期时间'),
+  }(name='Result'),
+}
+
+model GetLoginTokenResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetLoginTokenResponseBody(name='body'),
+}
+
+async function getLoginTokenWithOptions(tmpReq: GetLoginTokenRequest, runtime: Util.RuntimeOptions): GetLoginTokenResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetLoginTokenShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.requestParams)) {
+    request.requestParamsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.requestParams, 'RequestParams', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('GetLoginToken', '2021-05-15', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function getLoginToken(request: GetLoginTokenRequest): GetLoginTokenResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getLoginTokenWithOptions(request, runtime);
+}
+
+model CreateRoomRequest {
+  request?: {
+    domain?: string(name='Domain', description='租户名'),
+    bizType?: string(name='BizType', description='业务类型'),
+    templateId?: string(name='TemplateId', description='模板id'),
+    roomId?: string(name='RoomId', description='房间id'),
+    title?: string(name='Title', description='房间标题'),
+    notice?: string(name='Notice', description='房间公告'),
+    ownerId?: string(name='OwnerId', description='房主id'),
+    extension?: map[string]string(name='Extension', description='拓展字段'),
+  }(name='Request'),
+}
+
+model CreateRoomResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  result?: {
+    roomId?: string(name='RoomId', description='房间id'),
+  }(name='Result'),
+  responseSuccess?: boolean(name='ResponseSuccess'),
+  errorCode?: string(name='ErrorCode', description='错误码'),
+  errorMsg?: string(name='ErrorMsg', description='错误信息'),
+}
+
+model CreateRoomResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateRoomResponseBody(name='body'),
+}
+
+async function createRoomWithOptions(request: CreateRoomRequest, runtime: Util.RuntimeOptions): CreateRoomResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CreateRoom', '2021-05-15', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function createRoom(request: CreateRoomRequest): CreateRoomResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createRoomWithOptions(request, runtime);
+}
+
