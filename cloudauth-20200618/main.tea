@@ -62,16 +62,16 @@ model ContrastSmartVerifyAdvanceRequest {
 }
 
 model ContrastSmartVerifyResponseBody = {
+  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
   resultObject?: {
-    verifyInfo?: string(name='VerifyInfo'),
     subCode?: string(name='SubCode'),
     certifyId?: string(name='CertifyId'),
+    verifyInfo?: string(name='VerifyInfo'),
     riskInfo?: string(name='RiskInfo'),
     passed?: string(name='Passed'),
   }(name='ResultObject'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-  code?: string(name='Code'),
 }
 
 model ContrastSmartVerifyResponse = {
@@ -130,30 +130,32 @@ async function contrastSmartVerifyAdvance(request: ContrastSmartVerifyAdvanceReq
   var contrastSmartVerifyReq = new ContrastSmartVerifyRequest{};
   OpenApiUtil.convert(request, contrastSmartVerifyReq);
 
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
+  if(!Util.isUnset(request.facePicFileObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
 
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.facePicFileObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  contrastSmartVerifyReq.facePicFile = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.facePicFileObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    contrastSmartVerifyReq.facePicFile = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
   var contrastSmartVerifyResp = contrastSmartVerifyWithOptions(contrastSmartVerifyReq, runtime);
   return contrastSmartVerifyResp;
 }
@@ -165,15 +167,15 @@ model DescribeSmartVerifyRequest {
 }
 
 model DescribeSmartVerifyResponseBody = {
-  resultObject?: {
-    passedScore?: float(name='PassedScore'),
-    materialInfo?: string(name='MaterialInfo'),
-    subCode?: string(name='SubCode'),
-    passed?: string(name='Passed'),
-  }(name='ResultObject'),
+  code?: string(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  code?: string(name='Code'),
+  resultObject?: {
+    subCode?: string(name='SubCode'),
+    passedScore?: float(name='PassedScore'),
+    materialInfo?: string(name='MaterialInfo'),
+    passed?: string(name='Passed'),
+  }(name='ResultObject'),
 }
 
 model DescribeSmartVerifyResponse = {
@@ -192,6 +194,64 @@ async function describeSmartVerifyWithOptions(request: DescribeSmartVerifyReques
 async function describeSmartVerify(request: DescribeSmartVerifyRequest): DescribeSmartVerifyResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeSmartVerifyWithOptions(request, runtime);
+}
+
+model DescribeSmsDetailRequest {
+  mobile?: string(name='Mobile'),
+  sendDate?: string(name='SendDate'),
+  errorCode?: string(name='ErrorCode'),
+  outerOrderNo?: string(name='OuterOrderNo'),
+  sendStatus?: string(name='SendStatus'),
+  signName?: string(name='SignName'),
+  templateCode?: string(name='TemplateCode'),
+  currentPage?: int32(name='CurrentPage'),
+  pageSize?: int32(name='PageSize'),
+  bizId?: string(name='BizId'),
+}
+
+model DescribeSmsDetailResponseBody = {
+  totalItem?: int32(name='TotalItem'),
+  currentPage?: int32(name='CurrentPage'),
+  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
+  message?: string(name='Message'),
+  totalPage?: int32(name='TotalPage'),
+  pageSize?: int32(name='PageSize'),
+  items?: [ 
+    {
+      errorMessage?: string(name='ErrorMessage'),
+      receiveDate?: string(name='ReceiveDate'),
+      sendDate?: string(name='SendDate'),
+      bizId?: string(name='BizId'),
+      taskDate?: string(name='TaskDate'),
+      templateCode?: string(name='TemplateCode'),
+      outerOrderNo?: string(name='OuterOrderNo'),
+      errorCode?: string(name='ErrorCode'),
+      mobile?: string(name='Mobile'),
+      smsSize?: int32(name='SmsSize'),
+      content?: string(name='Content'),
+      signName?: string(name='SignName'),
+      sendStatus?: string(name='SendStatus'),
+    }
+  ](name='Items'),
+}
+
+model DescribeSmsDetailResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeSmsDetailResponseBody(name='body'),
+}
+
+async function describeSmsDetailWithOptions(request: DescribeSmsDetailRequest, runtime: Util.RuntimeOptions): DescribeSmsDetailResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeSmsDetail', '2020-06-18', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeSmsDetail(request: DescribeSmsDetailRequest): DescribeSmsDetailResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeSmsDetailWithOptions(request, runtime);
 }
 
 model ElementSmartVerifyRequest {
@@ -219,15 +279,15 @@ model ElementSmartVerifyAdvanceRequest {
 }
 
 model ElementSmartVerifyResponseBody = {
-  resultObject?: {
-    materialInfo?: string(name='MaterialInfo'),
-    certifyId?: string(name='CertifyId'),
-    subCode?: string(name='SubCode'),
-    passed?: string(name='Passed'),
-  }(name='ResultObject'),
+  code?: string(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  code?: string(name='Code'),
+  resultObject?: {
+    certifyId?: string(name='CertifyId'),
+    subCode?: string(name='SubCode'),
+    materialInfo?: string(name='MaterialInfo'),
+    passed?: string(name='Passed'),
+  }(name='ResultObject'),
 }
 
 model ElementSmartVerifyResponse = {
@@ -286,30 +346,32 @@ async function elementSmartVerifyAdvance(request: ElementSmartVerifyAdvanceReque
   var elementSmartVerifyReq = new ElementSmartVerifyRequest{};
   OpenApiUtil.convert(request, elementSmartVerifyReq);
 
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
+  if(!Util.isUnset(request.certFileObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
 
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.certFileObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  elementSmartVerifyReq.certFile = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.certFileObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    elementSmartVerifyReq.certFile = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
   var elementSmartVerifyResp = elementSmartVerifyWithOptions(elementSmartVerifyReq, runtime);
   return elementSmartVerifyResp;
 }
@@ -338,12 +400,12 @@ model InitSmartVerifyRequest {
 }
 
 model InitSmartVerifyResponseBody = {
+  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
   resultObject?: {
     certifyId?: string(name='CertifyId'),
   }(name='ResultObject'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-  code?: string(name='Code'),
 }
 
 model InitSmartVerifyResponse = {
@@ -362,6 +424,41 @@ async function initSmartVerifyWithOptions(request: InitSmartVerifyRequest, runti
 async function initSmartVerify(request: InitSmartVerifyRequest): InitSmartVerifyResponse {
   var runtime = new Util.RuntimeOptions{};
   return initSmartVerifyWithOptions(request, runtime);
+}
+
+model SendSmsRequest {
+  mobile?: string(name='Mobile'),
+  signName?: string(name='SignName'),
+  templateCode?: string(name='TemplateCode'),
+  templateParam?: string(name='TemplateParam'),
+  outerOrderNo?: string(name='OuterOrderNo'),
+}
+
+model SendSmsResponseBody = {
+  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  resultObject?: {
+    bizId?: string(name='BizId'),
+  }(name='ResultObject'),
+}
+
+model SendSmsResponse = {
+  headers: map[string]string(name='headers'),
+  body: SendSmsResponseBody(name='body'),
+}
+
+async function sendSmsWithOptions(request: SendSmsRequest, runtime: Util.RuntimeOptions): SendSmsResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('SendSms', '2020-06-18', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function sendSms(request: SendSmsRequest): SendSmsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return sendSmsWithOptions(request, runtime);
 }
 
 model VerifyBankElementRequest {
@@ -389,15 +486,15 @@ model VerifyBankElementAdvanceRequest {
 }
 
 model VerifyBankElementResponseBody = {
-  resultObject?: {
-    materialInfo?: string(name='MaterialInfo'),
-    certifyId?: string(name='CertifyId'),
-    subCode?: string(name='SubCode'),
-    passed?: string(name='Passed'),
-  }(name='ResultObject'),
+  code?: string(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  code?: string(name='Code'),
+  resultObject?: {
+    certifyId?: string(name='CertifyId'),
+    subCode?: string(name='SubCode'),
+    materialInfo?: string(name='MaterialInfo'),
+    passed?: string(name='Passed'),
+  }(name='ResultObject'),
 }
 
 model VerifyBankElementResponse = {
@@ -456,30 +553,32 @@ async function verifyBankElementAdvance(request: VerifyBankElementAdvanceRequest
   var verifyBankElementReq = new VerifyBankElementRequest{};
   OpenApiUtil.convert(request, verifyBankElementReq);
 
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
+  if(!Util.isUnset(request.bankCardFileObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
 
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.bankCardFileObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  verifyBankElementReq.bankCardFile = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.bankCardFileObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    verifyBankElementReq.bankCardFile = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
   var verifyBankElementResp = verifyBankElementWithOptions(verifyBankElementReq, runtime);
   return verifyBankElementResp;
 }
