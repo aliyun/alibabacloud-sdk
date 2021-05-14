@@ -1838,7 +1838,7 @@ model GetRealPersonVerificationResultRequest {
 model GetRealPersonVerificationResultResponseBody = {
   requestId?: string(name='RequestId'),
   data?: {
-    pass?: boolean(name='Pass'),
+    passed?: boolean(name='Passed'),
     identityInfo?: string(name='IdentityInfo'),
     materialMatch?: string(name='MaterialMatch'),
   }(name='Data'),
@@ -2181,6 +2181,109 @@ async function mergeImageFaceAdvance(request: MergeImageFaceAdvanceRequest, runt
   }
   var mergeImageFaceResp = mergeImageFaceWithOptions(mergeImageFaceReq, runtime);
   return mergeImageFaceResp;
+}
+
+model ExtractFingerPrintRequest {
+  imageURL?: string(name='ImageURL'),
+  imageData?: bytes(name='ImageData'),
+}
+
+model ExtractFingerPrintAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+  imageData?: bytes(name='ImageData'),
+}
+
+model ExtractFingerPrintResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  data?: {
+    fingerPrint?: bytes(name='FingerPrint'),
+  }(name='Data'),
+}
+
+model ExtractFingerPrintResponse = {
+  headers: map[string]string(name='headers'),
+  body: ExtractFingerPrintResponseBody(name='body'),
+}
+
+async function extractFingerPrintWithOptions(request: ExtractFingerPrintRequest, runtime: Util.RuntimeOptions): ExtractFingerPrintResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ExtractFingerPrint', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function extractFingerPrint(request: ExtractFingerPrintRequest): ExtractFingerPrintResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return extractFingerPrintWithOptions(request, runtime);
+}
+
+async function extractFingerPrintAdvance(request: ExtractFingerPrintAdvanceRequest, runtime: Util.RuntimeOptions): ExtractFingerPrintResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var extractFingerPrintReq = new ExtractFingerPrintRequest{};
+  OpenApiUtil.convert(request, extractFingerPrintReq);
+
+  if(!Util.isUnset(request.imageURLObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    extractFingerPrintReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var extractFingerPrintResp = extractFingerPrintWithOptions(extractFingerPrintReq, runtime);
+  return extractFingerPrintResp;
 }
 
 model DeleteBodyPersonRequest {
@@ -2852,10 +2955,12 @@ async function addFaceAdvance(request: AddFaceAdvanceRequest, runtime: Util.Runt
 
 model GenerateHumanSketchStyleRequest {
   imageURL?: string(name='ImageURL', description='A short description of struct'),
+  returnType?: string(name='ReturnType'),
 }
 
 model GenerateHumanSketchStyleAdvanceRequest {
   imageURLObject: readable(name='ImageURLObject'),
+  returnType?: string(name='ReturnType'),
 }
 
 model GenerateHumanSketchStyleResponseBody = {
