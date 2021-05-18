@@ -17,7 +17,7 @@ init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
   
-@endpointMap = {
+  @endpointMap = {
     cn-hangzhou = 'mt.cn-hangzhou.aliyuncs.com',
     ap-northeast-1 = 'mt.aliyuncs.com',
     ap-northeast-2-pop = 'mt.aliyuncs.com',
@@ -73,7 +73,6 @@ init(config: OpenApi.Config){
     us-east-1 = 'mt.aliyuncs.com',
     us-west-1 = 'mt.aliyuncs.com',
   };
-
   checkConfig(config);
   @endpoint = getEndpoint('alimt', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -108,8 +107,8 @@ model CreateDocTranslateTaskAdvanceRequest {
 
 model CreateDocTranslateTaskResponseBody = {
   status?: string(name='Status'),
-  taskId?: string(name='TaskId'),
   requestId?: string(name='RequestId'),
+  taskId?: string(name='TaskId'),
 }
 
 model CreateDocTranslateTaskResponse = {
@@ -122,18 +121,7 @@ async function createDocTranslateTaskWithOptions(request: CreateDocTranslateTask
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'CreateDocTranslateTask',
-    version = '2018-10-12',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('CreateDocTranslateTask', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function createDocTranslateTask(request: CreateDocTranslateTaskRequest): CreateDocTranslateTaskResponse {
@@ -145,11 +133,15 @@ async function createDocTranslateTaskAdvance(request: CreateDocTranslateTaskAdva
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
   var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
+    endpoint = openPlatformEndpoint,
     protocol = @protocol,
     regionId = @regionId,
   };
@@ -175,30 +167,32 @@ async function createDocTranslateTaskAdvance(request: CreateDocTranslateTaskAdva
   var createDocTranslateTaskReq = new CreateDocTranslateTaskRequest{};
   OpenApiUtil.convert(request, createDocTranslateTaskReq);
 
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
+  if(!Util.isUnset(request.fileUrlObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
 
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.fileUrlObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  createDocTranslateTaskReq.fileUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.fileUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    createDocTranslateTaskReq.fileUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
   var createDocTranslateTaskResp = createDocTranslateTaskWithOptions(createDocTranslateTaskReq, runtime);
   return createDocTranslateTaskResp;
 }
@@ -212,12 +206,12 @@ model CreateImageTranslateTaskRequest {
 }
 
 model CreateImageTranslateTaskResponseBody = {
+  code?: int32(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
   data?: {
     taskId?: string(name='TaskId'),
   }(name='Data'),
-  code?: int32(name='Code'),
 }
 
 model CreateImageTranslateTaskResponse = {
@@ -230,18 +224,7 @@ async function createImageTranslateTaskWithOptions(request: CreateImageTranslate
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'CreateImageTranslateTask',
-    version = '2018-10-12',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('CreateImageTranslateTask', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function createImageTranslateTask(request: CreateImageTranslateTaskRequest): CreateImageTranslateTaskResponse {
@@ -259,10 +242,10 @@ model GetBatchTranslateRequest {
 }
 
 model GetBatchTranslateResponseBody = {
+  code?: int32(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
   translatedList?: [  map[string]any ](name='TranslatedList'),
-  code?: int32(name='Code'),
 }
 
 model GetBatchTranslateResponse = {
@@ -275,18 +258,7 @@ async function getBatchTranslateWithOptions(request: GetBatchTranslateRequest, r
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'GetBatchTranslate',
-    version = '2018-10-12',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('GetBatchTranslate', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function getBatchTranslate(request: GetBatchTranslateRequest): GetBatchTranslateResponse {
@@ -299,8 +271,8 @@ model GetDetectLanguageRequest {
 }
 
 model GetDetectLanguageResponseBody = {
-  requestId?: string(name='RequestId'),
   detectedLanguage?: string(name='DetectedLanguage'),
+  requestId?: string(name='RequestId'),
 }
 
 model GetDetectLanguageResponse = {
@@ -313,18 +285,7 @@ async function getDetectLanguageWithOptions(request: GetDetectLanguageRequest, r
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'GetDetectLanguage',
-    version = '2018-10-12',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('GetDetectLanguage', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function getDetectLanguage(request: GetDetectLanguageRequest): GetDetectLanguageResponse {
@@ -338,12 +299,12 @@ model GetDocTranslateTaskRequest {
 
 model GetDocTranslateTaskResponseBody = {
   status?: string(name='Status'),
-  translateErrorMessage?: string(name='TranslateErrorMessage'),
-  taskId?: string(name='TaskId'),
   requestId?: string(name='RequestId'),
-  pageCount?: int32(name='PageCount'),
   translateFileUrl?: string(name='TranslateFileUrl'),
   translateErrorCode?: string(name='TranslateErrorCode'),
+  pageCount?: int32(name='PageCount'),
+  taskId?: string(name='TaskId'),
+  translateErrorMessage?: string(name='TranslateErrorMessage'),
 }
 
 model GetDocTranslateTaskResponse = {
@@ -355,20 +316,9 @@ async function getDocTranslateTaskWithOptions(request: GetDocTranslateTaskReques
   Util.validateModel(request);
   var query = OpenApiUtil.query(Util.toMap(request));
   var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
+    query = query,
   };
-  var params = new OpenApi.Params{
-    action = 'GetDocTranslateTask',
-    version = '2018-10-12',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'GET',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('GetDocTranslateTask', '2018-10-12', 'HTTPS', 'GET', 'AK', 'json', req, runtime);
 }
 
 async function getDocTranslateTask(request: GetDocTranslateTaskRequest): GetDocTranslateTaskResponse {
@@ -382,12 +332,12 @@ model GetImageDiagnoseRequest {
 }
 
 model GetImageDiagnoseResponseBody = {
+  code?: int32(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
   data?: {
     language?: string(name='Language'),
   }(name='Data'),
-  code?: int32(name='Code'),
 }
 
 model GetImageDiagnoseResponse = {
@@ -400,18 +350,7 @@ async function getImageDiagnoseWithOptions(request: GetImageDiagnoseRequest, run
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'GetImageDiagnose',
-    version = '2018-10-12',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('GetImageDiagnose', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function getImageDiagnose(request: GetImageDiagnoseRequest): GetImageDiagnoseResponse {
@@ -427,6 +366,7 @@ model GetImageTranslateRequest {
 }
 
 model GetImageTranslateResponseBody = {
+  code?: int32(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
   data?: {
@@ -434,7 +374,6 @@ model GetImageTranslateResponseBody = {
     orc?: string(name='Orc'),
     pictureEditor?: string(name='PictureEditor'),
   }(name='Data'),
-  code?: int32(name='Code'),
 }
 
 model GetImageTranslateResponse = {
@@ -447,18 +386,7 @@ async function getImageTranslateWithOptions(request: GetImageTranslateRequest, r
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'GetImageTranslate',
-    version = '2018-10-12',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('GetImageTranslate', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function getImageTranslate(request: GetImageTranslateRequest): GetImageTranslateResponse {
@@ -471,12 +399,12 @@ model GetImageTranslateTaskRequest {
 }
 
 model GetImageTranslateTaskResponseBody = {
+  code?: int32(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
   data?: {
     imageData?: string(name='ImageData'),
   }(name='Data'),
-  code?: int32(name='Code'),
 }
 
 model GetImageTranslateTaskResponse = {
@@ -489,18 +417,7 @@ async function getImageTranslateTaskWithOptions(request: GetImageTranslateTaskRe
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'GetImageTranslateTask',
-    version = '2018-10-12',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('GetImageTranslateTask', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function getImageTranslateTask(request: GetImageTranslateTaskRequest): GetImageTranslateTaskResponse {
@@ -517,6 +434,7 @@ model GetTitleDiagnoseRequest {
 }
 
 model GetTitleDiagnoseResponseBody = {
+  code?: int32(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
   data?: {
@@ -531,7 +449,6 @@ model GetTitleDiagnoseResponseBody = {
     totalScore?: string(name='TotalScore'),
     wordSpelledCorrectError?: string(name='WordSpelledCorrectError'),
   }(name='Data'),
-  code?: int32(name='Code'),
 }
 
 model GetTitleDiagnoseResponse = {
@@ -544,18 +461,7 @@ async function getTitleDiagnoseWithOptions(request: GetTitleDiagnoseRequest, run
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'GetTitleDiagnose',
-    version = '2018-10-12',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('GetTitleDiagnose', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function getTitleDiagnose(request: GetTitleDiagnoseRequest): GetTitleDiagnoseResponse {
@@ -574,12 +480,12 @@ model GetTitleGenerateRequest {
 }
 
 model GetTitleGenerateResponseBody = {
+  code?: int32(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
   data?: {
     titles?: string(name='Titles'),
   }(name='Data'),
-  code?: int32(name='Code'),
 }
 
 model GetTitleGenerateResponse = {
@@ -592,18 +498,7 @@ async function getTitleGenerateWithOptions(request: GetTitleGenerateRequest, run
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'GetTitleGenerate',
-    version = '2018-10-12',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('GetTitleGenerate', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function getTitleGenerate(request: GetTitleGenerateRequest): GetTitleGenerateResponse {
@@ -620,12 +515,12 @@ model GetTitleIntelligenceRequest {
 }
 
 model GetTitleIntelligenceResponseBody = {
+  code?: int32(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
   data?: {
     titles?: string(name='Titles'),
   }(name='Data'),
-  code?: int32(name='Code'),
 }
 
 model GetTitleIntelligenceResponse = {
@@ -638,23 +533,66 @@ async function getTitleIntelligenceWithOptions(request: GetTitleIntelligenceRequ
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'GetTitleIntelligence',
-    version = '2018-10-12',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('GetTitleIntelligence', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function getTitleIntelligence(request: GetTitleIntelligenceRequest): GetTitleIntelligenceResponse {
   var runtime = new Util.RuntimeOptions{};
   return getTitleIntelligenceWithOptions(request, runtime);
+}
+
+model GetTranslateReportRequest {
+  beginTime?: string(name='BeginTime'),
+  endTime?: string(name='EndTime'),
+  apiName?: string(name='ApiName'),
+  group?: string(name='Group'),
+}
+
+model GetTranslateReportResponseBody = {
+  code?: int32(name='Code'),
+  message?: string(name='Message'),
+  data?: string(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model GetTranslateReportResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetTranslateReportResponseBody(name='body'),
+}
+
+async function getTranslateReportWithOptions(request: GetTranslateReportRequest, runtime: Util.RuntimeOptions): GetTranslateReportResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('GetTranslateReport', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function getTranslateReport(request: GetTranslateReportRequest): GetTranslateReportResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getTranslateReportWithOptions(request, runtime);
+}
+
+model GetUserResponseBody = {
+  code?: int32(name='Code'),
+  message?: string(name='Message'),
+  data?: string(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model GetUserResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetUserResponseBody(name='body'),
+}
+
+async function getUserWithOptions(runtime: Util.RuntimeOptions): GetUserResponse {
+  var req = new OpenApi.OpenApiRequest{};
+  return doRPCRequest('GetUser', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function getUser(): GetUserResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getUserWithOptions(runtime);
 }
 
 model OpenAlimtServiceRequest {
@@ -663,8 +601,8 @@ model OpenAlimtServiceRequest {
 }
 
 model OpenAlimtServiceResponseBody = {
-  requestId?: string(name='RequestId'),
   orderId?: string(name='OrderId'),
+  requestId?: string(name='RequestId'),
 }
 
 model OpenAlimtServiceResponse = {
@@ -674,25 +612,10 @@ model OpenAlimtServiceResponse = {
 
 async function openAlimtServiceWithOptions(request: OpenAlimtServiceRequest, runtime: Util.RuntimeOptions): OpenAlimtServiceResponse {
   Util.validateModel(request);
-  var query = {};
-  query["OwnerId"] = request.ownerId;
-  query["Type"] = request.type;
   var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'OpenAlimtService',
-    version = '2018-10-12',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('OpenAlimtService', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function openAlimtService(request: OpenAlimtServiceRequest): OpenAlimtServiceResponse {
@@ -709,13 +632,13 @@ model TranslateRequest {
 }
 
 model TranslateResponseBody = {
+  code?: int32(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
   data?: {
-    wordCount?: string(name='WordCount'),
     translated?: string(name='Translated'),
+    wordCount?: string(name='WordCount'),
   }(name='Data'),
-  code?: int32(name='Code'),
 }
 
 model TranslateResponse = {
@@ -728,18 +651,7 @@ async function translateWithOptions(request: TranslateRequest, runtime: Util.Run
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'Translate',
-    version = '2018-10-12',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('Translate', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function translate(request: TranslateRequest): TranslateResponse {
@@ -768,10 +680,10 @@ model TranslateCertificateResponseBody = {
   data?: {
     translatedValues?: [ 
       {
+        keyTranslation?: string(name='KeyTranslation'),
         key?: string(name='Key'),
         value?: string(name='Value'),
         valueTranslation?: string(name='ValueTranslation'),
-        keyTranslation?: string(name='KeyTranslation'),
       }
     ](name='TranslatedValues'),
   }(name='Data'),
@@ -787,18 +699,7 @@ async function translateCertificateWithOptions(request: TranslateCertificateRequ
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'TranslateCertificate',
-    version = '2018-10-12',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('TranslateCertificate', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function translateCertificate(request: TranslateCertificateRequest): TranslateCertificateResponse {
@@ -810,11 +711,15 @@ async function translateCertificateAdvance(request: TranslateCertificateAdvanceR
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
   var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
+    endpoint = openPlatformEndpoint,
     protocol = @protocol,
     regionId = @regionId,
   };
@@ -840,30 +745,32 @@ async function translateCertificateAdvance(request: TranslateCertificateAdvanceR
   var translateCertificateReq = new TranslateCertificateRequest{};
   OpenApiUtil.convert(request, translateCertificateReq);
 
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
+  if(!Util.isUnset(request.imageUrlObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
 
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.imageUrlObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  translateCertificateReq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.imageUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    translateCertificateReq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
   var translateCertificateResp = translateCertificateWithOptions(translateCertificateReq, runtime);
   return translateCertificateResp;
 }
@@ -877,13 +784,13 @@ model TranslateECommerceRequest {
 }
 
 model TranslateECommerceResponseBody = {
+  code?: int32(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
   data?: {
-    wordCount?: string(name='WordCount'),
     translated?: string(name='Translated'),
+    wordCount?: string(name='WordCount'),
   }(name='Data'),
-  code?: int32(name='Code'),
 }
 
 model TranslateECommerceResponse = {
@@ -896,18 +803,7 @@ async function translateECommerceWithOptions(request: TranslateECommerceRequest,
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'TranslateECommerce',
-    version = '2018-10-12',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('TranslateECommerce', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function translateECommerce(request: TranslateECommerceRequest): TranslateECommerceResponse {
@@ -924,13 +820,13 @@ model TranslateGeneralRequest {
 }
 
 model TranslateGeneralResponseBody = {
+  code?: int32(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
   data?: {
-    wordCount?: string(name='WordCount'),
     translated?: string(name='Translated'),
+    wordCount?: string(name='WordCount'),
   }(name='Data'),
-  code?: int32(name='Code'),
 }
 
 model TranslateGeneralResponse = {
@@ -943,18 +839,7 @@ async function translateGeneralWithOptions(request: TranslateGeneralRequest, run
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'TranslateGeneral',
-    version = '2018-10-12',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('TranslateGeneral', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function translateGeneral(request: TranslateGeneralRequest): TranslateGeneralResponse {
