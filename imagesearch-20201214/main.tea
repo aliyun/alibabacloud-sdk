@@ -17,7 +17,6 @@ init(config: OpenApi.Config){
   super(config);
   @endpointRule = '';
   
-
   checkConfig(config);
   @endpoint = getEndpoint('imagesearch', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -79,18 +78,7 @@ async function addImageWithOptions(request: AddImageRequest, runtime: Util.Runti
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'AddImage',
-    version = '2020-12-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('AddImage', '2020-12-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function addImage(request: AddImageRequest): AddImageResponse {
@@ -102,11 +90,21 @@ async function addImageAdvance(request: AddImageAdvanceRequest, runtime: Util.Ru
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
   var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
     protocol = @protocol,
     regionId = @regionId,
   };
@@ -132,30 +130,32 @@ async function addImageAdvance(request: AddImageAdvanceRequest, runtime: Util.Ru
   var addImageReq = new AddImageRequest{};
   OpenApiUtil.convert(request, addImageReq);
 
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
+  if(!Util.isUnset(request.picContentObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
 
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.picContentObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  addImageReq.picContent = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.picContentObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    addImageReq.picContent = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
   var addImageResp = addImageWithOptions(addImageReq, runtime);
   return addImageResp;
 }
@@ -183,18 +183,7 @@ async function deleteImageWithOptions(request: DeleteImageRequest, runtime: Util
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'DeleteImage',
-    version = '2020-12-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('DeleteImage', '2020-12-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function deleteImage(request: DeleteImageRequest): DeleteImageResponse {
@@ -261,18 +250,7 @@ async function searchImageByNameWithOptions(request: SearchImageByNameRequest, r
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'SearchImageByName',
-    version = '2020-12-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('SearchImageByName', '2020-12-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function searchImageByName(request: SearchImageByNameRequest): SearchImageByNameResponse {
@@ -351,18 +329,7 @@ async function searchImageByPicWithOptions(request: SearchImageByPicRequest, run
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  var params = new OpenApi.Params{
-    action = 'SearchImageByPic',
-    version = '2020-12-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+  return doRPCRequest('SearchImageByPic', '2020-12-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function searchImageByPic(request: SearchImageByPicRequest): SearchImageByPicResponse {
@@ -374,11 +341,21 @@ async function searchImageByPicAdvance(request: SearchImageByPicAdvanceRequest, 
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
   var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
     protocol = @protocol,
     regionId = @regionId,
   };
@@ -404,30 +381,32 @@ async function searchImageByPicAdvance(request: SearchImageByPicAdvanceRequest, 
   var searchImageByPicReq = new SearchImageByPicRequest{};
   OpenApiUtil.convert(request, searchImageByPicReq);
 
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
+  if(!Util.isUnset(request.picContentObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
 
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.picContentObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  searchImageByPicReq.picContent = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.picContentObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    searchImageByPicReq.picContent = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
   var searchImageByPicResp = searchImageByPicWithOptions(searchImageByPicReq, runtime);
   return searchImageByPicResp;
 }
