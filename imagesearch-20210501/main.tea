@@ -1,0 +1,292 @@
+/**
+ *
+ */
+import Util;
+import OSS;
+import RPC;
+import OpenPlatform;
+import OSSUtil;
+import FileForm;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('imagesearch', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model SearchByPicRequest {
+  picContent?: string(name='PicContent'),
+  categoryId?: int32(name='CategoryId'),
+  crop?: boolean(name='Crop'),
+  region?: string(name='Region'),
+  start?: int32(name='Start'),
+  num?: int32(name='Num'),
+  fields?: string(name='Fields'),
+  relationId?: long(name='RelationId'),
+}
+
+model SearchByPicAdvanceRequest {
+  picContentObject: readable(name='PicContentObject'),
+  categoryId?: int32(name='CategoryId'),
+  crop?: boolean(name='Crop'),
+  region?: string(name='Region'),
+  start?: int32(name='Start'),
+  num?: int32(name='Num'),
+  fields?: string(name='Fields'),
+  relationId?: long(name='RelationId'),
+}
+
+model SearchByPicResponseBody = {
+  success?: boolean(name='Success'),
+  code?: int32(name='Code'),
+  message?: string(name='Message'),
+  data?: {
+    auctions?: [ 
+      {
+        result?: {
+          itemId?: string(name='ItemId'),
+          itemName?: string(name='ItemName'),
+          pic?: string(name='Pic'),
+          price?: string(name='Price'),
+          promotionPrice?: string(name='PromotionPrice'),
+          priceAfterCoupon?: string(name='PriceAfterCoupon'),
+          userType?: int32(name='UserType'),
+          provcity?: string(name='Provcity'),
+          sellerNickName?: string(name='SellerNickName'),
+          sellerId?: string(name='SellerId'),
+          monthSellCount?: int32(name='MonthSellCount'),
+          levelOneCategoryName?: string(name='LevelOneCategoryName'),
+          categoryName?: string(name='CategoryName'),
+          couponActivityId?: string(name='CouponActivityId'),
+          couponTotalCount?: string(name='CouponTotalCount'),
+          couponSendCount?: string(name='CouponSendCount'),
+          couponRemainCount?: int32(name='CouponRemainCount'),
+          couponStartTime?: string(name='CouponStartTime'),
+          couponEndTime?: string(name='CouponEndTime'),
+          couponStartFee?: string(name='CouponStartFee'),
+          couponAmount?: int32(name='CouponAmount'),
+          couponSaleTextInfo?: string(name='CouponSaleTextInfo'),
+          calTkRate?: string(name='CalTkRate'),
+          couponShareUrl?: string(name='CouponShareUrl'),
+          clickUrl?: string(name='ClickUrl'),
+          shortUrl?: string(name='ShortUrl'),
+        }(name='Result'),
+        rankScore?: float(name='RankScore'),
+      }
+    ](name='Auctions'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+  picInfo?: {
+    mainRegion?: {
+      region?: string(name='Region'),
+      multiCategoryId?: [ 
+        {
+          categoryId?: int32(name='CategoryId'),
+          score?: float(name='Score'),
+        }
+      ](name='MultiCategoryId'),
+    }(name='MainRegion'),
+    multiRegion?: [ 
+      {
+        region?: string(name='Region'),
+      }
+    ](name='MultiRegion'),
+  }(name='PicInfo'),
+}
+
+model SearchByPicResponse = {
+  headers: map[string]string(name='headers'),
+  body: SearchByPicResponseBody(name='body'),
+}
+
+async function searchByPicWithOptions(request: SearchByPicRequest, runtime: Util.RuntimeOptions): SearchByPicResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('SearchByPic', '2021-05-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function searchByPic(request: SearchByPicRequest): SearchByPicResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return searchByPicWithOptions(request, runtime);
+}
+
+async function searchByPicAdvance(request: SearchByPicAdvanceRequest, runtime: Util.RuntimeOptions): SearchByPicResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ImageSearch',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var searchByPicReq = new SearchByPicRequest{};
+  OpenApiUtil.convert(request, searchByPicReq);
+
+  if(!Util.isUnset(request.picContentObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.picContentObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    searchByPicReq.picContent = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var searchByPicResp = searchByPicWithOptions(searchByPicReq, runtime);
+  return searchByPicResp;
+}
+
+model SearchByUrlRequest {
+  picUrl?: string(name='PicUrl'),
+  categoryId?: int32(name='CategoryId'),
+  crop?: boolean(name='Crop'),
+  region?: string(name='Region'),
+  start?: int32(name='Start'),
+  num?: int32(name='Num'),
+  fields?: string(name='Fields'),
+  relationId?: long(name='RelationId'),
+}
+
+model SearchByUrlResponseBody = {
+  success?: boolean(name='Success'),
+  code?: int32(name='Code'),
+  message?: string(name='Message'),
+  data?: {
+    auctions?: [ 
+      {
+        result?: {
+          itemId?: string(name='ItemId'),
+          itemName?: string(name='ItemName'),
+          pic?: string(name='Pic'),
+          price?: string(name='Price'),
+          promotionPrice?: string(name='PromotionPrice'),
+          priceAfterCoupon?: string(name='PriceAfterCoupon'),
+          userType?: int32(name='UserType'),
+          provcity?: string(name='Provcity'),
+          sellerNickName?: string(name='SellerNickName'),
+          sellerId?: string(name='SellerId'),
+          monthSellCount?: int32(name='MonthSellCount'),
+          levelOneCategoryName?: string(name='LevelOneCategoryName'),
+          categoryName?: string(name='CategoryName'),
+          couponActivityId?: string(name='CouponActivityId'),
+          couponTotalCount?: string(name='CouponTotalCount'),
+          couponSendCount?: string(name='CouponSendCount'),
+          couponRemainCount?: int32(name='CouponRemainCount'),
+          couponStartTime?: string(name='CouponStartTime'),
+          couponEndTime?: string(name='CouponEndTime'),
+          couponStartFee?: string(name='CouponStartFee'),
+          couponAmount?: int32(name='CouponAmount'),
+          couponSaleTextInfo?: string(name='CouponSaleTextInfo'),
+          calTkRate?: string(name='CalTkRate'),
+          couponShareUrl?: string(name='CouponShareUrl'),
+          clickUrl?: string(name='ClickUrl'),
+          shortUrl?: string(name='ShortUrl'),
+        }(name='Result'),
+        rankScore?: float(name='RankScore'),
+      }
+    ](name='Auctions'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+  picInfo?: {
+    mainRegion?: {
+      region?: string(name='Region'),
+      multiCategoryId?: [ 
+        {
+          categoryId?: int32(name='CategoryId'),
+          score?: float(name='Score'),
+        }
+      ](name='MultiCategoryId'),
+    }(name='MainRegion'),
+    multiRegion?: [ 
+      {
+        region?: string(name='Region'),
+      }
+    ](name='MultiRegion'),
+  }(name='PicInfo'),
+}
+
+model SearchByUrlResponse = {
+  headers: map[string]string(name='headers'),
+  body: SearchByUrlResponseBody(name='body'),
+}
+
+async function searchByUrlWithOptions(request: SearchByUrlRequest, runtime: Util.RuntimeOptions): SearchByUrlResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('SearchByUrl', '2021-05-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function searchByUrl(request: SearchByUrlRequest): SearchByUrlResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return searchByUrlWithOptions(request, runtime);
+}
+
