@@ -31,6 +31,7 @@ model BatchDispatchGameSlotRequest {
 }
 
 model BatchDispatchGameSlotResponseBody = {
+  requestId?: string(name='RequestId'),
   queueResultList?: [ 
     {
       regionName?: string(name='RegionName'),
@@ -42,7 +43,6 @@ model BatchDispatchGameSlotResponseBody = {
       queueCode?: int32(name='QueueCode'),
     }
   ](name='QueueResultList'),
-  requestId?: string(name='RequestId'),
 }
 
 model BatchDispatchGameSlotResponse = {
@@ -69,16 +69,17 @@ model BatchStopGameSessionsRequest {
   token?: string(name='Token'),
   reason?: string(name='Reason'),
   trackInfo?: string(name='TrackInfo'),
+  tags?: string(name='Tags'),
 }
 
 model BatchStopGameSessionsResponseBody = {
   requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+  projectId?: string(name='ProjectId'),
   queueState?: int32(name='QueueState'),
   message?: string(name='Message'),
-  trackInfo?: string(name='TrackInfo'),
-  projectId?: string(name='ProjectId'),
-  success?: boolean(name='Success'),
   gameId?: string(name='GameId'),
+  trackInfo?: string(name='TrackInfo'),
 }
 
 model BatchStopGameSessionsResponse = {
@@ -106,8 +107,8 @@ model CloseOrderRequest {
 }
 
 model CloseOrderResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: boolean(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model CloseOrderResponse = {
@@ -251,17 +252,18 @@ model DispatchGameSlotRequest {
   systemInfo?: string(name='SystemInfo'),
   clientIp?: string(name='ClientIp'),
   reconnect?: boolean(name='Reconnect'),
+  tags?: string(name='Tags'),
 }
 
 model DispatchGameSlotResponseBody = {
-  gameSession?: string(name='GameSession'),
-  queueCode?: int32(name='QueueCode'),
   requestId?: string(name='RequestId'),
+  regionName?: string(name='RegionName'),
+  gameSession?: string(name='GameSession'),
+  userId?: string(name='UserId'),
   queueState?: int32(name='QueueState'),
   message?: string(name='Message'),
-  regionName?: string(name='RegionName'),
-  userId?: string(name='UserId'),
   gameId?: string(name='GameId'),
+  queueCode?: int32(name='QueueCode'),
 }
 
 model DispatchGameSlotResponse = {
@@ -289,6 +291,7 @@ model GetGameCcuRequest {
 }
 
 model GetGameCcuResponseBody = {
+  requestId?: string(name='RequestId'),
   dataList?: [ 
     {
       gameId?: string(name='GameId'),
@@ -296,7 +299,6 @@ model GetGameCcuResponseBody = {
       regionId?: string(name='RegionId'),
     }
   ](name='DataList'),
-  requestId?: string(name='RequestId'),
 }
 
 model GetGameCcuResponse = {
@@ -317,6 +319,45 @@ async function getGameCcu(request: GetGameCcuRequest): GetGameCcuResponse {
   return getGameCcuWithOptions(request, runtime);
 }
 
+model GetGameStockRequest {
+  gameId?: string(name='GameId'),
+  accessKey?: string(name='AccessKey'),
+  userLevel?: long(name='UserLevel'),
+}
+
+model GetGameStockResponseBody = {
+  message?: string(name='Message'),
+  gameId?: string(name='GameId'),
+  requestId?: string(name='RequestId'),
+  instanceStockList?: [ 
+    {
+      availableSlots?: long(name='AvailableSlots'),
+      reginName?: string(name='ReginName'),
+      instanceId?: string(name='InstanceId'),
+      userLevel?: long(name='UserLevel'),
+      instanceSpec?: string(name='InstanceSpec'),
+    }
+  ](name='InstanceStockList'),
+}
+
+model GetGameStockResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetGameStockResponseBody(name='body'),
+}
+
+async function getGameStockWithOptions(request: GetGameStockRequest, runtime: Util.RuntimeOptions): GetGameStockResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('GetGameStock', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function getGameStock(request: GetGameStockRequest): GetGameStockResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getGameStockWithOptions(request, runtime);
+}
+
 model GetItemRequest {
   itemId?: string(name='ItemId'),
 }
@@ -325,25 +366,31 @@ model GetItemResponseBody = {
   requestId?: string(name='RequestId'),
   data?: {
     status?: int32(name='Status'),
+    supplier?: string(name='Supplier'),
+    description?: string(name='Description'),
     createTime?: long(name='CreateTime'),
-    games?: [ 
-      {
-        gameId?: string(name='GameId'),
-        name?: string(name='Name'),
-      }
-    ](name='Games'),
     sellerId?: string(name='SellerId'),
+    categoryId?: long(name='CategoryId'),
+    title?: string(name='Title'),
     itemId?: string(name='ItemId'),
     salePrice?: long(name='SalePrice'),
     originPrice?: long(name='OriginPrice'),
-    supplier?: string(name='Supplier'),
-    description?: string(name='Description'),
-    categoryId?: long(name='CategoryId'),
+    modifyTime?: long(name='ModifyTime'),
+    games?: [ 
+      {
+        name?: string(name='Name'),
+        gameId?: string(name='GameId'),
+      }
+    ](name='Games'),
     skus?: [ 
       {
         status?: int32(name='Status'),
         createTime?: long(name='CreateTime'),
         skuId?: string(name='SkuId'),
+        itemId?: string(name='ItemId'),
+        salePrice?: long(name='SalePrice'),
+        originPrice?: long(name='OriginPrice'),
+        modifyTime?: long(name='ModifyTime'),
         saleProps?: [ 
           {
             value?: string(name='Value'),
@@ -352,14 +399,8 @@ model GetItemResponseBody = {
             propertyName?: string(name='PropertyName'),
           }
         ](name='SaleProps'),
-        itemId?: string(name='ItemId'),
-        salePrice?: long(name='SalePrice'),
-        originPrice?: long(name='OriginPrice'),
-        modifyTime?: long(name='ModifyTime'),
       }
     ](name='Skus'),
-    title?: string(name='Title'),
-    modifyTime?: long(name='ModifyTime'),
   }(name='Data'),
 }
 
@@ -393,8 +434,8 @@ model GetOutAccountBindDetailResponseBody = {
     outAccountId?: string(name='OutAccountId'),
     token?: string(name='Token'),
     bindStatus?: int32(name='BindStatus'),
-    outAccountType?: string(name='OutAccountType'),
     tokenExpireTime?: long(name='TokenExpireTime'),
+    outAccountType?: string(name='OutAccountType'),
   }(name='Data'),
 }
 
@@ -482,10 +523,10 @@ model ListBoughtGamesRequest {
 }
 
 model ListBoughtGamesResponseBody = {
-  totalCount?: int32(name='TotalCount'),
   requestId?: string(name='RequestId'),
-  pageSize?: int32(name='PageSize'),
   pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  totalCount?: int32(name='TotalCount'),
   items?: [ 
     {
       endTime?: long(name='EndTime'),
@@ -522,10 +563,10 @@ model QueryGameRequest {
 }
 
 model QueryGameResponseBody = {
-  totalCount?: int32(name='TotalCount'),
   requestId?: string(name='RequestId'),
-  pageSize?: int32(name='PageSize'),
   pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  totalCount?: int32(name='TotalCount'),
   data?: [ 
     {
       version?: string(name='Version'),
@@ -562,31 +603,35 @@ model QueryItemsRequest {
 }
 
 model QueryItemsResponseBody = {
-  requestId?: string(name='RequestId'),
   httpStatusCode?: long(name='HttpStatusCode'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
   data?: {
+    pageNumber?: int32(name='PageNumber'),
+    pageSize?: int32(name='PageSize'),
+    totalCount?: long(name='TotalCount'),
     items?: [ 
       {
         status?: int32(name='Status'),
-        createTime?: long(name='CreateTime'),
-        games?: [ 
-          {
-            gameId?: string(name='GameId'),
-            name?: string(name='Name'),
-          }
-        ](name='Games'),
-        sellerId?: string(name='SellerId'),
-        itemId?: string(name='ItemId'),
-        salePrice?: long(name='SalePrice'),
-        originPrice?: long(name='OriginPrice'),
         supplier?: string(name='Supplier'),
         description?: string(name='Description'),
+        createTime?: long(name='CreateTime'),
+        sellerId?: string(name='SellerId'),
         categoryId?: long(name='CategoryId'),
+        itemId?: string(name='ItemId'),
+        title?: string(name='Title'),
+        salePrice?: long(name='SalePrice'),
+        originPrice?: long(name='OriginPrice'),
+        modifyTime?: long(name='ModifyTime'),
         skus?: [ 
           {
             status?: int32(name='Status'),
             createTime?: long(name='CreateTime'),
             skuId?: string(name='SkuId'),
+            itemId?: string(name='ItemId'),
+            salePrice?: long(name='SalePrice'),
+            originPrice?: long(name='OriginPrice'),
+            modifyTime?: long(name='ModifyTime'),
             saleProps?: [ 
               {
                 value?: string(name='Value'),
@@ -595,21 +640,17 @@ model QueryItemsResponseBody = {
                 propertyId?: long(name='PropertyId'),
               }
             ](name='SaleProps'),
-            itemId?: string(name='ItemId'),
-            salePrice?: long(name='SalePrice'),
-            originPrice?: long(name='OriginPrice'),
-            modifyTime?: long(name='ModifyTime'),
           }
         ](name='Skus'),
-        title?: string(name='Title'),
-        modifyTime?: long(name='ModifyTime'),
+        games?: [ 
+          {
+            name?: string(name='Name'),
+            gameId?: string(name='GameId'),
+          }
+        ](name='Games'),
       }
     ](name='Items'),
-    pageNumber?: int32(name='PageNumber'),
-    pageSize?: int32(name='PageSize'),
-    totalCount?: long(name='TotalCount'),
   }(name='Data'),
-  success?: boolean(name='Success'),
 }
 
 model QueryItemsResponse = {
@@ -637,9 +678,9 @@ model QueryOrderRequest {
 }
 
 model QueryOrderResponseBody = {
+  deliveryStatus?: string(name='DeliveryStatus'),
   requestId?: string(name='RequestId'),
   refundStatus?: string(name='RefundStatus'),
-  deliveryStatus?: string(name='DeliveryStatus'),
   data?: {
     status?: string(name='Status'),
     finishTime?: long(name='FinishTime'),
@@ -714,10 +755,10 @@ model QueryProjectRequest {
 }
 
 model QueryProjectResponseBody = {
-  totalCount?: int32(name='TotalCount'),
   requestId?: string(name='RequestId'),
-  pageSize?: int32(name='PageSize'),
   pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  totalCount?: int32(name='TotalCount'),
   data?: [ 
     {
       name?: string(name='Name'),
@@ -752,10 +793,10 @@ model QueryTenantRequest {
 }
 
 model QueryTenantResponseBody = {
-  totalCount?: int32(name='TotalCount'),
   requestId?: string(name='RequestId'),
-  pageSize?: int32(name='PageSize'),
   pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  totalCount?: int32(name='TotalCount'),
   data?: [ 
     {
       gmtCreate?: string(name='GmtCreate'),
@@ -822,13 +863,13 @@ model StopGameSessionRequest {
 }
 
 model StopGameSessionResponseBody = {
-  gameSession?: string(name='GameSession'),
-  queueCode?: int32(name='QueueCode'),
   requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+  gameSession?: string(name='GameSession'),
   queueState?: int32(name='QueueState'),
   message?: string(name='Message'),
-  success?: boolean(name='Success'),
   gameId?: string(name='GameId'),
+  queueCode?: int32(name='QueueCode'),
 }
 
 model StopGameSessionResponse = {
