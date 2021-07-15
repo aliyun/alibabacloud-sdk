@@ -26,13 +26,8 @@ init(config: OpenApi.Config){
     eu-central-1 = 'alb.eu-central-1.aliyuncs.com',
     ap-south-1 = 'alb.ap-south-1.aliyuncs.com',
     ap-northeast-1 = 'alb.ap-northeast-1.aliyuncs.com',
-    ap-southeast-3 = 'alb.ap-southeast-3.aliyuncs.com',
     cn-chengdu = 'alb.cn-chengdu.aliyuncs.com',
-    cn-huhehaote = 'alb.cn-huhehaote.aliyuncs.com',
-    cn-qingdao = 'alb.cn-qingdao.aliyuncs.com',
     cn-wulanchabu = 'alb.cn-wulanchabu.aliyuncs.com',
-    eu-west-1 = 'alb.eu-west-1.aliyuncs.com',
-    us-west-1 = 'alb.us-west-1.aliyuncs.com',
   };
   checkConfig(config);
   @endpoint = getEndpoint('alb', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
@@ -312,6 +307,12 @@ model ListServerGroupServersRequest {
   maxResults?: int32(name='MaxResults', description='查询数量'),
   serverGroupId?: string(name='ServerGroupId', description='服务器组id'),
   serverIds?: [ string ](name='ServerIds'),
+  tag?: [ 
+    {
+      key?: string(name='Key', description='标签键'),
+      value?: string(name='Value', description='标签值'),
+    }
+  ](name='Tag'),
 }
 
 model ListServerGroupServersResponseBody = {
@@ -327,6 +328,7 @@ model ListServerGroupServersResponseBody = {
       serverType?: string(name='ServerType', description='后端服务器类型'),
       status?: string(name='Status', description='状态'),
       weight?: int32(name='Weight', description='权重'),
+      serverGroupId?: string(name='ServerGroupId', description='服务器组id'),
     }
   ](name='Servers', description='后端服务器'),
   totalCount?: int32(name='TotalCount', description='总记录数'),
@@ -443,6 +445,12 @@ model ListServerGroupsRequest {
   nextToken?: string(name='NextToken', description='分页查询标识'),
   maxResults?: int32(name='MaxResults', description='查询数量'),
   vpcId?: string(name='VpcId', description='VpcId'),
+  tag?: [ 
+    {
+      key?: string(name='Key', description='标签键'),
+      value?: string(name='Value', description='标签值'),
+    }
+  ](name='Tag', description='Tag列表'),
 }
 
 model ListServerGroupsResponseBody = {
@@ -478,6 +486,12 @@ model ListServerGroupsResponseBody = {
         stickySessionType?: string(name='StickySessionType', description='会话保持类型'),
       }(name='StickySessionConfig', description='会话保持配置'),
       vpcId?: string(name='VpcId', description='服务器组所在VpcId'),
+      tags?: [ 
+        {
+          key?: string(name='Key', description='标签键'),
+          value?: string(name='Value', description='标签值'),
+        }
+      ](name='Tags', description='标签列表'),
     }
   ](name='ServerGroups', description='服务器组'),
   totalCount?: int32(name='TotalCount', description='总记录数'),
@@ -874,6 +888,7 @@ model ListRulesRequest {
   maxResults?: int32(name='MaxResults', description='本次读取的最大数据记录数量，此参数为可选参数，取值1-100，用户传入为空时，默认为20。'),
   ruleIds?: [ string ](name='RuleIds', description='转发规则ID列表，N最大支持20'),
   listenerIds?: [ string ](name='ListenerIds', description='监听ID列表'),
+  loadBalancerIds?: [ string ](name='LoadBalancerIds', description='实例ID列表'),
 }
 
 model ListRulesResponseBody = {
@@ -1323,6 +1338,143 @@ async function updateLoadBalancerEditionWithOptions(request: UpdateLoadBalancerE
 async function updateLoadBalancerEdition(request: UpdateLoadBalancerEditionRequest): UpdateLoadBalancerEditionResponse {
   var runtime = new Util.RuntimeOptions{};
   return updateLoadBalancerEditionWithOptions(request, runtime);
+}
+
+model UpdateRulesAttributeRequest {
+  clientToken?: string(name='ClientToken', description='幂等标识'),
+  rules?: [ 
+    {
+      priority?: int32(name='Priority', description='转发规则优先级'),
+      ruleName?: string(name='RuleName', description='转发规则名称'),
+      ruleActions?: [ 
+        {
+          fixedResponseConfig?: {
+            content?: string(name='Content', description='内容'),
+            contentType?: string(name='ContentType', description='内容类型'),
+            httpCode?: string(name='HttpCode', description='HTTP响应码'),
+          }(name='FixedResponseConfig', description='返回固定内容动作配置'),
+          forwardGroupConfig?: {
+            serverGroupTuples?: [ 
+              {
+                serverGroupId?: string(name='ServerGroupId', description='服务器组标识'),
+                weight?: int32(name='Weight', description='权重'),
+              }
+            ](name='ServerGroupTuples', description='转发到的目的服务器组列表'),
+            serverGroupStickySession?: {
+              enabled?: boolean(name='Enabled', description='是否开启会话保持'),
+              timeout?: int32(name='Timeout', description='超时时间'),
+            }(name='ServerGroupStickySession', description='服务器组之间会话保持'),
+          }(name='ForwardGroupConfig', description='转发组动作配置'),
+          insertHeaderConfig?: {
+            coverEnabled?: boolean(name='CoverEnabled', description='是否覆盖请求中的值'),
+            key?: string(name='Key', description='HTTP标头'),
+            value?: string(name='Value', description='HTTP标头内容'),
+            valueType?: string(name='ValueType', description='取值类型'),
+          }(name='InsertHeaderConfig', description='插入头部动作配置'),
+          order?: int32(name='Order', description='优先级'),
+          redirectConfig?: {
+            host?: string(name='Host', description='要跳转的主机地址'),
+            httpCode?: string(name='HttpCode', description='跳转方式'),
+            path?: string(name='Path', description='要跳转的路径'),
+            port?: string(name='Port', description='要跳转的端口'),
+            protocol?: string(name='Protocol', description='要跳转的协议'),
+            query?: string(name='Query', description='要跳转的查询字符串'),
+          }(name='RedirectConfig', description='重定向动作配置'),
+          rewriteConfig?: {
+            host?: string(name='Host', description='主机名'),
+            path?: string(name='Path', description='路径'),
+            query?: string(name='Query', description='查询'),
+          }(name='RewriteConfig', description='内部重定向动作配置'),
+          type?: string(name='Type', description='转发规则动作类型'),
+          trafficLimitConfig?: {
+            QPS?: int32(name='QPS'),
+          }(name='TrafficLimitConfig', description='流量限速'),
+          trafficMirrorConfig?: {
+            targetType?: string(name='TargetType', description='镜像目标类型'),
+            mirrorGroupConfig?: {
+              serverGroupTuples?: [ 
+                {
+                  serverGroupId?: string(name='ServerGroupId'),
+                }
+              ](name='ServerGroupTuples'),
+            }(name='MirrorGroupConfig', description='镜像至服务器组'),
+          }(name='TrafficMirrorConfig', description='流量镜像'),
+          removeHeaderConfig?: {
+            key?: string(name='Key', description='HTTP标头键'),
+          }(name='RemoveHeaderConfig', description='去除HTTP标头'),
+        }
+      ](name='RuleActions', description='转发规则动作'),
+      ruleConditions?: [ 
+        {
+          cookieConfig?: {
+            values?: [ 
+              {
+                key?: string(name='Key', description='Cookie条件键'),
+                value?: string(name='Value', description='Cookie条件值'),
+              }
+            ](name='Values', description='Cookie键值对列表'),
+          }(name='CookieConfig', description='Cookie条件配置'),
+          headerConfig?: {
+            key?: string(name='Key', description='HTTP标头键'),
+            values?: [ string ](name='Values', description='HTTP标头值列表'),
+          }(name='HeaderConfig', description='HTTP标头条件配置'),
+          hostConfig?: {
+            values?: [ string ](name='Values', description='主机名列表'),
+          }(name='HostConfig', description='主机名条件配置'),
+          methodConfig?: {
+            values?: [ string ](name='Values', description='HTTP请求方法列表'),
+          }(name='MethodConfig', description='HTTP请求方法条件配置'),
+          pathConfig?: {
+            values?: [ string ](name='Values', description='路径条件列表'),
+          }(name='PathConfig', description='查询字符串条件配置'),
+          queryStringConfig?: {
+            values?: [ 
+              {
+                key?: string(name='Key', description='查询字符串条件键'),
+                value?: string(name='Value', description='查询字符串条件值'),
+              }
+            ](name='Values', description='查询字符串条件键值对列表'),
+          }(name='QueryStringConfig', description='查询字符串条件配置'),
+          responseHeaderConfig?: {
+            key?: string(name='Key', description='返回HTTP标头键'),
+            values?: [ string ](name='Values', description='返回HTTP标头值'),
+          }(name='ResponseHeaderConfig', description='返回HTTP标头'),
+          responseStatusCodeConfig?: {
+            values?: [ string ](name='Values', description='返回状态码条件'),
+          }(name='ResponseStatusCodeConfig', description='返回状态码条件'),
+          type?: string(name='Type', description='条件类型'),
+          sourceIpConfig?: {
+            values?: [ string ](name='Values'),
+          }(name='SourceIpConfig', description='基于源IP业务流量匹配'),
+        }
+      ](name='RuleConditions', description='转发规则条件'),
+      ruleId?: string(name='RuleId', description='转发规则ID'),
+    }
+  ](name='Rules', description='转发规则列表'),
+  dryRun?: boolean(name='DryRun', description='是否只预检此次请求'),
+}
+
+model UpdateRulesAttributeResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  jobId?: string(name='JobId', description='异步任务Id'),
+}
+
+model UpdateRulesAttributeResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateRulesAttributeResponseBody(name='body'),
+}
+
+async function updateRulesAttributeWithOptions(request: UpdateRulesAttributeRequest, runtime: Util.RuntimeOptions): UpdateRulesAttributeResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('UpdateRulesAttribute', '2020-06-16', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function updateRulesAttribute(request: UpdateRulesAttributeRequest): UpdateRulesAttributeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateRulesAttributeWithOptions(request, runtime);
 }
 
 model ListListenersRequest {
@@ -2295,6 +2447,53 @@ async function removeServersFromServerGroup(request: RemoveServersFromServerGrou
   return removeServersFromServerGroupWithOptions(request, runtime);
 }
 
+model ReplaceServersInServerGroupRequest {
+  serverGroupId?: string(name='ServerGroupId', description='后端服务器Id'),
+  addedServers?: [ 
+    {
+      description?: string(name='Description', description='描述信息'),
+      port?: int32(name='Port', description='后端端口号'),
+      serverId?: string(name='ServerId', description='后端服务器id'),
+      serverIp?: string(name='ServerIp', description='后端服务器ip'),
+      serverType?: string(name='ServerType', description='后端服务器类型'),
+      weight?: int32(name='Weight', description='后端服务器权重'),
+    }
+  ](name='AddedServers', description='待添加后端服务器'),
+  removedServers?: [ 
+    {
+      serverId?: string(name='ServerId', description='后端服务器id'),
+      serverIp?: string(name='ServerIp', description='后端服务器ip'),
+      serverType?: string(name='ServerType', description='后端服务器类型'),
+      port?: int32(name='Port', description='端口'),
+    }
+  ](name='RemovedServers', description='待删除后端服务器'),
+  clientToken?: string(name='ClientToken', description='幂等Token'),
+  dryRun?: boolean(name='DryRun', description='dryRun'),
+}
+
+model ReplaceServersInServerGroupResponseBody = {
+  jobId?: string(name='JobId', description='异步任务id'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model ReplaceServersInServerGroupResponse = {
+  headers: map[string]string(name='headers'),
+  body: ReplaceServersInServerGroupResponseBody(name='body'),
+}
+
+async function replaceServersInServerGroupWithOptions(request: ReplaceServersInServerGroupRequest, runtime: Util.RuntimeOptions): ReplaceServersInServerGroupResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ReplaceServersInServerGroup', '2020-06-16', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function replaceServersInServerGroup(request: ReplaceServersInServerGroupRequest): ReplaceServersInServerGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return replaceServersInServerGroupWithOptions(request, runtime);
+}
+
 model DescribeRegionsRequest {
   acceptLanguage?: string(name='AcceptLanguage', description='语言'),
 }
@@ -2857,6 +3056,7 @@ model CreateRulesResponseBody = {
   ruleIds?: [ 
     {
       ruleId?: string(name='RuleId', description='转发规则标识'),
+      priority?: int32(name='Priority', description='转发规则优先级'),
     }
   ](name='RuleIds', description='转发规则标识列表'),
 }
