@@ -1,19 +1,42 @@
-/**
- *
- */
 import Util;
-import OpenApi;
-import OpenApiUtil;
+
+import RPC;
 import EndpointUtil;
 
-extends OpenApi;
+extends RPC;
 
-init(config: OpenApi.Config){
+init(config: RPC.Config){
   super(config);
   @endpointRule = '';
   
   checkConfig(config);
   @endpoint = getEndpoint('openplatform', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+model AuthorizeFileUploadRequest = {
+  product: string(name='Product'),
+  regionId?: string(name='RegionId'),
+}
+
+model AuthorizeFileUploadResponse = {
+  accessKeyId: string(name='AccessKeyId'),
+  bucket: string(name='Bucket'),
+  encodedPolicy: string(name='EncodedPolicy'),
+  endpoint: string(name='Endpoint'),
+  objectKey: string(name='ObjectKey'),
+  requestId: string(name='RequestId'),
+  signature: string(name='Signature'),
+  useAccelerate: boolean(name='UseAccelerate'),
+}
+
+async function authorizeFileUploadWithOptions(request: AuthorizeFileUploadRequest, runtime: Util.RuntimeOptions): AuthorizeFileUploadResponse {
+  Util.validateModel(request);
+  return doRequest('AuthorizeFileUpload', 'HTTPS', 'GET', '2019-12-19', 'AK', request, null, runtime);
+}
+
+async function authorizeFileUpload(request: AuthorizeFileUploadRequest): AuthorizeFileUploadResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return authorizeFileUploadWithOptions(request, runtime);
 }
 
 function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
@@ -26,38 +49,3 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-model AuthorizeFileUploadRequest {
-  product?: string(name='Product'),
-  regionId?: string(name='RegionId'),
-}
-
-model AuthorizeFileUploadResponseBody = {
-  useAccelerate?: boolean(name='UseAccelerate'),
-  signature?: string(name='Signature'),
-  requestId?: string(name='RequestId'),
-  objectKey?: string(name='ObjectKey'),
-  endpoint?: string(name='Endpoint'),
-  encodedPolicy?: string(name='EncodedPolicy'),
-  accessKeyId?: string(name='AccessKeyId'),
-  bucket?: string(name='Bucket'),
-}
-
-model AuthorizeFileUploadResponse = {
-  headers: map[string]string(name='headers'),
-  body: AuthorizeFileUploadResponseBody(name='body'),
-}
-
-async function authorizeFileUploadWithOptions(request: AuthorizeFileUploadRequest, runtime: Util.RuntimeOptions): AuthorizeFileUploadResponse {
-  Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
-  var req = new OpenApi.OpenApiRequest{ 
-    query = query,
-  };
-  return doRPCRequest('AuthorizeFileUpload', '2019-12-19', 'HTTPS', 'GET', 'AK', 'json', req, runtime);
-}
-
-async function authorizeFileUpload(request: AuthorizeFileUploadRequest): AuthorizeFileUploadResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return authorizeFileUploadWithOptions(request, runtime);
-}
-
