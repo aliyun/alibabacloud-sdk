@@ -881,6 +881,55 @@ async function openAckServiceWithOptions(request: OpenAckServiceRequest, headers
   return doROARequest('OpenAckService', '2015-12-15', 'HTTPS', 'POST', 'AK', `/service/open`, 'json', req, runtime);
 }
 
+model CreateTriggerRequest {
+  clusterId?: string(name='cluster_id', description='集群ID。'),
+  projectId?: string(name='project_id', description='项目名称。'),
+  action?: string(name='action', description='触发器行为'),
+  type?: string(name='type', description='触发器类型。默认deployment。'),
+}
+
+model CreateTriggerResponseBody = {
+  id?: string(name='id', description='触发器ID。'),
+  clusterId?: string(name='cluster_id', description='集群ID。'),
+  projectId?: string(name='project_id', description='触发器项目名称。'),
+  type?: string(name='type', description='触发器类型。默认值为 deployment 。'),
+  action?: string(name='action', description='触发器行为。'),
+}
+
+model CreateTriggerResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateTriggerResponseBody(name='body'),
+}
+
+async function createTrigger(clusterId: string, request: CreateTriggerRequest): CreateTriggerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createTriggerWithOptions(clusterId, request, headers, runtime);
+}
+
+async function createTriggerWithOptions(clusterId: string, request: CreateTriggerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateTriggerResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.clusterId)) {
+    body.cluster_id = request.clusterId;
+  }
+  if (!Util.isUnset(request.projectId)) {
+    body.project_id = request.projectId;
+  }
+  if (!Util.isUnset(request.action)) {
+    body.action = request.action;
+  }
+  if (!Util.isUnset(request.type)) {
+    body.type = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('CreateTrigger', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${clusterId}/triggers`, 'json', req, runtime);
+}
+
 model ScaleClusterNodePoolRequest {
   count?: long(name='count', description='扩容节点数量'),
 }
@@ -1029,6 +1078,57 @@ async function describeClusterNodePoolDetailWithOptions(ClusterId: string, Nodep
     headers = headers,
   };
   return doROARequest('DescribeClusterNodePoolDetail', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/${ClusterId}/nodepools/${NodepoolId}`, 'json', req, runtime);
+}
+
+model DescribeTriggerRequest {
+  namespace?: string(name='Namespace', description='应用所属命名空间。'),
+  type?: string(name='Type', description='应用类型。'),
+  name?: string(name='Name', description='应用名称。'),
+  action?: string(name='action', description='触发器行为。'),
+}
+
+model DescribeTriggerResponse = {
+  headers: map[string]string(name='headers'),
+  body: [ 
+    {
+      id?: string(name='id', description='触发器ID。'),
+      name?: string(name='name', description='触发器名称。'),
+      clusterId?: string(name='cluster_id', description='集群ID'),
+      projectId?: string(name='project_id', description='触发器项目名称'),
+      type?: string(name='type', description='触发器类型。'),
+      action?: string(name='action', description='触发器行为'),
+      token?: string(name='token', description='Token'),
+    }
+  ](name='body'),
+}
+
+async function describeTrigger(clusterId: string, request: DescribeTriggerRequest): DescribeTriggerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeTriggerWithOptions(clusterId, request, headers, runtime);
+}
+
+async function describeTriggerWithOptions(clusterId: string, request: DescribeTriggerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeTriggerResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.namespace)) {
+    query.Namespace = request.namespace;
+  }
+  if (!Util.isUnset(request.type)) {
+    query.Type = request.type;
+  }
+  if (!Util.isUnset(request.name)) {
+    query.Name = request.name;
+  }
+  if (!Util.isUnset(request.action)) {
+    query.action = request.action;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('DescribeTrigger', '2015-12-15', 'HTTPS', 'GET', 'AK', `/clusters/[cluster_id]/triggers`, 'array', req, runtime);
 }
 
 model CreateClusterNodePoolRequest {
@@ -1473,6 +1573,8 @@ model CreateClusterRequest {
   cloudMonitorFlags?: boolean(name='cloud_monitor_flags', description='为ECS安装云监控'),
   platform?: string(name='platform', description='操作系统发行版'),
   osType?: string(name='os_type', description='操作系统平台类型'),
+  socEnabled?: boolean(name='soc_enabled', description='等保安全加固'),
+  cisEnabled?: boolean(name='cis_enabled', description='CIS安全加固'),
   cpuPolicy?: string(name='cpu_policy', description='CPU策略'),
   proxyMode?: string(name='proxy_mode', description='Proxy代理模式，ipvs|iptables'),
   nodePortRange?: string(name='node_port_range', description='节点服务端口范围'),
@@ -1496,6 +1598,7 @@ model CreateClusterRequest {
   workerSystemDiskCategory?: string(name='worker_system_disk_category', description='集群Worker节点系统盘类型'),
   workerSystemDiskSize?: long(name='worker_system_disk_size', description='集群Worker节点系统盘大小'),
   workerSystemDiskSnapshotPolicyId?: string(name='worker_system_disk_snapshot_policy_id', description='集群Worker节点系统盘快照备份策略'),
+  workerSystemDiskPerformanceLevel?: string(name='worker_system_disk_performance_level', description='集群Worker节点磁盘性能，只对ESSD类型磁盘生效'),
   workerDataDisks?: [
     DataDisk
   ](name='worker_data_disks', description='集群Worker节点数据盘配置'),
@@ -1511,6 +1614,10 @@ model CreateClusterRequest {
   natGateway?: boolean(name='nat_gateway', description='使用自动创建专有网络创建ASK集群时，是否在vpc中创建Nat网关并配置SNAT规则。'),
   zoneId?: string(name='zone_id', description='使用自动创建专有网络创建ASK集群时，需要指定专有网络的可用区'),
   profile?: string(name='profile', description='面向场景时的集群类型。  Default：非边缘场景集群。 Edge：边缘场景集群。'),
+  loggingType?: string(name='logging_type', description='ASK 集群开启日志服务'),
+  controlplaneLogTtl?: string(name='controlplane_log_ttl', description='控制平面日志'),
+  controlplaneLogProject?: string(name='controlplane_log_project', description='使用已有log project时，需要指定log project'),
+  controlplaneLogComponents?: [ string ](name='controlplane_log_components', description='需要采集日志的组件'),
   deletionProtection?: boolean(name='deletion_protection', description='集群删除保护'),
   disableRollback?: boolean(name='disable_rollback', description='失败回滚'),
   timeoutMins?: long(name='timeout_mins', description='集群创建超时时间'),
@@ -1635,6 +1742,12 @@ async function createClusterWithOptions(request: CreateClusterRequest, headers: 
   if (!Util.isUnset(request.osType)) {
     body.os_type = request.osType;
   }
+  if (!Util.isUnset(request.socEnabled)) {
+    body.soc_enabled = request.socEnabled;
+  }
+  if (!Util.isUnset(request.cisEnabled)) {
+    body.cis_enabled = request.cisEnabled;
+  }
   if (!Util.isUnset(request.cpuPolicy)) {
     body.cpu_policy = request.cpuPolicy;
   }
@@ -1704,6 +1817,9 @@ async function createClusterWithOptions(request: CreateClusterRequest, headers: 
   if (!Util.isUnset(request.workerSystemDiskSnapshotPolicyId)) {
     body.worker_system_disk_snapshot_policy_id = request.workerSystemDiskSnapshotPolicyId;
   }
+  if (!Util.isUnset(request.workerSystemDiskPerformanceLevel)) {
+    body.worker_system_disk_performance_level = request.workerSystemDiskPerformanceLevel;
+  }
   if (!Util.isUnset(request.workerDataDisks)) {
     body.worker_data_disks = request.workerDataDisks;
   }
@@ -1742,6 +1858,18 @@ async function createClusterWithOptions(request: CreateClusterRequest, headers: 
   }
   if (!Util.isUnset(request.profile)) {
     body.profile = request.profile;
+  }
+  if (!Util.isUnset(request.loggingType)) {
+    body.logging_type = request.loggingType;
+  }
+  if (!Util.isUnset(request.controlplaneLogTtl)) {
+    body.controlplane_log_ttl = request.controlplaneLogTtl;
+  }
+  if (!Util.isUnset(request.controlplaneLogProject)) {
+    body.controlplane_log_project = request.controlplaneLogProject;
+  }
+  if (!Util.isUnset(request.controlplaneLogComponents)) {
+    body.controlplane_log_components = request.controlplaneLogComponents;
   }
   if (!Util.isUnset(request.deletionProtection)) {
     body.deletion_protection = request.deletionProtection;
@@ -2307,6 +2435,23 @@ async function describeExternalAgentWithOptions(ClusterId: string, request: Desc
   return doROARequest('DescribeExternalAgent', '2015-12-15', 'HTTPS', 'GET', 'AK', `/k8s/${ClusterId}/external/agent/deployment`, 'json', req, runtime);
 }
 
+model DeleteTriggerResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function deleteTrigger(clusterId: string, Id: string): DeleteTriggerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteTriggerWithOptions(clusterId, Id, headers, runtime);
+}
+
+async function deleteTriggerWithOptions(clusterId: string, Id: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteTriggerResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('DeleteTrigger', '2015-12-15', 'HTTPS', 'DELETE', 'AK', `/clusters/[cluster_id]/triggers/[Id]`, 'none', req, runtime);
+}
+
 model UnInstallClusterAddonsRequest {
   addons?: [ 
     {
@@ -2706,8 +2851,13 @@ async function describeUserQuotaWithOptions(headers: map[string]string, runtime:
   return doROARequest('DescribeUserQuota', '2015-12-15', 'HTTPS', 'GET', 'AK', `/quota`, 'json', req, runtime);
 }
 
+model DeleteClusterNodepoolResponseBody = {
+  requestId?: string(name='request_id', description='请求ID'),
+}
+
 model DeleteClusterNodepoolResponse = {
   headers: map[string]string(name='headers'),
+  body: DeleteClusterNodepoolResponseBody(name='body'),
 }
 
 async function deleteClusterNodepool(ClusterId: string, NodepoolId: string): DeleteClusterNodepoolResponse {
@@ -2720,7 +2870,7 @@ async function deleteClusterNodepoolWithOptions(ClusterId: string, NodepoolId: s
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
-  return doROARequest('DeleteClusterNodepool', '2015-12-15', 'HTTPS', 'DELETE', 'AK', `/clusters/${ClusterId}/nodepools/${NodepoolId}`, 'none', req, runtime);
+  return doROARequest('DeleteClusterNodepool', '2015-12-15', 'HTTPS', 'DELETE', 'AK', `/clusters/${ClusterId}/nodepools/${NodepoolId}`, 'json', req, runtime);
 }
 
 model DescribeClusterAddonsUpgradeStatusRequest {
@@ -3464,8 +3614,15 @@ model DeleteClusterNodesRequest {
   nodes?: [ string ](name='nodes', description='移除节点列表。'),
 }
 
+model DeleteClusterNodesResponseBody = {
+  clusterId?: string(name='cluster_id', description='集群ID'),
+  requestId?: string(name='request_id', description='请求ID'),
+  taskId?: string(name='task_id', description='任务ID'),
+}
+
 model DeleteClusterNodesResponse = {
   headers: map[string]string(name='headers'),
+  body: DeleteClusterNodesResponseBody(name='body'),
 }
 
 async function deleteClusterNodes(ClusterId: string, request: DeleteClusterNodesRequest): DeleteClusterNodesResponse {
@@ -3491,7 +3648,7 @@ async function deleteClusterNodesWithOptions(ClusterId: string, request: DeleteC
     headers = headers,
     body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('DeleteClusterNodes', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${ClusterId}/nodes`, 'none', req, runtime);
+  return doROARequest('DeleteClusterNodes', '2015-12-15', 'HTTPS', 'POST', 'AK', `/clusters/${ClusterId}/nodes`, 'json', req, runtime);
 }
 
 model StandardComponentsValue = {
