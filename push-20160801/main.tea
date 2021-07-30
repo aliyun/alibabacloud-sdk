@@ -12,7 +12,7 @@ init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
   
-@endpointMap = {
+  @endpointMap = {
     ap-northeast-1 = 'cloudpush.aliyuncs.com',
     ap-northeast-2-pop = 'cloudpush.aliyuncs.com',
     ap-south-1 = 'cloudpush.aliyuncs.com',
@@ -68,7 +68,6 @@ init(config: OpenApi.Config){
     us-east-1 = 'cloudpush.aliyuncs.com',
     us-west-1 = 'cloudpush.aliyuncs.com',
   };
-
   checkConfig(config);
   @endpoint = getEndpoint('push', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -195,14 +194,50 @@ async function cancelPush(request: CancelPushRequest): CancelPushResponse {
   return cancelPushWithOptions(request, runtime);
 }
 
+model CheckCertificateRequest {
+  appKey?: long(name='AppKey'),
+}
+
+model CheckCertificateResponseBody = {
+  requestId?: string(name='RequestId'),
+  android?: boolean(name='Android'),
+  IOS?: boolean(name='IOS'),
+  productionCertInfo?: {
+    status?: string(name='Status'),
+    exipreTime?: long(name='ExipreTime'),
+  }(name='ProductionCertInfo'),
+  developmentCertInfo?: {
+    status?: string(name='Status'),
+    exipreTime?: long(name='ExipreTime'),
+  }(name='DevelopmentCertInfo'),
+}
+
+model CheckCertificateResponse = {
+  headers: map[string]string(name='headers'),
+  body: CheckCertificateResponseBody(name='body'),
+}
+
+async function checkCertificateWithOptions(request: CheckCertificateRequest, runtime: Util.RuntimeOptions): CheckCertificateResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CheckCertificate', '2016-08-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function checkCertificate(request: CheckCertificateRequest): CheckCertificateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return checkCertificateWithOptions(request, runtime);
+}
+
 model CheckDeviceRequest {
   appKey?: long(name='AppKey'),
   deviceId?: string(name='DeviceId'),
 }
 
 model CheckDeviceResponseBody = {
-  requestId?: string(name='RequestId'),
   available?: boolean(name='Available'),
+  requestId?: string(name='RequestId'),
 }
 
 model CheckDeviceResponse = {
@@ -264,8 +299,8 @@ model CompleteContinuouslyPushRequest {
 }
 
 model CompleteContinuouslyPushResponseBody = {
-  requestId?: string(name='RequestId'),
   messageId?: string(name='MessageId'),
+  requestId?: string(name='RequestId'),
 }
 
 model CompleteContinuouslyPushResponse = {
@@ -294,8 +329,8 @@ model ContinuouslyPushRequest {
 }
 
 model ContinuouslyPushResponseBody = {
-  requestId?: string(name='RequestId'),
   messageId?: string(name='MessageId'),
+  requestId?: string(name='RequestId'),
 }
 
 model ContinuouslyPushResponse = {
@@ -348,6 +383,7 @@ model ListTagsRequest {
 }
 
 model ListTagsResponseBody = {
+  requestId?: string(name='RequestId'),
   tagInfos?: {
     tagInfo?: [ 
     {
@@ -355,7 +391,6 @@ model ListTagsResponseBody = {
     }
   ](name='TagInfo')
   }(name='TagInfos'),
-  requestId?: string(name='RequestId'),
 }
 
 model ListTagsResponse = {
@@ -381,11 +416,12 @@ model MassPushRequest {
   pushTask?: [ 
     {
       jobKey?: string(name='JobKey'),
-      iOSNotificationCollapseId?: string(name='iOSNotificationCollapseId'),
       iOSSilentNotification?: boolean(name='iOSSilentNotification'),
+      iOSNotificationCollapseId?: string(name='iOSNotificationCollapseId'),
+      androidRenderStyle?: string(name='AndroidRenderStyle'),
       storeOffline?: boolean(name='StoreOffline'),
-      iOSNotificationCategory?: string(name='iOSNotificationCategory'),
       iOSSubtitle?: string(name='iOSSubtitle'),
+      iOSNotificationCategory?: string(name='iOSNotificationCategory'),
       androidNotificationChannel?: string(name='AndroidNotificationChannel'),
       androidNotificationHuaweiChannel?: string(name='AndroidNotificationHuaweiChannel'),
       iOSApnsEnv?: string(name='iOSApnsEnv'),
@@ -397,14 +433,16 @@ model MassPushRequest {
       iOSRemindBody?: string(name='iOSRemindBody'),
       androidActivity?: string(name='AndroidActivity'),
       androidNotifyType?: string(name='AndroidNotifyType'),
+      androidBigBody?: string(name='AndroidBigBody'),
       iOSMutableContent?: boolean(name='iOSMutableContent'),
       target?: string(name='Target'),
       androidOpenUrl?: string(name='AndroidOpenUrl'),
+      androidBigTitle?: string(name='AndroidBigTitle'),
       androidNotificationNotifyId?: int32(name='AndroidNotificationNotifyId'),
       expireTime?: string(name='ExpireTime'),
       androidNotificationVivoChannel?: string(name='AndroidNotificationVivoChannel'),
-      androidOpenType?: string(name='AndroidOpenType'),
       deviceType?: string(name='DeviceType'),
+      androidOpenType?: string(name='AndroidOpenType'),
       androidPopupActivity?: string(name='AndroidPopupActivity'),
       androidRemind?: boolean(name='AndroidRemind'),
       androidPopupBody?: string(name='AndroidPopupBody'),
@@ -414,12 +452,13 @@ model MassPushRequest {
       body?: string(name='Body'),
       androidNotificationBarType?: int32(name='AndroidNotificationBarType'),
       androidNotificationBarPriority?: int32(name='AndroidNotificationBarPriority'),
+      androidXiaomiBigPictureUrl?: string(name='AndroidXiaomiBigPictureUrl'),
       targetValue?: string(name='TargetValue'),
       iOSMusic?: string(name='iOSMusic'),
       iOSRemind?: boolean(name='iOSRemind'),
       pushType?: string(name='PushType'),
-      iOSBadge?: int32(name='iOSBadge'),
       sendSpeed?: int32(name='SendSpeed'),
+      iOSBadge?: int32(name='iOSBadge'),
       title?: string(name='Title'),
       pushTime?: string(name='PushTime'),
       androidMusic?: string(name='AndroidMusic'),
@@ -502,11 +541,15 @@ model PushRequest {
   androidNotificationHuaweiChannel?: string(name='AndroidNotificationHuaweiChannel'),
   androidNotificationNotifyId?: int32(name='AndroidNotificationNotifyId'),
   iOSNotificationCollapseId?: string(name='iOSNotificationCollapseId'),
+  androidRenderStyle?: int32(name='AndroidRenderStyle'),
+  androidBigTitle?: string(name='AndroidBigTitle'),
+  androidBigBody?: string(name='AndroidBigBody'),
+  androidXiaomiBigPictureUrl?: string(name='AndroidXiaomiBigPictureUrl'),
 }
 
 model PushResponseBody = {
-  requestId?: string(name='RequestId'),
   messageId?: string(name='MessageId'),
+  requestId?: string(name='RequestId'),
 }
 
 model PushResponse = {
@@ -537,8 +580,8 @@ model PushMessageToAndroidRequest {
 }
 
 model PushMessageToAndroidResponseBody = {
-  requestId?: string(name='RequestId'),
   messageId?: string(name='MessageId'),
+  requestId?: string(name='RequestId'),
 }
 
 model PushMessageToAndroidResponse = {
@@ -569,8 +612,8 @@ model PushMessageToiOSRequest {
 }
 
 model PushMessageToiOSResponseBody = {
-  requestId?: string(name='RequestId'),
   messageId?: string(name='MessageId'),
+  requestId?: string(name='RequestId'),
 }
 
 model PushMessageToiOSResponse = {
@@ -602,8 +645,8 @@ model PushNoticeToAndroidRequest {
 }
 
 model PushNoticeToAndroidResponseBody = {
-  requestId?: string(name='RequestId'),
   messageId?: string(name='MessageId'),
+  requestId?: string(name='RequestId'),
 }
 
 model PushNoticeToAndroidResponse = {
@@ -636,8 +679,8 @@ model PushNoticeToiOSRequest {
 }
 
 model PushNoticeToiOSResponseBody = {
-  requestId?: string(name='RequestId'),
   messageId?: string(name='MessageId'),
+  requestId?: string(name='RequestId'),
 }
 
 model PushNoticeToiOSResponse = {
@@ -699,8 +742,8 @@ model QueryDeviceCountRequest {
 }
 
 model QueryDeviceCountResponseBody = {
-  requestId?: string(name='RequestId'),
   deviceCount?: long(name='DeviceCount'),
+  requestId?: string(name='RequestId'),
 }
 
 model QueryDeviceCountResponse = {
@@ -766,10 +809,10 @@ model QueryDevicesByAccountRequest {
 }
 
 model QueryDevicesByAccountResponseBody = {
+  requestId?: string(name='RequestId'),
   deviceIds?: {
     deviceId?: [ string ](name='DeviceId')
   }(name='DeviceIds'),
-  requestId?: string(name='RequestId'),
 }
 
 model QueryDevicesByAccountResponse = {
@@ -796,10 +839,10 @@ model QueryDevicesByAliasRequest {
 }
 
 model QueryDevicesByAliasResponseBody = {
+  requestId?: string(name='RequestId'),
   deviceIds?: {
     deviceId?: [ string ](name='DeviceId')
   }(name='DeviceIds'),
-  requestId?: string(name='RequestId'),
 }
 
 model QueryDevicesByAliasResponse = {
@@ -873,6 +916,11 @@ model QueryPushRecordsRequest {
 }
 
 model QueryPushRecordsResponseBody = {
+  nextToken?: string(name='NextToken'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  total?: int32(name='Total'),
+  page?: int32(name='Page'),
   pushInfos?: {
     pushInfo?: [ 
     {
@@ -889,11 +937,6 @@ model QueryPushRecordsResponseBody = {
     }
   ](name='PushInfo')
   }(name='PushInfos'),
-  nextToken?: string(name='NextToken'),
-  pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId'),
-  total?: int32(name='Total'),
-  page?: int32(name='Page'),
 }
 
 model QueryPushRecordsResponse = {
@@ -1011,6 +1054,7 @@ model QueryTagsRequest {
 }
 
 model QueryTagsResponseBody = {
+  requestId?: string(name='RequestId'),
   tagInfos?: {
     tagInfo?: [ 
     {
@@ -1018,7 +1062,6 @@ model QueryTagsResponseBody = {
     }
   ](name='TagInfo')
   }(name='TagInfos'),
-  requestId?: string(name='RequestId'),
 }
 
 model QueryTagsResponse = {
