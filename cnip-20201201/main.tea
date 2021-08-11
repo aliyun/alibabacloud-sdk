@@ -239,7 +239,9 @@ model GetEnvironmentResponseBody = {
     clusterId?: string(name='clusterId'),
     createdAt?: string(name='createdAt'),
     description?: string(name='description'),
-    instanceList?: string(name='instanceList'),
+    instanceList?: [
+      InstanceInfo
+    ](name='instanceList'),
     location?: string(name='location'),
     name?: string(name='name'),
     platform?: {
@@ -296,6 +298,10 @@ model GetProductEnvironmentResponseBody = {
     vendorType?: string(name='vendorType'),
     snapshotUID?: string(name='snapshotUID'),
     platform?: Platform(name='platform'),
+    platformStatus?: string(name='platformStatus'),
+    location?: string(name='location'),
+    oldProductVersion?: string(name='oldProductVersion'),
+    oldProductVersionUID?: string(name='oldProductVersionUID'),
   }(name='data'),
   errCode?: string(name='errCode'),
   errMsg?: string(name='errMsg'),
@@ -323,6 +329,7 @@ async function getProductEnvironmentWithOptions(uid: string, headers: map[string
 model GetProductVersionPackageRequest {
   platform?: string(name='platform'),
   packageType?: string(name='packageType'),
+  packageContentType?: string(name='packageContentType'),
   oldProductVersionUID?: string(name='oldProductVersionUID'),
 }
 
@@ -355,6 +362,9 @@ async function getProductVersionPackageWithOptions(uid: string, request: GetProd
   }
   if (!Util.isUnset(request.packageType)) {
     query.packageType = request.packageType;
+  }
+  if (!Util.isUnset(request.packageContentType)) {
+    query.packageContentType = request.packageContentType;
   }
   if (!Util.isUnset(request.oldProductVersionUID)) {
     query.oldProductVersionUID = request.oldProductVersionUID;
@@ -413,6 +423,38 @@ async function updateSnapshotInstanceJoinOptionWithBatchWithOptions(uid: string,
   return doROARequest('UpdateSnapshotInstanceJoinOptionWithBatch', '2020-12-01', 'HTTPS', 'PUT', 'AK', `/api/v1/snapshots/${uid}/instances`, 'json', req, runtime);
 }
 
+model GetEnvironmentDeploymentRecordResponseBody = {
+  errCode?: string(name='errCode'),
+  errMsg?: string(name='errMsg'),
+  success?: boolean(name='success'),
+  data?: {
+    envDeploymentInfo?: {
+      envUID?: string(name='envUID'),
+      status?: string(name='status'),
+      uid?: string(name='uid'),
+      envParams?: string(name='envParams'),
+    }(name='envDeploymentInfo'),
+  }(name='data'),
+}
+
+model GetEnvironmentDeploymentRecordResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetEnvironmentDeploymentRecordResponseBody(name='body'),
+}
+
+async function getEnvironmentDeploymentRecord(uid: string, deploymentUid: string): GetEnvironmentDeploymentRecordResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getEnvironmentDeploymentRecordWithOptions(uid, deploymentUid, headers, runtime);
+}
+
+async function getEnvironmentDeploymentRecordWithOptions(uid: string, deploymentUid: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetEnvironmentDeploymentRecordResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('GetEnvironmentDeploymentRecord', '2020-12-01', 'HTTPS', 'GET', 'AK', `/api/v1/environments/${uid}/deployments/${deploymentUid}`, 'json', req, runtime);
+}
+
 model GenerateVendorConfigTemplateResponseBody = {
   data?: {
     vendorConfig?: string(name='vendorConfig'),
@@ -449,6 +491,7 @@ model UpdateProductComponentRequest {
 model UpdateProductComponentResponseBody = {
   errMsg?: string(name='errMsg'),
   success?: boolean(name='success'),
+  errCode?: string(name='errCode'),
 }
 
 model UpdateProductComponentResponse = {
@@ -489,7 +532,25 @@ model ListProductVersionConfigRequest {
 }
 
 model ListProductVersionConfigResponseBody = {
-  requestId?: string(name='requestId', description='Id of the request'),
+  errCode?: string(name='errCode'),
+  errMsg?: string(name='errMsg'),
+  success?: boolean(name='success'),
+  data?: {
+    list?: [ 
+      {
+        productVersionUID?: string(name='productVersionUID'),
+        componentVersionUID?: string(name='componentVersionUID'),
+        name?: string(name='name'),
+        value?: string(name='value'),
+        description?: string(name='description'),
+        parentComponentVersionUID?: string(name='parentComponentVersionUID'),
+        componentName?: string(name='componentName'),
+        parentComponentName?: string(name='parentComponentName'),
+        componentReleaseName?: string(name='componentReleaseName'),
+        parentComponentReleaseName?: string(name='parentComponentReleaseName'),
+      }
+    ](name='list'),
+  }(name='data'),
 }
 
 model ListProductVersionConfigResponse = {
@@ -996,21 +1057,24 @@ model GetProductEnvironmentsShrinkRequest {
 }
 
 model GetProductEnvironmentsResponseBody = {
-  data?: {
-    clusterId?: string(name='clusterId'),
-    createdAt?: string(name='createdAt'),
-    description?: string(name='description'),
-    instanceList?: string(name='instanceList'),
-    name?: string(name='name'),
-    productName?: string(name='productName'),
-    productVersion?: string(name='productVersion'),
-    uid?: string(name='uid'),
-    vendorConfig?: string(name='vendorConfig'),
-    vendorType?: string(name='vendorType'),
-  }(name='data'),
   errCode?: string(name='errCode'),
   errMsg?: string(name='errMsg'),
   success?: boolean(name='success'),
+  data?: [ 
+    {
+      uid?: string(name='uid'),
+      productUID?: string(name='productUID'),
+      productName?: string(name='productName'),
+      productVersion?: string(name='productVersion'),
+      productVersionUID?: string(name='productVersionUID'),
+      provider?: string(name='provider'),
+      envUID?: string(name='envUID'),
+      envType?: string(name='envType'),
+      envName?: string(name='envName'),
+      oldProductVersion?: string(name='oldProductVersion'),
+      oldProductVersionUID?: string(name='oldProductVersionUID'),
+    }
+  ](name='data'),
 }
 
 model GetProductEnvironmentsResponse = {
@@ -1049,9 +1113,55 @@ async function getProductEnvironmentsWithOptions(tmpReq: GetProductEnvironmentsR
   return doROARequest('GetProductEnvironments', '2020-12-01', 'HTTPS', 'GET', 'AK', `/api/v1/product_envs`, 'json', req, runtime);
 }
 
+model ValidateEnvironmentTunnelRequest {
+  tunnelType?: string(name='tunnelType', description='通道类型'),
+  tunnelConfig?: {
+    hostname?: string(name='hostname', description='跳板机hostname'),
+    sshPort?: int32(name='sshPort', description='跳板机ssh端口号'),
+    username?: string(name='username', description='跳板机用户名'),
+    password?: string(name='password', description='跳板机密码'),
+    vpcId?: string(name='vpcId', description='直连vpcId'),
+    regionId?: string(name='regionId', description='直连地域id'),
+  }(name='tunnelConfig', description='通道配置'),
+}
+
+model ValidateEnvironmentTunnelResponseBody = {
+  errCode?: string(name='errCode', description='错误码'),
+  errMsg?: string(name='errMsg', description='错误信息'),
+  success?: boolean(name='success', description='是否成功'),
+}
+
+model ValidateEnvironmentTunnelResponse = {
+  headers: map[string]string(name='headers'),
+  body: ValidateEnvironmentTunnelResponseBody(name='body'),
+}
+
+async function validateEnvironmentTunnel(uid: string, request: ValidateEnvironmentTunnelRequest): ValidateEnvironmentTunnelResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return validateEnvironmentTunnelWithOptions(uid, request, headers, runtime);
+}
+
+async function validateEnvironmentTunnelWithOptions(uid: string, request: ValidateEnvironmentTunnelRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ValidateEnvironmentTunnelResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.tunnelType)) {
+    body.tunnelType = request.tunnelType;
+  }
+  if (!Util.isUnset(request.tunnelConfig)) {
+    body.tunnelConfig = request.tunnelConfig;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('ValidateEnvironmentTunnel', '2020-12-01', 'HTTPS', 'PUT', 'AK', `/api/v1/environments/${uid}/tunnels/validation`, 'json', req, runtime);
+}
+
 model DeleteEnvironmentResponseBody = {
-  errMessage?: string(name='ErrMessage'),
-  success?: boolean(name='Success'),
+  errMsg?: string(name='errMsg'),
+  success?: boolean(name='success'),
   errCode?: string(name='errCode'),
 }
 
@@ -1454,7 +1564,9 @@ model UpdateProductVersionResourcesRequest {
 }
 
 model UpdateProductVersionResourcesResponseBody = {
-  requestId?: string(name='requestId', description='Id of the request'),
+  errCode?: string(name='errCode'),
+  errMsg?: string(name='errMsg'),
+  success?: boolean(name='success'),
 }
 
 model UpdateProductVersionResourcesResponse = {
@@ -1802,6 +1914,30 @@ async function getEnvironmentPackageWithOptions(uid: string, headers: map[string
   return doROARequest('GetEnvironmentPackage', '2020-12-01', 'HTTPS', 'GET', 'AK', `/api/v1/envPackages/${uid}`, 'json', req, runtime);
 }
 
+model ListEnvChangeRecordPackageConfigResponseBody = {
+  data?: string(name='data'),
+  errCode?: string(name='errCode'),
+  errMsg?: string(name='errMsg'),
+}
+
+model ListEnvChangeRecordPackageConfigResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListEnvChangeRecordPackageConfigResponseBody(name='body'),
+}
+
+async function listEnvChangeRecordPackageConfig(uid: string, recordUid: string): ListEnvChangeRecordPackageConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listEnvChangeRecordPackageConfigWithOptions(uid, recordUid, headers, runtime);
+}
+
+async function listEnvChangeRecordPackageConfigWithOptions(uid: string, recordUid: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListEnvChangeRecordPackageConfigResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('ListEnvChangeRecordPackageConfig', '2020-12-01', 'HTTPS', 'GET', 'AK', `/api/v1/environments/${uid}/change_records/${recordUid}/package_configs`, 'json', req, runtime);
+}
+
 model ListComponentsRequest {
   name?: string(name='name'),
   category?: string(name='category'),
@@ -2056,6 +2192,55 @@ async function getProductVersionPlatformsWithOptions(uid: string, headers: map[s
   return doROARequest('GetProductVersionPlatforms', '2020-12-01', 'HTTPS', 'GET', 'AK', `/api/v1/product_versions/${uid}/platforms`, 'json', req, runtime);
 }
 
+model SetEnvironmentTunnelRequest {
+  tunnelType?: string(name='tunnelType', description='通道类型'),
+  tunnelConfig?: {
+    sshPort?: int32(name='sshPort', description='跳板机ssh端口号'),
+    hostname?: string(name='hostname', description='跳板机hostname'),
+    username?: string(name='username', description='跳板机用户名'),
+    password?: string(name='password', description='跳板机密码'),
+    vpcId?: string(name='vpcId', description='直连vpcId'),
+    regionId?: string(name='regionId', description='直连地域id'),
+  }(name='tunnelConfig', description='通道配置'),
+}
+
+model SetEnvironmentTunnelResponseBody = {
+  errCode?: string(name='errCode', description='错误码'),
+  errMsg?: string(name='errMsg', description='错误信息'),
+  success?: boolean(name='success', description='是否成功'),
+  date?: {
+    uid?: string(name='uid', description='通道id，可空'),
+  }(name='date', description='数据'),
+}
+
+model SetEnvironmentTunnelResponse = {
+  headers: map[string]string(name='headers'),
+  body: SetEnvironmentTunnelResponseBody(name='body'),
+}
+
+async function setEnvironmentTunnel(uid: string, request: SetEnvironmentTunnelRequest): SetEnvironmentTunnelResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return setEnvironmentTunnelWithOptions(uid, request, headers, runtime);
+}
+
+async function setEnvironmentTunnelWithOptions(uid: string, request: SetEnvironmentTunnelRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SetEnvironmentTunnelResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.tunnelType)) {
+    body.tunnelType = request.tunnelType;
+  }
+  if (!Util.isUnset(request.tunnelConfig)) {
+    body.tunnelConfig = request.tunnelConfig;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequest('SetEnvironmentTunnel', '2020-12-01', 'HTTPS', 'PUT', 'AK', `/api/v1/environments/${uid}/tunnels`, 'json', req, runtime);
+}
+
 model GetProductVersionResourceResponseBody = {
   errCode?: string(name='errCode'),
   errMsg?: string(name='errMsg'),
@@ -2143,6 +2328,8 @@ model ListEnvChangeRecordsResponseBody = {
       }
     ](name='list'),
   }(name='data'),
+  errCode?: string(name='errCode'),
+  errMsg?: string(name='errMsg'),
 }
 
 model ListEnvChangeRecordsResponse = {
@@ -2170,7 +2357,7 @@ async function listEnvChangeRecordsWithOptions(uid: string, request: ListEnvChan
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('ListEnvChangeRecords', '2020-12-01', 'HTTPS', 'GET', 'AK', `/api/v1/environments/${uid}/change`, 'json', req, runtime);
+  return doROARequest('ListEnvChangeRecords', '2020-12-01', 'HTTPS', 'GET', 'AK', `/api/v1/environments/${uid}/change_records`, 'json', req, runtime);
 }
 
 model AddProductVersionConfigRequest {
@@ -2183,6 +2370,9 @@ model AddProductVersionConfigRequest {
 
 model AddProductVersionConfigResponseBody = {
   requestId?: string(name='requestId', description='Id of the request'),
+  errCode?: string(name='errCode'),
+  errMsg?: string(name='errMsg'),
+  success?: boolean(name='success'),
 }
 
 model AddProductVersionConfigResponse = {
@@ -2307,10 +2497,17 @@ async function deleteComponentVersionWithOptions(uid: string, versionUid: string
   return doROARequest('DeleteComponentVersion', '2020-12-01', 'HTTPS', 'DELETE', 'AK', `/integration/api/v1/components/${uid}/versions/${versionUid}`, 'json', req, runtime);
 }
 
+model DeployEnvironmentProductRequest {
+  packageUID?: string(name='packageUID', description='部署包uid'),
+}
+
 model DeployEnvironmentProductResponseBody = {
-  errCode?: string(name='errCode'),
-  errMsg?: string(name='errMsg'),
-  success?: boolean(name='success'),
+  errCode?: string(name='errCode', description='错误码'),
+  errMsg?: string(name='errMsg', description='错误信息'),
+  success?: boolean(name='success', description='是否成功'),
+  data?: {
+    uid?: string(name='uid', description='部署uid'),
+  }(name='data', description='数据'),
 }
 
 model DeployEnvironmentProductResponse = {
@@ -2318,15 +2515,22 @@ model DeployEnvironmentProductResponse = {
   body: DeployEnvironmentProductResponseBody(name='body'),
 }
 
-async function deployEnvironmentProduct(uid: string): DeployEnvironmentProductResponse {
+async function deployEnvironmentProduct(uid: string, request: DeployEnvironmentProductRequest): DeployEnvironmentProductResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return deployEnvironmentProductWithOptions(uid, headers, runtime);
+  return deployEnvironmentProductWithOptions(uid, request, headers, runtime);
 }
 
-async function deployEnvironmentProductWithOptions(uid: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeployEnvironmentProductResponse {
+async function deployEnvironmentProductWithOptions(uid: string, request: DeployEnvironmentProductRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeployEnvironmentProductResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.packageUID)) {
+    body.packageUID = request.packageUID;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    body = OpenApiUtil.parseToMap(body),
   };
   return doROARequest('DeployEnvironmentProduct', '2020-12-01', 'HTTPS', 'POST', 'AK', `/api/v1/environments/${uid}/deployment`, 'json', req, runtime);
 }
@@ -2375,28 +2579,6 @@ async function initEnvironmentResourceWithOptions(uid: string, request: InitEnvi
     body = OpenApiUtil.parseToMap(body),
   };
   return doROARequest('InitEnvironmentResource', '2020-12-01', 'HTTPS', 'POST', 'AK', `/api/v1/environments/${uid}/resources`, 'json', req, runtime);
-}
-
-model ListEnvChangePackageConfigResponseBody = {
-  data?: string(name='data'),
-}
-
-model ListEnvChangePackageConfigResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListEnvChangePackageConfigResponseBody(name='body'),
-}
-
-async function listEnvChangePackageConfig(uid: string): ListEnvChangePackageConfigResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listEnvChangePackageConfigWithOptions(uid, headers, runtime);
-}
-
-async function listEnvChangePackageConfigWithOptions(uid: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListEnvChangePackageConfigResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  return doROARequest('ListEnvChangePackageConfig', '2020-12-01', 'HTTPS', 'GET', 'AK', `/api/v1/environments/${uid}/change/package`, 'json', req, runtime);
 }
 
 model ListEnvironmentDeployRecordRequest {
@@ -2588,7 +2770,30 @@ async function getProductVersionPackageURLWithOptions(uid: string, request: GetP
 }
 
 model GetProductVersionRelatedComponentVersionResponseBody = {
-  requestId?: string(name='requestId', description='Id of the request'),
+  data?: [ 
+    {
+      relationUID?: string(name='relationUID'),
+      productVersionUID?: string(name='productVersionUID'),
+      parentComponentVersionUID?: string(name='parentComponentVersionUID'),
+      parentComponentVersionRelationUID?: string(name='parentComponentVersionRelationUID'),
+      orchestrationValues?: string(name='orchestrationValues'),
+      values?: string(name='values'),
+      componentVersionPackageURL?: string(name='componentVersionPackageURL'),
+      releaseName?: string(name='releaseName'),
+      priority?: int32(name='priority'),
+      sequence?: int32(name='sequence'),
+      componentVersionUID?: string(name='componentVersionUID'),
+      componentUID?: string(name='componentUID'),
+      componentName?: string(name='componentName'),
+      componentDescription?: string(name='componentDescription'),
+      version?: string(name='version'),
+      appVersion?: string(name='appVersion'),
+      componentVersionDescription?: string(name='componentVersionDescription'),
+      parentComponent?: boolean(name='parentComponent'),
+      resources?: string(name='resources'),
+      namespace?: string(name='namespace'),
+    }
+  ](name='data'),
 }
 
 model GetProductVersionRelatedComponentVersionResponse = {
@@ -2727,81 +2932,10 @@ async function listComponentVersionsWithOptions(uid: string, tmpReq: ListCompone
   return doROARequest('ListComponentVersions', '2020-12-01', 'HTTPS', 'GET', 'AK', `/api/v1/components/${uid}/versions`, 'json', req, runtime);
 }
 
-model ListEnvChangeParamsRequest {
-  pageNum?: string(name='pageNum'),
-  pageSize?: string(name='pageSize'),
-  paramType?: string(name='paramType', description='全局参数传global，组件配置传component'),
-}
-
-model ListEnvChangeParamsResponseBody = {
-  data?: {
-    list?: [ 
-      {
-        name?: string(name='name'),
-        value?: string(name='value'),
-        description?: string(name='description'),
-        componentName?: string(name='componentName'),
-        componentReleaseName?: string(name='componentReleaseName'),
-        parentComponentName?: string(name='parentComponentName'),
-        parentComponentReleaseName?: string(name='parentComponentReleaseName'),
-      }
-    ](name='list'),
-  }(name='data'),
-}
-
-model ListEnvChangeParamsResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListEnvChangeParamsResponseBody(name='body'),
-}
-
-async function listEnvChangeParams(uid: string, request: ListEnvChangeParamsRequest): ListEnvChangeParamsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listEnvChangeParamsWithOptions(uid, request, headers, runtime);
-}
-
-async function listEnvChangeParamsWithOptions(uid: string, request: ListEnvChangeParamsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListEnvChangeParamsResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.pageNum)) {
-    query.pageNum = request.pageNum;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query.pageSize = request.pageSize;
-  }
-  if (!Util.isUnset(request.paramType)) {
-    query.paramType = request.paramType;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  return doROARequest('ListEnvChangeParams', '2020-12-01', 'HTTPS', 'GET', 'AK', `/api/v1/environments/${uid}/change/params`, 'json', req, runtime);
-}
-
 model UpdateEnvironmentNodesRequest {
-  cpu?: int32(name='cpu'),
-  dataDisk?: [ string ](name='dataDisk'),
-  dataDisk2?: [ 
-    {
-      name?: string(name='name'),
-      size?: string(name='size'),
-    }
-  ](name='dataDisk2'),
   envUID?: string(name='envUID'),
-  identifier?: string(name='identifier'),
   labels?: map[string]any(name='labels'),
-  memory?: int32(name='memory'),
-  nodeIP?: string(name='nodeIP'),
   rootPassword?: string(name='rootPassword'),
-  systemDisk?: [ string ](name='systemDisk'),
-  systemDisk2?: [ 
-    {
-      name?: string(name='name'),
-      size?: string(name='size'),
-    }
-  ](name='systemDisk2'),
   taints?: [ 
     {
       effect?: string(name='effect'),
@@ -2809,6 +2943,10 @@ model UpdateEnvironmentNodesRequest {
       value?: string(name='value'),
     }
   ](name='taints'),
+  etcdDisk?: string(name='etcdDisk', description='etcd数据盘'),
+  tridentSystemDisk?: string(name='tridentSystemDisk', description='k8s管控数据盘'),
+  tridentSystemSizeDisk?: int32(name='tridentSystemSizeDisk', description='k8s管控数据盘大小'),
+  applicationDisk?: string(name='applicationDisk', description='保留业务分区'),
 }
 
 model UpdateEnvironmentNodesResponseBody = {
@@ -2831,41 +2969,29 @@ async function updateEnvironmentNodes(uid: string, request: UpdateEnvironmentNod
 async function updateEnvironmentNodesWithOptions(uid: string, request: UpdateEnvironmentNodesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateEnvironmentNodesResponse {
   Util.validateModel(request);
   var body : map[string]any= {};
-  if (!Util.isUnset(request.cpu)) {
-    body.cpu = request.cpu;
-  }
-  if (!Util.isUnset(request.dataDisk)) {
-    body.dataDisk = request.dataDisk;
-  }
-  if (!Util.isUnset(request.dataDisk2)) {
-    body.dataDisk2 = request.dataDisk2;
-  }
   if (!Util.isUnset(request.envUID)) {
     body.envUID = request.envUID;
-  }
-  if (!Util.isUnset(request.identifier)) {
-    body.identifier = request.identifier;
   }
   if (!Util.isUnset(request.labels)) {
     body.labels = request.labels;
   }
-  if (!Util.isUnset(request.memory)) {
-    body.memory = request.memory;
-  }
-  if (!Util.isUnset(request.nodeIP)) {
-    body.nodeIP = request.nodeIP;
-  }
   if (!Util.isUnset(request.rootPassword)) {
     body.rootPassword = request.rootPassword;
   }
-  if (!Util.isUnset(request.systemDisk)) {
-    body.systemDisk = request.systemDisk;
-  }
-  if (!Util.isUnset(request.systemDisk2)) {
-    body.systemDisk2 = request.systemDisk2;
-  }
   if (!Util.isUnset(request.taints)) {
     body.taints = request.taints;
+  }
+  if (!Util.isUnset(request.etcdDisk)) {
+    body.etcdDisk = request.etcdDisk;
+  }
+  if (!Util.isUnset(request.tridentSystemDisk)) {
+    body.tridentSystemDisk = request.tridentSystemDisk;
+  }
+  if (!Util.isUnset(request.tridentSystemSizeDisk)) {
+    body.tridentSystemSizeDisk = request.tridentSystemSizeDisk;
+  }
+  if (!Util.isUnset(request.applicationDisk)) {
+    body.applicationDisk = request.applicationDisk;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2989,12 +3115,13 @@ async function createEnvironmentWithOptions(request: CreateEnvironmentRequest, h
 }
 
 model GetWorkflowStatusRequest {
-  xUID?: string(name='xUID'),
+  workflowType?: string(name='workflowType', description='ENUM:["CreateCluster","DeleteCluster","Pack","Deploy"]'),
 }
 
 model GetWorkflowStatusResponseBody = {
-  data?: [ 
-    {
+  data?: {
+    status?: string(name='status'),
+    stepStatus?: {
       name?: string(name='name', description='step name'),
       status?: string(name='status', description='step status'),
       workflowTasks?: [ 
@@ -3003,8 +3130,8 @@ model GetWorkflowStatusResponseBody = {
           status?: string(name='status', description='task status'),
         }
       ](name='workflowTasks'),
-    }
-  ](name='data'),
+    }(name='stepStatus'),
+  }(name='data'),
   errCode?: string(name='errCode'),
   errMsg?: string(name='errMsg'),
   success?: boolean(name='success'),
@@ -3015,27 +3142,28 @@ model GetWorkflowStatusResponse = {
   body: GetWorkflowStatusResponseBody(name='body'),
 }
 
-async function getWorkflowStatus(request: GetWorkflowStatusRequest): GetWorkflowStatusResponse {
+async function getWorkflowStatus(xuid: string, request: GetWorkflowStatusRequest): GetWorkflowStatusResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return getWorkflowStatusWithOptions(request, headers, runtime);
+  return getWorkflowStatusWithOptions(xuid, request, headers, runtime);
 }
 
-async function getWorkflowStatusWithOptions(request: GetWorkflowStatusRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetWorkflowStatusResponse {
+async function getWorkflowStatusWithOptions(xuid: string, request: GetWorkflowStatusRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetWorkflowStatusResponse {
   Util.validateModel(request);
   var query : map[string]any= {};
-  if (!Util.isUnset(request.xUID)) {
-    query.xUID = request.xUID;
+  if (!Util.isUnset(request.workflowType)) {
+    query.workflowType = request.workflowType;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('GetWorkflowStatus', '2020-12-01', 'HTTPS', 'GET', 'AK', `/api/v1/workflows/status`, 'json', req, runtime);
+  return doROARequest('GetWorkflowStatus', '2020-12-01', 'HTTPS', 'GET', 'AK', `/api/v1/workflows/${xuid}/status`, 'json', req, runtime);
 }
 
 model GetEnvironmentLogRequest {
+  workflowType?: string(name='workflowType', description='ENUM:["CreateCluster","DeleteCluster","Pack","Deploy"]'),
   stepName?: string(name='stepName', description='任务 step 的名称'),
   taskName?: string(name='taskName', description='任务 task 的名称'),
 }
@@ -3065,6 +3193,9 @@ async function getEnvironmentLog(uid: string, request: GetEnvironmentLogRequest)
 async function getEnvironmentLogWithOptions(uid: string, request: GetEnvironmentLogRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetEnvironmentLogResponse {
   Util.validateModel(request);
   var query : map[string]any= {};
+  if (!Util.isUnset(request.workflowType)) {
+    query.workflowType = request.workflowType;
+  }
   if (!Util.isUnset(request.stepName)) {
     query.stepName = request.stepName;
   }
@@ -3249,91 +3380,6 @@ async function updateComponentToProductWithOptions(id: string, versionId: string
   return doROARequest('UpdateComponentToProduct', '2020-12-01', 'HTTPS', 'PUT', 'AK', `/integration/api/v1/products/${id}/versions/${versionId}/componentVersionRelations/${productComponentVersionRelationId}`, 'json', req, runtime);
 }
 
-model UpdateEnvChangeRequest {
-  description?: string(name='description', description='交付描述'),
-}
-
-model UpdateEnvChangeResponseBody = {
-  errCode?: string(name='errCode'),
-  errMsg?: string(name='errMsg'),
-  success?: boolean(name='success'),
-}
-
-model UpdateEnvChangeResponse = {
-  headers: map[string]string(name='headers'),
-  body: UpdateEnvChangeResponseBody(name='body'),
-}
-
-async function updateEnvChange(uid: string, request: UpdateEnvChangeRequest): UpdateEnvChangeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateEnvChangeWithOptions(uid, request, headers, runtime);
-}
-
-async function updateEnvChangeWithOptions(uid: string, request: UpdateEnvChangeRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateEnvChangeResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.description)) {
-    query.description = request.description;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  return doROARequest('UpdateEnvChange', '2020-12-01', 'HTTPS', 'PUT', 'AK', `/api/v1/environments/${uid}/change`, 'json', req, runtime);
-}
-
-model ListEnvChangeNodeRequest {
-  pageNum?: string(name='pageNum'),
-  pageSize?: string(name='pageSize'),
-}
-
-model ListEnvChangeNodeResponseBody = {
-  data?: {
-    list?: [ 
-      {
-        privateIP?: string(name='privateIP', description='节点'),
-        identifier?: string(name='identifier', description='节点类型'),
-        cpu?: string(name='cpu', description='cpu'),
-        memory?: string(name='memory', description='内存'),
-        name?: string(name='name', description='系统盘起始'),
-        capacity?: string(name='capacity', description='系统盘结束'),
-        label?: map[string]any(name='label', description='标签'),
-        taints?: map[string]any(name='taints', description='污点'),
-      }
-    ](name='list'),
-  }(name='data'),
-}
-
-model ListEnvChangeNodeResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListEnvChangeNodeResponseBody(name='body'),
-}
-
-async function listEnvChangeNode(uid: string, request: ListEnvChangeNodeRequest): ListEnvChangeNodeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listEnvChangeNodeWithOptions(uid, request, headers, runtime);
-}
-
-async function listEnvChangeNodeWithOptions(uid: string, request: ListEnvChangeNodeRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListEnvChangeNodeResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.pageNum)) {
-    query.pageNum = request.pageNum;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query.pageSize = request.pageSize;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  return doROARequest('ListEnvChangeNode', '2020-12-01', 'HTTPS', 'GET', 'AK', `/api/v1/environments/${uid}/change/nodes`, 'json', req, runtime);
-}
-
 model GetComponentResponseBody = {
   data?: {
     annotations?: {
@@ -3457,10 +3503,10 @@ model AddEnvironmentNodesRequest {
     }
   ](name='taints'),
   workerPrivateIPs?: [ string ](name='workerPrivateIPs', description='work privateIp'),
-  diskAnnotationKeyEtcd?: string(name='diskAnnotationKeyEtcd', description='etcd数据盘'),
-  diskAnnotationKeyTridentSystem?: string(name='diskAnnotationKeyTridentSystem', description='k8s管控数据盘'),
-  diskAnnotationKeyTridentSystemSize?: int32(name='diskAnnotationKeyTridentSystemSize', description='k8s管控数据盘大小'),
-  diskAnnotationKeyApplication?: string(name='diskAnnotationKeyApplication', description='保留业务分区'),
+  etcdDisk?: string(name='etcdDisk', description='etcd数据盘'),
+  tridentSystemDisk?: string(name='tridentSystemDisk', description='k8s管控数据盘'),
+  tridentSystemSizeDisk?: int32(name='tridentSystemSizeDisk', description='k8s管控数据盘大小'),
+  applicationDisk?: string(name='applicationDisk', description='保留业务分区'),
 }
 
 model AddEnvironmentNodesResponseBody = {
@@ -3498,24 +3544,24 @@ async function addEnvironmentNodesWithOptions(uid: string, request: AddEnvironme
   if (!Util.isUnset(request.workerPrivateIPs)) {
     body.workerPrivateIPs = request.workerPrivateIPs;
   }
-  if (!Util.isUnset(request.diskAnnotationKeyEtcd)) {
-    body.diskAnnotationKeyEtcd = request.diskAnnotationKeyEtcd;
+  if (!Util.isUnset(request.etcdDisk)) {
+    body.etcdDisk = request.etcdDisk;
   }
-  if (!Util.isUnset(request.diskAnnotationKeyTridentSystem)) {
-    body.diskAnnotationKeyTridentSystem = request.diskAnnotationKeyTridentSystem;
+  if (!Util.isUnset(request.tridentSystemDisk)) {
+    body.tridentSystemDisk = request.tridentSystemDisk;
   }
-  if (!Util.isUnset(request.diskAnnotationKeyTridentSystemSize)) {
-    body.diskAnnotationKeyTridentSystemSize = request.diskAnnotationKeyTridentSystemSize;
+  if (!Util.isUnset(request.tridentSystemSizeDisk)) {
+    body.tridentSystemSizeDisk = request.tridentSystemSizeDisk;
   }
-  if (!Util.isUnset(request.diskAnnotationKeyApplication)) {
-    body.diskAnnotationKeyApplication = request.diskAnnotationKeyApplication;
+  if (!Util.isUnset(request.applicationDisk)) {
+    body.applicationDisk = request.applicationDisk;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('AddEnvironmentNodes', '2020-12-01', 'HTTPS', 'POST', 'AK', `/api/v1/environments/${uid}/nodes/batch`, 'json', req, runtime);
+  return doROARequest('AddEnvironmentNodes', '2020-12-01', 'HTTPS', 'POST', 'AK', `/api/v1/environments/${uid}/batch_nodes`, 'json', req, runtime);
 }
 
 model DeleteComponentResponseBody = {
@@ -3607,6 +3653,58 @@ async function createEnvironmentWithSnapshotWithOptions(uid: string, request: Cr
     body = OpenApiUtil.parseToMap(body),
   };
   return doROARequest('CreateEnvironmentWithSnapshot', '2020-12-01', 'HTTPS', 'POST', 'AK', `/api/v1/snapshots/${uid}/environments`, 'json', req, runtime);
+}
+
+model ListEnvChangeRecordNodesRequest {
+  pageNum?: string(name='pageNum'),
+  pageSize?: string(name='pageSize'),
+}
+
+model ListEnvChangeRecordNodesResponseBody = {
+  data?: {
+    list?: [ 
+      {
+        privateIP?: string(name='privateIP', description='节点'),
+        identifier?: string(name='identifier', description='节点类型'),
+        cpu?: string(name='cpu', description='cpu'),
+        memory?: string(name='memory', description='内存'),
+        name?: string(name='name', description='系统盘起始'),
+        capacity?: string(name='capacity', description='系统盘结束'),
+        label?: map[string]any(name='label', description='标签'),
+        taints?: map[string]any(name='taints', description='污点'),
+      }
+    ](name='list'),
+  }(name='data'),
+  errCode?: string(name='errCode'),
+  errMsg?: string(name='errMsg'),
+}
+
+model ListEnvChangeRecordNodesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListEnvChangeRecordNodesResponseBody(name='body'),
+}
+
+async function listEnvChangeRecordNodes(uid: string, recordUid: string, request: ListEnvChangeRecordNodesRequest): ListEnvChangeRecordNodesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listEnvChangeRecordNodesWithOptions(uid, recordUid, request, headers, runtime);
+}
+
+async function listEnvChangeRecordNodesWithOptions(uid: string, recordUid: string, request: ListEnvChangeRecordNodesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListEnvChangeRecordNodesResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.pageNum)) {
+    query.pageNum = request.pageNum;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query.pageSize = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('ListEnvChangeRecordNodes', '2020-12-01', 'HTTPS', 'GET', 'AK', `/api/v1/environments/${uid}/change_records/${recordUid}/nodes`, 'json', req, runtime);
 }
 
 model UpdateProductVersionRequest {
@@ -4004,6 +4102,45 @@ async function updateProductWithOptions(uid: string, request: UpdateProductReque
   return doROARequest('UpdateProduct', '2020-12-01', 'HTTPS', 'PUT', 'AK', `/api/v1/products/${uid}`, 'json', req, runtime);
 }
 
+model ListEnvironmentTunnelResponseBody = {
+  errCode?: string(name='errCode', description='错误码'),
+  errMsg?: string(name='errMsg', description='错误信息'),
+  success?: boolean(name='success', description='是否成功'),
+  data?: {
+    list?: [ 
+      {
+        tunnelType?: string(name='tunnelType', description='通道类型'),
+        tunnelConfig?: {
+          hostname?: string(name='hostname', description='跳板机hostname'),
+          sshPort?: int32(name='sshPort', description='跳板机ssh端口号'),
+          username?: string(name='username', description='跳板机用户名'),
+          password?: string(name='password', description='跳板机密码'),
+          vpcId?: string(name='vpcId', description='直连vpcId'),
+          regionId?: string(name='regionId', description='直连regionId'),
+        }(name='tunnelConfig'),
+      }
+    ](name='list'),
+  }(name='data'),
+}
+
+model ListEnvironmentTunnelResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListEnvironmentTunnelResponseBody(name='body'),
+}
+
+async function listEnvironmentTunnel(uid: string): ListEnvironmentTunnelResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listEnvironmentTunnelWithOptions(uid, headers, runtime);
+}
+
+async function listEnvironmentTunnelWithOptions(uid: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListEnvironmentTunnelResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('ListEnvironmentTunnel', '2020-12-01', 'HTTPS', 'GET', 'AK', `/api/v1/environments/${uid}/tunnels`, 'json', req, runtime);
+}
+
 model ListProductVersionEnvironmentResponseBody = {
   data?: {
     list?: [ 
@@ -4031,7 +4168,7 @@ async function listProductVersionEnvironmentWithOptions(uid: string, headers: ma
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
-  return doROARequest('ListProductVersionEnvironment', '2020-12-01', 'HTTPS', 'GET', 'AK', `/api/v1/product_envs/${uid}/environments`, 'json', req, runtime);
+  return doROARequest('ListProductVersionEnvironment', '2020-12-01', 'HTTPS', 'GET', 'AK', `/api/v1/hosting/product_versions/${uid}/environments`, 'json', req, runtime);
 }
 
 model DeleteProductVersionConfigResponseBody = {
@@ -4276,60 +4413,6 @@ async function updateProductVersionRelatedFoundationVersionWithOptions(uid: stri
     body = request.foundationVersionUID,
   };
   return doROARequest('UpdateProductVersionRelatedFoundationVersion', '2020-12-01', 'HTTPS', 'PUT', 'AK', `/api/v1/product_versions/${uid}/foundation`, 'json', req, runtime);
-}
-
-model AddEnvChangeRequest {
-  originProductVersion?: string(name='originProductVersion', description='原版本号'),
-  originProductVersionUID?: string(name='originProductVersionUID', description='原版本uid'),
-  deliveryProductVersion?: string(name='deliveryProductVersion', description='发布版本'),
-  deliveryProductVersionUID?: string(name='deliveryProductVersionUID', description='发布版本uid'),
-  description?: string(name='description', description='交付描述'),
-}
-
-model AddEnvChangeResponseBody = {
-  errCode?: string(name='errCode'),
-  errMsg?: string(name='errMsg'),
-  success?: boolean(name='success'),
-  data?: {
-    uid?: string(name='uid', description='环境升级变更记录uid'),
-  }(name='data'),
-}
-
-model AddEnvChangeResponse = {
-  headers: map[string]string(name='headers'),
-  body: AddEnvChangeResponseBody(name='body'),
-}
-
-async function addEnvChange(uid: string, request: AddEnvChangeRequest): AddEnvChangeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return addEnvChangeWithOptions(uid, request, headers, runtime);
-}
-
-async function addEnvChangeWithOptions(uid: string, request: AddEnvChangeRequest, headers: map[string]string, runtime: Util.RuntimeOptions): AddEnvChangeResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.originProductVersion)) {
-    body.originProductVersion = request.originProductVersion;
-  }
-  if (!Util.isUnset(request.originProductVersionUID)) {
-    body.originProductVersionUID = request.originProductVersionUID;
-  }
-  if (!Util.isUnset(request.deliveryProductVersion)) {
-    body.deliveryProductVersion = request.deliveryProductVersion;
-  }
-  if (!Util.isUnset(request.deliveryProductVersionUID)) {
-    body.deliveryProductVersionUID = request.deliveryProductVersionUID;
-  }
-  if (!Util.isUnset(request.description)) {
-    body.description = request.description;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = OpenApiUtil.parseToMap(body),
-  };
-  return doROARequest('AddEnvChange', '2020-12-01', 'HTTPS', 'POST', 'AK', `/api/v1/environments/${uid}/change`, 'json', req, runtime);
 }
 
 model UpdateEnvironmentRequest {
@@ -4886,6 +4969,7 @@ model AddProductVersionPackageHeaders {
 model AddProductVersionPackageRequest {
   envUID?: string(name='envUID', description='环境UID（Deprecated)）'),
   packageType?: string(name='packageType', description='ENUM:["full","upgrade"]'),
+  packageContentType?: string(name='packageContentType', description='ENUM:["all","base"."application"]'),
 }
 
 model AddProductVersionPackageResponseBody = {
@@ -4914,6 +4998,9 @@ async function addProductVersionPackageWithOptions(uid: string, request: AddProd
   if (!Util.isUnset(request.packageType)) {
     query.packageType = request.packageType;
   }
+  if (!Util.isUnset(request.packageContentType)) {
+    query.packageContentType = request.packageContentType;
+  }
 
   var realHeaders : map[string]string = {};
   if (!Util.isUnset(headers.commonHeaders)) {
@@ -4927,6 +5014,61 @@ async function addProductVersionPackageWithOptions(uid: string, request: AddProd
     query = OpenApiUtil.query(query),
   };
   return doROARequest('AddProductVersionPackage', '2020-12-01', 'HTTPS', 'POST', 'AK', `/api/v1/hosting/product_versions/${uid}/packages`, 'json', req, runtime);
+}
+
+model ListEnvChangeRecordParamsRequest {
+  pageNum?: string(name='pageNum'),
+  pageSize?: string(name='pageSize'),
+  paramType?: string(name='paramType', description='全局参数传global，组件配置传component'),
+}
+
+model ListEnvChangeRecordParamsResponseBody = {
+  data?: {
+    list?: [ 
+      {
+        name?: string(name='name'),
+        value?: string(name='value'),
+        description?: string(name='description'),
+        componentName?: string(name='componentName'),
+        componentReleaseName?: string(name='componentReleaseName'),
+        parentComponentName?: string(name='parentComponentName'),
+        parentComponentReleaseName?: string(name='parentComponentReleaseName'),
+      }
+    ](name='list'),
+  }(name='data'),
+  errCode?: string(name='errCode'),
+  errMsg?: string(name='errMsg'),
+}
+
+model ListEnvChangeRecordParamsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListEnvChangeRecordParamsResponseBody(name='body'),
+}
+
+async function listEnvChangeRecordParams(uid: string, recordUid: string, request: ListEnvChangeRecordParamsRequest): ListEnvChangeRecordParamsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listEnvChangeRecordParamsWithOptions(uid, recordUid, request, headers, runtime);
+}
+
+async function listEnvChangeRecordParamsWithOptions(uid: string, recordUid: string, request: ListEnvChangeRecordParamsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListEnvChangeRecordParamsResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.pageNum)) {
+    query.pageNum = request.pageNum;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query.pageSize = request.pageSize;
+  }
+  if (!Util.isUnset(request.paramType)) {
+    query.paramType = request.paramType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('ListEnvChangeRecordParams', '2020-12-01', 'HTTPS', 'GET', 'AK', `/api/v1/environments/${uid}/change_records/${recordUid}/params`, 'json', req, runtime);
 }
 
 model ListFoundationVersionsResponseBody = {
