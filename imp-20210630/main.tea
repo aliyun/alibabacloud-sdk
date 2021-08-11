@@ -344,6 +344,59 @@ async function getRoom(request: GetRoomRequest): GetRoomResponse {
   return getRoomWithOptions(request, runtime);
 }
 
+model SendCommentRequest {
+  appId?: string(name='AppId', description='应用唯一标识，可以包含小写字母、数字，长度为6个字符。'),
+  roomId?: string(name='RoomId', description='直播间唯一标识，在调用CreateRoom返回。'),
+  senderId?: string(name='SenderId', description='弹幕发送者的用户ID，最大长度不超过32个字节。'),
+  content?: string(name='Content', description='发送的文本内容。最大的长度不超过256个字节。'),
+  extension?: map[string]string(name='Extension', description='扩展字段，服务端仅做透传。'),
+}
+
+model SendCommentShrinkRequest {
+  appId?: string(name='AppId', description='应用唯一标识，可以包含小写字母、数字，长度为6个字符。'),
+  roomId?: string(name='RoomId', description='直播间唯一标识，在调用CreateRoom返回。'),
+  senderId?: string(name='SenderId', description='弹幕发送者的用户ID，最大长度不超过32个字节。'),
+  content?: string(name='Content', description='发送的文本内容。最大的长度不超过256个字节。'),
+  extensionShrink?: string(name='Extension', description='扩展字段，服务端仅做透传。'),
+}
+
+model SendCommentResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID。'),
+  result?: {
+    commentVO?: {
+      commentId?: string(name='CommentId', description='弹幕的唯一ID。'),
+      senderId?: string(name='SenderId', description='弹幕的发送者ID标识。'),
+      senderNick?: string(name='SenderNick', description='弹幕发送者的昵称。'),
+      createAt?: long(name='CreateAt', description='弹幕的创建时间，Unix时间戳，单位：毫秒。'),
+      content?: string(name='Content', description='弹幕的内容。'),
+      extension?: map[string]string(name='Extension', description='扩展字段。'),
+    }(name='CommentVO', description='返回的弹幕数据模型。'),
+  }(name='Result', description='调用发送直播间弹幕的返回结果。'),
+}
+
+model SendCommentResponse = {
+  headers: map[string]string(name='headers'),
+  body: SendCommentResponseBody(name='body'),
+}
+
+async function sendCommentWithOptions(tmpReq: SendCommentRequest, runtime: Util.RuntimeOptions): SendCommentResponse {
+  Util.validateModel(tmpReq);
+  var request = new SendCommentShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.extension)) {
+    request.extensionShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.extension, 'Extension', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('SendComment', '2021-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function sendComment(request: SendCommentRequest): SendCommentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return sendCommentWithOptions(request, runtime);
+}
+
 model CreateAppTemplateRequest {
   appTemplateName?: string(name='AppTemplateName', description='应用模板名称'),
   componentList?: [ string ](name='ComponentList', description='组件列表'),
@@ -417,6 +470,37 @@ async function getConferenceWithOptions(request: GetConferenceRequest, runtime: 
 async function getConference(request: GetConferenceRequest): GetConferenceResponse {
   var runtime = new Util.RuntimeOptions{};
   return getConferenceWithOptions(request, runtime);
+}
+
+model BanCommentRequest {
+  appId?: string(name='AppId', description='应用唯一标识，由6位小写字母、数字组成。'),
+  roomId?: string(name='RoomId', description='房间唯一标识，由调用CreateRoom返回。'),
+  userId?: string(name='UserId', description='用户在房间内的唯一标识'),
+  banCommentUser?: string(name='BanCommentUser', description='被禁言的用户在房间内的唯一标识'),
+  banCommentTime?: long(name='BanCommentTime', description='禁言时长（秒）'),
+}
+
+model BanCommentResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  result?: boolean(name='Result', description='操作是否成功'),
+}
+
+model BanCommentResponse = {
+  headers: map[string]string(name='headers'),
+  body: BanCommentResponseBody(name='body'),
+}
+
+async function banCommentWithOptions(request: BanCommentRequest, runtime: Util.RuntimeOptions): BanCommentResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('BanComment', '2021-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function banComment(request: BanCommentRequest): BanCommentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return banCommentWithOptions(request, runtime);
 }
 
 model RejectLinkMicRequest {
@@ -516,6 +600,35 @@ async function addMemberWithOptions(request: AddMemberRequest, runtime: Util.Run
 async function addMember(request: AddMemberRequest): AddMemberResponse {
   var runtime = new Util.RuntimeOptions{};
   return addMemberWithOptions(request, runtime);
+}
+
+model CancelBanAllCommentRequest {
+  appId?: string(name='AppId', description='应用唯一标识，由6位小写字母、数字组成。'),
+  roomId?: string(name='RoomId', description='房间唯一标识，由调用CreateRoom返回。'),
+  userId?: string(name='UserId', description='用户在房间内的唯一标识'),
+}
+
+model CancelBanAllCommentResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  result?: boolean(name='Result', description='操作成功标识'),
+}
+
+model CancelBanAllCommentResponse = {
+  headers: map[string]string(name='headers'),
+  body: CancelBanAllCommentResponseBody(name='body'),
+}
+
+async function cancelBanAllCommentWithOptions(request: CancelBanAllCommentRequest, runtime: Util.RuntimeOptions): CancelBanAllCommentResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CancelBanAllComment', '2021-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function cancelBanAllComment(request: CancelBanAllCommentRequest): CancelBanAllCommentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return cancelBanAllCommentWithOptions(request, runtime);
 }
 
 model ListRoomsRequest {
@@ -636,6 +749,36 @@ async function listConferenceUsersWithOptions(request: ListConferenceUsersReques
 async function listConferenceUsers(request: ListConferenceUsersRequest): ListConferenceUsersResponse {
   var runtime = new Util.RuntimeOptions{};
   return listConferenceUsersWithOptions(request, runtime);
+}
+
+model CancelBanCommentRequest {
+  appId?: string(name='AppId', description='应用唯一标识，由6位小写字母、数字组成。'),
+  roomId?: string(name='RoomId', description='房间唯一标识，由调用CreateRoom返回。'),
+  userId?: string(name='UserId', description='用户在房间内的唯一标识'),
+  banCommentUser?: string(name='BanCommentUser', description='取消禁言的用户唯一标识'),
+}
+
+model CancelBanCommentResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  result?: boolean(name='Result', description='操作成功标识'),
+}
+
+model CancelBanCommentResponse = {
+  headers: map[string]string(name='headers'),
+  body: CancelBanCommentResponseBody(name='body'),
+}
+
+async function cancelBanCommentWithOptions(request: CancelBanCommentRequest, runtime: Util.RuntimeOptions): CancelBanCommentResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CancelBanComment', '2021-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function cancelBanComment(request: CancelBanCommentRequest): CancelBanCommentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return cancelBanCommentWithOptions(request, runtime);
 }
 
 model ListAppTemplatesRequest {
@@ -1144,6 +1287,35 @@ async function sendCustomMessageToUsersWithOptions(request: SendCustomMessageToU
 async function sendCustomMessageToUsers(request: SendCustomMessageToUsersRequest): SendCustomMessageToUsersResponse {
   var runtime = new Util.RuntimeOptions{};
   return sendCustomMessageToUsersWithOptions(request, runtime);
+}
+
+model BanAllCommentRequest {
+  appId?: string(name='AppId', description='应用唯一标识，由6位小写字母、数字组成。'),
+  roomId?: string(name='RoomId', description='房间唯一标识，由调用CreateRoom返回。'),
+  userId?: string(name='UserId', description='用户在房间内的唯一标识'),
+}
+
+model BanAllCommentResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  result?: boolean(name='Result', description='操作成功标识'),
+}
+
+model BanAllCommentResponse = {
+  headers: map[string]string(name='headers'),
+  body: BanAllCommentResponseBody(name='body'),
+}
+
+async function banAllCommentWithOptions(request: BanAllCommentRequest, runtime: Util.RuntimeOptions): BanAllCommentResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('BanAllComment', '2021-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function banAllComment(request: BanAllCommentRequest): BanAllCommentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return banAllCommentWithOptions(request, runtime);
 }
 
 model GetAuthTokenRequest {
