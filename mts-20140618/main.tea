@@ -3,7 +3,7 @@
  */
 import Util;
 import OpenApi;
-
+import OpenApiUtil;
 import EndpointUtil;
 
 extends OpenApi;
@@ -835,7 +835,6 @@ async function queryAnalysisJobList(request: QueryAnalysisJobListRequest): Query
 }
 
 model SubmitInferenceJobRequest {
-  userId?: long(name='UserId'),
   serverName?: string(name='ServerName'),
   modelType?: string(name='ModelType'),
   input?: string(name='Input'),
@@ -937,16 +936,16 @@ async function deleteMcuJob(request: DeleteMcuJobRequest): DeleteMcuJobResponse 
 }
 
 model QueryInferenceServerRequest {
-  userId?: long(name='UserId'),
   modelType?: string(name='ModelType'),
   createTime?: long(name='CreateTime'),
+  pageNumber?: long(name='PageNumber'),
+  maxPageSize?: long(name='MaxPageSize'),
 }
 
 model QueryInferenceServerResponseBody = {
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  functions?: {
-    functions?: [ 
+  functions?: [ 
     {
       functionName?: string(name='FunctionName'),
       createTime?: long(name='CreateTime'),
@@ -956,9 +955,9 @@ model QueryInferenceServerResponseBody = {
       pipelineId?: string(name='PipelineId'),
       testId?: string(name='TestId'),
     }
-  ](name='Functions')
-  }(name='Functions'),
+  ](name='Functions'),
   code?: string(name='Code'),
+  totalSize?: long(name='TotalSize'),
 }
 
 model QueryInferenceServerResponse = {
@@ -1659,8 +1658,9 @@ async function queryComplexJobList(request: QueryComplexJobListRequest): QueryCo
 }
 
 model ListInferenceJobRequest {
-  userId?: long(name='UserId'),
   serverName?: string(name='ServerName'),
+  pageNumber?: long(name='PageNumber'),
+  maxPageSize?: long(name='MaxPageSize'),
 }
 
 model ListInferenceJobResponseBody = {
@@ -1674,9 +1674,11 @@ model ListInferenceJobResponseBody = {
       userId?: long(name='UserId'),
       message?: string(name='Message'),
       jobTime?: long(name='JobTime'),
+      jobParams?: string(name='JobParams'),
     }
   ](name='Jobs'),
   code?: string(name='Code'),
+  totalSize?: long(name='TotalSize'),
 }
 
 model ListInferenceJobResponse = {
@@ -3651,6 +3653,9 @@ model SubmitEditingJobsRequest {
   outputBucket?: string(name='OutputBucket'),
   outputLocation?: string(name='OutputLocation'),
   pipelineId?: string(name='PipelineId'),
+  editingJobURL?: string(name='EditingJobURL'),
+  editingJobOssFileRoleArn?: string(name='EditingJobOssFileRoleArn'),
+  editingJobOssFileUid?: long(name='EditingJobOssFileUid'),
   ownerAccount?: string(name='OwnerAccount'),
 }
 
@@ -7137,6 +7142,46 @@ async function submitFpDBDeleteJob(request: SubmitFpDBDeleteJobRequest): SubmitF
   return submitFpDBDeleteJobWithOptions(request, runtime);
 }
 
+model GetJobInfoRequest {
+  jobId?: string(name='jobId'),
+}
+
+model GetJobInfoResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  mtsTransferJob?: {
+    jobId?: string(name='JobId'),
+    jobType?: string(name='JobType'),
+    createTime?: string(name='CreateTime'),
+    modifiedTime?: string(name='ModifiedTime'),
+    finishedTime?: string(name='FinishedTime'),
+    state?: string(name='State'),
+    errorCode?: string(name='ErrorCode'),
+    errorMessage?: string(name='ErrorMessage'),
+    userData?: string(name='UserData'),
+    extend?: string(name='Extend'),
+    requestJson?: string(name='RequestJson'),
+  }(name='MtsTransferJob'),
+}
+
+model GetJobInfoResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetJobInfoResponseBody(name='body'),
+}
+
+async function getJobInfoWithOptions(request: GetJobInfoRequest, runtime: Util.RuntimeOptions): GetJobInfoResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = query,
+  };
+  return doRPCRequest('GetJobInfo', '2014-06-18', 'HTTPS', 'GET', 'AK', 'json', req, runtime);
+}
+
+async function getJobInfo(request: GetJobInfoRequest): GetJobInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getJobInfoWithOptions(request, runtime);
+}
+
 model AddMediaTagRequest {
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
@@ -8295,6 +8340,55 @@ async function addCoverPipelineWithOptions(request: AddCoverPipelineRequest, run
 async function addCoverPipeline(request: AddCoverPipelineRequest): AddCoverPipelineResponse {
   var runtime = new Util.RuntimeOptions{};
   return addCoverPipelineWithOptions(request, runtime);
+}
+
+model SubmitURLUploadJobRequest {
+  region?: string(name='Region'),
+  sourceFileURL?: string(name='SourceFileURL'),
+  targetStorage?: {
+    bucket?: string(name='Bucket'),
+    objectKey?: string(name='ObjectKey'),
+    bucketOwnerId?: string(name='BucketOwnerId'),
+    objectRoleName?: string(name='ObjectRoleName'),
+  }(name='TargetStorage'),
+  userData?: string(name='UserData'),
+  notify?: string(name='Notify'),
+}
+
+model SubmitURLUploadJobShrinkRequest {
+  region?: string(name='Region'),
+  sourceFileURL?: string(name='SourceFileURL'),
+  targetStorageShrink?: string(name='TargetStorage'),
+  userData?: string(name='UserData'),
+  notify?: string(name='Notify'),
+}
+
+model SubmitURLUploadJobResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  jobId?: string(name='JobId'),
+}
+
+model SubmitURLUploadJobResponse = {
+  headers: map[string]string(name='headers'),
+  body: SubmitURLUploadJobResponseBody(name='body'),
+}
+
+async function submitURLUploadJobWithOptions(tmpReq: SubmitURLUploadJobRequest, runtime: Util.RuntimeOptions): SubmitURLUploadJobResponse {
+  Util.validateModel(tmpReq);
+  var request = new SubmitURLUploadJobShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.targetStorage)) {
+    request.targetStorageShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.targetStorage, 'TargetStorage', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('SubmitURLUploadJob', '2014-06-18', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function submitURLUploadJob(request: SubmitURLUploadJobRequest): SubmitURLUploadJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return submitURLUploadJobWithOptions(request, runtime);
 }
 
 model QueryMediaListByURLRequest {
@@ -11643,7 +11737,6 @@ async function queryFacerecogJobList(request: QueryFacerecogJobListRequest): Que
 }
 
 model CreateInferenceServerRequest {
-  userId?: long(name='UserId'),
   testId?: string(name='TestId'),
   modelType?: string(name='ModelType'),
   modelPath?: string(name='ModelPath'),
@@ -12149,7 +12242,6 @@ async function updateTerrorismPipeline(request: UpdateTerrorismPipelineRequest):
 }
 
 model QueryInferenceJobRequest {
-  userId?: long(name='UserId'),
   jobId?: string(name='JobId'),
 }
 
@@ -12163,6 +12255,7 @@ model QueryInferenceJobResponseBody = {
     userId?: long(name='UserId'),
     message?: string(name='Message'),
     jobTime?: long(name='JobTime'),
+    jobParams?: string(name='JobParams'),
   }(name='Job'),
   code?: string(name='Code'),
 }
