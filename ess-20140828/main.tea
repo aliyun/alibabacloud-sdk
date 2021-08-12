@@ -71,6 +71,45 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+model AttachAlbServerGroupsRequest {
+  ownerId?: long(name='OwnerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  regionId?: string(name='RegionId'),
+  scalingGroupId?: string(name='ScalingGroupId'),
+  clientToken?: string(name='ClientToken'),
+  forceAttach?: boolean(name='ForceAttach'),
+  albServerGroup?: [ 
+    {
+      albServerGroupId?: string(name='AlbServerGroupId'),
+      weight?: int32(name='Weight'),
+      port?: int32(name='Port'),
+    }
+  ](name='AlbServerGroup'),
+}
+
+model AttachAlbServerGroupsResponseBody = {
+  scalingActivityId?: string(name='ScalingActivityId'),
+  requestId?: string(name='RequestId'),
+}
+
+model AttachAlbServerGroupsResponse = {
+  headers: map[string]string(name='headers'),
+  body: AttachAlbServerGroupsResponseBody(name='body'),
+}
+
+async function attachAlbServerGroupsWithOptions(request: AttachAlbServerGroupsRequest, runtime: Util.RuntimeOptions): AttachAlbServerGroupsResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('AttachAlbServerGroups', '2014-08-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function attachAlbServerGroups(request: AttachAlbServerGroupsRequest): AttachAlbServerGroupsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return attachAlbServerGroupsWithOptions(request, runtime);
+}
+
 model AttachDBInstancesRequest {
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
@@ -114,8 +153,8 @@ model AttachInstancesRequest {
 }
 
 model AttachInstancesResponseBody = {
-  requestId?: string(name='RequestId'),
   scalingActivityId?: string(name='ScalingActivityId'),
+  requestId?: string(name='RequestId'),
 }
 
 model AttachInstancesResponse = {
@@ -142,10 +181,12 @@ model AttachLoadBalancersRequest {
   scalingGroupId?: string(name='ScalingGroupId'),
   forceAttach?: boolean(name='ForceAttach'),
   clientToken?: string(name='ClientToken'),
+  async?: boolean(name='Async'),
   loadBalancer?: [ string ](name='LoadBalancer'),
 }
 
 model AttachLoadBalancersResponseBody = {
+  scalingActivityId?: string(name='ScalingActivityId'),
   requestId?: string(name='RequestId'),
 }
 
@@ -268,8 +309,8 @@ model CreateAlarmRequest {
 }
 
 model CreateAlarmResponseBody = {
-  requestId?: string(name='RequestId'),
   alarmTaskId?: string(name='AlarmTaskId'),
+  requestId?: string(name='RequestId'),
 }
 
 model CreateAlarmResponse = {
@@ -419,17 +460,18 @@ model CreateScalingConfigurationRequest {
   ](name='InstanceTypeOverride'),
   dataDisk?: [ 
     {
+      categorys?: [ string ](name='Categorys'),
       performanceLevel?: string(name='PerformanceLevel'),
+      autoSnapshotPolicyId?: string(name='AutoSnapshotPolicyId'),
+      encrypted?: string(name='Encrypted'),
       description?: string(name='Description'),
       snapshotId?: string(name='SnapshotId'),
       size?: int32(name='Size'),
       device?: string(name='Device'),
       diskName?: string(name='DiskName'),
-      autoSnapshotPolicyId?: string(name='AutoSnapshotPolicyId'),
       category?: string(name='Category'),
-      KMSKeyId?: string(name='KMSKeyId'),
       deleteWithInstance?: boolean(name='DeleteWithInstance'),
-      encrypted?: string(name='Encrypted'),
+      KMSKeyId?: string(name='KMSKeyId'),
     }
   ](name='DataDisk'),
   spotPriceLimit?: [ 
@@ -439,6 +481,15 @@ model CreateScalingConfigurationRequest {
     }
   ](name='SpotPriceLimit'),
   securityGroupIds?: [ string ](name='SecurityGroupIds'),
+  instancePatternInfo?: [ 
+    {
+      cores?: int32(name='Cores'),
+      instanceFamilyLevel?: string(name='InstanceFamilyLevel'),
+      maxPrice?: float(name='MaxPrice'),
+      memory?: float(name='Memory'),
+    }
+  ](name='InstancePatternInfo'),
+  systemDiskCategory?: [ string ](name='SystemDiskCategory'),
 }
 
 model CreateScalingConfigurationShrinkRequest {
@@ -504,17 +555,18 @@ model CreateScalingConfigurationShrinkRequest {
   ](name='InstanceTypeOverride'),
   dataDisk?: [ 
     {
+      categorys?: [ string ](name='Categorys'),
       performanceLevel?: string(name='PerformanceLevel'),
+      autoSnapshotPolicyId?: string(name='AutoSnapshotPolicyId'),
+      encrypted?: string(name='Encrypted'),
       description?: string(name='Description'),
       snapshotId?: string(name='SnapshotId'),
       size?: int32(name='Size'),
       device?: string(name='Device'),
       diskName?: string(name='DiskName'),
-      autoSnapshotPolicyId?: string(name='AutoSnapshotPolicyId'),
       category?: string(name='Category'),
-      KMSKeyId?: string(name='KMSKeyId'),
       deleteWithInstance?: boolean(name='DeleteWithInstance'),
-      encrypted?: string(name='Encrypted'),
+      KMSKeyId?: string(name='KMSKeyId'),
     }
   ](name='DataDisk'),
   spotPriceLimit?: [ 
@@ -524,11 +576,20 @@ model CreateScalingConfigurationShrinkRequest {
     }
   ](name='SpotPriceLimit'),
   securityGroupIds?: [ string ](name='SecurityGroupIds'),
+  instancePatternInfo?: [ 
+    {
+      cores?: int32(name='Cores'),
+      instanceFamilyLevel?: string(name='InstanceFamilyLevel'),
+      maxPrice?: float(name='MaxPrice'),
+      memory?: float(name='Memory'),
+    }
+  ](name='InstancePatternInfo'),
+  systemDiskCategory?: [ string ](name='SystemDiskCategory'),
 }
 
 model CreateScalingConfigurationResponseBody = {
-  requestId?: string(name='RequestId'),
   scalingConfigurationId?: string(name='ScalingConfigurationId'),
+  requestId?: string(name='RequestId'),
 }
 
 model CreateScalingConfigurationResponse = {
@@ -581,7 +642,6 @@ model CreateScalingGroupRequest {
   spotInstancePools?: int32(name='SpotInstancePools'),
   desiredCapacity?: int32(name='DesiredCapacity'),
   groupDeletionProtection?: boolean(name='GroupDeletionProtection'),
-  scaleOutAmountCheck?: boolean(name='ScaleOutAmountCheck'),
   vSwitchIds?: [ string ](name='VSwitchIds'),
   lifecycleHook?: [ 
     {
@@ -617,6 +677,13 @@ model CreateScalingGroupRequest {
       weightedCapacity?: int32(name='WeightedCapacity'),
     }
   ](name='LaunchTemplateOverride'),
+  albServerGroup?: [ 
+    {
+      albServerGroupId?: string(name='AlbServerGroupId'),
+      weight?: int32(name='Weight'),
+      port?: int32(name='Port'),
+    }
+  ](name='AlbServerGroup'),
 }
 
 model CreateScalingGroupResponseBody = {
@@ -718,8 +785,8 @@ model CreateScheduledTaskRequest {
 }
 
 model CreateScheduledTaskResponseBody = {
-  requestId?: string(name='RequestId'),
   scheduledTaskId?: string(name='ScheduledTaskId'),
+  requestId?: string(name='RequestId'),
 }
 
 model CreateScheduledTaskResponse = {
@@ -777,8 +844,8 @@ model DeleteAlarmRequest {
 }
 
 model DeleteAlarmResponseBody = {
-  requestId?: string(name='RequestId'),
   alarmTaskId?: string(name='AlarmTaskId'),
+  requestId?: string(name='RequestId'),
 }
 
 model DeleteAlarmResponse = {
@@ -991,10 +1058,10 @@ model DescribeAlarmsRequest {
 }
 
 model DescribeAlarmsResponseBody = {
-  totalCount?: int32(name='TotalCount'),
   pageSize?: int32(name='PageSize'),
   requestId?: string(name='RequestId'),
   pageNumber?: int32(name='PageNumber'),
+  totalCount?: int32(name='TotalCount'),
   alarmList?: {
     alarm?: [ 
     {
@@ -1002,14 +1069,16 @@ model DescribeAlarmsResponseBody = {
       metricName?: string(name='MetricName'),
       evaluationCount?: int32(name='EvaluationCount'),
       state?: string(name='State'),
-      alarmActions?: {
-        alarmAction?: [ string ](name='AlarmAction')
-      }(name='AlarmActions'),
-      scalingGroupId?: string(name='ScalingGroupId'),
       period?: int32(name='Period'),
+      scalingGroupId?: string(name='ScalingGroupId'),
       comparisonOperator?: string(name='ComparisonOperator'),
       effective?: string(name='Effective'),
       description?: string(name='Description'),
+      metricType?: string(name='MetricType'),
+      name?: string(name='Name'),
+      threshold?: float(name='Threshold'),
+      enable?: boolean(name='Enable'),
+      statistics?: string(name='Statistics'),
       dimensions?: {
         dimension?: [ 
         {
@@ -1018,11 +1087,9 @@ model DescribeAlarmsResponseBody = {
         }
       ](name='Dimension')
       }(name='Dimensions'),
-      metricType?: string(name='MetricType'),
-      name?: string(name='Name'),
-      threshold?: float(name='Threshold'),
-      enable?: boolean(name='Enable'),
-      statistics?: string(name='Statistics'),
+      alarmActions?: {
+        alarmAction?: [ string ](name='AlarmAction')
+      }(name='AlarmActions'),
     }
   ](name='Alarm')
   }(name='AlarmList'),
@@ -1056,20 +1123,20 @@ model DescribeLifecycleActionsRequest {
 }
 
 model DescribeLifecycleActionsResponseBody = {
-  totalCount?: int32(name='TotalCount'),
   nextToken?: string(name='NextToken'),
   requestId?: string(name='RequestId'),
+  totalCount?: int32(name='TotalCount'),
   maxResults?: int32(name='MaxResults'),
   lifecycleActions?: {
     lifecycleAction?: [ 
     {
       lifecycleHookId?: string(name='LifecycleHookId'),
-      instanceIds?: {
-        instanceId?: [ string ](name='InstanceId')
-      }(name='InstanceIds'),
       lifecycleActionToken?: string(name='LifecycleActionToken'),
       lifecycleActionStatus?: string(name='LifecycleActionStatus'),
       lifecycleActionResult?: string(name='LifecycleActionResult'),
+      instanceIds?: {
+        instanceId?: [ string ](name='InstanceId')
+      }(name='InstanceIds'),
     }
   ](name='LifecycleAction')
   }(name='LifecycleActions'),
@@ -1105,10 +1172,10 @@ model DescribeLifecycleHooksRequest {
 }
 
 model DescribeLifecycleHooksResponseBody = {
-  totalCount?: int32(name='TotalCount'),
   requestId?: string(name='RequestId'),
-  pageSize?: int32(name='PageSize'),
   pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  totalCount?: int32(name='TotalCount'),
   lifecycleHooks?: {
     lifecycleHook?: [ 
     {
@@ -1149,18 +1216,20 @@ model DescribeLimitationRequest {
 }
 
 model DescribeLimitationResponseBody = {
-  maxNumberOfLifecycleHooks?: int32(name='MaxNumberOfLifecycleHooks'),
-  maxNumberOfScalingRules?: int32(name='MaxNumberOfScalingRules'),
-  maxNumberOfScalingInstances?: int32(name='MaxNumberOfScalingInstances'),
   maxNumberOfScheduledTasks?: int32(name='MaxNumberOfScheduledTasks'),
-  maxNumberOfVServerGroups?: int32(name='MaxNumberOfVServerGroups'),
   maxNumberOfLoadBalancers?: int32(name='MaxNumberOfLoadBalancers'),
-  maxNumberOfMinSize?: int32(name='MaxNumberOfMinSize'),
-  maxNumberOfScalingGroups?: int32(name='MaxNumberOfScalingGroups'),
-  maxNumberOfNotificationConfigurations?: int32(name='MaxNumberOfNotificationConfigurations'),
   maxNumberOfMaxSize?: int32(name='MaxNumberOfMaxSize'),
+  maxNumberOfAlbServerGroup?: int32(name='MaxNumberOfAlbServerGroup'),
   maxNumberOfDBInstances?: int32(name='MaxNumberOfDBInstances'),
   maxNumberOfScalingConfigurations?: int32(name='MaxNumberOfScalingConfigurations'),
+  maxNumberOfMinSize?: int32(name='MaxNumberOfMinSize'),
+  maxNumberOfLifecycleHooks?: int32(name='MaxNumberOfLifecycleHooks'),
+  maxNumberOfScalingInstances?: int32(name='MaxNumberOfScalingInstances'),
+  maxNumberOfScalingGroups?: int32(name='MaxNumberOfScalingGroups'),
+  requestId?: string(name='RequestId'),
+  maxNumberOfNotificationConfigurations?: int32(name='MaxNumberOfNotificationConfigurations'),
+  maxNumberOfVServerGroups?: int32(name='MaxNumberOfVServerGroups'),
+  maxNumberOfScalingRules?: int32(name='MaxNumberOfScalingRules'),
 }
 
 model DescribeLimitationResponse = {
@@ -1193,10 +1262,10 @@ model DescribeNotificationConfigurationsResponseBody = {
     notificationConfigurationModel?: [ 
     {
       notificationArn?: string(name='NotificationArn'),
+      scalingGroupId?: string(name='ScalingGroupId'),
       notificationTypes?: {
         notificationType?: [ string ](name='NotificationType')
       }(name='NotificationTypes'),
-      scalingGroupId?: string(name='ScalingGroupId'),
     }
   ](name='NotificationConfigurationModel')
   }(name='NotificationConfigurationModels'),
@@ -1262,10 +1331,10 @@ model DescribeRegionsResponseBody = {
   regions?: {
     region?: [ 
     {
-      localName?: string(name='LocalName'),
-      vpcUnavailable?: boolean(name='VpcUnavailable'),
       classicUnavailable?: boolean(name='ClassicUnavailable'),
       regionEndpoint?: string(name='RegionEndpoint'),
+      localName?: string(name='LocalName'),
+      vpcUnavailable?: boolean(name='VpcUnavailable'),
       regionId?: string(name='RegionId'),
     }
   ](name='Region')
@@ -1304,19 +1373,19 @@ model DescribeScalingActivitiesRequest {
 }
 
 model DescribeScalingActivitiesResponseBody = {
-  totalCount?: int32(name='TotalCount'),
   requestId?: string(name='RequestId'),
-  pageSize?: int32(name='PageSize'),
   pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  totalCount?: int32(name='TotalCount'),
   scalingActivities?: {
     scalingActivity?: [ 
     {
       progress?: int32(name='Progress'),
-      attachedCapacity?: string(name='AttachedCapacity'),
       scalingInstanceNumber?: int32(name='ScalingInstanceNumber'),
+      attachedCapacity?: string(name='AttachedCapacity'),
       totalCapacity?: string(name='TotalCapacity'),
-      autoCreatedCapacity?: string(name='AutoCreatedCapacity'),
       scalingGroupId?: string(name='ScalingGroupId'),
+      autoCreatedCapacity?: string(name='AutoCreatedCapacity'),
       endTime?: string(name='EndTime'),
       startTime?: string(name='StartTime'),
       description?: string(name='Description'),
@@ -1391,10 +1460,10 @@ model DescribeScalingConfigurationsRequest {
 }
 
 model DescribeScalingConfigurationsResponseBody = {
-  totalCount?: int32(name='TotalCount'),
   requestId?: string(name='RequestId'),
-  pageSize?: int32(name='PageSize'),
   pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  totalCount?: int32(name='TotalCount'),
   scalingConfigurations?: {
     scalingConfiguration?: [ 
     {
@@ -1402,16 +1471,50 @@ model DescribeScalingConfigurationsResponseBody = {
         id?: string(name='Id'),
         matchCriteria?: string(name='MatchCriteria'),
       }(name='PrivatePoolOptions'),
+      deploymentSetId?: string(name='DeploymentSetId'),
       creationTime?: string(name='CreationTime'),
       scalingConfigurationName?: string(name='ScalingConfigurationName'),
-      tags?: {
-        tag?: [ 
-        {
-          key?: string(name='Key'),
-          value?: string(name='Value'),
-        }
-      ](name='Tag')
-      }(name='Tags'),
+      systemDiskDescription?: string(name='SystemDiskDescription'),
+      keyPairName?: string(name='KeyPairName'),
+      securityGroupId?: string(name='SecurityGroupId'),
+      systemDiskAutoSnapshotPolicyId?: string(name='SystemDiskAutoSnapshotPolicyId'),
+      spotStrategy?: string(name='SpotStrategy'),
+      scalingGroupId?: string(name='ScalingGroupId'),
+      affinity?: string(name='Affinity'),
+      tenancy?: string(name='Tenancy'),
+      systemDiskSize?: int32(name='SystemDiskSize'),
+      ipv6AddressCount?: int32(name='Ipv6AddressCount'),
+      spotDuration?: int32(name='SpotDuration'),
+      lifecycleState?: string(name='LifecycleState'),
+      instanceName?: string(name='InstanceName'),
+      securityEnhancementStrategy?: string(name='SecurityEnhancementStrategy'),
+      userData?: string(name='UserData'),
+      dedicatedHostId?: string(name='DedicatedHostId'),
+      instanceGeneration?: string(name='InstanceGeneration'),
+      hpcClusterId?: string(name='HpcClusterId'),
+      passwordInherit?: boolean(name='PasswordInherit'),
+      memory?: int32(name='Memory'),
+      imageId?: string(name='ImageId'),
+      imageFamily?: string(name='ImageFamily'),
+      loadBalancerWeight?: int32(name='LoadBalancerWeight'),
+      systemDiskCategory?: string(name='SystemDiskCategory'),
+      hostName?: string(name='HostName'),
+      systemDiskName?: string(name='SystemDiskName'),
+      internetMaxBandwidthOut?: int32(name='InternetMaxBandwidthOut'),
+      internetMaxBandwidthIn?: int32(name='InternetMaxBandwidthIn'),
+      instanceType?: string(name='InstanceType'),
+      instanceDescription?: string(name='InstanceDescription'),
+      ioOptimized?: string(name='IoOptimized'),
+      ramRoleName?: string(name='RamRoleName'),
+      systemDiskPerformanceLevel?: string(name='SystemDiskPerformanceLevel'),
+      cpu?: int32(name='Cpu'),
+      resourceGroupId?: string(name='ResourceGroupId'),
+      zoneId?: string(name='ZoneId'),
+      internetChargeType?: string(name='InternetChargeType'),
+      imageName?: string(name='ImageName'),
+      scalingConfigurationId?: string(name='ScalingConfigurationId'),
+      creditSpecification?: string(name='CreditSpecification'),
+      spotInterruptionBehavior?: string(name='SpotInterruptionBehavior'),
       dataDisks?: {
         dataDisk?: [ 
         {
@@ -1426,71 +1529,53 @@ model DescribeScalingConfigurationsResponseBody = {
           KMSKeyId?: string(name='KMSKeyId'),
           deleteWithInstance?: boolean(name='DeleteWithInstance'),
           encrypted?: string(name='Encrypted'),
+          categories?: {
+            category?: [ string ](name='Category')
+          }(name='Categories'),
         }
       ](name='DataDisk')
       }(name='DataDisks'),
-      systemDiskAutoSnapshotPolicyId?: string(name='SystemDiskAutoSnapshotPolicyId'),
-      spotStrategy?: string(name='SpotStrategy'),
-      affinity?: string(name='Affinity'),
-      spotDuration?: int32(name='SpotDuration'),
-      instanceName?: string(name='InstanceName'),
-      userData?: string(name='UserData'),
+      tags?: {
+        tag?: [ 
+        {
+          key?: string(name='Key'),
+          value?: string(name='Value'),
+        }
+      ](name='Tag')
+      }(name='Tags'),
       spotPriceLimit?: {
         spotPriceModel?: [ 
         {
-          priceLimit?: float(name='PriceLimit'),
           instanceType?: string(name='InstanceType'),
+          priceLimit?: float(name='PriceLimit'),
         }
       ](name='SpotPriceModel')
       }(name='SpotPriceLimit'),
-      imageId?: string(name='ImageId'),
-      loadBalancerWeight?: int32(name='LoadBalancerWeight'),
-      hostName?: string(name='HostName'),
-      systemDiskName?: string(name='SystemDiskName'),
-      instanceType?: string(name='InstanceType'),
-      systemDiskPerformanceLevel?: string(name='SystemDiskPerformanceLevel'),
-      imageName?: string(name='ImageName'),
-      internetChargeType?: string(name='InternetChargeType'),
-      zoneId?: string(name='ZoneId'),
-      scalingConfigurationId?: string(name='ScalingConfigurationId'),
-      creditSpecification?: string(name='CreditSpecification'),
-      spotInterruptionBehavior?: string(name='SpotInterruptionBehavior'),
-      deploymentSetId?: string(name='DeploymentSetId'),
-      systemDiskDescription?: string(name='SystemDiskDescription'),
-      keyPairName?: string(name='KeyPairName'),
-      securityGroupId?: string(name='SecurityGroupId'),
-      scalingGroupId?: string(name='ScalingGroupId'),
-      tenancy?: string(name='Tenancy'),
-      systemDiskSize?: int32(name='SystemDiskSize'),
-      ipv6AddressCount?: int32(name='Ipv6AddressCount'),
-      lifecycleState?: string(name='LifecycleState'),
-      securityEnhancementStrategy?: string(name='SecurityEnhancementStrategy'),
-      dedicatedHostId?: string(name='DedicatedHostId'),
-      instanceGeneration?: string(name='InstanceGeneration'),
-      hpcClusterId?: string(name='HpcClusterId'),
-      passwordInherit?: boolean(name='PasswordInherit'),
-      memory?: int32(name='Memory'),
-      imageFamily?: string(name='ImageFamily'),
-      systemDiskCategory?: string(name='SystemDiskCategory'),
+      instancePatternInfos?: {
+        instancePatternInfo?: [ 
+        {
+          maxPrice?: float(name='MaxPrice'),
+          cores?: int32(name='Cores'),
+          memory?: float(name='Memory'),
+          instanceFamilyLevel?: string(name='InstanceFamilyLevel'),
+        }
+      ](name='InstancePatternInfo')
+      }(name='InstancePatternInfos'),
+      systemDiskCategories?: {
+        systemDiskCategory?: [ string ](name='SystemDiskCategory')
+      }(name='SystemDiskCategories'),
       weightedCapacities?: {
         weightedCapacity?: [ string ](name='WeightedCapacity')
       }(name='WeightedCapacities'),
-      internetMaxBandwidthOut?: int32(name='InternetMaxBandwidthOut'),
-      internetMaxBandwidthIn?: int32(name='InternetMaxBandwidthIn'),
-      instanceDescription?: string(name='InstanceDescription'),
-      securityGroupIds?: {
-        securityGroupId?: [ string ](name='SecurityGroupId')
-      }(name='SecurityGroupIds'),
-      ioOptimized?: string(name='IoOptimized'),
-      ramRoleName?: string(name='RamRoleName'),
-      cpu?: int32(name='Cpu'),
-      resourceGroupId?: string(name='ResourceGroupId'),
-      schedulerOptions?: {
-        managedPrivateSpaceId?: string(name='ManagedPrivateSpaceId'),
-      }(name='SchedulerOptions'),
       instanceTypes?: {
         instanceType?: [ string ](name='InstanceType')
       }(name='InstanceTypes'),
+      securityGroupIds?: {
+        securityGroupId?: [ string ](name='SecurityGroupId')
+      }(name='SecurityGroupIds'),
+      schedulerOptions?: {
+        managedPrivateSpaceId?: string(name='ManagedPrivateSpaceId'),
+      }(name='SchedulerOptions'),
     }
   ](name='ScalingConfiguration')
   }(name='ScalingConfigurations'),
@@ -1527,14 +1612,16 @@ model DescribeScalingInstancesRequest {
   pageNumber?: int32(name='PageNumber'),
   pageSize?: int32(name='PageSize'),
   ownerAccount?: string(name='OwnerAccount'),
+  scalingActivityId?: string(name='ScalingActivityId'),
   instanceId?: [ string ](name='InstanceId'),
 }
 
 model DescribeScalingInstancesResponseBody = {
-  totalCount?: int32(name='TotalCount'),
   requestId?: string(name='RequestId'),
   pageSize?: int32(name='PageSize'),
   pageNumber?: int32(name='PageNumber'),
+  totalSpotCount?: int32(name='TotalSpotCount'),
+  totalCount?: int32(name='TotalCount'),
   scalingInstances?: {
     scalingInstance?: [ 
     {
@@ -1542,21 +1629,22 @@ model DescribeScalingInstancesResponseBody = {
       loadBalancerWeight?: int32(name='LoadBalancerWeight'),
       launchTemplateId?: string(name='LaunchTemplateId'),
       instanceId?: string(name='InstanceId'),
+      spotStrategy?: string(name='SpotStrategy'),
       launchTemplateVersion?: string(name='LaunchTemplateVersion'),
       healthStatus?: string(name='HealthStatus'),
-      spotStrategy?: string(name='SpotStrategy'),
       scalingGroupId?: string(name='ScalingGroupId'),
       warmupState?: string(name='WarmupState'),
       lifecycleState?: string(name='LifecycleState'),
       creationType?: string(name='CreationType'),
+      zoneId?: string(name='ZoneId'),
       scalingConfigurationId?: string(name='ScalingConfigurationId'),
       entrusted?: boolean(name='Entrusted'),
       weightedCapacity?: int32(name='WeightedCapacity'),
       createdTime?: string(name='CreatedTime'),
+      scalingActivityId?: string(name='ScalingActivityId'),
     }
   ](name='ScalingInstance')
   }(name='ScalingInstances'),
-  totalSpotCount?: int32(name='TotalSpotCount'),
 }
 
 model DescribeScalingInstancesResponse = {
@@ -1594,12 +1682,35 @@ model DescribeScalingRulesRequest {
 }
 
 model DescribeScalingRulesResponseBody = {
+  requestId?: string(name='RequestId'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
   totalCount?: int32(name='TotalCount'),
   scalingRules?: {
     scalingRule?: [ 
     {
       metricName?: string(name='MetricName'),
+      adjustmentType?: string(name='AdjustmentType'),
       initialMaxSize?: int32(name='InitialMaxSize'),
+      estimatedInstanceWarmup?: int32(name='EstimatedInstanceWarmup'),
+      scaleOutEvaluationCount?: int32(name='ScaleOutEvaluationCount'),
+      predictiveScalingMode?: string(name='PredictiveScalingMode'),
+      minAdjustmentMagnitude?: int32(name='MinAdjustmentMagnitude'),
+      scalingRuleAri?: string(name='ScalingRuleAri'),
+      predictiveTaskBufferTime?: int32(name='PredictiveTaskBufferTime'),
+      minSize?: int32(name='MinSize'),
+      scalingGroupId?: string(name='ScalingGroupId'),
+      predictiveValueBehavior?: string(name='PredictiveValueBehavior'),
+      targetValue?: float(name='TargetValue'),
+      cooldown?: int32(name='Cooldown'),
+      maxSize?: int32(name='MaxSize'),
+      predictiveValueBuffer?: int32(name='PredictiveValueBuffer'),
+      scalingRuleType?: string(name='ScalingRuleType'),
+      adjustmentValue?: int32(name='AdjustmentValue'),
+      scaleInEvaluationCount?: int32(name='ScaleInEvaluationCount'),
+      disableScaleIn?: boolean(name='DisableScaleIn'),
+      scalingRuleName?: string(name='ScalingRuleName'),
+      scalingRuleId?: string(name='ScalingRuleId'),
       alarms?: {
         alarm?: [ 
         {
@@ -1608,6 +1719,9 @@ model DescribeScalingRulesResponseBody = {
           metricName?: string(name='MetricName'),
           evaluationCount?: int32(name='EvaluationCount'),
           alarmTaskName?: string(name='AlarmTaskName'),
+          metricType?: string(name='MetricType'),
+          threshold?: float(name='Threshold'),
+          statistics?: string(name='Statistics'),
           dimensions?: {
             dimension?: [ 
             {
@@ -1616,28 +1730,9 @@ model DescribeScalingRulesResponseBody = {
             }
           ](name='Dimension')
           }(name='Dimensions'),
-          metricType?: string(name='MetricType'),
-          threshold?: float(name='Threshold'),
-          statistics?: string(name='Statistics'),
         }
       ](name='Alarm')
       }(name='Alarms'),
-      scaleOutEvaluationCount?: int32(name='ScaleOutEvaluationCount'),
-      predictiveScalingMode?: string(name='PredictiveScalingMode'),
-      minSize?: int32(name='MinSize'),
-      predictiveTaskBufferTime?: int32(name='PredictiveTaskBufferTime'),
-      scalingGroupId?: string(name='ScalingGroupId'),
-      predictiveValueBehavior?: string(name='PredictiveValueBehavior'),
-      cooldown?: int32(name='Cooldown'),
-      scalingRuleType?: string(name='ScalingRuleType'),
-      predictiveValueBuffer?: int32(name='PredictiveValueBuffer'),
-      scaleInEvaluationCount?: int32(name='ScaleInEvaluationCount'),
-      disableScaleIn?: boolean(name='DisableScaleIn'),
-      scalingRuleName?: string(name='ScalingRuleName'),
-      adjustmentType?: string(name='AdjustmentType'),
-      estimatedInstanceWarmup?: int32(name='EstimatedInstanceWarmup'),
-      minAdjustmentMagnitude?: int32(name='MinAdjustmentMagnitude'),
-      scalingRuleAri?: string(name='ScalingRuleAri'),
       stepAdjustments?: {
         stepAdjustment?: [ 
         {
@@ -1647,16 +1742,9 @@ model DescribeScalingRulesResponseBody = {
         }
       ](name='StepAdjustment')
       }(name='StepAdjustments'),
-      targetValue?: float(name='TargetValue'),
-      maxSize?: int32(name='MaxSize'),
-      adjustmentValue?: int32(name='AdjustmentValue'),
-      scalingRuleId?: string(name='ScalingRuleId'),
     }
   ](name='ScalingRule')
   }(name='ScalingRules'),
-  requestId?: string(name='RequestId'),
-  pageSize?: int32(name='PageSize'),
-  pageNumber?: int32(name='PageNumber'),
 }
 
 model DescribeScalingRulesResponse = {
@@ -1692,21 +1780,21 @@ model DescribeScheduledTasksRequest {
 }
 
 model DescribeScheduledTasksResponseBody = {
-  totalCount?: int32(name='TotalCount'),
   requestId?: string(name='RequestId'),
-  pageSize?: int32(name='PageSize'),
   pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  totalCount?: int32(name='TotalCount'),
   scheduledTasks?: {
     scheduledTask?: [ 
     {
       taskEnabled?: boolean(name='TaskEnabled'),
       recurrenceValue?: string(name='RecurrenceValue'),
-      maxValue?: int32(name='MaxValue'),
       recurrenceType?: string(name='RecurrenceType'),
+      maxValue?: int32(name='MaxValue'),
       scheduledTaskName?: string(name='ScheduledTaskName'),
       recurrenceEndTime?: string(name='RecurrenceEndTime'),
-      scheduledTaskId?: string(name='ScheduledTaskId'),
       desiredCapacity?: int32(name='DesiredCapacity'),
+      scheduledTaskId?: string(name='ScheduledTaskId'),
       minValue?: int32(name='MinValue'),
       scalingGroupId?: string(name='ScalingGroupId'),
       launchExpirationTime?: int32(name='LaunchExpirationTime'),
@@ -1734,6 +1822,44 @@ async function describeScheduledTasksWithOptions(request: DescribeScheduledTasks
 async function describeScheduledTasks(request: DescribeScheduledTasksRequest): DescribeScheduledTasksResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeScheduledTasksWithOptions(request, runtime);
+}
+
+model DetachAlbServerGroupsRequest {
+  ownerId?: long(name='OwnerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  regionId?: string(name='RegionId'),
+  scalingGroupId?: string(name='ScalingGroupId'),
+  clientToken?: string(name='ClientToken'),
+  forceDetach?: boolean(name='ForceDetach'),
+  albServerGroup?: [ 
+    {
+      albServerGroupId?: string(name='AlbServerGroupId'),
+      port?: int32(name='Port'),
+    }
+  ](name='AlbServerGroup'),
+}
+
+model DetachAlbServerGroupsResponseBody = {
+  scalingActivityId?: string(name='ScalingActivityId'),
+  requestId?: string(name='RequestId'),
+}
+
+model DetachAlbServerGroupsResponse = {
+  headers: map[string]string(name='headers'),
+  body: DetachAlbServerGroupsResponseBody(name='body'),
+}
+
+async function detachAlbServerGroupsWithOptions(request: DetachAlbServerGroupsRequest, runtime: Util.RuntimeOptions): DetachAlbServerGroupsResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DetachAlbServerGroups', '2014-08-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function detachAlbServerGroups(request: DetachAlbServerGroupsRequest): DetachAlbServerGroupsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return detachAlbServerGroupsWithOptions(request, runtime);
 }
 
 model DetachDBInstancesRequest {
@@ -1779,8 +1905,8 @@ model DetachInstancesRequest {
 }
 
 model DetachInstancesResponseBody = {
-  requestId?: string(name='RequestId'),
   scalingActivityId?: string(name='ScalingActivityId'),
+  requestId?: string(name='RequestId'),
 }
 
 model DetachInstancesResponse = {
@@ -1807,10 +1933,12 @@ model DetachLoadBalancersRequest {
   scalingGroupId?: string(name='ScalingGroupId'),
   forceDetach?: boolean(name='ForceDetach'),
   clientToken?: string(name='ClientToken'),
+  async?: boolean(name='Async'),
   loadBalancer?: [ string ](name='LoadBalancer'),
 }
 
 model DetachLoadBalancersResponseBody = {
+  scalingActivityId?: string(name='ScalingActivityId'),
   requestId?: string(name='RequestId'),
 }
 
@@ -2045,8 +2173,8 @@ model ExecuteScalingRuleRequest {
 }
 
 model ExecuteScalingRuleResponseBody = {
-  requestId?: string(name='RequestId'),
   scalingActivityId?: string(name='ScalingActivityId'),
+  requestId?: string(name='RequestId'),
 }
 
 model ExecuteScalingRuleResponse = {
@@ -2154,8 +2282,8 @@ model ListTagResourcesResponseBody = {
   tagResources?: {
     tagResource?: [ 
     {
-      resourceType?: string(name='ResourceType'),
       tagValue?: string(name='TagValue'),
+      resourceType?: string(name='ResourceType'),
       resourceId?: string(name='ResourceId'),
       tagKey?: string(name='TagKey'),
     }
@@ -2244,8 +2372,8 @@ model ModifyAlarmRequest {
 }
 
 model ModifyAlarmResponseBody = {
-  requestId?: string(name='RequestId'),
   alarmTaskId?: string(name='AlarmTaskId'),
+  requestId?: string(name='RequestId'),
 }
 
 model ModifyAlarmResponse = {
@@ -2384,17 +2512,18 @@ model ModifyScalingConfigurationRequest {
   spotInterruptionBehavior?: string(name='SpotInterruptionBehavior'),
   dataDisk?: [ 
     {
+      categorys?: [ string ](name='Categorys'),
       performanceLevel?: string(name='PerformanceLevel'),
+      autoSnapshotPolicyId?: string(name='AutoSnapshotPolicyId'),
+      encrypted?: string(name='Encrypted'),
       description?: string(name='Description'),
       snapshotId?: string(name='SnapshotId'),
       size?: int32(name='Size'),
       device?: string(name='Device'),
       diskName?: string(name='DiskName'),
-      autoSnapshotPolicyId?: string(name='AutoSnapshotPolicyId'),
       category?: string(name='Category'),
-      KMSKeyId?: string(name='KMSKeyId'),
       deleteWithInstance?: boolean(name='DeleteWithInstance'),
-      encrypted?: string(name='Encrypted'),
+      KMSKeyId?: string(name='KMSKeyId'),
     }
   ](name='DataDisk'),
   spotPriceLimit?: [ 
@@ -2411,6 +2540,15 @@ model ModifyScalingConfigurationRequest {
     }
   ](name='InstanceTypeOverride'),
   securityGroupIds?: [ string ](name='SecurityGroupIds'),
+  instancePatternInfo?: [ 
+    {
+      cores?: int32(name='Cores'),
+      instanceFamilyLevel?: string(name='InstanceFamilyLevel'),
+      maxPrice?: float(name='MaxPrice'),
+      memory?: float(name='Memory'),
+    }
+  ](name='InstancePatternInfo'),
+  systemDiskCategory?: [ string ](name='SystemDiskCategory'),
 }
 
 model ModifyScalingConfigurationShrinkRequest {
@@ -2465,17 +2603,18 @@ model ModifyScalingConfigurationShrinkRequest {
   spotInterruptionBehavior?: string(name='SpotInterruptionBehavior'),
   dataDisk?: [ 
     {
+      categorys?: [ string ](name='Categorys'),
       performanceLevel?: string(name='PerformanceLevel'),
+      autoSnapshotPolicyId?: string(name='AutoSnapshotPolicyId'),
+      encrypted?: string(name='Encrypted'),
       description?: string(name='Description'),
       snapshotId?: string(name='SnapshotId'),
       size?: int32(name='Size'),
       device?: string(name='Device'),
       diskName?: string(name='DiskName'),
-      autoSnapshotPolicyId?: string(name='AutoSnapshotPolicyId'),
       category?: string(name='Category'),
-      KMSKeyId?: string(name='KMSKeyId'),
       deleteWithInstance?: boolean(name='DeleteWithInstance'),
-      encrypted?: string(name='Encrypted'),
+      KMSKeyId?: string(name='KMSKeyId'),
     }
   ](name='DataDisk'),
   spotPriceLimit?: [ 
@@ -2492,6 +2631,15 @@ model ModifyScalingConfigurationShrinkRequest {
     }
   ](name='InstanceTypeOverride'),
   securityGroupIds?: [ string ](name='SecurityGroupIds'),
+  instancePatternInfo?: [ 
+    {
+      cores?: int32(name='Cores'),
+      instanceFamilyLevel?: string(name='InstanceFamilyLevel'),
+      maxPrice?: float(name='MaxPrice'),
+      memory?: float(name='Memory'),
+    }
+  ](name='InstancePatternInfo'),
+  systemDiskCategory?: [ string ](name='SystemDiskCategory'),
 }
 
 model ModifyScalingConfigurationResponseBody = {
@@ -2543,7 +2691,7 @@ model ModifyScalingGroupRequest {
   spotInstancePools?: int32(name='SpotInstancePools'),
   desiredCapacity?: int32(name='DesiredCapacity'),
   groupDeletionProtection?: boolean(name='GroupDeletionProtection'),
-  scaleOutAmountCheck?: boolean(name='ScaleOutAmountCheck'),
+  multiAZPolicy?: string(name='MultiAZPolicy'),
   vSwitchIds?: [ string ](name='VSwitchIds'),
   launchTemplateOverride?: [ 
     {
@@ -2680,8 +2828,8 @@ model RebalanceInstancesRequest {
 }
 
 model RebalanceInstancesResponseBody = {
-  requestId?: string(name='RequestId'),
   scalingActivityId?: string(name='ScalingActivityId'),
+  requestId?: string(name='RequestId'),
 }
 
 model RebalanceInstancesResponse = {
@@ -2745,8 +2893,8 @@ model RemoveInstancesRequest {
 }
 
 model RemoveInstancesResponseBody = {
-  requestId?: string(name='RequestId'),
   scalingActivityId?: string(name='ScalingActivityId'),
+  requestId?: string(name='RequestId'),
 }
 
 model RemoveInstancesResponse = {
@@ -2795,6 +2943,39 @@ async function resumeProcessesWithOptions(request: ResumeProcessesRequest, runti
 async function resumeProcesses(request: ResumeProcessesRequest): ResumeProcessesResponse {
   var runtime = new Util.RuntimeOptions{};
   return resumeProcessesWithOptions(request, runtime);
+}
+
+model ScaleWithAdjustmentRequest {
+  scalingGroupId?: string(name='ScalingGroupId'),
+  adjustmentType?: string(name='AdjustmentType'),
+  adjustmentValue?: int32(name='AdjustmentValue'),
+  minAdjustmentMagnitude?: int32(name='MinAdjustmentMagnitude'),
+  clientToken?: string(name='ClientToken'),
+  ownerId?: long(name='OwnerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+}
+
+model ScaleWithAdjustmentResponseBody = {
+  scalingActivityId?: string(name='ScalingActivityId'),
+  requestId?: string(name='RequestId'),
+}
+
+model ScaleWithAdjustmentResponse = {
+  headers: map[string]string(name='headers'),
+  body: ScaleWithAdjustmentResponseBody(name='body'),
+}
+
+async function scaleWithAdjustmentWithOptions(request: ScaleWithAdjustmentRequest, runtime: Util.RuntimeOptions): ScaleWithAdjustmentResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ScaleWithAdjustment', '2014-08-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function scaleWithAdjustment(request: ScaleWithAdjustmentRequest): ScaleWithAdjustmentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return scaleWithAdjustmentWithOptions(request, runtime);
 }
 
 model SetGroupDeletionProtectionRequest {
