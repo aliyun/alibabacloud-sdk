@@ -183,6 +183,16 @@ model ListRoomLivesRequest {
   status?: int32(name='Status', description='直播状态筛选条件，0-直播 1-下播，不传则返回全部状态'),
   queryTimestamp?: long(name='QueryTimestamp', description='拉取在这个时间戳之前创建的直播，单位毫秒，不传则默认拉取最新创建的。'),
   size?: int32(name='Size', description='拉取直播数量。'),
+  roomIdList?: [ string ](name='RoomIdList', description='房间ID列表，可指定多个房间id，过滤优先级高于RoomId。'),
+}
+
+model ListRoomLivesShrinkRequest {
+  appId?: string(name='AppId', description='应用唯一标识，可以包含小写字母、数字，长度为6个字符。'),
+  roomId?: string(name='RoomId', description='房间ID，最大长度36个字符。'),
+  status?: int32(name='Status', description='直播状态筛选条件，0-直播 1-下播，不传则返回全部状态'),
+  queryTimestamp?: long(name='QueryTimestamp', description='拉取在这个时间戳之前创建的直播，单位毫秒，不传则默认拉取最新创建的。'),
+  size?: int32(name='Size', description='拉取直播数量。'),
+  roomIdListShrink?: string(name='RoomIdList', description='房间ID列表，可指定多个房间id，过滤优先级高于RoomId。'),
 }
 
 model ListRoomLivesResponseBody = {
@@ -211,8 +221,13 @@ model ListRoomLivesResponse = {
   body: ListRoomLivesResponseBody(name='body'),
 }
 
-async function listRoomLivesWithOptions(request: ListRoomLivesRequest, runtime: Util.RuntimeOptions): ListRoomLivesResponse {
-  Util.validateModel(request);
+async function listRoomLivesWithOptions(tmpReq: ListRoomLivesRequest, runtime: Util.RuntimeOptions): ListRoomLivesResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListRoomLivesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.roomIdList)) {
+    request.roomIdListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.roomIdList, 'RoomIdList', 'json');
+  }
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
@@ -399,11 +414,13 @@ async function sendComment(request: SendCommentRequest): SendCommentResponse {
 
 model CreateAppTemplateRequest {
   appTemplateName?: string(name='AppTemplateName', description='应用模板名称'),
+  sence?: string(name='Sence', description='应用模板场景，电商business，课堂classroom'),
   componentList?: [ string ](name='ComponentList', description='组件列表'),
 }
 
 model CreateAppTemplateShrinkRequest {
   appTemplateName?: string(name='AppTemplateName', description='应用模板名称'),
+  sence?: string(name='Sence', description='应用模板场景，电商business，课堂classroom'),
   componentListShrink?: string(name='ComponentList', description='组件列表'),
 }
 
@@ -837,6 +854,30 @@ model ListComponentsRequest {
 model ListComponentsResponseBody = {
   requestId?: string(name='RequestId', description='请求ID'),
   result?: {
+    configGroup?: [ 
+      {
+        key?: string(name='Key'),
+        value?: string(name='Value'),
+        category?: string(name='Category'),
+      }
+    ](name='ConfigGroup', description='配置信息'),
+    sceneList?: [ 
+      {
+        scene?: string(name='Scene', description='场景类别'),
+        componentCategory?: [ 
+          {
+            type?: string(name='Type', description='组件类别'),
+            list?: [ 
+              {
+                componentType?: string(name='ComponentType', description='组件类型'),
+                componentName?: string(name='ComponentName', description='组件名称'),
+                inUse?: string(name='InUse', description='是否使用'),
+              }
+            ](name='List', description='类别下的组件列表'),
+          }
+        ](name='ComponentCategory', description='组件信息'),
+      }
+    ](name='SceneList', description='场景列表'),
     componentCategory?: [ 
       {
         type?: string(name='Type', description='组件类别'),
@@ -849,13 +890,6 @@ model ListComponentsResponseBody = {
         ](name='List', description='类别下的组件列表'),
       }
     ](name='ComponentCategory', description='组件信息'),
-    configGroup?: [ 
-      {
-        key?: string(name='Key'),
-        value?: string(name='Value'),
-        category?: string(name='Category'),
-      }
-    ](name='ConfigGroup', description='配置信息'),
   }(name='Result', description='返回结果体'),
 }
 
@@ -1126,11 +1160,13 @@ async function deleteLive(request: DeleteLiveRequest): DeleteLiveResponse {
 model GetLiveDomainStatusRequest {
   appId?: string(name='AppId', description='应用唯一标识'),
   liveDomainList?: [ string ](name='LiveDomainList', description='直播域名列表'),
+  liveDomainType?: string(name='LiveDomainType', description='直播域名类型，推流域名: push, 拉流域名: pull, 回放域名: palyback'),
 }
 
 model GetLiveDomainStatusShrinkRequest {
   appId?: string(name='AppId', description='应用唯一标识'),
   liveDomainListShrink?: string(name='LiveDomainList', description='直播域名列表'),
+  liveDomainType?: string(name='LiveDomainType', description='直播域名类型，推流域名: push, 拉流域名: pull, 回放域名: palyback'),
 }
 
 model GetLiveDomainStatusResponseBody = {
