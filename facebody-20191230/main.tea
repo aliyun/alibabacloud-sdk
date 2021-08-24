@@ -4613,6 +4613,117 @@ async function addFaceEntity(request: AddFaceEntityRequest): AddFaceEntityRespon
   return addFaceEntityWithOptions(request, runtime);
 }
 
+model RetouchBodyRequest {
+  imageURL?: string(name='ImageURL'),
+  slimDegree?: float(name='SlimDegree'),
+  lengthenDegree?: float(name='LengthenDegree'),
+}
+
+model RetouchBodyAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+  slimDegree?: float(name='SlimDegree'),
+  lengthenDegree?: float(name='LengthenDegree'),
+}
+
+model RetouchBodyResponseBody = {
+  data?: {
+    imageURL?: string(name='ImageURL'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model RetouchBodyResponse = {
+  headers: map[string]string(name='headers'),
+  body: RetouchBodyResponseBody(name='body'),
+}
+
+async function retouchBodyWithOptions(request: RetouchBodyRequest, runtime: Util.RuntimeOptions): RetouchBodyResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RetouchBody', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function retouchBody(request: RetouchBodyRequest): RetouchBodyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return retouchBodyWithOptions(request, runtime);
+}
+
+async function retouchBodyAdvance(request: RetouchBodyAdvanceRequest, runtime: Util.RuntimeOptions): RetouchBodyResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var retouchBodyReq = new RetouchBodyRequest{};
+  OpenApiUtil.convert(request, retouchBodyReq);
+
+  if(!Util.isUnset(request.imageURLObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    retouchBodyReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var retouchBodyResp = retouchBodyWithOptions(retouchBodyReq, runtime);
+  return retouchBodyResp;
+}
+
 model DeleteFaceEntityRequest {
   dbName?: string(name='DbName'),
   entityId?: string(name='EntityId'),
