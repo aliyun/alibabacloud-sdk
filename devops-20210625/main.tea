@@ -488,6 +488,78 @@ async function resetSshKeyWithOptions(organizationId: string, headers: map[strin
   return doROARequest('ResetSshKey', '2021-06-25', 'HTTPS', 'PUT', 'AK', `/organization/${organizationId}/sshKey`, 'json', req, runtime);
 }
 
+model CreateWorkspaceRequest {
+  name?: string(name='name', description='工作空间名称'),
+  workspaceTemplate?: string(name='workspaceTemplate', description='技术栈'),
+  codeUrl?: string(name='codeUrl', description='代码来源URL（当前仅支持云效 Codeup 来源）'),
+  codeVersion?: string(name='codeVersion', description='代码版本，支持 commitSHA、分支、标签'),
+  filePath?: string(name='filePath', description='打开空间默认打开的文件相对路径'),
+  reuse?: boolean(name='reuse', description='工作空间复用标识，按照"用户+技术栈+代码地址+版本"进行复用 true - 复用 false - 不复用，每次均为新创建'),
+  resourceIdentifier?: string(name='resourceIdentifier', description='资源标识，提供给非标代码源作为空间复用的唯一标识'),
+  requestFrom?: string(name='requestFrom', description='请求来源（用于统计，云产品集成时需要传入）'),
+}
+
+model CreateWorkspaceResponseBody = {
+  workspace?: {
+    id?: string(name='id', description='工作空间唯一标识，字符串形式，可在云效DevStudio访问空间链接中获取'),
+    name?: string(name='name', description='工作空间名称'),
+    status?: string(name='status', description='空间状态，枚举：CREATING-创建中, SUCCESS-运行中, FROZEN-冻结中, RECOVERING-恢复中'),
+    template?: string(name='template', description='工作空间模板'),
+    creator?: string(name='creator', description='创建者，阿里云PK'),
+    createTime?: string(name='createTime', description='创建时间戳'),
+  }(name='workspace', description='工作空间信息'),
+  requestId?: string(name='requestId', description='请求ID'),
+  success?: boolean(name='success', description='请求是否成功'),
+  errorCode?: string(name='errorCode', description='错误码'),
+  errorMessage?: string(name='errorMessage', description='错误信息'),
+}
+
+model CreateWorkspaceResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateWorkspaceResponseBody(name='body'),
+}
+
+async function createWorkspace(request: CreateWorkspaceRequest): CreateWorkspaceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createWorkspaceWithOptions(request, headers, runtime);
+}
+
+async function createWorkspaceWithOptions(request: CreateWorkspaceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateWorkspaceResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.name)) {
+    body.name = request.name;
+  }
+  if (!Util.isUnset(request.workspaceTemplate)) {
+    body.workspaceTemplate = request.workspaceTemplate;
+  }
+  if (!Util.isUnset(request.codeUrl)) {
+    body.codeUrl = request.codeUrl;
+  }
+  if (!Util.isUnset(request.codeVersion)) {
+    body.codeVersion = request.codeVersion;
+  }
+  if (!Util.isUnset(request.filePath)) {
+    body.filePath = request.filePath;
+  }
+  if (!Util.isUnset(request.reuse)) {
+    body.reuse = request.reuse;
+  }
+  if (!Util.isUnset(request.resourceIdentifier)) {
+    body.resourceIdentifier = request.resourceIdentifier;
+  }
+  if (!Util.isUnset(request.requestFrom)) {
+    body.requestFrom = request.requestFrom;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  return doROARequestWithForm('CreateWorkspace', '2021-06-25', 'HTTPS', 'POST', 'AK', `/api/workspaces`, 'json', req, runtime);
+}
+
 model ListServiceConnectionsRequest {
   sericeConnectionType?: string(name='sericeConnectionType', description='aliyun_code  阿里云代码 Codeup       Codeup  Gitee        码云 github       Github ack       容器服务Kubernetes(ACK) docker_register_aliyun    容器镜像服务(ACR) ecs          对象存储(OSS) edas          企业级分布式应用(EDAS) emas         移动研发平台(EMAS) fc            阿里云函数计算(FC) kubernetes     自建k8s集群 oss            对象存储(OSS) PACKAGES       制品仓库 ros   资源编排服务(ROS) sae       Serverless应用引擎(SAE)'),
 }
@@ -830,6 +902,85 @@ async function startPipelineRunWithOptions(organizationId: string, pipelineId: s
   return doROARequestWithForm('StartPipelineRun', '2021-06-25', 'HTTPS', 'POST', 'AK', `/organizations/${organizationId}/pipelines/${pipelineId}/run`, 'json', req, runtime);
 }
 
+model ListWorkspacesRequest {
+  nextToken?: string(name='nextToken', description='用来标记当前开始读取的位置，置空表示从头开始'),
+  maxResults?: int32(name='maxResults', description='本次读取的最大数据记录数量，默认10，最大100'),
+  statusList?: [ string ](name='statusList', description='枚举值：CREATING-创建中, SUCCESS-运行中, FROZEN-冻结中, RECOVERING-恢复中'),
+  workspaceTemplateList?: [ string ](name='workspaceTemplateList', description='空间模板列表'),
+}
+
+model ListWorkspacesShrinkRequest {
+  nextToken?: string(name='nextToken', description='用来标记当前开始读取的位置，置空表示从头开始'),
+  maxResults?: int32(name='maxResults', description='本次读取的最大数据记录数量，默认10，最大100'),
+  statusListShrink?: string(name='statusList', description='枚举值：CREATING-创建中, SUCCESS-运行中, FROZEN-冻结中, RECOVERING-恢复中'),
+  workspaceTemplateListShrink?: string(name='workspaceTemplateList', description='空间模板列表'),
+}
+
+model ListWorkspacesResponseBody = {
+  totalCount?: int32(name='totalCount', description='TotalCount本次请求条件下的数据总量，此参数为可选参数，默认可不返回'),
+  nextToken?: string(name='nextToken', description='表示当前调用返回读取到的位置，空代表数据已经读取完毕'),
+  maxResults?: int32(name='maxResults', description='MaxResults本次请求所返回的最大记录条数'),
+  workspaces?: [ 
+    {
+      codeVersion?: string(name='codeVersion', description='代码版本，支持 commitSHA、分支、标签'),
+      codeUrl?: string(name='codeUrl', description='代码来源URL'),
+      name?: string(name='name', description='工作空间名称'),
+      spec?: string(name='spec', description='机器规格'),
+      status?: string(name='status', description='空间状态，枚举：CREATING-创建中, SUCCESS-运行中, FROZEN-冻结中, RECOVERING-恢复中'),
+      template?: string(name='template', description='工作空间模板'),
+      id?: string(name='id', description='工作空间唯一标识，字符串形式，可在云效DevStudio访问空间链接中获取'),
+      userId?: string(name='userId', description='用户阿里云PK'),
+      createTime?: string(name='createTime', description='创建时间戳'),
+    }
+  ](name='workspaces', description='工作空间列表'),
+  requestId?: string(name='requestId', description='请求ID'),
+  success?: boolean(name='success', description='请求是否成功'),
+  errorCode?: string(name='errorCode', description='错误码'),
+  errorMessage?: string(name='errorMessage', description='错误信息'),
+}
+
+model ListWorkspacesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListWorkspacesResponseBody(name='body'),
+}
+
+async function listWorkspaces(request: ListWorkspacesRequest): ListWorkspacesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listWorkspacesWithOptions(request, headers, runtime);
+}
+
+async function listWorkspacesWithOptions(tmpReq: ListWorkspacesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListWorkspacesResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListWorkspacesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.statusList)) {
+    request.statusListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.statusList, 'statusList', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.workspaceTemplateList)) {
+    request.workspaceTemplateListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.workspaceTemplateList, 'workspaceTemplateList', 'simple');
+  }
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.nextToken)) {
+    query.nextToken = request.nextToken;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query.maxResults = request.maxResults;
+  }
+  if (!Util.isUnset(request.statusListShrink)) {
+    query.statusList = request.statusListShrink;
+  }
+  if (!Util.isUnset(request.workspaceTemplateListShrink)) {
+    query.workspaceTemplateList = request.workspaceTemplateListShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('ListWorkspaces', '2021-06-25', 'HTTPS', 'GET', 'AK', `/api/workspaces`, 'json', req, runtime);
+}
+
 model GetPipelineRunResponseBody = {
   requestId?: string(name='requestId', description='请求id，每次请求都是唯一值，便于后续排查问题'),
   errorMessage?: string(name='errorMessage', description='错误信息'),
@@ -1037,6 +1188,42 @@ async function deleteVariableGroupWithOptions(organizationId: string, id: string
   return doROARequest('DeleteVariableGroup', '2021-06-25', 'HTTPS', 'DELETE', 'AK', `/organization/${organizationId}/variableGroups/${id}`, 'json', req, runtime);
 }
 
+model GetWorkspaceResponseBody = {
+  workspace?: {
+    codeVersion?: string(name='codeVersion', description='代码版本，支持 commitSHA、分支、标签'),
+    codeUrl?: string(name='codeUrl', description='代码来源URL'),
+    name?: string(name='name', description='工作空间名称'),
+    spec?: string(name='spec', description='机器规格'),
+    status?: string(name='status', description='空间状态，枚举：CREATING-创建中, SUCCESS-运行中, FROZEN-冻结中, RECOVERING-恢复中'),
+    template?: string(name='template', description='工作空间模板'),
+    id?: string(name='id', description='工作空间唯一标识，字符串形式，可在云效DevStudio访问空间链接中获取'),
+    userId?: string(name='userId', description='用户阿里云PK'),
+    createTime?: string(name='createTime', description='创建时间戳'),
+  }(name='workspace', description='工作空间信息'),
+  success?: boolean(name='success', description='请求是否成功'),
+  errorCode?: string(name='errorCode', description='错误码'),
+  errorMessage?: string(name='errorMessage', description='错误信息'),
+  requestId?: string(name='requestId', description='请求ID'),
+}
+
+model GetWorkspaceResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetWorkspaceResponseBody(name='body'),
+}
+
+async function getWorkspace(workspaceId: string): GetWorkspaceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getWorkspaceWithOptions(workspaceId, headers, runtime);
+}
+
+async function getWorkspaceWithOptions(workspaceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetWorkspaceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('GetWorkspace', '2021-06-25', 'HTTPS', 'GET', 'AK', `/api/workspaces/${workspaceId}`, 'json', req, runtime);
+}
+
 model CreateSshKeyResponseBody = {
   requestId?: string(name='requestId', description='请求id，每次请求都是唯一值，便于后续排查问题'),
   errorMessage?: string(name='errorMessage', description='错误信息'),
@@ -1089,6 +1276,31 @@ async function deleteHostGroupWithOptions(organizationId: string, id: string, he
     headers = headers,
   };
   return doROARequest('DeleteHostGroup', '2021-06-25', 'HTTPS', 'DELETE', 'AK', `/organization/${organizationId}/hostGroups/${id}`, 'json', req, runtime);
+}
+
+model ReleaseWorkspaceResponseBody = {
+  requestId?: string(name='requestId', description='请求ID'),
+  success?: boolean(name='success', description='请求是否成功'),
+  errorCode?: string(name='errorCode', description='错误码'),
+  errorMessage?: string(name='errorMessage', description='错误信息'),
+}
+
+model ReleaseWorkspaceResponse = {
+  headers: map[string]string(name='headers'),
+  body: ReleaseWorkspaceResponseBody(name='body'),
+}
+
+async function releaseWorkspace(workspaceId: string): ReleaseWorkspaceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return releaseWorkspaceWithOptions(workspaceId, headers, runtime);
+}
+
+async function releaseWorkspaceWithOptions(workspaceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ReleaseWorkspaceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('ReleaseWorkspace', '2021-06-25', 'HTTPS', 'DELETE', 'AK', `/api/workspaces/${workspaceId}/release`, 'json', req, runtime);
 }
 
 model ListVariableGroupsRequest {
@@ -1188,6 +1400,31 @@ async function deletePipelineWithOptions(organizationId: string, pipelineId: str
     headers = headers,
   };
   return doROARequest('DeletePipeline', '2021-06-25', 'HTTPS', 'DELETE', 'AK', `/organization/${organizationId}/pipelines/${pipelineId}`, 'json', req, runtime);
+}
+
+model FrozenWorkspaceResponseBody = {
+  requestId?: string(name='requestId', description='请求ID'),
+  success?: boolean(name='success', description='请求是否成功'),
+  errorCode?: string(name='errorCode', description='错误码'),
+  errorMessage?: string(name='errorMessage', description='错误信息'),
+}
+
+model FrozenWorkspaceResponse = {
+  headers: map[string]string(name='headers'),
+  body: FrozenWorkspaceResponseBody(name='body'),
+}
+
+async function frozenWorkspace(workspaceId: string): FrozenWorkspaceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return frozenWorkspaceWithOptions(workspaceId, headers, runtime);
+}
+
+async function frozenWorkspaceWithOptions(workspaceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): FrozenWorkspaceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('FrozenWorkspace', '2021-06-25', 'HTTPS', 'PUT', 'AK', `/api/workspaces/${workspaceId}/frozen`, 'json', req, runtime);
 }
 
 model ListPipelineRunsRequest {
