@@ -662,6 +662,57 @@ async function updateMergeRequestCommentWithOptions(ProjectId: string, MergeRequ
   return doROARequest('UpdateMergeRequestComment', '2020-04-14', 'HTTPS', 'PUT', 'AK', `/api/v3/projects/${ProjectId}/merge_requests/${MergeRequestId}/notes/${NoteId}`, 'json', req, runtime);
 }
 
+model TriggerRepositoryMirrorSyncRequest {
+  accessToken?: string(name='AccessToken', description='个人访问令牌。 使用阿里云AK+SK或使用STS临时授权方式不需要传该字段'),
+  organizationId?: string(name='OrganizationId', description='企业标识，也称企业id，字符串形式，可在云效访问链接中获取，如 https://devops.aliyun.com/organization/'),
+  account?: string(name='Account', description='远程同步库克隆账号'),
+  token?: string(name='Token', description='远程同步库克隆令牌'),
+}
+
+model TriggerRepositoryMirrorSyncResponseBody = {
+  errorMessage?: string(name='ErrorMessage', description='错误信息'),
+  requestId?: string(name='RequestId', description='请求ID'),
+  success?: boolean(name='Success', description='请求结果'),
+  errorCode?: string(name='ErrorCode', description='错误码'),
+  result?: {
+    result?: boolean(name='Result', description='仓库同步触发结果'),
+  }(name='Result', description='响应结果'),
+}
+
+model TriggerRepositoryMirrorSyncResponse = {
+  headers: map[string]string(name='headers'),
+  body: TriggerRepositoryMirrorSyncResponseBody(name='body'),
+}
+
+async function triggerRepositoryMirrorSync(ProjectId: string, request: TriggerRepositoryMirrorSyncRequest): TriggerRepositoryMirrorSyncResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return triggerRepositoryMirrorSyncWithOptions(ProjectId, request, headers, runtime);
+}
+
+async function triggerRepositoryMirrorSyncWithOptions(ProjectId: string, request: TriggerRepositoryMirrorSyncRequest, headers: map[string]string, runtime: Util.RuntimeOptions): TriggerRepositoryMirrorSyncResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.accessToken)) {
+    query.AccessToken = request.accessToken;
+  }
+  if (!Util.isUnset(request.organizationId)) {
+    query.OrganizationId = request.organizationId;
+  }
+  if (!Util.isUnset(request.account)) {
+    query.Account = request.account;
+  }
+  if (!Util.isUnset(request.token)) {
+    query.Token = request.token;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('TriggerRepositoryMirrorSync', '2020-04-14', 'HTTPS', 'POST', 'AK', `/api/v4/projects/${ProjectId}/mirror`, 'json', req, runtime);
+}
+
 model DeleteBranchRequest {
   accessToken?: string(name='AccessToken'),
   branchName?: string(name='BranchName'),
@@ -4144,6 +4195,67 @@ async function createBranchWithOptions(ProjectId: string, request: CreateBranchR
     query = OpenApiUtil.query(query),
   };
   return doROARequest('CreateBranch', '2020-04-14', 'HTTPS', 'POST', 'AK', `/api/v3/projects/${ProjectId}/repository/branches`, 'json', req, runtime);
+}
+
+model GetOrganizationRepositorySettingRequest {
+  accessToken?: string(name='AccessToken', description='个人访问令牌。 使用阿里云AK+SK或使用STS临时授权方式不需要传该字段'),
+  organizationId?: string(name='OrganizationId', description='企业标识，也称企业id，字符串形式，可在云效访问链接中获取，如 https://devops.aliyun.com/organization/'),
+}
+
+model GetOrganizationRepositorySettingResponseBody = {
+  errorMessage?: string(name='ErrorMessage', description='错误信息'),
+  requestId?: string(name='RequestId', description='请求ID'),
+  success?: boolean(name='Success', description='请求结果'),
+  errorCode?: string(name='ErrorCode', description='错误码'),
+  result?: {
+    groupRequired?: boolean(name='GroupRequired', description='创建库是否必选代码组'),
+    repoVisibilityLevel?: [ long ](name='RepoVisibilityLevel', description='创建代码库允许使用的可见性选项。0：允许私有；10：允许企业可见'),
+    repoCreatorIdentity?: [ long ](name='RepoCreatorIdentity', description='允许创建代码库的角色。5：企业外部成员；15：企业成员；60：企业管理员'),
+    repoAdminAccessVisibilityLevel?: [ long ](name='RepoAdminAccessVisibilityLevel', description='库公开性调整设置。0：允许库管理员调整公开性为私有；10：允许库管理员调整公开性为企业可见'),
+    repoAdminOperation?: [ long ](name='RepoAdminOperation', description='库管理员允许操作。1：允许库管理员删除代码库；2：未使用保留操作'),
+    openCloneDownloadControl?: boolean(name='OpenCloneDownloadControl', description='开启克隆下载限制'),
+    orgCloneDownloadMethodList?: [ 
+      {
+        permissionCode?: string(name='PermissionCode', description='权限码。ssh-clone：SSH克隆；http-clone：HTTP克隆；download：下载ZIP/TAR'),
+        allowed?: boolean(name='Allowed', description='是否允许'),
+      }
+    ](name='OrgCloneDownloadMethodList', description='克隆下载限制方法列表'),
+    orgCloneDownloadRoleList?: [ 
+      {
+        roleCode?: long(name='RoleCode', description='角色Code。5：企业外部成员；9999：企业成员（含管理员）'),
+        allowed?: boolean(name='Allowed', description='是否允许'),
+      }
+    ](name='OrgCloneDownloadRoleList', description='克隆下载限制角色列表'),
+    forcePushForbidden?: boolean(name='ForcePushForbidden', description='禁止强制推送（Force Push）'),
+  }(name='Result', description='响应结果'),
+}
+
+model GetOrganizationRepositorySettingResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetOrganizationRepositorySettingResponseBody(name='body'),
+}
+
+async function getOrganizationRepositorySetting(request: GetOrganizationRepositorySettingRequest): GetOrganizationRepositorySettingResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getOrganizationRepositorySettingWithOptions(request, headers, runtime);
+}
+
+async function getOrganizationRepositorySettingWithOptions(request: GetOrganizationRepositorySettingRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetOrganizationRepositorySettingResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.accessToken)) {
+    query.AccessToken = request.accessToken;
+  }
+  if (!Util.isUnset(request.organizationId)) {
+    query.OrganizationId = request.organizationId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('GetOrganizationRepositorySetting', '2020-04-14', 'HTTPS', 'GET', 'AK', `/api/v4/organization/settings/repo`, 'json', req, runtime);
 }
 
 model ListGroupRepositoriesRequest {
