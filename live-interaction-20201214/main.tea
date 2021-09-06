@@ -135,12 +135,7 @@ model ImportMessageRequest {
         appCid?: string(name='AppCid', description='会话ID'),
         conversationType?: long(name='ConversationType', description='会话类型1 单聊 2 群聊'),
         senderId?: string(name='SenderId', description='发送者ID'),
-        receiverUsers?: [ 
-          {
-            receiverId?: string(name='ReceiverId', description='接受者ID'),
-            readFlag?: boolean(name='ReadFlag', description='消息已阅读标志'),
-          }
-        ](name='ReceiverUsers', description='接受者列表, 群聊如果列表为空者全员接收'),
+        receiverIds?: [ string ](name='ReceiverIds', description='接受者列表, 群聊如果列表为空者全员接收'),
         contentType?: long(name='ContentType', description='消息类型'),
         content?: string(name='Content', description='消息内容'),
         createTime?: long(name='CreateTime', description='消息发送时间戳'),
@@ -1035,6 +1030,48 @@ async function getRoomStatisticsWithOptions(request: GetRoomStatisticsRequest, r
 async function getRoomStatistics(request: GetRoomStatisticsRequest): GetRoomStatisticsResponse {
   var runtime = new Util.RuntimeOptions{};
   return getRoomStatisticsWithOptions(request, runtime);
+}
+
+model ReadMessageRequest {
+  appId?: string(name='AppId', description='AppId'),
+  requestParams?: {
+    appUid?: string(name='AppUid', description='操作者ID'),
+    msgId?: string(name='MsgId', description='消息ID'),
+  }(name='RequestParams'),
+}
+
+model ReadMessageShrinkRequest {
+  appId?: string(name='AppId', description='AppId'),
+  requestParamsShrink?: string(name='RequestParams'),
+}
+
+model ReadMessageResponseBody = {
+  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
+  message?: string(name='Message'),
+}
+
+model ReadMessageResponse = {
+  headers: map[string]string(name='headers'),
+  body: ReadMessageResponseBody(name='body'),
+}
+
+async function readMessageWithOptions(tmpReq: ReadMessageRequest, runtime: Util.RuntimeOptions): ReadMessageResponse {
+  Util.validateModel(tmpReq);
+  var request = new ReadMessageShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.requestParams)) {
+    request.requestParamsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.requestParams, 'RequestParams', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ReadMessage', '2020-12-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function readMessage(request: ReadMessageRequest): ReadMessageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return readMessageWithOptions(request, runtime);
 }
 
 model AddGroupMembersRequest {
@@ -1991,7 +2028,7 @@ model ListGroupSilenceMembersResponseBody = {
   result?: {
     appCid?: string(name='AppCid', description='群会话id'),
     whitelist?: [ string ](name='Whitelist', description='禁言白名单'),
-    blacklist?: map[string]long(name='Blacklist', description='禁言黑名单用户及对应禁言截止时间'),
+    blacklist?: map[string]long(name='Blacklist', description='禁言黑名单用户及对应禁言时长'),
   }(name='Result'),
 }
 
@@ -2213,17 +2250,18 @@ async function getMessageById(request: GetMessageByIdRequest): GetMessageByIdRes
 
 model DestroyRoomRequest {
   request?: {
-    domain?: string(name='domain', description='应用的appKey。'),
-    roomId?: string(name='roomId', description='房间ID，由调用CreateRoom时返回。'),
-    openId?: string(name='openId', description='操作人ID。'),
+    domain?: string(name='domain', description='应用appKey'),
+    roomId?: string(name='roomId', description='房间id'),
+    openId?: string(name='openId', description='操作人id'),
   }(name='Request'),
 }
 
 model DestroyRoomResponseBody = {
-  errorCode?: string(name='errorCode', description='错误码。'),
-  errorMsg?: string(name='errorMsg', description='错误信息。'),
-  requestId?: string(name='RequestId', description='请求ID。'),
-  responseSuccess?: boolean(name='ResponseSuccess', description='请求是否成功。'),
+  errorCode?: string(name='errorCode', description='错误码'),
+  errorMsg?: string(name='errorMsg', description='错误信息'),
+  requestId?: string(name='RequestId'),
+  result?: boolean(name='result', description='是否销毁成功'),
+  responseSuccess?: boolean(name='ResponseSuccess'),
 }
 
 model DestroyRoomResponse = {
