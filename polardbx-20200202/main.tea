@@ -134,6 +134,38 @@ async function cancelPolarxOrder(request: CancelPolarxOrderRequest): CancelPolar
   return cancelPolarxOrderWithOptions(request, runtime);
 }
 
+model CheckCloudResourceAuthorizedRequest {
+  regionId?: string(name='RegionId'),
+  DBInstanceName?: string(name='DBInstanceName'),
+  roleArn?: string(name='RoleArn'),
+}
+
+model CheckCloudResourceAuthorizedResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    authorizationState?: string(name='AuthorizationState'),
+    roleArn?: string(name='RoleArn'),
+  }(name='Data'),
+}
+
+model CheckCloudResourceAuthorizedResponse = {
+  headers: map[string]string(name='headers'),
+  body: CheckCloudResourceAuthorizedResponseBody(name='body'),
+}
+
+async function checkCloudResourceAuthorizedWithOptions(request: CheckCloudResourceAuthorizedRequest, runtime: Util.RuntimeOptions): CheckCloudResourceAuthorizedResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CheckCloudResourceAuthorized', '2020-02-02', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function checkCloudResourceAuthorized(request: CheckCloudResourceAuthorizedRequest): CheckCloudResourceAuthorizedResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return checkCloudResourceAuthorizedWithOptions(request, runtime);
+}
+
 model CreateAccountRequest {
   regionId?: string(name='RegionId'),
   DBInstanceName?: string(name='DBInstanceName'),
@@ -142,6 +174,8 @@ model CreateAccountRequest {
   DBName?: string(name='DBName'),
   accountPrivilege?: string(name='AccountPrivilege'),
   accountDescription?: string(name='AccountDescription'),
+  securityAccountName?: string(name='SecurityAccountName'),
+  securityAccountPassword?: string(name='SecurityAccountPassword'),
 }
 
 model CreateAccountResponseBody = {
@@ -177,12 +211,12 @@ model CreateBackupRequest {
 model CreateBackupResponseBody = {
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
   data?: [ 
     {
       backupSetId?: long(name='BackupSetId'),
     }
   ](name='Data'),
-  success?: boolean(name='Success'),
 }
 
 model CreateBackupResponse = {
@@ -211,6 +245,8 @@ model CreateDBRequest {
   dbName?: string(name='DbName'),
   accountPrivilege?: string(name='AccountPrivilege'),
   dbDescription?: string(name='DbDescription'),
+  securityAccountName?: string(name='SecurityAccountName'),
+  securityAccountPassword?: string(name='SecurityAccountPassword'),
 }
 
 model CreateDBResponseBody = {
@@ -257,9 +293,9 @@ model CreateDBInstanceRequest {
 }
 
 model CreateDBInstanceResponseBody = {
+  DBInstanceName?: string(name='DBInstanceName'),
   requestId?: string(name='RequestId'),
   orderId?: string(name='OrderId'),
-  DBInstanceName?: string(name='DBInstanceName'),
 }
 
 model CreateDBInstanceResponse = {
@@ -301,14 +337,14 @@ model CreatePolarxInstanceRequest {
 }
 
 model CreatePolarxInstanceResponseBody = {
+  success?: boolean(name='Success'),
   requestId?: string(name='RequestId'),
   data?: {
+    orderId?: long(name='OrderId'),
     drdsInstanceIdList?: {
       drdsInstanceIdList?: [ string ](name='drdsInstanceIdList')
     }(name='DrdsInstanceIdList'),
-    orderId?: long(name='OrderId'),
   }(name='Data'),
-  success?: boolean(name='Success'),
 }
 
 model CreatePolarxInstanceResponse = {
@@ -399,6 +435,8 @@ model DeleteAccountRequest {
   DBInstanceName?: string(name='DBInstanceName'),
   accountName?: string(name='AccountName'),
   regionId?: string(name='RegionId'),
+  securityAccountName?: string(name='SecurityAccountName'),
+  securityAccountPassword?: string(name='SecurityAccountPassword'),
 }
 
 model DeleteAccountResponseBody = {
@@ -486,13 +524,16 @@ model DescribeAccountListRequest {
   regionId?: string(name='RegionId'),
   DBInstanceName?: string(name='DBInstanceName'),
   accountName?: string(name='AccountName'),
+  accountType?: string(name='AccountType'),
 }
 
 model DescribeAccountListResponseBody = {
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
   data?: [ 
     {
+      gmtCreated?: string(name='GmtCreated'),
       DBInstanceName?: string(name='DBInstanceName'),
       accountDescription?: string(name='AccountDescription'),
       DBName?: string(name='DBName'),
@@ -501,7 +542,6 @@ model DescribeAccountListResponseBody = {
       accountName?: string(name='AccountName'),
     }
   ](name='Data'),
-  success?: boolean(name='Success'),
 }
 
 model DescribeAccountListResponse = {
@@ -530,6 +570,7 @@ model DescribeBackupPolicyRequest {
 model DescribeBackupPolicyResponseBody = {
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
   data?: [ 
     {
       logLocalRetentionSpace?: int32(name='LogLocalRetentionSpace'),
@@ -545,7 +586,6 @@ model DescribeBackupPolicyResponseBody = {
       isEnabled?: int32(name='IsEnabled'),
     }
   ](name='Data'),
-  success?: boolean(name='Success'),
 }
 
 model DescribeBackupPolicyResponse = {
@@ -578,6 +618,7 @@ model DescribeBackupSetListRequest {
 model DescribeBackupSetListResponseBody = {
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
   data?: [ 
     {
       endTime?: long(name='EndTime'),
@@ -589,7 +630,6 @@ model DescribeBackupSetListResponseBody = {
       backupModel?: int32(name='BackupModel'),
     }
   ](name='Data'),
-  success?: boolean(name='Success'),
 }
 
 model DescribeBackupSetListResponse = {
@@ -621,22 +661,13 @@ model DescribeDBInstanceAttributeResponseBody = {
   DBInstance?: {
     type?: string(name='Type'),
     status?: string(name='Status'),
+    rightsSeparationStatus?: string(name='RightsSeparationStatus'),
     DBNodeCount?: int32(name='DBNodeCount'),
     expired?: string(name='Expired'),
     createTime?: string(name='CreateTime'),
     payType?: string(name='PayType'),
-    readDBInstances?: [ string ](name='ReadDBInstances'),
     port?: string(name='Port'),
     lockMode?: string(name='LockMode'),
-    connAddrs?: [ 
-      {
-        type?: string(name='Type'),
-        vSwitchId?: string(name='VSwitchId'),
-        connectionString?: string(name='ConnectionString'),
-        port?: string(name='Port'),
-        VPCId?: string(name='VPCId'),
-      }
-    ](name='ConnAddrs'),
     description?: string(name='Description'),
     connectionString?: string(name='ConnectionString'),
     storageUsed?: long(name='StorageUsed'),
@@ -645,26 +676,40 @@ model DescribeDBInstanceAttributeResponseBody = {
     maintainStartTime?: string(name='MaintainStartTime'),
     DBInstanceType?: string(name='DBInstanceType'),
     DBNodeClass?: string(name='DBNodeClass'),
-    maintainEndTime?: string(name='MaintainEndTime'),
     latestMinorVersion?: string(name='LatestMinorVersion'),
+    maintainEndTime?: string(name='MaintainEndTime'),
     DBType?: string(name='DBType'),
+    rightsSeparationEnabled?: boolean(name='RightsSeparationEnabled'),
     VPCId?: string(name='VPCId'),
     minorVersion?: string(name='MinorVersion'),
     regionId?: string(name='RegionId'),
-    DBNodes?: [ 
-      {
-        nodeClass?: string(name='NodeClass'),
-        zoneId?: string(name='ZoneId'),
-        id?: string(name='Id'),
-        regionId?: string(name='RegionId'),
-      }
-    ](name='DBNodes'),
     network?: string(name='Network'),
     DBVersion?: string(name='DBVersion'),
     vSwitchId?: string(name='VSwitchId'),
     zoneId?: string(name='ZoneId'),
     engine?: string(name='Engine'),
+    kindCode?: int32(name='KindCode'),
     id?: string(name='Id'),
+    DBNodes?: [ 
+      {
+        computeNodeId?: string(name='ComputeNodeId'),
+        nodeClass?: string(name='NodeClass'),
+        dataNodeId?: string(name='DataNodeId'),
+        zoneId?: string(name='ZoneId'),
+        id?: string(name='Id'),
+        regionId?: string(name='RegionId'),
+      }
+    ](name='DBNodes'),
+    connAddrs?: [ 
+      {
+        type?: string(name='Type'),
+        vSwitchId?: string(name='VSwitchId'),
+        port?: string(name='Port'),
+        VPCId?: string(name='VPCId'),
+        connectionString?: string(name='ConnectionString'),
+      }
+    ](name='ConnAddrs'),
+    readDBInstances?: [ string ](name='ReadDBInstances'),
   }(name='DBInstance'),
 }
 
@@ -694,21 +739,33 @@ model DescribeDBInstancesRequest {
 
 model DescribeDBInstancesResponseBody = {
   requestId?: string(name='RequestId'),
-  pageSize?: int32(name='PageSize'),
   pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
   totalNumber?: int32(name='TotalNumber'),
   DBInstances?: [ 
     {
-      status?: string(name='Status'),
       type?: string(name='Type'),
+      status?: string(name='Status'),
+      commodityCode?: string(name='CommodityCode'),
+      expireTime?: string(name='ExpireTime'),
       expired?: boolean(name='Expired'),
       createTime?: string(name='CreateTime'),
       payType?: string(name='PayType'),
-      readDBInstances?: [ string ](name='ReadDBInstances'),
+      lockReason?: string(name='LockReason'),
+      DBType?: string(name='DBType'),
       lockMode?: string(name='LockMode'),
+      VPCId?: string(name='VPCId'),
+      minorVersion?: string(name='MinorVersion'),
+      regionId?: string(name='RegionId'),
+      network?: string(name='Network'),
+      DBVersion?: string(name='DBVersion'),
       description?: string(name='Description'),
       nodeClass?: string(name='NodeClass'),
       storageUsed?: long(name='StorageUsed'),
+      nodeCount?: int32(name='NodeCount'),
+      zoneId?: string(name='ZoneId'),
+      engine?: string(name='Engine'),
+      id?: string(name='Id'),
       nodes?: [ 
         {
           zoneId?: string(name='ZoneId'),
@@ -717,19 +774,7 @@ model DescribeDBInstancesResponseBody = {
           regionId?: string(name='RegionId'),
         }
       ](name='Nodes'),
-      commodityCode?: string(name='CommodityCode'),
-      expireTime?: string(name='ExpireTime'),
-      lockReason?: string(name='LockReason'),
-      DBType?: string(name='DBType'),
-      VPCId?: string(name='VPCId'),
-      minorVersion?: string(name='MinorVersion'),
-      regionId?: string(name='RegionId'),
-      network?: string(name='Network'),
-      DBVersion?: string(name='DBVersion'),
-      nodeCount?: int32(name='NodeCount'),
-      zoneId?: string(name='ZoneId'),
-      engine?: string(name='Engine'),
-      id?: string(name='Id'),
+      readDBInstances?: [ string ](name='ReadDBInstances'),
     }
   ](name='DBInstances'),
 }
@@ -752,6 +797,68 @@ async function describeDBInstances(request: DescribeDBInstancesRequest): Describ
   return describeDBInstancesWithOptions(request, runtime);
 }
 
+model DescribeDBInstanceSSLRequest {
+  DBInstanceName?: string(name='DBInstanceName'),
+  regionId?: string(name='RegionId'),
+}
+
+model DescribeDBInstanceSSLResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    SSLEnabled?: boolean(name='SSLEnabled'),
+    SSLExpiredTime?: string(name='SSLExpiredTime'),
+    certCommonName?: string(name='CertCommonName'),
+  }(name='Data'),
+}
+
+model DescribeDBInstanceSSLResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeDBInstanceSSLResponseBody(name='body'),
+}
+
+async function describeDBInstanceSSLWithOptions(request: DescribeDBInstanceSSLRequest, runtime: Util.RuntimeOptions): DescribeDBInstanceSSLResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeDBInstanceSSL', '2020-02-02', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeDBInstanceSSL(request: DescribeDBInstanceSSLRequest): DescribeDBInstanceSSLResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeDBInstanceSSLWithOptions(request, runtime);
+}
+
+model DescribeDBInstanceTDERequest {
+  DBInstanceName?: string(name='DBInstanceName'),
+  regionId?: string(name='RegionId'),
+}
+
+model DescribeDBInstanceTDEResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    TDEStatus?: string(name='TDEStatus'),
+  }(name='Data'),
+}
+
+model DescribeDBInstanceTDEResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeDBInstanceTDEResponseBody(name='body'),
+}
+
+async function describeDBInstanceTDEWithOptions(request: DescribeDBInstanceTDERequest, runtime: Util.RuntimeOptions): DescribeDBInstanceTDEResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeDBInstanceTDE', '2020-02-02', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeDBInstanceTDE(request: DescribeDBInstanceTDERequest): DescribeDBInstanceTDEResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeDBInstanceTDEWithOptions(request, runtime);
+}
+
 model DescribeDbListRequest {
   regionId?: string(name='RegionId'),
   DBInstanceName?: string(name='DBInstanceName'),
@@ -761,11 +868,12 @@ model DescribeDbListRequest {
 model DescribeDbListResponseBody = {
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
   data?: [ 
     {
+      DBName?: string(name='DBName'),
       DBDescription?: string(name='DBDescription'),
       DBInstanceName?: string(name='DBInstanceName'),
-      DBName?: string(name='DBName'),
       characterSetName?: string(name='CharacterSetName'),
       accounts?: [ 
         {
@@ -775,7 +883,6 @@ model DescribeDbListResponseBody = {
       ](name='Accounts'),
     }
   ](name='Data'),
-  success?: boolean(name='Success'),
 }
 
 model DescribeDbListResponse = {
@@ -805,17 +912,17 @@ model DescribeDistributeTableListRequest {
 model DescribeDistributeTableListResponseBody = {
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
   data?: {
     tables?: [ 
       {
         tableName?: string(name='TableName'),
-        dbKey?: string(name='DbKey'),
         tableType?: string(name='TableType'),
         tbKey?: string(name='TbKey'),
+        dbKey?: string(name='DbKey'),
       }
     ](name='Tables'),
   }(name='Data'),
-  success?: boolean(name='Success'),
 }
 
 model DescribeDistributeTableListResponse = {
@@ -848,6 +955,7 @@ model DescribeInstanceDbPerformanceRequest {
 model DescribeInstanceDbPerformanceResponseBody = {
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
   data?: {
     performanceItems?: [ 
       {
@@ -862,7 +970,6 @@ model DescribeInstanceDbPerformanceResponseBody = {
       }
     ](name='PerformanceItems'),
   }(name='Data'),
-  success?: boolean(name='Success'),
 }
 
 model DescribeInstanceDbPerformanceResponse = {
@@ -894,6 +1001,7 @@ model DescribeInstancePerformanceRequest {
 model DescribeInstancePerformanceResponseBody = {
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
   data?: {
     performanceItems?: [ 
       {
@@ -908,7 +1016,6 @@ model DescribeInstancePerformanceResponseBody = {
       }
     ](name='PerformanceItems'),
   }(name='Data'),
-  success?: boolean(name='Success'),
 }
 
 model DescribeInstancePerformanceResponse = {
@@ -941,6 +1048,7 @@ model DescribeInstanceStoragePerformanceRequest {
 model DescribeInstanceStoragePerformanceResponseBody = {
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
   data?: {
     performanceItems?: [ 
       {
@@ -955,7 +1063,6 @@ model DescribeInstanceStoragePerformanceResponseBody = {
       }
     ](name='PerformanceItems'),
   }(name='Data'),
-  success?: boolean(name='Success'),
 }
 
 model DescribeInstanceStoragePerformanceResponse = {
@@ -985,22 +1092,22 @@ model DescribeParametersRequest {
 model DescribeParametersResponseBody = {
   requestId?: string(name='RequestId'),
   data?: {
+    engineVersion?: string(name='EngineVersion'),
+    engine?: string(name='Engine'),
     configParameters?: [ 
       {
+        parameterDescription?: string(name='ParameterDescription'),
         parameterName?: string(name='ParameterName'),
         parameterValue?: string(name='ParameterValue'),
-        parameterDescription?: string(name='ParameterDescription'),
       }
     ](name='ConfigParameters'),
-    engine?: string(name='Engine'),
     runningParameters?: [ 
       {
+        parameterDescription?: string(name='ParameterDescription'),
         parameterName?: string(name='ParameterName'),
         parameterValue?: string(name='ParameterValue'),
-        parameterDescription?: string(name='ParameterDescription'),
       }
     ](name='RunningParameters'),
-    engineVersion?: string(name='EngineVersion'),
   }(name='Data'),
 }
 
@@ -1031,9 +1138,10 @@ model DescribePolarxDbInstancesRequest {
 
 model DescribePolarxDbInstancesResponseBody = {
   pageSize?: string(name='PageSize'),
-  requestId?: string(name='RequestId'),
   pageNumber?: string(name='PageNumber'),
+  requestId?: string(name='RequestId'),
   total?: string(name='Total'),
+  success?: boolean(name='Success'),
   dbInstances?: {
     dbInstance?: [ 
     {
@@ -1042,8 +1150,8 @@ model DescribePolarxDbInstancesResponseBody = {
       createTime?: string(name='CreateTime'),
       payType?: string(name='PayType'),
       DBType?: string(name='DBType'),
-      VPCId?: string(name='VPCId'),
       lockMode?: string(name='LockMode'),
+      VPCId?: string(name='VPCId'),
       regionId?: string(name='RegionId'),
       network?: string(name='Network'),
       DBVersion?: string(name='DBVersion'),
@@ -1059,7 +1167,6 @@ model DescribePolarxDbInstancesResponseBody = {
     }
   ](name='DbInstance')
   }(name='DbInstances'),
-  success?: boolean(name='Success'),
 }
 
 model DescribePolarxDbInstancesResponse = {
@@ -1081,12 +1188,17 @@ async function describePolarxDbInstances(request: DescribePolarxDbInstancesReque
 }
 
 model DescribeRegionsResponseBody = {
+  code?: int32(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+  errorCode?: int32(name='ErrorCode'),
   regions?: {
     region?: [ 
     {
       supportPolarx10?: boolean(name='SupportPolarx10'),
+      supportPolarx20?: boolean(name='SupportPolarx20'),
+      regionId?: string(name='RegionId'),
       zones?: {
         zone?: [ 
         {
@@ -1095,14 +1207,9 @@ model DescribeRegionsResponseBody = {
         }
       ](name='Zone')
       }(name='Zones'),
-      supportPolarx20?: boolean(name='SupportPolarx20'),
-      regionId?: string(name='RegionId'),
     }
   ](name='Region')
   }(name='Regions'),
-  errorCode?: int32(name='ErrorCode'),
-  code?: int32(name='Code'),
-  success?: boolean(name='Success'),
 }
 
 model DescribeRegionsResponse = {
@@ -1159,6 +1266,7 @@ model DescribeSecurityIpsRequest {
 model DescribeSecurityIpsResponseBody = {
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
   data?: {
     DBInstanceName?: string(name='DBInstanceName'),
     groupItems?: [ 
@@ -1168,7 +1276,6 @@ model DescribeSecurityIpsResponseBody = {
       }
     ](name='GroupItems'),
   }(name='Data'),
-  success?: boolean(name='Success'),
 }
 
 model DescribeSecurityIpsResponse = {
@@ -1192,6 +1299,8 @@ async function describeSecurityIps(request: DescribeSecurityIpsRequest): Describ
 model DescribeSqlAuditInfoRequest {
   regionId?: string(name='RegionId'),
   DBInstanceId?: string(name='DBInstanceId'),
+  auditAccountName?: string(name='AuditAccountName'),
+  auditAccountPassword?: string(name='AuditAccountPassword'),
 }
 
 model DescribeSqlAuditInfoResponseBody = {
@@ -1200,7 +1309,6 @@ model DescribeSqlAuditInfoResponseBody = {
     SLSLogStore?: string(name='SLSLogStore'),
     SLSProject?: string(name='SLSProject'),
     isEnabled?: boolean(name='IsEnabled'),
-    authenticated?: string(name='Authenticated'),
   }(name='Data'),
 }
 
@@ -1239,22 +1347,22 @@ model DescribeTasksRequest {
 
 model DescribeTasksResponseBody = {
   requestId?: string(name='RequestId'),
-  totalRecordCount?: int32(name='TotalRecordCount'),
   pageNumber?: int32(name='PageNumber'),
   pageRecordCount?: int32(name='PageRecordCount'),
+  totalRecordCount?: int32(name='TotalRecordCount'),
   items?: [ 
     {
-      DBName?: string(name='DBName'),
-      beginTime?: string(name='BeginTime'),
-      progressInfo?: string(name='ProgressInfo'),
-      finishTime?: string(name='FinishTime'),
-      taskAction?: string(name='TaskAction'),
-      taskId?: string(name='TaskId'),
-      progress?: string(name='Progress'),
       status?: string(name='Status'),
+      finishTime?: string(name='FinishTime'),
+      progress?: string(name='Progress'),
+      beginTime?: string(name='BeginTime'),
       taskErrorCode?: string(name='TaskErrorCode'),
-      taskErrorMessage?: string(name='TaskErrorMessage'),
+      DBName?: string(name='DBName'),
+      progressInfo?: string(name='ProgressInfo'),
       scaleOutToken?: string(name='ScaleOutToken'),
+      taskId?: string(name='TaskId'),
+      taskErrorMessage?: string(name='TaskErrorMessage'),
+      taskAction?: string(name='TaskAction'),
     }
   ](name='Items'),
 }
@@ -1277,6 +1385,36 @@ async function describeTasks(request: DescribeTasksRequest): DescribeTasksRespon
   return describeTasksWithOptions(request, runtime);
 }
 
+model DescribeUserEncryptionKeyListRequest {
+  DBInstanceName?: string(name='DBInstanceName'),
+  regionId?: string(name='RegionId'),
+}
+
+model DescribeUserEncryptionKeyListResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    keyIds?: [ string ](name='KeyIds'),
+  }(name='Data'),
+}
+
+model DescribeUserEncryptionKeyListResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeUserEncryptionKeyListResponseBody(name='body'),
+}
+
+async function describeUserEncryptionKeyListWithOptions(request: DescribeUserEncryptionKeyListRequest, runtime: Util.RuntimeOptions): DescribeUserEncryptionKeyListResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DescribeUserEncryptionKeyList', '2020-02-02', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function describeUserEncryptionKeyList(request: DescribeUserEncryptionKeyListRequest): DescribeUserEncryptionKeyListResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeUserEncryptionKeyListWithOptions(request, runtime);
+}
+
 model GetPolarxCommodityRequest {
   regionId?: string(name='RegionId'),
   DBInstanceName?: string(name='DBInstanceName'),
@@ -1292,18 +1430,8 @@ model GetPolarxCommodityResponseBody = {
     expired?: string(name='Expired'),
     createTime?: string(name='CreateTime'),
     payType?: string(name='PayType'),
-    readDBInstances?: [ string ](name='ReadDBInstances'),
     port?: string(name='Port'),
     lockMode?: string(name='LockMode'),
-    connAddrs?: [ 
-      {
-        type?: string(name='Type'),
-        vSwitchId?: string(name='VSwitchId'),
-        connectionString?: string(name='ConnectionString'),
-        port?: string(name='Port'),
-        VPCId?: string(name='VPCId'),
-      }
-    ](name='ConnAddrs'),
     description?: string(name='Description'),
     connectionString?: string(name='ConnectionString'),
     storageUsed?: long(name='StorageUsed'),
@@ -1312,32 +1440,42 @@ model GetPolarxCommodityResponseBody = {
     maintainStartTime?: string(name='MaintainStartTime'),
     DBInstanceType?: string(name='DBInstanceType'),
     DBNodeClass?: string(name='DBNodeClass'),
-    maintainEndTime?: string(name='MaintainEndTime'),
     latestMinorVersion?: string(name='LatestMinorVersion'),
+    maintainEndTime?: string(name='MaintainEndTime'),
     DBType?: string(name='DBType'),
     VPCId?: string(name='VPCId'),
     minorVersion?: string(name='MinorVersion'),
     regionId?: string(name='RegionId'),
-    DBNodes?: [ 
-      {
-        nodeClass?: string(name='NodeClass'),
-        zoneId?: string(name='ZoneId'),
-        id?: string(name='Id'),
-        regionId?: string(name='RegionId'),
-      }
-    ](name='DBNodes'),
     network?: string(name='Network'),
     DBVersion?: string(name='DBVersion'),
     vSwitchId?: string(name='VSwitchId'),
     zoneId?: string(name='ZoneId'),
     engine?: string(name='Engine'),
     id?: string(name='Id'),
+    DBNodes?: [ 
+      {
+        zoneId?: string(name='ZoneId'),
+        nodeClass?: string(name='NodeClass'),
+        id?: string(name='Id'),
+        regionId?: string(name='RegionId'),
+      }
+    ](name='DBNodes'),
+    connAddrs?: [ 
+      {
+        type?: string(name='Type'),
+        vSwitchId?: string(name='VSwitchId'),
+        port?: string(name='Port'),
+        VPCId?: string(name='VPCId'),
+        connectionString?: string(name='ConnectionString'),
+      }
+    ](name='ConnAddrs'),
+    readDBInstances?: [ string ](name='ReadDBInstances'),
   }(name='DBInstance'),
   componentList?: [ 
     {
       type?: string(name='Type'),
-      values?: [ string ](name='Values'),
       name?: string(name='Name'),
+      values?: [ string ](name='Values'),
     }
   ](name='ComponentList'),
 }
@@ -1475,8 +1613,8 @@ model ModifyDBInstanceClassRequest {
 }
 
 model ModifyDBInstanceClassResponseBody = {
-  requestId?: string(name='RequestId'),
   orderId?: string(name='OrderId'),
+  requestId?: string(name='RequestId'),
 }
 
 model ModifyDBInstanceClassResponse = {
@@ -1721,6 +1859,7 @@ model UpdateBackupPolicyRequest {
 model UpdateBackupPolicyResponseBody = {
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
   data?: [ 
     {
       logLocalRetentionSpace?: int32(name='LogLocalRetentionSpace'),
@@ -1736,7 +1875,6 @@ model UpdateBackupPolicyResponseBody = {
       isEnabled?: int32(name='IsEnabled'),
     }
   ](name='Data'),
-  success?: boolean(name='Success'),
 }
 
 model UpdateBackupPolicyResponse = {
@@ -1757,6 +1895,71 @@ async function updateBackupPolicy(request: UpdateBackupPolicyRequest): UpdateBac
   return updateBackupPolicyWithOptions(request, runtime);
 }
 
+model UpdateDBInstanceSSLRequest {
+  enableSSL?: boolean(name='EnableSSL'),
+  certCommonName?: string(name='CertCommonName'),
+  DBInstanceName?: string(name='DBInstanceName'),
+  regionId?: string(name='RegionId'),
+}
+
+model UpdateDBInstanceSSLResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    taskId?: long(name='TaskId'),
+  }(name='Data'),
+}
+
+model UpdateDBInstanceSSLResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateDBInstanceSSLResponseBody(name='body'),
+}
+
+async function updateDBInstanceSSLWithOptions(request: UpdateDBInstanceSSLRequest, runtime: Util.RuntimeOptions): UpdateDBInstanceSSLResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('UpdateDBInstanceSSL', '2020-02-02', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function updateDBInstanceSSL(request: UpdateDBInstanceSSLRequest): UpdateDBInstanceSSLResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateDBInstanceSSLWithOptions(request, runtime);
+}
+
+model UpdateDBInstanceTDERequest {
+  regionId?: string(name='RegionId'),
+  DBInstanceName?: string(name='DBInstanceName'),
+  TDEStatus?: int32(name='TDEStatus'),
+  encryptionKey?: string(name='EncryptionKey'),
+  roleArn?: string(name='RoleArn'),
+}
+
+model UpdateDBInstanceTDEResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    taskId?: string(name='TaskId'),
+  }(name='Data'),
+}
+
+model UpdateDBInstanceTDEResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateDBInstanceTDEResponseBody(name='body'),
+}
+
+async function updateDBInstanceTDEWithOptions(request: UpdateDBInstanceTDERequest, runtime: Util.RuntimeOptions): UpdateDBInstanceTDEResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('UpdateDBInstanceTDE', '2020-02-02', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function updateDBInstanceTDE(request: UpdateDBInstanceTDERequest): UpdateDBInstanceTDEResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateDBInstanceTDEWithOptions(request, runtime);
+}
+
 model UpdatePolarDBXInstanceNodeRequest {
   regionId?: string(name='RegionId'),
   DBInstanceName?: string(name='DBInstanceName'),
@@ -1765,8 +1968,8 @@ model UpdatePolarDBXInstanceNodeRequest {
 }
 
 model UpdatePolarDBXInstanceNodeResponseBody = {
-  requestId?: string(name='RequestId'),
   orderId?: string(name='OrderId'),
+  requestId?: string(name='RequestId'),
 }
 
 model UpdatePolarDBXInstanceNodeResponse = {
@@ -1795,10 +1998,10 @@ model UpgradeDBInstanceKernelVersionRequest {
 }
 
 model UpgradeDBInstanceKernelVersionResponseBody = {
-  taskId?: string(name='TaskId'),
-  requestId?: string(name='RequestId'),
-  targetMinorVersion?: string(name='TargetMinorVersion'),
   DBInstanceName?: string(name='DBInstanceName'),
+  targetMinorVersion?: string(name='TargetMinorVersion'),
+  requestId?: string(name='RequestId'),
+  taskId?: string(name='TaskId'),
 }
 
 model UpgradeDBInstanceKernelVersionResponse = {
