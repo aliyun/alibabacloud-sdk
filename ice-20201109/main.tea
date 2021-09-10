@@ -143,6 +143,63 @@ async function listSmartJobs(request: ListSmartJobsRequest): ListSmartJobsRespon
   return listSmartJobsWithOptions(request, runtime);
 }
 
+model GetLiveEditingJobRequest {
+  jobId?: string(name='JobId'),
+}
+
+model GetLiveEditingJobResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  liveEditingJob?: {
+    jobId?: string(name='JobId'),
+    projectId?: string(name='ProjectId'),
+    status?: string(name='Status'),
+    clips?: string(name='Clips'),
+    userData?: string(name='UserData'),
+    creationTime?: string(name='CreationTime'),
+    modifiedTime?: string(name='ModifiedTime'),
+    completeTime?: string(name='CompleteTime'),
+    mediaId?: string(name='MediaId'),
+    mediaURL?: string(name='MediaURL'),
+    code?: string(name='Code'),
+    message?: string(name='Message'),
+    liveStreamConfig?: {
+      appName?: string(name='AppName'),
+      domainName?: string(name='DomainName'),
+      streamName?: string(name='StreamName'),
+    }(name='LiveStreamConfig'),
+    mediaProduceConfig?: {
+      mode?: string(name='Mode'),
+    }(name='MediaProduceConfig'),
+    outputMediaConfig?: {
+      mediaURL?: string(name='MediaURL'),
+      storageLocation?: string(name='StorageLocation'),
+      fileName?: string(name='FileName'),
+      width?: int32(name='Width'),
+      height?: int32(name='Height'),
+      bitrate?: long(name='Bitrate'),
+      vodTemplateGroupId?: string(name='VodTemplateGroupId'),
+    }(name='OutputMediaConfig'),
+  }(name='LiveEditingJob'),
+}
+
+model GetLiveEditingJobResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetLiveEditingJobResponseBody(name='body'),
+}
+
+async function getLiveEditingJobWithOptions(request: GetLiveEditingJobRequest, runtime: Util.RuntimeOptions): GetLiveEditingJobResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('GetLiveEditingJob', '2020-11-09', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function getLiveEditingJob(request: GetLiveEditingJobRequest): GetLiveEditingJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getLiveEditingJobWithOptions(request, runtime);
+}
+
 model DescribeRelatedAuthorizationStatusResponseBody = {
   requestId?: string(name='RequestId', description='Id of the request'),
   OSSAuthorized?: boolean(name='OSSAuthorized'),
@@ -227,11 +284,10 @@ model AddTemplateResponse = {
 
 async function addTemplateWithOptions(request: AddTemplateRequest, runtime: Util.RuntimeOptions): AddTemplateResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
   var req = new OpenApi.OpenApiRequest{ 
-    query = query,
+    body = Util.toMap(request),
   };
-  return doRPCRequest('AddTemplate', '2020-11-09', 'HTTPS', 'GET', 'AK', 'json', req, runtime);
+  return doRPCRequest('AddTemplate', '2020-11-09', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function addTemplate(request: AddTemplateRequest): AddTemplateResponse {
@@ -245,6 +301,7 @@ model UpdateEditingProjectRequest {
   timeline?: string(name='Timeline', description='云剪辑工程时间线，Json格式'),
   coverURL?: string(name='CoverURL', description='云剪辑工程封面'),
   projectId?: string(name='ProjectId', description='云剪辑工程ID'),
+  businessStatus?: string(name='BusinessStatus'),
 }
 
 model UpdateEditingProjectResponseBody = {
@@ -361,6 +418,15 @@ model GetEditingProjectMaterialsResponseBody = {
       ](name='FileInfoList', description='FileInfos'),
     }
   ](name='MediaInfos', description='符合要求的媒资集合'),
+  liveMaterials?: [ 
+    {
+      appName?: string(name='AppName'),
+      streamName?: string(name='StreamName'),
+      domainName?: string(name='DomainName'),
+      liveUrl?: string(name='LiveUrl'),
+    }
+  ](name='LiveMaterials'),
+  projectMaterials?: string(name='ProjectMaterials'),
 }
 
 model GetEditingProjectMaterialsResponse = {
@@ -547,25 +613,30 @@ model CreateEditingProjectRequest {
   description?: string(name='Description', description='云剪辑工程描述'),
   timeline?: string(name='Timeline', description='云剪辑工程时间线，Json格式'),
   coverURL?: string(name='CoverURL', description='云剪辑工程封面'),
-  FEExtend?: string(name='FEExtend', description='FEExtend'),
+  materialMaps?: string(name='MaterialMaps', description='工程关联素材，多个素材以逗号（,）分隔；每种类型最多支持10个素材ID'),
+  businessConfig?: string(name='BusinessConfig', description='工程业务配置。如果是直播剪辑工程必填OutputMediaConfig.StorageLocation,   Path 不填默认合成的直播片段存储在根路径下 OutputMediaTarget 不填默认oss-object，可以填vod-media 表示存储到vod  OutputMediaTarget 为vod-media 时，Path不生效。'),
+  projectType?: string(name='ProjectType', description='剪辑工程类型，EditingProject: 普通剪辑工程；LiveEditingProject: 直播剪辑工程'),
 }
 
 model CreateEditingProjectResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
+  requestId?: string(name='RequestId', description='请求ID'),
   project?: {
-    projectId?: string(name='ProjectId'),
-    title?: string(name='Title'),
-    description?: string(name='Description'),
-    timeline?: string(name='Timeline'),
-    coverURL?: string(name='CoverURL'),
-    status?: long(name='Status'),
-    statusName?: string(name='StatusName'),
-    createTime?: string(name='CreateTime'),
-    modifiedTime?: string(name='ModifiedTime'),
-    duration?: float(name='Duration'),
-    createSource?: string(name='CreateSource'),
-    modifiedSource?: string(name='ModifiedSource'),
+    projectId?: string(name='ProjectId', description='云剪辑工程ID'),
+    title?: string(name='Title', description='云剪辑工程标题'),
+    description?: string(name='Description', description='云剪辑工程描述'),
+    timeline?: string(name='Timeline', description='云剪辑工程时间线，Json格式'),
+    coverURL?: string(name='CoverURL', description='云剪辑工程封面。'),
+    status?: long(name='Status', description='云剪辑工程状态。  所有云剪辑工程状态列表：  -1:Draft  -2:Editing  -3:Producing  -4:Produced  -5:ProduceFailed  -7:Deleted'),
+    statusName?: string(name='StatusName', description='云剪辑状态名称，对应状态列表中状态名称。'),
+    createTime?: string(name='CreateTime', description='云剪辑工程创建时间'),
+    modifiedTime?: string(name='ModifiedTime', description='云剪辑工程编辑时间'),
+    duration?: float(name='Duration', description='云剪辑工程时长'),
+    createSource?: string(name='CreateSource', description='云剪辑工程创建方式  -OpenAPI  -AliyunConsole  -WebSDK -LiveEditingOpenAPI -LiveEditingConsole'),
+    modifiedSource?: string(name='ModifiedSource', description='云剪辑工程创建方式  -OpenAPI  -AliyunConsole  -WebSDK -LiveEditingOpenAPI -LiveEditingConsole'),
     templateType?: string(name='TemplateType'),
+    businessConfig?: string(name='BusinessConfig', description='工程业务配置'),
+    projectType?: string(name='ProjectType', description='剪辑工程类型，EditingProject: 普通剪辑工程；LiveEditingProject: 直播剪辑工程'),
+    businessStatus?: string(name='BusinessStatus', description='业务状态，业务状态 /** 预约中 **/ RESERVING(0, "Reserving"), /** 预约取消 **/ RESERVATION_CANCELED(1, "ReservationCanceled"), /** 直播中 **/ BROADCASTING(3, "BroadCasting"), /** 加载失败 **/ LOADING_FAILED(4, "LoadingFailed"), /** 直播结束 **/ LIVE_FINISHED(5, "LiveFinished");'),
   }(name='Project'),
 }
 
@@ -786,6 +857,37 @@ async function describeIceProductStatus(): DescribeIceProductStatusResponse {
   return describeIceProductStatusWithOptions(runtime);
 }
 
+model GetLiveEditingIndexFileRequest {
+  appName?: string(name='AppName'),
+  domainName?: string(name='DomainName'),
+  streamName?: string(name='StreamName'),
+  projectId?: string(name='ProjectId'),
+}
+
+model GetLiveEditingIndexFileResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  indexFile?: string(name='IndexFile'),
+}
+
+model GetLiveEditingIndexFileResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetLiveEditingIndexFileResponseBody(name='body'),
+}
+
+async function getLiveEditingIndexFileWithOptions(request: GetLiveEditingIndexFileRequest, runtime: Util.RuntimeOptions): GetLiveEditingIndexFileResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = query,
+  };
+  return doRPCRequest('GetLiveEditingIndexFile', '2020-11-09', 'HTTPS', 'GET', 'AK', 'json', req, runtime);
+}
+
+async function getLiveEditingIndexFile(request: GetLiveEditingIndexFileRequest): GetLiveEditingIndexFileResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getLiveEditingIndexFileWithOptions(request, runtime);
+}
+
 model ListMediaBasicInfosRequest {
   startTime?: string(name='StartTime', description='创建时间'),
   endTime?: string(name='EndTime', description='结束时间'),
@@ -986,6 +1088,15 @@ model AddEditingProjectMaterialsResponseBody = {
       ](name='FileInfoList', description='FileInfos'),
     }
   ](name='MediaInfos', description='符合要求的媒资集合'),
+  liveMaterials?: [ 
+    {
+      appName?: string(name='AppName'),
+      streamName?: string(name='StreamName'),
+      domainName?: string(name='DomainName'),
+      liveUrl?: string(name='LiveUrl'),
+    }
+  ](name='LiveMaterials'),
+  projectMaterials?: string(name='ProjectMaterials'),
 }
 
 model AddEditingProjectMaterialsResponse = {
@@ -1060,6 +1171,9 @@ model GetEditingProjectResponseBody = {
     createSource?: string(name='CreateSource', description='云剪辑工程创建来源'),
     templateType?: string(name='TemplateType', description='云剪辑工程模板类型'),
     modifiedSource?: string(name='ModifiedSource', description='云剪辑工程修改来源'),
+    projectType?: string(name='ProjectType'),
+    businessConfig?: string(name='BusinessConfig'),
+    businessStatus?: string(name='BusinessStatus'),
   }(name='Project'),
 }
 
@@ -1220,6 +1334,7 @@ model SearchEditingProjectRequest {
   maxResults?: long(name='MaxResults', description='分页参数'),
   createSource?: string(name='CreateSource', description='创建来源'),
   templateType?: string(name='TemplateType', description='模板类型'),
+  projectType?: string(name='ProjectType'),
 }
 
 model SearchEditingProjectResponseBody = {
@@ -1240,6 +1355,9 @@ model SearchEditingProjectResponseBody = {
       createSource?: string(name='CreateSource', description='创建来源'),
       modifiedSource?: string(name='ModifiedSource', description='最后一次修改来源'),
       templateType?: string(name='TemplateType', description='模板类型'),
+      projectType?: string(name='ProjectType'),
+      businessConfig?: string(name='BusinessConfig'),
+      businessStatus?: string(name='BusinessStatus'),
     }
   ](name='ProjectList', description='云剪辑工程列表'),
   maxResults?: long(name='MaxResults', description='云剪辑工程总数'),
@@ -1319,7 +1437,6 @@ model DeleteEditingProjectsRequest {
 
 model DeleteEditingProjectsResponseBody = {
   requestId?: string(name='RequestId', description='Id of the request'),
-  ignoredList?: string(name='IgnoredList'),
 }
 
 model DeleteEditingProjectsResponse = {
@@ -1575,11 +1692,10 @@ model UpdateTemplateResponse = {
 
 async function updateTemplateWithOptions(request: UpdateTemplateRequest, runtime: Util.RuntimeOptions): UpdateTemplateResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
   var req = new OpenApi.OpenApiRequest{ 
-    query = query,
+    body = Util.toMap(request),
   };
-  return doRPCRequest('UpdateTemplate', '2020-11-09', 'HTTPS', 'GET', 'AK', 'json', req, runtime);
+  return doRPCRequest('UpdateTemplate', '2020-11-09', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
 async function updateTemplate(request: UpdateTemplateRequest): UpdateTemplateResponse {
@@ -1971,6 +2087,42 @@ async function submitH2VJobWithOptions(request: SubmitH2VJobRequest, runtime: Ut
 async function submitH2VJob(request: SubmitH2VJobRequest): SubmitH2VJobResponse {
   var runtime = new Util.RuntimeOptions{};
   return submitH2VJobWithOptions(request, runtime);
+}
+
+model SubmitLiveEditingJobRequest {
+  clips?: string(name='Clips'),
+  projectId?: string(name='ProjectId'),
+  liveStreamConfig?: string(name='LiveStreamConfig'),
+  outputMediaConfig?: string(name='OutputMediaConfig'),
+  mediaProduceConfig?: string(name='MediaProduceConfig'),
+  userData?: string(name='UserData'),
+  outputMediaTarget?: string(name='OutputMediaTarget'),
+}
+
+model SubmitLiveEditingJobResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  projectId?: string(name='ProjectId'),
+  jobId?: string(name='JobId'),
+  mediaId?: string(name='MediaId'),
+  mediaURL?: string(name='MediaURL'),
+}
+
+model SubmitLiveEditingJobResponse = {
+  headers: map[string]string(name='headers'),
+  body: SubmitLiveEditingJobResponseBody(name='body'),
+}
+
+async function submitLiveEditingJobWithOptions(request: SubmitLiveEditingJobRequest, runtime: Util.RuntimeOptions): SubmitLiveEditingJobResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('SubmitLiveEditingJob', '2020-11-09', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function submitLiveEditingJob(request: SubmitLiveEditingJobRequest): SubmitLiveEditingJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return submitLiveEditingJobWithOptions(request, runtime);
 }
 
 model SubmitPPTCutJobRequest {
