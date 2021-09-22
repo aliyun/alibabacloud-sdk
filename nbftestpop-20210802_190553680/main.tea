@@ -1,0 +1,66 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+
+import EndpointUtil;
+
+extends OpenApi;
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('nbftestpop', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model AddHeaders {
+  commonHeaders?: map[string]string,
+  x?: string(name='x'),
+  y?: string(name='y'),
+}
+
+model AddResponseBody = {
+  sum?: int32(name='sum'),
+}
+
+model AddResponse = {
+  headers: map[string]string(name='headers'),
+  body: AddResponseBody(name='body'),
+}
+
+async function add(): AddResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new AddHeaders{};
+  return addWithOptions(headers, runtime);
+}
+
+async function addWithOptions(headers: AddHeaders, runtime: Util.RuntimeOptions): AddResponse {
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.x)) {
+    realHeaders.x = headers.x;
+  }
+  if (!Util.isUnset(headers.y)) {
+    realHeaders.y = headers.y;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+  };
+  return doROARequest('Add', '2021-08-02_19-05-53-680', 'HTTP', 'GET', 'AK', `/kxFour/headerTest`, 'json', req, runtime);
+}
+
