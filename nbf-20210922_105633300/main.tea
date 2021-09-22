@@ -1,0 +1,57 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('nbf', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model LcDemoResponseBody = {
+  idempotent?: boolean(name='idempotent'),
+  data?: map[string]any(name='data'),
+  success?: boolean(name='success'),
+  errorMessage?: readable(name='errorMessage'),
+  errorCode?: readable(name='errorCode'),
+  retry?: boolean(name='retry'),
+}
+
+model LcDemoResponse = {
+  headers: map[string]string(name='headers'),
+  body: LcDemoResponseBody(name='body'),
+}
+
+async function lcDemo(userId: string, hsfServiceName: string): LcDemoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return lcDemoWithOptions(userId, hsfServiceName, headers, runtime);
+}
+
+async function lcDemoWithOptions(userId: string, hsfServiceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): LcDemoResponse {
+  userId = OpenApiUtil.getEncodeParam(userId);
+  hsfServiceName = OpenApiUtil.getEncodeParam(hsfServiceName);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('LcDemo', '2021-09-22_10-56-33-300', 'HTTP', 'GET', 'AK', `/lc_demo/1_0_0/lcDemo`, 'json', req, runtime);
+}
+
