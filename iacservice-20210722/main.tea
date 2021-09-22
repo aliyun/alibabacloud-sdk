@@ -26,6 +26,52 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+model ReloadResourcesRequest {
+  regionIds?: [ string ](name='regionIds'),
+}
+
+model ReloadResourcesShrinkRequest {
+  regionIdsShrink?: string(name='regionIds'),
+}
+
+model ReloadResourcesResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request'),
+  taskId?: string(name='taskId'),
+}
+
+model ReloadResourcesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ReloadResourcesResponseBody(name='body'),
+}
+
+async function reloadResources(provider: string, productCode: string, resourceTypeCode: string, request: ReloadResourcesRequest): ReloadResourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return reloadResourcesWithOptions(provider, productCode, resourceTypeCode, request, headers, runtime);
+}
+
+async function reloadResourcesWithOptions(provider: string, productCode: string, resourceTypeCode: string, tmpReq: ReloadResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ReloadResourcesResponse {
+  Util.validateModel(tmpReq);
+  provider = OpenApiUtil.getEncodeParam(provider);
+  productCode = OpenApiUtil.getEncodeParam(productCode);
+  resourceTypeCode = OpenApiUtil.getEncodeParam(resourceTypeCode);
+  var request = new ReloadResourcesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.regionIds)) {
+    request.regionIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.regionIds, 'regionIds', 'simple');
+  }
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.regionIdsShrink)) {
+    query.regionIds = request.regionIdsShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('ReloadResources', '2021-07-22', 'HTTPS', 'PUT', 'AK', `/api/v1/providers/${provider}/products/${productCode}/resourceTypes/${resourceTypeCode}/resources/operation/reload`, 'json', req, runtime);
+}
+
 model ListResourceTypesRequest {
   resourceTypeCodes?: [ string ](name='resourceTypeCodes'),
   nextToken?: string(name='nextToken'),
@@ -93,6 +139,8 @@ async function listResourceTypes(provider: string, productCode: string, request:
 
 async function listResourceTypesWithOptions(provider: string, productCode: string, tmpReq: ListResourceTypesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListResourceTypesResponse {
   Util.validateModel(tmpReq);
+  provider = OpenApiUtil.getEncodeParam(provider);
+  productCode = OpenApiUtil.getEncodeParam(productCode);
   var request = new ListResourceTypesShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
   if (!Util.isUnset(tmpReq.resourceTypeCodes)) {
@@ -150,6 +198,7 @@ async function listProducts(provider: string, request: ListProductsRequest): Lis
 
 async function listProductsWithOptions(provider: string, request: ListProductsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListProductsResponse {
   Util.validateModel(request);
+  provider = OpenApiUtil.getEncodeParam(provider);
   var query : map[string]any= {};
   if (!Util.isUnset(request.nextToken)) {
     query.nextToken = request.nextToken;
@@ -167,21 +216,28 @@ async function listProductsWithOptions(provider: string, request: ListProductsRe
 
 model ListResourcesRequest {
   regionIds?: [ string ](name='regionIds'),
-  resourceGroupId?: string(name='resourceGroupId'),
+  pageNum?: int32(name='pageNum'),
+  pageSize?: int32(name='pageSize'),
+  isReload?: boolean(name='isReload'),
 }
 
 model ListResourcesShrinkRequest {
   regionIdsShrink?: string(name='regionIds'),
-  resourceGroupId?: string(name='resourceGroupId'),
+  pageNum?: int32(name='pageNum'),
+  pageSize?: int32(name='pageSize'),
+  isReload?: boolean(name='isReload'),
 }
 
 model ListResourcesResponseBody = {
   requestId?: string(name='requestId', description='Id of the request'),
-  totalCount?: long(name='totalCount'),
+  totalCount?: int32(name='totalCount'),
+  pageNum?: int32(name='pageNum'),
+  pageSize?: int32(name='pageSize'),
   resources?: [ 
     {
       productCode?: string(name='productCode'),
       resourceTypeCode?: string(name='resourceTypeCode'),
+      regionId?: string(name='regionId'),
       resourceId?: string(name='resourceId'),
       resourceAttributes?: string(name='resourceAttributes'),
     }
@@ -201,6 +257,9 @@ async function listResources(provider: string, productCode: string, resourceType
 
 async function listResourcesWithOptions(provider: string, productCode: string, resourceTypeCode: string, tmpReq: ListResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListResourcesResponse {
   Util.validateModel(tmpReq);
+  provider = OpenApiUtil.getEncodeParam(provider);
+  productCode = OpenApiUtil.getEncodeParam(productCode);
+  resourceTypeCode = OpenApiUtil.getEncodeParam(resourceTypeCode);
   var request = new ListResourcesShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
   if (!Util.isUnset(tmpReq.regionIds)) {
@@ -210,8 +269,14 @@ async function listResourcesWithOptions(provider: string, productCode: string, r
   if (!Util.isUnset(request.regionIdsShrink)) {
     query.regionIds = request.regionIdsShrink;
   }
-  if (!Util.isUnset(request.resourceGroupId)) {
-    query.resourceGroupId = request.resourceGroupId;
+  if (!Util.isUnset(request.pageNum)) {
+    query.pageNum = request.pageNum;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query.pageSize = request.pageSize;
+  }
+  if (!Util.isUnset(request.isReload)) {
+    query.isReload = request.isReload;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -222,12 +287,14 @@ async function listResourcesWithOptions(provider: string, productCode: string, r
 }
 
 model CreateResourceRequest {
+  isAsync?: boolean(name='isAsync'),
   body?: string(name='body'),
 }
 
 model CreateResourceResponseBody = {
   requestId?: string(name='RequestId', description='请求id'),
   resourceId?: string(name='resourceId', description='资源id'),
+  taskId?: string(name='taskId', description='任务id'),
 }
 
 model CreateResourceResponse = {
@@ -243,19 +310,59 @@ async function createResource(provider: string, productCode: string, resourceTyp
 
 async function createResourceWithOptions(provider: string, productCode: string, resourceTypeCode: string, request: CreateResourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateResourceResponse {
   Util.validateModel(request);
+  provider = OpenApiUtil.getEncodeParam(provider);
+  productCode = OpenApiUtil.getEncodeParam(productCode);
+  resourceTypeCode = OpenApiUtil.getEncodeParam(resourceTypeCode);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.isAsync)) {
+    query.isAsync = request.isAsync;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
     body = request.body,
   };
   return doROARequest('CreateResource', '2021-07-22', 'HTTPS', 'POST', 'AK', `/api/v1/providers/${provider}/products/${productCode}/resourceTypes/${resourceTypeCode}/resources`, 'json', req, runtime);
 }
 
+model GetTaskResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request'),
+  task?: {
+    taskId?: string(name='taskId'),
+    resourceId?: string(name='resourceId'),
+    status?: string(name='status'),
+    failedReason?: string(name='failedReason'),
+  }(name='task'),
+}
+
+model GetTaskResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetTaskResponseBody(name='body'),
+}
+
+async function getTask(taskId: string): GetTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getTaskWithOptions(taskId, headers, runtime);
+}
+
+async function getTaskWithOptions(taskId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetTaskResponse {
+  taskId = OpenApiUtil.getEncodeParam(taskId);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('GetTask', '2021-07-22', 'HTTPS', 'GET', 'AK', `/api/v1/tasks/${taskId}`, 'json', req, runtime);
+}
+
 model UpdateResourceRequest {
+  isAsync?: boolean(name='isAsync'),
   body?: string(name='body'),
 }
 
 model UpdateResourceResponseBody = {
   requestId?: string(name='requestId', description='请求id'),
+  taskId?: string(name='taskId'),
 }
 
 model UpdateResourceResponse = {
@@ -271,8 +378,18 @@ async function updateResource(provider: string, productCode: string, resourceTyp
 
 async function updateResourceWithOptions(provider: string, productCode: string, resourceTypeCode: string, resourceId: string, request: UpdateResourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateResourceResponse {
   Util.validateModel(request);
+  provider = OpenApiUtil.getEncodeParam(provider);
+  productCode = OpenApiUtil.getEncodeParam(productCode);
+  resourceTypeCode = OpenApiUtil.getEncodeParam(resourceTypeCode);
+  resourceId = OpenApiUtil.getEncodeParam(resourceId);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.isAsync)) {
+    query.isAsync = request.isAsync;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
     body = request.body,
   };
   return doROARequest('UpdateResource', '2021-07-22', 'HTTPS', 'PUT', 'AK', `/api/v1/providers/${provider}/products/${productCode}/resourceTypes/${resourceTypeCode}/resources/${resourceId}`, 'json', req, runtime);
@@ -287,6 +404,7 @@ model GetResourceResponseBody = {
   resource?: {
     productCode?: string(name='productCode'),
     resourceTypeCode?: string(name='resourceTypeCode'),
+    regionId?: string(name='regionId'),
     resourceId?: string(name='resourceId'),
     resourceAttributes?: string(name='resourceAttributes'),
   }(name='resource'),
@@ -305,6 +423,10 @@ async function getResource(provider: string, productCode: string, resourceTypeCo
 
 async function getResourceWithOptions(provider: string, productCode: string, resourceTypeCode: string, resourceId: string, request: GetResourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetResourceResponse {
   Util.validateModel(request);
+  provider = OpenApiUtil.getEncodeParam(provider);
+  productCode = OpenApiUtil.getEncodeParam(productCode);
+  resourceTypeCode = OpenApiUtil.getEncodeParam(resourceTypeCode);
+  resourceId = OpenApiUtil.getEncodeParam(resourceId);
   var query : map[string]any= {};
   if (!Util.isUnset(request.regionId)) {
     query.regionId = request.regionId;
@@ -319,10 +441,12 @@ async function getResourceWithOptions(provider: string, productCode: string, res
 
 model DeleteResourceRequest {
   regionId?: string(name='regionId'),
+  isAsync?: boolean(name='isAsync'),
 }
 
 model DeleteResourceResponseBody = {
   requestId?: string(name='requestId', description='Id of the request'),
+  taskId?: string(name='taskId'),
 }
 
 model DeleteResourceResponse = {
@@ -338,9 +462,16 @@ async function deleteResource(provider: string, productCode: string, resourceTyp
 
 async function deleteResourceWithOptions(provider: string, productCode: string, resourceTypeCode: string, resourceId: string, request: DeleteResourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteResourceResponse {
   Util.validateModel(request);
+  provider = OpenApiUtil.getEncodeParam(provider);
+  productCode = OpenApiUtil.getEncodeParam(productCode);
+  resourceTypeCode = OpenApiUtil.getEncodeParam(resourceTypeCode);
+  resourceId = OpenApiUtil.getEncodeParam(resourceId);
   var query : map[string]any= {};
   if (!Util.isUnset(request.regionId)) {
     query.regionId = request.regionId;
+  }
+  if (!Util.isUnset(request.isAsync)) {
+    query.isAsync = request.isAsync;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
