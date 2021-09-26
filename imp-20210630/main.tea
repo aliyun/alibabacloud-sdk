@@ -171,6 +171,47 @@ async function getRoom(request: GetRoomRequest): GetRoomResponse {
   return getRoomWithOptions(request, runtime);
 }
 
+model GetLiveRoomUserStatisticsRequest {
+  appId?: string(name='AppId', description='应用唯一标识，由6位小写字母、数字组成。'),
+  liveId?: string(name='LiveId', description='直播ID。'),
+  pageNumber?: string(name='PageNumber', description='查询页码，从1开始，传空默认查询第1页。'),
+  pageSize?: string(name='PageSize', description='每页显示个数，最大支持50，参数为空默认显示个数为10。'),
+}
+
+model GetLiveRoomUserStatisticsResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  result?: {
+    liveId?: string(name='LiveId', description='直播ID。'),
+    totalCount?: int32(name='TotalCount', description='用户总数'),
+    pageTotal?: int32(name='PageTotal', description='用户总页数。'),
+    hasMore?: boolean(name='HasMore', description='是否还有下一页。'),
+    userStatisticsList?: [ 
+      {
+        userId?: string(name='UserId', description='用户ID。'),
+        watchLiveTime?: long(name='WatchLiveTime', description='观看时长，单位：毫秒。'),
+      }
+    ](name='UserStatisticsList', description='用户观看数据列表。'),
+  }(name='Result', description='创建场景化直播返回的结果。'),
+}
+
+model GetLiveRoomUserStatisticsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetLiveRoomUserStatisticsResponseBody(name='body'),
+}
+
+async function getLiveRoomUserStatisticsWithOptions(request: GetLiveRoomUserStatisticsRequest, runtime: Util.RuntimeOptions): GetLiveRoomUserStatisticsResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('GetLiveRoomUserStatistics', '2021-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function getLiveRoomUserStatistics(request: GetLiveRoomUserStatisticsRequest): GetLiveRoomUserStatisticsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getLiveRoomUserStatisticsWithOptions(request, runtime);
+}
+
 model BanCommentRequest {
   appId?: string(name='AppId', description='应用唯一标识，由6位小写字母、数字组成。'),
   roomId?: string(name='RoomId', description='房间唯一标识，由调用CreateRoom返回。'),
@@ -1540,6 +1581,76 @@ async function updateLive(request: UpdateLiveRequest): UpdateLiveResponse {
   return updateLiveWithOptions(request, runtime);
 }
 
+model CreateLiveRoomRequest {
+  appId?: string(name='AppId', description='应用唯一标识，由6位小写字母、数字组成。'),
+  title?: string(name='Title', description='标题，支持中英文，最大长度32位。'),
+  notice?: string(name='Notice', description='公告，支持中英文，最大长度256位。'),
+  coverUrl?: string(name='CoverUrl', description='封面，支持图片地址链接格式'),
+  extension?: map[string]string(name='Extension', description='拓展字段，按需传递，需要额外记录的房间属性。'),
+  anchorId?: string(name='AnchorId', description='主播id，仅支持英文和数字，最大长度36位。'),
+  anchorNick?: string(name='AnchorNick', description='主播昵称。'),
+}
+
+model CreateLiveRoomShrinkRequest {
+  appId?: string(name='AppId', description='应用唯一标识，由6位小写字母、数字组成。'),
+  title?: string(name='Title', description='标题，支持中英文，最大长度32位。'),
+  notice?: string(name='Notice', description='公告，支持中英文，最大长度256位。'),
+  coverUrl?: string(name='CoverUrl', description='封面，支持图片地址链接格式'),
+  extensionShrink?: string(name='Extension', description='拓展字段，按需传递，需要额外记录的房间属性。'),
+  anchorId?: string(name='AnchorId', description='主播id，仅支持英文和数字，最大长度36位。'),
+  anchorNick?: string(name='AnchorNick', description='主播昵称。'),
+}
+
+model CreateLiveRoomResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  result?: {
+    appId?: string(name='AppId', description='应用ID。'),
+    roomId?: string(name='RoomId', description='房间ID。'),
+    liveId?: string(name='LiveId', description='直播ID。'),
+    chatId?: string(name='ChatId', description='聊天ID。'),
+    title?: string(name='Title', description='标题。'),
+    notice?: string(name='Notice', description='公告。'),
+    coverUrl?: string(name='CoverUrl', description='封面。'),
+    anchorId?: string(name='AnchorId', description='主播ID。'),
+    playbackUrl?: string(name='PlaybackUrl', description='直播回放地址。'),
+    pushUrl?: string(name='PushUrl', description='直播推流地址。'),
+    liveUrl?: string(name='LiveUrl', description='直播拉流地址。'),
+    pluginInstanceInfoList?: [ 
+      {
+        pluginType?: string(name='PluginType', description='插件唯一标识，取值：live-直播，wb-白板，chat-聊天，rtc。'),
+        pluginId?: string(name='PluginId', description='插件实例唯一标识。'),
+        createTime?: long(name='CreateTime', description='插件实例创建时间戳，单位：毫秒。'),
+        extension?: map[string]string(name='Extension', description='插件拓展字段。'),
+      }
+    ](name='PluginInstanceInfoList', description='活跃插件列表。'),
+    extension?: map[string]string(name='Extension', description='直播拓展字段。'),
+    anchorNick?: string(name='AnchorNick', description='主播昵称。'),
+  }(name='Result', description='创建场景化直播返回的结果。'),
+}
+
+model CreateLiveRoomResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateLiveRoomResponseBody(name='body'),
+}
+
+async function createLiveRoomWithOptions(tmpReq: CreateLiveRoomRequest, runtime: Util.RuntimeOptions): CreateLiveRoomResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateLiveRoomShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.extension)) {
+    request.extensionShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.extension, 'Extension', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CreateLiveRoom', '2021-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function createLiveRoom(request: CreateLiveRoomRequest): CreateLiveRoomResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createLiveRoomWithOptions(request, runtime);
+}
+
 model ApplyLinkMicRequest {
   conferenceId?: string(name='ConferenceId', description='会议唯一标识'),
   userId?: string(name='UserId', description='申请连麦用户'),
@@ -1630,6 +1741,121 @@ async function getAppWithOptions(request: GetAppRequest, runtime: Util.RuntimeOp
 async function getApp(request: GetAppRequest): GetAppResponse {
   var runtime = new Util.RuntimeOptions{};
   return getAppWithOptions(request, runtime);
+}
+
+model ListLiveRoomsRequest {
+  appId?: string(name='AppId', description='应用唯一标识，由6位小写字母、数字组成。'),
+  status?: int32(name='Status', description='直播状态，0-在播 1-下播，不传则返回所有直播。'),
+  pageNumber?: int32(name='PageNumber', description='查询页码，从1开始，传空默认查询第1页。'),
+  pageSize?: int32(name='PageSize', description='每页显示个数，最大支持50，参数为空默认显示个数为10。'),
+}
+
+model ListLiveRoomsResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  result?: {
+    totalCount?: int32(name='TotalCount', description='直播总数。'),
+    pageTotal?: int32(name='PageTotal', description='直播总页数。'),
+    hasMore?: boolean(name='HasMore', description='是否还有下一页。'),
+    liveList?: [ 
+      {
+        appId?: string(name='AppId', description='应用ID。'),
+        liveId?: string(name='LiveId', description='直播ID。'),
+        status?: int32(name='Status', description='直播状态，0-在播 1-下播。'),
+        roomId?: string(name='RoomId', description='房间ID。'),
+        chatId?: string(name='ChatId', description='聊天ID。'),
+        title?: string(name='Title', description='标题。'),
+        notice?: string(name='Notice', description='公告。'),
+        coverUrl?: string(name='CoverUrl', description='封面。'),
+        anchorId?: string(name='AnchorId', description='主播ID。'),
+        uv?: long(name='Uv', description='访问用户数。'),
+        extension?: map[string]string(name='Extension', description='直播拓展字段。'),
+        anchorNick?: string(name='AnchorNick', description='主播昵称。'),
+      }
+    ](name='LiveList', description='直播列表信息。'),
+  }(name='Result', description='创建场景化直播返回的结果。'),
+}
+
+model ListLiveRoomsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListLiveRoomsResponseBody(name='body'),
+}
+
+async function listLiveRoomsWithOptions(request: ListLiveRoomsRequest, runtime: Util.RuntimeOptions): ListLiveRoomsResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('ListLiveRooms', '2021-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function listLiveRooms(request: ListLiveRoomsRequest): ListLiveRoomsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listLiveRoomsWithOptions(request, runtime);
+}
+
+model StopLiveRoomRequest {
+  appId?: string(name='AppId', description='应用唯一标识，由6位小写字母、数字组成。'),
+  liveId?: string(name='LiveId', description='直播ID。'),
+  userId?: string(name='UserId', description='操作人ID。'),
+}
+
+model StopLiveRoomResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model StopLiveRoomResponse = {
+  headers: map[string]string(name='headers'),
+  body: StopLiveRoomResponseBody(name='body'),
+}
+
+async function stopLiveRoomWithOptions(request: StopLiveRoomRequest, runtime: Util.RuntimeOptions): StopLiveRoomResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('StopLiveRoom', '2021-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function stopLiveRoom(request: StopLiveRoomRequest): StopLiveRoomResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return stopLiveRoomWithOptions(request, runtime);
+}
+
+model GetLiveRoomStatisticsRequest {
+  appId?: string(name='AppId', description='应用唯一标识，由6位小写字母、数字组成。'),
+  liveId?: string(name='LiveId', description='直播ID。'),
+}
+
+model GetLiveRoomStatisticsResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  result?: {
+    liveId?: string(name='LiveId', description='直播ID。'),
+    status?: int32(name='Status', description='直播状态，0-已创建 1-直播中 2-已关闭。'),
+    uv?: long(name='Uv', description='访问用户数。'),
+    pv?: long(name='Pv', description='访问用户人次。'),
+    messageCount?: long(name='MessageCount', description='互动消息数。'),
+    startTime?: long(name='StartTime', description='直播开始时间，单位：毫秒。'),
+    endTime?: long(name='EndTime', description='直播结束时间，单位：毫秒。'),
+    watchLiveTime?: long(name='WatchLiveTime', description='总观看时长，单位：毫秒。'),
+  }(name='Result', description='创建场景化直播返回的结果。'),
+}
+
+model GetLiveRoomStatisticsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetLiveRoomStatisticsResponseBody(name='body'),
+}
+
+async function getLiveRoomStatisticsWithOptions(request: GetLiveRoomStatisticsRequest, runtime: Util.RuntimeOptions): GetLiveRoomStatisticsResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('GetLiveRoomStatistics', '2021-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function getLiveRoomStatistics(request: GetLiveRoomStatisticsRequest): GetLiveRoomStatisticsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getLiveRoomStatisticsWithOptions(request, runtime);
 }
 
 model SendCustomMessageToUsersRequest {
@@ -1851,5 +2077,61 @@ async function updateConferenceWithOptions(request: UpdateConferenceRequest, run
 async function updateConference(request: UpdateConferenceRequest): UpdateConferenceResponse {
   var runtime = new Util.RuntimeOptions{};
   return updateConferenceWithOptions(request, runtime);
+}
+
+model GetLiveRoomRequest {
+  appId?: string(name='AppId', description='应用唯一标识，由6位小写字母、数字组成。'),
+  liveId?: string(name='LiveId', description='直播ID。'),
+}
+
+model GetLiveRoomResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  result?: {
+    appId?: string(name='AppId', description='应用ID。'),
+    liveId?: string(name='LiveId', description='直播ID。'),
+    status?: int32(name='Status', description='直播状态，0-在播 1-下播。'),
+    roomId?: string(name='RoomId', description='房间ID。'),
+    chatId?: string(name='ChatId', description='聊天ID。'),
+    title?: string(name='Title', description='标题。'),
+    notice?: string(name='Notice', description='公告。'),
+    coverUrl?: string(name='CoverUrl', description='封面。'),
+    anchorId?: string(name='AnchorId', description='主播ID。'),
+    uv?: long(name='Uv', description='访问用户数。'),
+    onlineCount?: long(name='OnlineCount', description='在线用户数。'),
+    playbackUrl?: string(name='PlaybackUrl', description='直播回放地址。'),
+    createTime?: long(name='CreateTime', description='直播创建时间，单位：毫秒。'),
+    endTime?: long(name='EndTime', description='直播结束时间，单位：毫秒。'),
+    pushUrl?: string(name='PushUrl', description='直播推流地址。'),
+    liveUrl?: string(name='LiveUrl', description='直播拉流地址。'),
+    pluginInstanceInfoList?: [ 
+      {
+        pluginType?: string(name='PluginType', description='插件唯一标识，取值：live-直播，wb-白板，chat-聊天，rtc。'),
+        pluginId?: string(name='PluginId', description='插件实例唯一标识。'),
+        createTime?: long(name='CreateTime', description='插件实例创建时间戳，单位：毫秒。'),
+        extension?: map[string]string(name='Extension', description='插件拓展字段。'),
+      }
+    ](name='PluginInstanceInfoList', description='活跃插件列表。'),
+    extension?: map[string]string(name='Extension', description='直播拓展字段。'),
+    pv?: long(name='Pv', description='访问用户人次。'),
+    anchorNick?: string(name='AnchorNick', description='主播昵称'),
+  }(name='Result', description='创建场景化直播返回的结果。'),
+}
+
+model GetLiveRoomResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetLiveRoomResponseBody(name='body'),
+}
+
+async function getLiveRoomWithOptions(request: GetLiveRoomRequest, runtime: Util.RuntimeOptions): GetLiveRoomResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('GetLiveRoom', '2021-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function getLiveRoom(request: GetLiveRoomRequest): GetLiveRoomResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getLiveRoomWithOptions(request, runtime);
 }
 
