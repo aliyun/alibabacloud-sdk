@@ -12,6 +12,7 @@ init(config: OpenApi.Config){
   super(config);
   @endpointRule = '';
   
+
   checkConfig(config);
   @endpoint = getEndpoint('aligenie', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -26,6 +27,152 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+model GetPhoneNumberHeaders {
+  commonHeaders?: map[string]string,
+  commonParams?: {
+    userInfo?: {
+      id?: string(name='Id', description='用户openId或用户unionId'),
+      idType?: string(name='IdType', description='用户Id的类型 ● OPEN_ID: 对外暴露的用户ID ● UNION_ID: 对外暴露的在组织下的用户ID'),
+      encodeType?: string(name='EncodeType', description='编码类型，获取猫精的用户标识的途径有多种，不同途径对应不同的编码类型： ● PACKAGE_NAME：apk包名 ● SKILL_ID：技能ID'),
+      encodeKey?: string(name='EncodeKey', description='编码类型对应的值。 ● 编码类型是SKILL_ID时，其值为webhook服务中得到的skill ID。 ● 编码类型是PACKAGE_NAME时，其值为对应客户端App的packageName。'),
+      organizationId?: string(name='OrganizationId', description='组织ID，如果IdType为UNION_ID时必填'),
+    }(name='UserInfo', description='单个用户信息'),
+  }(name='CommonParams', description='公共入参名称'),
+  xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
+  authorization?: string(name='Authorization'),
+}
+
+model GetPhoneNumberShrinkHeaders {
+  commonHeaders?: map[string]string,
+  commonParamsShrink?: string(name='CommonParams', description='公共入参名称'),
+  xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
+  authorization?: string(name='Authorization'),
+}
+
+model GetPhoneNumberResponseBody = {
+  phoneNumber?: string(name='phoneNumber', description='用户手机号'),
+}
+
+model GetPhoneNumberResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetPhoneNumberResponseBody(name='body'),
+}
+
+async function getPhoneNumber(): GetPhoneNumberResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new GetPhoneNumberHeaders{};
+  return getPhoneNumberWithOptions(headers, runtime);
+}
+
+async function getPhoneNumberWithOptions(tmpHeader: GetPhoneNumberHeaders, runtime: Util.RuntimeOptions): GetPhoneNumberResponse {
+  var headers = new GetPhoneNumberShrinkHeaders{};
+  OpenApiUtil.convert(tmpHeader, headers);
+  if (!Util.isUnset(tmpHeader.commonParams)) {
+    headers.commonParamsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpHeader.commonParams, 'CommonParams', 'json');
+  }
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.commonParamsShrink)) {
+    realHeaders.CommonParams = headers.commonParamsShrink;
+  }
+  if (!Util.isUnset(headers.xAcsAligenieAccessToken)) {
+    realHeaders.x-acs-aligenie-access-token = headers.xAcsAligenieAccessToken;
+  }
+  if (!Util.isUnset(headers.authorization)) {
+    realHeaders.Authorization = headers.authorization;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetPhoneNumber',
+    version = 'iap_1.0',
+    protocol = 'HTTPS',
+    pathname = `/v1.0/iap/profile/phoneNumber`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model WakeUpAppHeaders {
+  commonHeaders?: map[string]string,
+  xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
+  authorization?: string(name='Authorization'),
+}
+
+model WakeUpAppRequest {
+  path?: string(name='Path', description='应用拉起路径，类似在技能应用控制台中填的唤起链接。'),
+  genieAppId?: string(name='GenieAppId', description='猫精应用id，控制台中创建应用后得到的应用id。'),
+  targetInfo?: {
+    targetType?: string(name='TargetType', description='推送目标类型，获取到对应设备标识时的类型  DEVICE_UNION_ID：设备unionId； DEVICE_OPEN_ID：设备openId'),
+    targetIdentity?: string(name='TargetIdentity', description='推送目标类型对应的标识值'),
+    organizationId?: string(name='OrganizationId', description='组织标识，推送类型是XX_UNION_XX时才需要配。当存在多种途径获取猫精设备标识且又需要能互通的情况下需要找平台申请组织，申请通过后由平台分配得到。'),
+    encodeType?: string(name='EncodeType', description='编码类型，获取猫精的设备标识的途径有多种，不同途径对应不同的编码类型：  PACKAGE_NAME：apk包名 SKILL_ID：技能id'),
+    encodeKey?: string(name='EncodeKey', description='编码类型对应的值，例如：编码类型是SKILLID，其值就为webhook服务中得到的skillId；编码类似是PACKAGENAME，其值就为对应客户端app的packageName。'),
+  }(name='TargetInfo', description='要拉起的目标设备信息。'),
+  isDebug?: boolean(name='IsDebug', description='是否调试'),
+}
+
+model WakeUpAppResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function wakeUpApp(request: WakeUpAppRequest): WakeUpAppResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new WakeUpAppHeaders{};
+  return wakeUpAppWithOptions(request, headers, runtime);
+}
+
+async function wakeUpAppWithOptions(request: WakeUpAppRequest, headers: WakeUpAppHeaders, runtime: Util.RuntimeOptions): WakeUpAppResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.path)) {
+    body.Path = request.path;
+  }
+  if (!Util.isUnset(request.genieAppId)) {
+    body.GenieAppId = request.genieAppId;
+  }
+  if (!Util.isUnset(request.targetInfo)) {
+    body.TargetInfo = request.targetInfo;
+  }
+  if (!Util.isUnset(request.isDebug)) {
+    body.IsDebug = request.isDebug;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xAcsAligenieAccessToken)) {
+    realHeaders.x-acs-aligenie-access-token = headers.xAcsAligenieAccessToken;
+  }
+  if (!Util.isUnset(headers.authorization)) {
+    realHeaders.Authorization = headers.authorization;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'WakeUpApp',
+    version = 'iap_1.0',
+    protocol = 'HTTPS',
+    pathname = `/v1.0/iap/wakeup`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return callApi(params, req, runtime);
+}
+
 model PushNotificationsHeaders {
   commonHeaders?: map[string]string,
   xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
@@ -55,13 +202,8 @@ model PushNotificationsShrinkRequest {
   tenantInfoShrink?: string(name='TenantInfo', description='身份信息。'),
 }
 
-model PushNotificationsResponseBody = {
-  requestId?: string(name='RequestId'),
-}
-
 model PushNotificationsResponse = {
   headers: map[string]string(name='headers'),
-  body: PushNotificationsResponseBody(name='body'),
 }
 
 async function pushNotifications(request: PushNotificationsRequest): PushNotificationsResponse {
@@ -102,73 +244,17 @@ async function pushNotificationsWithOptions(tmpReq: PushNotificationsRequest, he
     headers = realHeaders,
     body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequestWithForm('PushNotifications', 'iap_1.0', 'HTTPS', 'PUT', 'AK', `/notifications`, 'json', req, runtime);
-}
-
-model WakeUpAppHeaders {
-  commonHeaders?: map[string]string,
-  xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
-  authorization?: string(name='Authorization'),
-}
-
-model WakeUpAppRequest {
-  path?: string(name='Path', description='应用拉起路径，类似在技能应用控制台中填的唤起链接。'),
-  genieAppId?: string(name='GenieAppId', description='猫精应用id，控制台中创建应用后得到的应用id。'),
-  targetInfo?: {
-    targetType?: string(name='TargetType', description='推送目标类型，获取到对应设备标识时的类型  DEVICEUNIONID：设备unionId DEVICEOPENID：设备openId'),
-    targetIdentity?: string(name='TargetIdentity', description='推送目标类型对应的标识值'),
-    organizationId?: string(name='OrganizationId', description='组织标识，推送类型是XX_UNION_XX时才需要配。当存在多种途径获取猫精设备标识且又需要能互通的情况下需要找平台申请组织，申请通过后由平台分配得到。'),
-    encodeType?: string(name='EncodeType', description='编码类型，获取猫精的设备标识的途径有多种，不同途径对应不同的编码类型：  PACKAGE_NAME：apk包名 SKILL_ID：技能id'),
-    encodeKey?: string(name='EncodeKey', description='编码类型对应的值，例如：编码类型是SKILLID，其值就为webhook服务中得到的skillId；编码类似是PACKAGENAME，其值就为对应客户端app的packageName。'),
-  }(name='TargetInfo', description='要拉起的目标设备信息。'),
-  isDebug?: boolean(name='IsDebug', description='是否调试'),
-}
-
-model WakeUpAppResponseBody = {
-  requestId?: string(name='RequestId'),
-}
-
-model WakeUpAppResponse = {
-  headers: map[string]string(name='headers'),
-  body: WakeUpAppResponseBody(name='body'),
-}
-
-async function wakeUpApp(request: WakeUpAppRequest): WakeUpAppResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers = new WakeUpAppHeaders{};
-  return wakeUpAppWithOptions(request, headers, runtime);
-}
-
-async function wakeUpAppWithOptions(request: WakeUpAppRequest, headers: WakeUpAppHeaders, runtime: Util.RuntimeOptions): WakeUpAppResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.path)) {
-    body.Path = request.path;
-  }
-  if (!Util.isUnset(request.genieAppId)) {
-    body.GenieAppId = request.genieAppId;
-  }
-  if (!Util.isUnset(request.targetInfo)) {
-    body.TargetInfo = request.targetInfo;
-  }
-  if (!Util.isUnset(request.isDebug)) {
-    body.IsDebug = request.isDebug;
-  }
-
-  var realHeaders : map[string]string = {};
-  if (!Util.isUnset(headers.commonHeaders)) {
-    realHeaders = headers.commonHeaders;
-  }
-  if (!Util.isUnset(headers.xAcsAligenieAccessToken)) {
-    realHeaders.x-acs-aligenie-access-token = headers.xAcsAligenieAccessToken;
-  }
-  if (!Util.isUnset(headers.authorization)) {
-    realHeaders.Authorization = headers.authorization;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = realHeaders,
-    body = OpenApiUtil.parseToMap(body),
+  var params = new OpenApi.Params{
+    action = 'PushNotifications',
+    version = 'iap_1.0',
+    protocol = 'HTTPS',
+    pathname = `/v1.0/iap/notifications`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'none',
   };
-  return doROARequest('WakeUpApp', 'iap_1.0', 'HTTPS', 'PUT', 'AK', `/wakeup`, 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
