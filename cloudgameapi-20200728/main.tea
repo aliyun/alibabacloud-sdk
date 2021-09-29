@@ -3,7 +3,7 @@
  */
 import Util;
 import OpenApi;
-
+import OpenApiUtil;
 import EndpointUtil;
 
 extends OpenApi;
@@ -12,6 +12,7 @@ init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
   
+
   checkConfig(config);
   @endpoint = getEndpoint('cloudgameapi', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -26,107 +27,217 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-model BatchDispatchGameSlotRequest {
-  queueUserList?: string(name='QueueUserList'),
+model ListGamesRequest {
+  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始'),
+  maxResults?: int32(name='MaxResults', description='本次读取的最大数据记录数量'),
 }
 
-model BatchDispatchGameSlotResponseBody = {
-  requestId?: string(name='RequestId'),
-  queueResultList?: [ 
+model ListGamesResponseBody = {
+  count?: long(name='Count', description='总记录数'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数'),
+  dataList?: [ 
     {
-      regionName?: string(name='RegionName'),
-      gameSession?: string(name='GameSession'),
-      userId?: string(name='UserId'),
-      queueState?: int32(name='QueueState'),
-      message?: string(name='Message'),
-      gameId?: string(name='GameId'),
-      queueCode?: int32(name='QueueCode'),
+      platformType?: long(name='PlatformType', description='平台类型'),
+      gameName?: string(name='GameName', description='游戏名称'),
+      gameId?: string(name='GameId', description='游戏ID'),
     }
-  ](name='QueueResultList'),
+  ](name='DataList', description='数据列表'),
+  nextToken?: string(name='NextToken', description='表示当前调用返回读取到的位置，空代表数据已经读取完毕'),
 }
 
-model BatchDispatchGameSlotResponse = {
+model ListGamesResponse = {
   headers: map[string]string(name='headers'),
-  body: BatchDispatchGameSlotResponseBody(name='body'),
+  body: ListGamesResponseBody(name='body'),
 }
 
-async function batchDispatchGameSlotWithOptions(request: BatchDispatchGameSlotRequest, runtime: Util.RuntimeOptions): BatchDispatchGameSlotResponse {
+async function listGamesWithOptions(request: ListGamesRequest, runtime: Util.RuntimeOptions): ListGamesResponse {
   Util.validateModel(request);
+  var query = {};
+  query["NextToken"] = request.nextToken;
+  query["MaxResults"] = request.maxResults;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('BatchDispatchGameSlot', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListGames',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-async function batchDispatchGameSlot(request: BatchDispatchGameSlotRequest): BatchDispatchGameSlotResponse {
+async function listGames(request: ListGamesRequest): ListGamesResponse {
   var runtime = new Util.RuntimeOptions{};
-  return batchDispatchGameSlotWithOptions(request, runtime);
+  return listGamesWithOptions(request, runtime);
 }
 
-model BatchStopGameSessionsRequest {
-  projectId?: string(name='ProjectId'),
-  gameId?: string(name='GameId'),
-  token?: string(name='Token'),
-  reason?: string(name='Reason'),
-  trackInfo?: string(name='TrackInfo'),
-  tags?: string(name='Tags'),
+model QueryGameRequest {
+  projectId?: long(name='ProjectId'),
+  pageNo?: int32(name='PageNo'),
+  pageSize?: int32(name='PageSize'),
+  tenantId?: long(name='TenantId'),
 }
 
-model BatchStopGameSessionsResponseBody = {
+model QueryGameResponseBody = {
   requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-  projectId?: string(name='ProjectId'),
-  queueState?: int32(name='QueueState'),
-  message?: string(name='Message'),
-  gameId?: string(name='GameId'),
-  trackInfo?: string(name='TrackInfo'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  totalCount?: int32(name='TotalCount'),
+  data?: [ 
+    {
+      version?: string(name='Version'),
+      projectId?: long(name='ProjectId'),
+      gmtCreate?: string(name='GmtCreate'),
+      gameId?: long(name='GameId'),
+      name?: string(name='Name'),
+      tenantId?: long(name='TenantId'),
+    }
+  ](name='Data'),
 }
 
-model BatchStopGameSessionsResponse = {
+model QueryGameResponse = {
   headers: map[string]string(name='headers'),
-  body: BatchStopGameSessionsResponseBody(name='body'),
+  body: QueryGameResponseBody(name='body'),
 }
 
-async function batchStopGameSessionsWithOptions(request: BatchStopGameSessionsRequest, runtime: Util.RuntimeOptions): BatchStopGameSessionsResponse {
+async function queryGameWithOptions(request: QueryGameRequest, runtime: Util.RuntimeOptions): QueryGameResponse {
   Util.validateModel(request);
+  var query = {};
+  query["ProjectId"] = request.projectId;
+  query["PageNo"] = request.pageNo;
+  query["PageSize"] = request.pageSize;
+  query["TenantId"] = request.tenantId;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('BatchStopGameSessions', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'QueryGame',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-async function batchStopGameSessions(request: BatchStopGameSessionsRequest): BatchStopGameSessionsResponse {
+async function queryGame(request: QueryGameRequest): QueryGameResponse {
   var runtime = new Util.RuntimeOptions{};
-  return batchStopGameSessionsWithOptions(request, runtime);
+  return queryGameWithOptions(request, runtime);
 }
 
-model CloseOrderRequest {
-  buyerAccountId?: string(name='BuyerAccountId'),
-  orderId?: string(name='OrderId'),
+model ListProjectsRequest {
+  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始'),
+  maxResults?: int32(name='MaxResults', description='本次读取的最大数据记录数量'),
+}
+
+model ListProjectsResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  nextToken?: string(name='NextToken', description='表示当前调用返回读取到的位置，空代表数据已经读取完毕'),
+  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数'),
+  dataList?: [ 
+    {
+      projectId?: string(name='ProjectId', description='项目ID'),
+      projectName?: string(name='ProjectName', description='项目名称'),
+    }
+  ](name='DataList', description='数据列表'),
+  count?: long(name='Count', description='总记录数'),
+}
+
+model ListProjectsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListProjectsResponseBody(name='body'),
+}
+
+async function listProjectsWithOptions(request: ListProjectsRequest, runtime: Util.RuntimeOptions): ListProjectsResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["NextToken"] = request.nextToken;
+  query["MaxResults"] = request.maxResults;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListProjects',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listProjects(request: ListProjectsRequest): ListProjectsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listProjectsWithOptions(request, runtime);
+}
+
+model GetOutAccountBindDetailRequest {
+  outAccountType?: string(name='OutAccountType'),
+  accountId?: string(name='AccountId'),
   accountDomain?: string(name='AccountDomain'),
 }
 
-model CloseOrderResponseBody = {
-  data?: boolean(name='Data'),
+model GetOutAccountBindDetailResponseBody = {
   requestId?: string(name='RequestId'),
+  data?: {
+    outAccountId?: string(name='OutAccountId'),
+    token?: string(name='Token'),
+    bindStatus?: int32(name='BindStatus'),
+    tokenExpireTime?: long(name='TokenExpireTime'),
+    outAccountType?: string(name='OutAccountType'),
+  }(name='Data'),
 }
 
-model CloseOrderResponse = {
+model GetOutAccountBindDetailResponse = {
   headers: map[string]string(name='headers'),
-  body: CloseOrderResponseBody(name='body'),
+  body: GetOutAccountBindDetailResponseBody(name='body'),
 }
 
-async function closeOrderWithOptions(request: CloseOrderRequest, runtime: Util.RuntimeOptions): CloseOrderResponse {
+async function getOutAccountBindDetailWithOptions(request: GetOutAccountBindDetailRequest, runtime: Util.RuntimeOptions): GetOutAccountBindDetailResponse {
   Util.validateModel(request);
+  var query = {};
+  query["OutAccountType"] = request.outAccountType;
+  query["AccountId"] = request.accountId;
+  query["AccountDomain"] = request.accountDomain;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('CloseOrder', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetOutAccountBindDetail',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-async function closeOrder(request: CloseOrderRequest): CloseOrderResponse {
+async function getOutAccountBindDetail(request: GetOutAccountBindDetailRequest): GetOutAccountBindDetailResponse {
   var runtime = new Util.RuntimeOptions{};
-  return closeOrderWithOptions(request, runtime);
+  return getOutAccountBindDetailWithOptions(request, runtime);
 }
 
 model CreateOrderRequest {
@@ -166,10 +277,31 @@ model CreateOrderResponse = {
 
 async function createOrderWithOptions(request: CreateOrderRequest, runtime: Util.RuntimeOptions): CreateOrderResponse {
   Util.validateModel(request);
+  var query = {};
+  query["BuyerAccountId"] = request.buyerAccountId;
+  query["ItemId"] = request.itemId;
+  query["SkuId"] = request.skuId;
+  query["OriginPrice"] = request.originPrice;
+  query["SettlementPrice"] = request.settlementPrice;
+  query["Amount"] = request.amount;
+  query["IdempotentCode"] = request.idempotentCode;
+  query["AccountDomain"] = request.accountDomain;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('CreateOrder', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateOrder',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function createOrder(request: CreateOrderRequest): CreateOrderResponse {
@@ -177,146 +309,158 @@ async function createOrder(request: CreateOrderRequest): CreateOrderResponse {
   return createOrderWithOptions(request, runtime);
 }
 
-model CreateTokenRequest {
-  session?: string(name='Session'),
-  currentToken?: string(name='CurrentToken'),
-  clientToken?: string(name='ClientToken'),
+model AddGameToProjectRequest {
+  projectId?: string(name='ProjectId', description='项目ID'),
+  gameId?: string(name='GameId', description='游戏iD'),
 }
 
-model CreateTokenResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    token?: string(name='Token'),
-  }(name='Data'),
+model AddGameToProjectResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
 }
 
-model CreateTokenResponse = {
+model AddGameToProjectResponse = {
   headers: map[string]string(name='headers'),
-  body: CreateTokenResponseBody(name='body'),
+  body: AddGameToProjectResponseBody(name='body'),
 }
 
-async function createTokenWithOptions(request: CreateTokenRequest, runtime: Util.RuntimeOptions): CreateTokenResponse {
+async function addGameToProjectWithOptions(request: AddGameToProjectRequest, runtime: Util.RuntimeOptions): AddGameToProjectResponse {
   Util.validateModel(request);
+  var query = {};
+  query["ProjectId"] = request.projectId;
+  query["GameId"] = request.gameId;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('CreateToken', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function createToken(request: CreateTokenRequest): CreateTokenResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createTokenWithOptions(request, runtime);
-}
-
-model DeliveryOrderRequest {
-  buyerAccountId?: string(name='BuyerAccountId'),
-  orderId?: string(name='OrderId'),
-  accountDomain?: string(name='AccountDomain'),
-}
-
-model DeliveryOrderResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    deliveryStatus?: string(name='DeliveryStatus'),
-  }(name='Data'),
-}
-
-model DeliveryOrderResponse = {
-  headers: map[string]string(name='headers'),
-  body: DeliveryOrderResponseBody(name='body'),
-}
-
-async function deliveryOrderWithOptions(request: DeliveryOrderRequest, runtime: Util.RuntimeOptions): DeliveryOrderResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+  var params = new OpenApi.Params{
+    action = 'AddGameToProject',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
   };
-  return doRPCRequest('DeliveryOrder', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
-async function deliveryOrder(request: DeliveryOrderRequest): DeliveryOrderResponse {
+async function addGameToProject(request: AddGameToProjectRequest): AddGameToProjectResponse {
   var runtime = new Util.RuntimeOptions{};
-  return deliveryOrderWithOptions(request, runtime);
+  return addGameToProjectWithOptions(request, runtime);
 }
 
-model DispatchGameSlotRequest {
-  gameId?: string(name='GameId'),
-  accessKey?: string(name='AccessKey'),
-  regionName?: string(name='RegionName'),
-  userId?: string(name='UserId'),
-  bizParam?: string(name='BizParam'),
-  cancel?: boolean(name='Cancel'),
-  gameSession?: string(name='GameSession'),
-  gameStartParam?: string(name='GameStartParam'),
-  gameCommand?: string(name='GameCommand'),
-  systemInfo?: string(name='SystemInfo'),
-  clientIp?: string(name='ClientIp'),
-  reconnect?: boolean(name='Reconnect'),
-  tags?: string(name='Tags'),
+model ListGameVersionsRequest {
+  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始'),
+  maxResults?: int32(name='MaxResults', description='本次读取的最大数据记录数量'),
+  gameId?: string(name='GameId', description='游戏ID'),
 }
 
-model DispatchGameSlotResponseBody = {
-  requestId?: string(name='RequestId'),
-  regionName?: string(name='RegionName'),
-  gameSession?: string(name='GameSession'),
-  userId?: string(name='UserId'),
-  queueState?: int32(name='QueueState'),
-  message?: string(name='Message'),
-  gameId?: string(name='GameId'),
-  queueCode?: int32(name='QueueCode'),
-}
-
-model DispatchGameSlotResponse = {
-  headers: map[string]string(name='headers'),
-  body: DispatchGameSlotResponseBody(name='body'),
-}
-
-async function dispatchGameSlotWithOptions(request: DispatchGameSlotRequest, runtime: Util.RuntimeOptions): DispatchGameSlotResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DispatchGameSlot', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function dispatchGameSlot(request: DispatchGameSlotRequest): DispatchGameSlotResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return dispatchGameSlotWithOptions(request, runtime);
-}
-
-model GetGameCcuRequest {
-  gameId?: string(name='GameId'),
-  regionName?: string(name='RegionName'),
-  accessKey?: string(name='AccessKey'),
-}
-
-model GetGameCcuResponseBody = {
-  requestId?: string(name='RequestId'),
+model ListGameVersionsResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  count?: long(name='Count', description='总记录数'),
+  nextToken?: string(name='NextToken', description='表示当前调用返回读取到的位置，空代表数据已经读取完毕'),
+  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数'),
   dataList?: [ 
     {
-      gameId?: string(name='GameId'),
-      ccu?: long(name='Ccu'),
-      regionId?: string(name='RegionId'),
+      versionId?: string(name='VersionId', description='版本ID'),
+      versionName?: string(name='VersionName', description='版本名称'),
+      versionNumber?: string(name='VersionNumber', description='版本号'),
     }
-  ](name='DataList'),
+  ](name='DataList', description='数据列表'),
 }
 
-model GetGameCcuResponse = {
+model ListGameVersionsResponse = {
   headers: map[string]string(name='headers'),
-  body: GetGameCcuResponseBody(name='body'),
+  body: ListGameVersionsResponseBody(name='body'),
 }
 
-async function getGameCcuWithOptions(request: GetGameCcuRequest, runtime: Util.RuntimeOptions): GetGameCcuResponse {
+async function listGameVersionsWithOptions(request: ListGameVersionsRequest, runtime: Util.RuntimeOptions): ListGameVersionsResponse {
   Util.validateModel(request);
+  var query = {};
+  query["NextToken"] = request.nextToken;
+  query["MaxResults"] = request.maxResults;
+  query["GameId"] = request.gameId;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('GetGameCcu', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListGameVersions',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-async function getGameCcu(request: GetGameCcuRequest): GetGameCcuResponse {
+async function listGameVersions(request: ListGameVersionsRequest): ListGameVersionsResponse {
   var runtime = new Util.RuntimeOptions{};
-  return getGameCcuWithOptions(request, runtime);
+  return listGameVersionsWithOptions(request, runtime);
+}
+
+model SubmitInternalPurchaseReadyFlagRequest {
+  status?: int32(name='Status'),
+  gameId?: string(name='GameId'),
+  chargeDate?: string(name='ChargeDate'),
+  orderTotalCount?: int32(name='OrderTotalCount'),
+  batchInfoList?: [ 
+    {
+      batchSize?: int32(name='BatchSize'),
+      batchNumbers?: string(name='BatchNumbers'),
+    }
+  ](name='BatchInfoList'),
+}
+
+model SubmitInternalPurchaseReadyFlagResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    status?: int32(name='Status'),
+    missingBatchNumbers?: string(name='MissingBatchNumbers'),
+    message?: string(name='Message'),
+  }(name='Data'),
+}
+
+model SubmitInternalPurchaseReadyFlagResponse = {
+  headers: map[string]string(name='headers'),
+  body: SubmitInternalPurchaseReadyFlagResponseBody(name='body'),
+}
+
+async function submitInternalPurchaseReadyFlagWithOptions(request: SubmitInternalPurchaseReadyFlagRequest, runtime: Util.RuntimeOptions): SubmitInternalPurchaseReadyFlagResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["Status"] = request.status;
+  query["GameId"] = request.gameId;
+  query["ChargeDate"] = request.chargeDate;
+  query["OrderTotalCount"] = request.orderTotalCount;
+  query["BatchInfoList"] = request.batchInfoList;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'SubmitInternalPurchaseReadyFlag',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function submitInternalPurchaseReadyFlag(request: SubmitInternalPurchaseReadyFlagRequest): SubmitInternalPurchaseReadyFlagResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return submitInternalPurchaseReadyFlagWithOptions(request, runtime);
 }
 
 model GetGameStockRequest {
@@ -347,15 +491,970 @@ model GetGameStockResponse = {
 
 async function getGameStockWithOptions(request: GetGameStockRequest, runtime: Util.RuntimeOptions): GetGameStockResponse {
   Util.validateModel(request);
+  var query = {};
+  query["GameId"] = request.gameId;
+  query["AccessKey"] = request.accessKey;
+  query["UserLevel"] = request.userLevel;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('GetGameStock', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetGameStock',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getGameStock(request: GetGameStockRequest): GetGameStockResponse {
   var runtime = new Util.RuntimeOptions{};
   return getGameStockWithOptions(request, runtime);
+}
+
+model ListDeployableInstancesRequest {
+  versionId?: string(name='VersionId', description='游戏版本ID'),
+  projectId?: string(name='ProjectId', description='项目ID'),
+  pageSize?: long(name='PageSize', description='每页大小'),
+  pageNumber?: long(name='PageNumber', description='页码'),
+}
+
+model ListDeployableInstancesResponseBody = {
+  totalCount?: long(name='TotalCount', description='TotalCount本次请求条件下的数据总量，此参数为可选参数，默认可不返回'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  pageNumber?: int32(name='PageNumber', description='表示当前调用返回读取到的位置，空代表数据已经读取完毕'),
+  pageSize?: int32(name='PageSize', description='MaxResults本次请求所返回的最大记录条数'),
+  dataList?: [ 
+    {
+      cloudGameInstanceId?: string(name='CloudGameInstanceId', description='实例ID'),
+    }
+  ](name='DataList', description='数据列表'),
+}
+
+model ListDeployableInstancesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListDeployableInstancesResponseBody(name='body'),
+}
+
+async function listDeployableInstancesWithOptions(request: ListDeployableInstancesRequest, runtime: Util.RuntimeOptions): ListDeployableInstancesResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListDeployableInstances',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listDeployableInstances(request: ListDeployableInstancesRequest): ListDeployableInstancesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listDeployableInstancesWithOptions(request, runtime);
+}
+
+model SubmitInternalPurchaseOrdersRequest {
+  orderList?: [ 
+    {
+      finishTime?: long(name='FinishTime'),
+      finalPrice?: long(name='FinalPrice'),
+      userId?: string(name='UserId'),
+      gameId?: string(name='GameId'),
+      batchNumber?: string(name='BatchNumber'),
+      roleId?: string(name='RoleId'),
+      orderId?: string(name='OrderId'),
+    }
+  ](name='OrderList'),
+}
+
+model SubmitInternalPurchaseOrdersResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    status?: int32(name='Status'),
+    message?: string(name='Message'),
+  }(name='Data'),
+}
+
+model SubmitInternalPurchaseOrdersResponse = {
+  headers: map[string]string(name='headers'),
+  body: SubmitInternalPurchaseOrdersResponseBody(name='body'),
+}
+
+async function submitInternalPurchaseOrdersWithOptions(request: SubmitInternalPurchaseOrdersRequest, runtime: Util.RuntimeOptions): SubmitInternalPurchaseOrdersResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["OrderList"] = request.orderList;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'SubmitInternalPurchaseOrders',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function submitInternalPurchaseOrders(request: SubmitInternalPurchaseOrdersRequest): SubmitInternalPurchaseOrdersResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return submitInternalPurchaseOrdersWithOptions(request, runtime);
+}
+
+model DeleteGameVersionRequest {
+  versionId?: string(name='VersionId', description='游戏版本ID'),
+}
+
+model DeleteGameVersionResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model DeleteGameVersionResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteGameVersionResponseBody(name='body'),
+}
+
+async function deleteGameVersionWithOptions(request: DeleteGameVersionRequest, runtime: Util.RuntimeOptions): DeleteGameVersionResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["VersionId"] = request.versionId;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteGameVersion',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deleteGameVersion(request: DeleteGameVersionRequest): DeleteGameVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteGameVersionWithOptions(request, runtime);
+}
+
+model UploadGameVersionByDownloadRequest {
+  hash?: string(name='Hash'),
+  gameId?: string(name='GameId'),
+  downloadType?: string(name='DownloadType'),
+  fileType?: string(name='FileType'),
+  versionName?: string(name='VersionName'),
+  gameVersion?: string(name='GameVersion'),
+}
+
+model UploadGameVersionByDownloadResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  taskId?: string(name='TaskId', description='任务id'),
+}
+
+model UploadGameVersionByDownloadResponse = {
+  headers: map[string]string(name='headers'),
+  body: UploadGameVersionByDownloadResponseBody(name='body'),
+}
+
+async function uploadGameVersionByDownloadWithOptions(request: UploadGameVersionByDownloadRequest, runtime: Util.RuntimeOptions): UploadGameVersionByDownloadResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["Hash"] = request.hash;
+  query["GameId"] = request.gameId;
+  query["DownloadType"] = request.downloadType;
+  query["FileType"] = request.fileType;
+  query["VersionName"] = request.versionName;
+  query["GameVersion"] = request.gameVersion;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'UploadGameVersionByDownload',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function uploadGameVersionByDownload(request: UploadGameVersionByDownloadRequest): UploadGameVersionByDownloadResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return uploadGameVersionByDownloadWithOptions(request, runtime);
+}
+
+model DeleteGameRequest {
+  gameId?: string(name='GameId', description='游戏ID'),
+}
+
+model DeleteGameResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model DeleteGameResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteGameResponseBody(name='body'),
+}
+
+async function deleteGameWithOptions(request: DeleteGameRequest, runtime: Util.RuntimeOptions): DeleteGameResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["GameId"] = request.gameId;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteGame',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deleteGame(request: DeleteGameRequest): DeleteGameResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteGameWithOptions(request, runtime);
+}
+
+model AdaptGameVersionRequest {
+  versionId?: string(name='VersionId', description='游戏版本ID'),
+  resolution?: string(name='Resolution', description='分辨率'),
+  frameRate?: string(name='FrameRate', description='帧率'),
+}
+
+model AdaptGameVersionResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  taskId?: string(name='TaskId', description='Id of the task'),
+}
+
+model AdaptGameVersionResponse = {
+  headers: map[string]string(name='headers'),
+  body: AdaptGameVersionResponseBody(name='body'),
+}
+
+async function adaptGameVersionWithOptions(request: AdaptGameVersionRequest, runtime: Util.RuntimeOptions): AdaptGameVersionResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["VersionId"] = request.versionId;
+  query["Resolution"] = request.resolution;
+  query["FrameRate"] = request.frameRate;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'AdaptGameVersion',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function adaptGameVersion(request: AdaptGameVersionRequest): AdaptGameVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return adaptGameVersionWithOptions(request, runtime);
+}
+
+model QueryOutAccountBindStatusRequest {
+  accountId?: string(name='AccountId'),
+  gameId?: string(name='GameId'),
+  accountDomain?: string(name='AccountDomain'),
+}
+
+model QueryOutAccountBindStatusResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    bindStatus?: int32(name='BindStatus'),
+  }(name='Data'),
+}
+
+model QueryOutAccountBindStatusResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryOutAccountBindStatusResponseBody(name='body'),
+}
+
+async function queryOutAccountBindStatusWithOptions(request: QueryOutAccountBindStatusRequest, runtime: Util.RuntimeOptions): QueryOutAccountBindStatusResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["AccountId"] = request.accountId;
+  query["GameId"] = request.gameId;
+  query["AccountDomain"] = request.accountDomain;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryOutAccountBindStatus',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function queryOutAccountBindStatus(request: QueryOutAccountBindStatusRequest): QueryOutAccountBindStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryOutAccountBindStatusWithOptions(request, runtime);
+}
+
+model RemoveGameFromProjectRequest {
+  projectId?: string(name='ProjectId', description='项目ID'),
+  gameId?: string(name='GameId', description='游戏iD'),
+}
+
+model RemoveGameFromProjectResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model RemoveGameFromProjectResponse = {
+  headers: map[string]string(name='headers'),
+  body: RemoveGameFromProjectResponseBody(name='body'),
+}
+
+async function removeGameFromProjectWithOptions(request: RemoveGameFromProjectRequest, runtime: Util.RuntimeOptions): RemoveGameFromProjectResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["ProjectId"] = request.projectId;
+  query["GameId"] = request.gameId;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'RemoveGameFromProject',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function removeGameFromProject(request: RemoveGameFromProjectRequest): RemoveGameFromProjectResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return removeGameFromProjectWithOptions(request, runtime);
+}
+
+model SkipTrialPolicyRequest {
+  gameSessionId?: string(name='GameSessionId'),
+}
+
+model SkipTrialPolicyResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    skipResult?: int32(name='SkipResult'),
+  }(name='Data'),
+}
+
+model SkipTrialPolicyResponse = {
+  headers: map[string]string(name='headers'),
+  body: SkipTrialPolicyResponseBody(name='body'),
+}
+
+async function skipTrialPolicyWithOptions(request: SkipTrialPolicyRequest, runtime: Util.RuntimeOptions): SkipTrialPolicyResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["GameSessionId"] = request.gameSessionId;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'SkipTrialPolicy',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function skipTrialPolicy(request: SkipTrialPolicyRequest): SkipTrialPolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return skipTrialPolicyWithOptions(request, runtime);
+}
+
+model CreateGameDeployWorkflowRequest {
+  projectId?: string(name='ProjectId'),
+  hash?: string(name='Hash'),
+  gameId?: string(name='GameId'),
+  downloadType?: string(name='DownloadType'),
+  fileType?: string(name='FileType'),
+  versionName?: string(name='VersionName'),
+  gameVersion?: string(name='GameVersion'),
+  resolution?: string(name='Resolution'),
+  frameRate?: string(name='FrameRate'),
+  instance?: string(name='Instance'),
+}
+
+model CreateGameDeployWorkflowResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  taskId?: string(name='TaskId', description='任务id'),
+}
+
+model CreateGameDeployWorkflowResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateGameDeployWorkflowResponseBody(name='body'),
+}
+
+async function createGameDeployWorkflowWithOptions(request: CreateGameDeployWorkflowRequest, runtime: Util.RuntimeOptions): CreateGameDeployWorkflowResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["ProjectId"] = request.projectId;
+  query["Hash"] = request.hash;
+  query["GameId"] = request.gameId;
+  query["DownloadType"] = request.downloadType;
+  query["FileType"] = request.fileType;
+  query["VersionName"] = request.versionName;
+  query["GameVersion"] = request.gameVersion;
+  query["Resolution"] = request.resolution;
+  query["FrameRate"] = request.frameRate;
+  query["Instance"] = request.instance;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateGameDeployWorkflow',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createGameDeployWorkflow(request: CreateGameDeployWorkflowRequest): CreateGameDeployWorkflowResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createGameDeployWorkflowWithOptions(request, runtime);
+}
+
+model StopGameSessionRequest {
+  gameId?: string(name='GameId'),
+  accessKey?: string(name='AccessKey'),
+  userId?: string(name='UserId'),
+  bizParam?: string(name='BizParam'),
+  gameSession?: string(name='GameSession'),
+  reason?: string(name='Reason'),
+}
+
+model StopGameSessionResponseBody = {
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+  gameSession?: string(name='GameSession'),
+  queueState?: int32(name='QueueState'),
+  message?: string(name='Message'),
+  gameId?: string(name='GameId'),
+  queueCode?: int32(name='QueueCode'),
+}
+
+model StopGameSessionResponse = {
+  headers: map[string]string(name='headers'),
+  body: StopGameSessionResponseBody(name='body'),
+}
+
+async function stopGameSessionWithOptions(request: StopGameSessionRequest, runtime: Util.RuntimeOptions): StopGameSessionResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'StopGameSession',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function stopGameSession(request: StopGameSessionRequest): StopGameSessionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return stopGameSessionWithOptions(request, runtime);
+}
+
+model SubmitDeploymentRequest {
+  projectId?: string(name='ProjectId', description='项目ID'),
+  gameId?: string(name='GameId', description='游戏iD'),
+  versionId?: string(name='VersionId', description='游戏版本ID'),
+  cloudGameInstanceIds?: string(name='CloudGameInstanceIds', description='实例ID列表'),
+  operationType?: string(name='OperationType', description='操作类型'),
+}
+
+model SubmitDeploymentResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  taskId?: string(name='TaskId', description='任务ID'),
+}
+
+model SubmitDeploymentResponse = {
+  headers: map[string]string(name='headers'),
+  body: SubmitDeploymentResponseBody(name='body'),
+}
+
+async function submitDeploymentWithOptions(request: SubmitDeploymentRequest, runtime: Util.RuntimeOptions): SubmitDeploymentResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["ProjectId"] = request.projectId;
+  query["GameId"] = request.gameId;
+  query["VersionId"] = request.versionId;
+  query["CloudGameInstanceIds"] = request.cloudGameInstanceIds;
+  query["OperationType"] = request.operationType;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'SubmitDeployment',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function submitDeployment(request: SubmitDeploymentRequest): SubmitDeploymentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return submitDeploymentWithOptions(request, runtime);
+}
+
+model QueryProjectRequest {
+  pageNo?: int32(name='PageNo'),
+  pageSize?: int32(name='PageSize'),
+  projectId?: long(name='ProjectId'),
+  tenantId?: long(name='TenantId'),
+}
+
+model QueryProjectResponseBody = {
+  requestId?: string(name='RequestId'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  totalCount?: int32(name='TotalCount'),
+  data?: [ 
+    {
+      name?: string(name='Name'),
+      id?: long(name='Id'),
+      tenantId?: long(name='TenantId'),
+    }
+  ](name='Data'),
+}
+
+model QueryProjectResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryProjectResponseBody(name='body'),
+}
+
+async function queryProjectWithOptions(request: QueryProjectRequest, runtime: Util.RuntimeOptions): QueryProjectResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["PageNo"] = request.pageNo;
+  query["PageSize"] = request.pageSize;
+  query["ProjectId"] = request.projectId;
+  query["TenantId"] = request.tenantId;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryProject',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function queryProject(request: QueryProjectRequest): QueryProjectResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryProjectWithOptions(request, runtime);
+}
+
+model DeleteProjectRequest {
+  projectId?: string(name='ProjectId', description='项目ID'),
+}
+
+model DeleteProjectResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model DeleteProjectResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteProjectResponseBody(name='body'),
+}
+
+async function deleteProjectWithOptions(request: DeleteProjectRequest, runtime: Util.RuntimeOptions): DeleteProjectResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["ProjectId"] = request.projectId;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteProject',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deleteProject(request: DeleteProjectRequest): DeleteProjectResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteProjectWithOptions(request, runtime);
+}
+
+model ListContainerStatusRequest {
+  gameSessionIdList?: [ 
+    {
+      gameSessionId?: string(name='GameSessionId'),
+    }
+  ](name='GameSessionIdList'),
+}
+
+model ListContainerStatusResponseBody = {
+  requestId?: string(name='RequestId'),
+  dataList?: [ 
+    {
+      containerState?: string(name='ContainerState'),
+      containerStartTime?: long(name='ContainerStartTime'),
+      projectId?: string(name='ProjectId'),
+      containerQuitTime?: long(name='ContainerQuitTime'),
+      tags?: string(name='Tags'),
+      accountId?: string(name='AccountId'),
+      gameId?: string(name='GameId'),
+      gameSessionId?: string(name='GameSessionId'),
+      playerDetailList?: [ 
+        {
+          accountId?: string(name='AccountId'),
+          startTime?: long(name='StartTime'),
+          isInitiator?: boolean(name='IsInitiator'),
+        }
+      ](name='PlayerDetailList'),
+      timestamp?: long(name='Timestamp', description='系统时间戳'),
+    }
+  ](name='DataList'),
+}
+
+model ListContainerStatusResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListContainerStatusResponseBody(name='body'),
+}
+
+async function listContainerStatusWithOptions(request: ListContainerStatusRequest, runtime: Util.RuntimeOptions): ListContainerStatusResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["GameSessionIdList"] = request.gameSessionIdList;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListContainerStatus',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listContainerStatus(request: ListContainerStatusRequest): ListContainerStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listContainerStatusWithOptions(request, runtime);
+}
+
+model ListHistoryContainerStatusRequest {
+  projectId?: string(name='ProjectId', description='项目ID'),
+  startTime?: long(name='StartTime', description='开始时间（Linux时间戳，单位毫秒）'),
+  endTime?: long(name='EndTime', description='结束时间（Linux时间戳，单位毫秒）'),
+  lastGameSessionId?: string(name='LastGameSessionId', description='上一个游戏会话ID'),
+  pageSize?: long(name='PageSize', description='每页数量'),
+}
+
+model ListHistoryContainerStatusResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  dataList?: [ 
+    {
+      containerState?: string(name='ContainerState', description='容器状态'),
+      containerStartTime?: long(name='ContainerStartTime', description='容器启动时间（Linux时间戳，单位毫秒）'),
+      projectId?: string(name='ProjectId', description='项目ID'),
+      containerQuitTime?: long(name='ContainerQuitTime', description='容器退出时间（Linux时间戳，单位毫秒）'),
+      tags?: string(name='Tags', description='自定义标识'),
+      accountId?: string(name='AccountId', description='主机账号ID'),
+      gameId?: string(name='GameId', description='游戏ID'),
+      gameSessionId?: string(name='GameSessionId', description='游戏会话ID'),
+      playerDetailList?: [ 
+        {
+          accountId?: string(name='AccountId', description='账号ID'),
+          startTime?: long(name='StartTime', description='玩家进入游戏时间'),
+          isInitiator?: boolean(name='IsInitiator', description='是否主机'),
+        }
+      ](name='PlayerDetailList', description='玩家信息集合'),
+    }
+  ](name='DataList', description='容器状态信息集合'),
+}
+
+model ListHistoryContainerStatusResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListHistoryContainerStatusResponseBody(name='body'),
+}
+
+async function listHistoryContainerStatusWithOptions(request: ListHistoryContainerStatusRequest, runtime: Util.RuntimeOptions): ListHistoryContainerStatusResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["ProjectId"] = request.projectId;
+  query["StartTime"] = request.startTime;
+  query["EndTime"] = request.endTime;
+  query["LastGameSessionId"] = request.lastGameSessionId;
+  query["PageSize"] = request.pageSize;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListHistoryContainerStatus',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listHistoryContainerStatus(request: ListHistoryContainerStatusRequest): ListHistoryContainerStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listHistoryContainerStatusWithOptions(request, runtime);
+}
+
+model CreateGameRequest {
+  clientToken?: string(name='ClientToken', description='幂等参数，1-64位建议使用uuid'),
+  gameName?: string(name='GameName', description='游戏名称'),
+  platformType?: long(name='PlatformType', description='平台类型'),
+}
+
+model CreateGameResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID'),
+  gameId?: string(name='GameId', description='游戏ID'),
+}
+
+model CreateGameResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateGameResponseBody(name='body'),
+}
+
+async function createGameWithOptions(request: CreateGameRequest, runtime: Util.RuntimeOptions): CreateGameResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["ClientToken"] = request.clientToken;
+  query["GameName"] = request.gameName;
+  query["PlatformType"] = request.platformType;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateGame',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createGame(request: CreateGameRequest): CreateGameResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createGameWithOptions(request, runtime);
+}
+
+model CreateProjectRequest {
+  clientToken?: string(name='ClientToken', description='幂等参数，1-64位建议使用uuid'),
+  projectName?: string(name='ProjectName', description='项目名称'),
+}
+
+model CreateProjectResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  projectId?: string(name='ProjectId', description='项目ID'),
+}
+
+model CreateProjectResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateProjectResponseBody(name='body'),
+}
+
+async function createProjectWithOptions(request: CreateProjectRequest, runtime: Util.RuntimeOptions): CreateProjectResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["ClientToken"] = request.clientToken;
+  query["ProjectName"] = request.projectName;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateProject',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createProject(request: CreateProjectRequest): CreateProjectResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createProjectWithOptions(request, runtime);
+}
+
+model ListBoughtGamesRequest {
+  accountId?: string(name='AccountId'),
+  accountDomain?: string(name='AccountDomain'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+}
+
+model ListBoughtGamesResponseBody = {
+  requestId?: string(name='RequestId'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  totalCount?: int32(name='TotalCount'),
+  items?: [ 
+    {
+      endTime?: long(name='EndTime'),
+      startTime?: long(name='StartTime'),
+      gameId?: string(name='GameId'),
+      gameName?: string(name='GameName'),
+    }
+  ](name='Items'),
+}
+
+model ListBoughtGamesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListBoughtGamesResponseBody(name='body'),
+}
+
+async function listBoughtGamesWithOptions(request: ListBoughtGamesRequest, runtime: Util.RuntimeOptions): ListBoughtGamesResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["AccountId"] = request.accountId;
+  query["AccountDomain"] = request.accountDomain;
+  query["PageNumber"] = request.pageNumber;
+  query["PageSize"] = request.pageSize;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListBoughtGames',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listBoughtGames(request: ListBoughtGamesRequest): ListBoughtGamesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listBoughtGamesWithOptions(request, runtime);
 }
 
 model GetItemRequest {
@@ -411,10 +1510,24 @@ model GetItemResponse = {
 
 async function getItemWithOptions(request: GetItemRequest, runtime: Util.RuntimeOptions): GetItemResponse {
   Util.validateModel(request);
+  var query = {};
+  query["ItemId"] = request.itemId;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('GetItem', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetItem',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getItem(request: GetItemRequest): GetItemResponse {
@@ -422,68 +1535,147 @@ async function getItem(request: GetItemRequest): GetItemResponse {
   return getItemWithOptions(request, runtime);
 }
 
-model GetOutAccountBindDetailRequest {
-  outAccountType?: string(name='OutAccountType'),
-  accountId?: string(name='AccountId'),
+model CloseOrderRequest {
+  buyerAccountId?: string(name='BuyerAccountId'),
+  orderId?: string(name='OrderId'),
   accountDomain?: string(name='AccountDomain'),
 }
 
-model GetOutAccountBindDetailResponseBody = {
+model CloseOrderResponseBody = {
+  data?: boolean(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model CloseOrderResponse = {
+  headers: map[string]string(name='headers'),
+  body: CloseOrderResponseBody(name='body'),
+}
+
+async function closeOrderWithOptions(request: CloseOrderRequest, runtime: Util.RuntimeOptions): CloseOrderResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["BuyerAccountId"] = request.buyerAccountId;
+  query["OrderId"] = request.orderId;
+  query["AccountDomain"] = request.accountDomain;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'CloseOrder',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function closeOrder(request: CloseOrderRequest): CloseOrderResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return closeOrderWithOptions(request, runtime);
+}
+
+model GetGameCcuRequest {
+  gameId?: string(name='GameId'),
+  regionName?: string(name='RegionName'),
+  accessKey?: string(name='AccessKey'),
+}
+
+model GetGameCcuResponseBody = {
+  requestId?: string(name='RequestId'),
+  dataList?: [ 
+    {
+      gameId?: string(name='GameId'),
+      ccu?: long(name='Ccu'),
+      regionId?: string(name='RegionId'),
+    }
+  ](name='DataList'),
+}
+
+model GetGameCcuResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetGameCcuResponseBody(name='body'),
+}
+
+async function getGameCcuWithOptions(request: GetGameCcuRequest, runtime: Util.RuntimeOptions): GetGameCcuResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["GameId"] = request.gameId;
+  query["RegionName"] = request.regionName;
+  query["AccessKey"] = request.accessKey;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetGameCcu',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getGameCcu(request: GetGameCcuRequest): GetGameCcuResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getGameCcuWithOptions(request, runtime);
+}
+
+model CreateTokenRequest {
+  session?: string(name='Session'),
+  currentToken?: string(name='CurrentToken'),
+  clientToken?: string(name='ClientToken'),
+}
+
+model CreateTokenResponseBody = {
   requestId?: string(name='RequestId'),
   data?: {
-    outAccountId?: string(name='OutAccountId'),
     token?: string(name='Token'),
-    bindStatus?: int32(name='BindStatus'),
-    tokenExpireTime?: long(name='TokenExpireTime'),
-    outAccountType?: string(name='OutAccountType'),
   }(name='Data'),
 }
 
-model GetOutAccountBindDetailResponse = {
+model CreateTokenResponse = {
   headers: map[string]string(name='headers'),
-  body: GetOutAccountBindDetailResponseBody(name='body'),
+  body: CreateTokenResponseBody(name='body'),
 }
 
-async function getOutAccountBindDetailWithOptions(request: GetOutAccountBindDetailRequest, runtime: Util.RuntimeOptions): GetOutAccountBindDetailResponse {
+async function createTokenWithOptions(request: CreateTokenRequest, runtime: Util.RuntimeOptions): CreateTokenResponse {
   Util.validateModel(request);
+  var query = {};
+  query["Session"] = request.session;
+  query["CurrentToken"] = request.currentToken;
+  query["ClientToken"] = request.clientToken;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('GetOutAccountBindDetail', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function getOutAccountBindDetail(request: GetOutAccountBindDetailRequest): GetOutAccountBindDetailResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getOutAccountBindDetailWithOptions(request, runtime);
-}
-
-model GetSessionRequest {
-  token?: string(name='Token'),
-}
-
-model GetSessionResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    session?: string(name='Session'),
-  }(name='Data'),
-}
-
-model GetSessionResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetSessionResponseBody(name='body'),
-}
-
-async function getSessionWithOptions(request: GetSessionRequest, runtime: Util.RuntimeOptions): GetSessionResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+  var params = new OpenApi.Params{
+    action = 'CreateToken',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
   };
-  return doRPCRequest('GetSession', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
-async function getSession(request: GetSessionRequest): GetSessionResponse {
+async function createToken(request: CreateTokenRequest): CreateTokenResponse {
   var runtime = new Util.RuntimeOptions{};
-  return getSessionWithOptions(request, runtime);
+  return createTokenWithOptions(request, runtime);
 }
 
 model GetStopGameTokenRequest {
@@ -504,10 +1696,25 @@ model GetStopGameTokenResponse = {
 
 async function getStopGameTokenWithOptions(request: GetStopGameTokenRequest, runtime: Util.RuntimeOptions): GetStopGameTokenResponse {
   Util.validateModel(request);
+  var query = {};
+  query["GameId"] = request.gameId;
+  query["AccessKey"] = request.accessKey;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('GetStopGameToken', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetStopGameToken',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getStopGameToken(request: GetStopGameTokenRequest): GetStopGameTokenResponse {
@@ -515,86 +1722,284 @@ async function getStopGameToken(request: GetStopGameTokenRequest): GetStopGameTo
   return getStopGameTokenWithOptions(request, runtime);
 }
 
-model ListBoughtGamesRequest {
-  accountId?: string(name='AccountId'),
-  accountDomain?: string(name='AccountDomain'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
+model BatchStopGameSessionsRequest {
+  projectId?: string(name='ProjectId'),
+  gameId?: string(name='GameId'),
+  token?: string(name='Token'),
+  reason?: string(name='Reason'),
+  trackInfo?: string(name='TrackInfo'),
+  tags?: string(name='Tags'),
 }
 
-model ListBoughtGamesResponseBody = {
+model BatchStopGameSessionsResponseBody = {
   requestId?: string(name='RequestId'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  totalCount?: int32(name='TotalCount'),
-  items?: [ 
-    {
-      endTime?: long(name='EndTime'),
-      startTime?: long(name='StartTime'),
-      gameId?: string(name='GameId'),
-      gameName?: string(name='GameName'),
-    }
-  ](name='Items'),
+  success?: boolean(name='Success'),
+  projectId?: string(name='ProjectId'),
+  queueState?: int32(name='QueueState'),
+  message?: string(name='Message'),
+  gameId?: string(name='GameId'),
+  trackInfo?: string(name='TrackInfo'),
 }
 
-model ListBoughtGamesResponse = {
+model BatchStopGameSessionsResponse = {
   headers: map[string]string(name='headers'),
-  body: ListBoughtGamesResponseBody(name='body'),
+  body: BatchStopGameSessionsResponseBody(name='body'),
 }
 
-async function listBoughtGamesWithOptions(request: ListBoughtGamesRequest, runtime: Util.RuntimeOptions): ListBoughtGamesResponse {
+async function batchStopGameSessionsWithOptions(request: BatchStopGameSessionsRequest, runtime: Util.RuntimeOptions): BatchStopGameSessionsResponse {
   Util.validateModel(request);
+  var query = {};
+  query["ProjectId"] = request.projectId;
+  query["GameId"] = request.gameId;
+  query["Token"] = request.token;
+  query["Reason"] = request.reason;
+  query["TrackInfo"] = request.trackInfo;
+  query["Tags"] = request.tags;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('ListBoughtGames', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'BatchStopGameSessions',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-async function listBoughtGames(request: ListBoughtGamesRequest): ListBoughtGamesResponse {
+async function batchStopGameSessions(request: BatchStopGameSessionsRequest): BatchStopGameSessionsResponse {
   var runtime = new Util.RuntimeOptions{};
-  return listBoughtGamesWithOptions(request, runtime);
+  return batchStopGameSessionsWithOptions(request, runtime);
 }
 
-model QueryGameRequest {
-  projectId?: long(name='ProjectId'),
+model DeliveryOrderRequest {
+  buyerAccountId?: string(name='BuyerAccountId'),
+  orderId?: string(name='OrderId'),
+  accountDomain?: string(name='AccountDomain'),
+}
+
+model DeliveryOrderResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    deliveryStatus?: string(name='DeliveryStatus'),
+  }(name='Data'),
+}
+
+model DeliveryOrderResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeliveryOrderResponseBody(name='body'),
+}
+
+async function deliveryOrderWithOptions(request: DeliveryOrderRequest, runtime: Util.RuntimeOptions): DeliveryOrderResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["BuyerAccountId"] = request.buyerAccountId;
+  query["OrderId"] = request.orderId;
+  query["AccountDomain"] = request.accountDomain;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeliveryOrder',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deliveryOrder(request: DeliveryOrderRequest): DeliveryOrderResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deliveryOrderWithOptions(request, runtime);
+}
+
+model QueryTenantRequest {
+  param?: string(name='Param'),
   pageNo?: int32(name='PageNo'),
   pageSize?: int32(name='PageSize'),
-  tenantId?: long(name='TenantId'),
 }
 
-model QueryGameResponseBody = {
+model QueryTenantResponseBody = {
   requestId?: string(name='RequestId'),
   pageNumber?: int32(name='PageNumber'),
   pageSize?: int32(name='PageSize'),
   totalCount?: int32(name='TotalCount'),
   data?: [ 
     {
-      version?: string(name='Version'),
-      projectId?: long(name='ProjectId'),
       gmtCreate?: string(name='GmtCreate'),
-      gameId?: long(name='GameId'),
       name?: string(name='Name'),
       tenantId?: long(name='TenantId'),
     }
   ](name='Data'),
 }
 
-model QueryGameResponse = {
+model QueryTenantResponse = {
   headers: map[string]string(name='headers'),
-  body: QueryGameResponseBody(name='body'),
+  body: QueryTenantResponseBody(name='body'),
 }
 
-async function queryGameWithOptions(request: QueryGameRequest, runtime: Util.RuntimeOptions): QueryGameResponse {
+async function queryTenantWithOptions(request: QueryTenantRequest, runtime: Util.RuntimeOptions): QueryTenantResponse {
   Util.validateModel(request);
+  var query = {};
+  query["Param"] = request.param;
+  query["PageNo"] = request.pageNo;
+  query["PageSize"] = request.pageSize;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('QueryGame', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'QueryTenant',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-async function queryGame(request: QueryGameRequest): QueryGameResponse {
+async function queryTenant(request: QueryTenantRequest): QueryTenantResponse {
   var runtime = new Util.RuntimeOptions{};
-  return queryGameWithOptions(request, runtime);
+  return queryTenantWithOptions(request, runtime);
+}
+
+model SubmitInternalPurchaseChargeDataRequest {
+  userActivationRate?: float(name='UserActivationRate'),
+  newUserRetentionRateOneDay?: float(name='NewUserRetentionRateOneDay'),
+  activeUserRetentionRateOneDay?: float(name='ActiveUserRetentionRateOneDay'),
+  newUserRetentionRateSevenDay?: float(name='NewUserRetentionRateSevenDay'),
+  activeUserRetentionRateSevenDay?: float(name='ActiveUserRetentionRateSevenDay'),
+  paymentConversionRate?: float(name='PaymentConversionRate'),
+  dau?: long(name='Dau'),
+  mau?: long(name='Mau'),
+  playTimeRangeOneDay?: string(name='PlayTimeRangeOneDay'),
+  playTimeRangeThirtyDay?: string(name='PlayTimeRangeThirtyDay'),
+  arpu?: float(name='Arpu'),
+  gameId?: string(name='GameId'),
+  chargeDate?: string(name='ChargeDate'),
+  newUserRetentionRateThirtyDay?: float(name='NewUserRetentionRateThirtyDay'),
+  activeUserRetentionRateThirtyDay?: float(name='ActiveUserRetentionRateThirtyDay'),
+  playTimeAverageOneDay?: float(name='PlayTimeAverageOneDay'),
+  playTimeAverageThirtyDay?: float(name='PlayTimeAverageThirtyDay'),
+  playTimeNinetyPointsOneDay?: float(name='PlayTimeNinetyPointsOneDay'),
+  playTimeNinetyPointsThirtyDay?: float(name='PlayTimeNinetyPointsThirtyDay'),
+}
+
+model SubmitInternalPurchaseChargeDataResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    status?: int32(name='Status'),
+    message?: string(name='Message'),
+  }(name='Data'),
+}
+
+model SubmitInternalPurchaseChargeDataResponse = {
+  headers: map[string]string(name='headers'),
+  body: SubmitInternalPurchaseChargeDataResponseBody(name='body'),
+}
+
+async function submitInternalPurchaseChargeDataWithOptions(request: SubmitInternalPurchaseChargeDataRequest, runtime: Util.RuntimeOptions): SubmitInternalPurchaseChargeDataResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["UserActivationRate"] = request.userActivationRate;
+  query["NewUserRetentionRateOneDay"] = request.newUserRetentionRateOneDay;
+  query["ActiveUserRetentionRateOneDay"] = request.activeUserRetentionRateOneDay;
+  query["NewUserRetentionRateSevenDay"] = request.newUserRetentionRateSevenDay;
+  query["ActiveUserRetentionRateSevenDay"] = request.activeUserRetentionRateSevenDay;
+  query["PaymentConversionRate"] = request.paymentConversionRate;
+  query["Dau"] = request.dau;
+  query["Mau"] = request.mau;
+  query["PlayTimeRangeOneDay"] = request.playTimeRangeOneDay;
+  query["PlayTimeRangeThirtyDay"] = request.playTimeRangeThirtyDay;
+  query["Arpu"] = request.arpu;
+  query["GameId"] = request.gameId;
+  query["ChargeDate"] = request.chargeDate;
+  query["NewUserRetentionRateThirtyDay"] = request.newUserRetentionRateThirtyDay;
+  query["ActiveUserRetentionRateThirtyDay"] = request.activeUserRetentionRateThirtyDay;
+  query["PlayTimeAverageOneDay"] = request.playTimeAverageOneDay;
+  query["PlayTimeAverageThirtyDay"] = request.playTimeAverageThirtyDay;
+  query["PlayTimeNinetyPointsOneDay"] = request.playTimeNinetyPointsOneDay;
+  query["PlayTimeNinetyPointsThirtyDay"] = request.playTimeNinetyPointsThirtyDay;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'SubmitInternalPurchaseChargeData',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function submitInternalPurchaseChargeData(request: SubmitInternalPurchaseChargeDataRequest): SubmitInternalPurchaseChargeDataResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return submitInternalPurchaseChargeDataWithOptions(request, runtime);
+}
+
+model GetGameVersionRequest {
+  versionId?: string(name='VersionId', description='版本ID'),
+}
+
+model GetGameVersionResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  versionId?: string(name='VersionId', description='版本ID'),
+  versionName?: string(name='VersionName', description='版本名称'),
+  versionNumber?: string(name='VersionNumber', description='版本号'),
+}
+
+model GetGameVersionResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetGameVersionResponseBody(name='body'),
+}
+
+async function getGameVersionWithOptions(request: GetGameVersionRequest, runtime: Util.RuntimeOptions): GetGameVersionResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["VersionId"] = request.versionId;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetGameVersion',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getGameVersion(request: GetGameVersionRequest): GetGameVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getGameVersionWithOptions(request, runtime);
 }
 
 model QueryItemsRequest {
@@ -660,15 +2065,73 @@ model QueryItemsResponse = {
 
 async function queryItemsWithOptions(request: QueryItemsRequest, runtime: Util.RuntimeOptions): QueryItemsResponse {
   Util.validateModel(request);
+  var query = {};
+  query["PageNumber"] = request.pageNumber;
+  query["PageSize"] = request.pageSize;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('QueryItems', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'QueryItems',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function queryItems(request: QueryItemsRequest): QueryItemsResponse {
   var runtime = new Util.RuntimeOptions{};
   return queryItemsWithOptions(request, runtime);
+}
+
+model GetSessionRequest {
+  token?: string(name='Token'),
+}
+
+model GetSessionResponseBody = {
+  requestId?: string(name='RequestId'),
+  data?: {
+    session?: string(name='Session'),
+  }(name='Data'),
+}
+
+model GetSessionResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetSessionResponseBody(name='body'),
+}
+
+async function getSessionWithOptions(request: GetSessionRequest, runtime: Util.RuntimeOptions): GetSessionResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["Token"] = request.token;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSession',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getSession(request: GetSessionRequest): GetSessionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSessionWithOptions(request, runtime);
 }
 
 model QueryOrderRequest {
@@ -705,10 +2168,26 @@ model QueryOrderResponse = {
 
 async function queryOrderWithOptions(request: QueryOrderRequest, runtime: Util.RuntimeOptions): QueryOrderResponse {
   Util.validateModel(request);
+  var query = {};
+  query["BuyerAccountId"] = request.buyerAccountId;
+  query["OrderId"] = request.orderId;
+  query["AccountDomain"] = request.accountDomain;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('QueryOrder', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'QueryOrder',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function queryOrder(request: QueryOrderRequest): QueryOrderResponse {
@@ -716,305 +2195,152 @@ async function queryOrder(request: QueryOrderRequest): QueryOrderResponse {
   return queryOrderWithOptions(request, runtime);
 }
 
-model QueryOutAccountBindStatusRequest {
-  accountId?: string(name='AccountId'),
-  gameId?: string(name='GameId'),
-  accountDomain?: string(name='AccountDomain'),
-}
-
-model QueryOutAccountBindStatusResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    bindStatus?: int32(name='BindStatus'),
-  }(name='Data'),
-}
-
-model QueryOutAccountBindStatusResponse = {
-  headers: map[string]string(name='headers'),
-  body: QueryOutAccountBindStatusResponseBody(name='body'),
-}
-
-async function queryOutAccountBindStatusWithOptions(request: QueryOutAccountBindStatusRequest, runtime: Util.RuntimeOptions): QueryOutAccountBindStatusResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('QueryOutAccountBindStatus', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function queryOutAccountBindStatus(request: QueryOutAccountBindStatusRequest): QueryOutAccountBindStatusResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryOutAccountBindStatusWithOptions(request, runtime);
-}
-
-model QueryProjectRequest {
-  pageNo?: int32(name='PageNo'),
-  pageSize?: int32(name='PageSize'),
-  projectId?: long(name='ProjectId'),
-  tenantId?: long(name='TenantId'),
-}
-
-model QueryProjectResponseBody = {
-  requestId?: string(name='RequestId'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  totalCount?: int32(name='TotalCount'),
-  data?: [ 
-    {
-      name?: string(name='Name'),
-      id?: long(name='Id'),
-      tenantId?: long(name='TenantId'),
-    }
-  ](name='Data'),
-}
-
-model QueryProjectResponse = {
-  headers: map[string]string(name='headers'),
-  body: QueryProjectResponseBody(name='body'),
-}
-
-async function queryProjectWithOptions(request: QueryProjectRequest, runtime: Util.RuntimeOptions): QueryProjectResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('QueryProject', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function queryProject(request: QueryProjectRequest): QueryProjectResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryProjectWithOptions(request, runtime);
-}
-
-model QueryTenantRequest {
-  param?: string(name='Param'),
-  pageNo?: int32(name='PageNo'),
-  pageSize?: int32(name='PageSize'),
-}
-
-model QueryTenantResponseBody = {
-  requestId?: string(name='RequestId'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  totalCount?: int32(name='TotalCount'),
-  data?: [ 
-    {
-      gmtCreate?: string(name='GmtCreate'),
-      name?: string(name='Name'),
-      tenantId?: long(name='TenantId'),
-    }
-  ](name='Data'),
-}
-
-model QueryTenantResponse = {
-  headers: map[string]string(name='headers'),
-  body: QueryTenantResponseBody(name='body'),
-}
-
-async function queryTenantWithOptions(request: QueryTenantRequest, runtime: Util.RuntimeOptions): QueryTenantResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('QueryTenant', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function queryTenant(request: QueryTenantRequest): QueryTenantResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryTenantWithOptions(request, runtime);
-}
-
-model SkipTrialPolicyRequest {
-  gameSessionId?: string(name='GameSessionId'),
-}
-
-model SkipTrialPolicyResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    skipResult?: int32(name='SkipResult'),
-  }(name='Data'),
-}
-
-model SkipTrialPolicyResponse = {
-  headers: map[string]string(name='headers'),
-  body: SkipTrialPolicyResponseBody(name='body'),
-}
-
-async function skipTrialPolicyWithOptions(request: SkipTrialPolicyRequest, runtime: Util.RuntimeOptions): SkipTrialPolicyResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('SkipTrialPolicy', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function skipTrialPolicy(request: SkipTrialPolicyRequest): SkipTrialPolicyResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return skipTrialPolicyWithOptions(request, runtime);
-}
-
-model StopGameSessionRequest {
+model DispatchGameSlotRequest {
   gameId?: string(name='GameId'),
   accessKey?: string(name='AccessKey'),
+  regionName?: string(name='RegionName'),
   userId?: string(name='UserId'),
   bizParam?: string(name='BizParam'),
+  cancel?: boolean(name='Cancel'),
   gameSession?: string(name='GameSession'),
-  reason?: string(name='Reason'),
+  gameStartParam?: string(name='GameStartParam'),
+  gameCommand?: string(name='GameCommand'),
+  systemInfo?: string(name='SystemInfo'),
+  clientIp?: string(name='ClientIp'),
+  reconnect?: boolean(name='Reconnect'),
+  tags?: string(name='Tags'),
+  userLevel?: int32(name='UserLevel'),
 }
 
-model StopGameSessionResponseBody = {
+model DispatchGameSlotResponseBody = {
   requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  regionName?: string(name='RegionName'),
   gameSession?: string(name='GameSession'),
+  userId?: string(name='UserId'),
   queueState?: int32(name='QueueState'),
   message?: string(name='Message'),
   gameId?: string(name='GameId'),
   queueCode?: int32(name='QueueCode'),
 }
 
-model StopGameSessionResponse = {
+model DispatchGameSlotResponse = {
   headers: map[string]string(name='headers'),
-  body: StopGameSessionResponseBody(name='body'),
+  body: DispatchGameSlotResponseBody(name='body'),
 }
 
-async function stopGameSessionWithOptions(request: StopGameSessionRequest, runtime: Util.RuntimeOptions): StopGameSessionResponse {
+async function dispatchGameSlotWithOptions(request: DispatchGameSlotRequest, runtime: Util.RuntimeOptions): DispatchGameSlotResponse {
   Util.validateModel(request);
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('StopGameSession', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'DispatchGameSlot',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-async function stopGameSession(request: StopGameSessionRequest): StopGameSessionResponse {
+async function dispatchGameSlot(request: DispatchGameSlotRequest): DispatchGameSlotResponse {
   var runtime = new Util.RuntimeOptions{};
-  return stopGameSessionWithOptions(request, runtime);
+  return dispatchGameSlotWithOptions(request, runtime);
 }
 
-model SubmitInternalPurchaseChargeDataRequest {
-  userActivationRate?: long(name='UserActivationRate'),
-  newUserRetentionRateOneDay?: long(name='NewUserRetentionRateOneDay'),
-  activeUserRetentionRateOneDay?: long(name='ActiveUserRetentionRateOneDay'),
-  newUserRetentionRateSevenDay?: long(name='NewUserRetentionRateSevenDay'),
-  activeUserRetentionRateSevenDay?: long(name='ActiveUserRetentionRateSevenDay'),
-  paymentConversionRate?: long(name='PaymentConversionRate'),
-  dau?: long(name='Dau'),
-  mau?: long(name='Mau'),
-  playTimeRangeOneDay?: string(name='PlayTimeRangeOneDay'),
-  playTimeRangeThirtyDay?: string(name='PlayTimeRangeThirtyDay'),
-  arpu?: long(name='Arpu'),
-  gameId?: string(name='GameId'),
-  chargeDate?: string(name='ChargeDate'),
-  newUserRetentionRateThirtyDay?: long(name='NewUserRetentionRateThirtyDay'),
-  activeUserRetentionRateThirtyDay?: long(name='ActiveUserRetentionRateThirtyDay'),
-  playTimeAverageOneDay?: long(name='PlayTimeAverageOneDay'),
-  playTimeAverageThirtyDay?: long(name='PlayTimeAverageThirtyDay'),
-  playTimeNinetyPointsOneDay?: long(name='PlayTimeNinetyPointsOneDay'),
-  playTimeNinetyPointsThirtyDay?: long(name='PlayTimeNinetyPointsThirtyDay'),
+model GetGameVersionProgressRequest {
+  taskId?: string(name='TaskId', description='任务id'),
 }
 
-model SubmitInternalPurchaseChargeDataResponseBody = {
+model GetGameVersionProgressResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  event?: string(name='Event'),
+  status?: string(name='Status'),
+  description?: string(name='Description'),
+  extra?: map[string]any(name='Extra'),
+}
+
+model GetGameVersionProgressResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetGameVersionProgressResponseBody(name='body'),
+}
+
+async function getGameVersionProgressWithOptions(request: GetGameVersionProgressRequest, runtime: Util.RuntimeOptions): GetGameVersionProgressResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["TaskId"] = request.taskId;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetGameVersionProgress',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getGameVersionProgress(request: GetGameVersionProgressRequest): GetGameVersionProgressResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getGameVersionProgressWithOptions(request, runtime);
+}
+
+model BatchDispatchGameSlotRequest {
+  queueUserList?: string(name='QueueUserList'),
+}
+
+model BatchDispatchGameSlotResponseBody = {
   requestId?: string(name='RequestId'),
-  data?: {
-    status?: int32(name='Status'),
-    message?: string(name='Message'),
-  }(name='Data'),
-}
-
-model SubmitInternalPurchaseChargeDataResponse = {
-  headers: map[string]string(name='headers'),
-  body: SubmitInternalPurchaseChargeDataResponseBody(name='body'),
-}
-
-async function submitInternalPurchaseChargeDataWithOptions(request: SubmitInternalPurchaseChargeDataRequest, runtime: Util.RuntimeOptions): SubmitInternalPurchaseChargeDataResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('SubmitInternalPurchaseChargeData', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function submitInternalPurchaseChargeData(request: SubmitInternalPurchaseChargeDataRequest): SubmitInternalPurchaseChargeDataResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return submitInternalPurchaseChargeDataWithOptions(request, runtime);
-}
-
-model SubmitInternalPurchaseOrdersRequest {
-  orderList?: [ 
+  queueResultList?: [ 
     {
-      finishTime?: long(name='FinishTime'),
-      finalPrice?: long(name='FinalPrice'),
+      regionName?: string(name='RegionName'),
+      gameSession?: string(name='GameSession'),
       userId?: string(name='UserId'),
+      queueState?: int32(name='QueueState'),
+      message?: string(name='Message'),
       gameId?: string(name='GameId'),
-      batchNumber?: string(name='BatchNumber'),
-      roleId?: string(name='RoleId'),
-      orderId?: string(name='OrderId'),
+      queueCode?: int32(name='QueueCode'),
     }
-  ](name='OrderList'),
+  ](name='QueueResultList'),
 }
 
-model SubmitInternalPurchaseOrdersResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    status?: int32(name='Status'),
-    message?: string(name='Message'),
-  }(name='Data'),
-}
-
-model SubmitInternalPurchaseOrdersResponse = {
+model BatchDispatchGameSlotResponse = {
   headers: map[string]string(name='headers'),
-  body: SubmitInternalPurchaseOrdersResponseBody(name='body'),
+  body: BatchDispatchGameSlotResponseBody(name='body'),
 }
 
-async function submitInternalPurchaseOrdersWithOptions(request: SubmitInternalPurchaseOrdersRequest, runtime: Util.RuntimeOptions): SubmitInternalPurchaseOrdersResponse {
+async function batchDispatchGameSlotWithOptions(request: BatchDispatchGameSlotRequest, runtime: Util.RuntimeOptions): BatchDispatchGameSlotResponse {
   Util.validateModel(request);
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('SubmitInternalPurchaseOrders', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function submitInternalPurchaseOrders(request: SubmitInternalPurchaseOrdersRequest): SubmitInternalPurchaseOrdersResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return submitInternalPurchaseOrdersWithOptions(request, runtime);
-}
-
-model SubmitInternalPurchaseReadyFlagRequest {
-  status?: int32(name='Status'),
-  gameId?: string(name='GameId'),
-  chargeDate?: string(name='ChargeDate'),
-  orderTotalCount?: int32(name='OrderTotalCount'),
-  batchInfoList?: [ 
-    {
-      batchSize?: int32(name='BatchSize'),
-      batchNumbers?: string(name='BatchNumbers'),
-    }
-  ](name='BatchInfoList'),
-}
-
-model SubmitInternalPurchaseReadyFlagResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    status?: int32(name='Status'),
-    missingBatchNumbers?: string(name='MissingBatchNumbers'),
-    message?: string(name='Message'),
-  }(name='Data'),
-}
-
-model SubmitInternalPurchaseReadyFlagResponse = {
-  headers: map[string]string(name='headers'),
-  body: SubmitInternalPurchaseReadyFlagResponseBody(name='body'),
-}
-
-async function submitInternalPurchaseReadyFlagWithOptions(request: SubmitInternalPurchaseReadyFlagRequest, runtime: Util.RuntimeOptions): SubmitInternalPurchaseReadyFlagResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+  var params = new OpenApi.Params{
+    action = 'BatchDispatchGameSlot',
+    version = '2020-07-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
   };
-  return doRPCRequest('SubmitInternalPurchaseReadyFlag', '2020-07-28', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
-async function submitInternalPurchaseReadyFlag(request: SubmitInternalPurchaseReadyFlagRequest): SubmitInternalPurchaseReadyFlagResponse {
+async function batchDispatchGameSlot(request: BatchDispatchGameSlotRequest): BatchDispatchGameSlotResponse {
   var runtime = new Util.RuntimeOptions{};
-  return submitInternalPurchaseReadyFlagWithOptions(request, runtime);
+  return batchDispatchGameSlotWithOptions(request, runtime);
 }
 
