@@ -36,12 +36,13 @@ init(config: OpenApi.Config){
     cn-shanghai-et2-b01 = 'sts.aliyuncs.com',
     cn-shanghai-inner = 'sts.aliyuncs.com',
     cn-shanghai-internal-test-1 = 'sts.aliyuncs.com',
-    cn-shenzhen-finance-1 = 'sts.aliyuncs.com',
+    cn-shenzhen-finance-1 = 'sts-vpc.cn-shenzhen-finance-1.aliyuncs.com',
     cn-shenzhen-inner = 'sts.aliyuncs.com',
     cn-shenzhen-st4-d01 = 'sts.aliyuncs.com',
     cn-shenzhen-su18-b01 = 'sts.aliyuncs.com',
     cn-wuhan = 'sts.aliyuncs.com',
     cn-yushanfang = 'sts.aliyuncs.com',
+    cn-zhangbei = 'sts.aliyuncs.com',
     cn-zhangbei-na61-b01 = 'sts.aliyuncs.com',
     cn-zhangjiakou-na62-a01 = 'sts.aliyuncs.com',
     cn-zhengzhou-nebula-1 = 'sts.aliyuncs.com',
@@ -99,6 +100,52 @@ async function assumeRoleWithOptions(request: AssumeRoleRequest, runtime: Util.R
 async function assumeRole(request: AssumeRoleRequest): AssumeRoleResponse {
   var runtime = new Util.RuntimeOptions{};
   return assumeRoleWithOptions(request, runtime);
+}
+
+model AssumeRoleWithOIDCRequest {
+  OIDCProviderArn?: string(name='OIDCProviderArn', description='OIDC Provider的ARN'),
+  roleArn?: string(name='RoleArn', description='需要扮演的角色的ARN'),
+  OIDCToken?: string(name='OIDCToken', description='OIDC的ID Token，需输入原始Token，无需Base64解码'),
+  policy?: string(name='Policy', description='权限策略。 生成STS Token时可以指定一个额外的权限策略，以进一步限制STS Token的权限。若不指定则返回的Token拥有指定角色的所有权限。'),
+  durationSeconds?: long(name='DurationSeconds', description='Session过期时间，单位为秒。'),
+  roleSessionName?: string(name='RoleSessionName', description='用户自定义参数。此参数用来区分不同的令牌，可用于用户级别的访问审计。'),
+}
+
+model AssumeRoleWithOIDCResponseBody = {
+  requestId?: string(name='RequestId'),
+  OIDCTokenInfo?: {
+    subject?: string(name='Subject'),
+    issuer?: string(name='Issuer'),
+    clientIds?: string(name='ClientIds'),
+  }(name='OIDCTokenInfo'),
+  assumedRoleUser?: {
+    assumedRoleId?: string(name='AssumedRoleId'),
+    arn?: string(name='Arn'),
+  }(name='AssumedRoleUser'),
+  credentials?: {
+    securityToken?: string(name='SecurityToken'),
+    expiration?: string(name='Expiration'),
+    accessKeySecret?: string(name='AccessKeySecret'),
+    accessKeyId?: string(name='AccessKeyId'),
+  }(name='Credentials'),
+}
+
+model AssumeRoleWithOIDCResponse = {
+  headers: map[string]string(name='headers'),
+  body: AssumeRoleWithOIDCResponseBody(name='body'),
+}
+
+async function assumeRoleWithOIDCWithOptions(request: AssumeRoleWithOIDCRequest, runtime: Util.RuntimeOptions): AssumeRoleWithOIDCResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('AssumeRoleWithOIDC', '2015-04-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function assumeRoleWithOIDC(request: AssumeRoleWithOIDCRequest): AssumeRoleWithOIDCResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return assumeRoleWithOIDCWithOptions(request, runtime);
 }
 
 model AssumeRoleWithSAMLRequest {
