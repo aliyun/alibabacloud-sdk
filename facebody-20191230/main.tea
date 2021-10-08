@@ -1403,10 +1403,18 @@ async function queryFaceImageTemplate(request: QueryFaceImageTemplateRequest): Q
 
 model DetectFaceRequest {
   imageURL?: string(name='ImageURL'),
+  landmark?: boolean(name='Landmark'),
+  quality?: boolean(name='Quality'),
+  pose?: boolean(name='Pose'),
+  maxFaceNumber?: long(name='MaxFaceNumber'),
 }
 
 model DetectFaceAdvanceRequest {
   imageURLObject: readable(name='ImageURLObject'),
+  landmark?: boolean(name='Landmark'),
+  quality?: boolean(name='Quality'),
+  pose?: boolean(name='Pose'),
+  maxFaceNumber?: long(name='MaxFaceNumber'),
 }
 
 model DetectFaceResponseBody = {
@@ -2777,6 +2785,7 @@ model SearchFaceRequest {
   limit?: int32(name='Limit'),
   dbNames?: string(name='DbNames'),
   qualityScoreThreshold?: float(name='QualityScoreThreshold'),
+  maxFaceNum?: long(name='MaxFaceNum'),
 }
 
 model SearchFaceAdvanceRequest {
@@ -2785,6 +2794,7 @@ model SearchFaceAdvanceRequest {
   limit?: int32(name='Limit'),
   dbNames?: string(name='DbNames'),
   qualityScoreThreshold?: float(name='QualityScoreThreshold'),
+  maxFaceNum?: long(name='MaxFaceNum'),
 }
 
 model SearchFaceResponseBody = {
@@ -5381,5 +5391,70 @@ async function createBodyDbWithOptions(request: CreateBodyDbRequest, runtime: Ut
 async function createBodyDb(request: CreateBodyDbRequest): CreateBodyDbResponse {
   var runtime = new Util.RuntimeOptions{};
   return createBodyDbWithOptions(request, runtime);
+}
+
+model BatchAddFacesRequest {
+  dbName?: string(name='DbName'),
+  entityId?: string(name='EntityId'),
+  similarityScoreThresholdInEntity?: float(name='SimilarityScoreThresholdInEntity'),
+  similarityScoreThresholdBetweenEntity?: float(name='SimilarityScoreThresholdBetweenEntity'),
+  faces?: [ 
+    {
+      extraData?: string(name='ExtraData'),
+      imageURL?: string(name='ImageURL'),
+    }
+  ](name='Faces'),
+  qualityScoreThreshold?: float(name='QualityScoreThreshold'),
+}
+
+model BatchAddFacesShrinkRequest {
+  dbName?: string(name='DbName'),
+  entityId?: string(name='EntityId'),
+  similarityScoreThresholdInEntity?: float(name='SimilarityScoreThresholdInEntity'),
+  similarityScoreThresholdBetweenEntity?: float(name='SimilarityScoreThresholdBetweenEntity'),
+  facesShrink?: string(name='Faces'),
+  qualityScoreThreshold?: float(name='QualityScoreThreshold'),
+}
+
+model BatchAddFacesResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  data?: {
+    insertedFaces?: [ 
+      {
+        imageURL?: string(name='ImageURL'),
+        faceId?: string(name='FaceId'),
+      }
+    ](name='InsertedFaces'),
+    failedFaces?: [ 
+      {
+        imageURL?: string(name='ImageURL'),
+        code?: string(name='Code'),
+        message?: string(name='Message'),
+      }
+    ](name='FailedFaces'),
+  }(name='Data'),
+}
+
+model BatchAddFacesResponse = {
+  headers: map[string]string(name='headers'),
+  body: BatchAddFacesResponseBody(name='body'),
+}
+
+async function batchAddFacesWithOptions(tmpReq: BatchAddFacesRequest, runtime: Util.RuntimeOptions): BatchAddFacesResponse {
+  Util.validateModel(tmpReq);
+  var request = new BatchAddFacesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.faces)) {
+    request.facesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.faces, 'Faces', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('BatchAddFaces', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function batchAddFaces(request: BatchAddFacesRequest): BatchAddFacesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return batchAddFacesWithOptions(request, runtime);
 }
 
