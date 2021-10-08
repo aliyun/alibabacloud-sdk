@@ -2235,6 +2235,33 @@ async function getEmonMonitorDataWithOptions(ProjectId: string, headers: map[str
   return doROARequest('GetEmonMonitorData', '2017-06-13', 'HTTPS', 'POST', 'AK', `/openapi/emon/projects/${ProjectId}/metrics/query`, 'json', req, runtime);
 }
 
+model GetOpenStoreUsageResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  result?: {
+    lastDayUsage?: long(name='lastDayUsage', description='昨日使用容量'),
+    currentUsage?: long(name='currentUsage', description='当前使用量'),
+  }(name='Result'),
+}
+
+model GetOpenStoreUsageResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetOpenStoreUsageResponseBody(name='body'),
+}
+
+async function getOpenStoreUsage(InstanceId: string): GetOpenStoreUsageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getOpenStoreUsageWithOptions(InstanceId, headers, runtime);
+}
+
+async function getOpenStoreUsageWithOptions(InstanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetOpenStoreUsageResponse {
+  InstanceId = OpenApiUtil.getEncodeParam(InstanceId);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('GetOpenStoreUsage', '2017-06-13', 'HTTPS', 'GET', 'AK', `/openapi/instances/${InstanceId}/openstore/usage`, 'json', req, runtime);
+}
+
 model GetRegionConfigurationRequest {
   zoneId?: string(name='zoneId'),
 }
@@ -2842,6 +2869,10 @@ async function listAckNamespacesWithOptions(ClusterId: string, request: ListAckN
   return doROARequest('ListAckNamespaces', '2017-06-13', 'HTTPS', 'GET', 'AK', `/openapi/ack-clusters/${ClusterId}/namespaces`, 'json', req, runtime);
 }
 
+model ListAllNodeRequest {
+  extended?: boolean(name='extended'),
+}
+
 model ListAllNodeResponseBody = {
   requestId?: string(name='RequestId'),
   result?: [ 
@@ -2864,16 +2895,23 @@ model ListAllNodeResponse = {
   body: ListAllNodeResponseBody(name='body'),
 }
 
-async function listAllNode(InstanceId: string): ListAllNodeResponse {
+async function listAllNode(InstanceId: string, request: ListAllNodeRequest): ListAllNodeResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return listAllNodeWithOptions(InstanceId, headers, runtime);
+  return listAllNodeWithOptions(InstanceId, request, headers, runtime);
 }
 
-async function listAllNodeWithOptions(InstanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListAllNodeResponse {
+async function listAllNodeWithOptions(InstanceId: string, request: ListAllNodeRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListAllNodeResponse {
+  Util.validateModel(request);
   InstanceId = OpenApiUtil.getEncodeParam(InstanceId);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.extended)) {
+    query.extended = request.extended;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   return doROARequest('ListAllNode', '2017-06-13', 'HTTPS', 'GET', 'AK', `/openapi/instances/${InstanceId}/nodes`, 'json', req, runtime);
 }
@@ -3887,6 +3925,9 @@ model ListInstanceIndicesRequest {
   all?: boolean(name='all'),
   name?: string(name='name'),
   isManaged?: boolean(name='isManaged'),
+  isOpenstore?: boolean(name='isOpenstore'),
+  page?: int32(name='page'),
+  size?: int32(name='size'),
 }
 
 model ListInstanceIndicesResponseBody = {
@@ -3894,6 +3935,8 @@ model ListInstanceIndicesResponseBody = {
   headers?: {
     xManagedStorageSize?: long(name='X-Managed-StorageSize'),
     xManagedCount?: int32(name='X-Managed-Count'),
+    xOSSStorageSize?: long(name='X-OSS-StorageSize'),
+    xOSSCount?: int32(name='X-OSS-Count'),
   }(name='Headers'),
   result?: [ 
     {
@@ -3903,6 +3946,8 @@ model ListInstanceIndicesResponseBody = {
       managedStatus?: string(name='managedStatus'),
       name?: string(name='name'),
       health?: string(name='health'),
+      phase?: string(name='phase'),
+      ilmExplain?: string(name='ilmExplain'),
     }
   ](name='Result'),
 }
@@ -3930,6 +3975,15 @@ async function listInstanceIndicesWithOptions(InstanceId: string, request: ListI
   }
   if (!Util.isUnset(request.isManaged)) {
     query.isManaged = request.isManaged;
+  }
+  if (!Util.isUnset(request.isOpenstore)) {
+    query.isOpenstore = request.isOpenstore;
+  }
+  if (!Util.isUnset(request.page)) {
+    query.page = request.page;
+  }
+  if (!Util.isUnset(request.size)) {
+    query.size = request.size;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
