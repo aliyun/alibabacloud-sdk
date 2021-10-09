@@ -3,7 +3,7 @@
  */
 import Util;
 import OpenApi;
-
+import OpenApiUtil;
 import EndpointUtil;
 
 extends OpenApi;
@@ -233,6 +233,7 @@ model CreateECSDBInstanceRequest {
   masterNodeNum?: int32(name='MasterNodeNum'),
   srcDbInstanceName?: string(name='SrcDbInstanceName'),
   backupId?: string(name='BackupId'),
+  DBInstanceCategory?: string(name='DBInstanceCategory'),
 }
 
 model CreateECSDBInstanceResponseBody = {
@@ -589,12 +590,20 @@ model DescribeDBInstanceAttributeResponseBody = {
       DBInstanceMemory?: long(name='DBInstanceMemory'),
       hostType?: string(name='HostType'),
       payType?: string(name='PayType'),
+      tags?: {
+        tag?: [ 
+        {
+          key?: string(name='Key'),
+          value?: string(name='Value'),
+        }
+      ](name='Tag')
+      }(name='Tags'),
       storageType?: string(name='StorageType'),
-      cpuCoresPerNode?: int32(name='CpuCoresPerNode'),
       availabilityValue?: string(name='AvailabilityValue'),
       readDelayTime?: string(name='ReadDelayTime'),
-      connectionMode?: string(name='ConnectionMode'),
+      cpuCoresPerNode?: int32(name='CpuCoresPerNode'),
       port?: string(name='Port'),
+      connectionMode?: string(name='ConnectionMode'),
       lockMode?: string(name='LockMode'),
       engineVersion?: string(name='EngineVersion'),
       storageUnit?: string(name='StorageUnit'),
@@ -620,14 +629,7 @@ model DescribeDBInstanceAttributeResponseBody = {
       DBInstanceId?: string(name='DBInstanceId'),
       DBInstanceClass?: string(name='DBInstanceClass'),
       engine?: string(name='Engine'),
-      tags?: {
-        tag?: [ 
-        {
-          key?: string(name='Key'),
-          value?: string(name='Value'),
-        }
-      ](name='Tag')
-      }(name='Tags'),
+      DBInstanceCategory?: string(name='DBInstanceCategory'),
     }
   ](name='DBInstanceAttribute')
   }(name='Items'),
@@ -774,6 +776,7 @@ model DescribeDBInstanceOnECSAttributeResponseBody = {
       supportRestore?: boolean(name='SupportRestore'),
       minorVersion?: string(name='MinorVersion'),
       masterNodeNum?: int32(name='MasterNodeNum'),
+      DBInstanceCategory?: string(name='DBInstanceCategory'),
     }
   ](name='DBInstanceAttribute')
   }(name='Items'),
@@ -845,6 +848,28 @@ model DescribeDBInstancesRequest {
       value?: string(name='Value'),
     }
   ](name='Tag'),
+  instanceDeployTypes?: [ string ](name='InstanceDeployTypes'),
+  DBInstanceStatuses?: [ string ](name='DBInstanceStatuses'),
+  DBInstanceCategories?: [ string ](name='DBInstanceCategories'),
+}
+
+model DescribeDBInstancesShrinkRequest {
+  ownerId?: long(name='OwnerId'),
+  regionId?: string(name='RegionId'),
+  DBInstanceDescription?: string(name='DBInstanceDescription'),
+  instanceNetworkType?: string(name='InstanceNetworkType'),
+  DBInstanceIds?: string(name='DBInstanceIds'),
+  pageSize?: int32(name='PageSize'),
+  pageNumber?: int32(name='PageNumber'),
+  tag?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tag'),
+  instanceDeployTypesShrink?: string(name='InstanceDeployTypes'),
+  DBInstanceStatusesShrink?: string(name='DBInstanceStatuses'),
+  DBInstanceCategoriesShrink?: string(name='DBInstanceCategories'),
 }
 
 model DescribeDBInstancesResponseBody = {
@@ -885,6 +910,7 @@ model DescribeDBInstancesResponseBody = {
       segNodeNum?: string(name='SegNodeNum'),
       storageSize?: string(name='StorageSize'),
       masterNodeNum?: int32(name='MasterNodeNum'),
+      DBInstanceCategory?: string(name='DBInstanceCategory'),
     }
   ](name='DBInstance')
   }(name='Items'),
@@ -895,8 +921,19 @@ model DescribeDBInstancesResponse = {
   body: DescribeDBInstancesResponseBody(name='body'),
 }
 
-async function describeDBInstancesWithOptions(request: DescribeDBInstancesRequest, runtime: Util.RuntimeOptions): DescribeDBInstancesResponse {
-  Util.validateModel(request);
+async function describeDBInstancesWithOptions(tmpReq: DescribeDBInstancesRequest, runtime: Util.RuntimeOptions): DescribeDBInstancesResponse {
+  Util.validateModel(tmpReq);
+  var request = new DescribeDBInstancesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.instanceDeployTypes)) {
+    request.instanceDeployTypesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.instanceDeployTypes, 'InstanceDeployTypes', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.DBInstanceStatuses)) {
+    request.DBInstanceStatusesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.DBInstanceStatuses, 'DBInstanceStatuses', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.DBInstanceCategories)) {
+    request.DBInstanceCategoriesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.DBInstanceCategories, 'DBInstanceCategories', 'simple');
+  }
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
