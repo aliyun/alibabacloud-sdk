@@ -26,6 +26,18 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+model GatewayOption {
+  traceDetails?: {
+    traceEnabled?: boolean(name='TraceEnabled', description='trace是否开启'),
+    sample?: long(name='Sample', description='trace 采样率'),
+  }(name='TraceDetails', description='xtrace config option'),
+  logConfigDetails?: {
+    logEnabled?: boolean(name='LogEnabled', description='是否开启日志投递'),
+    projectName?: string(name='ProjectName', description='投递的目标project'),
+    logStoreName?: string(name='LogStoreName', description='投递的目标logstore'),
+  }(name='LogConfigDetails', description='日志配置详情'),
+}
+
 model ListAlarmHistoriesRequest {
   requestPars?: string(name='RequestPars'),
   pageNum?: int32(name='PageNum'),
@@ -480,6 +492,48 @@ async function listAnsServices(request: ListAnsServicesRequest): ListAnsServices
   return listAnsServicesWithOptions(request, runtime);
 }
 
+model UpdateGatewayOptionRequest {
+  gatewayId?: long(name='GatewayId'),
+  gatewayOption?: GatewayOption(name='GatewayOption'),
+}
+
+model UpdateGatewayOptionShrinkRequest {
+  gatewayId?: long(name='GatewayId'),
+  gatewayOptionShrink?: string(name='GatewayOption'),
+}
+
+model UpdateGatewayOptionResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  code?: int32(name='Code'),
+  success?: boolean(name='Success'),
+  data?: GatewayOption(name='Data'),
+}
+
+model UpdateGatewayOptionResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateGatewayOptionResponseBody(name='body'),
+}
+
+async function updateGatewayOptionWithOptions(tmpReq: UpdateGatewayOptionRequest, runtime: Util.RuntimeOptions): UpdateGatewayOptionResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateGatewayOptionShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.gatewayOption)) {
+    request.gatewayOptionShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.gatewayOption, 'GatewayOption', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('UpdateGatewayOption', '2019-05-31', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function updateGatewayOption(request: UpdateGatewayOptionRequest): UpdateGatewayOptionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateGatewayOptionWithOptions(request, runtime);
+}
+
 model ListZnodeChildrenRequest {
   path?: string(name='Path'),
   clusterId?: string(name='ClusterId'),
@@ -690,6 +744,7 @@ model AddMockRuleRequest {
   dubboMockItems?: string(name='DubboMockItems'),
   consumerAppIds?: string(name='ConsumerAppIds'),
   enable?: boolean(name='Enable'),
+  mockType?: long(name='MockType'),
 }
 
 model AddMockRuleResponseBody = {
@@ -710,6 +765,7 @@ model AddMockRuleResponseBody = {
     name?: string(name='Name'),
     id?: long(name='Id'),
     enable?: boolean(name='Enable'),
+    mockType?: long(name='MockType'),
   }(name='Data'),
   code?: int32(name='Code'),
   success?: boolean(name='Success'),
@@ -1144,6 +1200,37 @@ async function queryConfigWithOptions(request: QueryConfigRequest, runtime: Util
 async function queryConfig(request: QueryConfigRequest): QueryConfigResponse {
   var runtime = new Util.RuntimeOptions{};
   return queryConfigWithOptions(request, runtime);
+}
+
+model GetGatewayOptionRequest {
+  gatewayId?: long(name='GatewayId'),
+}
+
+model GetGatewayOptionResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  code?: int32(name='Code'),
+  success?: boolean(name='Success'),
+  data?: GatewayOption(name='Data'),
+}
+
+model GetGatewayOptionResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetGatewayOptionResponseBody(name='body'),
+}
+
+async function getGatewayOptionWithOptions(request: GetGatewayOptionRequest, runtime: Util.RuntimeOptions): GetGatewayOptionResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('GetGatewayOption', '2019-05-31', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function getGatewayOption(request: GetGatewayOptionRequest): GetGatewayOptionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getGatewayOptionWithOptions(request, runtime);
 }
 
 model ListClusterTypesRequest {
