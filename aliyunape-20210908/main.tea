@@ -1,0 +1,104 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+
+  checkConfig(config);
+  @endpoint = getEndpoint('aliyunape', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model ExecuteRequest {
+  appName?: string(name='AppName', description='appName'),
+  channel?: string(name='Channel', description='source'),
+  extendParam?: map[string]string(name='ExtendParam', description='extendParam'),
+  orderId?: string(name='OrderId', description='orderId'),
+  requestId?: string(name='RequestId', description='requestId'),
+  serviceParam?: map[string]string(name='ServiceParam', description='serviceParam'),
+  userId?: long(name='UserId', description='aliyunPk'),
+}
+
+model ExecuteShrinkRequest {
+  appName?: string(name='AppName', description='appName'),
+  channel?: string(name='Channel', description='source'),
+  extendParamShrink?: string(name='ExtendParam', description='extendParam'),
+  orderId?: string(name='OrderId', description='orderId'),
+  requestId?: string(name='RequestId', description='requestId'),
+  serviceParamShrink?: string(name='ServiceParam', description='serviceParam'),
+  userId?: long(name='UserId', description='aliyunPk'),
+}
+
+model ExecuteResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: string(name='Data', description='data'),
+  message?: string(name='Message', description='message'),
+  requestId?: string(name='RequestId', description='requestId'),
+  rt?: long(name='Rt', description='rt'),
+  success?: boolean(name='Success', description='success'),
+}
+
+model ExecuteResponse = {
+  headers: map[string]string(name='headers'),
+  body: ExecuteResponseBody(name='body'),
+}
+
+async function executeWithOptions(tmpReq: ExecuteRequest, runtime: Util.RuntimeOptions): ExecuteResponse {
+  Util.validateModel(tmpReq);
+  var request = new ExecuteShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.extendParam)) {
+    request.extendParamShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.extendParam, 'ExtendParam', 'json');
+  }
+  if (!Util.isUnset(tmpReq.serviceParam)) {
+    request.serviceParamShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.serviceParam, 'ServiceParam', 'json');
+  }
+  var query = {};
+  query["AppName"] = request.appName;
+  query["Channel"] = request.channel;
+  query["ExtendParam"] = request.extendParamShrink;
+  query["OrderId"] = request.orderId;
+  query["RequestId"] = request.requestId;
+  query["ServiceParam"] = request.serviceParamShrink;
+  query["UserId"] = request.userId;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'Execute',
+    version = '2021-09-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function execute(request: ExecuteRequest): ExecuteResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return executeWithOptions(request, runtime);
+}
+
