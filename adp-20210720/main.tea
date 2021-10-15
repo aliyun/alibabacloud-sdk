@@ -66,13 +66,14 @@ model Platform {
 model FoundationVersion {
   description?: string(name='description', description='description'),
   documents?: string(name='documents', description='documents'),
-  name?: string(name='name', description='name'),
-  status?: string(name='status', description='status'),
+  name?: string(name='name', description='name，目前仅能是 “ADP 底座“'),
+  status?: string(name='status', description='status，ENUM:["Testing","Published","Deprecated"] Published 后，则全平台所有用户可见，请谨慎操作'),
   uid?: string(name='uid', description='uid'),
   version?: string(name='version', description='version'),
   platforms?: [
     Platform
   ](name='platforms', description='platforms'),
+  type?: string(name='type', description='the type of foundation version,ENUM:["trident","ack"]'),
 }
 
 model GetInstanceInfoResponse {
@@ -883,6 +884,8 @@ model ListProductEnvironmentsResponseBody = {
       oldProductVersionUID?: string(name='oldProductVersionUID'),
       vendorType?: string(name='vendorType'),
       instanceStatus?: string(name='instanceStatus'),
+      platformStatus?: string(name='platformStatus'),
+      vendorConfig?: string(name='vendorConfig'),
     }
   ](name='data'),
 }
@@ -1127,6 +1130,64 @@ async function listComponentsWithOptions(request: ListComponentsRequest, headers
     query = OpenApiUtil.query(query),
   };
   return doROARequest('ListComponents', '2021-07-20', 'HTTPS', 'GET', 'AK', `/api/v2/components`, 'json', req, runtime);
+}
+
+model ListWorkflowTaskLogsRequest {
+  xuid?: string(name='xuid'),
+  workflowType?: string(name='workflowType', description='ENUM:["CreateCluster","DeleteCluster","Pack","Deploy"]'),
+  pageNum?: long(name='pageNum'),
+  pageSize?: long(name='pageSize', description='每一页的行数，最大值 100'),
+  orderType?: string(name='orderType', description='log 的顺序，positive 代表最新的数据在最后，reverse 代表最新的数据在最前'),
+}
+
+model ListWorkflowTaskLogsResponseBody = {
+  data?: {
+    total?: long(name='total'),
+    pageNum?: long(name='pageNum'),
+    pageSize?: long(name='pageSize'),
+    list?: [ string ](name='list', description='日志数据'),
+  }(name='data'),
+  code?: string(name='code'),
+  msg?: string(name='msg'),
+}
+
+model ListWorkflowTaskLogsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListWorkflowTaskLogsResponseBody(name='body'),
+}
+
+async function listWorkflowTaskLogs(stepName: string, taskName: string, request: ListWorkflowTaskLogsRequest): ListWorkflowTaskLogsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listWorkflowTaskLogsWithOptions(stepName, taskName, request, headers, runtime);
+}
+
+async function listWorkflowTaskLogsWithOptions(stepName: string, taskName: string, request: ListWorkflowTaskLogsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListWorkflowTaskLogsResponse {
+  Util.validateModel(request);
+  stepName = OpenApiUtil.getEncodeParam(stepName);
+  taskName = OpenApiUtil.getEncodeParam(taskName);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.xuid)) {
+    query.xuid = request.xuid;
+  }
+  if (!Util.isUnset(request.workflowType)) {
+    query.workflowType = request.workflowType;
+  }
+  if (!Util.isUnset(request.pageNum)) {
+    query.pageNum = request.pageNum;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query.pageSize = request.pageSize;
+  }
+  if (!Util.isUnset(request.orderType)) {
+    query.orderType = request.orderType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('ListWorkflowTaskLogs', '2021-07-20', 'HTTPS', 'GET', 'AK', `/api/v2/workflows/steps/${stepName}/tasks/${taskName}/logs`, 'json', req, runtime);
 }
 
 model AddProductVersionConfigRequest {
@@ -1426,6 +1487,59 @@ async function createEnvironmentWithOptions(request: CreateEnvironmentRequest, h
     body = OpenApiUtil.parseToMap(body),
   };
   return doROARequest('CreateEnvironment', '2021-07-20', 'HTTPS', 'POST', 'AK', `/api/v2/environments`, 'json', req, runtime);
+}
+
+model GetWorkflowStatusRequest {
+  xuid?: string(name='xuid', description='xuid，根据场景传递env_uid/package_uid/deploy_uid'),
+  workflowType?: string(name='workflowType', description='ENUM:["CreateCluster","DeleteCluster","Pack","Deploy"]'),
+}
+
+model GetWorkflowStatusResponseBody = {
+  data?: {
+    status?: string(name='status'),
+    stepStatus?: [ 
+      {
+        name?: string(name='name', description='step name'),
+        status?: string(name='status', description='step status'),
+        workflowTasks?: [ 
+          {
+            name?: string(name='name', description='task name'),
+            status?: string(name='status', description='task status'),
+          }
+        ](name='workflowTasks'),
+      }
+    ](name='stepStatus'),
+  }(name='data'),
+  code?: string(name='code'),
+  msg?: string(name='msg'),
+}
+
+model GetWorkflowStatusResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetWorkflowStatusResponseBody(name='body'),
+}
+
+async function getWorkflowStatus(request: GetWorkflowStatusRequest): GetWorkflowStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getWorkflowStatusWithOptions(request, headers, runtime);
+}
+
+async function getWorkflowStatusWithOptions(request: GetWorkflowStatusRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetWorkflowStatusResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.xuid)) {
+    query.xuid = request.xuid;
+  }
+  if (!Util.isUnset(request.workflowType)) {
+    query.workflowType = request.workflowType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('GetWorkflowStatus', '2021-07-20', 'HTTPS', 'GET', 'AK', `/api/v2/workflows/status`, 'json', req, runtime);
 }
 
 model GetComponentResponseBody = {
@@ -2676,6 +2790,7 @@ async function putProductInstanceConfigWithOptions(request: PutProductInstanceCo
 
 model UpdateEnvironmentProductVersionRequest {
   productVersionUID?: string(name='productVersionUID'),
+  oldProductVersionUID?: string(name='oldProductVersionUID'),
 }
 
 model UpdateEnvironmentProductVersionResponseBody = {
@@ -2700,6 +2815,9 @@ async function updateEnvironmentProductVersionWithOptions(uid: string, request: 
   var body : map[string]any= {};
   if (!Util.isUnset(request.productVersionUID)) {
     body.productVersionUID = request.productVersionUID;
+  }
+  if (!Util.isUnset(request.oldProductVersionUID)) {
+    body.oldProductVersionUID = request.oldProductVersionUID;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
