@@ -1009,10 +1009,10 @@ model GetDevicePictureRequest {
 }
 
 model GetDevicePictureResponseBody = {
-  message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: string(name='Data'),
   code?: string(name='Code'),
+  message?: string(name='Message'),
+  data?: string(name='Data'),
 }
 
 model GetDevicePictureResponse = {
@@ -1669,6 +1669,7 @@ model CreateDeviceRequest {
   OSDTimeType?: string(name='OSDTimeType'),
   OSDTimeX?: string(name='OSDTimeX'),
   OSDTimeY?: string(name='OSDTimeY'),
+  activateCode?: string(name='ActivateCode'),
 }
 
 model CreateDeviceResponseBody = {
@@ -2768,6 +2769,69 @@ async function listMetrics(request: ListMetricsRequest): ListMetricsResponse {
   return listMetricsWithOptions(request, runtime);
 }
 
+model SearchTargetRequest {
+  corpId?: string(name='CorpId'),
+  pageNumber?: long(name='PageNumber'),
+  pageSize?: long(name='PageSize'),
+  targetType?: string(name='TargetType'),
+  targetAttributes?: string(name='TargetAttributes'),
+  targetImageUrl?: string(name='TargetImageUrl'),
+  targetImageData?: string(name='TargetImageData'),
+  orderBy?: string(name='OrderBy'),
+  deviceList?: string(name='DeviceList'),
+  modelId?: string(name='ModelId'),
+  beginTime?: string(name='BeginTime'),
+  endTime?: string(name='EndTime'),
+  similarityThreshold?: double(name='SimilarityThreshold'),
+}
+
+model SearchTargetResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success'),
+  code?: string(name='Code'),
+  message?: string(name='Message'),
+  data?: [ 
+    {
+      records?: [ 
+        {
+          targetType?: string(name='TargetType'),
+          timestamp?: string(name='Timestamp'),
+          deviceId?: string(name='DeviceId'),
+          targetAttributes?: string(name='TargetAttributes'),
+          targetImageUrl?: string(name='TargetImageUrl'),
+          sourceImageUrl?: string(name='SourceImageUrl'),
+          leftTopX?: long(name='LeftTopX'),
+          leftTopY?: long(name='LeftTopY'),
+          rightBottomX?: long(name='RightBottomX'),
+          rightBottomY?: long(name='RightBottomY'),
+          targetImageSimilarity?: double(name='TargetImageSimilarity'),
+        }
+      ](name='Records'),
+      totalCount?: long(name='TotalCount'),
+      pageSize?: long(name='PageSize'),
+      pageNumber?: long(name='PageNumber'),
+    }
+  ](name='Data'),
+}
+
+model SearchTargetResponse = {
+  headers: map[string]string(name='headers'),
+  body: SearchTargetResponseBody(name='body'),
+}
+
+async function searchTargetWithOptions(request: SearchTargetRequest, runtime: Util.RuntimeOptions): SearchTargetResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('SearchTarget', '2020-05-15', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function searchTarget(request: SearchTargetRequest): SearchTargetResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return searchTargetWithOptions(request, runtime);
+}
+
 model DeleteNVRDeviceRequest {
   deviceCodes?: string(name='DeviceCodes'),
 }
@@ -2988,14 +3052,14 @@ model DeleteDevicesRequest {
 }
 
 model DeleteDevicesResponseBody = {
+  requestId?: string(name='RequestId'),
   code?: string(name='Code'),
   message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
   data?: [ 
     {
       deviceId?: string(name='DeviceId'),
-      description?: string(name='Description'),
       code?: string(name='Code'),
+      description?: string(name='Description'),
     }
   ](name='Data'),
 }
@@ -3157,18 +3221,18 @@ async function createModelService(request: CreateModelServiceRequest): CreateMod
 
 model GetDeviceVideoUrlRequest {
   corpId?: string(name='CorpId'),
-  gbId?: string(name='GbId'),
+  deviceId?: string(name='DeviceId'),
+  storageType?: string(name='StorageType'),
   startTime?: long(name='StartTime'),
   endTime?: long(name='EndTime'),
-  deviceId?: string(name='DeviceId'),
   outProtocol?: string(name='OutProtocol'),
-  storageType?: string(name='StorageType'),
+  gbId?: string(name='GbId'),
 }
 
 model GetDeviceVideoUrlResponseBody = {
-  message?: string(name='Message'),
   requestId?: string(name='RequestId'),
   code?: string(name='Code'),
+  message?: string(name='Message'),
   outProtocol?: string(name='OutProtocol'),
   url?: string(name='Url'),
 }
@@ -3948,6 +4012,7 @@ model DescribeChannelsRequest {
   nvrId?: string(name='NvrId'),
   showUnConfig?: long(name='ShowUnConfig'),
   deviceFilter?: string(name='DeviceFilter'),
+  deviceStatus?: string(name='DeviceStatus'),
 }
 
 model DescribeChannelsResponseBody = {
@@ -4522,19 +4587,19 @@ async function updateAiotPersonTable(request: UpdateAiotPersonTableRequest): Upd
 }
 
 model GetDeviceLiveUrlRequest {
-  deviceId?: string(name='DeviceId'),
-  streamType?: int32(name='StreamType'),
-  outProtocol?: string(name='OutProtocol'),
   corpId?: string(name='CorpId'),
+  deviceId?: string(name='DeviceId'),
+  streamType?: string(name='StreamType'),
+  outProtocol?: string(name='OutProtocol'),
   gbId?: string(name='GbId'),
 }
 
 model GetDeviceLiveUrlResponseBody = {
-  streamType?: int32(name='StreamType'),
   requestId?: string(name='RequestId'),
-  message?: string(name='Message'),
   code?: string(name='Code'),
+  message?: string(name='Message'),
   outProtocol?: string(name='OutProtocol'),
+  streamType?: long(name='StreamType'),
   url?: string(name='Url'),
 }
 
@@ -4583,8 +4648,8 @@ model ModifyDeviceRequest {
 
 model ModifyDeviceResponseBody = {
   requestId?: string(name='RequestId', description='Id of the request'),
+  code?: string(name='Code', description='错误码'),
   message?: string(name='Message', description='错误码描述'),
-  code?: string(name='Code', description='错误吗'),
 }
 
 model ModifyDeviceResponse = {
@@ -5716,6 +5781,43 @@ async function describeAiotDevices(request: DescribeAiotDevicesRequest): Describ
   return describeAiotDevicesWithOptions(request, runtime);
 }
 
+model GetDeviceStatsRequest {
+  corpIdList?: string(name='CorpIdList'),
+  deviceType?: string(name='DeviceType'),
+  deviceStatus?: string(name='DeviceStatus'),
+}
+
+model GetDeviceStatsResponseBody = {
+  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
+  message?: string(name='Message'),
+  data?: [ 
+    {
+      deviceType?: string(name='DeviceType'),
+      deviceStatus?: string(name='DeviceStatus'),
+      count?: long(name='Count'),
+    }
+  ](name='Data'),
+}
+
+model GetDeviceStatsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetDeviceStatsResponseBody(name='body'),
+}
+
+async function getDeviceStatsWithOptions(request: GetDeviceStatsRequest, runtime: Util.RuntimeOptions): GetDeviceStatsResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('GetDeviceStats', '2020-05-15', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function getDeviceStats(request: GetDeviceStatsRequest): GetDeviceStatsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getDeviceStatsWithOptions(request, runtime);
+}
+
 model AddAiotPersonTableRequest {
   id?: string(name='Id'),
   personTable?: {
@@ -6319,48 +6421,35 @@ model DescribeIpcsRequest {
   nvrIdList?: string(name='NvrIdList'),
   corpIdList?: string(name='CorpIdList'),
   deviceFilter?: string(name='DeviceFilter'),
+  deviceStatus?: string(name='DeviceStatus'),
 }
 
 model DescribeIpcsResponseBody = {
+  requestId?: string(name='RequestId'),
   code?: string(name='Code'),
   message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
   data?: {
-    pageNum?: long(name='PageNum'),
-    pageSize?: long(name='PageSize'),
     totalCount?: long(name='TotalCount'),
     totalPage?: long(name='TotalPage'),
+    pageNum?: long(name='PageNum'),
+    pageSize?: long(name='PageSize'),
     records?: [ 
       {
         corpId?: string(name='CorpId'),
-        createTime?: string(name='CreateTime'),
-        modifyTime?: string(name='ModifyTime'),
-        deviceAddress?: string(name='DeviceAddress'),
-        deviceId?: string(name='DeviceId'),
-        deviceName?: string(name='DeviceName'),
-        deviceType?: string(name='DeviceType'),
-        inProtocol?: string(name='InProtocol'),
-        latitude?: string(name='Latitude'),
-        longitude?: string(name='Longitude'),
-        deviceStatus?: string(name='DeviceStatus'),
-        streamStatus?: string(name='StreamStatus'),
-        streamAction?: string(name='StreamAction'),
-        vendor?: string(name='Vendor'),
         serverId?: string(name='ServerId'),
-        password?: string(name='Password'),
-        serverPort?: string(name='ServerPort'),
         serverIp?: string(name='ServerIp'),
         serverRealm?: string(name='ServerRealm'),
-        deviceSite?: string(name='DeviceSite'),
+        serverPort?: string(name='ServerPort'),
+        deviceId?: string(name='DeviceId'),
+        password?: string(name='Password'),
+        deviceName?: string(name='DeviceName'),
+        deviceAddress?: string(name='DeviceAddress'),
+        longitude?: string(name='Longitude'),
+        latitude?: string(name='Latitude'),
         deviceDirection?: string(name='DeviceDirection'),
+        deviceSite?: string(name='DeviceSite'),
         deviceResolution?: string(name='DeviceResolution'),
         deviceRate?: string(name='DeviceRate'),
-        parentDeviceId?: string(name='ParentDeviceId'),
-        deviceModel?: string(name='DeviceModel'),
-        datasourceType?: string(name='DatasourceType'),
-        regionName?: string(name='RegionName'),
-        vap?: string(name='Vap'),
-        deviceSubType?: string(name='DeviceSubType'),
         frameRate?: string(name='FrameRate'),
         govLength?: string(name='GovLength'),
         encodeFormat?: string(name='EncodeFormat'),
@@ -6369,8 +6458,21 @@ model DescribeIpcsResponseBody = {
         OSDTimeType?: string(name='OSDTimeType'),
         OSDTimeX?: string(name='OSDTimeX'),
         OSDTimeY?: string(name='OSDTimeY'),
+        vendor?: string(name='Vendor'),
+        deviceType?: string(name='DeviceType'),
+        deviceModel?: string(name='DeviceModel'),
+        inProtocol?: string(name='InProtocol'),
         deviceSn?: string(name='DeviceSn'),
+        datasourceType?: string(name='DatasourceType'),
+        deviceSubType?: string(name='DeviceSubType'),
         deviceIp?: string(name='DeviceIp'),
+        deviceStatus?: string(name='DeviceStatus'),
+        streamStatus?: string(name='StreamStatus'),
+        streamAction?: string(name='StreamAction'),
+        parentDeviceId?: string(name='ParentDeviceId'),
+        createTime?: string(name='CreateTime'),
+        modifyTime?: string(name='ModifyTime'),
+        vap?: string(name='Vap'),
       }
     ](name='Records'),
   }(name='Data'),
