@@ -33,7 +33,6 @@ model GetInstanceRequest {
 model GetInstanceResponseBody = {
   requestId?: string(name='RequestId', description='Id of the request'),
   instanceName?: string(name='InstanceName'),
-  resourceGroupId?: string(name='ResourceGroupId', description='资源组id'),
   regionId?: string(name='RegionId'),
   SPInstanceId?: string(name='SPInstanceId'),
   aliasName?: string(name='AliasName'),
@@ -80,26 +79,43 @@ async function getInstanceWithOptions(request: GetInstanceRequest, headers: map[
   return doROARequest('GetInstance', '2020-12-09', 'HTTPS', 'GET', 'AK', `/v2/openapi/getinstance`, 'json', req, runtime);
 }
 
-model ListTagResourcesResponseBody = {
+model DescribeRegionsRequest {
+  clientToken?: string(name='ClientToken', description='幂等参数'),
+}
+
+model DescribeRegionsResponseBody = {
   requestId?: string(name='requestId', description='Id of the request'),
+  regions?: [ 
+    {
+      regionId?: string(name='RegionId', description='region id'),
+      i18nKey?: string(name='I18nKey', description='region key'),
+    }
+  ](name='Regions', description='region list'),
 }
 
-model ListTagResourcesResponse = {
+model DescribeRegionsResponse = {
   headers: map[string]string(name='headers'),
-  body: ListTagResourcesResponseBody(name='body'),
+  body: DescribeRegionsResponseBody(name='body'),
 }
 
-async function listTagResources(): ListTagResourcesResponse {
+async function describeRegions(request: DescribeRegionsRequest): DescribeRegionsResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return listTagResourcesWithOptions(headers, runtime);
+  return describeRegionsWithOptions(request, headers, runtime);
 }
 
-async function listTagResourcesWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): ListTagResourcesResponse {
+async function describeRegionsWithOptions(request: DescribeRegionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeRegionsResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.clientToken)) {
+    query.ClientToken = request.clientToken;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
-  return doROARequest('ListTagResources', '2020-12-09', 'HTTPS', 'GET', 'AK', `/v2/openapi/listtagresources`, 'json', req, runtime);
+  return doROARequest('DescribeRegions', '2020-12-09', 'HTTPS', 'GET', 'AK', `/region/DescribeRegions`, 'json', req, runtime);
 }
 
 model ListInstancesRequest {
@@ -112,21 +128,23 @@ model ListInstancesResponseBody = {
   requestId?: string(name='RequestId', description='Id of the request'),
   totalCount?: long(name='TotalCount'),
   nextToken?: string(name='NextToken'),
-  instances?: {
-    instanceName?: string(name='InstanceName', description='实例名称，唯一键'),
-    resourceGroupId?: string(name='ResourceGroupId', description='资源组id'),
-    regionId?: string(name='RegionId'),
-    SPInstanceId?: string(name='SPInstanceId'),
-    aliasName?: string(name='AliasName'),
-    userId?: string(name='UserId'),
-    instanceDescription?: string(name='InstanceDescription'),
-    instanceSpecification?: string(name='InstanceSpecification'),
-    paymentType?: string(name='PaymentType'),
-    storageType?: string(name='StorageType'),
-    VCUQuota?: int32(name='VCUQuota'),
-    instanceStatus?: string(name='InstanceStatus'),
-  }(name='Instances'),
-  createTime?: string(name='CreateTime'),
+  instances?: [ 
+    {
+      instanceName?: string(name='InstanceName', description='实例名称，唯一键'),
+      resourceGroupId?: string(name='ResourceGroupId', description='资源组id'),
+      regionId?: string(name='RegionId'),
+      SPInstanceId?: string(name='SPInstanceId'),
+      aliasName?: string(name='AliasName'),
+      userId?: string(name='UserId'),
+      instanceDescription?: string(name='InstanceDescription'),
+      instanceSpecification?: string(name='InstanceSpecification'),
+      paymentType?: string(name='PaymentType'),
+      storageType?: string(name='StorageType'),
+      VCUQuota?: int32(name='VCUQuota'),
+      instanceStatus?: string(name='InstanceStatus'),
+      createTime?: string(name='CreateTime'),
+    }
+  ](name='Instances'),
 }
 
 model ListInstancesResponse = {
@@ -203,168 +221,5 @@ async function updateInstanceWithOptions(request: UpdateInstanceRequest, headers
     body = OpenApiUtil.parseToMap(body),
   };
   return doROARequest('UpdateInstance', '2020-12-09', 'HTTPS', 'POST', 'AK', `/v2/openapi/updateinstance`, 'json', req, runtime);
-}
-
-model DescribeRegionsRequest {
-  clientToken?: string(name='ClientToken', description='幂等参数'),
-}
-
-model DescribeRegionsResponseBody = {
-  requestId?: string(name='requestId', description='Id of the request'),
-  regions?: [ 
-    {
-      regionId?: string(name='RegionId', description='region id'),
-      i18nKey?: string(name='I18nKey', description='region key'),
-    }
-  ](name='Regions', description='region list'),
-}
-
-model DescribeRegionsResponse = {
-  headers: map[string]string(name='headers'),
-  body: DescribeRegionsResponseBody(name='body'),
-}
-
-async function describeRegions(request: DescribeRegionsRequest): DescribeRegionsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeRegionsWithOptions(request, headers, runtime);
-}
-
-async function describeRegionsWithOptions(request: DescribeRegionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeRegionsResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.clientToken)) {
-    query.ClientToken = request.clientToken;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  return doROARequest('DescribeRegions', '2020-12-09', 'HTTPS', 'GET', 'AK', `/region/DescribeRegions`, 'json', req, runtime);
-}
-
-model CreateInstanceRequest {
-  instanceName?: string(name='InstanceName', description='instance name'),
-  clusterType?: string(name='ClusterType', description='cluster type'),
-  instanceDescription?: string(name='InstanceDescription', description='instance description'),
-  resourceGroupId?: string(name='ResourceGroupId', description='resource group id'),
-  tags?: [ 
-    {
-      tagKey?: string(name='TagKey'),
-      tagValue?: string(name='TagValue'),
-    }
-  ](name='Tags', description='tag'),
-}
-
-model CreateInstanceResponseBody = {
-  requestId?: string(name='RequestId', description='request id'),
-}
-
-model CreateInstanceResponse = {
-  headers: map[string]string(name='headers'),
-  body: CreateInstanceResponseBody(name='body'),
-}
-
-async function createInstance(request: CreateInstanceRequest): CreateInstanceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createInstanceWithOptions(request, headers, runtime);
-}
-
-async function createInstanceWithOptions(request: CreateInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateInstanceResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.instanceName)) {
-    body.InstanceName = request.instanceName;
-  }
-  if (!Util.isUnset(request.clusterType)) {
-    body.ClusterType = request.clusterType;
-  }
-  if (!Util.isUnset(request.instanceDescription)) {
-    body.InstanceDescription = request.instanceDescription;
-  }
-  if (!Util.isUnset(request.resourceGroupId)) {
-    body.ResourceGroupId = request.resourceGroupId;
-  }
-  if (!Util.isUnset(request.tags)) {
-    body.Tags = request.tags;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = OpenApiUtil.parseToMap(body),
-  };
-  return doROARequest('CreateInstance', '2020-12-09', 'HTTPS', 'POST', 'AK', `/v2/openapi/createinstance`, 'json', req, runtime);
-}
-
-model ChangeResourceGroupRequest {
-  resourceId?: string(name='ResourceId', description='resource id, aka ots instance name'),
-  newResourceGroupId?: string(name='NewResourceGroupId', description='new resource group id'),
-}
-
-model ChangeResourceGroupResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-}
-
-model ChangeResourceGroupResponse = {
-  headers: map[string]string(name='headers'),
-  body: ChangeResourceGroupResponseBody(name='body'),
-}
-
-async function changeResourceGroup(request: ChangeResourceGroupRequest): ChangeResourceGroupResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return changeResourceGroupWithOptions(request, headers, runtime);
-}
-
-async function changeResourceGroupWithOptions(request: ChangeResourceGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ChangeResourceGroupResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.resourceId)) {
-    body.ResourceId = request.resourceId;
-  }
-  if (!Util.isUnset(request.newResourceGroupId)) {
-    body.NewResourceGroupId = request.newResourceGroupId;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = OpenApiUtil.parseToMap(body),
-  };
-  return doROARequest('ChangeResourceGroup', '2020-12-09', 'HTTPS', 'POST', 'AK', `/v2/openapi/changeresourcegroup`, 'json', req, runtime);
-}
-
-model DeleteInstanceRequest {
-  instanceName?: string(name='InstanceName', description='instance name'),
-}
-
-model DeleteInstanceResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-}
-
-model DeleteInstanceResponse = {
-  headers: map[string]string(name='headers'),
-  body: DeleteInstanceResponseBody(name='body'),
-}
-
-async function deleteInstance(request: DeleteInstanceRequest): DeleteInstanceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteInstanceWithOptions(request, headers, runtime);
-}
-
-async function deleteInstanceWithOptions(request: DeleteInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteInstanceResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.instanceName)) {
-    body.InstanceName = request.instanceName;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = OpenApiUtil.parseToMap(body),
-  };
-  return doROARequest('DeleteInstance', '2020-12-09', 'HTTPS', 'POST', 'AK', `/v2/openapi/deleteinstance`, 'json', req, runtime);
 }
 
