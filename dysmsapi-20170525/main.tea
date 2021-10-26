@@ -3,7 +3,7 @@
  */
 import Util;
 import OpenApi;
-
+import OpenApiUtil;
 import EndpointUtil;
 
 extends OpenApi;
@@ -32,19 +32,57 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-model AddSmsSignRequest {
+model AddShortUrlRequest {
+  effectiveDays?: string(name='EffectiveDays'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  signName?: string(name='SignName'),
-  signSource?: int32(name='SignSource'),
+  shortUrlName?: string(name='ShortUrlName'),
+  sourceUrl?: string(name='SourceUrl'),
+}
+
+model AddShortUrlResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    expireDate?: string(name='ExpireDate'),
+    shortUrl?: string(name='ShortUrl'),
+    sourceUrl?: string(name='SourceUrl'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+}
+
+model AddShortUrlResponse = {
+  headers: map[string]string(name='headers'),
+  body: AddShortUrlResponseBody(name='body'),
+}
+
+async function addShortUrlWithOptions(request: AddShortUrlRequest, runtime: Util.RuntimeOptions): AddShortUrlResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('AddShortUrl', '2017-05-25', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function addShortUrl(request: AddShortUrlRequest): AddShortUrlResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return addShortUrlWithOptions(request, runtime);
+}
+
+model AddSmsSignRequest {
+  ownerId?: long(name='OwnerId'),
   remark?: string(name='Remark'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId'),
   signFileList?: [ 
     {
       fileContents?: string(name='FileContents'),
       fileSuffix?: string(name='FileSuffix'),
     }
   ](name='SignFileList'),
+  signName?: string(name='SignName'),
+  signSource?: int32(name='SignSource'),
 }
 
 model AddSmsSignResponseBody = {
@@ -74,12 +112,12 @@ async function addSmsSign(request: AddSmsSignRequest): AddSmsSignResponse {
 
 model AddSmsTemplateRequest {
   ownerId?: long(name='OwnerId'),
+  remark?: string(name='Remark'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  templateType?: int32(name='TemplateType'),
-  templateName?: string(name='TemplateName'),
   templateContent?: string(name='TemplateContent'),
-  remark?: string(name='Remark'),
+  templateName?: string(name='TemplateName'),
+  templateType?: int32(name='TemplateType'),
 }
 
 model AddSmsTemplateResponseBody = {
@@ -105,6 +143,81 @@ async function addSmsTemplateWithOptions(request: AddSmsTemplateRequest, runtime
 async function addSmsTemplate(request: AddSmsTemplateRequest): AddSmsTemplateResponse {
   var runtime = new Util.RuntimeOptions{};
   return addSmsTemplateWithOptions(request, runtime);
+}
+
+model CreateCardSmsTemplateRequest {
+  memo?: string(name='Memo'),
+  template?: map[string]any(name='Template'),
+  templateName?: string(name='TemplateName'),
+}
+
+model CreateCardSmsTemplateShrinkRequest {
+  memo?: string(name='Memo'),
+  templateShrink?: string(name='Template'),
+  templateName?: string(name='TemplateName'),
+}
+
+model CreateCardSmsTemplateResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    templateCode?: string(name='TemplateCode'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model CreateCardSmsTemplateResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateCardSmsTemplateResponseBody(name='body'),
+}
+
+async function createCardSmsTemplateWithOptions(tmpReq: CreateCardSmsTemplateRequest, runtime: Util.RuntimeOptions): CreateCardSmsTemplateResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateCardSmsTemplateShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.template)) {
+    request.templateShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.template, 'Template', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('CreateCardSmsTemplate', '2017-05-25', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function createCardSmsTemplate(request: CreateCardSmsTemplateRequest): CreateCardSmsTemplateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createCardSmsTemplateWithOptions(request, runtime);
+}
+
+model DeleteShortUrlRequest {
+  ownerId?: long(name='OwnerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId'),
+  sourceUrl?: string(name='SourceUrl'),
+}
+
+model DeleteShortUrlResponseBody = {
+  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+}
+
+model DeleteShortUrlResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteShortUrlResponseBody(name='body'),
+}
+
+async function deleteShortUrlWithOptions(request: DeleteShortUrlRequest, runtime: Util.RuntimeOptions): DeleteShortUrlResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('DeleteShortUrl', '2017-05-25', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function deleteShortUrl(request: DeleteShortUrlRequest): DeleteShortUrlResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteShortUrlWithOptions(request, runtime);
 }
 
 model DeleteSmsSignRequest {
@@ -171,19 +284,83 @@ async function deleteSmsTemplate(request: DeleteSmsTemplateRequest): DeleteSmsTe
   return deleteSmsTemplateWithOptions(request, runtime);
 }
 
+model GetMediaResourceIdRequest {
+  extendInfo?: string(name='ExtendInfo'),
+  fileSize?: long(name='FileSize'),
+  memo?: string(name='Memo'),
+  ossKey?: string(name='OssKey'),
+  resourceType?: int32(name='ResourceType'),
+}
+
+model GetMediaResourceIdResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    resourceId?: long(name='ResourceId'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model GetMediaResourceIdResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetMediaResourceIdResponseBody(name='body'),
+}
+
+async function getMediaResourceIdWithOptions(request: GetMediaResourceIdRequest, runtime: Util.RuntimeOptions): GetMediaResourceIdResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('GetMediaResourceId', '2017-05-25', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function getMediaResourceId(request: GetMediaResourceIdRequest): GetMediaResourceIdResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getMediaResourceIdWithOptions(request, runtime);
+}
+
+model GetOSSInfoForCardTemplateResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    accessKeyId?: string(name='AccessKeyId'),
+    aliUid?: string(name='AliUid'),
+    expireTime?: string(name='ExpireTime'),
+    host?: string(name='Host'),
+    policy?: string(name='Policy'),
+    signature?: string(name='Signature'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model GetOSSInfoForCardTemplateResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetOSSInfoForCardTemplateResponseBody(name='body'),
+}
+
+async function getOSSInfoForCardTemplateWithOptions(runtime: Util.RuntimeOptions): GetOSSInfoForCardTemplateResponse {
+  var req = new OpenApi.OpenApiRequest{};
+  return doRPCRequest('GetOSSInfoForCardTemplate', '2017-05-25', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function getOSSInfoForCardTemplate(): GetOSSInfoForCardTemplateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getOSSInfoForCardTemplateWithOptions(runtime);
+}
+
 model ModifySmsSignRequest {
   ownerId?: long(name='OwnerId'),
+  remark?: string(name='Remark'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  signName?: string(name='SignName'),
-  signSource?: int32(name='SignSource'),
-  remark?: string(name='Remark'),
   signFileList?: [ 
     {
       fileContents?: string(name='FileContents'),
       fileSuffix?: string(name='FileSuffix'),
     }
   ](name='SignFileList'),
+  signName?: string(name='SignName'),
+  signSource?: int32(name='SignSource'),
 }
 
 model ModifySmsSignResponseBody = {
@@ -213,13 +390,13 @@ async function modifySmsSign(request: ModifySmsSignRequest): ModifySmsSignRespon
 
 model ModifySmsTemplateRequest {
   ownerId?: long(name='OwnerId'),
+  remark?: string(name='Remark'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  templateType?: int32(name='TemplateType'),
-  templateName?: string(name='TemplateName'),
   templateCode?: string(name='TemplateCode'),
   templateContent?: string(name='TemplateContent'),
-  remark?: string(name='Remark'),
+  templateName?: string(name='TemplateName'),
+  templateType?: int32(name='TemplateType'),
 }
 
 model ModifySmsTemplateResponseBody = {
@@ -247,36 +424,67 @@ async function modifySmsTemplate(request: ModifySmsTemplateRequest): ModifySmsTe
   return modifySmsTemplateWithOptions(request, runtime);
 }
 
+model QueryCardSmsTemplateRequest {
+  templateCode?: string(name='TemplateCode'),
+}
+
+model QueryCardSmsTemplateResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    templates?: [  map[string]any ](name='Templates'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model QueryCardSmsTemplateResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryCardSmsTemplateResponseBody(name='body'),
+}
+
+async function queryCardSmsTemplateWithOptions(request: QueryCardSmsTemplateRequest, runtime: Util.RuntimeOptions): QueryCardSmsTemplateResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('QueryCardSmsTemplate', '2017-05-25', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function queryCardSmsTemplate(request: QueryCardSmsTemplateRequest): QueryCardSmsTemplateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryCardSmsTemplateWithOptions(request, runtime);
+}
+
 model QuerySendDetailsRequest {
+  bizId?: string(name='BizId'),
+  currentPage?: long(name='CurrentPage'),
   ownerId?: long(name='OwnerId'),
+  pageSize?: long(name='PageSize'),
+  phoneNumber?: string(name='PhoneNumber'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  phoneNumber?: string(name='PhoneNumber'),
-  bizId?: string(name='BizId'),
   sendDate?: string(name='SendDate'),
-  pageSize?: long(name='PageSize'),
-  currentPage?: long(name='CurrentPage'),
 }
 
 model QuerySendDetailsResponseBody = {
   code?: string(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  totalCount?: string(name='TotalCount'),
   smsSendDetailDTOs?: {
     smsSendDetailDTO?: [ 
     {
+      content?: string(name='Content'),
       errCode?: string(name='ErrCode'),
-      templateCode?: string(name='TemplateCode'),
       outId?: string(name='OutId'),
+      phoneNum?: string(name='PhoneNum'),
       receiveDate?: string(name='ReceiveDate'),
       sendDate?: string(name='SendDate'),
-      phoneNum?: string(name='PhoneNum'),
-      content?: string(name='Content'),
       sendStatus?: long(name='SendStatus'),
+      templateCode?: string(name='TemplateCode'),
     }
   ](name='SmsSendDetailDTO')
   }(name='SmsSendDetailDTOs'),
+  totalCount?: string(name='TotalCount'),
 }
 
 model QuerySendDetailsResponse = {
@@ -297,6 +505,47 @@ async function querySendDetails(request: QuerySendDetailsRequest): QuerySendDeta
   return querySendDetailsWithOptions(request, runtime);
 }
 
+model QueryShortUrlRequest {
+  ownerId?: long(name='OwnerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId'),
+  shortUrl?: string(name='ShortUrl'),
+}
+
+model QueryShortUrlResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    createDate?: string(name='CreateDate'),
+    expireDate?: string(name='ExpireDate'),
+    pageViewCount?: string(name='PageViewCount'),
+    shortUrl?: string(name='ShortUrl'),
+    shortUrlName?: string(name='ShortUrlName'),
+    shortUrlStatus?: string(name='ShortUrlStatus'),
+    sourceUrl?: string(name='SourceUrl'),
+    uniqueVisitorCount?: string(name='UniqueVisitorCount'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+}
+
+model QueryShortUrlResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryShortUrlResponseBody(name='body'),
+}
+
+async function queryShortUrlWithOptions(request: QueryShortUrlRequest, runtime: Util.RuntimeOptions): QueryShortUrlResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('QueryShortUrl', '2017-05-25', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function queryShortUrl(request: QueryShortUrlRequest): QueryShortUrlResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryShortUrlWithOptions(request, runtime);
+}
+
 model QuerySmsSignRequest {
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
@@ -305,13 +554,13 @@ model QuerySmsSignRequest {
 }
 
 model QuerySmsSignResponseBody = {
-  requestId?: string(name='RequestId'),
-  signStatus?: int32(name='SignStatus'),
   code?: string(name='Code'),
-  message?: string(name='Message'),
   createDate?: string(name='CreateDate'),
+  message?: string(name='Message'),
   reason?: string(name='Reason'),
+  requestId?: string(name='RequestId'),
   signName?: string(name='SignName'),
+  signStatus?: int32(name='SignStatus'),
 }
 
 model QuerySmsSignResponse = {
@@ -340,16 +589,16 @@ model QuerySmsTemplateRequest {
 }
 
 model QuerySmsTemplateResponseBody = {
-  templateContent?: string(name='TemplateContent'),
+  code?: string(name='Code'),
+  createDate?: string(name='CreateDate'),
+  message?: string(name='Message'),
+  reason?: string(name='Reason'),
   requestId?: string(name='RequestId'),
   templateCode?: string(name='TemplateCode'),
-  templateStatus?: int32(name='TemplateStatus'),
-  code?: string(name='Code'),
-  templateType?: int32(name='TemplateType'),
-  message?: string(name='Message'),
+  templateContent?: string(name='TemplateContent'),
   templateName?: string(name='TemplateName'),
-  createDate?: string(name='CreateDate'),
-  reason?: string(name='Reason'),
+  templateStatus?: int32(name='TemplateStatus'),
+  templateType?: int32(name='TemplateType'),
 }
 
 model QuerySmsTemplateResponse = {
@@ -372,19 +621,19 @@ async function querySmsTemplate(request: QuerySmsTemplateRequest): QuerySmsTempl
 
 model SendBatchSmsRequest {
   ownerId?: long(name='OwnerId'),
+  phoneNumberJson?: string(name='PhoneNumberJson'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  phoneNumberJson?: string(name='PhoneNumberJson'),
   signNameJson?: string(name='SignNameJson'),
+  smsUpExtendCodeJson?: string(name='SmsUpExtendCodeJson'),
   templateCode?: string(name='TemplateCode'),
   templateParamJson?: string(name='TemplateParamJson'),
-  smsUpExtendCodeJson?: string(name='SmsUpExtendCodeJson'),
 }
 
 model SendBatchSmsResponseBody = {
+  bizId?: string(name='BizId'),
   code?: string(name='Code'),
   message?: string(name='Message'),
-  bizId?: string(name='BizId'),
   requestId?: string(name='RequestId'),
 }
 
@@ -406,28 +655,91 @@ async function sendBatchSms(request: SendBatchSmsRequest): SendBatchSmsResponse 
   return sendBatchSmsWithOptions(request, runtime);
 }
 
+model SendCardSmsRequest {
+  cardObjects?: map[string]any(name='CardObjects'),
+  cardTemplateCode?: string(name='CardTemplateCode'),
+  digitalTemplateCode?: string(name='DigitalTemplateCode'),
+  digitalTemplateParam?: string(name='DigitalTemplateParam'),
+  fallbackType?: string(name='FallbackType'),
+  outId?: string(name='OutId'),
+  signName?: string(name='SignName'),
+  smsTemplateCode?: string(name='SmsTemplateCode'),
+  smsTemplateParam?: string(name='SmsTemplateParam'),
+  smsUpExtendCode?: string(name='SmsUpExtendCode'),
+}
+
+model SendCardSmsShrinkRequest {
+  cardObjectsShrink?: string(name='CardObjects'),
+  cardTemplateCode?: string(name='CardTemplateCode'),
+  digitalTemplateCode?: string(name='DigitalTemplateCode'),
+  digitalTemplateParam?: string(name='DigitalTemplateParam'),
+  fallbackType?: string(name='FallbackType'),
+  outId?: string(name='OutId'),
+  signName?: string(name='SignName'),
+  smsTemplateCode?: string(name='SmsTemplateCode'),
+  smsTemplateParam?: string(name='SmsTemplateParam'),
+  smsUpExtendCode?: string(name='SmsUpExtendCode'),
+}
+
+model SendCardSmsResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    bizCardId?: string(name='BizCardId'),
+    bizDigitalId?: string(name='BizDigitalId'),
+    bizSmsId?: string(name='BizSmsId'),
+    cardTmpState?: int32(name='CardTmpState'),
+    mediaMobiles?: string(name='MediaMobiles'),
+    notMediaMobiles?: string(name='NotMediaMobiles'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model SendCardSmsResponse = {
+  headers: map[string]string(name='headers'),
+  body: SendCardSmsResponseBody(name='body'),
+}
+
+async function sendCardSmsWithOptions(tmpReq: SendCardSmsRequest, runtime: Util.RuntimeOptions): SendCardSmsResponse {
+  Util.validateModel(tmpReq);
+  var request = new SendCardSmsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.cardObjects)) {
+    request.cardObjectsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.cardObjects, 'CardObjects', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('SendCardSms', '2017-05-25', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function sendCardSms(request: SendCardSmsRequest): SendCardSmsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return sendCardSmsWithOptions(request, runtime);
+}
+
 model SendMessageToGlobeRequest {
+  from?: string(name='From'),
+  message?: string(name='Message'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   to?: string(name='To'),
-  from?: string(name='From'),
-  message?: string(name='Message'),
   type?: string(name='Type'),
 }
 
 model SendMessageToGlobeResponseBody = {
+  code?: string(name='Code'),
   from?: string(name='From'),
   messageId?: string(name='MessageId'),
-  requestId?: string(name='RequestId'),
-  segments?: string(name='Segments'),
-  code?: string(name='Code'),
-  to?: string(name='To'),
   numberDetail?: {
-    country?: string(name='Country'),
     carrier?: string(name='Carrier'),
+    country?: string(name='Country'),
     region?: string(name='Region'),
   }(name='NumberDetail'),
+  requestId?: string(name='RequestId'),
+  segments?: string(name='Segments'),
+  to?: string(name='To'),
 }
 
 model SendMessageToGlobeResponse = {
@@ -449,21 +761,21 @@ async function sendMessageToGlobe(request: SendMessageToGlobeRequest): SendMessa
 }
 
 model SendSmsRequest {
+  outId?: string(name='OutId'),
   ownerId?: long(name='OwnerId'),
+  phoneNumbers?: string(name='PhoneNumbers'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  phoneNumbers?: string(name='PhoneNumbers'),
   signName?: string(name='SignName'),
+  smsUpExtendCode?: string(name='SmsUpExtendCode'),
   templateCode?: string(name='TemplateCode'),
   templateParam?: string(name='TemplateParam'),
-  smsUpExtendCode?: string(name='SmsUpExtendCode'),
-  outId?: string(name='OutId'),
 }
 
 model SendSmsResponseBody = {
+  bizId?: string(name='BizId'),
   code?: string(name='Code'),
   message?: string(name='Message'),
-  bizId?: string(name='BizId'),
   requestId?: string(name='RequestId'),
 }
 
@@ -483,5 +795,43 @@ async function sendSmsWithOptions(request: SendSmsRequest, runtime: Util.Runtime
 async function sendSms(request: SendSmsRequest): SendSmsResponse {
   var runtime = new Util.RuntimeOptions{};
   return sendSmsWithOptions(request, runtime);
+}
+
+model SendSmsSmartRequest {
+  extendCode?: string(name='ExtendCode'),
+  modelCode?: string(name='ModelCode'),
+  numberType?: string(name='NumberType'),
+  phoneNumbers?: string(name='PhoneNumbers'),
+  signName?: string(name='SignName'),
+  smsUpExtendCode?: string(name='SmsUpExtendCode'),
+  templateCode?: string(name='TemplateCode'),
+  templateParam?: string(name='TemplateParam'),
+}
+
+model SendSmsSmartResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    bizId?: string(name='BizId'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model SendSmsSmartResponse = {
+  headers: map[string]string(name='headers'),
+  body: SendSmsSmartResponseBody(name='body'),
+}
+
+async function sendSmsSmartWithOptions(request: SendSmsSmartRequest, runtime: Util.RuntimeOptions): SendSmsSmartResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('SendSmsSmart', '2017-05-25', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function sendSmsSmart(request: SendSmsSmartRequest): SendSmsSmartResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return sendSmsSmartWithOptions(request, runtime);
 }
 
