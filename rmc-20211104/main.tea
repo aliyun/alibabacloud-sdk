@@ -1,0 +1,91 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+
+import EndpointUtil;
+
+extends OpenApi;
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('rmc', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model SearchResourcesRequest {
+  filter?: [ 
+    {
+      key?: string(name='Key'),
+      matchType?: string(name='MatchType'),
+      value?: [ string ](name='Value'),
+    }
+  ](name='Filter'),
+  maxResults?: int32(name='MaxResults'),
+  nextToken?: string(name='NextToken'),
+  resourceGroupId?: string(name='ResourceGroupId'),
+}
+
+model SearchResourcesResponseBody = {
+  filters?: [ 
+    {
+      key?: string(name='Key'),
+      matchType?: string(name='MatchType'),
+      values?: [ string ](name='Values'),
+    }
+  ](name='Filters'),
+  maxResults?: int32(name='MaxResults'),
+  nextToken?: string(name='NextToken'),
+  requestId?: string(name='RequestId'),
+  resources?: [ 
+    {
+      accountId?: string(name='AccountId'),
+      createTime?: string(name='CreateTime'),
+      ipAddresses?: [ string ](name='IpAddresses'),
+      regionId?: string(name='RegionId'),
+      resourceGroupId?: string(name='ResourceGroupId'),
+      resourceId?: string(name='ResourceId'),
+      resourceName?: string(name='ResourceName'),
+      resourceType?: string(name='ResourceType'),
+      tags?: [ 
+        {
+          key?: string(name='Key'),
+          value?: string(name='Value'),
+        }
+      ](name='Tags'),
+      zoneId?: string(name='ZoneId'),
+    }
+  ](name='Resources'),
+}
+
+model SearchResourcesResponse = {
+  headers: map[string]string(name='headers'),
+  body: SearchResourcesResponseBody(name='body'),
+}
+
+async function searchResourcesWithOptions(request: SearchResourcesRequest, runtime: Util.RuntimeOptions): SearchResourcesResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('SearchResources', '2021-11-04', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function searchResources(request: SearchResourcesRequest): SearchResourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return searchResourcesWithOptions(request, runtime);
+}
+
