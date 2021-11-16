@@ -278,10 +278,12 @@ async function batchGetMediaInfos(request: BatchGetMediaInfosRequest): BatchGetM
 
 model CreateEditingProjectRequest {
   businessConfig?: string(name='BusinessConfig', description='工程业务配置。如果是直播剪辑工程必填OutputMediaConfig.StorageLocation,   Path 不填默认合成的直播片段存储在根路径下 OutputMediaTarget 不填默认oss-object，可以填vod-media 表示存储到vod  OutputMediaTarget 为vod-media 时，Path不生效。'),
+  clipsParam?: string(name='ClipsParam', description='模板素材参数'),
   coverURL?: string(name='CoverURL', description='云剪辑工程封面'),
   description?: string(name='Description', description='云剪辑工程描述'),
   materialMaps?: string(name='MaterialMaps', description='工程关联素材，多个素材以逗号（,）分隔；每种类型最多支持10个素材ID'),
   projectType?: string(name='ProjectType', description='剪辑工程类型，EditingProject: 普通剪辑工程；LiveEditingProject: 直播剪辑工程'),
+  templateId?: string(name='TemplateId', description='模板Id'),
   timeline?: string(name='Timeline', description='云剪辑工程时间线，Json格式'),
   title?: string(name='Title', description='云剪辑工程标题'),
 }
@@ -290,6 +292,7 @@ model CreateEditingProjectResponseBody = {
   project?: {
     businessConfig?: string(name='BusinessConfig', description='工程业务配置'),
     businessStatus?: string(name='BusinessStatus', description='业务状态，业务状态 /** 预约中 **/ RESERVING(0, "Reserving"), /** 预约取消 **/ RESERVATION_CANCELED(1, "ReservationCanceled"), /** 直播中 **/ BROADCASTING(3, "BroadCasting"), /** 加载失败 **/ LOADING_FAILED(4, "LoadingFailed"), /** 直播结束 **/ LIVE_FINISHED(5, "LiveFinished");'),
+    clipsParam?: string(name='ClipsParam', description='模板素材参数'),
     coverURL?: string(name='CoverURL', description='云剪辑工程封面。'),
     createSource?: string(name='CreateSource', description='云剪辑工程创建方式  -OpenAPI  -AliyunConsole  -WebSDK -LiveEditingOpenAPI -LiveEditingConsole'),
     createTime?: string(name='CreateTime', description='云剪辑工程创建时间'),
@@ -301,6 +304,7 @@ model CreateEditingProjectResponseBody = {
     projectType?: string(name='ProjectType', description='剪辑工程类型，EditingProject: 普通剪辑工程；LiveEditingProject: 直播剪辑工程'),
     status?: long(name='Status', description='云剪辑工程状态。  所有云剪辑工程状态列表：  -1:Draft  -2:Editing  -3:Producing  -4:Produced  -5:ProduceFailed  -7:Deleted'),
     statusName?: string(name='StatusName', description='云剪辑状态名称，对应状态列表中状态名称。'),
+    templateId?: string(name='TemplateId', description='模板Id'),
     templateType?: string(name='TemplateType'),
     timeline?: string(name='Timeline', description='云剪辑工程时间线，Json格式'),
     title?: string(name='Title', description='云剪辑工程标题'),
@@ -538,6 +542,7 @@ model GetEditingProjectResponseBody = {
   project?: {
     businessConfig?: string(name='BusinessConfig'),
     businessStatus?: string(name='BusinessStatus'),
+    clipsParam?: string(name='ClipsParam', description='模板素材参数'),
     coverURL?: string(name='CoverURL', description='云剪辑工程封面'),
     createSource?: string(name='CreateSource', description='云剪辑工程创建来源'),
     createTime?: string(name='CreateTime', description='云剪辑工程创建时间'),
@@ -548,6 +553,7 @@ model GetEditingProjectResponseBody = {
     projectId?: string(name='ProjectId', description='云剪辑工程ID'),
     projectType?: string(name='ProjectType'),
     status?: string(name='Status', description='云剪辑工程状态'),
+    templateId?: string(name='TemplateId', description='模板Id'),
     templateType?: string(name='TemplateType', description='云剪辑工程模板类型'),
     timeline?: string(name='Timeline', description='云剪辑工程时间线'),
     title?: string(name='Title', description='云剪辑工程标题'),
@@ -1041,6 +1047,35 @@ async function getTemplateWithOptions(request: GetTemplateRequest, runtime: Util
 async function getTemplate(request: GetTemplateRequest): GetTemplateResponse {
   var runtime = new Util.RuntimeOptions{};
   return getTemplateWithOptions(request, runtime);
+}
+
+model GetTemplateMaterialsRequest {
+  fileList?: string(name='FileList', description='所需文件列表'),
+  templateId?: string(name='TemplateId', description='模板Id'),
+}
+
+model GetTemplateMaterialsResponseBody = {
+  materialUrls?: string(name='MaterialUrls', description='关联素材地址'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model GetTemplateMaterialsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetTemplateMaterialsResponseBody(name='body'),
+}
+
+async function getTemplateMaterialsWithOptions(request: GetTemplateMaterialsRequest, runtime: Util.RuntimeOptions): GetTemplateMaterialsResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = query,
+  };
+  return doRPCRequest('GetTemplateMaterials', '2020-11-09', 'HTTPS', 'GET', 'AK', 'json', req, runtime);
+}
+
+async function getTemplateMaterials(request: GetTemplateMaterialsRequest): GetTemplateMaterialsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getTemplateMaterialsWithOptions(request, runtime);
 }
 
 model ListAllPublicMediaTagsRequest {
@@ -1826,6 +1861,7 @@ async function submitMattingJob(request: SubmitMattingJobRequest): SubmitMatting
 model SubmitMediaProducingJobRequest {
   clientToken?: string(name='ClientToken'),
   clipsParam?: string(name='ClipsParam'),
+  editingProduceConfig?: string(name='EditingProduceConfig'),
   outputMediaConfig?: string(name='OutputMediaConfig'),
   outputMediaTarget?: string(name='OutputMediaTarget'),
   projectId?: string(name='ProjectId'),
@@ -1838,9 +1874,10 @@ model SubmitMediaProducingJobRequest {
 
 model SubmitMediaProducingJobResponseBody = {
   jobId?: string(name='JobId', description='合成作业Id'),
-  mediaId?: string(name='MediaId', description='合成媒资Id'),
+  mediaId?: string(name='MediaId', description='合成ICE媒资Id'),
   projectId?: string(name='ProjectId', description='剪辑工程Id'),
   requestId?: string(name='RequestId', description='Id of the request'),
+  vodMediaId?: string(name='VodMediaId', description='vod媒资id'),
 }
 
 model SubmitMediaProducingJobResponse = {
@@ -1931,9 +1968,11 @@ async function submitSubtitleProduceJob(request: SubmitSubtitleProduceJobRequest
 
 model UpdateEditingProjectRequest {
   businessStatus?: string(name='BusinessStatus'),
+  clipsParam?: string(name='ClipsParam', description='模板对应的素材参数'),
   coverURL?: string(name='CoverURL', description='云剪辑工程封面'),
   description?: string(name='Description', description='云剪辑工程描述'),
   projectId?: string(name='ProjectId', description='云剪辑工程ID'),
+  templateId?: string(name='TemplateId', description='模板Id'),
   timeline?: string(name='Timeline', description='云剪辑工程时间线，Json格式'),
   title?: string(name='Title', description='云剪辑工程标题'),
 }
@@ -2028,10 +2067,11 @@ async function updateSmartJob(request: UpdateSmartJobRequest): UpdateSmartJobRes
 }
 
 model UpdateTemplateRequest {
-  config?: string(name='Config', description='参见Timeline模板Config文档'),
+  config?: string(name='Config', description='参见模板Config文档'),
   coverUrl?: string(name='CoverUrl', description='模板封面'),
   name?: string(name='Name', description='模板名称'),
   previewMedia?: string(name='PreviewMedia', description='预览视频媒资id'),
+  relatedMediaids?: string(name='RelatedMediaids', description='模板相关素材，模板编辑器使用'),
   source?: string(name='Source', description='修改来源，默认OpenAPI'),
   status?: string(name='Status', description='模板状态'),
   templateId?: string(name='TemplateId', description='模板ID'),
