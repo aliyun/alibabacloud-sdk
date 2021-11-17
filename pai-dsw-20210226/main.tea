@@ -26,6 +26,22 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+model Cluster {
+  clusterId?: string(name='ClusterId', description='集群id'),
+  clusterType?: string(name='ClusterType', description='集群类型'),
+  config?: string(name='Config', description='集群配置'),
+  name?: string(name='Name', description='集群名称'),
+  nas?: string(name='Nas', description='nas文件id'),
+  owner?: string(name='Owner', description='集群owner'),
+  privateContainerPath?: string(name='PrivateContainerPath', description='个人nas挂载到容器路径'),
+  privateNasPath?: string(name='PrivateNasPath', description='个人nas挂载路径'),
+  publicContainerPath?: string(name='PublicContainerPath', description='公共nas挂载到容器的路径'),
+  publicNasPath?: string(name='PublicNasPath', description='公共nas挂载路径'),
+  state?: string(name='State', description='集群状态'),
+  vSwitchId?: string(name='VSwitchId', description='集群vSwitch'),
+  vpcId?: string(name='VpcId', description='集群vpc'),
+}
+
 model Config {
   name?: string(name='Name', description='配置名称'),
   value?: string(name='Value', description='配置数值'),
@@ -200,12 +216,35 @@ model Nas {
   status?: string(name='Status', description='Nas盘状态'),
 }
 
+model Region {
+  regionCity?: string(name='RegionCity', description='城市'),
+  regionId?: string(name='RegionId', description='id'),
+  regionName?: string(name='RegionName', description='名称'),
+  regionState?: string(name='RegionState', description='州省'),
+  serviceUrl?: string(name='ServiceUrl', description='服务地址'),
+}
+
+model ResourceInfo {
+  name?: string(name='Name', description='显卡类型'),
+  payType?: long(name='PayType', description='支付类型'),
+  resourceType?: long(name='ResourceType', description='资源类型'),
+}
+
 model SecurityGroup {
   createTime?: string(name='CreateTime', description='创建时间'),
   description?: string(name='Description', description='描述'),
   securityGroupId?: string(name='SecurityGroupId', description='安全组id'),
   securityGroupName?: string(name='SecurityGroupName', description='名称'),
   vpcId?: string(name='VpcId', description='vpc id'),
+}
+
+model Status {
+  accumulativeRunningTimeInMinutes?: long(name='AccumulativeRunningTimeInMinutes', description='累计运行时间（分钟）'),
+  instanceId?: string(name='InstanceId', description='实例ID'),
+  instanceShutdownTimer?: InstanceShutdownTimer(name='InstanceShutdownTimer'),
+  instanceStatus?: string(name='InstanceStatus', description='实例状态'),
+  msg?: string(name='Msg', description='实例消息'),
+  type?: string(name='Type', description='实例类型'),
 }
 
 model UserVpc {
@@ -290,6 +329,7 @@ model CreateInstanceRequest {
     Dataset
   ](name='DatasetList'),
   ecsSpec?: string(name='EcsSpec', description='实例规格'),
+  environments?: map[string]any(name='Environments', description='环境参数'),
   imageId?: string(name='ImageId', description='镜像id'),
   imageUrl?: string(name='ImageUrl', description='镜像地址'),
   instanceName?: string(name='InstanceName', description='实例名称'),
@@ -324,6 +364,9 @@ async function createInstanceWithOptions(request: CreateInstanceRequest, headers
   }
   if (!Util.isUnset(request.ecsSpec)) {
     body.EcsSpec = request.ecsSpec;
+  }
+  if (!Util.isUnset(request.environments)) {
+    body.Environments = request.environments;
   }
   if (!Util.isUnset(request.imageId)) {
     body.ImageId = request.imageId;
@@ -905,6 +948,44 @@ async function getUserResourceStatusWithOptions(headers: map[string]string, runt
   return doROARequest('GetUserResourceStatus', '2021-02-26', 'HTTPS', 'GET', 'AK', `/api/v1/users/resourceStatus`, 'json', req, runtime);
 }
 
+model GetUserSpecialVersionGpuResourceInfoRequest {
+  payType?: long(name='PayType', description='付费类型'),
+}
+
+model GetUserSpecialVersionGpuResourceInfoResponseBody = {
+  gpuAvailableQuota?: long(name='GpuAvailableQuota'),
+  gpuTotalQuota?: long(name='GpuTotalQuota'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  resources?: [
+    ResourceInfo
+  ](name='Resources'),
+}
+
+model GetUserSpecialVersionGpuResourceInfoResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetUserSpecialVersionGpuResourceInfoResponseBody(name='body'),
+}
+
+async function getUserSpecialVersionGpuResourceInfo(request: GetUserSpecialVersionGpuResourceInfoRequest): GetUserSpecialVersionGpuResourceInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getUserSpecialVersionGpuResourceInfoWithOptions(request, headers, runtime);
+}
+
+async function getUserSpecialVersionGpuResourceInfoWithOptions(request: GetUserSpecialVersionGpuResourceInfoRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetUserSpecialVersionGpuResourceInfoResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.payType)) {
+    query.PayType = request.payType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('GetUserSpecialVersionGpuResourceInfo', '2021-02-26', 'HTTPS', 'GET', 'AK', `/api/v1/users/specialVersionGpuResourceInfo`, 'json', req, runtime);
+}
+
 model ListConfigsResponseBody = {
   configs?: [
     Config
@@ -1347,6 +1428,31 @@ async function listNetworkVpcsWithOptions(headers: map[string]string, runtime: U
   return doROARequest('ListNetworkVpcs', '2021-02-26', 'HTTPS', 'GET', 'AK', `/api/v1/network/vpcs`, 'json', req, runtime);
 }
 
+model ListRegionsResponseBody = {
+  regions?: [
+    Region
+  ](name='Regions'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model ListRegionsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListRegionsResponseBody(name='body'),
+}
+
+async function listRegions(): ListRegionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listRegionsWithOptions(headers, runtime);
+}
+
+async function listRegionsWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): ListRegionsResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('ListRegions', '2021-02-26', 'HTTPS', 'GET', 'AK', `/api/v1/configs/regions`, 'json', req, runtime);
+}
+
 model ListRepositoriesResponseBody = {
   repositories?: [
     ImageRepository
@@ -1371,6 +1477,64 @@ async function listRepositoriesWithOptions(Namespace: string, headers: map[strin
     headers = headers,
   };
   return doROARequest('ListRepositories', '2021-02-26', 'HTTPS', 'GET', 'AK', `/api/v1/imageRegistry/namespaces/${Namespace}/repositories`, 'json', req, runtime);
+}
+
+model ListUserClustersResponseBody = {
+  clusters?: [
+    Cluster
+  ](name='Clusters'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model ListUserClustersResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListUserClustersResponseBody(name='body'),
+}
+
+async function listUserClusters(): ListUserClustersResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listUserClustersWithOptions(headers, runtime);
+}
+
+async function listUserClustersWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): ListUserClustersResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  return doROARequest('ListUserClusters', '2021-02-26', 'HTTPS', 'GET', 'AK', `/api/v1/users/clusters`, 'json', req, runtime);
+}
+
+model ListUserWorkNodesRequest {
+  clusterId?: string(name='ClusterId', description='集群id'),
+}
+
+model ListUserWorkNodesResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model ListUserWorkNodesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListUserWorkNodesResponseBody(name='body'),
+}
+
+async function listUserWorkNodes(request: ListUserWorkNodesRequest): ListUserWorkNodesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listUserWorkNodesWithOptions(request, headers, runtime);
+}
+
+async function listUserWorkNodesWithOptions(request: ListUserWorkNodesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListUserWorkNodesResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.clusterId)) {
+    query.ClusterId = request.clusterId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  return doROARequest('ListUserWorkNodes', '2021-02-26', 'HTTPS', 'GET', 'AK', `/api/v1/users/workerNodes`, 'json', req, runtime);
 }
 
 model StartInstanceResponseBody = {
