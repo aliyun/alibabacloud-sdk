@@ -330,6 +330,7 @@ model CreateClusterRequest {
   keepInstanceName?: boolean(name='keep_instance_name', description='使用已有节点创建集群时，是否保留实例名称。'),
   keyPair?: string(name='key_pair', description='密钥对名称，和login_password二选一。'),
   kubernetesVersion?: string(name='kubernetes_version', description='集群版本'),
+  loadBalancerSpec?: string(name='load_balancer_spec', description='负载均衡规格'),
   loggingType?: string(name='logging_type', description='ASK 集群开启日志服务'),
   loginPassword?: string(name='login_password', description='SSH登录密码。密码规则为8~30 个字符，且至少同时包含三项（大小写字母、数字和特殊符号），和key_pair二选一。'),
   masterAutoRenew?: boolean(name='master_auto_renew', description='集群Master节点是否自动续费'),
@@ -493,6 +494,9 @@ async function createClusterWithOptions(request: CreateClusterRequest, headers: 
   }
   if (!Util.isUnset(request.kubernetesVersion)) {
     body.kubernetes_version = request.kubernetesVersion;
+  }
+  if (!Util.isUnset(request.loadBalancerSpec)) {
+    body.load_balancer_spec = request.loadBalancerSpec;
   }
   if (!Util.isUnset(request.loggingType)) {
     body.logging_type = request.loggingType;
@@ -681,6 +685,14 @@ model CreateClusterNodePoolRequest {
     type?: string(name='type', description='扩容节点类型。'),
   }(name='auto_scaling', description='自动伸缩节点池配置。'),
   count?: long(name='count', description='节点数量。'),
+  interconnectConfig?: {
+    bandwidth?: long(name='bandwidth', description='边缘增强型节点池的网络带宽，单位M。'),
+    ccnId?: string(name='ccn_id', description='边缘增强型节点池绑定的云连接网实例ID(CCNID)'),
+    ccnRegionId?: string(name='ccn_region_id', description='边缘增强型节点池绑定的云连接网实例所属的区域'),
+    cenId?: string(name='cen_id', description='边缘增强型节点池绑定的云企业网实例ID(CENID)'),
+    improvedPeriod?: string(name='improved_period', description='边缘增强型节点池的购买时长，单位月'),
+  }(name='interconnect_config', description='边缘节点池网络相关的配置。该值只对edge类型的节点池有意义'),
+  interconnectMode?: string(name='interconnect_mode', description='边缘节点池的网络类型。basic：基础型；improved：增强型。该值只对edge类型的节点池有意义。'),
   kubernetesConfig?: {
     cmsEnabled?: boolean(name='cms_enabled', description='是否开启云监控。'),
     cpuPolicy?: string(name='cpu_policy', description='CPU管理策略。'),
@@ -704,9 +716,11 @@ model CreateClusterNodePoolRequest {
       surgePercentage?: long(name='surge_percentage', description='额外节点比例。和surge二选一。'),
     }(name='upgrade_config', description='自动升级配置。'),
   }(name='management', description='托管节点池配置。'),
+  maxNodes?: long(name='max_nodes', description='边缘节点池允许容纳的最大节点数量. 节点池内可以容纳的最大节点数量，该参数大于等于0。0表示无额外限制(仅受限于集群整体可以容纳的节点数，节点池本身无额外限制)。边缘节点池该参数值往往大于0；ess类型节点池和默认的edge类型节点池该参数值为0'),
   nodepoolInfo?: {
     name?: string(name='name', description='节点池名称'),
     resourceGroupId?: string(name='resource_group_id', description='资源组ID。'),
+    type?: string(name='type', description='节点池类型，对于边缘节点池来说，类型为"edge"'),
   }(name='nodepool_info', description='节点池配置'),
   scalingGroup?: {
     autoRenew?: boolean(name='auto_renew', description='节点是否开启自动续费'),
@@ -783,11 +797,20 @@ async function createClusterNodePoolWithOptions(ClusterId: string, request: Crea
   if (!Util.isUnset(request.count)) {
     body.count = request.count;
   }
+  if (!Util.isUnset(request.interconnectConfig)) {
+    body.interconnect_config = request.interconnectConfig;
+  }
+  if (!Util.isUnset(request.interconnectMode)) {
+    body.interconnect_mode = request.interconnectMode;
+  }
   if (!Util.isUnset(request.kubernetesConfig)) {
     body.kubernetes_config = request.kubernetesConfig;
   }
   if (!Util.isUnset(request.management)) {
     body.management = request.management;
+  }
+  if (!Util.isUnset(request.maxNodes)) {
+    body.max_nodes = request.maxNodes;
   }
   if (!Util.isUnset(request.nodepoolInfo)) {
     body.nodepool_info = request.nodepoolInfo;
@@ -1599,6 +1622,14 @@ model DescribeClusterNodePoolDetailResponseBody = {
     minInstances?: long(name='min_instances', description='最小实例数。'),
     type?: string(name='type', description='扩容组类型'),
   }(name='auto_scaling', description='节点池自动伸缩信息。'),
+  interconnectConfig?: {
+    bandwidth?: long(name='bandwidth', description='边缘增强型节点池的网络带宽，单位M'),
+    ccnId?: string(name='ccn_id', description='边缘增强型节点池绑定的云连接网实例ID(CCNID)'),
+    ccnRegionId?: string(name='ccn_region_id', description='边缘增强型节点池绑定的云连接网实例所属的区域'),
+    cenId?: string(name='cen_id', description='边缘增强型节点池绑定的云企业网实例ID(CENID)'),
+    improvedPeriod?: string(name='improved_period', description='边缘增强型节点池的购买时长，单位月'),
+  }(name='interconnect_config', description='边缘节点池网络相关的配置。该值只对edge类型的节点池有意义'),
+  interconnectMode?: string(name='interconnect_mode', description='边缘节点池的网络类型。basic：基础型；improved：增强型。该值只对edge类型的节点池有意义'),
   kubernetesConfig?: {
     cmsEnabled?: boolean(name='cms_enabled', description='是否开启云监控'),
     cpuPolicy?: string(name='cpu_policy', description='CPU管理策略'),
@@ -1622,6 +1653,7 @@ model DescribeClusterNodePoolDetailResponseBody = {
       surgePercentage?: long(name='surge_percentage', description='额外节点比例， 和surge 二选一。'),
     }(name='upgrade_config', description='自动升级配置。'),
   }(name='management', description='托管版节点池配置。'),
+  maxNodes?: long(name='max_nodes', description='边缘节点池允许容纳的最大节点数量. 节点池内可以容纳的最大节点数量，该参数大于等于0。0表示无额外限制(仅受限于集群整体可以容纳的节点数，节点池本身无额外限制)。边缘节点池该参数值往往大于0；ess类型节点池和默认的edge类型节点池该参数值为0'),
   nodepoolInfo?: {
     created?: string(name='created', description='节点池创建时间。'),
     isDefault?: boolean(name='is_default', description='是否为默认节点池。'),
@@ -1722,6 +1754,14 @@ model DescribeClusterNodePoolsResponseBody = {
         minInstances?: long(name='min_instances', description='最小节点数	'),
         type?: string(name='type', description='扩容组类型'),
       }(name='auto_scaling', description='自动伸缩配置详情'),
+      interconnectConfig?: {
+        bandwidth?: long(name='bandwidth', description='边缘增强型节点池的网络带宽，单位M'),
+        ccnId?: string(name='ccn_id', description='边缘增强型节点池绑定的云连接网实例ID(CCNID)'),
+        ccnRegionId?: string(name='ccn_region_id', description='边缘增强型节点池绑定的云连接网实例所属的区域'),
+        cenId?: string(name='cen_id', description='边缘增强型节点池绑定的云企业网实例ID(CENID)'),
+        improvedPeriod?: string(name='improved_period', description='边缘增强型节点池的购买时长，单位月'),
+      }(name='interconnect_config', description='边缘节点池网络相关的配置。该值只对edge类型的节点池有意义'),
+      interconnectMode?: string(name='interconnect_mode', description='边缘节点池的网络类型。basic：基础型；improved：增强型。该值只对edge类型的节点池有意义'),
       kubernetesConfig?: {
         cmsEnabled?: boolean(name='cms_enabled', description='是否开启云监控	'),
         cpuPolicy?: string(name='cpu_policy', description='CPU管理策略	'),
@@ -1745,6 +1785,7 @@ model DescribeClusterNodePoolsResponseBody = {
           surgePercentage?: long(name='surge_percentage', description='额外节点比例， 和surge 二选一'),
         }(name='upgrade_config', description='是否启用自动修复'),
       }(name='management', description='托管节点池配置'),
+      maxNodes?: long(name='max_nodes', description='边缘节点池允许容纳的最大节点数量. 节点池内可以容纳的最大节点数量，该参数大于等于0。0表示无额外限制(仅受限于集群整体可以容纳的节点数，节点池本身无额外限制)。边缘节点池该参数值往往大于0；ess类型节点池和默认的edge类型节点池该参数值为0'),
       nodepoolInfo?: {
         created?: string(name='created', description='节点池创建时间'),
         isDefault?: boolean(name='is_default', description='是否为默认节点池'),
