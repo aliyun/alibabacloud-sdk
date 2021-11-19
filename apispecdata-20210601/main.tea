@@ -1,0 +1,312 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('apispecdata', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+model RequestContext {
+  appName?: string(name='AppName', description='应用名称'),
+  externalUserId?: string(name='ExternalUserId', description='外部用户ID'),
+  externalUserOrgnizationId?: string(name='ExternalUserOrgnizationId', description='代理账号唯一ID，集团内部为bucId值'),
+  sign?: string(name='Sign', description='签名'),
+  tenantId?: string(name='TenantId', description='租户uuid'),
+  userType?: string(name='UserType', description='代理账号用户类型，集团内部为buc'),
+}
+
+model User {
+  externalEmployeeId?: string(name='ExternalEmployeeId', description='第三方用户工号'),
+  externalOrganiazationId?: string(name='ExternalOrganiazationId', description='用户所属组织ID，集团内部用户默认为0'),
+  externalUserId?: string(name='ExternalUserId', description='第三方用户ID，集团内部用户对应bucId'),
+  name?: string(name='Name', description='用户花名'),
+  userType?: string(name='UserType', description='用户类型，集团内部用户默认为buc'),
+}
+
+model GetRuntimeApiRequest {
+  apiName?: string(name='ApiName', description='API名称'),
+  deployEnvironment?: string(name='DeployEnvironment'),
+  env?: string(name='Env', description='环境'),
+  fillStruct?: boolean(name='FillStruct', description='是否填充结构体'),
+  maxCircularReferences?: long(name='MaxCircularReferences', description='最大循环引用次数'),
+  popCode?: string(name='PopCode', description='pop产品'),
+  popVersion?: string(name='PopVersion', description='pop版本'),
+  requestContext?: RequestContext(name='RequestContext'),
+  runtimeType?: string(name='RuntimeType', description='网关类型'),
+}
+
+model GetRuntimeApiResponseBody = {
+  data?: {
+    apiId?: long(name='ApiId', description='API ID'),
+    hasReleasedOnline?: boolean(name='HasReleasedOnline', description='API是否发布过线上'),
+    masterBranchId?: long(name='MasterBranchId', description='主干变更ID'),
+    name?: string(name='Name', description='API名称'),
+    schema?: string(name='Schema', description='API元数据'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model GetRuntimeApiResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetRuntimeApiResponseBody(name='body'),
+}
+
+async function getRuntimeApiWithOptions(request: GetRuntimeApiRequest, runtime: Util.RuntimeOptions): GetRuntimeApiResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = query,
+  };
+  return doRPCRequest('GetRuntimeApi', '2021-06-01', 'HTTPS', 'GET', 'AK', 'json', req, runtime);
+}
+
+async function getRuntimeApi(request: GetRuntimeApiRequest): GetRuntimeApiResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getRuntimeApiWithOptions(request, runtime);
+}
+
+model ListApiNamesRequest {
+  env?: string(name='Env', description='环境'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  popCode?: string(name='PopCode', description='pop产品'),
+  popVersion?: string(name='PopVersion', description='pop版本'),
+  requestContext?: RequestContext(name='RequestContext'),
+}
+
+model ListApiNamesResponseBody = {
+  apiNames?: [ string ](name='ApiNames', description='数组，返回示例目录。'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  totalCount?: long(name='TotalCount'),
+}
+
+model ListApiNamesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListApiNamesResponseBody(name='body'),
+}
+
+async function listApiNamesWithOptions(request: ListApiNamesRequest, runtime: Util.RuntimeOptions): ListApiNamesResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = query,
+  };
+  return doRPCRequest('ListApiNames', '2021-06-01', 'HTTPS', 'GET', 'AK', 'json', req, runtime);
+}
+
+async function listApiNames(request: ListApiNamesRequest): ListApiNamesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listApiNamesWithOptions(request, runtime);
+}
+
+model ListChangeRecordsRequest {
+  env?: string(name='Env', description='环境'),
+  fromDate?: string(name='FromDate', description='开始时间'),
+  nameSpace?: string(name='NameSpace', description='API命名空间'),
+  names?: [ string ](name='Names', description='API名称集合'),
+  pageNumber?: int32(name='PageNumber', description='当前页数'),
+  pageSize?: int32(name='PageSize', description='分页大小'),
+  requestContext?: RequestContext(name='RequestContext'),
+  runtimeType?: string(name='RuntimeType', description='网关类型'),
+  toDate?: string(name='ToDate', description='结束时间'),
+}
+
+model ListChangeRecordsShrinkRequest {
+  env?: string(name='Env', description='环境'),
+  fromDate?: string(name='FromDate', description='开始时间'),
+  nameSpace?: string(name='NameSpace', description='API命名空间'),
+  namesShrink?: string(name='Names', description='API名称集合'),
+  pageNumber?: int32(name='PageNumber', description='当前页数'),
+  pageSize?: int32(name='PageSize', description='分页大小'),
+  requestContext?: RequestContext(name='RequestContext'),
+  runtimeType?: string(name='RuntimeType', description='网关类型'),
+  toDate?: string(name='ToDate', description='结束时间'),
+}
+
+model ListChangeRecordsResponseBody = {
+  changeDetails?: [ 
+    {
+      diffs?: [ 
+        {
+          branchId?: long(name='BranchId', description='该修改所属的变更ID'),
+          jsonPathes?: [ 
+            {
+              op?: string(name='Op', description='操作类型'),
+              path?: string(name='Path', description='字段路径'),
+              value?: any(name='Value', description='修改值'),
+            }
+          ](name='JsonPathes', description='Patch结构'),
+          originalBranchId?: long(name='OriginalBranchId', description='上一个分支id'),
+          originalRevisionId?: long(name='OriginalRevisionId', description='上一个元数据的ID'),
+          revisionId?: long(name='RevisionId', description='元数据的ID'),
+        }
+      ](name='Diffs', description='比较不同'),
+      name?: string(name='Name', description='api名称'),
+      records?: [ 
+        {
+          branchId?: string(name='BranchId', description='元数据的变更ID'),
+          date?: string(name='Date', description='发布时间'),
+          description?: string(name='Description', description='变更描述'),
+          meta?: string(name='Meta', description='发布的API定义元数据'),
+          publisher?: {
+            id?: string(name='Id', description='员工BUC ID'),
+            name?: string(name='Name', description='员工姓名s'),
+            nickName?: string(name='NickName', description='员工花名'),
+          }(name='Publisher', description='发布人'),
+          type?: string(name='Type', description='是否修改或创建'),
+        }
+      ](name='Records', description='查询记录'),
+    }
+  ](name='ChangeDetails', description='变成数据'),
+  pageNumber?: long(name='PageNumber', description='当前页数'),
+  pageSize?: long(name='PageSize', description='分页大小'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  totalCount?: long(name='TotalCount', description='总数据'),
+}
+
+model ListChangeRecordsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListChangeRecordsResponseBody(name='body'),
+}
+
+async function listChangeRecordsWithOptions(tmpReq: ListChangeRecordsRequest, runtime: Util.RuntimeOptions): ListChangeRecordsResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListChangeRecordsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.names)) {
+    request.namesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.names, 'Names', 'json');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = query,
+  };
+  return doRPCRequest('ListChangeRecords', '2021-06-01', 'HTTPS', 'GET', 'AK', 'json', req, runtime);
+}
+
+async function listChangeRecords(request: ListChangeRecordsRequest): ListChangeRecordsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listChangeRecordsWithOptions(request, runtime);
+}
+
+model ListPopProductsRequest {
+  environment?: string(name='Environment', description='环境'),
+  pageNumber?: int32(name='PageNumber', description='page number'),
+  pageSize?: int32(name='PageSize', description='page size'),
+  requestContext?: RequestContext(name='RequestContext'),
+}
+
+model ListPopProductsResponseBody = {
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  popProducts?: [ 
+    {
+      popCode?: string(name='PopCode'),
+    }
+  ](name='PopProducts'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  totalCount?: long(name='TotalCount'),
+}
+
+model ListPopProductsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListPopProductsResponseBody(name='body'),
+}
+
+async function listPopProductsWithOptions(request: ListPopProductsRequest, runtime: Util.RuntimeOptions): ListPopProductsResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = query,
+  };
+  return doRPCRequest('ListPopProducts', '2021-06-01', 'HTTPS', 'GET', 'AK', 'json', req, runtime);
+}
+
+async function listPopProducts(request: ListPopProductsRequest): ListPopProductsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listPopProductsWithOptions(request, runtime);
+}
+
+model ListPopVersionsRequest {
+  environment?: string(name='Environment', description='环境'),
+  pageNumber?: int32(name='PageNumber', description='page nunber'),
+  pageSize?: int32(name='PageSize', description='page size'),
+  popProduct?: string(name='PopProduct', description='POP产品名称'),
+  requestContext?: RequestContext(name='RequestContext'),
+}
+
+model ListPopVersionsResponseBody = {
+  pageNumber?: int32(name='PageNumber', description='page number'),
+  pageSize?: int32(name='PageSize', description='page size'),
+  popVersions?: [ 
+    {
+      apiStyle?: string(name='ApiStyle', description='API风格'),
+      codeField?: string(name='CodeField', description='后端错误码名称'),
+      defaultErrorCode?: {
+        errorCode?: string(name='ErrorCode', description='错误码'),
+        errorMessage?: string(name='ErrorMessage', description='错误消息'),
+        httpStatusCode?: int32(name='HttpStatusCode', description='HTTP状态码'),
+      }(name='DefaultErrorCode', description='默认错误码'),
+      dynamicCodeField?: string(name='DynamicCodeField', description='后端动态错误码名称'),
+      dynamicMessageField?: string(name='DynamicMessageField', description='后端动态错误信息'),
+      errorCodes?: [ 
+        {
+          code?: string(name='Code', description='后端错误码'),
+          errorCode?: string(name='ErrorCode', description='错误码'),
+          errorMessage?: string(name='ErrorMessage', description='错误消息'),
+          httpStatusCode?: int32(name='HttpStatusCode', description='HTTP状态码'),
+        }
+      ](name='ErrorCodes', description='错误码列表'),
+      errorExpression?: string(name='ErrorExpression', description='错误判断条件'),
+      errorMessageField?: string(name='ErrorMessageField', description='后端错误信息名称'),
+      httpStatusCodeField?: string(name='HttpStatusCodeField', description='后端httpcode名称'),
+      isolationType?: string(name='IsolationType', description='安全隔离类型'),
+      modifiedTime?: string(name='ModifiedTime', description='最后修改时间'),
+      popProduct?: string(name='PopProduct', description='POP产品名称'),
+      popVersion?: string(name='PopVersion', description='POP版本名称'),
+    }
+  ](name='PopVersions', description='数组，返回示例目录。'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  totalCount?: int32(name='TotalCount', description='总记录数。'),
+}
+
+model ListPopVersionsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListPopVersionsResponseBody(name='body'),
+}
+
+async function listPopVersionsWithOptions(request: ListPopVersionsRequest, runtime: Util.RuntimeOptions): ListPopVersionsResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = query,
+  };
+  return doRPCRequest('ListPopVersions', '2021-06-01', 'HTTPS', 'GET', 'AK', 'json', req, runtime);
+}
+
+async function listPopVersions(request: ListPopVersionsRequest): ListPopVersionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listPopVersionsWithOptions(request, runtime);
+}
+
