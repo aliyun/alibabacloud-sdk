@@ -31,65 +31,48 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-model RecognizeDrivingLicenseRequest {
+model DetectCardScreenshotRequest {
   imageURL?: string(name='ImageURL'),
-  side?: string(name='Side'),
 }
 
-model RecognizeDrivingLicenseAdvanceRequest {
+model DetectCardScreenshotAdvanceRequest {
   imageURLObject: readable(name='ImageURLObject'),
-  side?: string(name='Side'),
 }
 
-model RecognizeDrivingLicenseResponseBody = {
-  requestId?: string(name='RequestId'),
+model DetectCardScreenshotResponseBody = {
   data?: {
-    backResult?: {
-      overallDimension?: string(name='OverallDimension'),
-      inspectionRecord?: string(name='InspectionRecord'),
-      unladenMass?: string(name='UnladenMass'),
-      fileNumber?: string(name='FileNumber'),
-      tractionMass?: string(name='TractionMass'),
-      grossMass?: string(name='GrossMass'),
-      plateNumber?: string(name='PlateNumber'),
-      approvedPassengerCapacity?: string(name='ApprovedPassengerCapacity'),
-      energyType?: string(name='EnergyType'),
-      approvedLoad?: string(name='ApprovedLoad'),
-    }(name='BackResult'),
-    faceResult?: {
-      issueDate?: string(name='IssueDate'),
-      model?: string(name='Model'),
-      vehicleType?: string(name='VehicleType'),
-      owner?: string(name='Owner'),
-      engineNumber?: string(name='EngineNumber'),
-      plateNumber?: string(name='PlateNumber'),
-      address?: string(name='Address'),
-      useCharacter?: string(name='UseCharacter'),
-      vin?: string(name='Vin'),
-      registerDate?: string(name='RegisterDate'),
-    }(name='FaceResult'),
+    isBlur?: boolean(name='IsBlur'),
+    isCard?: boolean(name='IsCard'),
+    spoofResult?: {
+      isSpoof?: boolean(name='IsSpoof'),
+      resultMap?: {
+        screenScore?: float(name='ScreenScore'),
+        screenThreshold?: float(name='ScreenThreshold'),
+      }(name='ResultMap'),
+    }(name='SpoofResult'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
-model RecognizeDrivingLicenseResponse = {
+model DetectCardScreenshotResponse = {
   headers: map[string]string(name='headers'),
-  body: RecognizeDrivingLicenseResponseBody(name='body'),
+  body: DetectCardScreenshotResponseBody(name='body'),
 }
 
-async function recognizeDrivingLicenseWithOptions(request: RecognizeDrivingLicenseRequest, runtime: Util.RuntimeOptions): RecognizeDrivingLicenseResponse {
+async function detectCardScreenshotWithOptions(request: DetectCardScreenshotRequest, runtime: Util.RuntimeOptions): DetectCardScreenshotResponse {
   Util.validateModel(request);
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('RecognizeDrivingLicense', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  return doRPCRequest('DetectCardScreenshot', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function recognizeDrivingLicense(request: RecognizeDrivingLicenseRequest): RecognizeDrivingLicenseResponse {
+async function detectCardScreenshot(request: DetectCardScreenshotRequest): DetectCardScreenshotResponse {
   var runtime = new Util.RuntimeOptions{};
-  return recognizeDrivingLicenseWithOptions(request, runtime);
+  return detectCardScreenshotWithOptions(request, runtime);
 }
 
-async function recognizeDrivingLicenseAdvance(request: RecognizeDrivingLicenseAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeDrivingLicenseResponse {
+async function detectCardScreenshotAdvance(request: DetectCardScreenshotAdvanceRequest, runtime: Util.RuntimeOptions): DetectCardScreenshotResponse {
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
@@ -130,8 +113,8 @@ async function recognizeDrivingLicenseAdvance(request: RecognizeDrivingLicenseAd
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeDrivingLicenseReq = new RecognizeDrivingLicenseRequest{};
-  OpenApiUtil.convert(request, recognizeDrivingLicenseReq);
+  var detectCardScreenshotReq = new DetectCardScreenshotRequest{};
+  OpenApiUtil.convert(request, detectCardScreenshotReq);
 
   if(!Util.isUnset(request.imageURLObject)){
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
@@ -157,221 +140,125 @@ async function recognizeDrivingLicenseAdvance(request: RecognizeDrivingLicenseAd
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeDrivingLicenseReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    detectCardScreenshotReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
   }
-  var recognizeDrivingLicenseResp = recognizeDrivingLicenseWithOptions(recognizeDrivingLicenseReq, runtime);
-  return recognizeDrivingLicenseResp;
+  var detectCardScreenshotResp = detectCardScreenshotWithOptions(detectCardScreenshotReq, runtime);
+  return detectCardScreenshotResp;
 }
 
-model RecognizeTableRequest {
-  imageURL?: string(name='ImageURL'),
-  outputFormat?: string(name='OutputFormat'),
-  useFinanceModel?: boolean(name='UseFinanceModel'),
-  assureDirection?: boolean(name='AssureDirection'),
-  hasLine?: boolean(name='HasLine'),
-  skipDetection?: boolean(name='SkipDetection'),
+model GetAsyncJobResultRequest {
+  jobId?: string(name='JobId'),
 }
 
-model RecognizeTableAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-  outputFormat?: string(name='OutputFormat'),
-  useFinanceModel?: boolean(name='UseFinanceModel'),
-  assureDirection?: boolean(name='AssureDirection'),
-  hasLine?: boolean(name='HasLine'),
-  skipDetection?: boolean(name='SkipDetection'),
-}
-
-model RecognizeTableResponseBody = {
-  requestId?: string(name='RequestId'),
+model GetAsyncJobResultResponseBody = {
   data?: {
-    fileContent?: string(name='FileContent'),
-    tables?: [ 
+    errorCode?: string(name='ErrorCode'),
+    errorMessage?: string(name='ErrorMessage'),
+    jobId?: string(name='JobId'),
+    result?: string(name='Result'),
+    status?: string(name='Status'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model GetAsyncJobResultResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetAsyncJobResultResponseBody(name='body'),
+}
+
+async function getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('GetAsyncJobResult', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function getAsyncJobResult(request: GetAsyncJobResultRequest): GetAsyncJobResultResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAsyncJobResultWithOptions(request, runtime);
+}
+
+model RecognizeAccountPageRequest {
+  imageURL?: string(name='ImageURL'),
+}
+
+model RecognizeAccountPageAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model RecognizeAccountPageResponseBody = {
+  data?: {
+    angle?: float(name='Angle'),
+    birthDate?: string(name='BirthDate'),
+    birthPlace?: string(name='BirthPlace'),
+    gender?: string(name='Gender'),
+    IDNumber?: string(name='IDNumber'),
+    invalidStampAreas?: [ 
       {
-        head?: [ string ](name='Head'),
-        tail?: [ string ](name='Tail'),
-        tableRows?: [ 
-          {
-            tableColumns?: [ 
-              {
-                endRow?: int32(name='EndRow'),
-                endColumn?: int32(name='EndColumn'),
-                width?: int32(name='Width'),
-                height?: int32(name='Height'),
-                texts?: [ string ](name='Texts'),
-                startRow?: int32(name='StartRow'),
-                startColumn?: int32(name='StartColumn'),
-              }
-            ](name='TableColumns'),
-          }
-        ](name='TableRows'),
+        height?: int32(name='Height'),
+        left?: int32(name='Left'),
+        top?: int32(name='Top'),
+        width?: int32(name='Width'),
       }
-    ](name='Tables'),
+    ](name='InvalidStampAreas'),
+    name?: string(name='Name'),
+    nationality?: string(name='Nationality'),
+    nativePlace?: string(name='NativePlace'),
+    otherStampAreas?: [ 
+      {
+        height?: int32(name='Height'),
+        left?: int32(name='Left'),
+        top?: int32(name='Top'),
+        width?: int32(name='Width'),
+      }
+    ](name='OtherStampAreas'),
+    registerStampAreas?: [ 
+      {
+        height?: int32(name='Height'),
+        left?: int32(name='Left'),
+        top?: int32(name='Top'),
+        width?: int32(name='Width'),
+      }
+    ](name='RegisterStampAreas'),
+    relation?: string(name='Relation'),
+    titleArea?: {
+      height?: int32(name='Height'),
+      left?: int32(name='Left'),
+      top?: int32(name='Top'),
+      width?: int32(name='Width'),
+    }(name='TitleArea'),
+    undertakeStampAreas?: [ 
+      {
+        height?: int32(name='Height'),
+        left?: int32(name='Left'),
+        top?: int32(name='Top'),
+        width?: int32(name='Width'),
+      }
+    ](name='UndertakeStampAreas'),
   }(name='Data'),
-}
-
-model RecognizeTableResponse = {
-  headers: map[string]string(name='headers'),
-  body: RecognizeTableResponseBody(name='body'),
-}
-
-async function recognizeTableWithOptions(request: RecognizeTableRequest, runtime: Util.RuntimeOptions): RecognizeTableResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RecognizeTable', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function recognizeTable(request: RecognizeTableRequest): RecognizeTableResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeTableWithOptions(request, runtime);
-}
-
-async function recognizeTableAdvance(request: RecognizeTableAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeTableResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
-  var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.isUnset(openPlatformEndpoint)) {
-    openPlatformEndpoint ='openplatform.aliyuncs.com';
-  }
-  if(Util.isUnset(credentialType)) {
-    credentialType ='access_key';
-  }
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    securityToken = securityToken,
-    type = credentialType,
-    endpoint = openPlatformEndpoint,
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ocr',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeTableReq = new RecognizeTableRequest{};
-  OpenApiUtil.convert(request, recognizeTableReq);
-
-  if(!Util.isUnset(request.imageURLObject)){
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
-      content = request.imageURLObject,
-      contentType = '',
-    };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeTableReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  }
-  var recognizeTableResp = recognizeTableWithOptions(recognizeTableReq, runtime);
-  return recognizeTableResp;
-}
-
-model RecognizeIdentityCardRequest {
-  imageURL?: string(name='ImageURL'),
-  side?: string(name='Side'),
-}
-
-model RecognizeIdentityCardAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-  side?: string(name='Side'),
-}
-
-model RecognizeIdentityCardResponseBody = {
   requestId?: string(name='RequestId'),
-  data?: {
-    backResult?: {
-      endDate?: string(name='EndDate'),
-      issue?: string(name='Issue'),
-      startDate?: string(name='StartDate'),
-    }(name='BackResult'),
-    frontResult?: {
-      faceRectangle?: {
-        size?: {
-          width?: float(name='Width'),
-          height?: float(name='Height'),
-        }(name='Size'),
-        angle?: float(name='Angle'),
-        center?: {
-          y?: float(name='Y'),
-          x?: float(name='X'),
-        }(name='Center'),
-      }(name='FaceRectangle'),
-      birthDate?: string(name='BirthDate'),
-      gender?: string(name='Gender'),
-      address?: string(name='Address'),
-      faceRectVertices?: [ 
-        {
-          y?: float(name='Y'),
-          x?: float(name='X'),
-        }
-      ](name='FaceRectVertices'),
-      cardAreas?: [ 
-        {
-          y?: float(name='Y'),
-          x?: float(name='X'),
-        }
-      ](name='CardAreas'),
-      nationality?: string(name='Nationality'),
-      name?: string(name='Name'),
-      IDNumber?: string(name='IDNumber'),
-    }(name='FrontResult'),
-  }(name='Data'),
 }
 
-model RecognizeIdentityCardResponse = {
+model RecognizeAccountPageResponse = {
   headers: map[string]string(name='headers'),
-  body: RecognizeIdentityCardResponseBody(name='body'),
+  body: RecognizeAccountPageResponseBody(name='body'),
 }
 
-async function recognizeIdentityCardWithOptions(request: RecognizeIdentityCardRequest, runtime: Util.RuntimeOptions): RecognizeIdentityCardResponse {
+async function recognizeAccountPageWithOptions(request: RecognizeAccountPageRequest, runtime: Util.RuntimeOptions): RecognizeAccountPageResponse {
   Util.validateModel(request);
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('RecognizeIdentityCard', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  return doRPCRequest('RecognizeAccountPage', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function recognizeIdentityCard(request: RecognizeIdentityCardRequest): RecognizeIdentityCardResponse {
+async function recognizeAccountPage(request: RecognizeAccountPageRequest): RecognizeAccountPageResponse {
   var runtime = new Util.RuntimeOptions{};
-  return recognizeIdentityCardWithOptions(request, runtime);
+  return recognizeAccountPageWithOptions(request, runtime);
 }
 
-async function recognizeIdentityCardAdvance(request: RecognizeIdentityCardAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeIdentityCardResponse {
+async function recognizeAccountPageAdvance(request: RecognizeAccountPageAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeAccountPageResponse {
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
@@ -412,8 +299,8 @@ async function recognizeIdentityCardAdvance(request: RecognizeIdentityCardAdvanc
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeIdentityCardReq = new RecognizeIdentityCardRequest{};
-  OpenApiUtil.convert(request, recognizeIdentityCardReq);
+  var recognizeAccountPageReq = new RecognizeAccountPageRequest{};
+  OpenApiUtil.convert(request, recognizeAccountPageReq);
 
   if(!Util.isUnset(request.imageURLObject)){
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
@@ -439,46 +326,48 @@ async function recognizeIdentityCardAdvance(request: RecognizeIdentityCardAdvanc
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeIdentityCardReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    recognizeAccountPageReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
   }
-  var recognizeIdentityCardResp = recognizeIdentityCardWithOptions(recognizeIdentityCardReq, runtime);
-  return recognizeIdentityCardResp;
+  var recognizeAccountPageResp = recognizeAccountPageWithOptions(recognizeAccountPageReq, runtime);
+  return recognizeAccountPageResp;
 }
 
-model RecognizeVerificationcodeRequest {
+model RecognizeBankCardRequest {
   imageURL?: string(name='ImageURL'),
 }
 
-model RecognizeVerificationcodeAdvanceRequest {
+model RecognizeBankCardAdvanceRequest {
   imageURLObject: readable(name='ImageURLObject'),
 }
 
-model RecognizeVerificationcodeResponseBody = {
-  requestId?: string(name='RequestId'),
+model RecognizeBankCardResponseBody = {
   data?: {
-    content?: string(name='Content'),
+    bankName?: string(name='BankName'),
+    cardNumber?: string(name='CardNumber'),
+    validDate?: string(name='ValidDate'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
-model RecognizeVerificationcodeResponse = {
+model RecognizeBankCardResponse = {
   headers: map[string]string(name='headers'),
-  body: RecognizeVerificationcodeResponseBody(name='body'),
+  body: RecognizeBankCardResponseBody(name='body'),
 }
 
-async function recognizeVerificationcodeWithOptions(request: RecognizeVerificationcodeRequest, runtime: Util.RuntimeOptions): RecognizeVerificationcodeResponse {
+async function recognizeBankCardWithOptions(request: RecognizeBankCardRequest, runtime: Util.RuntimeOptions): RecognizeBankCardResponse {
   Util.validateModel(request);
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('RecognizeVerificationcode', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  return doRPCRequest('RecognizeBankCard', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function recognizeVerificationcode(request: RecognizeVerificationcodeRequest): RecognizeVerificationcodeResponse {
+async function recognizeBankCard(request: RecognizeBankCardRequest): RecognizeBankCardResponse {
   var runtime = new Util.RuntimeOptions{};
-  return recognizeVerificationcodeWithOptions(request, runtime);
+  return recognizeBankCardWithOptions(request, runtime);
 }
 
-async function recognizeVerificationcodeAdvance(request: RecognizeVerificationcodeAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeVerificationcodeResponse {
+async function recognizeBankCardAdvance(request: RecognizeBankCardAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeBankCardResponse {
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
@@ -519,8 +408,8 @@ async function recognizeVerificationcodeAdvance(request: RecognizeVerificationco
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeVerificationcodeReq = new RecognizeVerificationcodeRequest{};
-  OpenApiUtil.convert(request, recognizeVerificationcodeReq);
+  var recognizeBankCardReq = new RecognizeBankCardRequest{};
+  OpenApiUtil.convert(request, recognizeBankCardReq);
 
   if(!Util.isUnset(request.imageURLObject)){
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
@@ -546,10 +435,264 @@ async function recognizeVerificationcodeAdvance(request: RecognizeVerificationco
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeVerificationcodeReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    recognizeBankCardReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
   }
-  var recognizeVerificationcodeResp = recognizeVerificationcodeWithOptions(recognizeVerificationcodeReq, runtime);
-  return recognizeVerificationcodeResp;
+  var recognizeBankCardResp = recognizeBankCardWithOptions(recognizeBankCardReq, runtime);
+  return recognizeBankCardResp;
+}
+
+model RecognizeBusinessCardRequest {
+  imageURL?: string(name='ImageURL'),
+}
+
+model RecognizeBusinessCardAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model RecognizeBusinessCardResponseBody = {
+  data?: {
+    addresses?: [ string ](name='Addresses'),
+    cellPhoneNumbers?: [ string ](name='CellPhoneNumbers'),
+    companies?: [ string ](name='Companies'),
+    departments?: [ string ](name='Departments'),
+    emails?: [ string ](name='Emails'),
+    name?: string(name='Name'),
+    officePhoneNumbers?: [ string ](name='OfficePhoneNumbers'),
+    titles?: [ string ](name='Titles'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model RecognizeBusinessCardResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeBusinessCardResponseBody(name='body'),
+}
+
+async function recognizeBusinessCardWithOptions(request: RecognizeBusinessCardRequest, runtime: Util.RuntimeOptions): RecognizeBusinessCardResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeBusinessCard', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeBusinessCard(request: RecognizeBusinessCardRequest): RecognizeBusinessCardResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeBusinessCardWithOptions(request, runtime);
+}
+
+async function recognizeBusinessCardAdvance(request: RecognizeBusinessCardAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeBusinessCardResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeBusinessCardReq = new RecognizeBusinessCardRequest{};
+  OpenApiUtil.convert(request, recognizeBusinessCardReq);
+
+  if(!Util.isUnset(request.imageURLObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    recognizeBusinessCardReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var recognizeBusinessCardResp = recognizeBusinessCardWithOptions(recognizeBusinessCardReq, runtime);
+  return recognizeBusinessCardResp;
+}
+
+model RecognizeBusinessLicenseRequest {
+  imageURL?: string(name='ImageURL'),
+}
+
+model RecognizeBusinessLicenseAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model RecognizeBusinessLicenseResponseBody = {
+  data?: {
+    address?: string(name='Address'),
+    angle?: float(name='Angle'),
+    business?: string(name='Business'),
+    capital?: string(name='Capital'),
+    emblem?: {
+      height?: int32(name='Height'),
+      left?: int32(name='Left'),
+      top?: int32(name='Top'),
+      width?: int32(name='Width'),
+    }(name='Emblem'),
+    establishDate?: string(name='EstablishDate'),
+    legalPerson?: string(name='LegalPerson'),
+    name?: string(name='Name'),
+    QRCode?: {
+      height?: int32(name='Height'),
+      left?: int32(name='Left'),
+      top?: int32(name='Top'),
+      width?: int32(name='Width'),
+    }(name='QRCode'),
+    registerNumber?: string(name='RegisterNumber'),
+    stamp?: {
+      height?: int32(name='Height'),
+      left?: int32(name='Left'),
+      top?: int32(name='Top'),
+      width?: int32(name='Width'),
+    }(name='Stamp'),
+    title?: {
+      height?: int32(name='Height'),
+      left?: int32(name='Left'),
+      top?: int32(name='Top'),
+      width?: int32(name='Width'),
+    }(name='Title'),
+    type?: string(name='Type'),
+    validPeriod?: string(name='ValidPeriod'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model RecognizeBusinessLicenseResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeBusinessLicenseResponseBody(name='body'),
+}
+
+async function recognizeBusinessLicenseWithOptions(request: RecognizeBusinessLicenseRequest, runtime: Util.RuntimeOptions): RecognizeBusinessLicenseResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeBusinessLicense', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeBusinessLicense(request: RecognizeBusinessLicenseRequest): RecognizeBusinessLicenseResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeBusinessLicenseWithOptions(request, runtime);
+}
+
+async function recognizeBusinessLicenseAdvance(request: RecognizeBusinessLicenseAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeBusinessLicenseResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeBusinessLicenseReq = new RecognizeBusinessLicenseRequest{};
+  OpenApiUtil.convert(request, recognizeBusinessLicenseReq);
+
+  if(!Util.isUnset(request.imageURLObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    recognizeBusinessLicenseReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var recognizeBusinessLicenseResp = recognizeBusinessLicenseWithOptions(recognizeBusinessLicenseReq, runtime);
+  return recognizeBusinessLicenseResp;
 }
 
 model RecognizeCharacterRequest {
@@ -565,22 +708,22 @@ model RecognizeCharacterAdvanceRequest {
 }
 
 model RecognizeCharacterResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     results?: [ 
       {
+        probability?: float(name='Probability'),
+        text?: string(name='Text'),
         textRectangles?: {
+          angle?: int32(name='Angle'),
+          height?: int32(name='Height'),
+          left?: int32(name='Left'),
           top?: int32(name='Top'),
           width?: int32(name='Width'),
-          height?: int32(name='Height'),
-          angle?: int32(name='Angle'),
-          left?: int32(name='Left'),
         }(name='TextRectangles'),
-        text?: string(name='Text'),
-        probability?: float(name='Probability'),
       }
     ](name='Results'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model RecognizeCharacterResponse = {
@@ -675,80 +818,61 @@ async function recognizeCharacterAdvance(request: RecognizeCharacterAdvanceReque
   return recognizeCharacterResp;
 }
 
-model GetAsyncJobResultRequest {
-  jobId?: string(name='JobId'),
-}
-
-model GetAsyncJobResultResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    status?: string(name='Status'),
-    errorMessage?: string(name='ErrorMessage'),
-    result?: string(name='Result'),
-    errorCode?: string(name='ErrorCode'),
-    jobId?: string(name='JobId'),
-  }(name='Data'),
-}
-
-model GetAsyncJobResultResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetAsyncJobResultResponseBody(name='body'),
-}
-
-async function getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('GetAsyncJobResult', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function getAsyncJobResult(request: GetAsyncJobResultRequest): GetAsyncJobResultResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getAsyncJobResultWithOptions(request, runtime);
-}
-
-model RecognizeTakeoutOrderRequest {
+model RecognizeChinapassportRequest {
   imageURL?: string(name='ImageURL'),
 }
 
-model RecognizeTakeoutOrderAdvanceRequest {
+model RecognizeChinapassportAdvanceRequest {
   imageURLObject: readable(name='ImageURLObject'),
 }
 
-model RecognizeTakeoutOrderResponseBody = {
-  requestId?: string(name='RequestId'),
+model RecognizeChinapassportResponseBody = {
   data?: {
-    elements?: [ 
-      {
-        value?: string(name='Value'),
-        boxes?: [ int32 ](name='Boxes'),
-        score?: float(name='Score'),
-        name?: string(name='Name'),
-      }
-    ](name='Elements'),
+    authority?: string(name='Authority'),
+    birthDate?: string(name='BirthDate'),
+    birthDay?: string(name='BirthDay'),
+    birthPlace?: string(name='BirthPlace'),
+    birthPlaceRaw?: string(name='BirthPlaceRaw'),
+    country?: string(name='Country'),
+    expiryDate?: string(name='ExpiryDate'),
+    expiryDay?: string(name='ExpiryDay'),
+    issueDate?: string(name='IssueDate'),
+    issuePlace?: string(name='IssuePlace'),
+    issuePlaceRaw?: string(name='IssuePlaceRaw'),
+    lineOne?: string(name='LineOne'),
+    lineZero?: string(name='LineZero'),
+    name?: string(name='Name'),
+    nameChinese?: string(name='NameChinese'),
+    nameChineseRaw?: string(name='NameChineseRaw'),
+    passportNo?: string(name='PassportNo'),
+    personId?: string(name='PersonId'),
+    sex?: string(name='Sex'),
+    sourceCountry?: string(name='SourceCountry'),
+    success?: boolean(name='Success'),
+    type?: string(name='Type'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
-model RecognizeTakeoutOrderResponse = {
+model RecognizeChinapassportResponse = {
   headers: map[string]string(name='headers'),
-  body: RecognizeTakeoutOrderResponseBody(name='body'),
+  body: RecognizeChinapassportResponseBody(name='body'),
 }
 
-async function recognizeTakeoutOrderWithOptions(request: RecognizeTakeoutOrderRequest, runtime: Util.RuntimeOptions): RecognizeTakeoutOrderResponse {
+async function recognizeChinapassportWithOptions(request: RecognizeChinapassportRequest, runtime: Util.RuntimeOptions): RecognizeChinapassportResponse {
   Util.validateModel(request);
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('RecognizeTakeoutOrder', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  return doRPCRequest('RecognizeChinapassport', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function recognizeTakeoutOrder(request: RecognizeTakeoutOrderRequest): RecognizeTakeoutOrderResponse {
+async function recognizeChinapassport(request: RecognizeChinapassportRequest): RecognizeChinapassportResponse {
   var runtime = new Util.RuntimeOptions{};
-  return recognizeTakeoutOrderWithOptions(request, runtime);
+  return recognizeChinapassportWithOptions(request, runtime);
 }
 
-async function recognizeTakeoutOrderAdvance(request: RecognizeTakeoutOrderAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeTakeoutOrderResponse {
+async function recognizeChinapassportAdvance(request: RecognizeChinapassportAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeChinapassportResponse {
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
@@ -789,8 +913,8 @@ async function recognizeTakeoutOrderAdvance(request: RecognizeTakeoutOrderAdvanc
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeTakeoutOrderReq = new RecognizeTakeoutOrderRequest{};
-  OpenApiUtil.convert(request, recognizeTakeoutOrderReq);
+  var recognizeChinapassportReq = new RecognizeChinapassportRequest{};
+  OpenApiUtil.convert(request, recognizeChinapassportReq);
 
   if(!Util.isUnset(request.imageURLObject)){
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
@@ -816,10 +940,10 @@ async function recognizeTakeoutOrderAdvance(request: RecognizeTakeoutOrderAdvanc
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeTakeoutOrderReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    recognizeChinapassportReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
   }
-  var recognizeTakeoutOrderResp = recognizeTakeoutOrderWithOptions(recognizeTakeoutOrderReq, runtime);
-  return recognizeTakeoutOrderResp;
+  var recognizeChinapassportResp = recognizeChinapassportWithOptions(recognizeChinapassportReq, runtime);
+  return recognizeChinapassportResp;
 }
 
 model RecognizeDriverLicenseRequest {
@@ -833,26 +957,26 @@ model RecognizeDriverLicenseAdvanceRequest {
 }
 
 model RecognizeDriverLicenseResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     backResult?: {
       archiveNumber?: string(name='ArchiveNumber'),
-      name?: string(name='Name'),
       cardNumber?: string(name='CardNumber'),
+      name?: string(name='Name'),
       record?: string(name='Record'),
     }(name='BackResult'),
     faceResult?: {
-      vehicleType?: string(name='VehicleType'),
-      issueDate?: string(name='IssueDate'),
+      address?: string(name='Address'),
       endDate?: string(name='EndDate'),
       gender?: string(name='Gender'),
-      address?: string(name='Address'),
-      startDate?: string(name='StartDate'),
+      issueDate?: string(name='IssueDate'),
+      issueUnit?: string(name='IssueUnit'),
       licenseNumber?: string(name='LicenseNumber'),
       name?: string(name='Name'),
-      issueUnit?: string(name='IssueUnit'),
+      startDate?: string(name='StartDate'),
+      vehicleType?: string(name='VehicleType'),
     }(name='FaceResult'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model RecognizeDriverLicenseResponse = {
@@ -947,6 +1071,282 @@ async function recognizeDriverLicenseAdvance(request: RecognizeDriverLicenseAdva
   return recognizeDriverLicenseResp;
 }
 
+model RecognizeDrivingLicenseRequest {
+  imageURL?: string(name='ImageURL'),
+  side?: string(name='Side'),
+}
+
+model RecognizeDrivingLicenseAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+  side?: string(name='Side'),
+}
+
+model RecognizeDrivingLicenseResponseBody = {
+  data?: {
+    backResult?: {
+      approvedLoad?: string(name='ApprovedLoad'),
+      approvedPassengerCapacity?: string(name='ApprovedPassengerCapacity'),
+      energyType?: string(name='EnergyType'),
+      fileNumber?: string(name='FileNumber'),
+      grossMass?: string(name='GrossMass'),
+      inspectionRecord?: string(name='InspectionRecord'),
+      overallDimension?: string(name='OverallDimension'),
+      plateNumber?: string(name='PlateNumber'),
+      tractionMass?: string(name='TractionMass'),
+      unladenMass?: string(name='UnladenMass'),
+    }(name='BackResult'),
+    faceResult?: {
+      address?: string(name='Address'),
+      engineNumber?: string(name='EngineNumber'),
+      issueDate?: string(name='IssueDate'),
+      model?: string(name='Model'),
+      owner?: string(name='Owner'),
+      plateNumber?: string(name='PlateNumber'),
+      registerDate?: string(name='RegisterDate'),
+      useCharacter?: string(name='UseCharacter'),
+      vehicleType?: string(name='VehicleType'),
+      vin?: string(name='Vin'),
+    }(name='FaceResult'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model RecognizeDrivingLicenseResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeDrivingLicenseResponseBody(name='body'),
+}
+
+async function recognizeDrivingLicenseWithOptions(request: RecognizeDrivingLicenseRequest, runtime: Util.RuntimeOptions): RecognizeDrivingLicenseResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeDrivingLicense', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeDrivingLicense(request: RecognizeDrivingLicenseRequest): RecognizeDrivingLicenseResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeDrivingLicenseWithOptions(request, runtime);
+}
+
+async function recognizeDrivingLicenseAdvance(request: RecognizeDrivingLicenseAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeDrivingLicenseResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeDrivingLicenseReq = new RecognizeDrivingLicenseRequest{};
+  OpenApiUtil.convert(request, recognizeDrivingLicenseReq);
+
+  if(!Util.isUnset(request.imageURLObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    recognizeDrivingLicenseReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var recognizeDrivingLicenseResp = recognizeDrivingLicenseWithOptions(recognizeDrivingLicenseReq, runtime);
+  return recognizeDrivingLicenseResp;
+}
+
+model RecognizeIdentityCardRequest {
+  imageURL?: string(name='ImageURL'),
+  side?: string(name='Side'),
+}
+
+model RecognizeIdentityCardAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+  side?: string(name='Side'),
+}
+
+model RecognizeIdentityCardResponseBody = {
+  data?: {
+    backResult?: {
+      endDate?: string(name='EndDate'),
+      issue?: string(name='Issue'),
+      startDate?: string(name='StartDate'),
+    }(name='BackResult'),
+    frontResult?: {
+      address?: string(name='Address'),
+      birthDate?: string(name='BirthDate'),
+      cardAreas?: [ 
+        {
+          x?: float(name='X'),
+          y?: float(name='Y'),
+        }
+      ](name='CardAreas'),
+      faceRectVertices?: [ 
+        {
+          x?: float(name='X'),
+          y?: float(name='Y'),
+        }
+      ](name='FaceRectVertices'),
+      faceRectangle?: {
+        angle?: float(name='Angle'),
+        center?: {
+          x?: float(name='X'),
+          y?: float(name='Y'),
+        }(name='Center'),
+        size?: {
+          height?: float(name='Height'),
+          width?: float(name='Width'),
+        }(name='Size'),
+      }(name='FaceRectangle'),
+      gender?: string(name='Gender'),
+      IDNumber?: string(name='IDNumber'),
+      name?: string(name='Name'),
+      nationality?: string(name='Nationality'),
+    }(name='FrontResult'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model RecognizeIdentityCardResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeIdentityCardResponseBody(name='body'),
+}
+
+async function recognizeIdentityCardWithOptions(request: RecognizeIdentityCardRequest, runtime: Util.RuntimeOptions): RecognizeIdentityCardResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeIdentityCard', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeIdentityCard(request: RecognizeIdentityCardRequest): RecognizeIdentityCardResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeIdentityCardWithOptions(request, runtime);
+}
+
+async function recognizeIdentityCardAdvance(request: RecognizeIdentityCardAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeIdentityCardResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeIdentityCardReq = new RecognizeIdentityCardRequest{};
+  OpenApiUtil.convert(request, recognizeIdentityCardReq);
+
+  if(!Util.isUnset(request.imageURLObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    recognizeIdentityCardReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var recognizeIdentityCardResp = recognizeIdentityCardWithOptions(recognizeIdentityCardReq, runtime);
+  return recognizeIdentityCardResp;
+}
+
 model RecognizeLicensePlateRequest {
   imageURL?: string(name='ImageURL'),
 }
@@ -956,29 +1356,29 @@ model RecognizeLicensePlateAdvanceRequest {
 }
 
 model RecognizeLicensePlateResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     plates?: [ 
       {
-        plateTypeConfidence?: float(name='PlateTypeConfidence'),
-        plateType?: string(name='PlateType'),
         confidence?: float(name='Confidence'),
         plateNumber?: string(name='PlateNumber'),
-        roi?: {
-          w?: int32(name='W'),
-          h?: int32(name='H'),
-          y?: int32(name='Y'),
-          x?: int32(name='X'),
-        }(name='Roi'),
+        plateType?: string(name='PlateType'),
+        plateTypeConfidence?: float(name='PlateTypeConfidence'),
         positions?: [ 
           {
             x?: long(name='X'),
             y?: long(name='Y'),
           }
         ](name='Positions'),
+        roi?: {
+          h?: int32(name='H'),
+          w?: int32(name='W'),
+          x?: int32(name='X'),
+          y?: int32(name='Y'),
+        }(name='Roi'),
       }
     ](name='Plates'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model RecognizeLicensePlateResponse = {
@@ -1073,289 +1473,6 @@ async function recognizeLicensePlateAdvance(request: RecognizeLicensePlateAdvanc
   return recognizeLicensePlateResp;
 }
 
-model RecognizeTaxiInvoiceRequest {
-  imageURL?: string(name='ImageURL'),
-}
-
-model RecognizeTaxiInvoiceAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-}
-
-model RecognizeTaxiInvoiceResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    invoices?: [ 
-      {
-        items?: [ 
-          {
-            itemRoi?: {
-              size?: {
-                w?: float(name='W'),
-                h?: float(name='H'),
-              }(name='Size'),
-              angle?: float(name='Angle'),
-              center?: {
-                y?: float(name='Y'),
-                x?: float(name='X'),
-              }(name='Center'),
-            }(name='ItemRoi'),
-            text?: string(name='Text'),
-          }
-        ](name='Items'),
-        rotateType?: int32(name='RotateType'),
-        invoiceRoi?: {
-          w?: float(name='W'),
-          h?: float(name='H'),
-          y?: float(name='Y'),
-          x?: float(name='X'),
-        }(name='InvoiceRoi'),
-      }
-    ](name='Invoices'),
-  }(name='Data'),
-}
-
-model RecognizeTaxiInvoiceResponse = {
-  headers: map[string]string(name='headers'),
-  body: RecognizeTaxiInvoiceResponseBody(name='body'),
-}
-
-async function recognizeTaxiInvoiceWithOptions(request: RecognizeTaxiInvoiceRequest, runtime: Util.RuntimeOptions): RecognizeTaxiInvoiceResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RecognizeTaxiInvoice', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function recognizeTaxiInvoice(request: RecognizeTaxiInvoiceRequest): RecognizeTaxiInvoiceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeTaxiInvoiceWithOptions(request, runtime);
-}
-
-async function recognizeTaxiInvoiceAdvance(request: RecognizeTaxiInvoiceAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeTaxiInvoiceResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
-  var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.isUnset(openPlatformEndpoint)) {
-    openPlatformEndpoint ='openplatform.aliyuncs.com';
-  }
-  if(Util.isUnset(credentialType)) {
-    credentialType ='access_key';
-  }
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    securityToken = securityToken,
-    type = credentialType,
-    endpoint = openPlatformEndpoint,
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ocr',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeTaxiInvoiceReq = new RecognizeTaxiInvoiceRequest{};
-  OpenApiUtil.convert(request, recognizeTaxiInvoiceReq);
-
-  if(!Util.isUnset(request.imageURLObject)){
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
-      content = request.imageURLObject,
-      contentType = '',
-    };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeTaxiInvoiceReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  }
-  var recognizeTaxiInvoiceResp = recognizeTaxiInvoiceWithOptions(recognizeTaxiInvoiceReq, runtime);
-  return recognizeTaxiInvoiceResp;
-}
-
-model RecognizeVATInvoiceRequest {
-  fileURL?: string(name='FileURL'),
-  fileType?: string(name='FileType'),
-}
-
-model RecognizeVATInvoiceAdvanceRequest {
-  fileURLObject: readable(name='FileURLObject'),
-  fileType?: string(name='FileType'),
-}
-
-model RecognizeVATInvoiceResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    box?: {
-      payerRegisterNoes?: [ float ](name='PayerRegisterNoes'),
-      payeeAddresses?: [ float ](name='PayeeAddresses'),
-      payeeBankNames?: [ float ](name='PayeeBankNames'),
-      checkers?: [ float ](name='Checkers'),
-      taxAmounts?: [ float ](name='TaxAmounts'),
-      sumAmounts?: [ float ](name='SumAmounts'),
-      clerks?: [ float ](name='Clerks'),
-      invoiceNoes?: [ float ](name='InvoiceNoes'),
-      invoiceDates?: [ float ](name='InvoiceDates'),
-      invoiceCodes?: [ float ](name='InvoiceCodes'),
-      invoiceFakeCodes?: [ float ](name='InvoiceFakeCodes'),
-      payerNames?: [ float ](name='PayerNames'),
-      payerBankNames?: [ float ](name='PayerBankNames'),
-      payees?: [ float ](name='Payees'),
-      payeeNames?: [ float ](name='PayeeNames'),
-      invoiceAmounts?: [ float ](name='InvoiceAmounts'),
-      withoutTaxAmounts?: [ float ](name='WithoutTaxAmounts'),
-      payerAddresses?: [ float ](name='PayerAddresses'),
-      payeeRegisterNoes?: [ float ](name='PayeeRegisterNoes'),
-    }(name='Box'),
-    content?: {
-      payerAddress?: string(name='PayerAddress'),
-      payeeRegisterNo?: string(name='PayeeRegisterNo'),
-      payeeBankName?: string(name='PayeeBankName'),
-      invoiceNo?: string(name='InvoiceNo'),
-      payerRegisterNo?: string(name='PayerRegisterNo'),
-      checker?: string(name='Checker'),
-      taxAmount?: string(name='TaxAmount'),
-      invoiceDate?: string(name='InvoiceDate'),
-      withoutTaxAmount?: string(name='WithoutTaxAmount'),
-      invoiceAmount?: string(name='InvoiceAmount'),
-      antiFakeCode?: string(name='AntiFakeCode'),
-      payerName?: string(name='PayerName'),
-      payee?: string(name='Payee'),
-      sumAmount?: string(name='SumAmount'),
-      payerBankName?: string(name='PayerBankName'),
-      clerk?: string(name='Clerk'),
-      payeeName?: string(name='PayeeName'),
-      payeeAddress?: string(name='PayeeAddress'),
-      invoiceCode?: string(name='InvoiceCode'),
-    }(name='Content'),
-  }(name='Data'),
-}
-
-model RecognizeVATInvoiceResponse = {
-  headers: map[string]string(name='headers'),
-  body: RecognizeVATInvoiceResponseBody(name='body'),
-}
-
-async function recognizeVATInvoiceWithOptions(request: RecognizeVATInvoiceRequest, runtime: Util.RuntimeOptions): RecognizeVATInvoiceResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RecognizeVATInvoice', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function recognizeVATInvoice(request: RecognizeVATInvoiceRequest): RecognizeVATInvoiceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeVATInvoiceWithOptions(request, runtime);
-}
-
-async function recognizeVATInvoiceAdvance(request: RecognizeVATInvoiceAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeVATInvoiceResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
-  var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.isUnset(openPlatformEndpoint)) {
-    openPlatformEndpoint ='openplatform.aliyuncs.com';
-  }
-  if(Util.isUnset(credentialType)) {
-    credentialType ='access_key';
-  }
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    securityToken = securityToken,
-    type = credentialType,
-    endpoint = openPlatformEndpoint,
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ocr',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeVATInvoiceReq = new RecognizeVATInvoiceRequest{};
-  OpenApiUtil.convert(request, recognizeVATInvoiceReq);
-
-  if(!Util.isUnset(request.fileURLObject)){
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
-      content = request.fileURLObject,
-      contentType = '',
-    };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeVATInvoiceReq.fileURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  }
-  var recognizeVATInvoiceResp = recognizeVATInvoiceWithOptions(recognizeVATInvoiceReq, runtime);
-  return recognizeVATInvoiceResp;
-}
-
 model RecognizePassportMRZRequest {
   imageURL?: string(name='ImageURL'),
 }
@@ -1365,18 +1482,18 @@ model RecognizePassportMRZAdvanceRequest {
 }
 
 model RecognizePassportMRZResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     regions?: [ 
       {
-        recognitionScore?: float(name='RecognitionScore'),
+        bandBoxes?: [ float ](name='BandBoxes'),
+        content?: string(name='Content'),
         detectionScore?: float(name='DetectionScore'),
         name?: string(name='Name'),
-        content?: string(name='Content'),
-        bandBoxes?: [ float ](name='BandBoxes'),
+        recognitionScore?: float(name='RecognitionScore'),
       }
     ](name='Regions'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model RecognizePassportMRZResponse = {
@@ -1471,6 +1588,134 @@ async function recognizePassportMRZAdvance(request: RecognizePassportMRZAdvanceR
   return recognizePassportMRZResp;
 }
 
+model RecognizePdfRequest {
+  fileURL?: string(name='FileURL', description='A short description of struct'),
+}
+
+model RecognizePdfAdvanceRequest {
+  fileURLObject: readable(name='FileURLObject'),
+}
+
+model RecognizePdfResponseBody = {
+  data?: {
+    angle?: long(name='Angle'),
+    height?: long(name='Height'),
+    orgHeight?: long(name='OrgHeight'),
+    orgWidth?: long(name='OrgWidth'),
+    pageIndex?: long(name='PageIndex'),
+    width?: long(name='Width'),
+    wordsInfo?: [ 
+      {
+        angle?: long(name='Angle'),
+        height?: long(name='Height'),
+        positions?: [ 
+          {
+            x?: long(name='X'),
+            y?: long(name='Y'),
+          }
+        ](name='Positions'),
+        width?: long(name='Width'),
+        word?: string(name='Word'),
+        x?: long(name='X'),
+        y?: long(name='Y'),
+      }
+    ](name='WordsInfo'),
+  }(name='Data'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model RecognizePdfResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizePdfResponseBody(name='body'),
+}
+
+async function recognizePdfWithOptions(request: RecognizePdfRequest, runtime: Util.RuntimeOptions): RecognizePdfResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizePdf', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizePdf(request: RecognizePdfRequest): RecognizePdfResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizePdfWithOptions(request, runtime);
+}
+
+async function recognizePdfAdvance(request: RecognizePdfAdvanceRequest, runtime: Util.RuntimeOptions): RecognizePdfResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizePdfReq = new RecognizePdfRequest{};
+  OpenApiUtil.convert(request, recognizePdfReq);
+
+  if(!Util.isUnset(request.fileURLObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.fileURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    recognizePdfReq.fileURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var recognizePdfResp = recognizePdfWithOptions(recognizePdfReq, runtime);
+  return recognizePdfResp;
+}
+
 model RecognizePoiNameRequest {
   imageURL?: string(name='ImageURL'),
 }
@@ -1480,26 +1725,26 @@ model RecognizePoiNameAdvanceRequest {
 }
 
 model RecognizePoiNameResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
-    summary?: {
-      brand?: string(name='Brand'),
-      score?: float(name='Score'),
-    }(name='Summary'),
     signboards?: [ 
       {
         texts?: [ 
           {
-            type?: string(name='Type'),
-            score?: float(name='Score'),
-            tag?: string(name='Tag'),
             label?: string(name='Label'),
             points?: [ int32 ](name='Points'),
+            score?: float(name='Score'),
+            tag?: string(name='Tag'),
+            type?: string(name='Type'),
           }
         ](name='Texts'),
       }
     ](name='Signboards'),
+    summary?: {
+      brand?: string(name='Brand'),
+      score?: float(name='Score'),
+    }(name='Summary'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model RecognizePoiNameResponse = {
@@ -1603,23 +1848,23 @@ model RecognizeQrCodeRequest {
 }
 
 model RecognizeQrCodeResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     elements?: [ 
       {
         imageURL?: string(name='ImageURL'),
-        taskId?: string(name='TaskId'),
         results?: [ 
           {
-            suggestion?: string(name='Suggestion'),
-            qrCodesData?: [ string ](name='QrCodesData'),
             label?: string(name='Label'),
+            qrCodesData?: [ string ](name='QrCodesData'),
             rate?: float(name='Rate'),
+            suggestion?: string(name='Suggestion'),
           }
         ](name='Results'),
+        taskId?: string(name='TaskId'),
       }
     ](name='Elements'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model RecognizeQrCodeResponse = {
@@ -1640,1237 +1885,6 @@ async function recognizeQrCode(request: RecognizeQrCodeRequest): RecognizeQrCode
   return recognizeQrCodeWithOptions(request, runtime);
 }
 
-model RecognizeVINCodeRequest {
-  imageURL?: string(name='ImageURL'),
-}
-
-model RecognizeVINCodeAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-}
-
-model RecognizeVINCodeResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    vinCode?: string(name='VinCode'),
-  }(name='Data'),
-}
-
-model RecognizeVINCodeResponse = {
-  headers: map[string]string(name='headers'),
-  body: RecognizeVINCodeResponseBody(name='body'),
-}
-
-async function recognizeVINCodeWithOptions(request: RecognizeVINCodeRequest, runtime: Util.RuntimeOptions): RecognizeVINCodeResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RecognizeVINCode', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function recognizeVINCode(request: RecognizeVINCodeRequest): RecognizeVINCodeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeVINCodeWithOptions(request, runtime);
-}
-
-async function recognizeVINCodeAdvance(request: RecognizeVINCodeAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeVINCodeResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
-  var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.isUnset(openPlatformEndpoint)) {
-    openPlatformEndpoint ='openplatform.aliyuncs.com';
-  }
-  if(Util.isUnset(credentialType)) {
-    credentialType ='access_key';
-  }
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    securityToken = securityToken,
-    type = credentialType,
-    endpoint = openPlatformEndpoint,
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ocr',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeVINCodeReq = new RecognizeVINCodeRequest{};
-  OpenApiUtil.convert(request, recognizeVINCodeReq);
-
-  if(!Util.isUnset(request.imageURLObject)){
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
-      content = request.imageURLObject,
-      contentType = '',
-    };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeVINCodeReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  }
-  var recognizeVINCodeResp = recognizeVINCodeWithOptions(recognizeVINCodeReq, runtime);
-  return recognizeVINCodeResp;
-}
-
-model RecognizeChinapassportRequest {
-  imageURL?: string(name='ImageURL'),
-}
-
-model RecognizeChinapassportAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-}
-
-model RecognizeChinapassportResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    type?: string(name='Type'),
-    sex?: string(name='Sex'),
-    authority?: string(name='Authority'),
-    issuePlaceRaw?: string(name='IssuePlaceRaw'),
-    success?: boolean(name='Success'),
-    lineOne?: string(name='LineOne'),
-    expiryDate?: string(name='ExpiryDate'),
-    birthPlace?: string(name='BirthPlace'),
-    passportNo?: string(name='PassportNo'),
-    birthPlaceRaw?: string(name='BirthPlaceRaw'),
-    issueDate?: string(name='IssueDate'),
-    sourceCountry?: string(name='SourceCountry'),
-    birthDate?: string(name='BirthDate'),
-    nameChineseRaw?: string(name='NameChineseRaw'),
-    issuePlace?: string(name='IssuePlace'),
-    nameChinese?: string(name='NameChinese'),
-    lineZero?: string(name='LineZero'),
-    country?: string(name='Country'),
-    birthDay?: string(name='BirthDay'),
-    expiryDay?: string(name='ExpiryDay'),
-    name?: string(name='Name'),
-    personId?: string(name='PersonId'),
-  }(name='Data'),
-}
-
-model RecognizeChinapassportResponse = {
-  headers: map[string]string(name='headers'),
-  body: RecognizeChinapassportResponseBody(name='body'),
-}
-
-async function recognizeChinapassportWithOptions(request: RecognizeChinapassportRequest, runtime: Util.RuntimeOptions): RecognizeChinapassportResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RecognizeChinapassport', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function recognizeChinapassport(request: RecognizeChinapassportRequest): RecognizeChinapassportResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeChinapassportWithOptions(request, runtime);
-}
-
-async function recognizeChinapassportAdvance(request: RecognizeChinapassportAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeChinapassportResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
-  var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.isUnset(openPlatformEndpoint)) {
-    openPlatformEndpoint ='openplatform.aliyuncs.com';
-  }
-  if(Util.isUnset(credentialType)) {
-    credentialType ='access_key';
-  }
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    securityToken = securityToken,
-    type = credentialType,
-    endpoint = openPlatformEndpoint,
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ocr',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeChinapassportReq = new RecognizeChinapassportRequest{};
-  OpenApiUtil.convert(request, recognizeChinapassportReq);
-
-  if(!Util.isUnset(request.imageURLObject)){
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
-      content = request.imageURLObject,
-      contentType = '',
-    };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeChinapassportReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  }
-  var recognizeChinapassportResp = recognizeChinapassportWithOptions(recognizeChinapassportReq, runtime);
-  return recognizeChinapassportResp;
-}
-
-model TrimDocumentRequest {
-  fileURL?: string(name='FileURL'),
-  fileType?: string(name='FileType'),
-  outputType?: string(name='OutputType'),
-}
-
-model TrimDocumentAdvanceRequest {
-  fileURLObject: readable(name='FileURLObject'),
-  fileType?: string(name='FileType'),
-  outputType?: string(name='OutputType'),
-}
-
-model TrimDocumentResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    content?: string(name='Content'),
-  }(name='Data'),
-}
-
-model TrimDocumentResponse = {
-  headers: map[string]string(name='headers'),
-  body: TrimDocumentResponseBody(name='body'),
-}
-
-async function trimDocumentWithOptions(request: TrimDocumentRequest, runtime: Util.RuntimeOptions): TrimDocumentResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('TrimDocument', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function trimDocument(request: TrimDocumentRequest): TrimDocumentResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return trimDocumentWithOptions(request, runtime);
-}
-
-async function trimDocumentAdvance(request: TrimDocumentAdvanceRequest, runtime: Util.RuntimeOptions): TrimDocumentResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
-  var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.isUnset(openPlatformEndpoint)) {
-    openPlatformEndpoint ='openplatform.aliyuncs.com';
-  }
-  if(Util.isUnset(credentialType)) {
-    credentialType ='access_key';
-  }
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    securityToken = securityToken,
-    type = credentialType,
-    endpoint = openPlatformEndpoint,
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ocr',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var trimDocumentReq = new TrimDocumentRequest{};
-  OpenApiUtil.convert(request, trimDocumentReq);
-
-  if(!Util.isUnset(request.fileURLObject)){
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
-      content = request.fileURLObject,
-      contentType = '',
-    };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    trimDocumentReq.fileURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  }
-  var trimDocumentResp = trimDocumentWithOptions(trimDocumentReq, runtime);
-  return trimDocumentResp;
-}
-
-model RecognizePdfRequest {
-  fileURL?: string(name='FileURL', description='A short description of struct'),
-}
-
-model RecognizePdfAdvanceRequest {
-  fileURLObject: readable(name='FileURLObject'),
-}
-
-model RecognizePdfResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  data?: {
-    height?: long(name='Height'),
-    width?: long(name='Width'),
-    orgHeight?: long(name='OrgHeight'),
-    orgWidth?: long(name='OrgWidth'),
-    pageIndex?: long(name='PageIndex'),
-    angle?: long(name='Angle'),
-    wordsInfo?: [ 
-      {
-        angle?: long(name='Angle'),
-        word?: string(name='Word'),
-        height?: long(name='Height'),
-        width?: long(name='Width'),
-        x?: long(name='X'),
-        y?: long(name='Y'),
-        positions?: [ 
-          {
-            x?: long(name='X'),
-            y?: long(name='Y'),
-          }
-        ](name='Positions'),
-      }
-    ](name='WordsInfo'),
-  }(name='Data'),
-}
-
-model RecognizePdfResponse = {
-  headers: map[string]string(name='headers'),
-  body: RecognizePdfResponseBody(name='body'),
-}
-
-async function recognizePdfWithOptions(request: RecognizePdfRequest, runtime: Util.RuntimeOptions): RecognizePdfResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RecognizePdf', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function recognizePdf(request: RecognizePdfRequest): RecognizePdfResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizePdfWithOptions(request, runtime);
-}
-
-async function recognizePdfAdvance(request: RecognizePdfAdvanceRequest, runtime: Util.RuntimeOptions): RecognizePdfResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
-  var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.isUnset(openPlatformEndpoint)) {
-    openPlatformEndpoint ='openplatform.aliyuncs.com';
-  }
-  if(Util.isUnset(credentialType)) {
-    credentialType ='access_key';
-  }
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    securityToken = securityToken,
-    type = credentialType,
-    endpoint = openPlatformEndpoint,
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ocr',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizePdfReq = new RecognizePdfRequest{};
-  OpenApiUtil.convert(request, recognizePdfReq);
-
-  if(!Util.isUnset(request.fileURLObject)){
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
-      content = request.fileURLObject,
-      contentType = '',
-    };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    recognizePdfReq.fileURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  }
-  var recognizePdfResp = recognizePdfWithOptions(recognizePdfReq, runtime);
-  return recognizePdfResp;
-}
-
-model RecognizeBusinessLicenseRequest {
-  imageURL?: string(name='ImageURL'),
-}
-
-model RecognizeBusinessLicenseAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-}
-
-model RecognizeBusinessLicenseResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    type?: string(name='Type'),
-    stamp?: {
-      top?: int32(name='Top'),
-      width?: int32(name='Width'),
-      height?: int32(name='Height'),
-      left?: int32(name='Left'),
-    }(name='Stamp'),
-    establishDate?: string(name='EstablishDate'),
-    validPeriod?: string(name='ValidPeriod'),
-    business?: string(name='Business'),
-    angle?: float(name='Angle'),
-    registerNumber?: string(name='RegisterNumber'),
-    address?: string(name='Address'),
-    capital?: string(name='Capital'),
-    title?: {
-      top?: int32(name='Top'),
-      width?: int32(name='Width'),
-      height?: int32(name='Height'),
-      left?: int32(name='Left'),
-    }(name='Title'),
-    emblem?: {
-      top?: int32(name='Top'),
-      width?: int32(name='Width'),
-      height?: int32(name='Height'),
-      left?: int32(name='Left'),
-    }(name='Emblem'),
-    name?: string(name='Name'),
-    QRCode?: {
-      top?: int32(name='Top'),
-      width?: int32(name='Width'),
-      height?: int32(name='Height'),
-      left?: int32(name='Left'),
-    }(name='QRCode'),
-    legalPerson?: string(name='LegalPerson'),
-  }(name='Data'),
-}
-
-model RecognizeBusinessLicenseResponse = {
-  headers: map[string]string(name='headers'),
-  body: RecognizeBusinessLicenseResponseBody(name='body'),
-}
-
-async function recognizeBusinessLicenseWithOptions(request: RecognizeBusinessLicenseRequest, runtime: Util.RuntimeOptions): RecognizeBusinessLicenseResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RecognizeBusinessLicense', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function recognizeBusinessLicense(request: RecognizeBusinessLicenseRequest): RecognizeBusinessLicenseResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeBusinessLicenseWithOptions(request, runtime);
-}
-
-async function recognizeBusinessLicenseAdvance(request: RecognizeBusinessLicenseAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeBusinessLicenseResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
-  var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.isUnset(openPlatformEndpoint)) {
-    openPlatformEndpoint ='openplatform.aliyuncs.com';
-  }
-  if(Util.isUnset(credentialType)) {
-    credentialType ='access_key';
-  }
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    securityToken = securityToken,
-    type = credentialType,
-    endpoint = openPlatformEndpoint,
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ocr',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeBusinessLicenseReq = new RecognizeBusinessLicenseRequest{};
-  OpenApiUtil.convert(request, recognizeBusinessLicenseReq);
-
-  if(!Util.isUnset(request.imageURLObject)){
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
-      content = request.imageURLObject,
-      contentType = '',
-    };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeBusinessLicenseReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  }
-  var recognizeBusinessLicenseResp = recognizeBusinessLicenseWithOptions(recognizeBusinessLicenseReq, runtime);
-  return recognizeBusinessLicenseResp;
-}
-
-model RecognizeBankCardRequest {
-  imageURL?: string(name='ImageURL'),
-}
-
-model RecognizeBankCardAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-}
-
-model RecognizeBankCardResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    cardNumber?: string(name='CardNumber'),
-    validDate?: string(name='ValidDate'),
-    bankName?: string(name='BankName'),
-  }(name='Data'),
-}
-
-model RecognizeBankCardResponse = {
-  headers: map[string]string(name='headers'),
-  body: RecognizeBankCardResponseBody(name='body'),
-}
-
-async function recognizeBankCardWithOptions(request: RecognizeBankCardRequest, runtime: Util.RuntimeOptions): RecognizeBankCardResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RecognizeBankCard', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function recognizeBankCard(request: RecognizeBankCardRequest): RecognizeBankCardResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeBankCardWithOptions(request, runtime);
-}
-
-async function recognizeBankCardAdvance(request: RecognizeBankCardAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeBankCardResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
-  var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.isUnset(openPlatformEndpoint)) {
-    openPlatformEndpoint ='openplatform.aliyuncs.com';
-  }
-  if(Util.isUnset(credentialType)) {
-    credentialType ='access_key';
-  }
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    securityToken = securityToken,
-    type = credentialType,
-    endpoint = openPlatformEndpoint,
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ocr',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeBankCardReq = new RecognizeBankCardRequest{};
-  OpenApiUtil.convert(request, recognizeBankCardReq);
-
-  if(!Util.isUnset(request.imageURLObject)){
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
-      content = request.imageURLObject,
-      contentType = '',
-    };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeBankCardReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  }
-  var recognizeBankCardResp = recognizeBankCardWithOptions(recognizeBankCardReq, runtime);
-  return recognizeBankCardResp;
-}
-
-model RecognizeAccountPageRequest {
-  imageURL?: string(name='ImageURL'),
-}
-
-model RecognizeAccountPageAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-}
-
-model RecognizeAccountPageResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    gender?: string(name='Gender'),
-    titleArea?: {
-      top?: int32(name='Top'),
-      width?: int32(name='Width'),
-      height?: int32(name='Height'),
-      left?: int32(name='Left'),
-    }(name='TitleArea'),
-    angle?: float(name='Angle'),
-    registerStampAreas?: [ 
-      {
-        top?: int32(name='Top'),
-        width?: int32(name='Width'),
-        height?: int32(name='Height'),
-        left?: int32(name='Left'),
-      }
-    ](name='RegisterStampAreas'),
-    nationality?: string(name='Nationality'),
-    birthPlace?: string(name='BirthPlace'),
-    otherStampAreas?: [ 
-      {
-        top?: int32(name='Top'),
-        width?: int32(name='Width'),
-        height?: int32(name='Height'),
-        left?: int32(name='Left'),
-      }
-    ](name='OtherStampAreas'),
-    undertakeStampAreas?: [ 
-      {
-        top?: int32(name='Top'),
-        width?: int32(name='Width'),
-        height?: int32(name='Height'),
-        left?: int32(name='Left'),
-      }
-    ](name='UndertakeStampAreas'),
-    birthDate?: string(name='BirthDate'),
-    relation?: string(name='Relation'),
-    nativePlace?: string(name='NativePlace'),
-    name?: string(name='Name'),
-    IDNumber?: string(name='IDNumber'),
-    invalidStampAreas?: [ 
-      {
-        top?: int32(name='Top'),
-        width?: int32(name='Width'),
-        height?: int32(name='Height'),
-        left?: int32(name='Left'),
-      }
-    ](name='InvalidStampAreas'),
-  }(name='Data'),
-}
-
-model RecognizeAccountPageResponse = {
-  headers: map[string]string(name='headers'),
-  body: RecognizeAccountPageResponseBody(name='body'),
-}
-
-async function recognizeAccountPageWithOptions(request: RecognizeAccountPageRequest, runtime: Util.RuntimeOptions): RecognizeAccountPageResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RecognizeAccountPage', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function recognizeAccountPage(request: RecognizeAccountPageRequest): RecognizeAccountPageResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeAccountPageWithOptions(request, runtime);
-}
-
-async function recognizeAccountPageAdvance(request: RecognizeAccountPageAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeAccountPageResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
-  var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.isUnset(openPlatformEndpoint)) {
-    openPlatformEndpoint ='openplatform.aliyuncs.com';
-  }
-  if(Util.isUnset(credentialType)) {
-    credentialType ='access_key';
-  }
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    securityToken = securityToken,
-    type = credentialType,
-    endpoint = openPlatformEndpoint,
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ocr',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeAccountPageReq = new RecognizeAccountPageRequest{};
-  OpenApiUtil.convert(request, recognizeAccountPageReq);
-
-  if(!Util.isUnset(request.imageURLObject)){
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
-      content = request.imageURLObject,
-      contentType = '',
-    };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeAccountPageReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  }
-  var recognizeAccountPageResp = recognizeAccountPageWithOptions(recognizeAccountPageReq, runtime);
-  return recognizeAccountPageResp;
-}
-
-model RecognizeBusinessCardRequest {
-  imageURL?: string(name='ImageURL'),
-}
-
-model RecognizeBusinessCardAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-}
-
-model RecognizeBusinessCardResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    companies?: [ string ](name='Companies'),
-    titles?: [ string ](name='Titles'),
-    emails?: [ string ](name='Emails'),
-    departments?: [ string ](name='Departments'),
-    officePhoneNumbers?: [ string ](name='OfficePhoneNumbers'),
-    name?: string(name='Name'),
-    cellPhoneNumbers?: [ string ](name='CellPhoneNumbers'),
-    addresses?: [ string ](name='Addresses'),
-  }(name='Data'),
-}
-
-model RecognizeBusinessCardResponse = {
-  headers: map[string]string(name='headers'),
-  body: RecognizeBusinessCardResponseBody(name='body'),
-}
-
-async function recognizeBusinessCardWithOptions(request: RecognizeBusinessCardRequest, runtime: Util.RuntimeOptions): RecognizeBusinessCardResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RecognizeBusinessCard', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function recognizeBusinessCard(request: RecognizeBusinessCardRequest): RecognizeBusinessCardResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeBusinessCardWithOptions(request, runtime);
-}
-
-async function recognizeBusinessCardAdvance(request: RecognizeBusinessCardAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeBusinessCardResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
-  var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.isUnset(openPlatformEndpoint)) {
-    openPlatformEndpoint ='openplatform.aliyuncs.com';
-  }
-  if(Util.isUnset(credentialType)) {
-    credentialType ='access_key';
-  }
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    securityToken = securityToken,
-    type = credentialType,
-    endpoint = openPlatformEndpoint,
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ocr',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeBusinessCardReq = new RecognizeBusinessCardRequest{};
-  OpenApiUtil.convert(request, recognizeBusinessCardReq);
-
-  if(!Util.isUnset(request.imageURLObject)){
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
-      content = request.imageURLObject,
-      contentType = '',
-    };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeBusinessCardReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  }
-  var recognizeBusinessCardResp = recognizeBusinessCardWithOptions(recognizeBusinessCardReq, runtime);
-  return recognizeBusinessCardResp;
-}
-
-model DetectCardScreenshotRequest {
-  imageURL?: string(name='ImageURL'),
-}
-
-model DetectCardScreenshotAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-}
-
-model DetectCardScreenshotResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    isBlur?: boolean(name='IsBlur'),
-    isCard?: boolean(name='IsCard'),
-    spoofResult?: {
-      isSpoof?: boolean(name='IsSpoof'),
-      resultMap?: {
-        screenThreshold?: float(name='ScreenThreshold'),
-        screenScore?: float(name='ScreenScore'),
-      }(name='ResultMap'),
-    }(name='SpoofResult'),
-  }(name='Data'),
-}
-
-model DetectCardScreenshotResponse = {
-  headers: map[string]string(name='headers'),
-  body: DetectCardScreenshotResponseBody(name='body'),
-}
-
-async function detectCardScreenshotWithOptions(request: DetectCardScreenshotRequest, runtime: Util.RuntimeOptions): DetectCardScreenshotResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DetectCardScreenshot', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function detectCardScreenshot(request: DetectCardScreenshotRequest): DetectCardScreenshotResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return detectCardScreenshotWithOptions(request, runtime);
-}
-
-async function detectCardScreenshotAdvance(request: DetectCardScreenshotAdvanceRequest, runtime: Util.RuntimeOptions): DetectCardScreenshotResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
-  var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.isUnset(openPlatformEndpoint)) {
-    openPlatformEndpoint ='openplatform.aliyuncs.com';
-  }
-  if(Util.isUnset(credentialType)) {
-    credentialType ='access_key';
-  }
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    securityToken = securityToken,
-    type = credentialType,
-    endpoint = openPlatformEndpoint,
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ocr',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var detectCardScreenshotReq = new DetectCardScreenshotRequest{};
-  OpenApiUtil.convert(request, detectCardScreenshotReq);
-
-  if(!Util.isUnset(request.imageURLObject)){
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
-      content = request.imageURLObject,
-      contentType = '',
-    };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    detectCardScreenshotReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  }
-  var detectCardScreenshotResp = detectCardScreenshotWithOptions(detectCardScreenshotReq, runtime);
-  return detectCardScreenshotResp;
-}
-
-model RecognizeStampRequest {
-  imageURL?: string(name='ImageURL'),
-}
-
-model RecognizeStampAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-}
-
-model RecognizeStampResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    results?: [ 
-      {
-        text?: {
-          confidence?: float(name='Confidence'),
-          content?: string(name='Content'),
-        }(name='Text'),
-        roi?: {
-          top?: int32(name='Top'),
-          width?: int32(name='Width'),
-          height?: int32(name='Height'),
-          left?: int32(name='Left'),
-        }(name='Roi'),
-        generalText?: [ 
-          {
-            confidence?: float(name='Confidence'),
-            content?: string(name='Content'),
-          }
-        ](name='GeneralText'),
-      }
-    ](name='Results'),
-  }(name='Data'),
-}
-
-model RecognizeStampResponse = {
-  headers: map[string]string(name='headers'),
-  body: RecognizeStampResponseBody(name='body'),
-}
-
-async function recognizeStampWithOptions(request: RecognizeStampRequest, runtime: Util.RuntimeOptions): RecognizeStampResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RecognizeStamp', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function recognizeStamp(request: RecognizeStampRequest): RecognizeStampResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeStampWithOptions(request, runtime);
-}
-
-async function recognizeStampAdvance(request: RecognizeStampAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeStampResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
-  var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.isUnset(openPlatformEndpoint)) {
-    openPlatformEndpoint ='openplatform.aliyuncs.com';
-  }
-  if(Util.isUnset(credentialType)) {
-    credentialType ='access_key';
-  }
-  var authConfig = new RPC.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    securityToken = securityToken,
-    type = credentialType,
-    endpoint = openPlatformEndpoint,
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ocr',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeStampReq = new RecognizeStampRequest{};
-  OpenApiUtil.convert(request, recognizeStampReq);
-
-  if(!Util.isUnset(request.imageURLObject)){
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
-      content = request.imageURLObject,
-      contentType = '',
-    };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeStampReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  }
-  var recognizeStampResp = recognizeStampWithOptions(recognizeStampReq, runtime);
-  return recognizeStampResp;
-}
-
 model RecognizeQuotaInvoiceRequest {
   imageURL?: string(name='ImageURL'),
 }
@@ -2880,20 +1894,16 @@ model RecognizeQuotaInvoiceAdvanceRequest {
 }
 
 model RecognizeQuotaInvoiceResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
   data?: {
     angle?: long(name='Angle'),
-    height?: long(name='Height'),
-    width?: long(name='Width'),
-    orgHeight?: long(name='OrgHeight'),
-    orgWidth?: long(name='OrgWidth'),
     content?: {
-      sumAmount?: string(name='SumAmount'),
-      invoiceCode?: string(name='InvoiceCode'),
-      invoiceNo?: string(name='InvoiceNo'),
       invoiceAmount?: string(name='InvoiceAmount'),
+      invoiceCode?: string(name='InvoiceCode'),
       invoiceDetails?: string(name='InvoiceDetails'),
+      invoiceNo?: string(name='InvoiceNo'),
+      sumAmount?: string(name='SumAmount'),
     }(name='Content'),
+    height?: long(name='Height'),
     keyValueInfos?: [ 
       {
         key?: string(name='Key'),
@@ -2907,7 +1917,11 @@ model RecognizeQuotaInvoiceResponseBody = {
         valueScore?: float(name='ValueScore'),
       }
     ](name='KeyValueInfos'),
+    orgHeight?: long(name='OrgHeight'),
+    orgWidth?: long(name='OrgWidth'),
+    width?: long(name='Width'),
   }(name='Data'),
+  requestId?: string(name='RequestId', description='Id of the request'),
 }
 
 model RecognizeQuotaInvoiceResponse = {
@@ -3002,6 +2016,664 @@ async function recognizeQuotaInvoiceAdvance(request: RecognizeQuotaInvoiceAdvanc
   return recognizeQuotaInvoiceResp;
 }
 
+model RecognizeStampRequest {
+  imageURL?: string(name='ImageURL'),
+}
+
+model RecognizeStampAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model RecognizeStampResponseBody = {
+  data?: {
+    results?: [ 
+      {
+        generalText?: [ 
+          {
+            confidence?: float(name='Confidence'),
+            content?: string(name='Content'),
+          }
+        ](name='GeneralText'),
+        roi?: {
+          height?: int32(name='Height'),
+          left?: int32(name='Left'),
+          top?: int32(name='Top'),
+          width?: int32(name='Width'),
+        }(name='Roi'),
+        text?: {
+          confidence?: float(name='Confidence'),
+          content?: string(name='Content'),
+        }(name='Text'),
+      }
+    ](name='Results'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model RecognizeStampResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeStampResponseBody(name='body'),
+}
+
+async function recognizeStampWithOptions(request: RecognizeStampRequest, runtime: Util.RuntimeOptions): RecognizeStampResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeStamp', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeStamp(request: RecognizeStampRequest): RecognizeStampResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeStampWithOptions(request, runtime);
+}
+
+async function recognizeStampAdvance(request: RecognizeStampAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeStampResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeStampReq = new RecognizeStampRequest{};
+  OpenApiUtil.convert(request, recognizeStampReq);
+
+  if(!Util.isUnset(request.imageURLObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    recognizeStampReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var recognizeStampResp = recognizeStampWithOptions(recognizeStampReq, runtime);
+  return recognizeStampResp;
+}
+
+model RecognizeTableRequest {
+  assureDirection?: boolean(name='AssureDirection'),
+  hasLine?: boolean(name='HasLine'),
+  imageURL?: string(name='ImageURL'),
+  outputFormat?: string(name='OutputFormat'),
+  skipDetection?: boolean(name='SkipDetection'),
+  useFinanceModel?: boolean(name='UseFinanceModel'),
+}
+
+model RecognizeTableAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+  assureDirection?: boolean(name='AssureDirection'),
+  hasLine?: boolean(name='HasLine'),
+  outputFormat?: string(name='OutputFormat'),
+  skipDetection?: boolean(name='SkipDetection'),
+  useFinanceModel?: boolean(name='UseFinanceModel'),
+}
+
+model RecognizeTableResponseBody = {
+  data?: {
+    fileContent?: string(name='FileContent'),
+    tables?: [ 
+      {
+        head?: [ string ](name='Head'),
+        tableRows?: [ 
+          {
+            tableColumns?: [ 
+              {
+                endColumn?: int32(name='EndColumn'),
+                endRow?: int32(name='EndRow'),
+                height?: int32(name='Height'),
+                startColumn?: int32(name='StartColumn'),
+                startRow?: int32(name='StartRow'),
+                texts?: [ string ](name='Texts'),
+                width?: int32(name='Width'),
+              }
+            ](name='TableColumns'),
+          }
+        ](name='TableRows'),
+        tail?: [ string ](name='Tail'),
+      }
+    ](name='Tables'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model RecognizeTableResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeTableResponseBody(name='body'),
+}
+
+async function recognizeTableWithOptions(request: RecognizeTableRequest, runtime: Util.RuntimeOptions): RecognizeTableResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeTable', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeTable(request: RecognizeTableRequest): RecognizeTableResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeTableWithOptions(request, runtime);
+}
+
+async function recognizeTableAdvance(request: RecognizeTableAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeTableResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeTableReq = new RecognizeTableRequest{};
+  OpenApiUtil.convert(request, recognizeTableReq);
+
+  if(!Util.isUnset(request.imageURLObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    recognizeTableReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var recognizeTableResp = recognizeTableWithOptions(recognizeTableReq, runtime);
+  return recognizeTableResp;
+}
+
+model RecognizeTakeoutOrderRequest {
+  imageURL?: string(name='ImageURL'),
+}
+
+model RecognizeTakeoutOrderAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model RecognizeTakeoutOrderResponseBody = {
+  data?: {
+    elements?: [ 
+      {
+        boxes?: [ int32 ](name='Boxes'),
+        name?: string(name='Name'),
+        score?: float(name='Score'),
+        value?: string(name='Value'),
+      }
+    ](name='Elements'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model RecognizeTakeoutOrderResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeTakeoutOrderResponseBody(name='body'),
+}
+
+async function recognizeTakeoutOrderWithOptions(request: RecognizeTakeoutOrderRequest, runtime: Util.RuntimeOptions): RecognizeTakeoutOrderResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeTakeoutOrder', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeTakeoutOrder(request: RecognizeTakeoutOrderRequest): RecognizeTakeoutOrderResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeTakeoutOrderWithOptions(request, runtime);
+}
+
+async function recognizeTakeoutOrderAdvance(request: RecognizeTakeoutOrderAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeTakeoutOrderResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeTakeoutOrderReq = new RecognizeTakeoutOrderRequest{};
+  OpenApiUtil.convert(request, recognizeTakeoutOrderReq);
+
+  if(!Util.isUnset(request.imageURLObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    recognizeTakeoutOrderReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var recognizeTakeoutOrderResp = recognizeTakeoutOrderWithOptions(recognizeTakeoutOrderReq, runtime);
+  return recognizeTakeoutOrderResp;
+}
+
+model RecognizeTaxiInvoiceRequest {
+  imageURL?: string(name='ImageURL'),
+}
+
+model RecognizeTaxiInvoiceAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model RecognizeTaxiInvoiceResponseBody = {
+  data?: {
+    invoices?: [ 
+      {
+        invoiceRoi?: {
+          h?: float(name='H'),
+          w?: float(name='W'),
+          x?: float(name='X'),
+          y?: float(name='Y'),
+        }(name='InvoiceRoi'),
+        items?: [ 
+          {
+            itemRoi?: {
+              angle?: float(name='Angle'),
+              center?: {
+                x?: float(name='X'),
+                y?: float(name='Y'),
+              }(name='Center'),
+              size?: {
+                h?: float(name='H'),
+                w?: float(name='W'),
+              }(name='Size'),
+            }(name='ItemRoi'),
+            text?: string(name='Text'),
+          }
+        ](name='Items'),
+        rotateType?: int32(name='RotateType'),
+      }
+    ](name='Invoices'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model RecognizeTaxiInvoiceResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeTaxiInvoiceResponseBody(name='body'),
+}
+
+async function recognizeTaxiInvoiceWithOptions(request: RecognizeTaxiInvoiceRequest, runtime: Util.RuntimeOptions): RecognizeTaxiInvoiceResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeTaxiInvoice', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeTaxiInvoice(request: RecognizeTaxiInvoiceRequest): RecognizeTaxiInvoiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeTaxiInvoiceWithOptions(request, runtime);
+}
+
+async function recognizeTaxiInvoiceAdvance(request: RecognizeTaxiInvoiceAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeTaxiInvoiceResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeTaxiInvoiceReq = new RecognizeTaxiInvoiceRequest{};
+  OpenApiUtil.convert(request, recognizeTaxiInvoiceReq);
+
+  if(!Util.isUnset(request.imageURLObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    recognizeTaxiInvoiceReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var recognizeTaxiInvoiceResp = recognizeTaxiInvoiceWithOptions(recognizeTaxiInvoiceReq, runtime);
+  return recognizeTaxiInvoiceResp;
+}
+
+model RecognizeTicketInvoiceRequest {
+  imageURL?: string(name='ImageURL', description='A short description of struct'),
+}
+
+model RecognizeTicketInvoiceAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model RecognizeTicketInvoiceResponseBody = {
+  data?: {
+    count?: long(name='Count'),
+    height?: long(name='Height'),
+    orgHeight?: long(name='OrgHeight'),
+    orgWidth?: long(name='OrgWidth'),
+    results?: [ 
+      {
+        content?: {
+          antiFakeCode?: string(name='AntiFakeCode'),
+          invoiceCode?: string(name='InvoiceCode'),
+          invoiceDate?: string(name='InvoiceDate'),
+          invoiceNumber?: string(name='InvoiceNumber'),
+          payeeName?: string(name='PayeeName'),
+          payeeRegisterNo?: string(name='PayeeRegisterNo'),
+          payerName?: string(name='PayerName'),
+          payerRegisterNo?: string(name='PayerRegisterNo'),
+          sumAmount?: string(name='SumAmount'),
+        }(name='Content'),
+        index?: long(name='Index'),
+        keyValueInfos?: [ 
+          {
+            key?: string(name='Key'),
+            value?: string(name='Value'),
+            valuePositions?: [ 
+              {
+                x?: long(name='X'),
+                y?: long(name='Y'),
+              }
+            ](name='ValuePositions'),
+            valueScore?: float(name='ValueScore'),
+          }
+        ](name='KeyValueInfos'),
+        sliceRectangle?: [ 
+          {
+            x?: long(name='X'),
+            y?: long(name='Y'),
+          }
+        ](name='SliceRectangle'),
+        type?: string(name='Type'),
+      }
+    ](name='Results'),
+    width?: long(name='Width'),
+  }(name='Data'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model RecognizeTicketInvoiceResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeTicketInvoiceResponseBody(name='body'),
+}
+
+async function recognizeTicketInvoiceWithOptions(request: RecognizeTicketInvoiceRequest, runtime: Util.RuntimeOptions): RecognizeTicketInvoiceResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeTicketInvoice', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeTicketInvoice(request: RecognizeTicketInvoiceRequest): RecognizeTicketInvoiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeTicketInvoiceWithOptions(request, runtime);
+}
+
+async function recognizeTicketInvoiceAdvance(request: RecognizeTicketInvoiceAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeTicketInvoiceResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeTicketInvoiceReq = new RecognizeTicketInvoiceRequest{};
+  OpenApiUtil.convert(request, recognizeTicketInvoiceReq);
+
+  if(!Util.isUnset(request.imageURLObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    recognizeTicketInvoiceReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var recognizeTicketInvoiceResp = recognizeTicketInvoiceWithOptions(recognizeTicketInvoiceReq, runtime);
+  return recognizeTicketInvoiceResp;
+}
+
 model RecognizeTrainTicketRequest {
   imageURL?: string(name='ImageURL'),
 }
@@ -3011,17 +2683,17 @@ model RecognizeTrainTicketAdvanceRequest {
 }
 
 model RecognizeTrainTicketResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
-    price?: float(name='Price'),
-    destination?: string(name='Destination'),
-    departureStation?: string(name='DepartureStation'),
     date?: string(name='Date'),
-    number?: string(name='Number'),
-    seat?: string(name='Seat'),
-    name?: string(name='Name'),
+    departureStation?: string(name='DepartureStation'),
+    destination?: string(name='Destination'),
     level?: string(name='Level'),
+    name?: string(name='Name'),
+    number?: string(name='Number'),
+    price?: float(name='Price'),
+    seat?: string(name='Seat'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model RecognizeTrainTicketResponse = {
@@ -3116,80 +2788,83 @@ async function recognizeTrainTicketAdvance(request: RecognizeTrainTicketAdvanceR
   return recognizeTrainTicketResp;
 }
 
-model RecognizeTicketInvoiceRequest {
-  imageURL?: string(name='ImageURL', description='A short description of struct'),
+model RecognizeVATInvoiceRequest {
+  fileType?: string(name='FileType'),
+  fileURL?: string(name='FileURL'),
 }
 
-model RecognizeTicketInvoiceAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+model RecognizeVATInvoiceAdvanceRequest {
+  fileURLObject: readable(name='FileURLObject'),
+  fileType?: string(name='FileType'),
 }
 
-model RecognizeTicketInvoiceResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
+model RecognizeVATInvoiceResponseBody = {
   data?: {
-    count?: long(name='Count'),
-    height?: long(name='Height'),
-    width?: long(name='Width'),
-    orgHeight?: long(name='OrgHeight'),
-    orgWidth?: long(name='OrgWidth'),
-    results?: [ 
-      {
-        index?: long(name='Index'),
-        content?: {
-          invoiceCode?: string(name='InvoiceCode'),
-          invoiceNumber?: string(name='InvoiceNumber'),
-          invoiceDate?: string(name='InvoiceDate'),
-          antiFakeCode?: string(name='AntiFakeCode'),
-          payeeName?: string(name='PayeeName'),
-          payeeRegisterNo?: string(name='PayeeRegisterNo'),
-          payerName?: string(name='PayerName'),
-          payerRegisterNo?: string(name='PayerRegisterNo'),
-          sumAmount?: string(name='SumAmount'),
-        }(name='Content'),
-        type?: string(name='Type'),
-        keyValueInfos?: [ 
-          {
-            key?: string(name='Key'),
-            value?: string(name='Value'),
-            valuePositions?: [ 
-              {
-                x?: long(name='X'),
-                y?: long(name='Y'),
-              }
-            ](name='ValuePositions'),
-            valueScore?: float(name='ValueScore'),
-          }
-        ](name='KeyValueInfos'),
-        sliceRectangle?: [ 
-          {
-            x?: long(name='X'),
-            y?: long(name='Y'),
-          }
-        ](name='SliceRectangle'),
-      }
-    ](name='Results'),
+    box?: {
+      checkers?: [ float ](name='Checkers'),
+      clerks?: [ float ](name='Clerks'),
+      invoiceAmounts?: [ float ](name='InvoiceAmounts'),
+      invoiceCodes?: [ float ](name='InvoiceCodes'),
+      invoiceDates?: [ float ](name='InvoiceDates'),
+      invoiceFakeCodes?: [ float ](name='InvoiceFakeCodes'),
+      invoiceNoes?: [ float ](name='InvoiceNoes'),
+      payeeAddresses?: [ float ](name='PayeeAddresses'),
+      payeeBankNames?: [ float ](name='PayeeBankNames'),
+      payeeNames?: [ float ](name='PayeeNames'),
+      payeeRegisterNoes?: [ float ](name='PayeeRegisterNoes'),
+      payees?: [ float ](name='Payees'),
+      payerAddresses?: [ float ](name='PayerAddresses'),
+      payerBankNames?: [ float ](name='PayerBankNames'),
+      payerNames?: [ float ](name='PayerNames'),
+      payerRegisterNoes?: [ float ](name='PayerRegisterNoes'),
+      sumAmounts?: [ float ](name='SumAmounts'),
+      taxAmounts?: [ float ](name='TaxAmounts'),
+      withoutTaxAmounts?: [ float ](name='WithoutTaxAmounts'),
+    }(name='Box'),
+    content?: {
+      antiFakeCode?: string(name='AntiFakeCode'),
+      checker?: string(name='Checker'),
+      clerk?: string(name='Clerk'),
+      invoiceAmount?: string(name='InvoiceAmount'),
+      invoiceCode?: string(name='InvoiceCode'),
+      invoiceDate?: string(name='InvoiceDate'),
+      invoiceNo?: string(name='InvoiceNo'),
+      payee?: string(name='Payee'),
+      payeeAddress?: string(name='PayeeAddress'),
+      payeeBankName?: string(name='PayeeBankName'),
+      payeeName?: string(name='PayeeName'),
+      payeeRegisterNo?: string(name='PayeeRegisterNo'),
+      payerAddress?: string(name='PayerAddress'),
+      payerBankName?: string(name='PayerBankName'),
+      payerName?: string(name='PayerName'),
+      payerRegisterNo?: string(name='PayerRegisterNo'),
+      sumAmount?: string(name='SumAmount'),
+      taxAmount?: string(name='TaxAmount'),
+      withoutTaxAmount?: string(name='WithoutTaxAmount'),
+    }(name='Content'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
-model RecognizeTicketInvoiceResponse = {
+model RecognizeVATInvoiceResponse = {
   headers: map[string]string(name='headers'),
-  body: RecognizeTicketInvoiceResponseBody(name='body'),
+  body: RecognizeVATInvoiceResponseBody(name='body'),
 }
 
-async function recognizeTicketInvoiceWithOptions(request: RecognizeTicketInvoiceRequest, runtime: Util.RuntimeOptions): RecognizeTicketInvoiceResponse {
+async function recognizeVATInvoiceWithOptions(request: RecognizeVATInvoiceRequest, runtime: Util.RuntimeOptions): RecognizeVATInvoiceResponse {
   Util.validateModel(request);
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('RecognizeTicketInvoice', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  return doRPCRequest('RecognizeVATInvoice', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
 }
 
-async function recognizeTicketInvoice(request: RecognizeTicketInvoiceRequest): RecognizeTicketInvoiceResponse {
+async function recognizeVATInvoice(request: RecognizeVATInvoiceRequest): RecognizeVATInvoiceResponse {
   var runtime = new Util.RuntimeOptions{};
-  return recognizeTicketInvoiceWithOptions(request, runtime);
+  return recognizeVATInvoiceWithOptions(request, runtime);
 }
 
-async function recognizeTicketInvoiceAdvance(request: RecognizeTicketInvoiceAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeTicketInvoiceResponse {
+async function recognizeVATInvoiceAdvance(request: RecognizeVATInvoiceAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeVATInvoiceResponse {
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
@@ -3230,8 +2905,115 @@ async function recognizeTicketInvoiceAdvance(request: RecognizeTicketInvoiceAdva
   var uploadRequest = new OSS.PostObjectRequest{};
   var ossRuntime = new OSSUtil.RuntimeOptions{};
   OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeTicketInvoiceReq = new RecognizeTicketInvoiceRequest{};
-  OpenApiUtil.convert(request, recognizeTicketInvoiceReq);
+  var recognizeVATInvoiceReq = new RecognizeVATInvoiceRequest{};
+  OpenApiUtil.convert(request, recognizeVATInvoiceReq);
+
+  if(!Util.isUnset(request.fileURLObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.fileURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    recognizeVATInvoiceReq.fileURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var recognizeVATInvoiceResp = recognizeVATInvoiceWithOptions(recognizeVATInvoiceReq, runtime);
+  return recognizeVATInvoiceResp;
+}
+
+model RecognizeVINCodeRequest {
+  imageURL?: string(name='ImageURL'),
+}
+
+model RecognizeVINCodeAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model RecognizeVINCodeResponseBody = {
+  data?: {
+    vinCode?: string(name='VinCode'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model RecognizeVINCodeResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeVINCodeResponseBody(name='body'),
+}
+
+async function recognizeVINCodeWithOptions(request: RecognizeVINCodeRequest, runtime: Util.RuntimeOptions): RecognizeVINCodeResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeVINCode', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeVINCode(request: RecognizeVINCodeRequest): RecognizeVINCodeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeVINCodeWithOptions(request, runtime);
+}
+
+async function recognizeVINCodeAdvance(request: RecognizeVINCodeAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeVINCodeResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeVINCodeReq = new RecognizeVINCodeRequest{};
+  OpenApiUtil.convert(request, recognizeVINCodeReq);
 
   if(!Util.isUnset(request.imageURLObject)){
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
@@ -3257,9 +3039,277 @@ async function recognizeTicketInvoiceAdvance(request: RecognizeTicketInvoiceAdva
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeTicketInvoiceReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    recognizeVINCodeReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
   }
-  var recognizeTicketInvoiceResp = recognizeTicketInvoiceWithOptions(recognizeTicketInvoiceReq, runtime);
-  return recognizeTicketInvoiceResp;
+  var recognizeVINCodeResp = recognizeVINCodeWithOptions(recognizeVINCodeReq, runtime);
+  return recognizeVINCodeResp;
+}
+
+model RecognizeVerificationcodeRequest {
+  imageURL?: string(name='ImageURL'),
+}
+
+model RecognizeVerificationcodeAdvanceRequest {
+  imageURLObject: readable(name='ImageURLObject'),
+}
+
+model RecognizeVerificationcodeResponseBody = {
+  data?: {
+    content?: string(name='Content'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model RecognizeVerificationcodeResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeVerificationcodeResponseBody(name='body'),
+}
+
+async function recognizeVerificationcodeWithOptions(request: RecognizeVerificationcodeRequest, runtime: Util.RuntimeOptions): RecognizeVerificationcodeResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeVerificationcode', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeVerificationcode(request: RecognizeVerificationcodeRequest): RecognizeVerificationcodeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeVerificationcodeWithOptions(request, runtime);
+}
+
+async function recognizeVerificationcodeAdvance(request: RecognizeVerificationcodeAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeVerificationcodeResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeVerificationcodeReq = new RecognizeVerificationcodeRequest{};
+  OpenApiUtil.convert(request, recognizeVerificationcodeReq);
+
+  if(!Util.isUnset(request.imageURLObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    recognizeVerificationcodeReq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var recognizeVerificationcodeResp = recognizeVerificationcodeWithOptions(recognizeVerificationcodeReq, runtime);
+  return recognizeVerificationcodeResp;
+}
+
+model RecognizeVideoCharacterRequest {
+  videoURL?: string(name='VideoURL', description='视频文件地址'),
+}
+
+model RecognizeVideoCharacterResponseBody = {
+  data?: {
+    frames?: [ 
+      {
+        elements?: [ 
+          {
+            score?: float(name='Score', description='文字区域概率，概率值的范围为[0.0, 1.0]'),
+            text?: string(name='Text', description='文字内容'),
+            textRectangles?: [ 
+              {
+                angle?: long(name='Angle', description='文字区域角度，角度范围[0, 360]'),
+                height?: long(name='Height', description='文字区域高度'),
+                left?: long(name='Left', description='文字区域左上角x坐标'),
+                top?: long(name='Top', description='文字区域左上角y坐标'),
+                width?: long(name='Width', description='文字区域宽度'),
+              }
+            ](name='TextRectangles'),
+          }
+        ](name='Elements'),
+        timestamp?: long(name='Timestamp', description='帧时间戳时间戳，单位秒。'),
+      }
+    ](name='Frames', description='视频帧的集合，空信息的帧不列出。'),
+    height?: long(name='Height'),
+    width?: long(name='Width'),
+  }(name='Data'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model RecognizeVideoCharacterResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeVideoCharacterResponseBody(name='body'),
+}
+
+async function recognizeVideoCharacterWithOptions(request: RecognizeVideoCharacterRequest, runtime: Util.RuntimeOptions): RecognizeVideoCharacterResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('RecognizeVideoCharacter', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function recognizeVideoCharacter(request: RecognizeVideoCharacterRequest): RecognizeVideoCharacterResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeVideoCharacterWithOptions(request, runtime);
+}
+
+model TrimDocumentRequest {
+  fileType?: string(name='FileType'),
+  fileURL?: string(name='FileURL'),
+  outputType?: string(name='OutputType'),
+}
+
+model TrimDocumentAdvanceRequest {
+  fileURLObject: readable(name='FileURLObject'),
+  fileType?: string(name='FileType'),
+  outputType?: string(name='OutputType'),
+}
+
+model TrimDocumentResponseBody = {
+  data?: {
+    content?: string(name='Content'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model TrimDocumentResponse = {
+  headers: map[string]string(name='headers'),
+  body: TrimDocumentResponseBody(name='body'),
+}
+
+async function trimDocumentWithOptions(request: TrimDocumentRequest, runtime: Util.RuntimeOptions): TrimDocumentResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  return doRPCRequest('TrimDocument', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+}
+
+async function trimDocument(request: TrimDocumentRequest): TrimDocumentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return trimDocumentWithOptions(request, runtime);
+}
+
+async function trimDocumentAdvance(request: TrimDocumentAdvanceRequest, runtime: Util.RuntimeOptions): TrimDocumentResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var trimDocumentReq = new TrimDocumentRequest{};
+  OpenApiUtil.convert(request, trimDocumentReq);
+
+  if(!Util.isUnset(request.fileURLObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.fileURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    trimDocumentReq.fileURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var trimDocumentResp = trimDocumentWithOptions(trimDocumentReq, runtime);
+  return trimDocumentResp;
 }
 
