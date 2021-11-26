@@ -3,7 +3,7 @@
  */
 import Util;
 import OpenApi;
-
+import OpenApiUtil;
 import EndpointUtil;
 
 extends OpenApi;
@@ -12,6 +12,7 @@ init(config: OpenApi.Config){
   super(config);
   @endpointRule = '';
   
+
   checkConfig(config);
   @endpoint = getEndpoint('umeng-finplus', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -26,27 +27,119 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-model MoZiStatusCallBackRequest {
-  body?: string(name='body', description='body'),
+model GetMessageStatusRequest {
+  taskId?: string(name='TaskId'),
 }
 
-model MoZiStatusCallBackResponse = {
+model GetMessageStatusResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: {
+    mobile?: string(name='mobile'),
+    requestId?: string(name='requestId'),
+    status?: string(name='status'),
+  }(name='Data', description='data'),
+  message?: string(name='Message', description='message'),
+  requestId?: string(name='RequestId', description='requestId'),
+}
+
+model GetMessageStatusResponse = {
   headers: map[string]string(name='headers'),
-  body: string(name='body'),
+  body: GetMessageStatusResponseBody(name='body'),
 }
 
-async function moZiStatusCallBack(request: MoZiStatusCallBackRequest): MoZiStatusCallBackResponse {
+async function getMessageStatus(request: GetMessageStatusRequest): GetMessageStatusResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return moZiStatusCallBackWithOptions(request, headers, runtime);
+  return getMessageStatusWithOptions(request, headers, runtime);
 }
 
-async function moZiStatusCallBackWithOptions(request: MoZiStatusCallBackRequest, headers: map[string]string, runtime: Util.RuntimeOptions): MoZiStatusCallBackResponse {
+async function getMessageStatusWithOptions(request: GetMessageStatusRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetMessageStatusResponse {
   Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.taskId)) {
+    query.TaskId = request.taskId;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
-    body = request.body,
+    query = OpenApiUtil.query(query),
   };
-  return doROARequest('MoZiStatusCallBack', '2021-11-25', 'HTTPS', 'POST', 'AK', `/mozi/status/callback`, 'string', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetMessageStatus',
+    version = '2021-11-25',
+    protocol = 'HTTPS',
+    pathname = `/message/status`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model SendBatchMessageRequest {
+  phoneNumberJson?: string(name='PhoneNumberJson'),
+  signNameJson?: string(name='SignNameJson'),
+  templateCode?: string(name='TemplateCode'),
+  templateParamJson?: string(name='TemplateParamJson'),
+}
+
+model SendBatchMessageResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: [ 
+    {
+      mobile?: string(name='mobile'),
+      taskId?: string(name='taskId'),
+    }
+  ](name='Data', description='data'),
+  message?: string(name='Message', description='message'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='success'),
+}
+
+model SendBatchMessageResponse = {
+  headers: map[string]string(name='headers'),
+  body: SendBatchMessageResponseBody(name='body'),
+}
+
+async function sendBatchMessage(request: SendBatchMessageRequest): SendBatchMessageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return sendBatchMessageWithOptions(request, headers, runtime);
+}
+
+async function sendBatchMessageWithOptions(request: SendBatchMessageRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SendBatchMessageResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.phoneNumberJson)) {
+    body.PhoneNumberJson = request.phoneNumberJson;
+  }
+  if (!Util.isUnset(request.signNameJson)) {
+    body.SignNameJson = request.signNameJson;
+  }
+  if (!Util.isUnset(request.templateCode)) {
+    body.TemplateCode = request.templateCode;
+  }
+  if (!Util.isUnset(request.templateParamJson)) {
+    body.TemplateParamJson = request.templateParamJson;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SendBatchMessage',
+    version = '2021-11-25',
+    protocol = 'HTTPS',
+    pathname = `/message/send`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
