@@ -12,6 +12,7 @@ init(config: OpenApi.Config){
   super(config);
   @endpointRule = '';
   
+
   checkConfig(config);
   @endpoint = getEndpoint('retailbot', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -26,136 +27,855 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-model UpdateRobotRequest {
-  robotDTO?: {
-    robotCode?: string(name='RobotCode', description='机器人code'),
-    sellerNick?: string(name='SellerNick', description='商家nick'),
-    signDate?: long(name='SignDate', description='签约时间'),
-    expireDate?: long(name='ExpireDate', description='签约到期时间'),
-  }(name='RobotDTO', description='机器人信息'),
+model AddSolutionRequest {
+  knowledgeId?: long(name='KnowledgeId', description='知识id'),
+  operatorId?: string(name='OperatorId', description='操作人id'),
+  operatorName?: string(name='OperatorName', description='操作人名称'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+  solution?: {
+    conditions?: [ 
+      {
+        conditionType?: string(name='ConditionType', description='生效模式：EffectiveMode  分支：BranchId'),
+        conditionValue?: string(name='ConditionValue', description='生效模式："disable":全部不生效，"auto":全自动，"assistant":智能辅助，"enable":全部生效  分支：分支id'),
+        knowledgeId?: long(name='KnowledgeId', description='知识id'),
+      }
+    ](name='Conditions', description='答案约束'),
+    extraContent?: string(name='ExtraContent', description='答案扩展信息'),
+    knowledgeId?: long(name='KnowledgeId', description='知识id'),
+    solutionContent?: string(name='SolutionContent', description='答案正文'),
+    solutionSource?: string(name='SolutionSource', description='答案来源,乐言不需要填'),
+    solutionType?: string(name='SolutionType', description='答案类型, "text":文本知识'),
+    solutionVariables?: [ 
+      {
+        knowledgeId?: long(name='KnowledgeId', description='知识id'),
+        solutionId?: long(name='SolutionId', description='答案id'),
+        variableName?: string(name='VariableName', description='变量名称'),
+        variableType?: string(name='VariableType', description='变量类型'),
+      }
+    ](name='SolutionVariables', description='答案变量'),
+  }(name='Solution', description='答案'),
+}
+
+model AddSolutionShrinkRequest {
+  knowledgeId?: long(name='KnowledgeId', description='知识id'),
+  operatorId?: string(name='OperatorId', description='操作人id'),
+  operatorName?: string(name='OperatorName', description='操作人名称'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+  solutionShrink?: string(name='Solution', description='答案'),
+}
+
+model AddSolutionResponseBody = {
+  code?: string(name='Code', description='返回code'),
+  message?: string(name='Message', description='返回信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  solutionId?: long(name='SolutionId', description='答案id'),
+  success?: boolean(name='Success', description='是否成功标示'),
+}
+
+model AddSolutionResponse = {
+  headers: map[string]string(name='headers'),
+  body: AddSolutionResponseBody(name='body'),
+}
+
+async function addSolutionWithOptions(tmpReq: AddSolutionRequest, runtime: Util.RuntimeOptions): AddSolutionResponse {
+  Util.validateModel(tmpReq);
+  var request = new AddSolutionShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.solution)) {
+    request.solutionShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.solution, 'Solution', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'AddSolution',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function addSolution(request: AddSolutionRequest): AddSolutionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return addSolutionWithOptions(request, runtime);
+}
+
+model AdminTestSeviceRequest {
+  aliyunAccountDTO?: {
+    aliUid?: long(name='AliUid'),
+  }(name='AliyunAccountDTO'),
+  versionId?: long(name='VersionId'),
+}
+
+model AdminTestSeviceResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model AdminTestSeviceResponse = {
+  headers: map[string]string(name='headers'),
+  body: AdminTestSeviceResponseBody(name='body'),
+}
+
+async function adminTestSeviceWithOptions(request: AdminTestSeviceRequest, runtime: Util.RuntimeOptions): AdminTestSeviceResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'AdminTestSevice',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function adminTestSevice(request: AdminTestSeviceRequest): AdminTestSeviceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return adminTestSeviceWithOptions(request, runtime);
+}
+
+model CanRefundRequest {
+  data?: string(name='Data'),
+}
+
+model CanRefundResponseBody = {
+  code?: string(name='Code'),
+  data?: string(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success'),
+}
+
+model CanRefundResponse = {
+  headers: map[string]string(name='headers'),
+  body: CanRefundResponseBody(name='body'),
+}
+
+async function canRefundWithOptions(request: CanRefundRequest, runtime: Util.RuntimeOptions): CanRefundResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["Data"] = request.data;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'CanRefund',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function canRefund(request: CanRefundRequest): CanRefundResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return canRefundWithOptions(request, runtime);
+}
+
+model CompleteCommodityRequest {
+  data?: string(name='data'),
+}
+
+model CompleteCommodityResponseBody = {
+  code?: string(name='code'),
+  data?: string(name='data'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId', description='Id of the request'),
+  success?: boolean(name='success'),
+  synchro?: string(name='synchro'),
+}
+
+model CompleteCommodityResponse = {
+  headers: map[string]string(name='headers'),
+  body: CompleteCommodityResponseBody(name='body'),
+}
+
+async function completeCommodityWithOptions(request: CompleteCommodityRequest, runtime: Util.RuntimeOptions): CompleteCommodityResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["data"] = request.data;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'CompleteCommodity',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function completeCommodity(request: CompleteCommodityRequest): CompleteCommodityResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return completeCommodityWithOptions(request, runtime);
+}
+
+model CreateRobotRequest {
   operator?: {
     operatorId?: string(name='OperatorId', description='操作人id'),
     operatorName?: string(name='OperatorName', description='操作人显示名'),
   }(name='Operator', description='操作人信息'),
+  robotDTO?: {
+    channel?: string(name='Channel', description='机器人渠道'),
+    expireDate?: long(name='ExpireDate', description='签约到期时间'),
+    robotType?: string(name='RobotType', description='机器人类型'),
+    sellerId?: string(name='SellerId', description='商家id'),
+    sellerNick?: string(name='SellerNick', description='商家nick'),
+    signDate?: long(name='SignDate', description='签约时间'),
+  }(name='RobotDTO', description='机器人信息'),
 }
 
-model UpdateRobotShrinkRequest {
-  robotDTOShrink?: string(name='RobotDTO', description='机器人信息'),
+model CreateRobotShrinkRequest {
   operatorShrink?: string(name='Operator', description='操作人信息'),
+  robotDTOShrink?: string(name='RobotDTO', description='机器人信息'),
 }
 
-model UpdateRobotResponseBody = {
-  requestId?: string(name='RequestId', description='request id'),
-  success?: boolean(name='Success', description='是否成功'),
+model CreateRobotResponseBody = {
   code?: string(name='Code', description='错误码'),
   message?: string(name='Message', description='错误信息'),
+  requestId?: string(name='RequestId', description='request id'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+  success?: boolean(name='Success', description='是否成功'),
 }
 
-model UpdateRobotResponse = {
+model CreateRobotResponse = {
   headers: map[string]string(name='headers'),
-  body: UpdateRobotResponseBody(name='body'),
+  body: CreateRobotResponseBody(name='body'),
 }
 
-async function updateRobotWithOptions(tmpReq: UpdateRobotRequest, runtime: Util.RuntimeOptions): UpdateRobotResponse {
+async function createRobotWithOptions(tmpReq: CreateRobotRequest, runtime: Util.RuntimeOptions): CreateRobotResponse {
   Util.validateModel(tmpReq);
-  var request = new UpdateRobotShrinkRequest{};
+  var request = new CreateRobotShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.operator)) {
+    request.operatorShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.operator, 'Operator', 'json');
+  }
   if (!Util.isUnset(tmpReq.robotDTO)) {
     request.robotDTOShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.robotDTO, 'RobotDTO', 'json');
   }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateRobot',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createRobot(request: CreateRobotRequest): CreateRobotResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createRobotWithOptions(request, runtime);
+}
+
+model CreateTaskRequest {
+  digTaskInfoParam?: {
+    operatorId?: string(name='OperatorId'),
+    operatorName?: string(name='OperatorName'),
+    paramConfig?: string(name='ParamConfig'),
+    robotCode?: string(name='RobotCode'),
+    type?: string(name='Type'),
+  }(name='DigTaskInfoParam'),
+}
+
+model CreateTaskShrinkRequest {
+  digTaskInfoParamShrink?: string(name='DigTaskInfoParam'),
+}
+
+model CreateTaskResponseBody = {
+  code?: string(name='Code', description='错误码'),
+  data?: long(name='Data', description='任务id'),
+  message?: string(name='Message', description='错误信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功'),
+}
+
+model CreateTaskResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateTaskResponseBody(name='body'),
+}
+
+async function createTaskWithOptions(tmpReq: CreateTaskRequest, runtime: Util.RuntimeOptions): CreateTaskResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateTaskShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.digTaskInfoParam)) {
+    request.digTaskInfoParamShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.digTaskInfoParam, 'DigTaskInfoParam', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateTask',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createTask(request: CreateTaskRequest): CreateTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createTaskWithOptions(request, runtime);
+}
+
+model DeleteRobotRequest {
+  memo?: string(name='Memo', description='备注信息'),
+  operator?: {
+    operatorId?: string(name='OperatorId', description='操作人id'),
+    operatorName?: string(name='OperatorName', description='操作人显示名'),
+  }(name='Operator', description='操作人信息'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+}
+
+model DeleteRobotShrinkRequest {
+  memo?: string(name='Memo', description='备注信息'),
+  operatorShrink?: string(name='Operator', description='操作人信息'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+}
+
+model DeleteRobotResponseBody = {
+  code?: string(name='Code', description='错误码'),
+  message?: string(name='Message', description='错误信息'),
+  requestId?: string(name='RequestId', description='request id'),
+  success?: boolean(name='Success', description='是否成功'),
+}
+
+model DeleteRobotResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteRobotResponseBody(name='body'),
+}
+
+async function deleteRobotWithOptions(tmpReq: DeleteRobotRequest, runtime: Util.RuntimeOptions): DeleteRobotResponse {
+  Util.validateModel(tmpReq);
+  var request = new DeleteRobotShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
   if (!Util.isUnset(tmpReq.operator)) {
     request.operatorShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.operator, 'Operator', 'json');
   }
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('UpdateRobot', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'DeleteRobot',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-async function updateRobot(request: UpdateRobotRequest): UpdateRobotResponse {
+async function deleteRobot(request: DeleteRobotRequest): DeleteRobotResponse {
   var runtime = new Util.RuntimeOptions{};
-  return updateRobotWithOptions(request, runtime);
+  return deleteRobotWithOptions(request, runtime);
 }
 
-model UploadKnowledgeResultRequest {
-  digDatas?: [ 
-    {
-      taskId?: long(name='TaskId', description='任务id'),
-      robotCode?: string(name='RobotCode', description='机器人code'),
-      contentType?: string(name='ContentType', description='知识类型'),
-      sceneKey?: string(name='SceneKey', description='场景key'),
-      sceneName?: string(name='SceneName', description='场景名称'),
-      questionId?: string(name='QuestionId', description='问题id'),
-      questionName?: string(name='QuestionName', description='问题'),
-      kmpClusterId?: string(name='KmpClusterId', description='聚类id'),
-      kmpAnswerId?: string(name='KmpAnswerId', description='答案id'),
-      acceptType?: string(name='AcceptType', description='商家操作类型       accept 手动采纳       ignore 手动忽略       modify 手动修改       error  错误       other  其他(商家无操作)'),
-      knowledgeId?: string(name='KnowledgeId', description='采纳后的知识id'),
-      solutionId?: string(name='SolutionId', description='solutionId'),
-    }
-  ](name='DigDatas'),
+model DeleteSolutionRequest {
+  knowledgeId?: long(name='KnowledgeId', description='知识id'),
+  operatorId?: string(name='OperatorId', description='操作用户id'),
+  operatorName?: string(name='OperatorName', description='操作用户名称'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+  solutionIds?: [ long ](name='SolutionIds', description='答案id集合'),
 }
 
-model UploadKnowledgeResultShrinkRequest {
-  digDatasShrink?: string(name='DigDatas'),
+model DeleteSolutionShrinkRequest {
+  knowledgeId?: long(name='KnowledgeId', description='知识id'),
+  operatorId?: string(name='OperatorId', description='操作用户id'),
+  operatorName?: string(name='OperatorName', description='操作用户名称'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+  solutionIdsShrink?: string(name='SolutionIds', description='答案id集合'),
 }
 
-model UploadKnowledgeResultResponseBody = {
+model DeleteSolutionResponseBody = {
+  code?: string(name='Code', description='返回code'),
+  message?: string(name='Message', description='返回信息'),
   requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success', description='是否成功'),
-  code?: string(name='Code', description='错误码'),
-  message?: string(name='Message', description='错误信息'),
+  success?: boolean(name='Success', description='是否成功标示'),
 }
 
-model UploadKnowledgeResultResponse = {
+model DeleteSolutionResponse = {
   headers: map[string]string(name='headers'),
-  body: UploadKnowledgeResultResponseBody(name='body'),
+  body: DeleteSolutionResponseBody(name='body'),
 }
 
-async function uploadKnowledgeResultWithOptions(tmpReq: UploadKnowledgeResultRequest, runtime: Util.RuntimeOptions): UploadKnowledgeResultResponse {
+async function deleteSolutionWithOptions(tmpReq: DeleteSolutionRequest, runtime: Util.RuntimeOptions): DeleteSolutionResponse {
   Util.validateModel(tmpReq);
-  var request = new UploadKnowledgeResultShrinkRequest{};
+  var request = new DeleteSolutionShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.digDatas)) {
-    request.digDatasShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.digDatas, 'DigDatas', 'json');
+  if (!Util.isUnset(tmpReq.solutionIds)) {
+    request.solutionIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.solutionIds, 'SolutionIds', 'json');
   }
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('UploadKnowledgeResult', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'DeleteSolution',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-async function uploadKnowledgeResult(request: UploadKnowledgeResultRequest): UploadKnowledgeResultResponse {
+async function deleteSolution(request: DeleteSolutionRequest): DeleteSolutionResponse {
   var runtime = new Util.RuntimeOptions{};
-  return uploadKnowledgeResultWithOptions(request, runtime);
+  return deleteSolutionWithOptions(request, runtime);
+}
+
+model DeleteTaskRequest {
+  digDeleteParam?: {
+    delMessage?: string(name='DelMessage'),
+    operatorId?: string(name='OperatorId'),
+    operatorName?: string(name='OperatorName'),
+    robotCode?: string(name='RobotCode'),
+    taskId?: long(name='TaskId'),
+  }(name='DigDeleteParam'),
+}
+
+model DeleteTaskShrinkRequest {
+  digDeleteParamShrink?: string(name='DigDeleteParam'),
+}
+
+model DeleteTaskResponseBody = {
+  code?: string(name='Code', description='错误码'),
+  data?: long(name='Data'),
+  message?: string(name='Message', description='错误信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='true'),
+}
+
+model DeleteTaskResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteTaskResponseBody(name='body'),
+}
+
+async function deleteTaskWithOptions(tmpReq: DeleteTaskRequest, runtime: Util.RuntimeOptions): DeleteTaskResponse {
+  Util.validateModel(tmpReq);
+  var request = new DeleteTaskShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.digDeleteParam)) {
+    request.digDeleteParamShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.digDeleteParam, 'DigDeleteParam', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteTask',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deleteTask(request: DeleteTaskRequest): DeleteTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteTaskWithOptions(request, runtime);
+}
+
+model DisableSceneRequest {
+  knowledgeIds?: [ long ](name='KnowledgeIds', description='知识id集合'),
+  operatorId?: string(name='OperatorId', description='操作用户id'),
+  operatorName?: string(name='OperatorName', description='操作用户名称'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+}
+
+model DisableSceneShrinkRequest {
+  knowledgeIdsShrink?: string(name='KnowledgeIds', description='知识id集合'),
+  operatorId?: string(name='OperatorId', description='操作用户id'),
+  operatorName?: string(name='OperatorName', description='操作用户名称'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+}
+
+model DisableSceneResponseBody = {
+  code?: string(name='Code', description='返回code'),
+  message?: string(name='Message', description='返回信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功标示'),
+}
+
+model DisableSceneResponse = {
+  headers: map[string]string(name='headers'),
+  body: DisableSceneResponseBody(name='body'),
+}
+
+async function disableSceneWithOptions(tmpReq: DisableSceneRequest, runtime: Util.RuntimeOptions): DisableSceneResponse {
+  Util.validateModel(tmpReq);
+  var request = new DisableSceneShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.knowledgeIds)) {
+    request.knowledgeIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.knowledgeIds, 'KnowledgeIds', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'DisableScene',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function disableScene(request: DisableSceneRequest): DisableSceneResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return disableSceneWithOptions(request, runtime);
+}
+
+model EnableSceneRequest {
+  knowledgeIds?: [ long ](name='KnowledgeIds', description='知识id集合'),
+  operatorId?: string(name='OperatorId', description='操作用户id'),
+  operatorName?: string(name='OperatorName', description='操作用户名称'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+}
+
+model EnableSceneShrinkRequest {
+  knowledgeIdsShrink?: string(name='KnowledgeIds', description='知识id集合'),
+  operatorId?: string(name='OperatorId', description='操作用户id'),
+  operatorName?: string(name='OperatorName', description='操作用户名称'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+}
+
+model EnableSceneResponseBody = {
+  code?: string(name='Code', description='返回code'),
+  message?: string(name='Message', description='返回信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功标示'),
+}
+
+model EnableSceneResponse = {
+  headers: map[string]string(name='headers'),
+  body: EnableSceneResponseBody(name='body'),
+}
+
+async function enableSceneWithOptions(tmpReq: EnableSceneRequest, runtime: Util.RuntimeOptions): EnableSceneResponse {
+  Util.validateModel(tmpReq);
+  var request = new EnableSceneShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.knowledgeIds)) {
+    request.knowledgeIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.knowledgeIds, 'KnowledgeIds', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'EnableScene',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function enableScene(request: EnableSceneRequest): EnableSceneResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return enableSceneWithOptions(request, runtime);
+}
+
+model GetKnowledgeRequest {
+  knowledgeId?: long(name='KnowledgeId', description='知识id'),
+  operatorId?: string(name='OperatorId', description='操作人id'),
+  operatorName?: string(name='OperatorName', description='操作人名称'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+}
+
+model GetKnowledgeResponseBody = {
+  code?: string(name='Code', description='返回code'),
+  knowledge?: {
+    createTime?: string(name='CreateTime', description='创建时间'),
+    createUserId?: string(name='CreateUserId', description='创建用户id'),
+    knowledgeDescription?: string(name='KnowledgeDescription', description='场景描述'),
+    knowledgeId?: long(name='KnowledgeId', description='知识id'),
+    knowledgeStatus?: string(name='KnowledgeStatus', description='知识状态'),
+    knowledgeTitle?: string(name='KnowledgeTitle', description='知识标题'),
+    modifyTime?: string(name='ModifyTime', description='修改时间'),
+    modifyUserId?: string(name='ModifyUserId', description='修改用户id'),
+    sceneKey?: string(name='SceneKey', description='场景key'),
+    similarQuestions?: [ 
+      {
+        createTime?: string(name='CreateTime', description='创建时间'),
+        createUserId?: string(name='CreateUserId', description='创建用户id'),
+        modifyTime?: string(name='ModifyTime', description='修改时间'),
+        modifyUserId?: string(name='ModifyUserId', description='修改用户id'),
+        similarQuestionEffectType?: string(name='SimilarQuestionEffectType', description='问法影响类型'),
+        similarQuestionId?: long(name='SimilarQuestionId', description='问法id'),
+        similarQuestionTitle?: string(name='SimilarQuestionTitle', description='示例问法标题'),
+        similarQuestionType?: string(name='SimilarQuestionType', description='问法类型'),
+      }
+    ](name='SimilarQuestions', description='示例问法集合'),
+    solutions?: [ 
+      {
+        conditions?: [ 
+          {
+            conditionType?: string(name='ConditionType', description='生效模式'),
+            conditionValue?: string(name='ConditionValue', description='生效模式值'),
+            knowledgeId?: long(name='KnowledgeId', description='知识id'),
+            solutionId?: long(name='SolutionId', description='答案id'),
+          }
+        ](name='Conditions', description='答案约束集合'),
+        extraContent?: string(name='ExtraContent', description='答案扩展信息'),
+        knowledgeId?: long(name='KnowledgeId', description='知识id'),
+        solutionContent?: string(name='SolutionContent', description='答案正文'),
+        solutionId?: long(name='SolutionId', description='答案id'),
+        solutionSource?: string(name='SolutionSource', description='答案来源'),
+        solutionType?: string(name='SolutionType', description='答案类型,'),
+        solutionVariables?: [ 
+          {
+            knowledgeId?: long(name='KnowledgeId', description='知识id'),
+            solutionId?: long(name='SolutionId', description='答案id'),
+            variableName?: string(name='VariableName', description='变量名称'),
+            variableType?: string(name='VariableType', description='变量类型'),
+          }
+        ](name='SolutionVariables', description='变量集合'),
+      }
+    ](name='Solutions', description='答案集合'),
+  }(name='Knowledge', description='知识'),
+  message?: string(name='Message', description='返回信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功标示'),
+}
+
+model GetKnowledgeResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetKnowledgeResponseBody(name='body'),
+}
+
+async function getKnowledgeWithOptions(request: GetKnowledgeRequest, runtime: Util.RuntimeOptions): GetKnowledgeResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetKnowledge',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getKnowledge(request: GetKnowledgeRequest): GetKnowledgeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getKnowledgeWithOptions(request, runtime);
+}
+
+model GetPackageVersionRequest {
+  operatorId?: string(name='OperatorId', description='操作人id'),
+  operatorName?: string(name='OperatorName', description='操作人名称'),
+  packageCode?: string(name='PackageCode', description='包code'),
+}
+
+model GetPackageVersionResponseBody = {
+  code?: string(name='Code', description='返回code'),
+  message?: string(name='Message', description='返回信息'),
+  packageCode?: string(name='PackageCode', description='包code'),
+  packageDetails?: [ 
+    {
+      createTime?: string(name='CreateTime', description='创建时间'),
+      createUserId?: string(name='CreateUserId', description='创建人id'),
+      modifyTime?: string(name='ModifyTime', description='修改时间'),
+      modifyUserId?: string(name='ModifyUserId', description='修改人id'),
+      packageDetailDescription?: string(name='PackageDetailDescription', description='包详细描述'),
+      packageVersion?: string(name='PackageVersion', description='包版本'),
+      publishTime?: string(name='PublishTime', description='发布时间'),
+    }
+  ](name='PackageDetails', description='包的详细信息'),
+  packageName?: string(name='PackageName', description='包名称'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功标示'),
+}
+
+model GetPackageVersionResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetPackageVersionResponseBody(name='body'),
+}
+
+async function getPackageVersionWithOptions(request: GetPackageVersionRequest, runtime: Util.RuntimeOptions): GetPackageVersionResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetPackageVersion',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getPackageVersion(request: GetPackageVersionRequest): GetPackageVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getPackageVersionWithOptions(request, runtime);
+}
+
+model GetSolutionRequest {
+  knowledgeId?: long(name='KnowledgeId', description='知识id'),
+  operatorId?: string(name='OperatorId', description='操作用户id'),
+  operatorName?: string(name='OperatorName', description='操作用户名称'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+  solutionId?: long(name='SolutionId', description='答案id'),
+}
+
+model GetSolutionResponseBody = {
+  code?: string(name='Code', description='返回code'),
+  message?: string(name='Message', description='返回信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  solution?: {
+    conditions?: [ 
+      {
+        conditionType?: string(name='ConditionType', description='生效模式：EffectiveMode'),
+        conditionValue?: string(name='ConditionValue', description='生效模式："disable":全部不生效，"auto":全自动，"assistant":智能辅助，"enable":全部生效'),
+        knowledgeId?: long(name='KnowledgeId', description='知识id'),
+        solutionId?: long(name='SolutionId', description='答案id'),
+      }
+    ](name='Conditions', description='答案约束'),
+    extraContent?: string(name='ExtraContent', description='答案扩展信息'),
+    knowledgeId?: long(name='KnowledgeId', description='知识id'),
+    solutionContent?: string(name='SolutionContent', description='答案正文'),
+    solutionId?: long(name='SolutionId', description='答案id'),
+    solutionSource?: string(name='SolutionSource', description='答案来源'),
+    solutionType?: string(name='SolutionType', description='答案类型,"text":文本答案'),
+    solutionVariables?: [ 
+      {
+        knowledgeId?: long(name='KnowledgeId', description='知识id'),
+        solutionId?: long(name='SolutionId', description='答案id'),
+        variableName?: string(name='VariableName', description='变量名称'),
+        variableType?: string(name='VariableType', description='变量类型'),
+      }
+    ](name='SolutionVariables', description='答案变量'),
+  }(name='Solution', description='答案'),
+  success?: boolean(name='Success', description='是否成功标示'),
+}
+
+model GetSolutionResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetSolutionResponseBody(name='body'),
+}
+
+async function getSolutionWithOptions(request: GetSolutionRequest, runtime: Util.RuntimeOptions): GetSolutionResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSolution',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getSolution(request: GetSolutionRequest): GetSolutionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSolutionWithOptions(request, runtime);
 }
 
 model InstallPackageRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
+  operator?: {
+    operatorId?: string(name='OperatorId', description='操作人id'),
+    operatorName?: string(name='OperatorName', description='操作人显示名称'),
+  }(name='Operator', description='操作人信息'),
   packages?: [ 
     {
       packageCode?: string(name='PackageCode', description='行业包code'),
       packageVersion?: string(name='PackageVersion', description='行业包版本'),
     }
   ](name='Packages', description='订阅的行业包'),
-  operator?: {
-    operatorId?: string(name='OperatorId', description='操作人id'),
-    operatorName?: string(name='OperatorName', description='操作人显示名称'),
-  }(name='Operator', description='操作人信息'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
 }
 
 model InstallPackageShrinkRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  packagesShrink?: string(name='Packages', description='订阅的行业包'),
   operatorShrink?: string(name='Operator', description='操作人信息'),
+  packagesShrink?: string(name='Packages', description='订阅的行业包'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
 }
 
 model InstallPackageResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  data?: map[string]any(name='Data', description='成功和失败的行业包code'),
-  success?: boolean(name='Success', description='是否成功'),
   code?: string(name='Code', description='错误码'),
+  data?: map[string]any(name='Data', description='成功和失败的行业包code'),
   message?: string(name='Message', description='错误信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功'),
 }
 
 model InstallPackageResponse = {
@@ -167,21 +887,392 @@ async function installPackageWithOptions(tmpReq: InstallPackageRequest, runtime:
   Util.validateModel(tmpReq);
   var request = new InstallPackageShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.packages)) {
-    request.packagesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.packages, 'Packages', 'json');
-  }
   if (!Util.isUnset(tmpReq.operator)) {
     request.operatorShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.operator, 'Operator', 'json');
+  }
+  if (!Util.isUnset(tmpReq.packages)) {
+    request.packagesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.packages, 'Packages', 'json');
   }
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('InstallPackage', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'InstallPackage',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function installPackage(request: InstallPackageRequest): InstallPackageResponse {
   var runtime = new Util.RuntimeOptions{};
   return installPackageWithOptions(request, runtime);
+}
+
+model ListCategoriesRequest {
+  operatorId?: string(name='OperatorId', description='操作用户id'),
+  operatorName?: string(name='OperatorName', description='操作用户名称'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+}
+
+model ListCategoriesResponseBody = {
+  categories?: [ 
+    {
+      categoryId?: long(name='CategoryId', description='类目id'),
+      categoryName?: string(name='CategoryName', description='类目名称'),
+      children?: [ 
+        {
+          categoryId?: long(name='CategoryId', description='类目id'),
+          categoryName?: string(name='CategoryName', description='类目名称'),
+          parentCategoryId?: long(name='ParentCategoryId', description='父类目id'),
+        }
+      ](name='Children', description='子级类目集合'),
+      parentCategoryId?: long(name='ParentCategoryId', description='父类目id'),
+    }
+  ](name='Categories', description='知识类目集合'),
+  code?: string(name='Code', description='返回code'),
+  message?: string(name='Message', description='返回信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功标示'),
+}
+
+model ListCategoriesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListCategoriesResponseBody(name='body'),
+}
+
+async function listCategoriesWithOptions(request: ListCategoriesRequest, runtime: Util.RuntimeOptions): ListCategoriesResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListCategories',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listCategories(request: ListCategoriesRequest): ListCategoriesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listCategoriesWithOptions(request, runtime);
+}
+
+model ListIndustryPackagesRequest {
+  domain?: string(name='Domain', description='领域'),
+  maxResults?: int32(name='MaxResults', description='每页条数'),
+  nextToken?: int32(name='NextToken', description='当前页'),
+  operatorId?: string(name='OperatorId', description='操作用户id'),
+  operatorName?: string(name='OperatorName', description='操作用户名称'),
+}
+
+model ListIndustryPackagesResponseBody = {
+  code?: string(name='Code', description='返回code'),
+  message?: string(name='Message', description='返回信息'),
+  packagePage?: {
+    maxResults?: int32(name='MaxResults', description='每页条数'),
+    nextToken?: int32(name='NextToken', description='页码'),
+    packages?: [ 
+      {
+        createTime?: string(name='CreateTime', description='创建时间'),
+        createUserId?: string(name='CreateUserId', description='创建人id'),
+        modifyTime?: string(name='ModifyTime', description='修改时间'),
+        modifyUserId?: string(name='ModifyUserId', description='修改人id'),
+        packageCode?: string(name='PackageCode', description='包code'),
+        packageDescription?: string(name='PackageDescription', description='包描述'),
+        packageName?: string(name='PackageName', description='包名'),
+        packageType?: string(name='PackageType', description='包类型'),
+      }
+    ](name='Packages', description='包集合'),
+    totalCount?: int32(name='TotalCount', description='总条数'),
+  }(name='PackagePage'),
+  requestId?: string(name='RequestId', description='请求id'),
+  success?: boolean(name='Success', description='是否成功标示'),
+}
+
+model ListIndustryPackagesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListIndustryPackagesResponseBody(name='body'),
+}
+
+async function listIndustryPackagesWithOptions(request: ListIndustryPackagesRequest, runtime: Util.RuntimeOptions): ListIndustryPackagesResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListIndustryPackages',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listIndustryPackages(request: ListIndustryPackagesRequest): ListIndustryPackagesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listIndustryPackagesWithOptions(request, runtime);
+}
+
+model ListPackageKnowledgesRequest {
+  operatorId?: string(name='OperatorId', description='操作用户id'),
+  operatorName?: string(name='OperatorName', description='操作用户名称'),
+  packageCode?: string(name='PackageCode', description='包code'),
+  packageVersion?: string(name='PackageVersion', description='包version'),
+}
+
+model ListPackageKnowledgesResponseBody = {
+  code?: string(name='Code', description='返回code'),
+  knowledges?: [ 
+    {
+      createTime?: string(name='CreateTime', description='创建时间格式：yyyy-MM-dd HH:mm:ss'),
+      createUserId?: string(name='CreateUserId', description='创建用户id'),
+      knowledgeDescription?: string(name='KnowledgeDescription', description='知识描述'),
+      knowledgeId?: long(name='KnowledgeId', description='知识id'),
+      knowledgeStatus?: string(name='KnowledgeStatus', description='"online":在用，"disabled":禁用'),
+      knowledgeTitle?: string(name='KnowledgeTitle', description='知识标题'),
+      modifyTime?: string(name='ModifyTime', description='修改时间格式：yyyy-MM-dd HH:mm:ss'),
+      modifyUserId?: string(name='ModifyUserId', description='修改用户id'),
+      sceneKey?: string(name='SceneKey', description='场景key'),
+      similarQuestions?: [ 
+        {
+          createTime?: string(name='CreateTime', description='创建时间格式：yyyy-MM-dd HH:mm:ss'),
+          createUserId?: string(name='CreateUserId', description='创建用户id'),
+          modifyTime?: string(name='ModifyTime', description='修改时间格式：yyyy-MM-dd HH:mm:ss'),
+          modifyUserId?: string(name='ModifyUserId', description='修改用户id'),
+          similarQuestionEffectType?: string(name='SimilarQuestionEffectType', description='"positive":正向，"negative":负向'),
+          similarQuestionId?: long(name='SimilarQuestionId', description='问法id'),
+          similarQuestionTitle?: string(name='SimilarQuestionTitle', description='示例问法标题'),
+          similarQuestionType?: string(name='SimilarQuestionType', description='"similar":相似问法，"sample":例句，"keyword":关键字'),
+        }
+      ](name='SimilarQuestions', description='示例问法、正负例句、正负关键字'),
+      solutions?: [ 
+        {
+          conditions?: [ 
+            {
+              conditionType?: string(name='ConditionType', description='约束类型'),
+              conditionValue?: string(name='ConditionValue', description='约束值'),
+              knowledgeId?: long(name='KnowledgeId', description='知识id'),
+              solutionId?: long(name='SolutionId', description='答案id'),
+            }
+          ](name='Conditions', description='约束'),
+          extraContent?: string(name='ExtraContent', description='答案扩展文本'),
+          knowledgeId?: long(name='KnowledgeId', description='知识id'),
+          solutionContent?: string(name='SolutionContent', description='答案文本'),
+          solutionId?: long(name='SolutionId', description='答案id'),
+          solutionSource?: string(name='SolutionSource', description='答案来源'),
+          solutionType?: string(name='SolutionType', description='答案类型'),
+        }
+      ](name='Solutions', description='答案'),
+    }
+  ](name='Knowledges', description='知识集合'),
+  message?: string(name='Message', description='返回信息'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success', description='是否成功标示'),
+}
+
+model ListPackageKnowledgesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListPackageKnowledgesResponseBody(name='body'),
+}
+
+async function listPackageKnowledgesWithOptions(request: ListPackageKnowledgesRequest, runtime: Util.RuntimeOptions): ListPackageKnowledgesResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListPackageKnowledges',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listPackageKnowledges(request: ListPackageKnowledgesRequest): ListPackageKnowledgesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listPackageKnowledgesWithOptions(request, runtime);
+}
+
+model ListPackageVersionsRequest {
+  operatorId?: string(name='OperatorId', description='操作人id'),
+  operatorName?: string(name='OperatorName', description='操作人名称'),
+  packageCodes?: [ string ](name='PackageCodes', description='包code集合'),
+}
+
+model ListPackageVersionsShrinkRequest {
+  operatorId?: string(name='OperatorId', description='操作人id'),
+  operatorName?: string(name='OperatorName', description='操作人名称'),
+  packageCodesShrink?: string(name='PackageCodes', description='包code集合'),
+}
+
+model ListPackageVersionsResponseBody = {
+  code?: string(name='Code', description='返回code'),
+  message?: string(name='Message', description='返回信息'),
+  packages?: [ 
+    {
+      packageCode?: string(name='PackageCode', description='包code'),
+      packageDetails?: [ 
+        {
+          createTime?: string(name='CreateTime', description='创建时间'),
+          createUserId?: string(name='CreateUserId', description='创建人id'),
+          modifyTime?: string(name='ModifyTime', description='修改时间'),
+          modifyUserId?: string(name='ModifyUserId', description='修改人id'),
+          packageDetailDescription?: string(name='PackageDetailDescription', description='包详细描述'),
+          packageVersion?: string(name='PackageVersion', description='包版本'),
+          publishTime?: string(name='PublishTime', description='发布时间'),
+        }
+      ](name='PackageDetails', description='包详细信息'),
+      packageName?: string(name='PackageName', description='包名'),
+    }
+  ](name='Packages', description='包集合'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功标示'),
+}
+
+model ListPackageVersionsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListPackageVersionsResponseBody(name='body'),
+}
+
+async function listPackageVersionsWithOptions(tmpReq: ListPackageVersionsRequest, runtime: Util.RuntimeOptions): ListPackageVersionsResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListPackageVersionsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.packageCodes)) {
+    request.packageCodesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.packageCodes, 'PackageCodes', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListPackageVersions',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listPackageVersions(request: ListPackageVersionsRequest): ListPackageVersionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listPackageVersionsWithOptions(request, runtime);
+}
+
+model ListSubscribedPackageKnowledgesRequest {
+  categoryId?: long(name='CategoryId', description='类目id'),
+  operatorId?: string(name='OperatorId', description='操作用户id'),
+  operatorName?: string(name='OperatorName', description='操作用户名称'),
+  packageCodes?: [ string ](name='PackageCodes', description='查询指定包的场景'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+}
+
+model ListSubscribedPackageKnowledgesResponseBody = {
+  code?: string(name='Code', description='返回code'),
+  knowledges?: [ 
+    {
+      createTime?: string(name='CreateTime', description='创建时间格式：yyyy-MM-dd HH:mm:ss'),
+      createUserId?: string(name='CreateUserId', description='创建用户id'),
+      knowledgeDescription?: string(name='KnowledgeDescription', description='知识描述'),
+      knowledgeId?: long(name='KnowledgeId', description='知识id'),
+      knowledgeStatus?: string(name='KnowledgeStatus', description='"online":在用，"disabled":禁用'),
+      knowledgeTitle?: string(name='KnowledgeTitle', description='知识标题'),
+      modifyTime?: string(name='ModifyTime', description='修改时间格式：yyyy-MM-dd HH:mm:ss'),
+      modifyUserId?: string(name='ModifyUserId', description='修改用户id'),
+      sceneKey?: string(name='SceneKey'),
+      similarQuestions?: [ 
+        {
+          createTime?: string(name='CreateTime', description='创建时间格式：yyyy-MM-dd HH:mm:ss'),
+          createUserId?: string(name='CreateUserId', description='创建用户id'),
+          modifyTime?: string(name='ModifyTime', description='修改时间格式：yyyy-MM-dd HH:mm:ss'),
+          modifyUserId?: string(name='ModifyUserId', description='修改用户id'),
+          similarQuestionEffectType?: string(name='SimilarQuestionEffectType', description='"positive":正向，"negative":负向'),
+          similarQuestionId?: long(name='SimilarQuestionId', description='问法id'),
+          similarQuestionTitle?: string(name='SimilarQuestionTitle', description='示例问法标题'),
+          similarQuestionType?: string(name='SimilarQuestionType', description='"similar":相似问法，"sample":例句，"keyword":关键字'),
+        }
+      ](name='SimilarQuestions', description='示例问法、正负例句、正负关键字'),
+      solutions?: [ 
+        {
+          conditions?: [ 
+            {
+              conditionType?: string(name='ConditionType', description='生效模式：EffectiveMode'),
+              conditionValue?: string(name='ConditionValue', description='生效模式："disable":全部不生效，"auto":全自动，"assistant":智能辅助，"enable":全部生效'),
+              knowledgeId?: long(name='KnowledgeId', description='知识id'),
+              solutionId?: long(name='SolutionId', description='答案id'),
+            }
+          ](name='Conditions', description='答案约束'),
+          extraContent?: string(name='ExtraContent', description='答案扩展信息'),
+          knowledgeId?: long(name='KnowledgeId', description='场景id'),
+          solutionContent?: string(name='SolutionContent', description='答案正文'),
+          solutionId?: long(name='SolutionId', description='答案id'),
+          solutionSource?: string(name='SolutionSource', description='答案来源'),
+          solutionType?: string(name='SolutionType', description='答案类型,"text":文本答案'),
+        }
+      ](name='Solutions', description='答案'),
+    }
+  ](name='Knowledges', description='知识集合'),
+  message?: string(name='Message', description='返回信息'),
+  requestId?: string(name='RequestId', description='请求id'),
+  success?: boolean(name='Success', description='是否成功标示'),
+}
+
+model ListSubscribedPackageKnowledgesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListSubscribedPackageKnowledgesResponseBody(name='body'),
+}
+
+async function listSubscribedPackageKnowledgesWithOptions(request: ListSubscribedPackageKnowledgesRequest, runtime: Util.RuntimeOptions): ListSubscribedPackageKnowledgesResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListSubscribedPackageKnowledges',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listSubscribedPackageKnowledges(request: ListSubscribedPackageKnowledgesRequest): ListSubscribedPackageKnowledgesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listSubscribedPackageKnowledgesWithOptions(request, runtime);
 }
 
 model ListSubscriptionByPackageRequest {
@@ -201,22 +1292,22 @@ model ListSubscriptionByPackageShrinkRequest {
 }
 
 model ListSubscriptionByPackageResponseBody = {
+  code?: string(name='Code', description='错误码'),
+  message?: string(name='Message', description='错误信息'),
   pageData?: {
-    maxResults?: int32(name='MaxResults', description='返回的最大记录数'),
-    nextToken?: string(name='NextToken', description='下一页的token'),
     data?: [ 
       {
-        robotCode?: string(name='RobotCode', description='机器人code'),
         packageCode?: string(name='PackageCode', description='行业包code'),
         packageVersion?: string(name='PackageVersion', description='行业包版本'),
+        robotCode?: string(name='RobotCode', description='机器人code'),
       }
     ](name='Data', description='订阅的行业包'),
+    maxResults?: int32(name='MaxResults', description='返回的最大记录数'),
+    nextToken?: string(name='NextToken', description='下一页的token'),
     totalCount?: int32(name='TotalCount', description='总数据量'),
   }(name='PageData', description='Id of the request'),
   requestId?: string(name='RequestId'),
   success?: boolean(name='Success', description='是否成功'),
-  code?: string(name='Code', description='错误码'),
-  message?: string(name='Message', description='错误信息'),
 }
 
 model ListSubscriptionByPackageResponse = {
@@ -237,7 +1328,18 @@ async function listSubscriptionByPackageWithOptions(tmpReq: ListSubscriptionByPa
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('ListSubscriptionByPackage', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListSubscriptionByPackage',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function listSubscriptionByPackage(request: ListSubscriptionByPackageRequest): ListSubscriptionByPackageResponse {
@@ -245,49 +1347,179 @@ async function listSubscriptionByPackage(request: ListSubscriptionByPackageReque
   return listSubscriptionByPackageWithOptions(request, runtime);
 }
 
-model DeleteRobotRequest {
+model ListSubscriptionByRobotRequest {
   robotCode?: string(name='RobotCode', description='机器人code'),
-  memo?: string(name='Memo', description='备注信息'),
-  operator?: {
-    operatorId?: string(name='OperatorId', description='操作人id'),
-    operatorName?: string(name='OperatorName', description='操作人显示名'),
-  }(name='Operator', description='操作人信息'),
 }
 
-model DeleteRobotShrinkRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  memo?: string(name='Memo', description='备注信息'),
-  operatorShrink?: string(name='Operator', description='操作人信息'),
-}
-
-model DeleteRobotResponseBody = {
-  requestId?: string(name='RequestId', description='request id'),
+model ListSubscriptionByRobotResponseBody = {
+  code?: string(name='Code', description='错误码'),
+  data?: [ 
+    {
+      packageCode?: string(name='PackageCode', description='行业包code'),
+      packageVersion?: string(name='PackageVersion', description='行业包版本'),
+      robotCode?: string(name='RobotCode', description='机器人code'),
+    }
+  ](name='Data', description='订阅的行业包'),
+  message?: string(name='Message', description='错误信息'),
+  requestId?: string(name='RequestId'),
   success?: boolean(name='Success', description='是否成功'),
+}
+
+model ListSubscriptionByRobotResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListSubscriptionByRobotResponseBody(name='body'),
+}
+
+async function listSubscriptionByRobotWithOptions(request: ListSubscriptionByRobotRequest, runtime: Util.RuntimeOptions): ListSubscriptionByRobotResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListSubscriptionByRobot',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listSubscriptionByRobot(request: ListSubscriptionByRobotRequest): ListSubscriptionByRobotResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listSubscriptionByRobotWithOptions(request, runtime);
+}
+
+model ListSyncMessagesRequest {
+  messageDTOList?: [ 
+    {
+      chatId?: string(name='ChatId', description='对话chatId'),
+      content?: string(name='Content', description='消息内容'),
+      contentType?: string(name='ContentType', description='消息类型'),
+      direction?: string(name='Direction', description='消息发送方向'),
+      messageId?: string(name='MessageId', description='消息ID'),
+      robotCode?: string(name='RobotCode', description='机器人code'),
+      sellerId?: string(name='SellerId', description='卖家ID'),
+      sellerNick?: string(name='SellerNick', description='卖家nick'),
+      sendTime?: long(name='SendTime', description='消息发送时间戳'),
+      sessionId?: string(name='SessionId', description='对话sessionId'),
+      source?: string(name='Source', description='消息来源'),
+      staffId?: string(name='StaffId', description='卖家小二ID'),
+      staffNick?: string(name='StaffNick', description='卖家小二nick'),
+      userId?: string(name='UserId', description='买家ID'),
+      userNick?: string(name='UserNick', description='买家nick'),
+    }
+  ](name='MessageDTOList', description='人人数据DTO'),
+}
+
+model ListSyncMessagesShrinkRequest {
+  messageDTOListShrink?: string(name='MessageDTOList', description='人人数据DTO'),
+}
+
+model ListSyncMessagesResponseBody = {
   code?: string(name='Code', description='错误码'),
   message?: string(name='Message', description='错误信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功'),
 }
 
-model DeleteRobotResponse = {
+model ListSyncMessagesResponse = {
   headers: map[string]string(name='headers'),
-  body: DeleteRobotResponseBody(name='body'),
+  body: ListSyncMessagesResponseBody(name='body'),
 }
 
-async function deleteRobotWithOptions(tmpReq: DeleteRobotRequest, runtime: Util.RuntimeOptions): DeleteRobotResponse {
+async function listSyncMessagesWithOptions(tmpReq: ListSyncMessagesRequest, runtime: Util.RuntimeOptions): ListSyncMessagesResponse {
   Util.validateModel(tmpReq);
-  var request = new DeleteRobotShrinkRequest{};
+  var request = new ListSyncMessagesShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.operator)) {
-    request.operatorShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.operator, 'Operator', 'json');
+  if (!Util.isUnset(tmpReq.messageDTOList)) {
+    request.messageDTOListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.messageDTOList, 'MessageDTOList', 'json');
   }
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('DeleteRobot', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListSyncMessages',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-async function deleteRobot(request: DeleteRobotRequest): DeleteRobotResponse {
+async function listSyncMessages(request: ListSyncMessagesRequest): ListSyncMessagesResponse {
   var runtime = new Util.RuntimeOptions{};
-  return deleteRobotWithOptions(request, runtime);
+  return listSyncMessagesWithOptions(request, runtime);
+}
+
+model ListSyncRobotMessagesRequest {
+  robotMessageDTOList?: [ 
+    {
+      answerId?: string(name='AnswerId', description='回复给买家的答案ID'),
+      answerType?: string(name='AnswerType', description='答案类型'),
+      chatId?: string(name='ChatId', description='单句的唯一ID'),
+      reason?: string(name='Reason', description='不采纳店小蜜的原因'),
+      robotCode?: string(name='RobotCode', description='机器人code'),
+      sceneKey?: string(name='SceneKey', description='采纳的场景key'),
+      sessionId?: string(name='SessionId', description='买卖家之间的会话ID'),
+      solutions?: [ string ](name='Solutions', description='回复到千牛的答案'),
+      useDxm?: boolean(name='UseDxm', description='是否使用店小蜜的结果'),
+    }
+  ](name='RobotMessageDTOList', description='人机数据集合'),
+}
+
+model ListSyncRobotMessagesShrinkRequest {
+  robotMessageDTOListShrink?: string(name='RobotMessageDTOList', description='人机数据集合'),
+}
+
+model ListSyncRobotMessagesResponseBody = {
+  code?: string(name='Code', description='错误码'),
+  message?: string(name='Message', description='错误信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功'),
+}
+
+model ListSyncRobotMessagesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListSyncRobotMessagesResponseBody(name='body'),
+}
+
+async function listSyncRobotMessagesWithOptions(tmpReq: ListSyncRobotMessagesRequest, runtime: Util.RuntimeOptions): ListSyncRobotMessagesResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListSyncRobotMessagesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.robotMessageDTOList)) {
+    request.robotMessageDTOListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.robotMessageDTOList, 'RobotMessageDTOList', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListSyncRobotMessages',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listSyncRobotMessages(request: ListSyncRobotMessagesRequest): ListSyncRobotMessagesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listSyncRobotMessagesWithOptions(request, runtime);
 }
 
 model OlineIsvTestRequest {
@@ -311,12 +1543,652 @@ async function olineIsvTestWithOptions(request: OlineIsvTestRequest, runtime: Ut
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('OlineIsvTest', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OlineIsvTest',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function olineIsvTest(request: OlineIsvTestRequest): OlineIsvTestResponse {
   var runtime = new Util.RuntimeOptions{};
   return olineIsvTestWithOptions(request, runtime);
+}
+
+model PayOrderCallbackRequest {
+  data?: string(name='data'),
+}
+
+model PayOrderCallbackResponseBody = {
+  code?: string(name='code'),
+  data?: string(name='data'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId'),
+  success?: boolean(name='success'),
+  synchro?: boolean(name='synchro', description='是否同步'),
+}
+
+model PayOrderCallbackResponse = {
+  headers: map[string]string(name='headers'),
+  body: PayOrderCallbackResponseBody(name='body'),
+}
+
+async function payOrderCallbackWithOptions(request: PayOrderCallbackRequest, runtime: Util.RuntimeOptions): PayOrderCallbackResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["data"] = request.data;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'PayOrderCallback',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function payOrderCallback(request: PayOrderCallbackRequest): PayOrderCallbackResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return payOrderCallbackWithOptions(request, runtime);
+}
+
+model ProcessMessageRequest {
+  data?: string(name='data'),
+}
+
+model ProcessMessageResponseBody = {
+  code?: string(name='code'),
+  data?: string(name='data'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId', description='Id of the request'),
+  success?: boolean(name='success'),
+}
+
+model ProcessMessageResponse = {
+  headers: map[string]string(name='headers'),
+  body: ProcessMessageResponseBody(name='body'),
+}
+
+async function processMessageWithOptions(request: ProcessMessageRequest, runtime: Util.RuntimeOptions): ProcessMessageResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["data"] = request.data;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'ProcessMessage',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function processMessage(request: ProcessMessageRequest): ProcessMessageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return processMessageWithOptions(request, runtime);
+}
+
+model QueryByTaskIdRequest {
+  robotCode?: string(name='RobotCode', description='机器人Code'),
+  taskId?: long(name='TaskId', description='任务id'),
+}
+
+model QueryByTaskIdResponseBody = {
+  code?: string(name='Code', description='错误码'),
+  data?: {
+    accessKeyId?: string(name='AccessKeyId', description='临时授权id'),
+    accessKeySecret?: string(name='AccessKeySecret', description='临时授权secret'),
+    answerFilePath?: string(name='AnswerFilePath', description='答案类型文件路径'),
+    bucketName?: string(name='BucketName', description='oss-bucket'),
+    endpoint?: string(name='Endpoint', description='oss域名'),
+    expirationDate?: long(name='ExpirationDate', description='过期时间 (秒)'),
+    queryFilePath?: string(name='QueryFilePath', description='问题类型文件路径'),
+    robotCode?: string(name='RobotCode', description='机器人id'),
+    securityToken?: string(name='SecurityToken', description='临时安全token'),
+  }(name='Data', description='返回信息'),
+  message?: string(name='Message', description='错误信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功'),
+}
+
+model QueryByTaskIdResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryByTaskIdResponseBody(name='body'),
+}
+
+async function queryByTaskIdWithOptions(request: QueryByTaskIdRequest, runtime: Util.RuntimeOptions): QueryByTaskIdResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryByTaskId',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function queryByTaskId(request: QueryByTaskIdRequest): QueryByTaskIdResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryByTaskIdWithOptions(request, runtime);
+}
+
+model QueryTaskListRequest {
+  digTaskPageQuery?: {
+    endDate?: string(name='EndDate'),
+    robotCode?: string(name='RobotCode'),
+    startDate?: string(name='StartDate'),
+    type?: string(name='Type'),
+  }(name='DigTaskPageQuery'),
+  pageData?: {
+    maxResults?: long(name='MaxResults', description='返回的最大记录数'),
+    nextToken?: string(name='NextToken', description='下一页的token'),
+  }(name='PageData'),
+}
+
+model QueryTaskListShrinkRequest {
+  digTaskPageQueryShrink?: string(name='DigTaskPageQuery'),
+  pageDataShrink?: string(name='PageData'),
+}
+
+model QueryTaskListResponseBody = {
+  code?: string(name='Code', description='错误码'),
+  message?: string(name='Message', description='错误信息'),
+  pageData?: {
+    data?: [ 
+      {
+        operateDate?: string(name='OperateDate', description='创建时间'),
+        paramConfig?: string(name='ParamConfig', description='约束条件'),
+        robotCode?: string(name='RobotCode', description='机器人code'),
+        status?: long(name='Status', description='状态'),
+        taskId?: long(name='TaskId', description='任务id'),
+        type?: string(name='Type', description='挖掘场景'),
+      }
+    ](name='Data', description='任务配置列表'),
+    maxResults?: long(name='MaxResults', description='返回的最大记录数'),
+    nextToken?: string(name='NextToken', description='下一页的token'),
+  }(name='PageData'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功'),
+}
+
+model QueryTaskListResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryTaskListResponseBody(name='body'),
+}
+
+async function queryTaskListWithOptions(tmpReq: QueryTaskListRequest, runtime: Util.RuntimeOptions): QueryTaskListResponse {
+  Util.validateModel(tmpReq);
+  var request = new QueryTaskListShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.digTaskPageQuery)) {
+    request.digTaskPageQueryShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.digTaskPageQuery, 'DigTaskPageQuery', 'json');
+  }
+  if (!Util.isUnset(tmpReq.pageData)) {
+    request.pageDataShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.pageData, 'PageData', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryTaskList',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function queryTaskList(request: QueryTaskListRequest): QueryTaskListResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryTaskListWithOptions(request, runtime);
+}
+
+model RecognizeMessageRequest {
+  chatId?: string(name='ChatId', description='单句的唯一ID'),
+  clientInfo?: {
+    clientApp?: string(name='ClientApp', description='客户端APP'),
+    clientOs?: string(name='ClientOs', description='客户端系统'),
+    clientVersion?: string(name='ClientVersion', description='客户端版本'),
+  }(name='ClientInfo', description='客户端信息'),
+  content?: string(name='Content', description='用户输入的query'),
+  contentType?: string(name='ContentType', description='用户输入的query类型'),
+  extraContent?: map[string]any(name='ExtraContent', description='query扩展信息, 通常在点击事件中使用'),
+  focusItemId?: string(name='FocusItemId', description='焦点商品id'),
+  focusOrderId?: string(name='FocusOrderId', description='焦点订单id'),
+  items?: [ 
+    {
+      categoryId?: string(name='CategoryId', description='商品叶子类目id'),
+      itemId?: string(name='ItemId', description='商品id'),
+      picUrl?: string(name='PicUrl', description='商品主图url'),
+      price?: float(name='Price', description='商品价格'),
+      property?: map[string]string(name='Property', description='商品属性'),
+      sellerId?: string(name='SellerId', description='卖家id'),
+      shopCategoryIds?: [ string ](name='ShopCategoryIds', description='商品店铺类目'),
+      title?: string(name='Title', description='商品标题'),
+    }
+  ](name='Items', description='商品列表'),
+  orders?: [ 
+    {
+      buyerId?: string(name='BuyerId', description='买家id'),
+      buyerRateStatus?: string(name='BuyerRateStatus', description='评价状态'),
+      count?: int32(name='Count', description='订单中的商品数量'),
+      createTime?: long(name='CreateTime', description='订单创建时间'),
+      itemId?: string(name='ItemId', description='订单中的商品id'),
+      itemPic?: string(name='ItemPic', description='商品主图url'),
+      itemTitle?: string(name='ItemTitle', description='商品标题'),
+      logisticsStatus?: string(name='LogisticsStatus', description='物流状态'),
+      orderId?: string(name='OrderId', description='子订单id'),
+      parentOrderId?: string(name='ParentOrderId', description='主订单id'),
+      payStatus?: string(name='PayStatus', description='支付状态'),
+      payTime?: long(name='PayTime', description='订单支付时间'),
+      price?: float(name='Price', description='订单价格'),
+      refundStatus?: string(name='RefundStatus', description='退款状态'),
+      sellerId?: string(name='SellerId', description='卖家id'),
+      skuProperty?: string(name='SkuProperty', description='sku属性'),
+    }
+  ](name='Orders', description='订单列表'),
+  packages?: [ 
+    {
+      packageCode?: string(name='PackageCode', description='行业包code'),
+      packageVersion?: string(name='PackageVersion', description='行业包版本'),
+    }
+  ](name='Packages', description='指定行业包'),
+  robotCode?: string(name='RobotCode', description='机器人ID'),
+  round?: int32(name='Round', description='当前的对话轮次'),
+  sellerId?: string(name='SellerId', description='卖家ID'),
+  sellerNick?: string(name='SellerNick', description='卖家nick'),
+  serviceMode?: string(name='ServiceMode', description='机器人模式'),
+  sessionId?: string(name='SessionId', description='买卖家之间的会话ID'),
+  staffId?: string(name='StaffId', description='卖家接待人ID'),
+  staffNick?: string(name='StaffNick', description='卖家接待人nick'),
+  stressTesting?: boolean(name='StressTesting', description='是否压测流量'),
+  userId?: string(name='UserId', description='买家ID'),
+  userNick?: string(name='UserNick', description='买家nick'),
+}
+
+model RecognizeMessageShrinkRequest {
+  chatId?: string(name='ChatId', description='单句的唯一ID'),
+  clientInfoShrink?: string(name='ClientInfo', description='客户端信息'),
+  content?: string(name='Content', description='用户输入的query'),
+  contentType?: string(name='ContentType', description='用户输入的query类型'),
+  extraContentShrink?: string(name='ExtraContent', description='query扩展信息, 通常在点击事件中使用'),
+  focusItemId?: string(name='FocusItemId', description='焦点商品id'),
+  focusOrderId?: string(name='FocusOrderId', description='焦点订单id'),
+  itemsShrink?: string(name='Items', description='商品列表'),
+  ordersShrink?: string(name='Orders', description='订单列表'),
+  packagesShrink?: string(name='Packages', description='指定行业包'),
+  robotCode?: string(name='RobotCode', description='机器人ID'),
+  round?: int32(name='Round', description='当前的对话轮次'),
+  sellerId?: string(name='SellerId', description='卖家ID'),
+  sellerNick?: string(name='SellerNick', description='卖家nick'),
+  serviceMode?: string(name='ServiceMode', description='机器人模式'),
+  sessionId?: string(name='SessionId', description='买卖家之间的会话ID'),
+  staffId?: string(name='StaffId', description='卖家接待人ID'),
+  staffNick?: string(name='StaffNick', description='卖家接待人nick'),
+  stressTesting?: boolean(name='StressTesting', description='是否压测流量'),
+  userId?: string(name='UserId', description='买家ID'),
+  userNick?: string(name='UserNick', description='买家nick'),
+}
+
+model RecognizeMessageResponseBody = {
+  code?: string(name='Code', description='错误码'),
+  data?: {
+    knowledges?: [ 
+      {
+        knowledgeId?: long(name='KnowledgeId', description='知识id'),
+        knowledgeTitle?: string(name='KnowledgeTitle', description='知识标题'),
+        sceneKey?: string(name='SceneKey', description='场景key'),
+        solutions?: [ 
+          {
+            conditions?: [ 
+              {
+                conditionType?: string(name='ConditionType', description='条件类型'),
+                conditionValue?: string(name='ConditionValue', description='条件表达式'),
+              }
+            ](name='Conditions', description='答案限定条件'),
+            extraContent?: string(name='ExtraContent', description='扩展答案信息'),
+            knowledgeId?: long(name='KnowledgeId', description='知识id'),
+            solutionContent?: string(name='SolutionContent', description='答案内容'),
+            solutionId?: long(name='SolutionId', description='答案id'),
+            solutionSource?: string(name='SolutionSource', description='答案来源'),
+            solutionType?: string(name='SolutionType', description='答案类型'),
+            solutionVariables?: [ 
+              {
+                variableName?: string(name='VariableName', description='变量名称'),
+                variableType?: string(name='VariableType', description='变量类型'),
+              }
+            ](name='SolutionVariables', description='答案变量'),
+          }
+        ](name='Solutions', description='知识答案'),
+      }
+    ](name='Knowledges', description='定位到的知识'),
+    outputMessages?: [ 
+      {
+        outputContent?: map[string]any(name='OutputContent', description='回复内容'),
+        outputContentType?: string(name='OutputContentType', description='回复类型'),
+      }
+    ](name='OutputMessages', description='建议的回复内容'),
+    scene?: {
+      emotionTag?: string(name='EmotionTag', description='情绪识别'),
+      itemId?: string(name='ItemId', description='定位场景使用的商品id'),
+      orderId?: string(name='OrderId', description='定位场景使用的订单id'),
+      sceneDTOs?: [ 
+        {
+          sceneKey?: string(name='SceneKey', description='场景key'),
+        }
+      ](name='SceneDTOs', description='场景识别'),
+      semanticComplete?: string(name='SemanticComplete', description='语义完整性识别'),
+    }(name='Scene', description='定位到的场景'),
+    extOutput?: map[string]any(name='extOutput', description='扩展的输出'),
+  }(name='Data', description='问答返回结果'),
+  message?: string(name='Message', description='错误信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功'),
+}
+
+model RecognizeMessageResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeMessageResponseBody(name='body'),
+}
+
+async function recognizeMessageWithOptions(tmpReq: RecognizeMessageRequest, runtime: Util.RuntimeOptions): RecognizeMessageResponse {
+  Util.validateModel(tmpReq);
+  var request = new RecognizeMessageShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.clientInfo)) {
+    request.clientInfoShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.clientInfo, 'ClientInfo', 'json');
+  }
+  if (!Util.isUnset(tmpReq.extraContent)) {
+    request.extraContentShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.extraContent, 'ExtraContent', 'json');
+  }
+  if (!Util.isUnset(tmpReq.items)) {
+    request.itemsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.items, 'Items', 'json');
+  }
+  if (!Util.isUnset(tmpReq.orders)) {
+    request.ordersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.orders, 'Orders', 'json');
+  }
+  if (!Util.isUnset(tmpReq.packages)) {
+    request.packagesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.packages, 'Packages', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'RecognizeMessage',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function recognizeMessage(request: RecognizeMessageRequest): RecognizeMessageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeMessageWithOptions(request, runtime);
+}
+
+model RecognizeMessageForTestRequest {
+  chatId?: string(name='ChatId', description='单句的唯一ID'),
+  clientInfo?: {
+    clientApp?: string(name='ClientApp', description='客户端APP'),
+    clientOs?: string(name='ClientOs', description='客户端系统'),
+    clientVersion?: string(name='ClientVersion', description='客户端版本'),
+  }(name='ClientInfo', description='客户端信息'),
+  content?: string(name='Content', description='用户输入的query'),
+  contentType?: string(name='ContentType', description='用户输入的query类型'),
+  extraContent?: map[string]any(name='ExtraContent', description='query扩展信息, 通常在点击事件中使用'),
+  focusItemId?: string(name='FocusItemId', description='焦点商品id'),
+  focusOrderId?: string(name='FocusOrderId', description='焦点订单id'),
+  ignoreSceneSwitch?: boolean(name='IgnoreSceneSwitch', description='是否忽略场景开关'),
+  items?: [ 
+    {
+      categoryId?: string(name='CategoryId', description='商品叶子类目id'),
+      itemId?: string(name='ItemId', description='商品id'),
+      picUrl?: string(name='PicUrl', description='商品主图url'),
+      price?: float(name='Price', description='商品价格'),
+      property?: map[string]string(name='Property', description='商品属性'),
+      sellerId?: string(name='SellerId', description='卖家id'),
+      shopCategoryIds?: [ string ](name='ShopCategoryIds', description='商品店铺类目'),
+      title?: string(name='Title', description='商品标题'),
+    }
+  ](name='Items', description='商品列表'),
+  orders?: [ 
+    {
+      buyerId?: string(name='BuyerId', description='买家id'),
+      buyerRateStatus?: string(name='BuyerRateStatus', description='评价状态'),
+      count?: int32(name='Count', description='订单中的商品数量'),
+      createTime?: long(name='CreateTime', description='订单创建时间'),
+      itemId?: string(name='ItemId', description='订单中的商品id'),
+      itemPic?: string(name='ItemPic', description='商品主图url'),
+      itemTitle?: string(name='ItemTitle', description='商品标题'),
+      logisticsStatus?: string(name='LogisticsStatus', description='物流状态'),
+      orderId?: string(name='OrderId', description='子订单id'),
+      parentOrderId?: string(name='ParentOrderId', description='主订单id'),
+      payStatus?: string(name='PayStatus', description='支付状态'),
+      payTime?: long(name='PayTime', description='订单支付时间'),
+      price?: float(name='Price', description='订单价格'),
+      refundStatus?: string(name='RefundStatus', description='退款状态'),
+      sellerId?: string(name='SellerId', description='卖家id'),
+      skuProperty?: string(name='SkuProperty', description='sku属性'),
+    }
+  ](name='Orders', description='订单列表'),
+  robotCode?: string(name='RobotCode', description='机器人ID'),
+  round?: int32(name='Round', description='当前的对话轮次'),
+  sellerId?: string(name='SellerId', description='卖家ID'),
+  sellerNick?: string(name='SellerNick', description='卖家nick'),
+  serviceMode?: string(name='ServiceMode', description='机器人模式'),
+  sessionId?: string(name='SessionId', description='买卖家之间的会话ID'),
+  staffId?: string(name='StaffId', description='卖家接待人ID'),
+  staffNick?: string(name='StaffNick', description='卖家接待人nick'),
+  userId?: string(name='UserId', description='买家ID'),
+  userNick?: string(name='UserNick', description='买家nick'),
+}
+
+model RecognizeMessageForTestShrinkRequest {
+  chatId?: string(name='ChatId', description='单句的唯一ID'),
+  clientInfoShrink?: string(name='ClientInfo', description='客户端信息'),
+  content?: string(name='Content', description='用户输入的query'),
+  contentType?: string(name='ContentType', description='用户输入的query类型'),
+  extraContentShrink?: string(name='ExtraContent', description='query扩展信息, 通常在点击事件中使用'),
+  focusItemId?: string(name='FocusItemId', description='焦点商品id'),
+  focusOrderId?: string(name='FocusOrderId', description='焦点订单id'),
+  ignoreSceneSwitch?: boolean(name='IgnoreSceneSwitch', description='是否忽略场景开关'),
+  itemsShrink?: string(name='Items', description='商品列表'),
+  ordersShrink?: string(name='Orders', description='订单列表'),
+  robotCode?: string(name='RobotCode', description='机器人ID'),
+  round?: int32(name='Round', description='当前的对话轮次'),
+  sellerId?: string(name='SellerId', description='卖家ID'),
+  sellerNick?: string(name='SellerNick', description='卖家nick'),
+  serviceMode?: string(name='ServiceMode', description='机器人模式'),
+  sessionId?: string(name='SessionId', description='买卖家之间的会话ID'),
+  staffId?: string(name='StaffId', description='卖家接待人ID'),
+  staffNick?: string(name='StaffNick', description='卖家接待人nick'),
+  userId?: string(name='UserId', description='买家ID'),
+  userNick?: string(name='UserNick', description='买家nick'),
+}
+
+model RecognizeMessageForTestResponseBody = {
+  code?: string(name='Code', description='错误码'),
+  data?: {
+    knowledges?: [ 
+      {
+        knowledgeId?: long(name='KnowledgeId', description='知识id'),
+        knowledgeTitle?: string(name='KnowledgeTitle', description='知识标题'),
+        sceneKey?: string(name='SceneKey', description='场景key'),
+        solutions?: [ 
+          {
+            conditions?: [ 
+              {
+                conditionType?: string(name='ConditionType', description='条件类型'),
+                conditionValue?: string(name='ConditionValue', description='条件表达式'),
+              }
+            ](name='Conditions', description='答案限定条件'),
+            extraContent?: string(name='ExtraContent', description='扩展答案信息'),
+            knowledgeId?: long(name='KnowledgeId', description='知识id'),
+            solutionContent?: string(name='SolutionContent', description='答案内容'),
+            solutionId?: long(name='SolutionId', description='答案id'),
+            solutionSource?: string(name='SolutionSource', description='答案来源'),
+            solutionType?: string(name='SolutionType', description='答案类型'),
+            solutionVariables?: [ 
+              {
+                variableName?: string(name='VariableName', description='变量名称'),
+                variableType?: string(name='VariableType', description='变量类型'),
+              }
+            ](name='SolutionVariables', description='答案变量'),
+          }
+        ](name='Solutions', description='知识答案'),
+      }
+    ](name='Knowledges', description='定位到的知识'),
+    outputMessages?: [ 
+      {
+        outputContent?: map[string]any(name='OutputContent', description='回复内容'),
+        outputContentType?: string(name='OutputContentType', description='回复类型'),
+      }
+    ](name='OutputMessages', description='建议的回复内容'),
+    scene?: {
+      emotionTag?: string(name='EmotionTag', description='情绪识别'),
+      itemId?: string(name='ItemId', description='定位场景使用的商品id'),
+      orderId?: string(name='OrderId', description='定位场景使用的订单id'),
+      sceneDTOs?: [ 
+        {
+          sceneKey?: string(name='SceneKey', description='场景key'),
+        }
+      ](name='SceneDTOs', description='场景识别'),
+      semanticComplete?: string(name='SemanticComplete', description='语义完整性识别'),
+    }(name='Scene', description='定位到的场景'),
+    extOutput?: map[string]any(name='extOutput', description='扩展的输出'),
+  }(name='Data', description='问答返回结果'),
+  message?: string(name='Message', description='错误信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功'),
+}
+
+model RecognizeMessageForTestResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecognizeMessageForTestResponseBody(name='body'),
+}
+
+async function recognizeMessageForTestWithOptions(tmpReq: RecognizeMessageForTestRequest, runtime: Util.RuntimeOptions): RecognizeMessageForTestResponse {
+  Util.validateModel(tmpReq);
+  var request = new RecognizeMessageForTestShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.clientInfo)) {
+    request.clientInfoShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.clientInfo, 'ClientInfo', 'json');
+  }
+  if (!Util.isUnset(tmpReq.extraContent)) {
+    request.extraContentShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.extraContent, 'ExtraContent', 'json');
+  }
+  if (!Util.isUnset(tmpReq.items)) {
+    request.itemsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.items, 'Items', 'json');
+  }
+  if (!Util.isUnset(tmpReq.orders)) {
+    request.ordersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.orders, 'Orders', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'RecognizeMessageForTest',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function recognizeMessageForTest(request: RecognizeMessageForTestRequest): RecognizeMessageForTestResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return recognizeMessageForTestWithOptions(request, runtime);
+}
+
+model RefundRequest {
+  data?: string(name='data'),
+}
+
+model RefundResponseBody = {
+  code?: string(name='code'),
+  data?: string(name='data'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId', description='Id of the request'),
+  success?: boolean(name='success'),
+}
+
+model RefundResponse = {
+  headers: map[string]string(name='headers'),
+  body: RefundResponseBody(name='body'),
+}
+
+async function refundWithOptions(request: RefundRequest, runtime: Util.RuntimeOptions): RefundResponse {
+  Util.validateModel(request);
+  var query = {};
+  query["data"] = request.data;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'Refund',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function refund(request: RefundRequest): RefundResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return refundWithOptions(request, runtime);
 }
 
 model ReleaseServiceTestRequest {
@@ -339,7 +2211,18 @@ async function releaseServiceTestWithOptions(request: ReleaseServiceTestRequest,
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('ReleaseServiceTest', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ReleaseServiceTest',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function releaseServiceTest(request: ReleaseServiceTestRequest): ReleaseServiceTestResponse {
@@ -347,142 +2230,272 @@ async function releaseServiceTest(request: ReleaseServiceTestRequest): ReleaseSe
   return releaseServiceTestWithOptions(request, runtime);
 }
 
-model QueryByTaskIdRequest {
-  taskId?: long(name='TaskId', description='任务id'),
-  robotCode?: string(name='RobotCode', description='机器人Code'),
+model SyncMessageRequest {
+  chatId?: string(name='ChatId', description='对话chatId'),
+  content?: string(name='Content', description='消息内容'),
+  contentType?: string(name='ContentType', description='消息类型'),
+  direction?: string(name='Direction', description='消息发送方向'),
+  messageId?: string(name='MessageId', description='消息ID'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+  sellerId?: string(name='SellerId', description='卖家ID'),
+  sellerNick?: string(name='SellerNick', description='卖家nick'),
+  sendTime?: long(name='SendTime', description='消息发送时间戳'),
+  sessionId?: string(name='SessionId', description='对话sessionId'),
+  source?: string(name='Source', description='消息来源'),
+  staffId?: string(name='StaffId', description='卖家小二ID'),
+  staffNick?: string(name='StaffNick', description='卖家小二nick'),
+  userId?: string(name='UserId', description='买家ID'),
+  userNick?: string(name='UserNick', description='买家nick'),
 }
 
-model QueryByTaskIdResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success', description='是否成功'),
+model SyncMessageResponseBody = {
   code?: string(name='Code', description='错误码'),
   message?: string(name='Message', description='错误信息'),
-  data?: {
-    robotCode?: string(name='RobotCode', description='机器人id'),
-    endpoint?: string(name='Endpoint', description='oss域名'),
-    accessKeyId?: string(name='AccessKeyId', description='临时授权id'),
-    accessKeySecret?: string(name='AccessKeySecret', description='临时授权secret'),
-    securityToken?: string(name='SecurityToken', description='临时安全token'),
-    bucketName?: string(name='BucketName', description='oss-bucket'),
-    expirationDate?: long(name='ExpirationDate', description='过期时间 (秒)'),
-    answerFilePath?: string(name='AnswerFilePath', description='答案类型文件路径'),
-    queryFilePath?: string(name='QueryFilePath', description='问题类型文件路径'),
-  }(name='Data', description='返回信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功'),
 }
 
-model QueryByTaskIdResponse = {
+model SyncMessageResponse = {
   headers: map[string]string(name='headers'),
-  body: QueryByTaskIdResponseBody(name='body'),
+  body: SyncMessageResponseBody(name='body'),
 }
 
-async function queryByTaskIdWithOptions(request: QueryByTaskIdRequest, runtime: Util.RuntimeOptions): QueryByTaskIdResponse {
+async function syncMessageWithOptions(request: SyncMessageRequest, runtime: Util.RuntimeOptions): SyncMessageResponse {
   Util.validateModel(request);
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('QueryByTaskId', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'SyncMessage',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-async function queryByTaskId(request: QueryByTaskIdRequest): QueryByTaskIdResponse {
+async function syncMessage(request: SyncMessageRequest): SyncMessageResponse {
   var runtime = new Util.RuntimeOptions{};
-  return queryByTaskIdWithOptions(request, runtime);
+  return syncMessageWithOptions(request, runtime);
 }
 
-model DeleteTaskRequest {
-  digDeleteParam?: {
-    taskId?: long(name='TaskId'),
-    robotCode?: string(name='RobotCode'),
-    operatorName?: string(name='OperatorName'),
-    operatorId?: string(name='OperatorId'),
-    delMessage?: string(name='DelMessage'),
-  }(name='DigDeleteParam'),
+model SyncRobotMessageRequest {
+  answerId?: string(name='AnswerId', description='回复给买家的答案ID'),
+  answerType?: string(name='AnswerType', description='答案类型'),
+  chatId?: string(name='ChatId', description='单句的唯一ID'),
+  reason?: string(name='Reason', description='不采纳店小蜜的原因'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+  sceneKey?: string(name='SceneKey', description='采纳的场景key'),
+  sessionId?: string(name='SessionId', description='买卖家之间的会话ID'),
+  solutions?: [ string ](name='Solutions', description='回复到千牛的答案'),
+  useDxm?: string(name='UseDxm', description='是否使用店小蜜的结果'),
 }
 
-model DeleteTaskShrinkRequest {
-  digDeleteParamShrink?: string(name='DigDeleteParam'),
+model SyncRobotMessageShrinkRequest {
+  answerId?: string(name='AnswerId', description='回复给买家的答案ID'),
+  answerType?: string(name='AnswerType', description='答案类型'),
+  chatId?: string(name='ChatId', description='单句的唯一ID'),
+  reason?: string(name='Reason', description='不采纳店小蜜的原因'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+  sceneKey?: string(name='SceneKey', description='采纳的场景key'),
+  sessionId?: string(name='SessionId', description='买卖家之间的会话ID'),
+  solutionsShrink?: string(name='Solutions', description='回复到千牛的答案'),
+  useDxm?: string(name='UseDxm', description='是否使用店小蜜的结果'),
 }
 
-model DeleteTaskResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success', description='true'),
+model SyncRobotMessageResponseBody = {
   code?: string(name='Code', description='错误码'),
   message?: string(name='Message', description='错误信息'),
-  data?: long(name='Data'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功'),
 }
 
-model DeleteTaskResponse = {
+model SyncRobotMessageResponse = {
   headers: map[string]string(name='headers'),
-  body: DeleteTaskResponseBody(name='body'),
+  body: SyncRobotMessageResponseBody(name='body'),
 }
 
-async function deleteTaskWithOptions(tmpReq: DeleteTaskRequest, runtime: Util.RuntimeOptions): DeleteTaskResponse {
+async function syncRobotMessageWithOptions(tmpReq: SyncRobotMessageRequest, runtime: Util.RuntimeOptions): SyncRobotMessageResponse {
   Util.validateModel(tmpReq);
-  var request = new DeleteTaskShrinkRequest{};
+  var request = new SyncRobotMessageShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.digDeleteParam)) {
-    request.digDeleteParamShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.digDeleteParam, 'DigDeleteParam', 'json');
+  if (!Util.isUnset(tmpReq.solutions)) {
+    request.solutionsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.solutions, 'Solutions', 'json');
   }
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('DeleteTask', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'SyncRobotMessage',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-async function deleteTask(request: DeleteTaskRequest): DeleteTaskResponse {
+async function syncRobotMessage(request: SyncRobotMessageRequest): SyncRobotMessageResponse {
   var runtime = new Util.RuntimeOptions{};
-  return deleteTaskWithOptions(request, runtime);
+  return syncRobotMessageWithOptions(request, runtime);
 }
 
-model VerifyOrderRequest {
-  data?: string(name='data'),
+model UninstallPackageRequest {
+  operator?: {
+    operatorId?: string(name='OperatorId', description='操作人id'),
+    operatorName?: string(name='OperatorName', description='操作人显示名称'),
+  }(name='Operator', description='操作人信息'),
+  packages?: [ 
+    {
+      packageCode?: string(name='PackageCode', description='行业包code'),
+      packageVersion?: string(name='PackageVersion', description='行业包版本'),
+    }
+  ](name='Packages', description='取消订阅的行业包'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
 }
 
-model VerifyOrderResponseBody = {
-  requestId?: string(name='requestId', description='Id of the request'),
-  success?: boolean(name='success'),
-  data?: string(name='data'),
-  code?: string(name='code'),
-  message?: string(name='message'),
+model UninstallPackageShrinkRequest {
+  operatorShrink?: string(name='Operator', description='操作人信息'),
+  packagesShrink?: string(name='Packages', description='取消订阅的行业包'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
 }
 
-model VerifyOrderResponse = {
+model UninstallPackageResponseBody = {
+  code?: string(name='Code', description='错误码'),
+  data?: map[string]any(name='Data', description='成功和失败的行业包code'),
+  message?: string(name='Message', description='错误信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功'),
+}
+
+model UninstallPackageResponse = {
   headers: map[string]string(name='headers'),
-  body: VerifyOrderResponseBody(name='body'),
+  body: UninstallPackageResponseBody(name='body'),
 }
 
-async function verifyOrderWithOptions(request: VerifyOrderRequest, runtime: Util.RuntimeOptions): VerifyOrderResponse {
-  Util.validateModel(request);
+async function uninstallPackageWithOptions(tmpReq: UninstallPackageRequest, runtime: Util.RuntimeOptions): UninstallPackageResponse {
+  Util.validateModel(tmpReq);
+  var request = new UninstallPackageShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.operator)) {
+    request.operatorShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.operator, 'Operator', 'json');
+  }
+  if (!Util.isUnset(tmpReq.packages)) {
+    request.packagesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.packages, 'Packages', 'json');
+  }
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('VerifyOrder', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UninstallPackage',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-async function verifyOrder(request: VerifyOrderRequest): VerifyOrderResponse {
+async function uninstallPackage(request: UninstallPackageRequest): UninstallPackageResponse {
   var runtime = new Util.RuntimeOptions{};
-  return verifyOrderWithOptions(request, runtime);
+  return uninstallPackageWithOptions(request, runtime);
+}
+
+model UpdateRobotRequest {
+  operator?: {
+    operatorId?: string(name='OperatorId', description='操作人id'),
+    operatorName?: string(name='OperatorName', description='操作人显示名'),
+  }(name='Operator', description='操作人信息'),
+  robotDTO?: {
+    expireDate?: long(name='ExpireDate', description='签约到期时间'),
+    robotCode?: string(name='RobotCode', description='机器人code'),
+    sellerNick?: string(name='SellerNick', description='商家nick'),
+    signDate?: long(name='SignDate', description='签约时间'),
+  }(name='RobotDTO', description='机器人信息'),
+}
+
+model UpdateRobotShrinkRequest {
+  operatorShrink?: string(name='Operator', description='操作人信息'),
+  robotDTOShrink?: string(name='RobotDTO', description='机器人信息'),
+}
+
+model UpdateRobotResponseBody = {
+  code?: string(name='Code', description='错误码'),
+  message?: string(name='Message', description='错误信息'),
+  requestId?: string(name='RequestId', description='request id'),
+  success?: boolean(name='Success', description='是否成功'),
+}
+
+model UpdateRobotResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateRobotResponseBody(name='body'),
+}
+
+async function updateRobotWithOptions(tmpReq: UpdateRobotRequest, runtime: Util.RuntimeOptions): UpdateRobotResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateRobotShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.operator)) {
+    request.operatorShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.operator, 'Operator', 'json');
+  }
+  if (!Util.isUnset(tmpReq.robotDTO)) {
+    request.robotDTOShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.robotDTO, 'RobotDTO', 'json');
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = Util.toMap(request),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateRobot',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function updateRobot(request: UpdateRobotRequest): UpdateRobotResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateRobotWithOptions(request, runtime);
 }
 
 model UpdateSolutionRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
   knowledgeId?: long(name='KnowledgeId', description='知识id'),
   operatorId?: string(name='OperatorId', description='操作用户id'),
   operatorName?: string(name='OperatorName', description='操作用户名称'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
   solution?: {
-    solutionId?: long(name='SolutionId', description='答案id'),
-    knowledgeId?: long(name='KnowledgeId', description='知识id'),
-    solutionType?: string(name='SolutionType', description='答案类型, "text"：文本答案'),
-    solutionSource?: string(name='SolutionSource', description='答案来源'),
-    solutionContent?: string(name='SolutionContent', description='答案正文'),
     conditions?: [ 
       {
-        knowledgeId?: long(name='KnowledgeId', description='知识id'),
-        solutionId?: long(name='SolutionId', description='答案id'),
         conditionType?: string(name='ConditionType', description='生效模式：EffectiveMode'),
         conditionValue?: string(name='ConditionValue', description='生效模式："disable":全部不生效，"auto":全自动，"assistant":智能辅助，"enable":全部生效'),
+        knowledgeId?: long(name='KnowledgeId', description='知识id'),
+        solutionId?: long(name='SolutionId', description='答案id'),
       }
     ](name='Conditions', description='答案约束'),
     extraContent?: string(name='ExtraContent', description='答案扩展信息'),
+    knowledgeId?: long(name='KnowledgeId', description='知识id'),
+    solutionContent?: string(name='SolutionContent', description='答案正文'),
+    solutionId?: long(name='SolutionId', description='答案id'),
+    solutionSource?: string(name='SolutionSource', description='答案来源'),
+    solutionType?: string(name='SolutionType', description='答案类型, "text"：文本答案'),
     solutionVariables?: [ 
       {
         knowledgeId?: long(name='KnowledgeId', description='知识id'),
@@ -495,18 +2508,18 @@ model UpdateSolutionRequest {
 }
 
 model UpdateSolutionShrinkRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
   knowledgeId?: long(name='KnowledgeId', description='知识id'),
   operatorId?: string(name='OperatorId', description='操作用户id'),
   operatorName?: string(name='OperatorName', description='操作用户名称'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
   solutionShrink?: string(name='Solution', description='答案数据'),
 }
 
 model UpdateSolutionResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success', description='是否成功标示'),
   code?: string(name='Code', description='返回code'),
   message?: string(name='Message', description='返回信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功标示'),
 }
 
 model UpdateSolutionResponse = {
@@ -524,266 +2537,23 @@ async function updateSolutionWithOptions(tmpReq: UpdateSolutionRequest, runtime:
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('UpdateSolution', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UpdateSolution',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function updateSolution(request: UpdateSolutionRequest): UpdateSolutionResponse {
   var runtime = new Util.RuntimeOptions{};
   return updateSolutionWithOptions(request, runtime);
-}
-
-model ListSubscribedPackageKnowledgesRequest {
-  categoryId?: long(name='CategoryId', description='类目id'),
-  packageCodes?: [ string ](name='PackageCodes', description='查询指定包的场景'),
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  operatorId?: string(name='OperatorId', description='操作用户id'),
-  operatorName?: string(name='OperatorName', description='操作用户名称'),
-}
-
-model ListSubscribedPackageKnowledgesResponseBody = {
-  knowledges?: [ 
-    {
-      knowledgeId?: long(name='KnowledgeId', description='知识id'),
-      knowledgeTitle?: string(name='KnowledgeTitle', description='知识标题'),
-      knowledgeStatus?: string(name='KnowledgeStatus', description='"online":在用，"disabled":禁用'),
-      knowledgeDescription?: string(name='KnowledgeDescription', description='知识描述'),
-      createTime?: string(name='CreateTime', description='创建时间格式：yyyy-MM-dd HH:mm:ss'),
-      modifyTime?: string(name='ModifyTime', description='修改时间格式：yyyy-MM-dd HH:mm:ss'),
-      createUserId?: string(name='CreateUserId', description='创建用户id'),
-      modifyUserId?: string(name='ModifyUserId', description='修改用户id'),
-      sceneKey?: string(name='SceneKey'),
-      similarQuestions?: [ 
-        {
-          similarQuestionId?: long(name='SimilarQuestionId', description='问法id'),
-          similarQuestionTitle?: string(name='SimilarQuestionTitle', description='示例问法标题'),
-          similarQuestionType?: string(name='SimilarQuestionType', description='"similar":相似问法，"sample":例句，"keyword":关键字'),
-          similarQuestionEffectType?: string(name='SimilarQuestionEffectType', description='"positive":正向，"negative":负向'),
-          createTime?: string(name='CreateTime', description='创建时间格式：yyyy-MM-dd HH:mm:ss'),
-          modifyTime?: string(name='ModifyTime', description='修改时间格式：yyyy-MM-dd HH:mm:ss'),
-          createUserId?: string(name='CreateUserId', description='创建用户id'),
-          modifyUserId?: string(name='ModifyUserId', description='修改用户id'),
-        }
-      ](name='SimilarQuestions', description='示例问法、正负例句、正负关键字'),
-      solutions?: [ 
-        {
-          solutionId?: long(name='SolutionId', description='答案id'),
-          knowledgeId?: long(name='KnowledgeId', description='场景id'),
-          solutionType?: string(name='SolutionType', description='答案类型,"text":文本答案'),
-          solutionSource?: string(name='SolutionSource', description='答案来源'),
-          solutionContent?: string(name='SolutionContent', description='答案正文'),
-          conditions?: [ 
-            {
-              knowledgeId?: long(name='KnowledgeId', description='知识id'),
-              solutionId?: long(name='SolutionId', description='答案id'),
-              conditionType?: string(name='ConditionType', description='生效模式：EffectiveMode'),
-              conditionValue?: string(name='ConditionValue', description='生效模式："disable":全部不生效，"auto":全自动，"assistant":智能辅助，"enable":全部生效'),
-            }
-          ](name='Conditions', description='答案约束'),
-          extraContent?: string(name='ExtraContent', description='答案扩展信息'),
-        }
-      ](name='Solutions', description='答案'),
-    }
-  ](name='Knowledges', description='知识集合'),
-  requestId?: string(name='RequestId', description='请求id'),
-  success?: boolean(name='Success', description='是否成功标示'),
-  code?: string(name='Code', description='返回code'),
-  message?: string(name='Message', description='返回信息'),
-}
-
-model ListSubscribedPackageKnowledgesResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListSubscribedPackageKnowledgesResponseBody(name='body'),
-}
-
-async function listSubscribedPackageKnowledgesWithOptions(request: ListSubscribedPackageKnowledgesRequest, runtime: Util.RuntimeOptions): ListSubscribedPackageKnowledgesResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ListSubscribedPackageKnowledges', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function listSubscribedPackageKnowledges(request: ListSubscribedPackageKnowledgesRequest): ListSubscribedPackageKnowledgesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listSubscribedPackageKnowledgesWithOptions(request, runtime);
-}
-
-model AdminTestSeviceRequest {
-  versionId?: long(name='VersionId'),
-  aliyunAccountDTO?: {
-    aliUid?: long(name='AliUid'),
-  }(name='AliyunAccountDTO'),
-}
-
-model AdminTestSeviceResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-}
-
-model AdminTestSeviceResponse = {
-  headers: map[string]string(name='headers'),
-  body: AdminTestSeviceResponseBody(name='body'),
-}
-
-async function adminTestSeviceWithOptions(request: AdminTestSeviceRequest, runtime: Util.RuntimeOptions): AdminTestSeviceResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('AdminTestSevice', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function adminTestSevice(request: AdminTestSeviceRequest): AdminTestSeviceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return adminTestSeviceWithOptions(request, runtime);
-}
-
-model ProcessMessageRequest {
-  data?: string(name='data'),
-}
-
-model ProcessMessageResponseBody = {
-  requestId?: string(name='requestId', description='Id of the request'),
-  data?: string(name='data'),
-  success?: boolean(name='success'),
-  code?: string(name='code'),
-  message?: string(name='message'),
-}
-
-model ProcessMessageResponse = {
-  headers: map[string]string(name='headers'),
-  body: ProcessMessageResponseBody(name='body'),
-}
-
-async function processMessageWithOptions(request: ProcessMessageRequest, runtime: Util.RuntimeOptions): ProcessMessageResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ProcessMessage', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function processMessage(request: ProcessMessageRequest): ProcessMessageResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return processMessageWithOptions(request, runtime);
-}
-
-model QueryTaskListRequest {
-  digTaskPageQuery?: {
-    robotCode?: string(name='RobotCode'),
-    type?: string(name='Type'),
-    startDate?: string(name='StartDate'),
-    endDate?: string(name='EndDate'),
-  }(name='DigTaskPageQuery'),
-  pageData?: {
-    maxResults?: long(name='MaxResults', description='返回的最大记录数'),
-    nextToken?: string(name='NextToken', description='下一页的token'),
-  }(name='PageData'),
-}
-
-model QueryTaskListShrinkRequest {
-  digTaskPageQueryShrink?: string(name='DigTaskPageQuery'),
-  pageDataShrink?: string(name='PageData'),
-}
-
-model QueryTaskListResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success', description='是否成功'),
-  code?: string(name='Code', description='错误码'),
-  message?: string(name='Message', description='错误信息'),
-  pageData?: {
-    maxResults?: long(name='MaxResults', description='返回的最大记录数'),
-    nextToken?: string(name='NextToken', description='下一页的token'),
-    data?: [ 
-      {
-        robotCode?: string(name='RobotCode', description='机器人code'),
-        taskId?: long(name='TaskId', description='任务id'),
-        operateDate?: string(name='OperateDate', description='创建时间'),
-        type?: string(name='Type', description='挖掘场景'),
-        status?: long(name='Status', description='状态'),
-        paramConfig?: string(name='ParamConfig', description='约束条件'),
-      }
-    ](name='Data', description='任务配置列表'),
-  }(name='PageData'),
-}
-
-model QueryTaskListResponse = {
-  headers: map[string]string(name='headers'),
-  body: QueryTaskListResponseBody(name='body'),
-}
-
-async function queryTaskListWithOptions(tmpReq: QueryTaskListRequest, runtime: Util.RuntimeOptions): QueryTaskListResponse {
-  Util.validateModel(tmpReq);
-  var request = new QueryTaskListShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.digTaskPageQuery)) {
-    request.digTaskPageQueryShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.digTaskPageQuery, 'DigTaskPageQuery', 'json');
-  }
-  if (!Util.isUnset(tmpReq.pageData)) {
-    request.pageDataShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.pageData, 'PageData', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('QueryTaskList', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function queryTaskList(request: QueryTaskListRequest): QueryTaskListResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryTaskListWithOptions(request, runtime);
-}
-
-model UninstallPackageRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  packages?: [ 
-    {
-      packageCode?: string(name='PackageCode', description='行业包code'),
-      packageVersion?: string(name='PackageVersion', description='行业包版本'),
-    }
-  ](name='Packages', description='取消订阅的行业包'),
-  operator?: {
-    operatorId?: string(name='OperatorId', description='操作人id'),
-    operatorName?: string(name='OperatorName', description='操作人显示名称'),
-  }(name='Operator', description='操作人信息'),
-}
-
-model UninstallPackageShrinkRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  packagesShrink?: string(name='Packages', description='取消订阅的行业包'),
-  operatorShrink?: string(name='Operator', description='操作人信息'),
-}
-
-model UninstallPackageResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  data?: map[string]any(name='Data', description='成功和失败的行业包code'),
-  success?: boolean(name='Success', description='是否成功'),
-  code?: string(name='Code', description='错误码'),
-  message?: string(name='Message', description='错误信息'),
-}
-
-model UninstallPackageResponse = {
-  headers: map[string]string(name='headers'),
-  body: UninstallPackageResponseBody(name='body'),
-}
-
-async function uninstallPackageWithOptions(tmpReq: UninstallPackageRequest, runtime: Util.RuntimeOptions): UninstallPackageResponse {
-  Util.validateModel(tmpReq);
-  var request = new UninstallPackageShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.packages)) {
-    request.packagesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.packages, 'Packages', 'json');
-  }
-  if (!Util.isUnset(tmpReq.operator)) {
-    request.operatorShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.operator, 'Operator', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('UninstallPackage', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function uninstallPackage(request: UninstallPackageRequest): UninstallPackageResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return uninstallPackageWithOptions(request, runtime);
 }
 
 model UpgradeIsvConfigRequest {
@@ -807,7 +2577,18 @@ async function upgradeIsvConfigWithOptions(request: UpgradeIsvConfigRequest, run
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('UpgradeIsvConfig', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UpgradeIsvConfig',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function upgradeIsvConfig(request: UpgradeIsvConfigRequest): UpgradeIsvConfigResponse {
@@ -815,101 +2596,33 @@ async function upgradeIsvConfig(request: UpgradeIsvConfigRequest): UpgradeIsvCon
   return upgradeIsvConfigWithOptions(request, runtime);
 }
 
-model AddSolutionRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  knowledgeId?: long(name='KnowledgeId', description='知识id'),
-  solution?: {
-    knowledgeId?: long(name='KnowledgeId', description='知识id'),
-    solutionType?: string(name='SolutionType', description='答案类型, "text":文本知识'),
-    solutionSource?: string(name='SolutionSource', description='答案来源,乐言不需要填'),
-    solutionContent?: string(name='SolutionContent', description='答案正文'),
-    conditions?: [ 
-      {
-        knowledgeId?: long(name='KnowledgeId', description='知识id'),
-        conditionType?: string(name='ConditionType', description='生效模式：EffectiveMode  分支：BranchId'),
-        conditionValue?: string(name='ConditionValue', description='生效模式："disable":全部不生效，"auto":全自动，"assistant":智能辅助，"enable":全部生效  分支：分支id'),
-      }
-    ](name='Conditions', description='答案约束'),
-    extraContent?: string(name='ExtraContent', description='答案扩展信息'),
-    solutionVariables?: [ 
-      {
-        knowledgeId?: long(name='KnowledgeId', description='知识id'),
-        solutionId?: long(name='SolutionId', description='答案id'),
-        variableName?: string(name='VariableName', description='变量名称'),
-        variableType?: string(name='VariableType', description='变量类型'),
-      }
-    ](name='SolutionVariables', description='答案变量'),
-  }(name='Solution', description='答案'),
-  operatorId?: string(name='OperatorId', description='操作人id'),
-  operatorName?: string(name='OperatorName', description='操作人名称'),
-}
-
-model AddSolutionShrinkRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  knowledgeId?: long(name='KnowledgeId', description='知识id'),
-  solutionShrink?: string(name='Solution', description='答案'),
-  operatorId?: string(name='OperatorId', description='操作人id'),
-  operatorName?: string(name='OperatorName', description='操作人名称'),
-}
-
-model AddSolutionResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  solutionId?: long(name='SolutionId', description='答案id'),
-  success?: boolean(name='Success', description='是否成功标示'),
-  code?: string(name='Code', description='返回code'),
-  message?: string(name='Message', description='返回信息'),
-}
-
-model AddSolutionResponse = {
-  headers: map[string]string(name='headers'),
-  body: AddSolutionResponseBody(name='body'),
-}
-
-async function addSolutionWithOptions(tmpReq: AddSolutionRequest, runtime: Util.RuntimeOptions): AddSolutionResponse {
-  Util.validateModel(tmpReq);
-  var request = new AddSolutionShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.solution)) {
-    request.solutionShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.solution, 'Solution', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('AddSolution', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function addSolution(request: AddSolutionRequest): AddSolutionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return addSolutionWithOptions(request, runtime);
-}
-
 model UpgradePackageRequest {
-  robotCodes?: [ string ](name='RobotCodes', description='机器人code'),
-  packageDTO?: {
-    packageCode?: string(name='PackageCode', description='行业包code'),
-    packageVersion?: string(name='PackageVersion', description='行业包版本'),
-  }(name='PackageDTO', description='需要升级的行业包'),
   operator?: {
     operatorId?: string(name='OperatorId', description='操作人id'),
     operatorName?: string(name='OperatorName', description='操作人显示名称'),
   }(name='Operator', description='操作人信息'),
+  packageDTO?: {
+    packageCode?: string(name='PackageCode', description='行业包code'),
+    packageVersion?: string(name='PackageVersion', description='行业包版本'),
+  }(name='PackageDTO', description='需要升级的行业包'),
+  robotCodes?: [ string ](name='RobotCodes', description='机器人code'),
 }
 
 model UpgradePackageShrinkRequest {
-  robotCodesShrink?: string(name='RobotCodes', description='机器人code'),
-  packageDTOShrink?: string(name='PackageDTO', description='需要升级的行业包'),
   operatorShrink?: string(name='Operator', description='操作人信息'),
+  packageDTOShrink?: string(name='PackageDTO', description='需要升级的行业包'),
+  robotCodesShrink?: string(name='RobotCodes', description='机器人code'),
 }
 
 model UpgradePackageResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  data?: {
-    successRobotCodes?: [ string ](name='SuccessRobotCodes', description='成功的机器人code'),
-    failedRobotCodes?: [ string ](name='FailedRobotCodes', description='失败的机器人code'),
-  }(name='Data', description='成功和失败的机器人code'),
-  success?: boolean(name='Success', description='是否成功'),
   code?: string(name='Code', description='错误码'),
+  data?: {
+    failedRobotCodes?: [ string ](name='FailedRobotCodes', description='失败的机器人code'),
+    successRobotCodes?: [ string ](name='SuccessRobotCodes', description='成功的机器人code'),
+  }(name='Data', description='成功和失败的机器人code'),
   message?: string(name='Message', description='错误信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功'),
 }
 
 model UpgradePackageResponse = {
@@ -921,19 +2634,30 @@ async function upgradePackageWithOptions(tmpReq: UpgradePackageRequest, runtime:
   Util.validateModel(tmpReq);
   var request = new UpgradePackageShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.robotCodes)) {
-    request.robotCodesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.robotCodes, 'RobotCodes', 'json');
+  if (!Util.isUnset(tmpReq.operator)) {
+    request.operatorShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.operator, 'Operator', 'json');
   }
   if (!Util.isUnset(tmpReq.packageDTO)) {
     request.packageDTOShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.packageDTO, 'PackageDTO', 'json');
   }
-  if (!Util.isUnset(tmpReq.operator)) {
-    request.operatorShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.operator, 'Operator', 'json');
+  if (!Util.isUnset(tmpReq.robotCodes)) {
+    request.robotCodesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.robotCodes, 'RobotCodes', 'json');
   }
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('UpgradePackage', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UpgradePackage',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function upgradePackage(request: UpgradePackageRequest): UpgradePackageResponse {
@@ -941,78 +2665,92 @@ async function upgradePackage(request: UpgradePackageRequest): UpgradePackageRes
   return upgradePackageWithOptions(request, runtime);
 }
 
-model ListIndustryPackagesRequest {
-  operatorId?: string(name='OperatorId', description='操作用户id'),
-  operatorName?: string(name='OperatorName', description='操作用户名称'),
-  domain?: string(name='Domain', description='领域'),
-  maxResults?: int32(name='MaxResults', description='每页条数'),
-  nextToken?: int32(name='NextToken', description='当前页'),
+model UploadKnowledgeResultRequest {
+  digDatas?: [ 
+    {
+      acceptType?: string(name='AcceptType', description='商家操作类型       accept 手动采纳       ignore 手动忽略       modify 手动修改       error  错误       other  其他(商家无操作)'),
+      contentType?: string(name='ContentType', description='知识类型'),
+      kmpAnswerId?: string(name='KmpAnswerId', description='答案id'),
+      kmpClusterId?: string(name='KmpClusterId', description='聚类id'),
+      knowledgeId?: string(name='KnowledgeId', description='采纳后的知识id'),
+      questionId?: string(name='QuestionId', description='问题id'),
+      questionName?: string(name='QuestionName', description='问题'),
+      robotCode?: string(name='RobotCode', description='机器人code'),
+      sceneKey?: string(name='SceneKey', description='场景key'),
+      sceneName?: string(name='SceneName', description='场景名称'),
+      solutionId?: string(name='SolutionId', description='solutionId'),
+      taskId?: long(name='TaskId', description='任务id'),
+    }
+  ](name='DigDatas'),
 }
 
-model ListIndustryPackagesResponseBody = {
-  requestId?: string(name='RequestId', description='请求id'),
-  packagePage?: {
-    nextToken?: int32(name='NextToken', description='页码'),
-    maxResults?: int32(name='MaxResults', description='每页条数'),
-    totalCount?: int32(name='TotalCount', description='总条数'),
-    packages?: [ 
-      {
-        packageName?: string(name='PackageName', description='包名'),
-        packageCode?: string(name='PackageCode', description='包code'),
-        packageType?: string(name='PackageType', description='包类型'),
-        packageDescription?: string(name='PackageDescription', description='包描述'),
-        createTime?: string(name='CreateTime', description='创建时间'),
-        modifyTime?: string(name='ModifyTime', description='修改时间'),
-        createUserId?: string(name='CreateUserId', description='创建人id'),
-        modifyUserId?: string(name='ModifyUserId', description='修改人id'),
-      }
-    ](name='Packages', description='包集合'),
-  }(name='PackagePage'),
-  success?: boolean(name='Success', description='是否成功标示'),
-  code?: string(name='Code', description='返回code'),
-  message?: string(name='Message', description='返回信息'),
+model UploadKnowledgeResultShrinkRequest {
+  digDatasShrink?: string(name='DigDatas'),
 }
 
-model ListIndustryPackagesResponse = {
+model UploadKnowledgeResultResponseBody = {
+  code?: string(name='Code', description='错误码'),
+  message?: string(name='Message', description='错误信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功'),
+}
+
+model UploadKnowledgeResultResponse = {
   headers: map[string]string(name='headers'),
-  body: ListIndustryPackagesResponseBody(name='body'),
+  body: UploadKnowledgeResultResponseBody(name='body'),
 }
 
-async function listIndustryPackagesWithOptions(request: ListIndustryPackagesRequest, runtime: Util.RuntimeOptions): ListIndustryPackagesResponse {
-  Util.validateModel(request);
+async function uploadKnowledgeResultWithOptions(tmpReq: UploadKnowledgeResultRequest, runtime: Util.RuntimeOptions): UploadKnowledgeResultResponse {
+  Util.validateModel(tmpReq);
+  var request = new UploadKnowledgeResultShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.digDatas)) {
+    request.digDatasShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.digDatas, 'DigDatas', 'json');
+  }
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('ListIndustryPackages', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UploadKnowledgeResult',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-async function listIndustryPackages(request: ListIndustryPackagesRequest): ListIndustryPackagesResponse {
+async function uploadKnowledgeResult(request: UploadKnowledgeResultRequest): UploadKnowledgeResultResponse {
   var runtime = new Util.RuntimeOptions{};
-  return listIndustryPackagesWithOptions(request, runtime);
+  return uploadKnowledgeResultWithOptions(request, runtime);
 }
 
 model UploadLabelDataRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  sessionId?: string(name='SessionId', description='买卖家之间的会话ID'),
   chatId?: string(name='ChatId', description='单句的唯一ID'),
-  sendTime?: long(name='SendTime', description='消息发送时间戳'),
-  userNick?: string(name='UserNick', description='买家nick'),
-  userId?: string(name='UserId', description='买家ID'),
-  staffNick?: string(name='StaffNick', description='卖家小二nick'),
-  staffId?: string(name='StaffId', description='卖家小二ID'),
-  sellerNick?: string(name='SellerNick', description='卖家nick'),
-  sellerId?: string(name='SellerId', description='卖家ID'),
   content?: string(name='Content', description='用户输入的query'),
-  sceneKey?: string(name='SceneKey', description='小蜜定位的场景key，小蜜未定位到场景时为空'),
   correct?: boolean(name='Correct', description='是否正确，小蜜未定位到时为空'),
   correctSceneKey?: string(name='CorrectSceneKey', description='正确的场景key，IsCorrect=true时为空，IsCorrect=false时必填，录入场景id必须是双方合作范围内由小蜜定位的场景'),
+  robotCode?: string(name='RobotCode', description='机器人code'),
+  sceneKey?: string(name='SceneKey', description='小蜜定位的场景key，小蜜未定位到场景时为空'),
+  sellerId?: string(name='SellerId', description='卖家ID'),
+  sellerNick?: string(name='SellerNick', description='卖家nick'),
+  sendTime?: long(name='SendTime', description='消息发送时间戳'),
+  sessionId?: string(name='SessionId', description='买卖家之间的会话ID'),
+  staffId?: string(name='StaffId', description='卖家小二ID'),
+  staffNick?: string(name='StaffNick', description='卖家小二nick'),
+  userId?: string(name='UserId', description='买家ID'),
+  userNick?: string(name='UserNick', description='买家nick'),
 }
 
 model UploadLabelDataResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success', description='是否成功'),
   code?: string(name='Code', description='错误码'),
   message?: string(name='Message', description='错误信息'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='是否成功'),
 }
 
 model UploadLabelDataResponse = {
@@ -1025,7 +2763,18 @@ async function uploadLabelDataWithOptions(request: UploadLabelDataRequest, runti
   var req = new OpenApi.OpenApiRequest{ 
     body = Util.toMap(request),
   };
-  return doRPCRequest('UploadLabelData', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UploadLabelData',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function uploadLabelData(request: UploadLabelDataRequest): UploadLabelDataResponse {
@@ -1033,1243 +2782,47 @@ async function uploadLabelData(request: UploadLabelDataRequest): UploadLabelData
   return uploadLabelDataWithOptions(request, runtime);
 }
 
-model RecognizeMessageForTestRequest {
-  robotCode?: string(name='RobotCode', description='机器人ID'),
-  sessionId?: string(name='SessionId', description='买卖家之间的会话ID'),
-  chatId?: string(name='ChatId', description='单句的唯一ID'),
-  round?: int32(name='Round', description='当前的对话轮次'),
-  content?: string(name='Content', description='用户输入的query'),
-  contentType?: string(name='ContentType', description='用户输入的query类型'),
-  extraContent?: map[string]any(name='ExtraContent', description='query扩展信息, 通常在点击事件中使用'),
-  userNick?: string(name='UserNick', description='买家nick'),
-  userId?: string(name='UserId', description='买家ID'),
-  staffNick?: string(name='StaffNick', description='卖家接待人nick'),
-  staffId?: string(name='StaffId', description='卖家接待人ID'),
-  sellerNick?: string(name='SellerNick', description='卖家nick'),
-  sellerId?: string(name='SellerId', description='卖家ID'),
-  serviceMode?: string(name='ServiceMode', description='机器人模式'),
-  focusOrderId?: string(name='FocusOrderId', description='焦点订单id'),
-  focusItemId?: string(name='FocusItemId', description='焦点商品id'),
-  orders?: [ 
-    {
-      orderId?: string(name='OrderId', description='子订单id'),
-      parentOrderId?: string(name='ParentOrderId', description='主订单id'),
-      createTime?: long(name='CreateTime', description='订单创建时间'),
-      payTime?: long(name='PayTime', description='订单支付时间'),
-      buyerId?: string(name='BuyerId', description='买家id'),
-      sellerId?: string(name='SellerId', description='卖家id'),
-      payStatus?: string(name='PayStatus', description='支付状态'),
-      refundStatus?: string(name='RefundStatus', description='退款状态'),
-      logisticsStatus?: string(name='LogisticsStatus', description='物流状态'),
-      buyerRateStatus?: string(name='BuyerRateStatus', description='评价状态'),
-      itemId?: string(name='ItemId', description='订单中的商品id'),
-      itemTitle?: string(name='ItemTitle', description='商品标题'),
-      itemPic?: string(name='ItemPic', description='商品主图url'),
-      price?: float(name='Price', description='订单价格'),
-      count?: int32(name='Count', description='订单中的商品数量'),
-      skuProperty?: string(name='SkuProperty', description='sku属性'),
-    }
-  ](name='Orders', description='订单列表'),
-  items?: [ 
-    {
-      itemId?: string(name='ItemId', description='商品id'),
-      sellerId?: string(name='SellerId', description='卖家id'),
-      title?: string(name='Title', description='商品标题'),
-      categoryId?: string(name='CategoryId', description='商品叶子类目id'),
-      shopCategoryIds?: [ string ](name='ShopCategoryIds', description='商品店铺类目'),
-      price?: float(name='Price', description='商品价格'),
-      picUrl?: string(name='PicUrl', description='商品主图url'),
-      property?: map[string]string(name='Property', description='商品属性'),
-    }
-  ](name='Items', description='商品列表'),
-  clientInfo?: {
-    clientVersion?: string(name='ClientVersion', description='客户端版本'),
-    clientApp?: string(name='ClientApp', description='客户端APP'),
-    clientOs?: string(name='ClientOs', description='客户端系统'),
-  }(name='ClientInfo', description='客户端信息'),
-  ignoreSceneSwitch?: boolean(name='IgnoreSceneSwitch', description='是否忽略场景开关'),
-}
-
-model RecognizeMessageForTestShrinkRequest {
-  robotCode?: string(name='RobotCode', description='机器人ID'),
-  sessionId?: string(name='SessionId', description='买卖家之间的会话ID'),
-  chatId?: string(name='ChatId', description='单句的唯一ID'),
-  round?: int32(name='Round', description='当前的对话轮次'),
-  content?: string(name='Content', description='用户输入的query'),
-  contentType?: string(name='ContentType', description='用户输入的query类型'),
-  extraContentShrink?: string(name='ExtraContent', description='query扩展信息, 通常在点击事件中使用'),
-  userNick?: string(name='UserNick', description='买家nick'),
-  userId?: string(name='UserId', description='买家ID'),
-  staffNick?: string(name='StaffNick', description='卖家接待人nick'),
-  staffId?: string(name='StaffId', description='卖家接待人ID'),
-  sellerNick?: string(name='SellerNick', description='卖家nick'),
-  sellerId?: string(name='SellerId', description='卖家ID'),
-  serviceMode?: string(name='ServiceMode', description='机器人模式'),
-  focusOrderId?: string(name='FocusOrderId', description='焦点订单id'),
-  focusItemId?: string(name='FocusItemId', description='焦点商品id'),
-  ordersShrink?: string(name='Orders', description='订单列表'),
-  itemsShrink?: string(name='Items', description='商品列表'),
-  clientInfoShrink?: string(name='ClientInfo', description='客户端信息'),
-  ignoreSceneSwitch?: boolean(name='IgnoreSceneSwitch', description='是否忽略场景开关'),
-}
-
-model RecognizeMessageForTestResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  data?: {
-    scene?: {
-      sceneDTOs?: [ 
-        {
-          sceneKey?: string(name='SceneKey', description='场景key'),
-        }
-      ](name='SceneDTOs', description='场景识别'),
-      emotionTag?: string(name='EmotionTag', description='情绪识别'),
-      semanticComplete?: string(name='SemanticComplete', description='语义完整性识别'),
-      itemId?: string(name='ItemId', description='定位场景使用的商品id'),
-      orderId?: string(name='OrderId', description='定位场景使用的订单id'),
-    }(name='Scene', description='定位到的场景'),
-    knowledges?: [ 
-      {
-        knowledgeId?: long(name='KnowledgeId', description='知识id'),
-        knowledgeTitle?: string(name='KnowledgeTitle', description='知识标题'),
-        sceneKey?: string(name='SceneKey', description='场景key'),
-        solutions?: [ 
-          {
-            solutionId?: long(name='SolutionId', description='答案id'),
-            knowledgeId?: long(name='KnowledgeId', description='知识id'),
-            solutionType?: string(name='SolutionType', description='答案类型'),
-            solutionSource?: string(name='SolutionSource', description='答案来源'),
-            solutionContent?: string(name='SolutionContent', description='答案内容'),
-            conditions?: [ 
-              {
-                conditionType?: string(name='ConditionType', description='条件类型'),
-                conditionValue?: string(name='ConditionValue', description='条件表达式'),
-              }
-            ](name='Conditions', description='答案限定条件'),
-            extraContent?: string(name='ExtraContent', description='扩展答案信息'),
-            solutionVariables?: [ 
-              {
-                variableName?: string(name='VariableName', description='变量名称'),
-                variableType?: string(name='VariableType', description='变量类型'),
-              }
-            ](name='SolutionVariables', description='答案变量'),
-          }
-        ](name='Solutions', description='知识答案'),
-      }
-    ](name='Knowledges', description='定位到的知识'),
-    outputMessages?: [ 
-      {
-        outputContentType?: string(name='OutputContentType', description='回复类型'),
-        outputContent?: map[string]any(name='OutputContent', description='回复内容'),
-      }
-    ](name='OutputMessages', description='建议的回复内容'),
-    extOutput?: map[string]any(name='extOutput', description='扩展的输出'),
-  }(name='Data', description='问答返回结果'),
-  success?: boolean(name='Success', description='是否成功'),
-  code?: string(name='Code', description='错误码'),
-  message?: string(name='Message', description='错误信息'),
-}
-
-model RecognizeMessageForTestResponse = {
-  headers: map[string]string(name='headers'),
-  body: RecognizeMessageForTestResponseBody(name='body'),
-}
-
-async function recognizeMessageForTestWithOptions(tmpReq: RecognizeMessageForTestRequest, runtime: Util.RuntimeOptions): RecognizeMessageForTestResponse {
-  Util.validateModel(tmpReq);
-  var request = new RecognizeMessageForTestShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.extraContent)) {
-    request.extraContentShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.extraContent, 'ExtraContent', 'json');
-  }
-  if (!Util.isUnset(tmpReq.orders)) {
-    request.ordersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.orders, 'Orders', 'json');
-  }
-  if (!Util.isUnset(tmpReq.items)) {
-    request.itemsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.items, 'Items', 'json');
-  }
-  if (!Util.isUnset(tmpReq.clientInfo)) {
-    request.clientInfoShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.clientInfo, 'ClientInfo', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RecognizeMessageForTest', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function recognizeMessageForTest(request: RecognizeMessageForTestRequest): RecognizeMessageForTestResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeMessageForTestWithOptions(request, runtime);
-}
-
-model ListCategoriesRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  operatorId?: string(name='OperatorId', description='操作用户id'),
-  operatorName?: string(name='OperatorName', description='操作用户名称'),
-}
-
-model ListCategoriesResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  categories?: [ 
-    {
-      categoryId?: long(name='CategoryId', description='类目id'),
-      parentCategoryId?: long(name='ParentCategoryId', description='父类目id'),
-      categoryName?: string(name='CategoryName', description='类目名称'),
-      children?: [ 
-        {
-          categoryId?: long(name='CategoryId', description='类目id'),
-          parentCategoryId?: long(name='ParentCategoryId', description='父类目id'),
-          categoryName?: string(name='CategoryName', description='类目名称'),
-        }
-      ](name='Children', description='子级类目集合'),
-    }
-  ](name='Categories', description='知识类目集合'),
-  success?: boolean(name='Success', description='是否成功标示'),
-  code?: string(name='Code', description='返回code'),
-  message?: string(name='Message', description='返回信息'),
-}
-
-model ListCategoriesResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListCategoriesResponseBody(name='body'),
-}
-
-async function listCategoriesWithOptions(request: ListCategoriesRequest, runtime: Util.RuntimeOptions): ListCategoriesResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ListCategories', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function listCategories(request: ListCategoriesRequest): ListCategoriesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listCategoriesWithOptions(request, runtime);
-}
-
-model SyncRobotMessageRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  sessionId?: string(name='SessionId', description='买卖家之间的会话ID'),
-  chatId?: string(name='ChatId', description='单句的唯一ID'),
-  useDxm?: string(name='UseDxm', description='是否使用店小蜜的结果'),
-  reason?: string(name='Reason', description='不采纳店小蜜的原因'),
-  sceneKey?: string(name='SceneKey', description='采纳的场景key'),
-  answerType?: string(name='AnswerType', description='答案类型'),
-  answerId?: string(name='AnswerId', description='回复给买家的答案ID'),
-  solutions?: [ string ](name='Solutions', description='回复到千牛的答案'),
-}
-
-model SyncRobotMessageShrinkRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  sessionId?: string(name='SessionId', description='买卖家之间的会话ID'),
-  chatId?: string(name='ChatId', description='单句的唯一ID'),
-  useDxm?: string(name='UseDxm', description='是否使用店小蜜的结果'),
-  reason?: string(name='Reason', description='不采纳店小蜜的原因'),
-  sceneKey?: string(name='SceneKey', description='采纳的场景key'),
-  answerType?: string(name='AnswerType', description='答案类型'),
-  answerId?: string(name='AnswerId', description='回复给买家的答案ID'),
-  solutionsShrink?: string(name='Solutions', description='回复到千牛的答案'),
-}
-
-model SyncRobotMessageResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success', description='是否成功'),
-  code?: string(name='Code', description='错误码'),
-  message?: string(name='Message', description='错误信息'),
-}
-
-model SyncRobotMessageResponse = {
-  headers: map[string]string(name='headers'),
-  body: SyncRobotMessageResponseBody(name='body'),
-}
-
-async function syncRobotMessageWithOptions(tmpReq: SyncRobotMessageRequest, runtime: Util.RuntimeOptions): SyncRobotMessageResponse {
-  Util.validateModel(tmpReq);
-  var request = new SyncRobotMessageShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.solutions)) {
-    request.solutionsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.solutions, 'Solutions', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('SyncRobotMessage', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function syncRobotMessage(request: SyncRobotMessageRequest): SyncRobotMessageResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return syncRobotMessageWithOptions(request, runtime);
-}
-
-model EnableSceneRequest {
-  knowledgeIds?: [ long ](name='KnowledgeIds', description='知识id集合'),
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  operatorId?: string(name='OperatorId', description='操作用户id'),
-  operatorName?: string(name='OperatorName', description='操作用户名称'),
-}
-
-model EnableSceneShrinkRequest {
-  knowledgeIdsShrink?: string(name='KnowledgeIds', description='知识id集合'),
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  operatorId?: string(name='OperatorId', description='操作用户id'),
-  operatorName?: string(name='OperatorName', description='操作用户名称'),
-}
-
-model EnableSceneResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success', description='是否成功标示'),
-  code?: string(name='Code', description='返回code'),
-  message?: string(name='Message', description='返回信息'),
-}
-
-model EnableSceneResponse = {
-  headers: map[string]string(name='headers'),
-  body: EnableSceneResponseBody(name='body'),
-}
-
-async function enableSceneWithOptions(tmpReq: EnableSceneRequest, runtime: Util.RuntimeOptions): EnableSceneResponse {
-  Util.validateModel(tmpReq);
-  var request = new EnableSceneShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.knowledgeIds)) {
-    request.knowledgeIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.knowledgeIds, 'KnowledgeIds', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('EnableScene', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function enableScene(request: EnableSceneRequest): EnableSceneResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return enableSceneWithOptions(request, runtime);
-}
-
-model ListSyncRobotMessagesRequest {
-  robotMessageDTOList?: [ 
-    {
-      robotCode?: string(name='RobotCode', description='机器人code'),
-      sessionId?: string(name='SessionId', description='买卖家之间的会话ID'),
-      chatId?: string(name='ChatId', description='单句的唯一ID'),
-      useDxm?: boolean(name='UseDxm', description='是否使用店小蜜的结果'),
-      reason?: string(name='Reason', description='不采纳店小蜜的原因'),
-      sceneKey?: string(name='SceneKey', description='采纳的场景key'),
-      answerType?: string(name='AnswerType', description='答案类型'),
-      answerId?: string(name='AnswerId', description='回复给买家的答案ID'),
-      solutions?: [ string ](name='Solutions', description='回复到千牛的答案'),
-    }
-  ](name='RobotMessageDTOList', description='人机数据集合'),
-}
-
-model ListSyncRobotMessagesShrinkRequest {
-  robotMessageDTOListShrink?: string(name='RobotMessageDTOList', description='人机数据集合'),
-}
-
-model ListSyncRobotMessagesResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success', description='是否成功'),
-  code?: string(name='Code', description='错误码'),
-  message?: string(name='Message', description='错误信息'),
-}
-
-model ListSyncRobotMessagesResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListSyncRobotMessagesResponseBody(name='body'),
-}
-
-async function listSyncRobotMessagesWithOptions(tmpReq: ListSyncRobotMessagesRequest, runtime: Util.RuntimeOptions): ListSyncRobotMessagesResponse {
-  Util.validateModel(tmpReq);
-  var request = new ListSyncRobotMessagesShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.robotMessageDTOList)) {
-    request.robotMessageDTOListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.robotMessageDTOList, 'RobotMessageDTOList', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ListSyncRobotMessages', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function listSyncRobotMessages(request: ListSyncRobotMessagesRequest): ListSyncRobotMessagesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listSyncRobotMessagesWithOptions(request, runtime);
-}
-
-model CreateRobotRequest {
-  robotDTO?: {
-    robotType?: string(name='RobotType', description='机器人类型'),
-    channel?: string(name='Channel', description='机器人渠道'),
-    sellerId?: string(name='SellerId', description='商家id'),
-    sellerNick?: string(name='SellerNick', description='商家nick'),
-    signDate?: long(name='SignDate', description='签约时间'),
-    expireDate?: long(name='ExpireDate', description='签约到期时间'),
-  }(name='RobotDTO', description='机器人信息'),
-  operator?: {
-    operatorId?: string(name='OperatorId', description='操作人id'),
-    operatorName?: string(name='OperatorName', description='操作人显示名'),
-  }(name='Operator', description='操作人信息'),
-}
-
-model CreateRobotShrinkRequest {
-  robotDTOShrink?: string(name='RobotDTO', description='机器人信息'),
-  operatorShrink?: string(name='Operator', description='操作人信息'),
-}
-
-model CreateRobotResponseBody = {
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  requestId?: string(name='RequestId', description='request id'),
-  success?: boolean(name='Success', description='是否成功'),
-  code?: string(name='Code', description='错误码'),
-  message?: string(name='Message', description='错误信息'),
-}
-
-model CreateRobotResponse = {
-  headers: map[string]string(name='headers'),
-  body: CreateRobotResponseBody(name='body'),
-}
-
-async function createRobotWithOptions(tmpReq: CreateRobotRequest, runtime: Util.RuntimeOptions): CreateRobotResponse {
-  Util.validateModel(tmpReq);
-  var request = new CreateRobotShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.robotDTO)) {
-    request.robotDTOShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.robotDTO, 'RobotDTO', 'json');
-  }
-  if (!Util.isUnset(tmpReq.operator)) {
-    request.operatorShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.operator, 'Operator', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('CreateRobot', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function createRobot(request: CreateRobotRequest): CreateRobotResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createRobotWithOptions(request, runtime);
-}
-
-model RecognizeMessageRequest {
-  robotCode?: string(name='RobotCode', description='机器人ID'),
-  sessionId?: string(name='SessionId', description='买卖家之间的会话ID'),
-  chatId?: string(name='ChatId', description='单句的唯一ID'),
-  round?: int32(name='Round', description='当前的对话轮次'),
-  content?: string(name='Content', description='用户输入的query'),
-  contentType?: string(name='ContentType', description='用户输入的query类型'),
-  extraContent?: map[string]any(name='ExtraContent', description='query扩展信息, 通常在点击事件中使用'),
-  userNick?: string(name='UserNick', description='买家nick'),
-  userId?: string(name='UserId', description='买家ID'),
-  staffNick?: string(name='StaffNick', description='卖家接待人nick'),
-  staffId?: string(name='StaffId', description='卖家接待人ID'),
-  sellerNick?: string(name='SellerNick', description='卖家nick'),
-  sellerId?: string(name='SellerId', description='卖家ID'),
-  serviceMode?: string(name='ServiceMode', description='机器人模式'),
-  focusOrderId?: string(name='FocusOrderId', description='焦点订单id'),
-  focusItemId?: string(name='FocusItemId', description='焦点商品id'),
-  orders?: [ 
-    {
-      orderId?: string(name='OrderId', description='子订单id'),
-      parentOrderId?: string(name='ParentOrderId', description='主订单id'),
-      createTime?: long(name='CreateTime', description='订单创建时间'),
-      payTime?: long(name='PayTime', description='订单支付时间'),
-      buyerId?: string(name='BuyerId', description='买家id'),
-      sellerId?: string(name='SellerId', description='卖家id'),
-      payStatus?: string(name='PayStatus', description='支付状态'),
-      refundStatus?: string(name='RefundStatus', description='退款状态'),
-      logisticsStatus?: string(name='LogisticsStatus', description='物流状态'),
-      buyerRateStatus?: string(name='BuyerRateStatus', description='评价状态'),
-      itemId?: string(name='ItemId', description='订单中的商品id'),
-      itemTitle?: string(name='ItemTitle', description='商品标题'),
-      itemPic?: string(name='ItemPic', description='商品主图url'),
-      price?: float(name='Price', description='订单价格'),
-      count?: int32(name='Count', description='订单中的商品数量'),
-      skuProperty?: string(name='SkuProperty', description='sku属性'),
-    }
-  ](name='Orders', description='订单列表'),
-  items?: [ 
-    {
-      itemId?: string(name='ItemId', description='商品id'),
-      sellerId?: string(name='SellerId', description='卖家id'),
-      title?: string(name='Title', description='商品标题'),
-      categoryId?: string(name='CategoryId', description='商品叶子类目id'),
-      shopCategoryIds?: [ string ](name='ShopCategoryIds', description='商品店铺类目'),
-      price?: float(name='Price', description='商品价格'),
-      picUrl?: string(name='PicUrl', description='商品主图url'),
-      property?: map[string]string(name='Property', description='商品属性'),
-    }
-  ](name='Items', description='商品列表'),
-  packages?: [ 
-    {
-      packageCode?: string(name='PackageCode', description='行业包code'),
-      packageVersion?: string(name='PackageVersion', description='行业包版本'),
-    }
-  ](name='Packages', description='指定行业包'),
-  clientInfo?: {
-    clientVersion?: string(name='ClientVersion', description='客户端版本'),
-    clientApp?: string(name='ClientApp', description='客户端APP'),
-    clientOs?: string(name='ClientOs', description='客户端系统'),
-  }(name='ClientInfo', description='客户端信息'),
-  stressTesting?: boolean(name='StressTesting', description='是否压测流量'),
-}
-
-model RecognizeMessageShrinkRequest {
-  robotCode?: string(name='RobotCode', description='机器人ID'),
-  sessionId?: string(name='SessionId', description='买卖家之间的会话ID'),
-  chatId?: string(name='ChatId', description='单句的唯一ID'),
-  round?: int32(name='Round', description='当前的对话轮次'),
-  content?: string(name='Content', description='用户输入的query'),
-  contentType?: string(name='ContentType', description='用户输入的query类型'),
-  extraContentShrink?: string(name='ExtraContent', description='query扩展信息, 通常在点击事件中使用'),
-  userNick?: string(name='UserNick', description='买家nick'),
-  userId?: string(name='UserId', description='买家ID'),
-  staffNick?: string(name='StaffNick', description='卖家接待人nick'),
-  staffId?: string(name='StaffId', description='卖家接待人ID'),
-  sellerNick?: string(name='SellerNick', description='卖家nick'),
-  sellerId?: string(name='SellerId', description='卖家ID'),
-  serviceMode?: string(name='ServiceMode', description='机器人模式'),
-  focusOrderId?: string(name='FocusOrderId', description='焦点订单id'),
-  focusItemId?: string(name='FocusItemId', description='焦点商品id'),
-  ordersShrink?: string(name='Orders', description='订单列表'),
-  itemsShrink?: string(name='Items', description='商品列表'),
-  packagesShrink?: string(name='Packages', description='指定行业包'),
-  clientInfoShrink?: string(name='ClientInfo', description='客户端信息'),
-  stressTesting?: boolean(name='StressTesting', description='是否压测流量'),
-}
-
-model RecognizeMessageResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  data?: {
-    scene?: {
-      sceneDTOs?: [ 
-        {
-          sceneKey?: string(name='SceneKey', description='场景key'),
-        }
-      ](name='SceneDTOs', description='场景识别'),
-      emotionTag?: string(name='EmotionTag', description='情绪识别'),
-      semanticComplete?: string(name='SemanticComplete', description='语义完整性识别'),
-      itemId?: string(name='ItemId', description='定位场景使用的商品id'),
-      orderId?: string(name='OrderId', description='定位场景使用的订单id'),
-    }(name='Scene', description='定位到的场景'),
-    knowledges?: [ 
-      {
-        knowledgeId?: long(name='KnowledgeId', description='知识id'),
-        knowledgeTitle?: string(name='KnowledgeTitle', description='知识标题'),
-        sceneKey?: string(name='SceneKey', description='场景key'),
-        solutions?: [ 
-          {
-            solutionId?: long(name='SolutionId', description='答案id'),
-            knowledgeId?: long(name='KnowledgeId', description='知识id'),
-            solutionType?: string(name='SolutionType', description='答案类型'),
-            solutionSource?: string(name='SolutionSource', description='答案来源'),
-            solutionContent?: string(name='SolutionContent', description='答案内容'),
-            conditions?: [ 
-              {
-                conditionType?: string(name='ConditionType', description='条件类型'),
-                conditionValue?: string(name='ConditionValue', description='条件表达式'),
-              }
-            ](name='Conditions', description='答案限定条件'),
-            extraContent?: string(name='ExtraContent', description='扩展答案信息'),
-            solutionVariables?: [ 
-              {
-                variableName?: string(name='VariableName', description='变量名称'),
-                variableType?: string(name='VariableType', description='变量类型'),
-              }
-            ](name='SolutionVariables', description='答案变量'),
-          }
-        ](name='Solutions', description='知识答案'),
-      }
-    ](name='Knowledges', description='定位到的知识'),
-    outputMessages?: [ 
-      {
-        outputContentType?: string(name='OutputContentType', description='回复类型'),
-        outputContent?: map[string]any(name='OutputContent', description='回复内容'),
-      }
-    ](name='OutputMessages', description='建议的回复内容'),
-    extOutput?: map[string]any(name='extOutput', description='扩展的输出'),
-  }(name='Data', description='问答返回结果'),
-  success?: boolean(name='Success', description='是否成功'),
-  code?: string(name='Code', description='错误码'),
-  message?: string(name='Message', description='错误信息'),
-}
-
-model RecognizeMessageResponse = {
-  headers: map[string]string(name='headers'),
-  body: RecognizeMessageResponseBody(name='body'),
-}
-
-async function recognizeMessageWithOptions(tmpReq: RecognizeMessageRequest, runtime: Util.RuntimeOptions): RecognizeMessageResponse {
-  Util.validateModel(tmpReq);
-  var request = new RecognizeMessageShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.extraContent)) {
-    request.extraContentShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.extraContent, 'ExtraContent', 'json');
-  }
-  if (!Util.isUnset(tmpReq.orders)) {
-    request.ordersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.orders, 'Orders', 'json');
-  }
-  if (!Util.isUnset(tmpReq.items)) {
-    request.itemsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.items, 'Items', 'json');
-  }
-  if (!Util.isUnset(tmpReq.packages)) {
-    request.packagesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.packages, 'Packages', 'json');
-  }
-  if (!Util.isUnset(tmpReq.clientInfo)) {
-    request.clientInfoShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.clientInfo, 'ClientInfo', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RecognizeMessage', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function recognizeMessage(request: RecognizeMessageRequest): RecognizeMessageResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeMessageWithOptions(request, runtime);
-}
-
-model CreateTaskRequest {
-  digTaskInfoParam?: {
-    robotCode?: string(name='RobotCode'),
-    type?: string(name='Type'),
-    operatorName?: string(name='OperatorName'),
-    operatorId?: string(name='OperatorId'),
-    paramConfig?: string(name='ParamConfig'),
-  }(name='DigTaskInfoParam'),
-}
-
-model CreateTaskShrinkRequest {
-  digTaskInfoParamShrink?: string(name='DigTaskInfoParam'),
-}
-
-model CreateTaskResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success', description='是否成功'),
-  code?: string(name='Code', description='错误码'),
-  message?: string(name='Message', description='错误信息'),
-  data?: long(name='Data', description='任务id'),
-}
-
-model CreateTaskResponse = {
-  headers: map[string]string(name='headers'),
-  body: CreateTaskResponseBody(name='body'),
-}
-
-async function createTaskWithOptions(tmpReq: CreateTaskRequest, runtime: Util.RuntimeOptions): CreateTaskResponse {
-  Util.validateModel(tmpReq);
-  var request = new CreateTaskShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.digTaskInfoParam)) {
-    request.digTaskInfoParamShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.digTaskInfoParam, 'DigTaskInfoParam', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('CreateTask', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function createTask(request: CreateTaskRequest): CreateTaskResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createTaskWithOptions(request, runtime);
-}
-
-model ListPackageKnowledgesRequest {
-  packageCode?: string(name='PackageCode', description='包code'),
-  packageVersion?: string(name='PackageVersion', description='包version'),
-  operatorId?: string(name='OperatorId', description='操作用户id'),
-  operatorName?: string(name='OperatorName', description='操作用户名称'),
-}
-
-model ListPackageKnowledgesResponseBody = {
-  knowledges?: [ 
-    {
-      knowledgeId?: long(name='KnowledgeId', description='知识id'),
-      knowledgeTitle?: string(name='KnowledgeTitle', description='知识标题'),
-      knowledgeStatus?: string(name='KnowledgeStatus', description='"online":在用，"disabled":禁用'),
-      sceneKey?: string(name='SceneKey', description='场景key'),
-      knowledgeDescription?: string(name='KnowledgeDescription', description='知识描述'),
-      createTime?: string(name='CreateTime', description='创建时间格式：yyyy-MM-dd HH:mm:ss'),
-      modifyTime?: string(name='ModifyTime', description='修改时间格式：yyyy-MM-dd HH:mm:ss'),
-      createUserId?: string(name='CreateUserId', description='创建用户id'),
-      modifyUserId?: string(name='ModifyUserId', description='修改用户id'),
-      similarQuestions?: [ 
-        {
-          similarQuestionId?: long(name='SimilarQuestionId', description='问法id'),
-          similarQuestionTitle?: string(name='SimilarQuestionTitle', description='示例问法标题'),
-          similarQuestionType?: string(name='SimilarQuestionType', description='"similar":相似问法，"sample":例句，"keyword":关键字'),
-          similarQuestionEffectType?: string(name='SimilarQuestionEffectType', description='"positive":正向，"negative":负向'),
-          createTime?: string(name='CreateTime', description='创建时间格式：yyyy-MM-dd HH:mm:ss'),
-          modifyTime?: string(name='ModifyTime', description='修改时间格式：yyyy-MM-dd HH:mm:ss'),
-          createUserId?: string(name='CreateUserId', description='创建用户id'),
-          modifyUserId?: string(name='ModifyUserId', description='修改用户id'),
-        }
-      ](name='SimilarQuestions', description='示例问法、正负例句、正负关键字'),
-      solutions?: [ 
-        {
-          solutionId?: long(name='SolutionId', description='答案id'),
-          knowledgeId?: long(name='KnowledgeId', description='知识id'),
-          solutionType?: string(name='SolutionType', description='答案类型'),
-          solutionSource?: string(name='SolutionSource', description='答案来源'),
-          solutionContent?: string(name='SolutionContent', description='答案文本'),
-          extraContent?: string(name='ExtraContent', description='答案扩展文本'),
-          conditions?: [ 
-            {
-              knowledgeId?: long(name='KnowledgeId', description='知识id'),
-              solutionId?: long(name='SolutionId', description='答案id'),
-              conditionType?: string(name='ConditionType', description='约束类型'),
-              conditionValue?: string(name='ConditionValue', description='约束值'),
-            }
-          ](name='Conditions', description='约束'),
-        }
-      ](name='Solutions', description='答案'),
-    }
-  ](name='Knowledges', description='知识集合'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success', description='是否成功标示'),
-  code?: string(name='Code', description='返回code'),
-  message?: string(name='Message', description='返回信息'),
-}
-
-model ListPackageKnowledgesResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListPackageKnowledgesResponseBody(name='body'),
-}
-
-async function listPackageKnowledgesWithOptions(request: ListPackageKnowledgesRequest, runtime: Util.RuntimeOptions): ListPackageKnowledgesResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ListPackageKnowledges', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function listPackageKnowledges(request: ListPackageKnowledgesRequest): ListPackageKnowledgesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listPackageKnowledgesWithOptions(request, runtime);
-}
-
-model SyncMessageRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  userNick?: string(name='UserNick', description='买家nick'),
-  userId?: string(name='UserId', description='买家ID'),
-  staffNick?: string(name='StaffNick', description='卖家小二nick'),
-  staffId?: string(name='StaffId', description='卖家小二ID'),
-  sellerNick?: string(name='SellerNick', description='卖家nick'),
-  sellerId?: string(name='SellerId', description='卖家ID'),
-  direction?: string(name='Direction', description='消息发送方向'),
-  content?: string(name='Content', description='消息内容'),
-  messageId?: string(name='MessageId', description='消息ID'),
-  sendTime?: long(name='SendTime', description='消息发送时间戳'),
-  source?: string(name='Source', description='消息来源'),
-  contentType?: string(name='ContentType', description='消息类型'),
-  sessionId?: string(name='SessionId', description='对话sessionId'),
-  chatId?: string(name='ChatId', description='对话chatId'),
-}
-
-model SyncMessageResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success', description='是否成功'),
-  code?: string(name='Code', description='错误码'),
-  message?: string(name='Message', description='错误信息'),
-}
-
-model SyncMessageResponse = {
-  headers: map[string]string(name='headers'),
-  body: SyncMessageResponseBody(name='body'),
-}
-
-async function syncMessageWithOptions(request: SyncMessageRequest, runtime: Util.RuntimeOptions): SyncMessageResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('SyncMessage', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function syncMessage(request: SyncMessageRequest): SyncMessageResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return syncMessageWithOptions(request, runtime);
-}
-
-model GetKnowledgeRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  operatorId?: string(name='OperatorId', description='操作人id'),
-  operatorName?: string(name='OperatorName', description='操作人名称'),
-  knowledgeId?: long(name='KnowledgeId', description='知识id'),
-}
-
-model GetKnowledgeResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  knowledge?: {
-    knowledgeId?: long(name='KnowledgeId', description='知识id'),
-    knowledgeTitle?: string(name='KnowledgeTitle', description='知识标题'),
-    knowledgeStatus?: string(name='KnowledgeStatus', description='知识状态'),
-    sceneKey?: string(name='SceneKey', description='场景key'),
-    knowledgeDescription?: string(name='KnowledgeDescription', description='场景描述'),
-    createTime?: string(name='CreateTime', description='创建时间'),
-    createUserId?: string(name='CreateUserId', description='创建用户id'),
-    modifyUserId?: string(name='ModifyUserId', description='修改用户id'),
-    modifyTime?: string(name='ModifyTime', description='修改时间'),
-    similarQuestions?: [ 
-      {
-        similarQuestionId?: long(name='SimilarQuestionId', description='问法id'),
-        similarQuestionTitle?: string(name='SimilarQuestionTitle', description='示例问法标题'),
-        similarQuestionType?: string(name='SimilarQuestionType', description='问法类型'),
-        similarQuestionEffectType?: string(name='SimilarQuestionEffectType', description='问法影响类型'),
-        createTime?: string(name='CreateTime', description='创建时间'),
-        modifyTime?: string(name='ModifyTime', description='修改时间'),
-        createUserId?: string(name='CreateUserId', description='创建用户id'),
-        modifyUserId?: string(name='ModifyUserId', description='修改用户id'),
-      }
-    ](name='SimilarQuestions', description='示例问法集合'),
-    solutions?: [ 
-      {
-        solutionId?: long(name='SolutionId', description='答案id'),
-        knowledgeId?: long(name='KnowledgeId', description='知识id'),
-        solutionType?: string(name='SolutionType', description='答案类型,'),
-        solutionSource?: string(name='SolutionSource', description='答案来源'),
-        solutionContent?: string(name='SolutionContent', description='答案正文'),
-        conditions?: [ 
-          {
-            knowledgeId?: long(name='KnowledgeId', description='知识id'),
-            solutionId?: long(name='SolutionId', description='答案id'),
-            conditionType?: string(name='ConditionType', description='生效模式'),
-            conditionValue?: string(name='ConditionValue', description='生效模式值'),
-          }
-        ](name='Conditions', description='答案约束集合'),
-        extraContent?: string(name='ExtraContent', description='答案扩展信息'),
-        solutionVariables?: [ 
-          {
-            knowledgeId?: long(name='KnowledgeId', description='知识id'),
-            solutionId?: long(name='SolutionId', description='答案id'),
-            variableName?: string(name='VariableName', description='变量名称'),
-            variableType?: string(name='VariableType', description='变量类型'),
-          }
-        ](name='SolutionVariables', description='变量集合'),
-      }
-    ](name='Solutions', description='答案集合'),
-  }(name='Knowledge', description='知识'),
-  success?: boolean(name='Success', description='是否成功标示'),
-  code?: string(name='Code', description='返回code'),
-  message?: string(name='Message', description='返回信息'),
-}
-
-model GetKnowledgeResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetKnowledgeResponseBody(name='body'),
-}
-
-async function getKnowledgeWithOptions(request: GetKnowledgeRequest, runtime: Util.RuntimeOptions): GetKnowledgeResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('GetKnowledge', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function getKnowledge(request: GetKnowledgeRequest): GetKnowledgeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getKnowledgeWithOptions(request, runtime);
-}
-
-model DisableSceneRequest {
-  knowledgeIds?: [ long ](name='KnowledgeIds', description='知识id集合'),
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  operatorId?: string(name='OperatorId', description='操作用户id'),
-  operatorName?: string(name='OperatorName', description='操作用户名称'),
-}
-
-model DisableSceneShrinkRequest {
-  knowledgeIdsShrink?: string(name='KnowledgeIds', description='知识id集合'),
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  operatorId?: string(name='OperatorId', description='操作用户id'),
-  operatorName?: string(name='OperatorName', description='操作用户名称'),
-}
-
-model DisableSceneResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success', description='是否成功标示'),
-  code?: string(name='Code', description='返回code'),
-  message?: string(name='Message', description='返回信息'),
-}
-
-model DisableSceneResponse = {
-  headers: map[string]string(name='headers'),
-  body: DisableSceneResponseBody(name='body'),
-}
-
-async function disableSceneWithOptions(tmpReq: DisableSceneRequest, runtime: Util.RuntimeOptions): DisableSceneResponse {
-  Util.validateModel(tmpReq);
-  var request = new DisableSceneShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.knowledgeIds)) {
-    request.knowledgeIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.knowledgeIds, 'KnowledgeIds', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DisableScene', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function disableScene(request: DisableSceneRequest): DisableSceneResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return disableSceneWithOptions(request, runtime);
-}
-
-model DeleteSolutionRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  knowledgeId?: long(name='KnowledgeId', description='知识id'),
-  solutionIds?: [ long ](name='SolutionIds', description='答案id集合'),
-  operatorId?: string(name='OperatorId', description='操作用户id'),
-  operatorName?: string(name='OperatorName', description='操作用户名称'),
-}
-
-model DeleteSolutionShrinkRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  knowledgeId?: long(name='KnowledgeId', description='知识id'),
-  solutionIdsShrink?: string(name='SolutionIds', description='答案id集合'),
-  operatorId?: string(name='OperatorId', description='操作用户id'),
-  operatorName?: string(name='OperatorName', description='操作用户名称'),
-}
-
-model DeleteSolutionResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success', description='是否成功标示'),
-  code?: string(name='Code', description='返回code'),
-  message?: string(name='Message', description='返回信息'),
-}
-
-model DeleteSolutionResponse = {
-  headers: map[string]string(name='headers'),
-  body: DeleteSolutionResponseBody(name='body'),
-}
-
-async function deleteSolutionWithOptions(tmpReq: DeleteSolutionRequest, runtime: Util.RuntimeOptions): DeleteSolutionResponse {
-  Util.validateModel(tmpReq);
-  var request = new DeleteSolutionShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.solutionIds)) {
-    request.solutionIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.solutionIds, 'SolutionIds', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DeleteSolution', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function deleteSolution(request: DeleteSolutionRequest): DeleteSolutionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteSolutionWithOptions(request, runtime);
-}
-
-model RefundRequest {
+model VerifyOrderRequest {
   data?: string(name='data'),
 }
 
-model RefundResponseBody = {
+model VerifyOrderResponseBody = {
+  code?: string(name='code'),
+  data?: string(name='data'),
+  message?: string(name='message'),
   requestId?: string(name='requestId', description='Id of the request'),
   success?: boolean(name='success'),
-  data?: string(name='data'),
-  code?: string(name='code'),
-  message?: string(name='message'),
 }
 
-model RefundResponse = {
+model VerifyOrderResponse = {
   headers: map[string]string(name='headers'),
-  body: RefundResponseBody(name='body'),
+  body: VerifyOrderResponseBody(name='body'),
 }
 
-async function refundWithOptions(request: RefundRequest, runtime: Util.RuntimeOptions): RefundResponse {
+async function verifyOrderWithOptions(request: VerifyOrderRequest, runtime: Util.RuntimeOptions): VerifyOrderResponse {
   Util.validateModel(request);
+  var query = {};
+  query["data"] = request.data;
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = Util.toMap(request),
   };
-  return doRPCRequest('Refund', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function refund(request: RefundRequest): RefundResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return refundWithOptions(request, runtime);
-}
-
-model ListPackageVersionsRequest {
-  packageCodes?: [ string ](name='PackageCodes', description='包code集合'),
-  operatorId?: string(name='OperatorId', description='操作人id'),
-  operatorName?: string(name='OperatorName', description='操作人名称'),
-}
-
-model ListPackageVersionsShrinkRequest {
-  packageCodesShrink?: string(name='PackageCodes', description='包code集合'),
-  operatorId?: string(name='OperatorId', description='操作人id'),
-  operatorName?: string(name='OperatorName', description='操作人名称'),
-}
-
-model ListPackageVersionsResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  packages?: [ 
-    {
-      packageName?: string(name='PackageName', description='包名'),
-      packageCode?: string(name='PackageCode', description='包code'),
-      packageDetails?: [ 
-        {
-          packageVersion?: string(name='PackageVersion', description='包版本'),
-          packageDetailDescription?: string(name='PackageDetailDescription', description='包详细描述'),
-          createTime?: string(name='CreateTime', description='创建时间'),
-          modifyTime?: string(name='ModifyTime', description='修改时间'),
-          createUserId?: string(name='CreateUserId', description='创建人id'),
-          modifyUserId?: string(name='ModifyUserId', description='修改人id'),
-          publishTime?: string(name='PublishTime', description='发布时间'),
-        }
-      ](name='PackageDetails', description='包详细信息'),
-    }
-  ](name='Packages', description='包集合'),
-  success?: boolean(name='Success', description='是否成功标示'),
-  code?: string(name='Code', description='返回code'),
-  message?: string(name='Message', description='返回信息'),
-}
-
-model ListPackageVersionsResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListPackageVersionsResponseBody(name='body'),
-}
-
-async function listPackageVersionsWithOptions(tmpReq: ListPackageVersionsRequest, runtime: Util.RuntimeOptions): ListPackageVersionsResponse {
-  Util.validateModel(tmpReq);
-  var request = new ListPackageVersionsShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.packageCodes)) {
-    request.packageCodesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.packageCodes, 'PackageCodes', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+  var params = new OpenApi.Params{
+    action = 'VerifyOrder',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'json',
+    bodyType = 'json',
   };
-  return doRPCRequest('ListPackageVersions', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
-async function listPackageVersions(request: ListPackageVersionsRequest): ListPackageVersionsResponse {
+async function verifyOrder(request: VerifyOrderRequest): VerifyOrderResponse {
   var runtime = new Util.RuntimeOptions{};
-  return listPackageVersionsWithOptions(request, runtime);
-}
-
-model ListSyncMessagesRequest {
-  messageDTOList?: [ 
-    {
-      robotCode?: string(name='RobotCode', description='机器人code'),
-      userNick?: string(name='UserNick', description='买家nick'),
-      userId?: string(name='UserId', description='买家ID'),
-      staffNick?: string(name='StaffNick', description='卖家小二nick'),
-      staffId?: string(name='StaffId', description='卖家小二ID'),
-      sellerNick?: string(name='SellerNick', description='卖家nick'),
-      sellerId?: string(name='SellerId', description='卖家ID'),
-      direction?: string(name='Direction', description='消息发送方向'),
-      content?: string(name='Content', description='消息内容'),
-      messageId?: string(name='MessageId', description='消息ID'),
-      sendTime?: long(name='SendTime', description='消息发送时间戳'),
-      source?: string(name='Source', description='消息来源'),
-      contentType?: string(name='ContentType', description='消息类型'),
-      sessionId?: string(name='SessionId', description='对话sessionId'),
-      chatId?: string(name='ChatId', description='对话chatId'),
-    }
-  ](name='MessageDTOList', description='人人数据DTO'),
-}
-
-model ListSyncMessagesShrinkRequest {
-  messageDTOListShrink?: string(name='MessageDTOList', description='人人数据DTO'),
-}
-
-model ListSyncMessagesResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success', description='是否成功'),
-  code?: string(name='Code', description='错误码'),
-  message?: string(name='Message', description='错误信息'),
-}
-
-model ListSyncMessagesResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListSyncMessagesResponseBody(name='body'),
-}
-
-async function listSyncMessagesWithOptions(tmpReq: ListSyncMessagesRequest, runtime: Util.RuntimeOptions): ListSyncMessagesResponse {
-  Util.validateModel(tmpReq);
-  var request = new ListSyncMessagesShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.messageDTOList)) {
-    request.messageDTOListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.messageDTOList, 'MessageDTOList', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ListSyncMessages', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function listSyncMessages(request: ListSyncMessagesRequest): ListSyncMessagesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listSyncMessagesWithOptions(request, runtime);
-}
-
-model GetPackageVersionRequest {
-  operatorId?: string(name='OperatorId', description='操作人id'),
-  operatorName?: string(name='OperatorName', description='操作人名称'),
-  packageCode?: string(name='PackageCode', description='包code'),
-}
-
-model GetPackageVersionResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  packageName?: string(name='PackageName', description='包名称'),
-  packageCode?: string(name='PackageCode', description='包code'),
-  packageDetails?: [ 
-    {
-      packageVersion?: string(name='PackageVersion', description='包版本'),
-      packageDetailDescription?: string(name='PackageDetailDescription', description='包详细描述'),
-      createTime?: string(name='CreateTime', description='创建时间'),
-      modifyTime?: string(name='ModifyTime', description='修改时间'),
-      createUserId?: string(name='CreateUserId', description='创建人id'),
-      modifyUserId?: string(name='ModifyUserId', description='修改人id'),
-      publishTime?: string(name='PublishTime', description='发布时间'),
-    }
-  ](name='PackageDetails', description='包的详细信息'),
-  success?: boolean(name='Success', description='是否成功标示'),
-  code?: string(name='Code', description='返回code'),
-  message?: string(name='Message', description='返回信息'),
-}
-
-model GetPackageVersionResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetPackageVersionResponseBody(name='body'),
-}
-
-async function getPackageVersionWithOptions(request: GetPackageVersionRequest, runtime: Util.RuntimeOptions): GetPackageVersionResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('GetPackageVersion', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function getPackageVersion(request: GetPackageVersionRequest): GetPackageVersionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getPackageVersionWithOptions(request, runtime);
-}
-
-model ListSubscriptionByRobotRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
-}
-
-model ListSubscriptionByRobotResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: [ 
-    {
-      robotCode?: string(name='RobotCode', description='机器人code'),
-      packageCode?: string(name='PackageCode', description='行业包code'),
-      packageVersion?: string(name='PackageVersion', description='行业包版本'),
-    }
-  ](name='Data', description='订阅的行业包'),
-  success?: boolean(name='Success', description='是否成功'),
-  code?: string(name='Code', description='错误码'),
-  message?: string(name='Message', description='错误信息'),
-}
-
-model ListSubscriptionByRobotResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListSubscriptionByRobotResponseBody(name='body'),
-}
-
-async function listSubscriptionByRobotWithOptions(request: ListSubscriptionByRobotRequest, runtime: Util.RuntimeOptions): ListSubscriptionByRobotResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ListSubscriptionByRobot', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function listSubscriptionByRobot(request: ListSubscriptionByRobotRequest): ListSubscriptionByRobotResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listSubscriptionByRobotWithOptions(request, runtime);
-}
-
-model PayOrderCallbackRequest {
-  data?: string(name='data'),
-}
-
-model PayOrderCallbackResponseBody = {
-  requestId?: string(name='requestId'),
-  success?: boolean(name='success'),
-  data?: string(name='data'),
-  code?: string(name='code'),
-  message?: string(name='message'),
-  synchro?: boolean(name='synchro', description='是否同步'),
-}
-
-model PayOrderCallbackResponse = {
-  headers: map[string]string(name='headers'),
-  body: PayOrderCallbackResponseBody(name='body'),
-}
-
-async function payOrderCallbackWithOptions(request: PayOrderCallbackRequest, runtime: Util.RuntimeOptions): PayOrderCallbackResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('PayOrderCallback', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function payOrderCallback(request: PayOrderCallbackRequest): PayOrderCallbackResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return payOrderCallbackWithOptions(request, runtime);
-}
-
-model GetSolutionRequest {
-  robotCode?: string(name='RobotCode', description='机器人code'),
-  knowledgeId?: long(name='KnowledgeId', description='知识id'),
-  solutionId?: long(name='SolutionId', description='答案id'),
-  operatorId?: string(name='OperatorId', description='操作用户id'),
-  operatorName?: string(name='OperatorName', description='操作用户名称'),
-}
-
-model GetSolutionResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  solution?: {
-    solutionId?: long(name='SolutionId', description='答案id'),
-    knowledgeId?: long(name='KnowledgeId', description='知识id'),
-    solutionType?: string(name='SolutionType', description='答案类型,"text":文本答案'),
-    solutionSource?: string(name='SolutionSource', description='答案来源'),
-    solutionContent?: string(name='SolutionContent', description='答案正文'),
-    conditions?: [ 
-      {
-        knowledgeId?: long(name='KnowledgeId', description='知识id'),
-        solutionId?: long(name='SolutionId', description='答案id'),
-        conditionType?: string(name='ConditionType', description='生效模式：EffectiveMode'),
-        conditionValue?: string(name='ConditionValue', description='生效模式："disable":全部不生效，"auto":全自动，"assistant":智能辅助，"enable":全部生效'),
-      }
-    ](name='Conditions', description='答案约束'),
-    solutionVariables?: [ 
-      {
-        knowledgeId?: long(name='KnowledgeId', description='知识id'),
-        solutionId?: long(name='SolutionId', description='答案id'),
-        variableName?: string(name='VariableName', description='变量名称'),
-        variableType?: string(name='VariableType', description='变量类型'),
-      }
-    ](name='SolutionVariables', description='答案变量'),
-    extraContent?: string(name='ExtraContent', description='答案扩展信息'),
-  }(name='Solution', description='答案'),
-  success?: boolean(name='Success', description='是否成功标示'),
-  code?: string(name='Code', description='返回code'),
-  message?: string(name='Message', description='返回信息'),
-}
-
-model GetSolutionResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetSolutionResponseBody(name='body'),
-}
-
-async function getSolutionWithOptions(request: GetSolutionRequest, runtime: Util.RuntimeOptions): GetSolutionResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('GetSolution', '2021-02-24', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function getSolution(request: GetSolutionRequest): GetSolutionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getSolutionWithOptions(request, runtime);
+  return verifyOrderWithOptions(request, runtime);
 }
 
