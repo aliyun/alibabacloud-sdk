@@ -17,8 +17,7 @@ init(config: OpenApi.Config){
   @client = new GatewayClient();
   @spi = @client;
   @endpointRule = '';
-  
-}
+  }
 
 model ApplyServerSideEncryptionByDefault {
   KMSDataEncryption?: string(name='KMSDataEncryption', description='description'),
@@ -111,14 +110,21 @@ model InventoryConfiguration {
   id?: string(name='Id', description='The specified inventory list name, which must be globally unique in the bucket'),
   includedObjectVersions?:   string(name='IncludedObjectVersions'),
   isEnabled?: boolean(name='IsEnabled', description='Indicates whether the inventory function is enabled'),
-  optionalFields?: [
-        string
-  ](name='OptionalFields', description='The container that stores the configuration fields included in the inventory list'),
+  optionalFields?: {
+    fields?: [
+            string
+    ](name='Field', description='field list'),
+  }(name='OptionalFields', description='The container that stores the configuration fields included in the inventory list'),
   schedule?: InventorySchedule(name='Schedule'),
 }
 
 model InventoryDestination {
   OSSBucketDestination?: InventoryOSSBucketDestination(name='OSSBucketDestination', description='The information about the bucket that stores the exported inventory list'),
+}
+
+model InventoryEncryption {
+  SSEKMS?: SSEKMS(name='SSE-KMS', description='The container that stores the CMK used in the SSE-KMS encryption method'),
+  SSEOSS?: map[string]any(name='SSE-OSS', description='The container that stores the information about the SSE-OSS encryption method'),
 }
 
 model InventoryFilter {
@@ -128,6 +134,7 @@ model InventoryFilter {
 model InventoryOSSBucketDestination {
   accountId?: string(name='AccountId', description='The account ID granted by the bucket owner'),
   bucket?: string(name='Bucket', description='The bucket that stores the exported inventory list'),
+  encryption?: InventoryEncryption(name='Encryption'),
   format?:   string(name='Format'),
   prefix?: string(name='Prefix', description='The path of the exported inventory list'),
   roleArn?: string(name='RoleArn', description='The name of the role to which the bucket owner grants permissions'),
@@ -220,6 +227,7 @@ model LiveChannelSnapshot {
 model LiveChannelTarget {
   fragCount?: long(name='FragCount', description='description'),
   fragDuration?: long(name='FragDuration', description='description'),
+  playlistName?: string(name='PlaylistName', description='description'),
   type?: string(name='Type', description='description'),
 }
 
@@ -308,6 +316,19 @@ model ReplicationPrefixSet {
   prefixs?: [ string ](name='Prefix', description='Prefixs used to specify the object to replicate'),
 }
 
+model ReplicationProgressRule {
+  action?: string(name='Action', description='A short description of action'),
+  destination?: ReplicationDestination(name='Destination'),
+  historicalObjectReplication?: string(name='HistoricalObjectReplication', description='A short description of HistoricalObjectReplication'),
+  ID?: string(name='ID', description='rule id'),
+  prefixSet?: ReplicationPrefixSet(name='PrefixSet'),
+  progress?: {
+    historicalObject?: string(name='HistoricalObject', description='A short description of HistoricalObject'),
+    newObject?: string(name='NewObject', description='A short description of NewObject'),
+  }(name='Progress', description='A short description of Progress'),
+  status?: string(name='Status', description='A short description of action'),
+}
+
 model ReplicationRule {
   action?: string(name='Action', description='A short description of action'),
   destination?: ReplicationDestination(name='Destination'),
@@ -318,13 +339,12 @@ model ReplicationRule {
   ID?: string(name='ID', description='rule id'),
   prefixSet?: ReplicationPrefixSet(name='PrefixSet'),
   sourceSelectionCriteria?: ReplicationSourceSelectionCriteria(name='SourceSelectionCriteria'),
+  status?: string(name='Status', description='A short description of action'),
   syncRole?: string(name='SyncRole', description='A short description of SyncRole'),
 }
 
-model ReplicationRuleProgress {
-  action?: string(name='Action', description='action'),
-  ID?: string(name='ID', description='id'),
-  prefixSet?: ReplicationPrefixSet(name='PrefixSet'),
+model ReplicationRules {
+  ids?: [ string ](name='ID', description='the container of id'),
 }
 
 model ReplicationSourceSelectionCriteria {
@@ -344,6 +364,48 @@ model RestoreRequest {
   }(name='JobParameters', description='description'),
 }
 
+model RoutingRule {
+  condition?: RoutingRuleCondition(name='Condition', description='description'),
+  redirect?: RoutingRuleRedirect(name='Redirect', description='description'),
+  ruleNumber?: long(name='RuleNumber', description='description'),
+}
+
+model RoutingRuleCondition {
+  httpErrorCodeReturnedEquals?: long(name='HttpErrorCodeReturnedEquals', description='A short description of struct'),
+  keyPrefixEquals?: string(name='KeyPrefixEquals', description='A short description of struct'),
+}
+
+model RoutingRuleRedirect {
+  enableReplacePrefix?: boolean(name='EnableReplacePrefix', description='description'),
+  hostName?: string(name='HostName', description='description'),
+  httpRedirectCode?: long(name='HttpRedirectCode', description='description'),
+  mirrorCheckMd5?: boolean(name='MirrorCheckMd5', description='description'),
+  mirrorFollowRedirect?: boolean(name='MirrorFollowRedirect', description='description'),
+  mirrorHeaders?: {
+    pass?: [ string ](name='Pass', description='description'),
+    passAll?: boolean(name='PassAll', description='description'),
+    remove?: [ string ](name='Remove', description='description'),
+    set?: [ 
+      {
+        key?: string(name='Key', description='description'),
+        value?: string(name='Value', description='description'),
+      }
+    ](name='Set', description='description'),
+  }(name='MirrorHeaders', description='description'),
+  mirrorPassQueryString?: boolean(name='MirrorPassQueryString', description='description'),
+  mirrorURL?: string(name='MirrorURL', description='description'),
+  passQueryString?: string(name='PassQueryString', description='description'),
+  protocol?: string(name='Protocol', description='description'),
+  redirectType?: string(name='RedirectType', description='description'),
+  replaceKeyPrefixWith?: string(name='ReplaceKeyPrefixWith', description='description'),
+  replaceKeyWith?: string(name='ReplaceKeyWith', description='description'),
+  transparentMirrorResponseCodes?: string(name='TransparentMirrorResponseCodes', description='description'),
+}
+
+model SSEKMS {
+  keyId?: string(name='KeyId', description='The CMK used in the SSE-KMS encryption method'),
+}
+
 model SelectRequest {
   expression?: string(name='Expression', description='description'),
 }
@@ -357,10 +419,14 @@ model Tag {
   value?: string(name='Value', description='value'),
 }
 
-model Tagging {
-  tagSet?: [
+model TagSet {
+  tags?: [
     Tag
-  ](name='TagSet', description='Tag 的容器'),
+  ](name='Tag', description='A short description of struct'),
+}
+
+model Tagging {
+  tagSet?: TagSet(name='TagSet', description='the container of tags'),
 }
 
 model TransferAccelerationConfiguration {
@@ -384,7 +450,14 @@ model WebsiteConfiguration {
   }(name='ErrorDocument', description='description'),
   indexDocument?: {
     suffix?: string(name='Suffix', description='description'),
+    supportSubDir?: boolean(name='SupportSubDir', description='description'),
+    type?: string(name='Type', description='description'),
   }(name='IndexDocument', description='description'),
+  routingRules?: {
+    routingRules?: [
+      RoutingRule
+    ](name='RoutingRule', description='description'),
+  }(name='RoutingRules', description='description'),
 }
 
 model AbortBucketWormResponse = {
@@ -968,27 +1041,33 @@ async function deleteBucketPolicyWithOptions(bucket: string, headers: map[string
   return execute(params, req, runtime);
 }
 
-model DeleteBucketReplicationResponseBody = {
-  ID?: string(name='ID'),
+model DeleteBucketReplicationRequest {
+  body?: ReplicationRules(name='body'),
 }
 
 model DeleteBucketReplicationResponse = {
   headers: map[string]string(name='headers'),
-  body: DeleteBucketReplicationResponseBody(name='body'),
 }
 
-async function deleteBucketReplication(bucket: string): DeleteBucketReplicationResponse {
+async function deleteBucketReplication(bucket: string, request: DeleteBucketReplicationRequest): DeleteBucketReplicationResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return deleteBucketReplicationWithOptions(bucket, headers, runtime);
+  return deleteBucketReplicationWithOptions(bucket, request, headers, runtime);
 }
 
-async function deleteBucketReplicationWithOptions(bucket: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteBucketReplicationResponse {
+async function deleteBucketReplicationWithOptions(bucket: string, request: DeleteBucketReplicationRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteBucketReplicationResponse {
+  Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.body)) {
+    body['body'] = request.body;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
+    body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
     action = 'DeleteBucketReplication',
@@ -999,7 +1078,8 @@ async function deleteBucketReplicationWithOptions(bucket: string, headers: map[s
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'xml',  };
+    bodyType = 'xml',
+  };
   return execute(params, req, runtime);
 }
 
@@ -1588,7 +1668,7 @@ async function getBucketLifecycleWithOptions(bucket: string, headers: map[string
     action = 'GetBucketLifecycle',
     version = '2019-05-17',
     protocol = 'HTTPS',
-    pathname = `/?lifecycle `,
+    pathname = `/?lifecycle`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1738,7 +1818,7 @@ async function getBucketRefererWithOptions(bucket: string, headers: map[string]s
 }
 
 model GetBucketReplicationResponseBody = {
-  rule?: [
+  rules?: [
     ReplicationRule
   ](name='Rule'),
 }
@@ -1819,7 +1899,7 @@ model GetBucketReplicationProgressRequest {
 }
 
 model GetBucketReplicationProgressResponseBody = {
-  rule?: ReplicationRuleProgress(name='Rule'),
+  rule?: ReplicationProgressRule(name='Rule'),
 }
 
 model GetBucketReplicationProgressResponse = {
@@ -1896,9 +1976,7 @@ async function getBucketRequestPaymentWithOptions(bucket: string, headers: map[s
 }
 
 model GetBucketTagsResponseBody = {
-  tagSet?: [
-    Tag
-  ](name='TagSet'),
+  tagSet?: TagSet(name='TagSet'),
 }
 
 model GetBucketTagsResponse = {
@@ -1958,7 +2036,7 @@ async function getBucketTransferAccelerationWithOptions(bucket: string, headers:
     action = 'GetBucketTransferAcceleration',
     version = '2019-05-17',
     protocol = 'HTTPS',
-    pathname = `/?transferAcceleration `,
+    pathname = `/?transferAcceleration`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -2010,6 +2088,11 @@ model GetBucketWebsiteResponseBody = {
   indexDocument?: {
     suffix?: string(name='Suffix'),
   }(name='IndexDocument'),
+  routingRules?: {
+    routingRules?: [
+      RoutingRule
+    ](name='RoutingRule'),
+  }(name='RoutingRules'),
 }
 
 model GetBucketWebsiteResponse = {
@@ -2035,7 +2118,7 @@ async function getBucketWebsiteWithOptions(bucket: string, headers: map[string]s
     version = '2019-05-17',
     protocol = 'HTTPS',
     pathname = `/?website`,
-    method = 'POST',
+    method = 'GET',
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
@@ -2376,11 +2459,7 @@ async function getObjectMetaWithOptions(bucket: string, key: string, headers: ma
 }
 
 model GetObjectTaggingResponseBody = {
-  tagSet?: {
-    tag?: [
-      Tag
-    ](name='Tag'),
-  }(name='TagSet'),
+  tagSet?: TagSet(name='TagSet'),
 }
 
 model GetObjectTaggingResponse = {
@@ -2987,11 +3066,14 @@ model ListObjectVersionsResponseBody = {
   deleteMarkers?: [
     DeleteMarkerEntry
   ](name='DeleteMarker', description='The container that stores delete markers'),
+  delimiter?: string(name='Delimiter'),
   encodingType?: string(name='EncodingType'),
   isTruncated?: boolean(name='IsTruncated', description='Indicates whether the returned results are truncated'),
   keyMarker?: string(name='KeyMarker', description='Indicates the object from which the operation starts'),
   maxKeys?: long(name='MaxKeys', description='The maximum number of returned objects in the response'),
   name?: string(name='Name', description='The bucket name'),
+  nextKeyMarker?: string(name='NextKeyMarker'),
+  nextVersionIdMarker?: string(name='NextVersionIdMarker'),
   prefix?: string(name='Prefix', description='The prefix that the names of returned objects must contain'),
   versions?: [
     ObjectVersion
@@ -3672,7 +3754,7 @@ async function putBucketLifecycleWithOptions(bucket: string, request: PutBucketL
     action = 'PutBucketLifecycle',
     version = '2019-05-17',
     protocol = 'HTTPS',
-    pathname = `/?lifecycle `,
+    pathname = `/?lifecycle`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -3961,7 +4043,7 @@ async function putBucketTransferAccelerationWithOptions(bucket: string, request:
     action = 'PutBucketTransferAcceleration',
     version = '2019-05-17',
     protocol = 'HTTPS',
-    pathname = `/?transferAcceleration `,
+    pathname = `/?transferAcceleration`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
