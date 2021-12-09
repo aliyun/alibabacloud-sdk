@@ -124,7 +124,7 @@ model InventoryDestination {
 
 model InventoryEncryption {
   SSEKMS?: SSEKMS(name='SSE-KMS', description='The container that stores the CMK used in the SSE-KMS encryption method'),
-  SSEOSS?: map[string]any(name='SSE-OSS', description='The container that stores the information about the SSE-OSS encryption method'),
+  SSEOSS?: SSEOSS(name='SSE-OSS', description='The container that stores the information about the SSE-OSS encryption method'),
 }
 
 model InventoryFilter {
@@ -406,6 +406,9 @@ model SSEKMS {
   keyId?: string(name='KeyId', description='The CMK used in the SSE-KMS encryption method'),
 }
 
+model SSEOSS {
+}
+
 model SelectRequest {
   expression?: string(name='Expression', description='description'),
 }
@@ -536,7 +539,14 @@ async function abortMultipartUploadWithOptions(bucket: string, key: string, requ
 
 model AppendObjectHeaders {
   commonHeaders?: map[string]string,
+  cacheControl?: string(name='Cache-Control'),
+  contentDisposition?: string(name='Content-Disposition'),
+  contentEncoding?: string(name='Content-Encoding'),
+  contentMD5?: string(name='Content-MD5'),
+  expires?: string(name='Expires'),
+  metaData?: map[string]string(name='x-oss-meta-*'),
   acl?: string(name='x-oss-object-acl'),
+  serverSideEncryption	?: string(name='x-oss-server-side-encryption'),
   storageClass?: string(name='x-oss-storage-class'),
 }
 
@@ -569,8 +579,29 @@ async function appendObjectWithOptions(bucket: string, key: string, request: App
   if (!Util.isUnset(headers.commonHeaders)) {
     realHeaders = headers.commonHeaders;
   }
+  if (!Util.isUnset(headers.cacheControl)) {
+    realHeaders['Cache-Control'] = Util.toJSONString(headers.cacheControl);
+  }
+  if (!Util.isUnset(headers.contentDisposition)) {
+    realHeaders['Content-Disposition'] = Util.toJSONString(headers.contentDisposition);
+  }
+  if (!Util.isUnset(headers.contentEncoding)) {
+    realHeaders['Content-Encoding'] = Util.toJSONString(headers.contentEncoding);
+  }
+  if (!Util.isUnset(headers.contentMD5)) {
+    realHeaders['Content-MD5'] = Util.toJSONString(headers.contentMD5);
+  }
+  if (!Util.isUnset(headers.expires)) {
+    realHeaders['Expires'] = Util.toJSONString(headers.expires);
+  }
+  if (!Util.isUnset(headers.metaData)) {
+    realHeaders['x-oss-meta-*'] = Util.toJSONString(headers.metaData);
+  }
   if (!Util.isUnset(headers.acl)) {
     realHeaders['x-oss-object-acl'] = Util.toJSONString(headers.acl);
+  }
+  if (!Util.isUnset(headers.serverSideEncryption	)) {
+    realHeaders['x-oss-server-side-encryption'] = Util.toJSONString(headers.serverSideEncryption	);
   }
   if (!Util.isUnset(headers.storageClass)) {
     realHeaders['x-oss-storage-class'] = Util.toJSONString(headers.storageClass);
@@ -718,19 +749,20 @@ async function completeMultipartUploadWithOptions(bucket: string, key: string, r
 
 model CopyObjectHeaders {
   commonHeaders?: map[string]string,
-  sourceBucket?: string(name='source-bucket'),
-  sourceKey?: string(name='source-key'),
+  copySource?: string(name='x-oss-copy-source'),
   copySourceIfMatch?: string(name='x-oss-copy-source-if-match'),
   copySourceIfModifiedSince?: string(name='x-oss-copy-source-if-modified-since'),
   copySourceIfNoneMatch?: string(name='x-oss-copy-source-if-none-match'),
   copySourceIfUnmodifiedSince?: string(name='x-oss-copy-source-if-unmodified-since'),
   forbidOverwrite?: string(name='x-oss-forbid-overwrite'),
+  metaData?: map[string]string(name='x-oss-meta-*'),
   metadataDirective?: string(name='x-oss-metadata-directive'),
   acl?: string(name='x-oss-object-acl'),
   sse?: string(name='x-oss-server-side-encryption'),
   sseKeyId?: string(name='x-oss-server-side-encryption-key-id'),
   storageClass?: string(name='x-oss-storage-class'),
   tagging?: string(name='x-oss-tagging'),
+  xOssTaggingDirective?: string(name='x-oss-tagging-directive'),
 }
 
 model CopyObjectResponseBody = {
@@ -757,11 +789,8 @@ async function copyObjectWithOptions(bucket: string, key: string, headers: CopyO
   if (!Util.isUnset(headers.commonHeaders)) {
     realHeaders = headers.commonHeaders;
   }
-  if (!Util.isUnset(headers.sourceBucket)) {
-    realHeaders['source-bucket'] = Util.toJSONString(headers.sourceBucket);
-  }
-  if (!Util.isUnset(headers.sourceKey)) {
-    realHeaders['source-key'] = Util.toJSONString(headers.sourceKey);
+  if (!Util.isUnset(headers.copySource)) {
+    realHeaders['x-oss-copy-source'] = Util.toJSONString(headers.copySource);
   }
   if (!Util.isUnset(headers.copySourceIfMatch)) {
     realHeaders['x-oss-copy-source-if-match'] = Util.toJSONString(headers.copySourceIfMatch);
@@ -777,6 +806,9 @@ async function copyObjectWithOptions(bucket: string, key: string, headers: CopyO
   }
   if (!Util.isUnset(headers.forbidOverwrite)) {
     realHeaders['x-oss-forbid-overwrite'] = Util.toJSONString(headers.forbidOverwrite);
+  }
+  if (!Util.isUnset(headers.metaData)) {
+    realHeaders['x-oss-meta-*'] = Util.toJSONString(headers.metaData);
   }
   if (!Util.isUnset(headers.metadataDirective)) {
     realHeaders['x-oss-metadata-directive'] = Util.toJSONString(headers.metadataDirective);
@@ -795,6 +827,9 @@ async function copyObjectWithOptions(bucket: string, key: string, headers: CopyO
   }
   if (!Util.isUnset(headers.tagging)) {
     realHeaders['x-oss-tagging'] = Util.toJSONString(headers.tagging);
+  }
+  if (!Util.isUnset(headers.xOssTaggingDirective)) {
+    realHeaders['x-oss-tagging-directive'] = Util.toJSONString(headers.xOssTaggingDirective);
   }
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
@@ -1178,6 +1213,7 @@ async function deleteLiveChannelWithOptions(bucket: string, channel: string, hea
 }
 
 model DeleteMultipleObjectsRequest {
+  body?: Delete(name='body'),
   delete?: Delete(name='delete'),
   encodingType?: string(name='encoding-type'),
 }
@@ -1272,23 +1308,34 @@ async function deleteObjectWithOptions(bucket: string, key: string, request: Del
   return execute(params, req, runtime);
 }
 
+model DeleteObjectTaggingRequest {
+  versionId?: string(name='versionId'),
+}
+
 model DeleteObjectTaggingResponse = {
   headers: map[string]string(name='headers'),
 }
 
-async function deleteObjectTagging(bucket: string, key: string): DeleteObjectTaggingResponse {
+async function deleteObjectTagging(bucket: string, key: string, request: DeleteObjectTaggingRequest): DeleteObjectTaggingResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return deleteObjectTaggingWithOptions(bucket, key, headers, runtime);
+  return deleteObjectTaggingWithOptions(bucket, key, request, headers, runtime);
 }
 
-async function deleteObjectTaggingWithOptions(bucket: string, key: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteObjectTaggingResponse {
+async function deleteObjectTaggingWithOptions(bucket: string, key: string, request: DeleteObjectTaggingRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteObjectTaggingResponse {
+  Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
   key = OpenApiUtil.getEncodeParam(key);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.versionId)) {
+    query['versionId'] = request.versionId;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'DeleteObjectTagging',
@@ -2382,7 +2429,7 @@ model GetObjectAclRequest {
 
 model GetObjectAclResponseBody = {
   accessControlList?: {
-    ACL?: string(name='Grant'),
+    ACL?:     string(name='Grant'),
   }(name='AccessControlList'),
   owner?: Owner(name='Owner'),
 }
@@ -2426,23 +2473,34 @@ async function getObjectAclWithOptions(bucket: string, key: string, request: Get
   return execute(params, req, runtime);
 }
 
+model GetObjectMetaRequest {
+  versionId?: string(name='versionId'),
+}
+
 model GetObjectMetaResponse = {
   headers: map[string]string(name='headers'),
 }
 
-async function getObjectMeta(bucket: string, key: string): GetObjectMetaResponse {
+async function getObjectMeta(bucket: string, key: string, request: GetObjectMetaRequest): GetObjectMetaResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return getObjectMetaWithOptions(bucket, key, headers, runtime);
+  return getObjectMetaWithOptions(bucket, key, request, headers, runtime);
 }
 
-async function getObjectMetaWithOptions(bucket: string, key: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetObjectMetaResponse {
+async function getObjectMetaWithOptions(bucket: string, key: string, request: GetObjectMetaRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetObjectMetaResponse {
+  Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
   key = OpenApiUtil.getEncodeParam(key);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.versionId)) {
+    query['versionId'] = request.versionId;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'GetObjectMeta',
@@ -2458,6 +2516,10 @@ async function getObjectMetaWithOptions(bucket: string, key: string, headers: ma
   return execute(params, req, runtime);
 }
 
+model GetObjectTaggingRequest {
+  versionId?: string(name='versionId'),
+}
+
 model GetObjectTaggingResponseBody = {
   tagSet?: TagSet(name='TagSet'),
 }
@@ -2467,19 +2529,26 @@ model GetObjectTaggingResponse = {
   body: GetObjectTaggingResponseBody(name='body'),
 }
 
-async function getObjectTagging(bucket: string, key: string): GetObjectTaggingResponse {
+async function getObjectTagging(bucket: string, key: string, request: GetObjectTaggingRequest): GetObjectTaggingResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return getObjectTaggingWithOptions(bucket, key, headers, runtime);
+  return getObjectTaggingWithOptions(bucket, key, request, headers, runtime);
 }
 
-async function getObjectTaggingWithOptions(bucket: string, key: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetObjectTaggingResponse {
+async function getObjectTaggingWithOptions(bucket: string, key: string, request: GetObjectTaggingRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetObjectTaggingResponse {
+  Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
   key = OpenApiUtil.getEncodeParam(key);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.versionId)) {
+    query['versionId'] = request.versionId;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'GetObjectTagging',
@@ -2541,7 +2610,7 @@ async function getServiceWithOptions(request: GetServiceRequest, headers: map[st
     action = 'GetService',
     version = '2019-05-17',
     protocol = 'HTTPS',
-    pathname = `/ `,
+    pathname = `/`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -2550,23 +2619,34 @@ async function getServiceWithOptions(request: GetServiceRequest, headers: map[st
   return execute(params, req, runtime);
 }
 
+model GetSymlinkRequest {
+  versionId?: string(name='versionId'),
+}
+
 model GetSymlinkResponse = {
   headers: map[string]string(name='headers'),
 }
 
-async function getSymlink(bucket: string, key: string): GetSymlinkResponse {
+async function getSymlink(bucket: string, key: string, request: GetSymlinkRequest): GetSymlinkResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return getSymlinkWithOptions(bucket, key, headers, runtime);
+  return getSymlinkWithOptions(bucket, key, request, headers, runtime);
 }
 
-async function getSymlinkWithOptions(bucket: string, key: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetSymlinkResponse {
+async function getSymlinkWithOptions(bucket: string, key: string, request: GetSymlinkRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetSymlinkResponse {
+  Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
   key = OpenApiUtil.getEncodeParam(key);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.versionId)) {
+    query['versionId'] = request.versionId;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'GetSymlink',
@@ -2638,20 +2718,30 @@ model HeadObjectHeaders {
   ifUnmodifiedSince?: string(name='If-Unmodified-Since'),
 }
 
+model HeadObjectRequest {
+  versionId?: string(name='versionId'),
+}
+
 model HeadObjectResponse = {
   headers: map[string]string(name='headers'),
 }
 
-async function headObject(bucket: string, key: string): HeadObjectResponse {
+async function headObject(bucket: string, key: string, request: HeadObjectRequest): HeadObjectResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers = new HeadObjectHeaders{};
-  return headObjectWithOptions(bucket, key, headers, runtime);
+  return headObjectWithOptions(bucket, key, request, headers, runtime);
 }
 
-async function headObjectWithOptions(bucket: string, key: string, headers: HeadObjectHeaders, runtime: Util.RuntimeOptions): HeadObjectResponse {
+async function headObjectWithOptions(bucket: string, key: string, request: HeadObjectRequest, headers: HeadObjectHeaders, runtime: Util.RuntimeOptions): HeadObjectResponse {
+  Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
   key = OpenApiUtil.getEncodeParam(key);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.versionId)) {
+    query['versionId'] = request.versionId;
+  }
+
   var realHeaders : map[string]string = {};
   if (!Util.isUnset(headers.commonHeaders)) {
     realHeaders = headers.commonHeaders;
@@ -2671,6 +2761,7 @@ async function headObjectWithOptions(bucket: string, key: string, headers: HeadO
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = realHeaders,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'HeadObject',
@@ -2730,12 +2821,16 @@ async function initiateBucketWormWithOptions(bucket: string, request: InitiateBu
 
 model InitiateMultipartUploadHeaders {
   commonHeaders?: map[string]string,
-  xOssForbidOverwrite?: string(name='x-oss-forbid-overwrite'),
-  xOssServerSideDataEncryption?: string(name='x-oss-server-side-data-encryption'),
-  xOssServerSideEncryption?: string(name='x-oss-server-side-encryption'),
-  xOssServerSideEncryptionKeyId?: string(name='x-oss-server-side-encryption-key-id'),
-  xOssStorageClass?: string(name='x-oss-storage-class'),
-  xOssTagging?: string(name='x-oss-tagging'),
+  cacheControl?: string(name='Cache-Control'),
+  contentDisposition?: string(name='Content-Disposition'),
+  contentEncoding?: string(name='Content-Encoding'),
+  expires?: string(name='Expires'),
+  forbidOverwrite?: string(name='x-oss-forbid-overwrite'),
+  sseDataEncryption?: string(name='x-oss-server-side-data-encryption'),
+  serverSideEncryption?: string(name='x-oss-server-side-encryption'),
+  sseKeyId?: string(name='x-oss-server-side-encryption-key-id'),
+  storageClass?: string(name='x-oss-storage-class'),
+  tagging?: string(name='x-oss-tagging'),
 }
 
 model InitiateMultipartUploadRequest {
@@ -2774,23 +2869,35 @@ async function initiateMultipartUploadWithOptions(bucket: string, key: string, r
   if (!Util.isUnset(headers.commonHeaders)) {
     realHeaders = headers.commonHeaders;
   }
-  if (!Util.isUnset(headers.xOssForbidOverwrite)) {
-    realHeaders['x-oss-forbid-overwrite'] = Util.toJSONString(headers.xOssForbidOverwrite);
+  if (!Util.isUnset(headers.cacheControl)) {
+    realHeaders['Cache-Control'] = Util.toJSONString(headers.cacheControl);
   }
-  if (!Util.isUnset(headers.xOssServerSideDataEncryption)) {
-    realHeaders['x-oss-server-side-data-encryption'] = Util.toJSONString(headers.xOssServerSideDataEncryption);
+  if (!Util.isUnset(headers.contentDisposition)) {
+    realHeaders['Content-Disposition'] = Util.toJSONString(headers.contentDisposition);
   }
-  if (!Util.isUnset(headers.xOssServerSideEncryption)) {
-    realHeaders['x-oss-server-side-encryption'] = Util.toJSONString(headers.xOssServerSideEncryption);
+  if (!Util.isUnset(headers.contentEncoding)) {
+    realHeaders['Content-Encoding'] = Util.toJSONString(headers.contentEncoding);
   }
-  if (!Util.isUnset(headers.xOssServerSideEncryptionKeyId)) {
-    realHeaders['x-oss-server-side-encryption-key-id'] = Util.toJSONString(headers.xOssServerSideEncryptionKeyId);
+  if (!Util.isUnset(headers.expires)) {
+    realHeaders['Expires'] = Util.toJSONString(headers.expires);
   }
-  if (!Util.isUnset(headers.xOssStorageClass)) {
-    realHeaders['x-oss-storage-class'] = Util.toJSONString(headers.xOssStorageClass);
+  if (!Util.isUnset(headers.forbidOverwrite)) {
+    realHeaders['x-oss-forbid-overwrite'] = Util.toJSONString(headers.forbidOverwrite);
   }
-  if (!Util.isUnset(headers.xOssTagging)) {
-    realHeaders['x-oss-tagging'] = Util.toJSONString(headers.xOssTagging);
+  if (!Util.isUnset(headers.sseDataEncryption)) {
+    realHeaders['x-oss-server-side-data-encryption'] = Util.toJSONString(headers.sseDataEncryption);
+  }
+  if (!Util.isUnset(headers.serverSideEncryption)) {
+    realHeaders['x-oss-server-side-encryption'] = Util.toJSONString(headers.serverSideEncryption);
+  }
+  if (!Util.isUnset(headers.sseKeyId)) {
+    realHeaders['x-oss-server-side-encryption-key-id'] = Util.toJSONString(headers.sseKeyId);
+  }
+  if (!Util.isUnset(headers.storageClass)) {
+    realHeaders['x-oss-storage-class'] = Util.toJSONString(headers.storageClass);
+  }
+  if (!Util.isUnset(headers.tagging)) {
+    realHeaders['x-oss-tagging'] = Util.toJSONString(headers.tagging);
   }
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
@@ -2907,7 +3014,7 @@ async function listBucketsWithOptions(request: ListBucketsRequest, headers: map[
     action = 'ListBuckets',
     version = '2019-05-17',
     protocol = 'HTTPS',
-    pathname = `/ `,
+    pathname = `/`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -4231,10 +4338,10 @@ async function putLiveChannelStatusWithOptions(bucket: string, channel: string, 
 model PutObjectHeaders {
   commonHeaders?: map[string]string,
   forbidOverwrite?: boolean(name='x-oss-forbid-overwrite'),
-  userMetadata?: map[string]string(name='x-oss-meta-*'),
+  metaData?: map[string]string(name='x-oss-meta-*'),
   acl?:   string(name='x-oss-object-acl'),
   sseDataEncryption?: string(name='x-oss-server-side-data-encryption'),
-  sse?: string(name='x-oss-server-side-encryption'),
+  serverSideEncryption?: string(name='x-oss-server-side-encryption'),
   sseKeyId?: string(name='x-oss-server-side-encryption-key-id'),
   storageClass?:   string(name='x-oss-storage-class'),
   tagging?: string(name='x-oss-tagging'),
@@ -4266,8 +4373,8 @@ async function putObjectWithOptions(bucket: string, key: string, request: PutObj
   if (!Util.isUnset(headers.forbidOverwrite)) {
     realHeaders['x-oss-forbid-overwrite'] = Util.toJSONString(headers.forbidOverwrite);
   }
-  if (!Util.isUnset(headers.userMetadata)) {
-    realHeaders['x-oss-meta-*'] = Util.toJSONString(headers.userMetadata);
+  if (!Util.isUnset(headers.metaData)) {
+    realHeaders['x-oss-meta-*'] = Util.toJSONString(headers.metaData);
   }
   if (!Util.isUnset(headers.acl)) {
     realHeaders['x-oss-object-acl'] = Util.toJSONString(headers.acl);
@@ -4275,8 +4382,8 @@ async function putObjectWithOptions(bucket: string, key: string, request: PutObj
   if (!Util.isUnset(headers.sseDataEncryption)) {
     realHeaders['x-oss-server-side-data-encryption'] = Util.toJSONString(headers.sseDataEncryption);
   }
-  if (!Util.isUnset(headers.sse)) {
-    realHeaders['x-oss-server-side-encryption'] = Util.toJSONString(headers.sse);
+  if (!Util.isUnset(headers.serverSideEncryption)) {
+    realHeaders['x-oss-server-side-encryption'] = Util.toJSONString(headers.serverSideEncryption);
   }
   if (!Util.isUnset(headers.sseKeyId)) {
     realHeaders['x-oss-server-side-encryption-key-id'] = Util.toJSONString(headers.sseKeyId);
@@ -4470,6 +4577,7 @@ async function putSymlinkWithOptions(bucket: string, key: string, headers: PutSy
 
 model RestoreObjectRequest {
   body?: RestoreRequest(name='body'),
+  versionId?: string(name='versionId'),
 }
 
 model RestoreObjectResponse = {
@@ -4487,6 +4595,11 @@ async function restoreObjectWithOptions(bucket: string, key: string, request: Re
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
   key = OpenApiUtil.getEncodeParam(key);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.versionId)) {
+    query['versionId'] = request.versionId;
+  }
+
   var body : map[string]any= {};
   if (!Util.isUnset(request.body)) {
     body['body'] = request.body;
@@ -4495,6 +4608,7 @@ async function restoreObjectWithOptions(bucket: string, key: string, request: Re
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
+    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
