@@ -8,10 +8,10 @@ import EndpointUtil;
 
 extends OpenApi;
 
+
 init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
-  
   @endpointMap = {
     ap-northeast-2-pop = 'mts.aliyuncs.com',
     ap-southeast-2 = 'mts.aliyuncs.com',
@@ -56,6 +56,7 @@ init(config: OpenApi.Config){
     rus-west-1-pop = 'mts.aliyuncs.com',
     us-east-1 = 'mts.aliyuncs.com',
   };
+
   checkConfig(config);
   @endpoint = getEndpoint('mts', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -64,137 +65,141 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   if (!Util.empty(endpoint)) {
     return endpoint;
   }
-
+  
   if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-model QueryTraceMuRequest {
-  createTimeEnd?: long(name='CreateTimeEnd', description='创建时间起始'),
-  createTimeStart?: long(name='CreateTimeStart', description='创建时间截止'),
+
+model QueryCopyrightRequest {
+  createTimeEnd?: long(name='CreateTimeEnd', description='创建时间截止'),
+  createTimeStart?: long(name='CreateTimeStart', description='创建时间起始'),
   jobId?: string(name='JobId', description='任务id'),
   level?: long(name='Level', description='水印强度'),
-  messageId?: long(name='MessageId', description='水印信息id'),
-  pageNumber?: long(name='PageNumber', description='页偏移'),
+  pageNumber?: long(name='PageNumber', description='翻页下标'),
   pageSize?: long(name='PageSize', description='每页数量'),
 }
 
-model QueryTraceMuResponseBody = {
+model QueryCopyrightResponseBody = {
   data?: [ 
     {
+      callback?: string(name='Callback', description='回调url'),
       gmtCreate?: long(name='GmtCreate', description='创建时间'),
-      gmtModified?: long(name='GmtModified', description='最后修改时间'),
+      gmtModified?: long(name='GmtModified', description='修改时间'),
+      input?: string(name='Input', description='水印视频输入'),
       jobId?: string(name='JobId', description='任务id'),
-      mediaId?: string(name='MediaId', description='媒体id'),
-      output?: string(name='Output', description='输出oss地址'),
-      status?: string(name='Status', description='任务状态'),
-      trace?: string(name='Trace', description='溯源水印信息'),
-      traceId?: long(name='TraceId', description='溯源水印信息id'),
-      userData?: string(name='UserData', description='用户自定义数据'),
-      userId?: long(name='UserId', description='uid'),
+      level?: long(name='Level', description='水印强度'),
+      message?: string(name='Message', description='水印信息'),
+      messageId?: long(name='MessageId', description='水印信息id'),
+      output?: string(name='Output', description='水印视频输出'),
+      status?: string(name='Status', description='状态'),
+      userData?: string(name='UserData', description='用户数据'),
+      userId?: long(name='UserId', description='用户ID'),
     }
-  ](name='Data', description='返回数据结构'),
-  message?: string(name='Message', description='返回信息'),
-  requestID?: string(name='RequestID', description='请求id'),
+  ](name='Data'),
+  requestID?: string(name='RequestID'),
   statusCode?: long(name='StatusCode', description='状态码'),
 }
 
-model QueryTraceMuResponse = {
+model QueryCopyrightResponse = {
   headers: map[string]string(name='headers'),
-  body: QueryTraceMuResponseBody(name='body'),
+  body: QueryCopyrightResponseBody(name='body'),
 }
 
-async function queryTraceMu(request: QueryTraceMuRequest): QueryTraceMuResponse {
+async function queryCopyright(request: QueryCopyrightRequest): QueryCopyrightResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return queryTraceMuWithOptions(request, headers, runtime);
+  return queryCopyrightWithOptions(request, headers, runtime);
 }
 
-async function queryTraceMuWithOptions(request: QueryTraceMuRequest, headers: map[string]string, runtime: Util.RuntimeOptions): QueryTraceMuResponse {
+async function queryCopyrightWithOptions(request: QueryCopyrightRequest, headers: map[string]string, runtime: Util.RuntimeOptions): QueryCopyrightResponse {
   Util.validateModel(request);
   var body : map[string]any= {};
   if (!Util.isUnset(request.createTimeEnd)) {
-    body.CreateTimeEnd = request.createTimeEnd;
+    body['CreateTimeEnd'] = request.createTimeEnd;
   }
   if (!Util.isUnset(request.createTimeStart)) {
-    body.CreateTimeStart = request.createTimeStart;
+    body['CreateTimeStart'] = request.createTimeStart;
   }
   if (!Util.isUnset(request.jobId)) {
-    body.JobId = request.jobId;
+    body['JobId'] = request.jobId;
   }
   if (!Util.isUnset(request.level)) {
-    body.Level = request.level;
-  }
-  if (!Util.isUnset(request.messageId)) {
-    body.MessageId = request.messageId;
+    body['Level'] = request.level;
   }
   if (!Util.isUnset(request.pageNumber)) {
-    body.PageNumber = request.pageNumber;
+    body['PageNumber'] = request.pageNumber;
   }
   if (!Util.isUnset(request.pageSize)) {
-    body.PageSize = request.pageSize;
+    body['PageSize'] = request.pageSize;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('QueryTraceMu', '2021-07-28', 'HTTPS', 'POST', 'AK', `/queryTraceM3u8`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'QueryCopyright',
+    version = '2021-07-28',
+    protocol = 'HTTPS',
+    pathname = `/queryCopyrightJob`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-model SubmitImageCopyrightRequest {
-  input?: string(name='Input', description='需要加水印的图片oss地址(Input和url二选一)'),
-  level?: long(name='Level', description='水印强度'),
-  message?: string(name='Message', description='水印信息'),
-  output?: string(name='Output', description='水印图片输出oss地址'),
-  url?: string(name='Url', description='外部url链接(Input和url二选一)'),
+model QueryCopyrightExtractRequest {
+  jobId?: string(name='JobId', description='任务id'),
 }
 
-model SubmitImageCopyrightResponseBody = {
+model QueryCopyrightExtractResponseBody = {
   data?: {
-    jobId?: string(name='JobId', description='任务id'),
-  }(name='Data', description='返回数据'),
+    message?: string(name='Message', description='版权水印信息'),
+  }(name='Data'),
   message?: string(name='Message', description='返回信息'),
-  requestID?: string(name='RequestID', description='请求id'),
+  requestID?: string(name='RequestID'),
   statusCode?: long(name='StatusCode', description='状态码'),
 }
 
-model SubmitImageCopyrightResponse = {
+model QueryCopyrightExtractResponse = {
   headers: map[string]string(name='headers'),
-  body: SubmitImageCopyrightResponseBody(name='body'),
+  body: QueryCopyrightExtractResponseBody(name='body'),
 }
 
-async function submitImageCopyright(request: SubmitImageCopyrightRequest): SubmitImageCopyrightResponse {
+async function queryCopyrightExtract(request: QueryCopyrightExtractRequest): QueryCopyrightExtractResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return submitImageCopyrightWithOptions(request, headers, runtime);
+  return queryCopyrightExtractWithOptions(request, headers, runtime);
 }
 
-async function submitImageCopyrightWithOptions(request: SubmitImageCopyrightRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SubmitImageCopyrightResponse {
+async function queryCopyrightExtractWithOptions(request: QueryCopyrightExtractRequest, headers: map[string]string, runtime: Util.RuntimeOptions): QueryCopyrightExtractResponse {
   Util.validateModel(request);
   var body : map[string]any= {};
-  if (!Util.isUnset(request.input)) {
-    body.Input = request.input;
-  }
-  if (!Util.isUnset(request.level)) {
-    body.Level = request.level;
-  }
-  if (!Util.isUnset(request.message)) {
-    body.Message = request.message;
-  }
-  if (!Util.isUnset(request.output)) {
-    body.Output = request.output;
-  }
-  if (!Util.isUnset(request.url)) {
-    body.Url = request.url;
+  if (!Util.isUnset(request.jobId)) {
+    body['JobId'] = request.jobId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('SubmitImageCopyright', '2021-07-28', 'HTTPS', 'POST', 'AK', `/submitImageCopyright`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'QueryCopyrightExtract',
+    version = '2021-07-28',
+    protocol = 'HTTPS',
+    pathname = `/queryCopyrightExtract`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model QueryImageCopyrightRequest {
@@ -241,142 +246,37 @@ async function queryImageCopyrightWithOptions(request: QueryImageCopyrightReques
   Util.validateModel(request);
   var body : map[string]any= {};
   if (!Util.isUnset(request.createTimeEnd)) {
-    body.CreateTimeEnd = request.createTimeEnd;
+    body['CreateTimeEnd'] = request.createTimeEnd;
   }
   if (!Util.isUnset(request.createTimeStart)) {
-    body.CreateTimeStart = request.createTimeStart;
+    body['CreateTimeStart'] = request.createTimeStart;
   }
   if (!Util.isUnset(request.jobId)) {
-    body.JobId = request.jobId;
+    body['JobId'] = request.jobId;
   }
   if (!Util.isUnset(request.pageNumber)) {
-    body.PageNumber = request.pageNumber;
+    body['PageNumber'] = request.pageNumber;
   }
   if (!Util.isUnset(request.pageSize)) {
-    body.PageSize = request.pageSize;
+    body['PageSize'] = request.pageSize;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('QueryImageCopyright', '2021-07-28', 'HTTPS', 'POST', 'AK', `/queryImageCopyright`, 'json', req, runtime);
-}
-
-model QueryCopyrightRequest {
-  createTimeEnd?: long(name='CreateTimeEnd', description='创建时间截止'),
-  createTimeStart?: long(name='CreateTimeStart', description='创建时间起始'),
-  jobId?: string(name='JobId', description='任务id'),
-  level?: long(name='Level', description='水印强度'),
-  pageNumber?: long(name='PageNumber', description='翻页下标'),
-  pageSize?: long(name='PageSize', description='每页数量'),
-}
-
-model QueryCopyrightResponseBody = {
-  requestID?: string(name='RequestID'),
-  data?: [ 
-    {
-      callback?: string(name='Callback', description='回调url'),
-      gmtCreate?: long(name='GmtCreate', description='创建时间'),
-      gmtModified?: long(name='GmtModified', description='修改时间'),
-      input?: string(name='Input', description='水印视频输入'),
-      jobId?: string(name='JobId', description='任务id'),
-      level?: long(name='Level', description='水印强度'),
-      message?: string(name='Message', description='水印信息'),
-      messageId?: long(name='MessageId', description='水印信息id'),
-      output?: string(name='Output', description='水印视频输出'),
-      status?: string(name='Status', description='状态'),
-      userData?: string(name='UserData', description='用户数据'),
-      userId?: long(name='UserId', description='用户ID'),
-    }
-  ](name='Data'),
-  statusCode?: long(name='StatusCode', description='状态码'),
-}
-
-model QueryCopyrightResponse = {
-  headers: map[string]string(name='headers'),
-  body: QueryCopyrightResponseBody(name='body'),
-}
-
-async function queryCopyright(request: QueryCopyrightRequest): QueryCopyrightResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return queryCopyrightWithOptions(request, headers, runtime);
-}
-
-async function queryCopyrightWithOptions(request: QueryCopyrightRequest, headers: map[string]string, runtime: Util.RuntimeOptions): QueryCopyrightResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.createTimeEnd)) {
-    body.CreateTimeEnd = request.createTimeEnd;
-  }
-  if (!Util.isUnset(request.createTimeStart)) {
-    body.CreateTimeStart = request.createTimeStart;
-  }
-  if (!Util.isUnset(request.jobId)) {
-    body.JobId = request.jobId;
-  }
-  if (!Util.isUnset(request.level)) {
-    body.Level = request.level;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    body.PageNumber = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    body.PageSize = request.pageSize;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+  var params = new OpenApi.Params{
+    action = 'QueryImageCopyright',
+    version = '2021-07-28',
+    protocol = 'HTTPS',
+    pathname = `/queryImageCopyright`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
   };
-  return doROARequest('QueryCopyright', '2021-07-28', 'HTTPS', 'POST', 'AK', `/queryCopyrightJob`, 'json', req, runtime);
-}
-
-model SubmitTracemuRequest {
-  mediaId?: string(name='MediaId', description='ab流处理后的媒体id'),
-  output?: string(name='Output', description='m3u8文件输出oss地址'),
-  trace?: string(name='Trace', description='溯源水印信息'),
-}
-
-model SubmitTracemuResponseBody = {
-  data?: {
-    jobId?: string(name='JobId', description='任务id'),
-  }(name='Data', description='返回数据'),
-  message?: string(name='Message', description='返回信息'),
-  requestID?: string(name='RequestID', description='请求Id'),
-  statusCode?: long(name='StatusCode', description='状态码'),
-}
-
-model SubmitTracemuResponse = {
-  headers: map[string]string(name='headers'),
-  body: SubmitTracemuResponseBody(name='body'),
-}
-
-async function submitTracemu(request: SubmitTracemuRequest): SubmitTracemuResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return submitTracemuWithOptions(request, headers, runtime);
-}
-
-async function submitTracemuWithOptions(request: SubmitTracemuRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SubmitTracemuResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.mediaId)) {
-    body.MediaId = request.mediaId;
-  }
-  if (!Util.isUnset(request.output)) {
-    body.Output = request.output;
-  }
-  if (!Util.isUnset(request.trace)) {
-    body.Trace = request.trace;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = OpenApiUtil.parseToMap(body),
-  };
-  return doROARequest('SubmitTracemu', '2021-07-28', 'HTTPS', 'POST', 'AK', `/submitTraceM3u8`, 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
 model QueryTraceAbRequest {
@@ -420,17 +320,368 @@ async function queryTraceAbWithOptions(request: QueryTraceAbRequest, headers: ma
   Util.validateModel(request);
   var body : map[string]any= {};
   if (!Util.isUnset(request.jobId)) {
-    body.JobId = request.jobId;
+    body['JobId'] = request.jobId;
   }
   if (!Util.isUnset(request.mediaId)) {
-    body.MediaId = request.mediaId;
+    body['MediaId'] = request.mediaId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('QueryTraceAb', '2021-07-28', 'HTTPS', 'POST', 'AK', `/queryTraceAb`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'QueryTraceAb',
+    version = '2021-07-28',
+    protocol = 'HTTPS',
+    pathname = `/queryTraceAb`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model QueryTraceExtractRequest {
+  jobId?: string(name='JobId', description='任务id'),
+}
+
+model QueryTraceExtractResponseBody = {
+  data?: {
+    trace?: string(name='Trace', description='溯源水印信息'),
+  }(name='Data'),
+  message?: string(name='Message', description='返回信息'),
+  requestID?: string(name='RequestID'),
+  statusCode?: long(name='StatusCode', description='状态码'),
+}
+
+model QueryTraceExtractResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryTraceExtractResponseBody(name='body'),
+}
+
+async function queryTraceExtract(request: QueryTraceExtractRequest): QueryTraceExtractResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return queryTraceExtractWithOptions(request, headers, runtime);
+}
+
+async function queryTraceExtractWithOptions(request: QueryTraceExtractRequest, headers: map[string]string, runtime: Util.RuntimeOptions): QueryTraceExtractResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.jobId)) {
+    body['JobId'] = request.jobId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryTraceExtract',
+    version = '2021-07-28',
+    protocol = 'HTTPS',
+    pathname = `/queryTraceExtract`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model QueryTraceMuRequest {
+  createTimeEnd?: long(name='CreateTimeEnd', description='创建时间起始'),
+  createTimeStart?: long(name='CreateTimeStart', description='创建时间截止'),
+  jobId?: string(name='JobId', description='任务id'),
+  level?: long(name='Level', description='水印强度'),
+  messageId?: long(name='MessageId', description='水印信息id'),
+  pageNumber?: long(name='PageNumber', description='页偏移'),
+  pageSize?: long(name='PageSize', description='每页数量'),
+}
+
+model QueryTraceMuResponseBody = {
+  data?: [ 
+    {
+      gmtCreate?: long(name='GmtCreate', description='创建时间'),
+      gmtModified?: long(name='GmtModified', description='最后修改时间'),
+      jobId?: string(name='JobId', description='任务id'),
+      mediaId?: string(name='MediaId', description='媒体id'),
+      output?: string(name='Output', description='输出oss地址'),
+      status?: string(name='Status', description='任务状态'),
+      trace?: string(name='Trace', description='溯源水印信息'),
+      traceId?: long(name='TraceId', description='溯源水印信息id'),
+      userData?: string(name='UserData', description='用户自定义数据'),
+      userId?: long(name='UserId', description='uid'),
+    }
+  ](name='Data', description='返回数据结构'),
+  message?: string(name='Message', description='返回信息'),
+  requestID?: string(name='RequestID', description='请求id'),
+  statusCode?: long(name='StatusCode', description='状态码'),
+}
+
+model QueryTraceMuResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryTraceMuResponseBody(name='body'),
+}
+
+async function queryTraceMu(request: QueryTraceMuRequest): QueryTraceMuResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return queryTraceMuWithOptions(request, headers, runtime);
+}
+
+async function queryTraceMuWithOptions(request: QueryTraceMuRequest, headers: map[string]string, runtime: Util.RuntimeOptions): QueryTraceMuResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.createTimeEnd)) {
+    body['CreateTimeEnd'] = request.createTimeEnd;
+  }
+  if (!Util.isUnset(request.createTimeStart)) {
+    body['CreateTimeStart'] = request.createTimeStart;
+  }
+  if (!Util.isUnset(request.jobId)) {
+    body['JobId'] = request.jobId;
+  }
+  if (!Util.isUnset(request.level)) {
+    body['Level'] = request.level;
+  }
+  if (!Util.isUnset(request.messageId)) {
+    body['MessageId'] = request.messageId;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    body['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryTraceMu',
+    version = '2021-07-28',
+    protocol = 'HTTPS',
+    pathname = `/queryTraceM3u8`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model SubmitCopyrightExtractRequest {
+  callBack?: string(name='CallBack', description='任务完成回调'),
+  input?: string(name='Input', description='输入文件oss地址'),
+  userData?: string(name='UserData', description='用户数据'),
+}
+
+model SubmitCopyrightExtractResponseBody = {
+  data?: {
+    jobId?: string(name='JobId', description='任务id'),
+  }(name='Data'),
+  message?: string(name='Message', description='返回消息'),
+  requestID?: string(name='RequestID'),
+  statusCode?: long(name='StatusCode', description='状态码'),
+}
+
+model SubmitCopyrightExtractResponse = {
+  headers: map[string]string(name='headers'),
+  body: SubmitCopyrightExtractResponseBody(name='body'),
+}
+
+async function submitCopyrightExtract(request: SubmitCopyrightExtractRequest): SubmitCopyrightExtractResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return submitCopyrightExtractWithOptions(request, headers, runtime);
+}
+
+async function submitCopyrightExtractWithOptions(request: SubmitCopyrightExtractRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SubmitCopyrightExtractResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.callBack)) {
+    body['CallBack'] = request.callBack;
+  }
+  if (!Util.isUnset(request.input)) {
+    body['Input'] = request.input;
+  }
+  if (!Util.isUnset(request.userData)) {
+    body['UserData'] = request.userData;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SubmitCopyrightExtract',
+    version = '2021-07-28',
+    protocol = 'HTTPS',
+    pathname = `/submitCopyrightExtract`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model SubmitCopyrightJobRequest {
+  callBack?: string(name='CallBack', description='任务结果回调url'),
+  description?: string(name='Description', description='水印信息描述'),
+  input?: string(name='Input', description='输入的视频，oss三元组'),
+  level?: long(name='Level', description='水印强度，取值1，2，3'),
+  message?: string(name='Message', description='水印信息'),
+  output?: string(name='Output', description='输出的视频，oss三元组'),
+  startTime?: long(name='StartTime', description='水印起始时间(单位是秒)，不填写默认为0'),
+  totalTime?: long(name='TotalTime', description='水印结束时间(单位是秒)，不填默认为60000'),
+  url?: string(name='Url', description='外部url链接(Input和url二选一)'),
+  userData?: string(name='UserData', description='用户自定义数据'),
+}
+
+model SubmitCopyrightJobResponseBody = {
+  data?: {
+    jobId?: string(name='JobId', description='任务id'),
+  }(name='Data', description='返回数据'),
+  message?: string(name='Message', description='返回信息'),
+  requestID?: string(name='RequestID', description='请求Id'),
+  statusCode?: long(name='StatusCode', description='状态码'),
+}
+
+model SubmitCopyrightJobResponse = {
+  headers: map[string]string(name='headers'),
+  body: SubmitCopyrightJobResponseBody(name='body'),
+}
+
+async function submitCopyrightJob(request: SubmitCopyrightJobRequest): SubmitCopyrightJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return submitCopyrightJobWithOptions(request, headers, runtime);
+}
+
+async function submitCopyrightJobWithOptions(request: SubmitCopyrightJobRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SubmitCopyrightJobResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.callBack)) {
+    body['CallBack'] = request.callBack;
+  }
+  if (!Util.isUnset(request.description)) {
+    body['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.input)) {
+    body['Input'] = request.input;
+  }
+  if (!Util.isUnset(request.level)) {
+    body['Level'] = request.level;
+  }
+  if (!Util.isUnset(request.message)) {
+    body['Message'] = request.message;
+  }
+  if (!Util.isUnset(request.output)) {
+    body['Output'] = request.output;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    body['StartTime'] = request.startTime;
+  }
+  if (!Util.isUnset(request.totalTime)) {
+    body['TotalTime'] = request.totalTime;
+  }
+  if (!Util.isUnset(request.url)) {
+    body['Url'] = request.url;
+  }
+  if (!Util.isUnset(request.userData)) {
+    body['UserData'] = request.userData;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SubmitCopyrightJob',
+    version = '2021-07-28',
+    protocol = 'HTTPS',
+    pathname = `/submitCopyrightJob`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model SubmitImageCopyrightRequest {
+  input?: string(name='Input', description='需要加水印的图片oss地址(Input和url二选一)'),
+  level?: long(name='Level', description='水印强度'),
+  message?: string(name='Message', description='水印信息'),
+  output?: string(name='Output', description='水印图片输出oss地址'),
+  url?: string(name='Url', description='外部url链接(Input和url二选一)'),
+}
+
+model SubmitImageCopyrightResponseBody = {
+  data?: {
+    jobId?: string(name='JobId', description='任务id'),
+  }(name='Data', description='返回数据'),
+  message?: string(name='Message', description='返回信息'),
+  requestID?: string(name='RequestID', description='请求id'),
+  statusCode?: long(name='StatusCode', description='状态码'),
+}
+
+model SubmitImageCopyrightResponse = {
+  headers: map[string]string(name='headers'),
+  body: SubmitImageCopyrightResponseBody(name='body'),
+}
+
+async function submitImageCopyright(request: SubmitImageCopyrightRequest): SubmitImageCopyrightResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return submitImageCopyrightWithOptions(request, headers, runtime);
+}
+
+async function submitImageCopyrightWithOptions(request: SubmitImageCopyrightRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SubmitImageCopyrightResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.input)) {
+    body['Input'] = request.input;
+  }
+  if (!Util.isUnset(request.level)) {
+    body['Level'] = request.level;
+  }
+  if (!Util.isUnset(request.message)) {
+    body['Message'] = request.message;
+  }
+  if (!Util.isUnset(request.output)) {
+    body['Output'] = request.output;
+  }
+  if (!Util.isUnset(request.url)) {
+    body['Url'] = request.url;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SubmitImageCopyright',
+    version = '2021-07-28',
+    protocol = 'HTTPS',
+    pathname = `/submitImageCopyright`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model SubmitTraceAbRequest {
@@ -438,8 +689,8 @@ model SubmitTraceAbRequest {
   input?: string(name='Input', description='溯源水印ab流处理视频输入'),
   level?: long(name='Level', description='水印强度'),
   output?: string(name='Output', description='溯源水印ab流处理输出'),
-  userData?: string(name='UserData', description='用户自定义数据，最大长度1024个字节'),
   url?: string(name='Url', description='外部url链接(Input和url二选一)'),
+  userData?: string(name='UserData', description='用户自定义数据，最大长度1024个字节'),
 }
 
 model SubmitTraceAbResponseBody = {
@@ -467,102 +718,154 @@ async function submitTraceAbWithOptions(request: SubmitTraceAbRequest, headers: 
   Util.validateModel(request);
   var body : map[string]any= {};
   if (!Util.isUnset(request.callBack)) {
-    body.CallBack = request.callBack;
+    body['CallBack'] = request.callBack;
   }
   if (!Util.isUnset(request.input)) {
-    body.Input = request.input;
+    body['Input'] = request.input;
   }
   if (!Util.isUnset(request.level)) {
-    body.Level = request.level;
+    body['Level'] = request.level;
   }
   if (!Util.isUnset(request.output)) {
-    body.Output = request.output;
-  }
-  if (!Util.isUnset(request.userData)) {
-    body.UserData = request.userData;
+    body['Output'] = request.output;
   }
   if (!Util.isUnset(request.url)) {
-    body.Url = request.url;
+    body['Url'] = request.url;
+  }
+  if (!Util.isUnset(request.userData)) {
+    body['UserData'] = request.userData;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('SubmitTraceAb', '2021-07-28', 'HTTPS', 'POST', 'AK', `/submitTraceAb`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'SubmitTraceAb',
+    version = '2021-07-28',
+    protocol = 'HTTPS',
+    pathname = `/submitTraceAb`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-model SubmitCopyrightJobRequest {
-  callBack?: string(name='CallBack', description='任务结果回调url'),
-  description?: string(name='Description', description='水印信息描述'),
-  input?: string(name='Input', description='输入的视频，oss三元组'),
-  level?: long(name='Level', description='水印强度，取值1，2，3'),
-  message?: string(name='Message', description='水印信息'),
-  startTime?: long(name='StartTime', description='水印起始时间(单位是秒)，不填写默认为0'),
-  totalTime?: long(name='TotalTime', description='水印结束时间(单位是秒)，不填默认为60000'),
-  output?: string(name='Output', description='输出的视频，oss三元组'),
-  userData?: string(name='UserData', description='用户自定义数据'),
-  url?: string(name='Url', description='外部url链接(Input和url二选一)'),
+model SubmitTraceExtractRequest {
+  callBack?: string(name='CallBack', description='任务完成回调'),
+  input?: string(name='Input', description='输入文件oss地址'),
+  userData?: string(name='UserData', description='用户数据'),
 }
 
-model SubmitCopyrightJobResponseBody = {
-  requestID?: string(name='RequestID', description='请求Id'),
-  message?: string(name='Message', description='返回信息'),
+model SubmitTraceExtractResponseBody = {
   data?: {
     jobId?: string(name='JobId', description='任务id'),
-  }(name='Data', description='返回数据'),
+  }(name='Data'),
+  message?: string(name='Message', description='返回消息'),
+  requestID?: string(name='RequestID'),
   statusCode?: long(name='StatusCode', description='状态码'),
 }
 
-model SubmitCopyrightJobResponse = {
+model SubmitTraceExtractResponse = {
   headers: map[string]string(name='headers'),
-  body: SubmitCopyrightJobResponseBody(name='body'),
+  body: SubmitTraceExtractResponseBody(name='body'),
 }
 
-async function submitCopyrightJob(request: SubmitCopyrightJobRequest): SubmitCopyrightJobResponse {
+async function submitTraceExtract(request: SubmitTraceExtractRequest): SubmitTraceExtractResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return submitCopyrightJobWithOptions(request, headers, runtime);
+  return submitTraceExtractWithOptions(request, headers, runtime);
 }
 
-async function submitCopyrightJobWithOptions(request: SubmitCopyrightJobRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SubmitCopyrightJobResponse {
+async function submitTraceExtractWithOptions(request: SubmitTraceExtractRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SubmitTraceExtractResponse {
   Util.validateModel(request);
   var body : map[string]any= {};
   if (!Util.isUnset(request.callBack)) {
-    body.CallBack = request.callBack;
-  }
-  if (!Util.isUnset(request.description)) {
-    body.Description = request.description;
+    body['CallBack'] = request.callBack;
   }
   if (!Util.isUnset(request.input)) {
-    body.Input = request.input;
-  }
-  if (!Util.isUnset(request.level)) {
-    body.Level = request.level;
-  }
-  if (!Util.isUnset(request.message)) {
-    body.Message = request.message;
-  }
-  if (!Util.isUnset(request.startTime)) {
-    body.StartTime = request.startTime;
-  }
-  if (!Util.isUnset(request.totalTime)) {
-    body.TotalTime = request.totalTime;
-  }
-  if (!Util.isUnset(request.output)) {
-    body.Output = request.output;
+    body['Input'] = request.input;
   }
   if (!Util.isUnset(request.userData)) {
-    body.UserData = request.userData;
-  }
-  if (!Util.isUnset(request.url)) {
-    body.Url = request.url;
+    body['UserData'] = request.userData;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('SubmitCopyrightJob', '2021-07-28', 'HTTPS', 'POST', 'AK', `/submitCopyrightJob`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'SubmitTraceExtract',
+    version = '2021-07-28',
+    protocol = 'HTTPS',
+    pathname = `/submitTraceExtract`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model SubmitTracemuRequest {
+  mediaId?: string(name='MediaId', description='ab流处理后的媒体id'),
+  output?: string(name='Output', description='m3u8文件输出oss地址'),
+  trace?: string(name='Trace', description='溯源水印信息'),
+}
+
+model SubmitTracemuResponseBody = {
+  data?: {
+    code?: string(name='Code', description='生成m3u8文件的code'),
+    jobId?: string(name='JobId', description='任务id'),
+  }(name='Data', description='返回数据'),
+  message?: string(name='Message', description='返回信息'),
+  requestID?: string(name='RequestID', description='请求Id'),
+  statusCode?: long(name='StatusCode', description='状态码'),
+}
+
+model SubmitTracemuResponse = {
+  headers: map[string]string(name='headers'),
+  body: SubmitTracemuResponseBody(name='body'),
+}
+
+async function submitTracemu(request: SubmitTracemuRequest): SubmitTracemuResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return submitTracemuWithOptions(request, headers, runtime);
+}
+
+async function submitTracemuWithOptions(request: SubmitTracemuRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SubmitTracemuResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.mediaId)) {
+    body['MediaId'] = request.mediaId;
+  }
+  if (!Util.isUnset(request.output)) {
+    body['Output'] = request.output;
+  }
+  if (!Util.isUnset(request.trace)) {
+    body['Trace'] = request.trace;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SubmitTracemu',
+    version = '2021-07-28',
+    protocol = 'HTTPS',
+    pathname = `/submitTraceM3u8`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
