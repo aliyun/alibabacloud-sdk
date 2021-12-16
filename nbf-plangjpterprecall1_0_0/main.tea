@@ -1,0 +1,115 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('nbf', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model BhOrderChangeRequest {
+  items?: [ 
+    {
+      confirmQuantity?: long(name='confirmQuantity', description='计划量'),
+      executeOrderCode?: string(name='executeOrderCode', description='执行单号'),
+      orderCode?: string(name='orderCode', description='计划单号'),
+      orderErrorCode?: string(name='orderErrorCode', description='计划单异常编码'),
+      orderErrorMsg?: string(name='orderErrorMsg', description='计划单异常原因'),
+      orderStatus?: int32(name='orderStatus', description='计划单状态'),
+      orderStatusStr?: string(name='orderStatusStr', description='计划单状态描述'),
+      outerOrderItemCode?: string(name='outerOrderItemCode', description='外部ERP单据明细号'),
+      scItemId?: long(name='scItemId', description='货品ID'),
+    }
+  ](name='items', description='明细列表'),
+  outerErpCode?: string(name='outerErpCode', description='外部ERP编码'),
+  outerOrderCode?: string(name='outerOrderCode', description='外部ERP单据号'),
+  outerOrderStatus?: int32(name='outerOrderStatus', description='外部ERP单据在ASCP流转的状态'),
+  outerOrderStatusStr?: string(name='outerOrderStatusStr', description='外部ERP单据在ASCP流转的状态描述'),
+  supplierId?: long(name='supplierId', description='平台商ID'),
+  routeSupplierId?: long(name='routeSupplierId', description='平台商ID'),
+}
+
+model BhOrderChangeResponseBody = {
+  errorCode?: string(name='errorCode'),
+  errorMsg?: string(name='errorMsg'),
+  success?: boolean(name='success'),
+}
+
+model BhOrderChangeResponse = {
+  headers: map[string]string(name='headers'),
+  body: BhOrderChangeResponseBody(name='body'),
+}
+
+async function bhOrderChange(request: BhOrderChangeRequest): BhOrderChangeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return bhOrderChangeWithOptions(request, headers, runtime);
+}
+
+async function bhOrderChangeWithOptions(request: BhOrderChangeRequest, headers: map[string]string, runtime: Util.RuntimeOptions): BhOrderChangeResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.routeSupplierId)) {
+    query['routeSupplierId'] = request.routeSupplierId;
+  }
+
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.items)) {
+    body['items'] = request.items;
+  }
+  if (!Util.isUnset(request.outerErpCode)) {
+    body['outerErpCode'] = request.outerErpCode;
+  }
+  if (!Util.isUnset(request.outerOrderCode)) {
+    body['outerOrderCode'] = request.outerOrderCode;
+  }
+  if (!Util.isUnset(request.outerOrderStatus)) {
+    body['outerOrderStatus'] = request.outerOrderStatus;
+  }
+  if (!Util.isUnset(request.outerOrderStatusStr)) {
+    body['outerOrderStatusStr'] = request.outerOrderStatusStr;
+  }
+  if (!Util.isUnset(request.supplierId)) {
+    body['supplierId'] = request.supplierId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'BhOrderChange',
+    version = 'plan-gjpt-erp-recall1_0_0',
+    protocol = 'HTTPS',
+    pathname = `/plan-gjpt-erp-recall/1_0_0/bhOrderChange`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
