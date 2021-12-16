@@ -64,11 +64,6 @@ model CompleteMultipartUpload {
   ](name='Part', description='description'),
 }
 
-model CopyPartResult {
-  ETag?: string(name='ETag', description='A short description of ETag'),
-  lastModified?: string(name='LastModified', description='A short description of LastModified'),
-}
-
 model CreateBucketConfiguration {
   dataRedundancyType?:   string(name='DataRedundancyType'),
   storageClass?:   string(name='StorageClass'),
@@ -671,13 +666,13 @@ async function completeBucketWormWithOptions(bucket: string, request: CompleteBu
 
 model CompleteMultipartUploadHeaders {
   commonHeaders?: map[string]string,
-  xOssCompleteAll?: string(name='x-oss-complete-all'),
-  xOssForbidOverwrite?: string(name='x-oss-forbid-overwrite'),
+  completeAll?: string(name='x-oss-complete-all'),
+  forbidOverwrite?: string(name='x-oss-forbid-overwrite'),
 }
 
 model CompleteMultipartUploadRequest {
   completeMultipartUpload?: CompleteMultipartUpload(name='completeMultipartUpload'),
-  encodingType?: string(name='encoding-type'),
+  encodingType?:   string(name='encoding-type'),
   uploadId?: string(name='uploadId'),
 }
 
@@ -722,11 +717,11 @@ async function completeMultipartUploadWithOptions(bucket: string, key: string, r
   if (!Util.isUnset(headers.commonHeaders)) {
     realHeaders = headers.commonHeaders;
   }
-  if (!Util.isUnset(headers.xOssCompleteAll)) {
-    realHeaders['x-oss-complete-all'] = Util.toJSONString(headers.xOssCompleteAll);
+  if (!Util.isUnset(headers.completeAll)) {
+    realHeaders['x-oss-complete-all'] = Util.toJSONString(headers.completeAll);
   }
-  if (!Util.isUnset(headers.xOssForbidOverwrite)) {
-    realHeaders['x-oss-forbid-overwrite'] = Util.toJSONString(headers.xOssForbidOverwrite);
+  if (!Util.isUnset(headers.forbidOverwrite)) {
+    realHeaders['x-oss-forbid-overwrite'] = Util.toJSONString(headers.forbidOverwrite);
   }
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
@@ -2829,12 +2824,12 @@ model InitiateMultipartUploadHeaders {
   sseDataEncryption?: string(name='x-oss-server-side-data-encryption'),
   serverSideEncryption?: string(name='x-oss-server-side-encryption'),
   sseKeyId?: string(name='x-oss-server-side-encryption-key-id'),
-  storageClass?: string(name='x-oss-storage-class'),
+  storageClass?:   string(name='x-oss-storage-class'),
   tagging?: string(name='x-oss-tagging'),
 }
 
 model InitiateMultipartUploadRequest {
-  encodingType?: string(name='encoding-type'),
+  encodingType?:   string(name='encoding-type'),
 }
 
 model InitiateMultipartUploadResponseBody = {
@@ -3101,7 +3096,7 @@ model ListMultipartUploadsResponseBody = {
   maxUploads?: long(name='MaxUploads'),
   nextKeyMarker?: string(name='NextKeyMarker'),
   nextUploadMarker?: string(name='NextUploadMarker'),
-  upload?: [
+  uploads?: [
     Upload
   ](name='Upload'),
   uploadIdMarker?: string(name='UploadIdMarker'),
@@ -3112,14 +3107,16 @@ model ListMultipartUploadsResponse = {
   body: ListMultipartUploadsResponseBody(name='body'),
 }
 
-async function listMultipartUploads(request: ListMultipartUploadsRequest): ListMultipartUploadsResponse {
+async function listMultipartUploads(bucket: string, request: ListMultipartUploadsRequest): ListMultipartUploadsResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return listMultipartUploadsWithOptions(request, headers, runtime);
+  return listMultipartUploadsWithOptions(bucket, request, headers, runtime);
 }
 
-async function listMultipartUploadsWithOptions(request: ListMultipartUploadsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListMultipartUploadsResponse {
+async function listMultipartUploadsWithOptions(bucket: string, request: ListMultipartUploadsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListMultipartUploadsResponse {
   Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['bucket'] = bucket;
   var query : map[string]any= {};
   if (!Util.isUnset(request.delimiter)) {
     query['delimiter'] = request.delimiter;
@@ -3141,6 +3138,7 @@ async function listMultipartUploadsWithOptions(request: ListMultipartUploadsRequ
   }
 
   var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
     headers = headers,
     query = OpenApiUtil.query(query),
   };
@@ -3402,7 +3400,14 @@ async function listObjectsV2WithOptions(bucket: string, request: ListObjectsV2Re
 }
 
 model ListPartsRequest {
-  encodingType?: string(name='encoding-type'),
+  encodingType?:   string(name='encoding-type'),
+  maxParts?: long(name='max-parts'),
+  partNumberMarker?: long(name='part-number-marker'),
+  uploadId?: string(name='uploadId'),
+}
+
+model ListPartsShrinkRequest {
+  encodingTypeShrink?: string(name='encoding-type'),
   maxParts?: long(name='max-parts'),
   partNumberMarker?: long(name='part-number-marker'),
   uploadId?: string(name='uploadId'),
@@ -3417,6 +3422,7 @@ model ListPartsResponseBody = {
   part?: [
     Part
   ](name='Part'),
+  partNumberMarker?: long(name='PartNumberMarker'),
   uploadId?: string(name='UploadId'),
 }
 
@@ -3431,14 +3437,19 @@ async function listParts(bucket: string, key: string, request: ListPartsRequest)
   return listPartsWithOptions(bucket, key, request, headers, runtime);
 }
 
-async function listPartsWithOptions(bucket: string, key: string, request: ListPartsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListPartsResponse {
-  Util.validateModel(request);
+async function listPartsWithOptions(bucket: string, key: string, tmpReq: ListPartsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListPartsResponse {
+  Util.validateModel(tmpReq);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
   key = OpenApiUtil.getEncodeParam(key);
+  var request = new ListPartsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.encodingType)) {
+    request.encodingTypeShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.encodingType, 'encoding-type', 'json');
+  }
   var query : map[string]any= {};
-  if (!Util.isUnset(request.encodingType)) {
-    query['encoding-type'] = request.encodingType;
+  if (!Util.isUnset(request.encodingTypeShrink)) {
+    query['encoding-type'] = request.encodingTypeShrink;
   }
   if (!Util.isUnset(request.maxParts)) {
     query['max-parts'] = request.maxParts;
@@ -4521,9 +4532,9 @@ async function putObjectTaggingWithOptions(bucket: string, key: string, request:
 
 model PutSymlinkHeaders {
   commonHeaders?: map[string]string,
-  xOssForbidOverwrite?: string(name='x-oss-forbid-overwrite'),
-  acl?: string(name='x-oss-object-acl'),
-  storageClass?: string(name='x-oss-storage-class'),
+  forbidOverwrite?: string(name='x-oss-forbid-overwrite'),
+  acl?:   string(name='x-oss-object-acl'),
+  storageClass?:   string(name='x-oss-storage-class'),
   symlinkTargetKey?: string(name='x-oss-symlink-target'),
 }
 
@@ -4545,8 +4556,8 @@ async function putSymlinkWithOptions(bucket: string, key: string, headers: PutSy
   if (!Util.isUnset(headers.commonHeaders)) {
     realHeaders = headers.commonHeaders;
   }
-  if (!Util.isUnset(headers.xOssForbidOverwrite)) {
-    realHeaders['x-oss-forbid-overwrite'] = Util.toJSONString(headers.xOssForbidOverwrite);
+  if (!Util.isUnset(headers.forbidOverwrite)) {
+    realHeaders['x-oss-forbid-overwrite'] = Util.toJSONString(headers.forbidOverwrite);
   }
   if (!Util.isUnset(headers.acl)) {
     realHeaders['x-oss-object-acl'] = Util.toJSONString(headers.acl);
@@ -4671,7 +4682,7 @@ async function selectObjectWithOptions(bucket: string, key: string, request: Sel
 
 model UploadPartRequest {
   body?: readable(name='body'),
-  partNumber?: string(name='partNumber'),
+  partNumber?: long(name='partNumber'),
   uploadId?: string(name='uploadId'),
 }
 
@@ -4721,13 +4732,12 @@ async function uploadPartWithOptions(bucket: string, key: string, request: Uploa
 
 model UploadPartCopyHeaders {
   commonHeaders?: map[string]string,
-  sourceBucket?: string(name='source-bucket'),
-  sourceKey?: string(name='source-key'),
-  xOssCopySourceIfMatch?: string(name='x-oss-copy-source-if-match'),
-  xOssCopySourceIfModifiedSince?: string(name='x-oss-copy-source-if-modified-since'),
-  xOssCopySourceIfNoneMatch?: string(name='x-oss-copy-source-if-none-match'),
-  xOssCopySourceIfUnmodifiedSince?: string(name='x-oss-copy-source-if-unmodified-since'),
-  xOssCopySourceRange?: string(name='x-oss-copy-source-range'),
+  copySource?: string(name='x-oss-copy-source'),
+  copySourceIfMatch?: string(name='x-oss-copy-source-if-match'),
+  copySourceIfModifiedSince?: string(name='x-oss-copy-source-if-modified-since'),
+  copySourceIfNoneMatch?: string(name='x-oss-copy-source-if-none-match'),
+  copySourceIfUnmodifiedSince?: string(name='x-oss-copy-source-if-unmodified-since'),
+  copySourceRange?: string(name='x-oss-copy-source-range'),
 }
 
 model UploadPartCopyRequest {
@@ -4735,9 +4745,14 @@ model UploadPartCopyRequest {
   uploadId?: string(name='uploadId'),
 }
 
+model UploadPartCopyResponseBody = {
+  ETag?: string(name='ETag'),
+  lastModified?: string(name='LastModified'),
+}
+
 model UploadPartCopyResponse = {
   headers: map[string]string(name='headers'),
-  body: CopyPartResult  
+  body: UploadPartCopyResponseBody(name='body'),
 }
 
 async function uploadPartCopy(bucket: string, key: string, request: UploadPartCopyRequest): UploadPartCopyResponse {
@@ -4763,26 +4778,23 @@ async function uploadPartCopyWithOptions(bucket: string, key: string, request: U
   if (!Util.isUnset(headers.commonHeaders)) {
     realHeaders = headers.commonHeaders;
   }
-  if (!Util.isUnset(headers.sourceBucket)) {
-    realHeaders['source-bucket'] = Util.toJSONString(headers.sourceBucket);
+  if (!Util.isUnset(headers.copySource)) {
+    realHeaders['x-oss-copy-source'] = Util.toJSONString(headers.copySource);
   }
-  if (!Util.isUnset(headers.sourceKey)) {
-    realHeaders['source-key'] = Util.toJSONString(headers.sourceKey);
+  if (!Util.isUnset(headers.copySourceIfMatch)) {
+    realHeaders['x-oss-copy-source-if-match'] = Util.toJSONString(headers.copySourceIfMatch);
   }
-  if (!Util.isUnset(headers.xOssCopySourceIfMatch)) {
-    realHeaders['x-oss-copy-source-if-match'] = Util.toJSONString(headers.xOssCopySourceIfMatch);
+  if (!Util.isUnset(headers.copySourceIfModifiedSince)) {
+    realHeaders['x-oss-copy-source-if-modified-since'] = Util.toJSONString(headers.copySourceIfModifiedSince);
   }
-  if (!Util.isUnset(headers.xOssCopySourceIfModifiedSince)) {
-    realHeaders['x-oss-copy-source-if-modified-since'] = Util.toJSONString(headers.xOssCopySourceIfModifiedSince);
+  if (!Util.isUnset(headers.copySourceIfNoneMatch)) {
+    realHeaders['x-oss-copy-source-if-none-match'] = Util.toJSONString(headers.copySourceIfNoneMatch);
   }
-  if (!Util.isUnset(headers.xOssCopySourceIfNoneMatch)) {
-    realHeaders['x-oss-copy-source-if-none-match'] = Util.toJSONString(headers.xOssCopySourceIfNoneMatch);
+  if (!Util.isUnset(headers.copySourceIfUnmodifiedSince)) {
+    realHeaders['x-oss-copy-source-if-unmodified-since'] = Util.toJSONString(headers.copySourceIfUnmodifiedSince);
   }
-  if (!Util.isUnset(headers.xOssCopySourceIfUnmodifiedSince)) {
-    realHeaders['x-oss-copy-source-if-unmodified-since'] = Util.toJSONString(headers.xOssCopySourceIfUnmodifiedSince);
-  }
-  if (!Util.isUnset(headers.xOssCopySourceRange)) {
-    realHeaders['x-oss-copy-source-range'] = Util.toJSONString(headers.xOssCopySourceRange);
+  if (!Util.isUnset(headers.copySourceRange)) {
+    realHeaders['x-oss-copy-source-range'] = Util.toJSONString(headers.copySourceRange);
   }
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
