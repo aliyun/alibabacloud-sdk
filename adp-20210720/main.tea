@@ -8,11 +8,11 @@ import EndpointUtil;
 
 extends OpenApi;
 
+
 init(config: OpenApi.Config){
   super(config);
   @endpointRule = '';
   
-
   checkConfig(config);
   @endpoint = getEndpoint('adp', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -21,12 +21,13 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   if (!Util.empty(endpoint)) {
     return endpoint;
   }
-
+  
   if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+
 model ComponentVersion {
   appVersion?: string(name='appVersion', description='appVersion'),
   componentName?: string(name='componentName', description='componentName'),
@@ -58,10 +59,24 @@ model Disk {
   type?: string(name='type', description='type'),
 }
 
+model ExportPort {
+  cidrIP?: string(name='cidrIP', description='目标IP 段'),
+  portRange?: string(name='portRange', description='端口范围，格式：start/end'),
+  protocol?: string(name='protocol', description='协议'),
+  unallowed?: boolean(name='unallowed', description='为true，则代表deny'),
+}
+
 model FoundationVersion {
   description?: string(name='description', description='description'),
   documents?: string(name='documents', description='documents'),
+  features?: [ string ](name='features', description='底座功能列表'),
   name?: string(name='name', description='name，目前仅能是 “ADP 底座“'),
+  packageTools?: [ 
+    {
+      name?: string(name='name', description='工具名'),
+      version?: string(name='version', description='工具版本'),
+    }
+  ](name='packageTools', description='打包工具'),
   platforms?: [
     Platform
   ](name='platforms', description='platforms'),
@@ -189,6 +204,35 @@ model ProductComponentRelationDetail {
   version?: string(name='version', description='version'),
 }
 
+model Resource {
+  cpu?: {
+    required?: int32(name='required', description='需要的数量'),
+  }(name='cpu', description='cpu'),
+  hostname?: string(name='hostname', description='实例hostname'),
+  identifier?: string(name='identifier', description='资源分组名'),
+  image?: {
+    id?: string(name='id', description='image id'),
+    nameRegex?: string(name='nameRegex', description='名称正则'),
+  }(name='image', description='镜像'),
+  instanceType?: string(name='instanceType', description='实例类型'),
+  memory?: {
+    required?: int32(name='required', description='需要的内存，单位 G'),
+  }(name='memory', description='memory'),
+  ports?: [
+    ExportPort
+  ](name='ports', description='需要开放的端口'),
+  publicIP?: {
+    bandwidth?: int32(name='bandwidth', description='带宽'),
+    required?: int32(name='required', description='需要的数量'),
+  }(name='publicIP', description='公网IP 需求'),
+  replica?: int32(name='replica', description='数量'),
+  storage?: [ 
+    {
+      required?: int32(name='required', description='磁盘大小'),
+    }
+  ](name='storage', description='存储需求'),
+}
+
 model AddEnvironmentNodesRequest {
   applicationDisk?: string(name='applicationDisk', description='保留业务分区'),
   cpu?: int32(name='cpu'),
@@ -244,49 +288,49 @@ async function addEnvironmentNodesWithOptions(uid: string, request: AddEnvironme
   uid = OpenApiUtil.getEncodeParam(uid);
   var body : map[string]any= {};
   if (!Util.isUnset(request.applicationDisk)) {
-    body.applicationDisk = request.applicationDisk;
+    body['applicationDisk'] = request.applicationDisk;
   }
   if (!Util.isUnset(request.cpu)) {
-    body.cpu = request.cpu;
+    body['cpu'] = request.cpu;
   }
   if (!Util.isUnset(request.dataDisk)) {
-    body.dataDisk = request.dataDisk;
+    body['dataDisk'] = request.dataDisk;
   }
   if (!Util.isUnset(request.etcdDisk)) {
-    body.etcdDisk = request.etcdDisk;
+    body['etcdDisk'] = request.etcdDisk;
   }
   if (!Util.isUnset(request.hostName)) {
-    body.hostName = request.hostName;
+    body['hostName'] = request.hostName;
   }
   if (!Util.isUnset(request.labels)) {
-    body.labels = request.labels;
+    body['labels'] = request.labels;
   }
   if (!Util.isUnset(request.masterPrivateIPs)) {
-    body.masterPrivateIPs = request.masterPrivateIPs;
+    body['masterPrivateIPs'] = request.masterPrivateIPs;
   }
   if (!Util.isUnset(request.memory)) {
-    body.memory = request.memory;
+    body['memory'] = request.memory;
   }
   if (!Util.isUnset(request.os)) {
-    body.os = request.os;
+    body['os'] = request.os;
   }
   if (!Util.isUnset(request.rootPassword)) {
-    body.rootPassword = request.rootPassword;
+    body['rootPassword'] = request.rootPassword;
   }
   if (!Util.isUnset(request.systemDisk)) {
-    body.systemDisk = request.systemDisk;
+    body['systemDisk'] = request.systemDisk;
   }
   if (!Util.isUnset(request.taints)) {
-    body.taints = request.taints;
+    body['taints'] = request.taints;
   }
   if (!Util.isUnset(request.tridentSystemDisk)) {
-    body.tridentSystemDisk = request.tridentSystemDisk;
+    body['tridentSystemDisk'] = request.tridentSystemDisk;
   }
   if (!Util.isUnset(request.tridentSystemSizeDisk)) {
-    body.tridentSystemSizeDisk = request.tridentSystemSizeDisk;
+    body['tridentSystemSizeDisk'] = request.tridentSystemSizeDisk;
   }
   if (!Util.isUnset(request.workerPrivateIPs)) {
-    body.workerPrivateIPs = request.workerPrivateIPs;
+    body['workerPrivateIPs'] = request.workerPrivateIPs;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -336,7 +380,7 @@ async function addProductComponentVersionWithOptions(uid: string, componentVersi
   componentVersionUID = OpenApiUtil.getEncodeParam(componentVersionUID);
   var body : map[string]any= {};
   if (!Util.isUnset(request.releaseName)) {
-    body.releaseName = request.releaseName;
+    body['releaseName'] = request.releaseName;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -390,19 +434,19 @@ async function addProductVersionConfigWithOptions(uid: string, request: AddProdu
   uid = OpenApiUtil.getEncodeParam(uid);
   var body : map[string]any= {};
   if (!Util.isUnset(request.componentVersionUID)) {
-    body.componentVersionUID = request.componentVersionUID;
+    body['componentVersionUID'] = request.componentVersionUID;
   }
   if (!Util.isUnset(request.description)) {
-    body.description = request.description;
+    body['description'] = request.description;
   }
   if (!Util.isUnset(request.name)) {
-    body.name = request.name;
+    body['name'] = request.name;
   }
   if (!Util.isUnset(request.parentComponentVersionUID)) {
-    body.parentComponentVersionUID = request.parentComponentVersionUID;
+    body['parentComponentVersionUID'] = request.parentComponentVersionUID;
   }
   if (!Util.isUnset(request.value)) {
-    body.value = request.value;
+    body['value'] = request.value;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -414,6 +458,52 @@ async function addProductVersionConfigWithOptions(uid: string, request: AddProdu
     version = '2021-07-20',
     protocol = 'HTTPS',
     pathname = `/api/v2/product-versions/${uid}/configs`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model AuthorizeProductVersionRequest {
+  grantee?: string(name='grantee', description='被授权者uid'),
+}
+
+model AuthorizeProductVersionResponseBody = {
+  code?: string(name='code', description='错误码'),
+  msg?: string(name='msg', description='错误信息'),
+}
+
+model AuthorizeProductVersionResponse = {
+  headers: map[string]string(name='headers'),
+  body: AuthorizeProductVersionResponseBody(name='body'),
+}
+
+async function authorizeProductVersion(uid: string, request: AuthorizeProductVersionRequest): AuthorizeProductVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return authorizeProductVersionWithOptions(uid, request, headers, runtime);
+}
+
+async function authorizeProductVersionWithOptions(uid: string, request: AuthorizeProductVersionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): AuthorizeProductVersionResponse {
+  Util.validateModel(request);
+  uid = OpenApiUtil.getEncodeParam(uid);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.grantee)) {
+    body['grantee'] = request.grantee;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'AuthorizeProductVersion',
+    version = '2021-07-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/product-versions/${uid}/authorizations`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
@@ -438,6 +528,7 @@ model CreateEnvironmentRequest {
   }(name='platform'),
   productVersionUID?: string(name='productVersionUID'),
   type?: string(name='type', description='环境类型'),
+  vendorConfig?: string(name='vendorConfig'),
   vendorType?: string(name='vendorType'),
 }
 
@@ -465,25 +556,28 @@ async function createEnvironmentWithOptions(request: CreateEnvironmentRequest, h
   Util.validateModel(request);
   var body : map[string]any= {};
   if (!Util.isUnset(request.description)) {
-    body.description = request.description;
+    body['description'] = request.description;
   }
   if (!Util.isUnset(request.location)) {
-    body.location = request.location;
+    body['location'] = request.location;
   }
   if (!Util.isUnset(request.name)) {
-    body.name = request.name;
+    body['name'] = request.name;
   }
   if (!Util.isUnset(request.platform)) {
-    body.platform = request.platform;
+    body['platform'] = request.platform;
   }
   if (!Util.isUnset(request.productVersionUID)) {
-    body.productVersionUID = request.productVersionUID;
+    body['productVersionUID'] = request.productVersionUID;
   }
   if (!Util.isUnset(request.type)) {
-    body.type = request.type;
+    body['type'] = request.type;
+  }
+  if (!Util.isUnset(request.vendorConfig)) {
+    body['vendorConfig'] = request.vendorConfig;
   }
   if (!Util.isUnset(request.vendorType)) {
-    body.vendorType = request.vendorType;
+    body['vendorType'] = request.vendorType;
   }
 
   var realHeaders : map[string]string = {};
@@ -491,7 +585,7 @@ async function createEnvironmentWithOptions(request: CreateEnvironmentRequest, h
     realHeaders = headers.commonHeaders;
   }
   if (!Util.isUnset(headers.clientToken)) {
-    realHeaders.ClientToken = Util.toJSONString(headers.clientToken);
+    realHeaders['ClientToken'] = Util.toJSONString(headers.clientToken);
   }
   var req = new OpenApi.OpenApiRequest{ 
     headers = realHeaders,
@@ -502,6 +596,58 @@ async function createEnvironmentWithOptions(request: CreateEnvironmentRequest, h
     version = '2021-07-20',
     protocol = 'HTTPS',
     pathname = `/api/v2/environments`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model CreateFoundationReferenceRequest {
+  clusterConfig?: string(name='clusterConfig'),
+  foundationVersionUID?: string(name='foundationVersionUID'),
+}
+
+model CreateFoundationReferenceResponseBody = {
+  code?: string(name='code'),
+  data?: {
+    uid?: string(name='uid'),
+  }(name='data'),
+  msg?: string(name='msg'),
+}
+
+model CreateFoundationReferenceResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateFoundationReferenceResponseBody(name='body'),
+}
+
+async function createFoundationReference(request: CreateFoundationReferenceRequest): CreateFoundationReferenceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createFoundationReferenceWithOptions(request, headers, runtime);
+}
+
+async function createFoundationReferenceWithOptions(request: CreateFoundationReferenceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateFoundationReferenceResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.clusterConfig)) {
+    body['clusterConfig'] = request.clusterConfig;
+  }
+  if (!Util.isUnset(request.foundationVersionUID)) {
+    body['foundationVersionUID'] = request.foundationVersionUID;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateFoundationReference',
+    version = '2021-07-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/foundation-references`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
@@ -545,13 +691,13 @@ async function createProductWithOptions(request: CreateProductRequest, headers: 
   Util.validateModel(request);
   var body : map[string]any= {};
   if (!Util.isUnset(request.description)) {
-    body.description = request.description;
+    body['description'] = request.description;
   }
   if (!Util.isUnset(request.foundationVersionUID)) {
-    body.foundationVersionUID = request.foundationVersionUID;
+    body['foundationVersionUID'] = request.foundationVersionUID;
   }
   if (!Util.isUnset(request.productName)) {
-    body.productName = request.productName;
+    body['productName'] = request.productName;
   }
 
   var realHeaders : map[string]string = {};
@@ -559,7 +705,7 @@ async function createProductWithOptions(request: CreateProductRequest, headers: 
     realHeaders = headers.commonHeaders;
   }
   if (!Util.isUnset(headers.clientToken)) {
-    realHeaders.ClientToken = Util.toJSONString(headers.clientToken);
+    realHeaders['ClientToken'] = Util.toJSONString(headers.clientToken);
   }
   var req = new OpenApi.OpenApiRequest{ 
     headers = realHeaders,
@@ -609,16 +755,16 @@ async function createProductDeploymentWithOptions(request: CreateProductDeployme
   Util.validateModel(request);
   var body : map[string]any= {};
   if (!Util.isUnset(request.environmentUID)) {
-    body.environmentUID = request.environmentUID;
+    body['environmentUID'] = request.environmentUID;
   }
   if (!Util.isUnset(request.oldProductVersionUID)) {
-    body.oldProductVersionUID = request.oldProductVersionUID;
+    body['oldProductVersionUID'] = request.oldProductVersionUID;
   }
   if (!Util.isUnset(request.packageUID)) {
-    body.packageUID = request.packageUID;
+    body['packageUID'] = request.packageUID;
   }
   if (!Util.isUnset(request.productVersionUID)) {
-    body.productVersionUID = request.productVersionUID;
+    body['productVersionUID'] = request.productVersionUID;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -713,16 +859,16 @@ async function createProductVersionPackageWithOptions(uid: string, request: Crea
   uid = OpenApiUtil.getEncodeParam(uid);
   var query : map[string]any= {};
   if (!Util.isUnset(request.oldProductVersionUID)) {
-    query.oldProductVersionUID = request.oldProductVersionUID;
+    query['oldProductVersionUID'] = request.oldProductVersionUID;
   }
   if (!Util.isUnset(request.packageContentType)) {
-    query.packageContentType = request.packageContentType;
+    query['packageContentType'] = request.packageContentType;
   }
   if (!Util.isUnset(request.packageType)) {
-    query.packageType = request.packageType;
+    query['packageType'] = request.packageType;
   }
   if (!Util.isUnset(request.platform)) {
-    query.platform = request.platform;
+    query['platform'] = request.platform;
   }
 
   var realHeaders : map[string]string = {};
@@ -730,7 +876,7 @@ async function createProductVersionPackageWithOptions(uid: string, request: Crea
     realHeaders = headers.commonHeaders;
   }
   if (!Util.isUnset(headers.clientToken)) {
-    realHeaders.ClientToken = Util.toJSONString(headers.clientToken);
+    realHeaders['ClientToken'] = Util.toJSONString(headers.clientToken);
   }
   var req = new OpenApi.OpenApiRequest{ 
     headers = realHeaders,
@@ -812,6 +958,42 @@ async function deleteEnvironmentNodeWithOptions(uid: string, nodeUID: string, he
     version = '2021-07-20',
     protocol = 'HTTPS',
     pathname = `/api/v2/environments/${uid}/nodes/${nodeUID}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model DeleteEnvironmentProductVersionResponseBody = {
+  code?: string(name='code'),
+  msg?: string(name='msg'),
+}
+
+model DeleteEnvironmentProductVersionResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteEnvironmentProductVersionResponseBody(name='body'),
+}
+
+async function deleteEnvironmentProductVersion(uid: string, productVersionUID: string): DeleteEnvironmentProductVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteEnvironmentProductVersionWithOptions(uid, productVersionUID, headers, runtime);
+}
+
+async function deleteEnvironmentProductVersionWithOptions(uid: string, productVersionUID: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteEnvironmentProductVersionResponse {
+  uid = OpenApiUtil.getEncodeParam(uid);
+  productVersionUID = OpenApiUtil.getEncodeParam(productVersionUID);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteEnvironmentProductVersion',
+    version = '2021-07-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/environments/${uid}/product-versions/${productVersionUID}`,
     method = 'DELETE',
     authType = 'AK',
     style = 'ROA',
@@ -918,10 +1100,10 @@ async function deleteProductInstanceConfigWithOptions(configUID: string, request
   configUID = OpenApiUtil.getEncodeParam(configUID);
   var query : map[string]any= {};
   if (!Util.isUnset(request.environmentUID)) {
-    query.environmentUID = request.environmentUID;
+    query['environmentUID'] = request.environmentUID;
   }
   if (!Util.isUnset(request.productVersionUID)) {
-    query.productVersionUID = request.productVersionUID;
+    query['productVersionUID'] = request.productVersionUID;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -968,7 +1150,7 @@ async function deleteProductVersionWithOptions(uid: string, headers: map[string]
     action = 'DeleteProductVersion',
     version = '2021-07-20',
     protocol = 'HTTPS',
-    pathname = `/api/v2/products/${uid}/versions`,
+    pathname = `/api/v2/product-versions/${uid}`,
     method = 'DELETE',
     authType = 'AK',
     style = 'ROA',
@@ -1043,10 +1225,10 @@ async function generateProductInstanceDeploymentConfigWithOptions(request: Gener
   Util.validateModel(request);
   var body : map[string]any= {};
   if (!Util.isUnset(request.environmentUID)) {
-    body.environmentUID = request.environmentUID;
+    body['environmentUID'] = request.environmentUID;
   }
   if (!Util.isUnset(request.productVersionUID)) {
-    body.productVersionUID = request.productVersionUID;
+    body['productVersionUID'] = request.productVersionUID;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -1171,6 +1353,8 @@ model GetEnvironmentResponseBody = {
     clusterId?: string(name='clusterId'),
     createdAt?: string(name='createdAt'),
     description?: string(name='description'),
+    foundationVersion?: string(name='foundationVersion'),
+    foundationVersionUID?: string(name='foundationVersionUID'),
     instanceList?: [
       InstanceInfo
     ](name='instanceList'),
@@ -1290,6 +1474,64 @@ async function getEnvironmentNodeWithOptions(uid: string, nodeUID: string, heade
     version = '2021-07-20',
     protocol = 'HTTPS',
     pathname = `/api/v2/environments/${uid}/nodes/${nodeUID}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model GetFoundationComponentReferenceResponseBody = {
+  code?: string(name='code'),
+  data?: [ 
+    {
+      appVersion?: string(name='appVersion'),
+      componentDescription?: string(name='componentDescription'),
+      componentName?: string(name='componentName'),
+      componentReferenceUID?: string(name='componentReferenceUID'),
+      componentUID?: string(name='componentUID'),
+      componentVersionDescription?: string(name='componentVersionDescription'),
+      componentVersionUID?: string(name='componentVersionUID'),
+      enable?: boolean(name='enable'),
+      namespace?: string(name='namespace'),
+      orchestrationValues?: string(name='orchestrationValues'),
+      parentComponent?: boolean(name='parentComponent'),
+      parentComponentVersionRelationUID?: string(name='parentComponentVersionRelationUID'),
+      parentComponentVersionUID?: string(name='parentComponentVersionUID'),
+      releaseName?: string(name='releaseName'),
+      resources?: string(name='resources'),
+      sequence?: int32(name='sequence'),
+      values?: string(name='values'),
+      version?: string(name='version'),
+    }
+  ](name='data'),
+  msg?: string(name='msg'),
+}
+
+model GetFoundationComponentReferenceResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetFoundationComponentReferenceResponseBody(name='body'),
+}
+
+async function getFoundationComponentReference(componentReferenceUID: string, uid: string): GetFoundationComponentReferenceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getFoundationComponentReferenceWithOptions(componentReferenceUID, uid, headers, runtime);
+}
+
+async function getFoundationComponentReferenceWithOptions(componentReferenceUID: string, uid: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetFoundationComponentReferenceResponse {
+  componentReferenceUID = OpenApiUtil.getEncodeParam(componentReferenceUID);
+  uid = OpenApiUtil.getEncodeParam(uid);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetFoundationComponentReference',
+    version = '2021-07-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/foundation-references/${uid}/components/${componentReferenceUID}`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1469,13 +1711,13 @@ async function getProductDeploymentWithOptions(deploymentUID: string, request: G
   deploymentUID = OpenApiUtil.getEncodeParam(deploymentUID);
   var query : map[string]any= {};
   if (!Util.isUnset(request.environmentUID)) {
-    query.environmentUID = request.environmentUID;
+    query['environmentUID'] = request.environmentUID;
   }
   if (!Util.isUnset(request.productVersionUID)) {
-    query.productVersionUID = request.productVersionUID;
+    query['productVersionUID'] = request.productVersionUID;
   }
   if (!Util.isUnset(request.withParamConfig)) {
-    query.withParamConfig = request.withParamConfig;
+    query['withParamConfig'] = request.withParamConfig;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -1582,7 +1824,7 @@ async function getProductVersionDifferencesWithOptions(uid: string, versionUID: 
   versionUID = OpenApiUtil.getEncodeParam(versionUID);
   var query : map[string]any= {};
   if (!Util.isUnset(request.preVersionUID)) {
-    query.preVersionUID = request.preVersionUID;
+    query['preVersionUID'] = request.preVersionUID;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -1642,22 +1884,22 @@ async function getProductVersionPackageWithOptions(uid: string, request: GetProd
   uid = OpenApiUtil.getEncodeParam(uid);
   var query : map[string]any= {};
   if (!Util.isUnset(request.oldProductVersionUID)) {
-    query.oldProductVersionUID = request.oldProductVersionUID;
+    query['oldProductVersionUID'] = request.oldProductVersionUID;
   }
   if (!Util.isUnset(request.packageContentType)) {
-    query.packageContentType = request.packageContentType;
+    query['packageContentType'] = request.packageContentType;
   }
   if (!Util.isUnset(request.packageType)) {
-    query.packageType = request.packageType;
+    query['packageType'] = request.packageType;
   }
   if (!Util.isUnset(request.packageUID)) {
-    query.packageUID = request.packageUID;
+    query['packageUID'] = request.packageUID;
   }
   if (!Util.isUnset(request.platform)) {
-    query.platform = request.platform;
+    query['platform'] = request.platform;
   }
   if (!Util.isUnset(request.withURL)) {
-    query.withURL = request.withURL;
+    query['withURL'] = request.withURL;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -1679,7 +1921,7 @@ async function getProductVersionPackageWithOptions(uid: string, request: GetProd
 }
 
 model GetWorkflowStatusRequest {
-  workflowType?: string(name='workflowType', description='ENUM:["CreateCluster","DeleteCluster","Pack","Deploy"]'),
+  workflowType?: string(name='workflowType', description='ENUM:["CreateCluster","DeleteCluster","Pack","Deploy","UnbindProductVersion"]'),
   xuid?: string(name='xuid', description='xuid，根据场景传递env_uid/package_uid/deploy_uid'),
 }
 
@@ -1718,10 +1960,10 @@ async function getWorkflowStatusWithOptions(request: GetWorkflowStatusRequest, h
   Util.validateModel(request);
   var query : map[string]any= {};
   if (!Util.isUnset(request.workflowType)) {
-    query.workflowType = request.workflowType;
+    query['workflowType'] = request.workflowType;
   }
   if (!Util.isUnset(request.xuid)) {
-    query.xuid = request.xuid;
+    query['xuid'] = request.xuid;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -1772,13 +2014,13 @@ async function initEnvironmentResourceWithOptions(uid: string, request: InitEnvi
   uid = OpenApiUtil.getEncodeParam(uid);
   var body : map[string]any= {};
   if (!Util.isUnset(request.accessKeyID)) {
-    body.accessKeyID = request.accessKeyID;
+    body['accessKeyID'] = request.accessKeyID;
   }
   if (!Util.isUnset(request.accessKeySecret)) {
-    body.accessKeySecret = request.accessKeySecret;
+    body['accessKeySecret'] = request.accessKeySecret;
   }
   if (!Util.isUnset(request.securityToken)) {
-    body.securityToken = request.securityToken;
+    body['securityToken'] = request.securityToken;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -1865,13 +2107,13 @@ async function listComponentVersionsWithOptions(uid: string, tmpReq: ListCompone
   }
   var query : map[string]any= {};
   if (!Util.isUnset(request.pageNum)) {
-    query.pageNum = request.pageNum;
+    query['pageNum'] = request.pageNum;
   }
   if (!Util.isUnset(request.pageSize)) {
-    query.pageSize = request.pageSize;
+    query['pageSize'] = request.pageSize;
   }
   if (!Util.isUnset(request.platformsShrink)) {
-    query.platforms = request.platformsShrink;
+    query['platforms'] = request.platformsShrink;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -1942,22 +2184,22 @@ async function listComponentsWithOptions(request: ListComponentsRequest, headers
   Util.validateModel(request);
   var query : map[string]any= {};
   if (!Util.isUnset(request.category)) {
-    query.category = request.category;
+    query['category'] = request.category;
   }
   if (!Util.isUnset(request.fuzzy)) {
-    query.fuzzy = request.fuzzy;
+    query['fuzzy'] = request.fuzzy;
   }
   if (!Util.isUnset(request.name)) {
-    query.name = request.name;
+    query['name'] = request.name;
   }
   if (!Util.isUnset(request.pageNum)) {
-    query.pageNum = request.pageNum;
+    query['pageNum'] = request.pageNum;
   }
   if (!Util.isUnset(request.pageSize)) {
-    query.pageSize = request.pageSize;
+    query['pageSize'] = request.pageSize;
   }
   if (!Util.isUnset(request.public)) {
-    query.public = request.public;
+    query['public'] = request.public;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2012,10 +2254,10 @@ async function listEnvironmentNodesWithOptions(uid: string, request: ListEnviron
   uid = OpenApiUtil.getEncodeParam(uid);
   var query : map[string]any= {};
   if (!Util.isUnset(request.pageNum)) {
-    query.pageNum = request.pageNum;
+    query['pageNum'] = request.pageNum;
   }
   if (!Util.isUnset(request.pageSize)) {
-    query.pageSize = request.pageSize;
+    query['pageSize'] = request.pageSize;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2088,11 +2330,13 @@ async function listEnvironmentTunnelsWithOptions(uid: string, headers: map[strin
 
 model ListEnvironmentsRequest {
   clusterUID?: string(name='clusterUID'),
+  foundationType?: string(name='foundationType'),
   fuzzy?: string(name='fuzzy'),
   instanceStatus?: string(name='instanceStatus'),
   name?: string(name='name'),
   pageNum?: int32(name='pageNum'),
   pageSize?: int32(name='pageSize'),
+  type?: string(name='type'),
   vendorType?: string(name='vendorType'),
 }
 
@@ -2139,25 +2383,31 @@ async function listEnvironmentsWithOptions(request: ListEnvironmentsRequest, hea
   Util.validateModel(request);
   var query : map[string]any= {};
   if (!Util.isUnset(request.clusterUID)) {
-    query.clusterUID = request.clusterUID;
+    query['clusterUID'] = request.clusterUID;
+  }
+  if (!Util.isUnset(request.foundationType)) {
+    query['foundationType'] = request.foundationType;
   }
   if (!Util.isUnset(request.fuzzy)) {
-    query.fuzzy = request.fuzzy;
+    query['fuzzy'] = request.fuzzy;
   }
   if (!Util.isUnset(request.instanceStatus)) {
-    query.instanceStatus = request.instanceStatus;
+    query['instanceStatus'] = request.instanceStatus;
   }
   if (!Util.isUnset(request.name)) {
-    query.name = request.name;
+    query['name'] = request.name;
   }
   if (!Util.isUnset(request.pageNum)) {
-    query.pageNum = request.pageNum;
+    query['pageNum'] = request.pageNum;
   }
   if (!Util.isUnset(request.pageSize)) {
-    query.pageSize = request.pageSize;
+    query['pageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
   }
   if (!Util.isUnset(request.vendorType)) {
-    query.vendorType = request.vendorType;
+    query['vendorType'] = request.vendorType;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2250,13 +2500,13 @@ async function listFoundationReferenceComponentsWithOptions(request: ListFoundat
   Util.validateModel(request);
   var query : map[string]any= {};
   if (!Util.isUnset(request.foundationVersionUID)) {
-    query.foundationVersionUID = request.foundationVersionUID;
+    query['foundationVersionUID'] = request.foundationVersionUID;
   }
   if (!Util.isUnset(request.onlyEnabled)) {
-    query.onlyEnabled = request.onlyEnabled;
+    query['onlyEnabled'] = request.onlyEnabled;
   }
   if (!Util.isUnset(request.productVersionUID)) {
-    query.productVersionUID = request.productVersionUID;
+    query['productVersionUID'] = request.productVersionUID;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2350,19 +2600,19 @@ async function listProductComponentVersionsWithOptions(uid: string, request: Lis
   uid = OpenApiUtil.getEncodeParam(uid);
   var query : map[string]any= {};
   if (!Util.isUnset(request.category)) {
-    query.category = request.category;
+    query['category'] = request.category;
   }
   if (!Util.isUnset(request.pageNum)) {
-    query.pageNum = request.pageNum;
+    query['pageNum'] = request.pageNum;
   }
   if (!Util.isUnset(request.pageSize)) {
-    query.pageSize = request.pageSize;
+    query['pageSize'] = request.pageSize;
   }
   if (!Util.isUnset(request.sortDirect)) {
-    query.sortDirect = request.sortDirect;
+    query['sortDirect'] = request.sortDirect;
   }
   if (!Util.isUnset(request.sortKey)) {
-    query.sortKey = request.sortKey;
+    query['sortKey'] = request.sortKey;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2429,16 +2679,16 @@ async function listProductDeploymentsWithOptions(request: ListProductDeployments
   Util.validateModel(request);
   var query : map[string]any= {};
   if (!Util.isUnset(request.environmentUID)) {
-    query.environmentUID = request.environmentUID;
+    query['environmentUID'] = request.environmentUID;
   }
   if (!Util.isUnset(request.pageNum)) {
-    query.pageNum = request.pageNum;
+    query['pageNum'] = request.pageNum;
   }
   if (!Util.isUnset(request.pageSize)) {
-    query.pageSize = request.pageSize;
+    query['pageSize'] = request.pageSize;
   }
   if (!Util.isUnset(request.productVersionUID)) {
-    query.productVersionUID = request.productVersionUID;
+    query['productVersionUID'] = request.productVersionUID;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2523,16 +2773,16 @@ async function listProductEnvironmentsWithOptions(uid: string, tmpReq: ListProdu
   }
   var query : map[string]any= {};
   if (!Util.isUnset(request.compatibleProductVersionUID)) {
-    query.compatibleProductVersionUID = request.compatibleProductVersionUID;
+    query['compatibleProductVersionUID'] = request.compatibleProductVersionUID;
   }
   if (!Util.isUnset(request.envType)) {
-    query.envType = request.envType;
+    query['envType'] = request.envType;
   }
   if (!Util.isUnset(request.platformsShrink)) {
-    query.platforms = request.platformsShrink;
+    query['platforms'] = request.platformsShrink;
   }
   if (!Util.isUnset(request.productVersionUID)) {
-    query.productVersionUID = request.productVersionUID;
+    query['productVersionUID'] = request.productVersionUID;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2607,19 +2857,19 @@ async function listProductInstanceConfigsWithOptions(request: ListProductInstanc
   Util.validateModel(request);
   var query : map[string]any= {};
   if (!Util.isUnset(request.environmentUID)) {
-    query.environmentUID = request.environmentUID;
+    query['environmentUID'] = request.environmentUID;
   }
   if (!Util.isUnset(request.pageNum)) {
-    query.pageNum = request.pageNum;
+    query['pageNum'] = request.pageNum;
   }
   if (!Util.isUnset(request.pageSize)) {
-    query.pageSize = request.pageSize;
+    query['pageSize'] = request.pageSize;
   }
   if (!Util.isUnset(request.paramType)) {
-    query.paramType = request.paramType;
+    query['paramType'] = request.paramType;
   }
   if (!Util.isUnset(request.productVersionUID)) {
-    query.productVersionUID = request.productVersionUID;
+    query['productVersionUID'] = request.productVersionUID;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2631,6 +2881,72 @@ async function listProductInstanceConfigsWithOptions(request: ListProductInstanc
     version = '2021-07-20',
     protocol = 'HTTPS',
     pathname = `/api/v2/product-instances/configs`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model ListProductInstancesRequest {
+  envUID?: string(name='envUID'),
+  pageNum?: string(name='pageNum'),
+  pageSize?: string(name='pageSize'),
+  productVersionUID?: string(name='productVersionUID'),
+}
+
+model ListProductInstancesResponseBody = {
+  data?: {
+    list?: [ 
+      {
+        productName?: string(name='productName'),
+        productVersion?: string(name='productVersion'),
+        productVersionUID?: string(name='productVersionUID'),
+        status?: string(name='status'),
+        uid?: string(name='uid'),
+      }
+    ](name='list'),
+  }(name='data'),
+}
+
+model ListProductInstancesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListProductInstancesResponseBody(name='body'),
+}
+
+async function listProductInstances(request: ListProductInstancesRequest): ListProductInstancesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listProductInstancesWithOptions(request, headers, runtime);
+}
+
+async function listProductInstancesWithOptions(request: ListProductInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListProductInstancesResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.envUID)) {
+    query['envUID'] = request.envUID;
+  }
+  if (!Util.isUnset(request.pageNum)) {
+    query['pageNum'] = request.pageNum;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.productVersionUID)) {
+    query['productVersionUID'] = request.productVersionUID;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListProductInstances',
+    version = '2021-07-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/product-instances`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -2687,13 +3003,13 @@ async function listProductVersionConfigsWithOptions(uid: string, request: ListPr
   uid = OpenApiUtil.getEncodeParam(uid);
   var query : map[string]any= {};
   if (!Util.isUnset(request.configType)) {
-    query.configType = request.configType;
+    query['configType'] = request.configType;
   }
   if (!Util.isUnset(request.pageNum)) {
-    query.pageNum = request.pageNum;
+    query['pageNum'] = request.pageNum;
   }
   if (!Util.isUnset(request.pageSize)) {
-    query.pageSize = request.pageSize;
+    query['pageSize'] = request.pageSize;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2790,28 +3106,28 @@ async function listProductVersionsWithOptions(tmpReq: ListProductVersionsRequest
   }
   var query : map[string]any= {};
   if (!Util.isUnset(request.pageNum)) {
-    query.pageNum = request.pageNum;
+    query['pageNum'] = request.pageNum;
   }
   if (!Util.isUnset(request.pageSize)) {
-    query.pageSize = request.pageSize;
+    query['pageSize'] = request.pageSize;
   }
   if (!Util.isUnset(request.platformsShrink)) {
-    query.platforms = request.platformsShrink;
+    query['platforms'] = request.platformsShrink;
   }
   if (!Util.isUnset(request.productName)) {
-    query.productName = request.productName;
+    query['productName'] = request.productName;
   }
   if (!Util.isUnset(request.productUID)) {
-    query.productUID = request.productUID;
+    query['productUID'] = request.productUID;
   }
   if (!Util.isUnset(request.released)) {
-    query.released = request.released;
+    query['released'] = request.released;
   }
   if (!Util.isUnset(request.supportedFoundationTypesShrink)) {
-    query.supportedFoundationTypes = request.supportedFoundationTypesShrink;
+    query['supportedFoundationTypes'] = request.supportedFoundationTypesShrink;
   }
   if (!Util.isUnset(request.version)) {
-    query.version = request.version;
+    query['version'] = request.version;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2871,16 +3187,16 @@ async function listProductsWithOptions(request: ListProductsRequest, headers: ma
   Util.validateModel(request);
   var query : map[string]any= {};
   if (!Util.isUnset(request.fuzzy)) {
-    query.fuzzy = request.fuzzy;
+    query['fuzzy'] = request.fuzzy;
   }
   if (!Util.isUnset(request.name)) {
-    query.name = request.name;
+    query['name'] = request.name;
   }
   if (!Util.isUnset(request.pageNum)) {
-    query.pageNum = request.pageNum;
+    query['pageNum'] = request.pageNum;
   }
   if (!Util.isUnset(request.pageSize)) {
-    query.pageSize = request.pageSize;
+    query['pageSize'] = request.pageSize;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2902,6 +3218,16 @@ async function listProductsWithOptions(request: ListProductsRequest, headers: ma
 }
 
 model ListWorkflowTaskLogsRequest {
+  filterValues?: [ string ](name='filterValues'),
+  orderType?: string(name='orderType', description='log 的顺序，positive 代表最新的数据在最后，reverse 代表最新的数据在最前'),
+  pageNum?: long(name='pageNum'),
+  pageSize?: long(name='pageSize', description='每一页的行数，最大值 100'),
+  workflowType?: string(name='workflowType', description='ENUM:["CreateCluster","DeleteCluster","Pack","Deploy"]'),
+  xuid?: string(name='xuid'),
+}
+
+model ListWorkflowTaskLogsShrinkRequest {
+  filterValuesShrink?: string(name='filterValues'),
   orderType?: string(name='orderType', description='log 的顺序，positive 代表最新的数据在最后，reverse 代表最新的数据在最前'),
   pageNum?: long(name='pageNum'),
   pageSize?: long(name='pageSize', description='每一页的行数，最大值 100'),
@@ -2931,25 +3257,33 @@ async function listWorkflowTaskLogs(stepName: string, taskName: string, request:
   return listWorkflowTaskLogsWithOptions(stepName, taskName, request, headers, runtime);
 }
 
-async function listWorkflowTaskLogsWithOptions(stepName: string, taskName: string, request: ListWorkflowTaskLogsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListWorkflowTaskLogsResponse {
-  Util.validateModel(request);
+async function listWorkflowTaskLogsWithOptions(stepName: string, taskName: string, tmpReq: ListWorkflowTaskLogsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListWorkflowTaskLogsResponse {
+  Util.validateModel(tmpReq);
   stepName = OpenApiUtil.getEncodeParam(stepName);
   taskName = OpenApiUtil.getEncodeParam(taskName);
+  var request = new ListWorkflowTaskLogsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.filterValues)) {
+    request.filterValuesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.filterValues, 'filterValues', 'json');
+  }
   var query : map[string]any= {};
+  if (!Util.isUnset(request.filterValuesShrink)) {
+    query['filterValues'] = request.filterValuesShrink;
+  }
   if (!Util.isUnset(request.orderType)) {
-    query.orderType = request.orderType;
+    query['orderType'] = request.orderType;
   }
   if (!Util.isUnset(request.pageNum)) {
-    query.pageNum = request.pageNum;
+    query['pageNum'] = request.pageNum;
   }
   if (!Util.isUnset(request.pageSize)) {
-    query.pageSize = request.pageSize;
+    query['pageSize'] = request.pageSize;
   }
   if (!Util.isUnset(request.workflowType)) {
-    query.workflowType = request.workflowType;
+    query['workflowType'] = request.workflowType;
   }
   if (!Util.isUnset(request.xuid)) {
-    query.xuid = request.xuid;
+    query['xuid'] = request.xuid;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -3006,10 +3340,10 @@ async function putEnvironmentTunnelWithOptions(uid: string, request: PutEnvironm
   uid = OpenApiUtil.getEncodeParam(uid);
   var body : map[string]any= {};
   if (!Util.isUnset(request.tunnelConfig)) {
-    body.tunnelConfig = request.tunnelConfig;
+    body['tunnelConfig'] = request.tunnelConfig;
   }
   if (!Util.isUnset(request.tunnelType)) {
-    body.tunnelType = request.tunnelType;
+    body['tunnelType'] = request.tunnelType;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -3068,40 +3402,40 @@ async function putProductInstanceConfigWithOptions(request: PutProductInstanceCo
   Util.validateModel(request);
   var body : map[string]any= {};
   if (!Util.isUnset(request.componentUID)) {
-    body.componentUID = request.componentUID;
+    body['componentUID'] = request.componentUID;
   }
   if (!Util.isUnset(request.componentVersionUID)) {
-    body.componentVersionUID = request.componentVersionUID;
+    body['componentVersionUID'] = request.componentVersionUID;
   }
   if (!Util.isUnset(request.configUID)) {
-    body.configUID = request.configUID;
+    body['configUID'] = request.configUID;
   }
   if (!Util.isUnset(request.description)) {
-    body.description = request.description;
+    body['description'] = request.description;
   }
   if (!Util.isUnset(request.environmentUID)) {
-    body.environmentUID = request.environmentUID;
+    body['environmentUID'] = request.environmentUID;
   }
   if (!Util.isUnset(request.name)) {
-    body.name = request.name;
+    body['name'] = request.name;
   }
   if (!Util.isUnset(request.parentComponentName)) {
-    body.parentComponentName = request.parentComponentName;
+    body['parentComponentName'] = request.parentComponentName;
   }
   if (!Util.isUnset(request.parentComponentVersionUID)) {
-    body.parentComponentVersionUID = request.parentComponentVersionUID;
+    body['parentComponentVersionUID'] = request.parentComponentVersionUID;
   }
   if (!Util.isUnset(request.productVersionUID)) {
-    body.productVersionUID = request.productVersionUID;
+    body['productVersionUID'] = request.productVersionUID;
   }
   if (!Util.isUnset(request.releaseName)) {
-    body.releaseName = request.releaseName;
+    body['releaseName'] = request.releaseName;
   }
   if (!Util.isUnset(request.scope)) {
-    body.scope = request.scope;
+    body['scope'] = request.scope;
   }
   if (!Util.isUnset(request.value)) {
-    body.value = request.value;
+    body['value'] = request.value;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -3114,6 +3448,42 @@ async function putProductInstanceConfigWithOptions(request: PutProductInstanceCo
     protocol = 'HTTPS',
     pathname = `/api/v2/product-instances/configs`,
     method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model SetEnvironmentFoundationReferenceResponseBody = {
+  code?: string(name='code'),
+  msg?: string(name='msg'),
+}
+
+model SetEnvironmentFoundationReferenceResponse = {
+  headers: map[string]string(name='headers'),
+  body: SetEnvironmentFoundationReferenceResponseBody(name='body'),
+}
+
+async function setEnvironmentFoundationReference(uid: string, foundationReferenceUID: string): SetEnvironmentFoundationReferenceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return setEnvironmentFoundationReferenceWithOptions(uid, foundationReferenceUID, headers, runtime);
+}
+
+async function setEnvironmentFoundationReferenceWithOptions(uid: string, foundationReferenceUID: string, headers: map[string]string, runtime: Util.RuntimeOptions): SetEnvironmentFoundationReferenceResponse {
+  uid = OpenApiUtil.getEncodeParam(uid);
+  foundationReferenceUID = OpenApiUtil.getEncodeParam(foundationReferenceUID);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'SetEnvironmentFoundationReference',
+    version = '2021-07-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/environments/${uid}/foundation-references/${foundationReferenceUID}`,
+    method = 'POST',
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
@@ -3149,13 +3519,13 @@ async function updateEnvironmentWithOptions(uid: string, request: UpdateEnvironm
   uid = OpenApiUtil.getEncodeParam(uid);
   var body : map[string]any= {};
   if (!Util.isUnset(request.description)) {
-    body.description = request.description;
+    body['description'] = request.description;
   }
   if (!Util.isUnset(request.location)) {
-    body.location = request.location;
+    body['location'] = request.location;
   }
   if (!Util.isUnset(request.vendorConfig)) {
-    body.vendorConfig = request.vendorConfig;
+    body['vendorConfig'] = request.vendorConfig;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -3214,25 +3584,25 @@ async function updateEnvironmentNodeWithOptions(uid: string, nodeUID: string, re
   nodeUID = OpenApiUtil.getEncodeParam(nodeUID);
   var body : map[string]any= {};
   if (!Util.isUnset(request.applicationDisk)) {
-    body.applicationDisk = request.applicationDisk;
+    body['applicationDisk'] = request.applicationDisk;
   }
   if (!Util.isUnset(request.etcdDisk)) {
-    body.etcdDisk = request.etcdDisk;
+    body['etcdDisk'] = request.etcdDisk;
   }
   if (!Util.isUnset(request.labels)) {
-    body.labels = request.labels;
+    body['labels'] = request.labels;
   }
   if (!Util.isUnset(request.rootPassword)) {
-    body.rootPassword = request.rootPassword;
+    body['rootPassword'] = request.rootPassword;
   }
   if (!Util.isUnset(request.taints)) {
-    body.taints = request.taints;
+    body['taints'] = request.taints;
   }
   if (!Util.isUnset(request.tridentSystemDisk)) {
-    body.tridentSystemDisk = request.tridentSystemDisk;
+    body['tridentSystemDisk'] = request.tridentSystemDisk;
   }
   if (!Util.isUnset(request.tridentSystemSizeDisk)) {
-    body.tridentSystemSizeDisk = request.tridentSystemSizeDisk;
+    body['tridentSystemSizeDisk'] = request.tridentSystemSizeDisk;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -3279,10 +3649,10 @@ async function updateEnvironmentProductVersionWithOptions(uid: string, request: 
   uid = OpenApiUtil.getEncodeParam(uid);
   var body : map[string]any= {};
   if (!Util.isUnset(request.oldProductVersionUID)) {
-    body.oldProductVersionUID = request.oldProductVersionUID;
+    body['oldProductVersionUID'] = request.oldProductVersionUID;
   }
   if (!Util.isUnset(request.productVersionUID)) {
-    body.productVersionUID = request.productVersionUID;
+    body['productVersionUID'] = request.productVersionUID;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -3294,6 +3664,57 @@ async function updateEnvironmentProductVersionWithOptions(uid: string, request: 
     version = '2021-07-20',
     protocol = 'HTTPS',
     pathname = `/api/v2/environments/${uid}/product-versions`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model UpdateFoundationComponentReferenceRequest {
+  componentOrchestrationValues?: string(name='componentOrchestrationValues'),
+  enable?: boolean(name='enable'),
+}
+
+model UpdateFoundationComponentReferenceResponseBody = {
+  code?: string(name='code'),
+  msg?: string(name='msg'),
+}
+
+model UpdateFoundationComponentReferenceResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateFoundationComponentReferenceResponseBody(name='body'),
+}
+
+async function updateFoundationComponentReference(uid: string, componentReferenceUID: string, request: UpdateFoundationComponentReferenceRequest): UpdateFoundationComponentReferenceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateFoundationComponentReferenceWithOptions(uid, componentReferenceUID, request, headers, runtime);
+}
+
+async function updateFoundationComponentReferenceWithOptions(uid: string, componentReferenceUID: string, request: UpdateFoundationComponentReferenceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateFoundationComponentReferenceResponse {
+  Util.validateModel(request);
+  uid = OpenApiUtil.getEncodeParam(uid);
+  componentReferenceUID = OpenApiUtil.getEncodeParam(componentReferenceUID);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.componentOrchestrationValues)) {
+    body['componentOrchestrationValues'] = request.componentOrchestrationValues;
+  }
+  if (!Util.isUnset(request.enable)) {
+    body['enable'] = request.enable;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateFoundationComponentReference',
+    version = '2021-07-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/foundation-references/${uid}/components/${componentReferenceUID}`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -3328,7 +3749,7 @@ async function updateProductWithOptions(uid: string, request: UpdateProductReque
   uid = OpenApiUtil.getEncodeParam(uid);
   var body : map[string]any= {};
   if (!Util.isUnset(request.description)) {
-    body.description = request.description;
+    body['description'] = request.description;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -3381,16 +3802,16 @@ async function updateProductComponentVersionWithOptions(uid: string, relationUID
   relationUID = OpenApiUtil.getEncodeParam(relationUID);
   var body : map[string]any= {};
   if (!Util.isUnset(request.componentOrchestrationValues)) {
-    body.componentOrchestrationValues = request.componentOrchestrationValues;
+    body['componentOrchestrationValues'] = request.componentOrchestrationValues;
   }
   if (!Util.isUnset(request.enable)) {
-    body.enable = request.enable;
+    body['enable'] = request.enable;
   }
   if (!Util.isUnset(request.newComponentVersionUID)) {
-    body.newComponentVersionUID = request.newComponentVersionUID;
+    body['newComponentVersionUID'] = request.newComponentVersionUID;
   }
   if (!Util.isUnset(request.releaseName)) {
-    body.releaseName = request.releaseName;
+    body['releaseName'] = request.releaseName;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -3436,7 +3857,7 @@ async function updateProductFoundationVersionWithOptions(uid: string, request: U
   uid = OpenApiUtil.getEncodeParam(uid);
   var body : map[string]any= {};
   if (!Util.isUnset(request.foundationVersionUID)) {
-    body.foundationVersionUID = request.foundationVersionUID;
+    body['foundationVersionUID'] = request.foundationVersionUID;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -3483,10 +3904,10 @@ async function updateProductVersionWithOptions(uid: string, request: UpdateProdu
   uid = OpenApiUtil.getEncodeParam(uid);
   var body : map[string]any= {};
   if (!Util.isUnset(request.description)) {
-    body.description = request.description;
+    body['description'] = request.description;
   }
   if (!Util.isUnset(request.version)) {
-    body.version = request.version;
+    body['version'] = request.version;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -3538,19 +3959,19 @@ async function updateProductVersionConfigWithOptions(uid: string, configUID: str
   configUID = OpenApiUtil.getEncodeParam(configUID);
   var body : map[string]any= {};
   if (!Util.isUnset(request.componentVersionUID)) {
-    body.componentVersionUID = request.componentVersionUID;
+    body['componentVersionUID'] = request.componentVersionUID;
   }
   if (!Util.isUnset(request.description)) {
-    body.description = request.description;
+    body['description'] = request.description;
   }
   if (!Util.isUnset(request.name)) {
-    body.name = request.name;
+    body['name'] = request.name;
   }
   if (!Util.isUnset(request.parentComponentVersionUID)) {
-    body.parentComponentVersionUID = request.parentComponentVersionUID;
+    body['parentComponentVersionUID'] = request.parentComponentVersionUID;
   }
   if (!Util.isUnset(request.value)) {
-    body.value = request.value;
+    body['value'] = request.value;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -3604,10 +4025,10 @@ async function validateEnvironmentTunnelWithOptions(uid: string, request: Valida
   uid = OpenApiUtil.getEncodeParam(uid);
   var body : map[string]any= {};
   if (!Util.isUnset(request.tunnelConfig)) {
-    body.tunnelConfig = request.tunnelConfig;
+    body['tunnelConfig'] = request.tunnelConfig;
   }
   if (!Util.isUnset(request.tunnelType)) {
-    body.tunnelType = request.tunnelType;
+    body['tunnelType'] = request.tunnelType;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
