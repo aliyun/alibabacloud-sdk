@@ -2,17 +2,22 @@
  *
  */
 import Util;
+import OSS;
+import RPC;
+import OpenPlatform;
+import OSSUtil;
+import FileForm;
 import OpenApi;
 import OpenApiUtil;
 import EndpointUtil;
 
 extends OpenApi;
 
+
 init(config: OpenApi.Config){
   super(config);
   @endpointRule = '';
   
-
   checkConfig(config);
   @endpoint = getEndpoint('dplus', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -21,12 +26,245 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   if (!Util.empty(endpoint)) {
     return endpoint;
   }
-
+  
   if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+
+model AePredictCategoryRequest {
+  picUrl?: string(name='PicUrl'),
+}
+
+model AePredictCategoryAdvanceRequest {
+  picUrlObject: readable(name='PicUrlObject'),
+}
+
+model AePredictCategoryResponse = {
+  headers: map[string]string(name='headers'),
+  body: object(name='body'),
+}
+
+async function aePredictCategoryWithOptions(request: AePredictCategoryRequest, runtime: Util.RuntimeOptions): AePredictCategoryResponse {
+  Util.validateModel(request);
+  var query = {};
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.picUrl)) {
+    body['PicUrl'] = request.picUrl;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'AePredictCategory',
+    version = '2020-12-16',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function aePredictCategory(request: AePredictCategoryRequest): AePredictCategoryResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return aePredictCategoryWithOptions(request, runtime);
+}
+
+async function aePredictCategoryAdvance(request: AePredictCategoryAdvanceRequest, runtime: Util.RuntimeOptions): AePredictCategoryResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'dplus',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var aePredictCategoryReq = new AePredictCategoryRequest{};
+  OpenApiUtil.convert(request, aePredictCategoryReq);
+
+  if(!Util.isUnset(request.picUrlObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.picUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    aePredictCategoryReq.picUrl =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var aePredictCategoryResp = aePredictCategoryWithOptions(aePredictCategoryReq, runtime);
+  return aePredictCategoryResp;
+}
+
+model AePropRecRequest {
+  picUrl?: string(name='PicUrl'),
+}
+
+model AePropRecAdvanceRequest {
+  picUrlObject: readable(name='PicUrlObject'),
+}
+
+model AePropRecResponse = {
+  headers: map[string]string(name='headers'),
+  body: object(name='body'),
+}
+
+async function aePropRecWithOptions(request: AePropRecRequest, runtime: Util.RuntimeOptions): AePropRecResponse {
+  Util.validateModel(request);
+  var query = {};
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.picUrl)) {
+    body['PicUrl'] = request.picUrl;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'AePropRec',
+    version = '2020-12-16',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function aePropRec(request: AePropRecRequest): AePropRecResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return aePropRecWithOptions(request, runtime);
+}
+
+async function aePropRecAdvance(request: AePropRecAdvanceRequest, runtime: Util.RuntimeOptions): AePropRecResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'dplus',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var aePropRecReq = new AePropRecRequest{};
+  OpenApiUtil.convert(request, aePropRecReq);
+
+  if(!Util.isUnset(request.picUrlObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.picUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    aePropRecReq.picUrl =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var aePropRecResp = aePropRecWithOptions(aePropRecReq, runtime);
+  return aePropRecResp;
+}
+
 model CreateImageAmazonTaskRequest {
   gif?: boolean(name='Gif'),
   imgUrlList?: [ string ](name='ImgUrlList'),
@@ -65,13 +303,12 @@ async function createImageAmazonTaskWithOptions(tmpReq: CreateImageAmazonTaskReq
     request.textListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.textList, 'TextList', 'json');
   }
   var query = {};
-  query["Gif"] = request.gif;
-  query["ImgUrlList"] = request.imgUrlListShrink;
-  query["TemplateMode"] = request.templateMode;
-  query["TextList"] = request.textListShrink;
+  query['Gif'] = request.gif;
+  query['ImgUrlList'] = request.imgUrlListShrink;
+  query['TemplateMode'] = request.templateMode;
+  query['TextList'] = request.textListShrink;
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
-    body = Util.toMap(request),
   };
   var params = new OpenApi.Params{
     action = 'CreateImageAmazonTask',
@@ -81,7 +318,7 @@ async function createImageAmazonTaskWithOptions(tmpReq: CreateImageAmazonTaskReq
     method = 'POST',
     authType = 'AK',
     style = 'RPC',
-    reqBodyType = 'json',
+    reqBodyType = 'formData',
     bodyType = 'json',
   };
   return callApi(params, req, runtime);
@@ -117,10 +354,9 @@ model GetTaskResultResponse = {
 async function getTaskResultWithOptions(request: GetTaskResultRequest, runtime: Util.RuntimeOptions): GetTaskResultResponse {
   Util.validateModel(request);
   var query = {};
-  query["TaskId"] = request.taskId;
+  query['TaskId'] = request.taskId;
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
-    body = Util.toMap(request),
   };
   var params = new OpenApi.Params{
     action = 'GetTaskResult',
@@ -130,7 +366,7 @@ async function getTaskResultWithOptions(request: GetTaskResultRequest, runtime: 
     method = 'POST',
     authType = 'AK',
     style = 'RPC',
-    reqBodyType = 'json',
+    reqBodyType = 'formData',
     bodyType = 'json',
   };
   return callApi(params, req, runtime);
@@ -165,10 +401,9 @@ model GetTaskStatusResponse = {
 async function getTaskStatusWithOptions(request: GetTaskStatusRequest, runtime: Util.RuntimeOptions): GetTaskStatusResponse {
   Util.validateModel(request);
   var query = {};
-  query["TaskId"] = request.taskId;
+  query['TaskId'] = request.taskId;
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
-    body = Util.toMap(request),
   };
   var params = new OpenApi.Params{
     action = 'GetTaskStatus',
@@ -178,7 +413,7 @@ async function getTaskStatusWithOptions(request: GetTaskStatusRequest, runtime: 
     method = 'POST',
     authType = 'AK',
     style = 'RPC',
-    reqBodyType = 'json',
+    reqBodyType = 'formData',
     bodyType = 'json',
   };
   return callApi(params, req, runtime);
@@ -187,5 +422,240 @@ async function getTaskStatusWithOptions(request: GetTaskStatusRequest, runtime: 
 async function getTaskStatus(request: GetTaskStatusRequest): GetTaskStatusResponse {
   var runtime = new Util.RuntimeOptions{};
   return getTaskStatusWithOptions(request, runtime);
+}
+
+model RemoveWordsRequest {
+  picUrl?: string(name='PicUrl'),
+}
+
+model RemoveWordsAdvanceRequest {
+  picUrlObject: readable(name='PicUrlObject'),
+}
+
+model RemoveWordsResponse = {
+  headers: map[string]string(name='headers'),
+  body: object(name='body'),
+}
+
+async function removeWordsWithOptions(request: RemoveWordsRequest, runtime: Util.RuntimeOptions): RemoveWordsResponse {
+  Util.validateModel(request);
+  var query = {};
+  query['PicUrl'] = request.picUrl;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'RemoveWords',
+    version = '2020-12-16',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function removeWords(request: RemoveWordsRequest): RemoveWordsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return removeWordsWithOptions(request, runtime);
+}
+
+async function removeWordsAdvance(request: RemoveWordsAdvanceRequest, runtime: Util.RuntimeOptions): RemoveWordsResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'dplus',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var removeWordsReq = new RemoveWordsRequest{};
+  OpenApiUtil.convert(request, removeWordsReq);
+
+  if(!Util.isUnset(request.picUrlObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.picUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    removeWordsReq.picUrl =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var removeWordsResp = removeWordsWithOptions(removeWordsReq, runtime);
+  return removeWordsResp;
+}
+
+model ReplaceBackgroundRequest {
+  backgroundId?: string(name='BackgroundId', description='返回的图片背景图片ID'),
+  num?: int32(name='Num'),
+  picBackgroundUrl?: string(name='PicBackgroundUrl'),
+  picUrl?: string(name='PicUrl', description='图片地址'),
+}
+
+model ReplaceBackgroundAdvanceRequest {
+  picUrlObject: readable(name='PicUrlObject'),
+  backgroundId?: string(name='BackgroundId', description='返回的图片背景图片ID'),
+  num?: int32(name='Num'),
+  picBackgroundUrl?: string(name='PicBackgroundUrl'),
+}
+
+model ReplaceBackgroundResponse = {
+  headers: map[string]string(name='headers'),
+  body: object(name='body'),
+}
+
+async function replaceBackgroundWithOptions(request: ReplaceBackgroundRequest, runtime: Util.RuntimeOptions): ReplaceBackgroundResponse {
+  Util.validateModel(request);
+  var query = {};
+  query['BackgroundId'] = request.backgroundId;
+  query['Num'] = request.num;
+  query['PicBackgroundUrl'] = request.picBackgroundUrl;
+  query['PicUrl'] = request.picUrl;
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ReplaceBackground',
+    version = '2020-12-16',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function replaceBackground(request: ReplaceBackgroundRequest): ReplaceBackgroundResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return replaceBackgroundWithOptions(request, runtime);
+}
+
+async function replaceBackgroundAdvance(request: ReplaceBackgroundAdvanceRequest, runtime: Util.RuntimeOptions): ReplaceBackgroundResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'dplus',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var replaceBackgroundReq = new ReplaceBackgroundRequest{};
+  OpenApiUtil.convert(request, replaceBackgroundReq);
+
+  if(!Util.isUnset(request.picUrlObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.picUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    replaceBackgroundReq.picUrl =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var replaceBackgroundResp = replaceBackgroundWithOptions(replaceBackgroundReq, runtime);
+  return replaceBackgroundResp;
 }
 
