@@ -3,21 +3,22 @@
  */
 import Util;
 import OpenApi;
-
+import OpenApiUtil;
 import EndpointUtil;
 
 extends OpenApi;
 
+
 init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'central';
-  
   @endpointMap = {
     ap-southeast-1 = 'dysmsapi.ap-southeast-1.aliyuncs.com',
     ap-southeast-5 = 'dysmsapi-xman.ap-southeast-5.aliyuncs.com',
     cn-beijing = 'dysmsapi-proxy.cn-beijing.aliyuncs.com',
     cn-hongkong = 'dysmsapi-xman.cn-hongkong.aliyuncs.com',
   };
+
   checkConfig(config);
   @endpoint = getEndpoint('dysmsapi', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -26,67 +27,28 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   if (!Util.empty(endpoint)) {
     return endpoint;
   }
-
+  
   if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-model QueryMessageRequest {
-  messageId?: string(name='MessageId'),
-}
-
-model QueryMessageResponseBody = {
-  status?: string(name='Status'),
-  errorDescription?: string(name='ErrorDescription'),
-  responseCode?: string(name='ResponseCode'),
-  receiveDate?: string(name='ReceiveDate'),
-  numberDetail?: {
-    carrier?: string(name='Carrier'),
-    region?: string(name='Region'),
-    country?: string(name='Country'),
-  }(name='NumberDetail'),
-  message?: string(name='Message'),
-  responseDescription?: string(name='ResponseDescription'),
-  errorCode?: string(name='ErrorCode'),
-  sendDate?: string(name='SendDate'),
-  to?: string(name='To'),
-  messageId?: string(name='MessageId'),
-}
-
-model QueryMessageResponse = {
-  headers: map[string]string(name='headers'),
-  body: QueryMessageResponseBody(name='body'),
-}
-
-async function queryMessageWithOptions(request: QueryMessageRequest, runtime: Util.RuntimeOptions): QueryMessageResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('QueryMessage', '2018-05-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function queryMessage(request: QueryMessageRequest): QueryMessageResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryMessageWithOptions(request, runtime);
-}
 
 model BatchSendMessageToGlobeRequest {
-  to?: string(name='To'),
   from?: string(name='From'),
   message?: string(name='Message'),
-  type?: string(name='Type'),
   taskId?: string(name='TaskId'),
+  to?: string(name='To'),
+  type?: string(name='Type'),
 }
 
 model BatchSendMessageToGlobeResponseBody = {
-  responseCode?: string(name='ResponseCode'),
-  requestId?: string(name='RequestId'),
   failedList?: string(name='FailedList'),
-  responseDescription?: string(name='ResponseDescription'),
   from?: string(name='From'),
   messageIdList?: string(name='MessageIdList'),
+  requestId?: string(name='RequestId'),
+  responseCode?: string(name='ResponseCode'),
+  responseDescription?: string(name='ResponseDescription'),
   successCount?: string(name='SuccessCount'),
 }
 
@@ -97,10 +59,37 @@ model BatchSendMessageToGlobeResponse = {
 
 async function batchSendMessageToGlobeWithOptions(request: BatchSendMessageToGlobeRequest, runtime: Util.RuntimeOptions): BatchSendMessageToGlobeResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.from)) {
+    query['From'] = request.from;
+  }
+  if (!Util.isUnset(request.message)) {
+    query['Message'] = request.message;
+  }
+  if (!Util.isUnset(request.taskId)) {
+    query['TaskId'] = request.taskId;
+  }
+  if (!Util.isUnset(request.to)) {
+    query['To'] = request.to;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['Type'] = request.type;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('BatchSendMessageToGlobe', '2018-05-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'BatchSendMessageToGlobe',
+    version = '2018-05-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function batchSendMessageToGlobe(request: BatchSendMessageToGlobeRequest): BatchSendMessageToGlobeResponse {
@@ -108,85 +97,15 @@ async function batchSendMessageToGlobe(request: BatchSendMessageToGlobeRequest):
   return batchSendMessageToGlobeWithOptions(request, runtime);
 }
 
-model SmsConversionRequest {
-  messageId?: string(name='MessageId'),
-  delivered?: boolean(name='Delivered'),
-  conversionTime?: long(name='ConversionTime'),
-}
-
-model SmsConversionResponseBody = {
-  responseCode?: string(name='ResponseCode'),
-  responseDescription?: string(name='ResponseDescription'),
-  requestId?: string(name='RequestId'),
-}
-
-model SmsConversionResponse = {
-  headers: map[string]string(name='headers'),
-  body: SmsConversionResponseBody(name='body'),
-}
-
-async function smsConversionWithOptions(request: SmsConversionRequest, runtime: Util.RuntimeOptions): SmsConversionResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('SmsConversion', '2018-05-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function smsConversion(request: SmsConversionRequest): SmsConversionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return smsConversionWithOptions(request, runtime);
-}
-
-model SendMessageToGlobeRequest {
-  to?: string(name='To'),
-  from?: string(name='From'),
-  message?: string(name='Message'),
-  taskId?: string(name='TaskId'),
-}
-
-model SendMessageToGlobeResponseBody = {
-  responseCode?: string(name='ResponseCode'),
-  numberDetail?: {
-    carrier?: string(name='Carrier'),
-    region?: string(name='Region'),
-    country?: string(name='Country'),
-  }(name='NumberDetail'),
-  requestId?: string(name='RequestId'),
-  segments?: string(name='Segments'),
-  responseDescription?: string(name='ResponseDescription'),
-  from?: string(name='From'),
-  to?: string(name='To'),
-  messageId?: string(name='MessageId'),
-}
-
-model SendMessageToGlobeResponse = {
-  headers: map[string]string(name='headers'),
-  body: SendMessageToGlobeResponseBody(name='body'),
-}
-
-async function sendMessageToGlobeWithOptions(request: SendMessageToGlobeRequest, runtime: Util.RuntimeOptions): SendMessageToGlobeResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('SendMessageToGlobe', '2018-05-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function sendMessageToGlobe(request: SendMessageToGlobeRequest): SendMessageToGlobeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return sendMessageToGlobeWithOptions(request, runtime);
-}
-
 model ConversionDataRequest {
-  reportTime?: long(name='ReportTime'),
   conversionRate?: string(name='ConversionRate'),
+  reportTime?: long(name='ReportTime'),
 }
 
 model ConversionDataResponseBody = {
+  requestId?: string(name='RequestId'),
   responseCode?: string(name='ResponseCode'),
   responseDescription?: string(name='ResponseDescription'),
-  requestId?: string(name='RequestId'),
 }
 
 model ConversionDataResponse = {
@@ -196,10 +115,28 @@ model ConversionDataResponse = {
 
 async function conversionDataWithOptions(request: ConversionDataRequest, runtime: Util.RuntimeOptions): ConversionDataResponse {
   Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.conversionRate)) {
+    body['ConversionRate'] = request.conversionRate;
+  }
+  if (!Util.isUnset(request.reportTime)) {
+    body['ReportTime'] = request.reportTime;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('ConversionData', '2018-05-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ConversionData',
+    version = '2018-05-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function conversionData(request: ConversionDataRequest): ConversionDataResponse {
@@ -207,25 +144,146 @@ async function conversionData(request: ConversionDataRequest): ConversionDataRes
   return conversionDataWithOptions(request, runtime);
 }
 
-model SendMessageWithTemplateRequest {
-  to?: string(name='To'),
-  from?: string(name='From'),
-  templateCode?: string(name='TemplateCode'),
-  templateParam?: string(name='TemplateParam'),
-  smsUpExtendCode?: string(name='SmsUpExtendCode'),
+model QueryMessageRequest {
+  messageId?: string(name='MessageId'),
 }
 
-model SendMessageWithTemplateResponseBody = {
-  responseCode?: string(name='ResponseCode'),
+model QueryMessageResponseBody = {
+  errorCode?: string(name='ErrorCode'),
+  errorDescription?: string(name='ErrorDescription'),
+  message?: string(name='Message'),
+  messageId?: string(name='MessageId'),
   numberDetail?: {
     carrier?: string(name='Carrier'),
-    region?: string(name='Region'),
     country?: string(name='Country'),
+    region?: string(name='Region'),
   }(name='NumberDetail'),
+  receiveDate?: string(name='ReceiveDate'),
+  requestId?: string(name='RequestId'),
+  responseCode?: string(name='ResponseCode'),
+  responseDescription?: string(name='ResponseDescription'),
+  sendDate?: string(name='SendDate'),
+  status?: string(name='Status'),
+  to?: string(name='To'),
+}
+
+model QueryMessageResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryMessageResponseBody(name='body'),
+}
+
+async function queryMessageWithOptions(request: QueryMessageRequest, runtime: Util.RuntimeOptions): QueryMessageResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.messageId)) {
+    query['MessageId'] = request.messageId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryMessage',
+    version = '2018-05-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function queryMessage(request: QueryMessageRequest): QueryMessageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryMessageWithOptions(request, runtime);
+}
+
+model SendMessageToGlobeRequest {
+  from?: string(name='From'),
+  message?: string(name='Message'),
+  taskId?: string(name='TaskId'),
+  to?: string(name='To'),
+}
+
+model SendMessageToGlobeResponseBody = {
+  from?: string(name='From'),
+  messageId?: string(name='MessageId'),
+  numberDetail?: {
+    carrier?: string(name='Carrier'),
+    country?: string(name='Country'),
+    region?: string(name='Region'),
+  }(name='NumberDetail'),
+  requestId?: string(name='RequestId'),
+  responseCode?: string(name='ResponseCode'),
   responseDescription?: string(name='ResponseDescription'),
   segments?: string(name='Segments'),
   to?: string(name='To'),
+}
+
+model SendMessageToGlobeResponse = {
+  headers: map[string]string(name='headers'),
+  body: SendMessageToGlobeResponseBody(name='body'),
+}
+
+async function sendMessageToGlobeWithOptions(request: SendMessageToGlobeRequest, runtime: Util.RuntimeOptions): SendMessageToGlobeResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.from)) {
+    query['From'] = request.from;
+  }
+  if (!Util.isUnset(request.message)) {
+    query['Message'] = request.message;
+  }
+  if (!Util.isUnset(request.taskId)) {
+    query['TaskId'] = request.taskId;
+  }
+  if (!Util.isUnset(request.to)) {
+    query['To'] = request.to;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'SendMessageToGlobe',
+    version = '2018-05-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function sendMessageToGlobe(request: SendMessageToGlobeRequest): SendMessageToGlobeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return sendMessageToGlobeWithOptions(request, runtime);
+}
+
+model SendMessageWithTemplateRequest {
+  from?: string(name='From'),
+  smsUpExtendCode?: string(name='SmsUpExtendCode'),
+  templateCode?: string(name='TemplateCode'),
+  templateParam?: string(name='TemplateParam'),
+  to?: string(name='To'),
+}
+
+model SendMessageWithTemplateResponseBody = {
   messageId?: string(name='MessageId'),
+  numberDetail?: {
+    carrier?: string(name='Carrier'),
+    country?: string(name='Country'),
+    region?: string(name='Region'),
+  }(name='NumberDetail'),
+  requestId?: string(name='RequestId'),
+  responseCode?: string(name='ResponseCode'),
+  responseDescription?: string(name='ResponseDescription'),
+  segments?: string(name='Segments'),
+  to?: string(name='To'),
 }
 
 model SendMessageWithTemplateResponse = {
@@ -235,14 +293,92 @@ model SendMessageWithTemplateResponse = {
 
 async function sendMessageWithTemplateWithOptions(request: SendMessageWithTemplateRequest, runtime: Util.RuntimeOptions): SendMessageWithTemplateResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.from)) {
+    query['From'] = request.from;
+  }
+  if (!Util.isUnset(request.smsUpExtendCode)) {
+    query['SmsUpExtendCode'] = request.smsUpExtendCode;
+  }
+  if (!Util.isUnset(request.templateCode)) {
+    query['TemplateCode'] = request.templateCode;
+  }
+  if (!Util.isUnset(request.templateParam)) {
+    query['TemplateParam'] = request.templateParam;
+  }
+  if (!Util.isUnset(request.to)) {
+    query['To'] = request.to;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('SendMessageWithTemplate', '2018-05-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'SendMessageWithTemplate',
+    version = '2018-05-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function sendMessageWithTemplate(request: SendMessageWithTemplateRequest): SendMessageWithTemplateResponse {
   var runtime = new Util.RuntimeOptions{};
   return sendMessageWithTemplateWithOptions(request, runtime);
+}
+
+model SmsConversionRequest {
+  conversionTime?: long(name='ConversionTime'),
+  delivered?: boolean(name='Delivered'),
+  messageId?: string(name='MessageId'),
+}
+
+model SmsConversionResponseBody = {
+  requestId?: string(name='RequestId'),
+  responseCode?: string(name='ResponseCode'),
+  responseDescription?: string(name='ResponseDescription'),
+}
+
+model SmsConversionResponse = {
+  headers: map[string]string(name='headers'),
+  body: SmsConversionResponseBody(name='body'),
+}
+
+async function smsConversionWithOptions(request: SmsConversionRequest, runtime: Util.RuntimeOptions): SmsConversionResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.conversionTime)) {
+    query['ConversionTime'] = request.conversionTime;
+  }
+  if (!Util.isUnset(request.delivered)) {
+    query['Delivered'] = request.delivered;
+  }
+  if (!Util.isUnset(request.messageId)) {
+    query['MessageId'] = request.messageId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'SmsConversion',
+    version = '2018-05-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function smsConversion(request: SmsConversionRequest): SmsConversionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return smsConversionWithOptions(request, runtime);
 }
 
