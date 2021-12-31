@@ -6,7 +6,6 @@ import SPI;
 import GatewayClient;
 import OpenApi;
 import OpenApiUtil;
-import EndpointUtil;
 
 extends OpenApi;
 
@@ -35,6 +34,18 @@ model ConsumerGroup {
   timeout?: int32(name='timeout', description='timeout'),
 }
 
+model EncryptConf {
+  enable?: boolean(name='enable', description='enable'),
+  encryptType?: string(name='encrypt_type', description='encrypt_type'),
+  userCmkInfo?: EncryptUserCmkConf(name='user_cmk_info'),
+}
+
+model EncryptUserCmkConf {
+  arn?: string(name='arn', description='arn'),
+  cmkKeyId?: string(name='cmk_key_id', description='cmk_key_id'),
+  regionId?: string(name='region_id', description='region_id'),
+}
+
 model SavedSearch {
   displayName?: string(name='displayName', description='displayName'),
   logstore?: string(name='logstore', description='logstore'),
@@ -45,10 +56,10 @@ model SavedSearch {
 
 model Logstore {
   appendMeta?: boolean(name='appendMeta', description='append client ip and receive time'),
-  archiveSeconds?: int32(name='archiveSeconds', description='archiveSeconds'),
   autoSplit?: boolean(name='autoSplit', description='auto spilt shard'),
   createTime?: int32(name='createTime', description='create time'),
-  enableTracking?: boolean(name='enableTracking', description='enable web tracking'),
+  enableTracking?: boolean(name='enable_tracking', description='enable web tracking'),
+  encryptConf?: EncryptConf(name='encrypt_conf', description='Encrypt configuration'),
   lastModifyTime?: int32(name='lastModifyTime', description='last modify time'),
   logstoreName?: string(name='logstoreName', description='logstore name'),
   maxSplitShard?: int32(name='maxSplitShard', description='max split shard'),
@@ -122,7 +133,7 @@ async function createConsumerGroupWithOptions(project: string, logstore: string,
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
-    bodyType = 'json',
+    bodyType = 'none',
   };
   return execute(params, req, runtime);
 }
@@ -131,6 +142,18 @@ model CreateLogStoreRequest {
   appendMeta?: boolean(name='appendMeta'),
   autoSplit?: boolean(name='autoSplit'),
   enableTracking?: boolean(name='enable_tracking'),
+  encryptConf?: EncryptConf(name='encrypt_conf'),
+  logstoreName?: string(name='logstoreName'),
+  maxSplitShard?: int32(name='maxSplitShard'),
+  shardCount?: int32(name='shardCount'),
+  ttl?: int32(name='ttl'),
+}
+
+model CreateLogStoreShrinkRequest {
+  appendMeta?: boolean(name='appendMeta'),
+  autoSplit?: boolean(name='autoSplit'),
+  enableTracking?: boolean(name='enable_tracking'),
+  encryptConfShrink?: string(name='encrypt_conf'),
   logstoreName?: string(name='logstoreName'),
   maxSplitShard?: int32(name='maxSplitShard'),
   shardCount?: int32(name='shardCount'),
@@ -147,10 +170,15 @@ async function createLogStore(project: string, request: CreateLogStoreRequest): 
   return createLogStoreWithOptions(project, request, headers, runtime);
 }
 
-async function createLogStoreWithOptions(project: string, request: CreateLogStoreRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateLogStoreResponse {
-  Util.validateModel(request);
+async function createLogStoreWithOptions(project: string, tmpReq: CreateLogStoreRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateLogStoreResponse {
+  Util.validateModel(tmpReq);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
+  var request = new CreateLogStoreShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.encryptConf)) {
+    request.encryptConfShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.encryptConf, 'encrypt_conf', 'json');
+  }
   var body : map[string]any= {};
   if (!Util.isUnset(request.appendMeta)) {
     body['appendMeta'] = request.appendMeta;
@@ -160,6 +188,9 @@ async function createLogStoreWithOptions(project: string, request: CreateLogStor
   }
   if (!Util.isUnset(request.enableTracking)) {
     body['enable_tracking'] = request.enableTracking;
+  }
+  if (!Util.isUnset(request.encryptConfShrink)) {
+    body['encrypt_conf'] = request.encryptConfShrink;
   }
   if (!Util.isUnset(request.logstoreName)) {
     body['logstoreName'] = request.logstoreName;
@@ -188,7 +219,7 @@ async function createLogStoreWithOptions(project: string, request: CreateLogStor
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
-    bodyType = 'json',
+    bodyType = 'none',
   };
   return execute(params, req, runtime);
 }
@@ -231,7 +262,7 @@ async function createProjectWithOptions(request: CreateProjectRequest, headers: 
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
-    bodyType = 'json',
+    bodyType = 'none',
   };
   return execute(params, req, runtime);
 }
@@ -286,7 +317,7 @@ async function createSavedSearchWithOptions(request: CreateSavedSearchRequest, h
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
-    bodyType = 'json',
+    bodyType = 'none',
   };
   return execute(params, req, runtime);
 }
@@ -319,7 +350,7 @@ async function deleteConsumerGroupWithOptions(project: string, logstore: string,
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
-    bodyType = 'json',
+    bodyType = 'none',
   };
   return execute(params, req, runtime);
 }
@@ -350,7 +381,7 @@ async function deleteProjectWithOptions(project: string, headers: map[string]str
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
-    bodyType = 'json',
+    bodyType = 'none',
   };
   return execute(params, req, runtime);
 }
@@ -382,7 +413,7 @@ async function deleteSavedSearchWithOptions(project: string, savedsearchName: st
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
-    bodyType = 'json',
+    bodyType = 'none',
   };
   return execute(params, req, runtime);
 }
@@ -443,6 +474,39 @@ async function getProjectWithOptions(project: string, headers: map[string]string
     version = '2020-12-30',
     protocol = 'HTTPS',
     pathname = `/`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+model GetSavedSearchResponse = {
+  headers: map[string]string(name='headers'),
+  body: SavedSearch  
+}
+
+async function getSavedSearch(project: string, savedsearchName: string): GetSavedSearchResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getSavedSearchWithOptions(project, savedsearchName, headers, runtime);
+}
+
+async function getSavedSearchWithOptions(project: string, savedsearchName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetSavedSearchResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  savedsearchName = OpenApiUtil.getEncodeParam(savedsearchName);
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSavedSearch',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/savedsearches/${savedsearchName}`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -701,7 +765,7 @@ async function updateConsumerGroupWithOptions(project: string, logstore: string,
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
-    bodyType = 'json',
+    bodyType = 'none',
   };
   return execute(params, req, runtime);
 }
@@ -710,6 +774,18 @@ model UpdateLogStoreRequest {
   appendMeta?: boolean(name='appendMeta'),
   autoSplit?: boolean(name='autoSplit'),
   enableTracking?: boolean(name='enable_tracking'),
+  encryptConf?: EncryptConf(name='encrypt_conf'),
+  logstoreName?: string(name='logstoreName'),
+  maxSplitShard?: int32(name='maxSplitShard'),
+  shardCount?: int32(name='shardCount'),
+  ttl?: int32(name='ttl'),
+}
+
+model UpdateLogStoreShrinkRequest {
+  appendMeta?: boolean(name='appendMeta'),
+  autoSplit?: boolean(name='autoSplit'),
+  enableTracking?: boolean(name='enable_tracking'),
+  encryptConfShrink?: string(name='encrypt_conf'),
   logstoreName?: string(name='logstoreName'),
   maxSplitShard?: int32(name='maxSplitShard'),
   shardCount?: int32(name='shardCount'),
@@ -726,11 +802,16 @@ async function updateLogStore(project: string, logstore: string, request: Update
   return updateLogStoreWithOptions(project, logstore, request, headers, runtime);
 }
 
-async function updateLogStoreWithOptions(project: string, logstore: string, request: UpdateLogStoreRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateLogStoreResponse {
-  Util.validateModel(request);
+async function updateLogStoreWithOptions(project: string, logstore: string, tmpReq: UpdateLogStoreRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateLogStoreResponse {
+  Util.validateModel(tmpReq);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
   logstore = OpenApiUtil.getEncodeParam(logstore);
+  var request = new UpdateLogStoreShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.encryptConf)) {
+    request.encryptConfShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.encryptConf, 'encrypt_conf', 'json');
+  }
   var body : map[string]any= {};
   if (!Util.isUnset(request.appendMeta)) {
     body['appendMeta'] = request.appendMeta;
@@ -740,6 +821,9 @@ async function updateLogStoreWithOptions(project: string, logstore: string, requ
   }
   if (!Util.isUnset(request.enableTracking)) {
     body['enable_tracking'] = request.enableTracking;
+  }
+  if (!Util.isUnset(request.encryptConfShrink)) {
+    body['encrypt_conf'] = request.encryptConfShrink;
   }
   if (!Util.isUnset(request.logstoreName)) {
     body['logstoreName'] = request.logstoreName;
@@ -768,7 +852,7 @@ async function updateLogStoreWithOptions(project: string, logstore: string, requ
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
-    bodyType = 'json',
+    bodyType = 'none',
   };
   return execute(params, req, runtime);
 }
@@ -810,7 +894,7 @@ async function updateProjectWithOptions(project: string, request: UpdateProjectR
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
-    bodyType = 'json',
+    bodyType = 'none',
   };
   return execute(params, req, runtime);
 }
