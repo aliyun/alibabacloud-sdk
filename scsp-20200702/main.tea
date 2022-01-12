@@ -31,6 +31,58 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model DApp {
+  baseAppCode?: string(name='BaseAppCode', description='基础应用代码'),
+  code?: string(name='Code', description='代码'),
+  containerAppCode?: string(name='ContainerAppCode', description='容器应用代码'),
+  containerDeploy?: boolean(name='ContainerDeploy', description='是否容器部署'),
+  gmtCreate?: long(name='GmtCreate', description='创建时间'),
+  id?: string(name='Id', description='id'),
+  name?: string(name='Name', description='名称'),
+  remark?: string(name='Remark', description='备注'),
+}
+
+model DAppArchive {
+  app?: DApp(name='App', description='部署应用'),
+  appVersion?: string(name='AppVersion', description='应用fatjar版本'),
+  gmtCreate?: long(name='GmtCreate', description='创建时间'),
+  id?: string(name='Id', description='id'),
+  resCount?: int32(name='ResCount', description='资源数量'),
+  status?: DPair(name='Status', description='状态'),
+  version?: string(name='Version', description='快照版本'),
+}
+
+model DAppRes {
+  code?: string(name='Code', description='代码'),
+  id?: string(name='Id', description='id'),
+  name?: string(name='Name', description='名称'),
+  subType?: string(name='SubType', description='子类型'),
+  type?: DPair(name='Type'),
+}
+
+model DAppResCount {
+  items?: [ 
+    {
+      count?: int32(name='Count', description='计数'),
+      type?: DPair(name='Type', description='类型'),
+    }
+  ](name='Items', description='按类型分组的资源计数'),
+  total?: int32(name='Total', description='总数'),
+}
+
+model DDeploymentArchive {
+  appCount?: int32(name='AppCount', description='应用数量'),
+  gmtCreate?: long(name='GmtCreate', description='创建时间'),
+  id?: string(name='Id', description='id'),
+  name?: string(name='Name', description='名称'),
+  resCount?: int32(name='ResCount', description='资源数量'),
+  status?: DPair(name='Status', description='状态'),
+  version?: string(name='Version', description='版本'),
+}
+
+model DPair {
+}
+
 model AnswerCallRequest {
   accountName?: string(name='AccountName'),
   callId?: string(name='CallId'),
@@ -95,6 +147,57 @@ async function answerCall(request: AnswerCallRequest): AnswerCallResponse {
   return answerCallWithOptions(request, runtime);
 }
 
+model AnwserAgentMonitorRequest {
+  accountName?: string(name='AccountName', description='AccountName'),
+  callId?: string(name='CallId', description='CallId'),
+  callerParentId?: long(name='CallerParentId', description='callerParentId'),
+  callerType?: string(name='CallerType', description='callerType'),
+  callerUid?: long(name='CallerUid', description='callerUid'),
+  clientToken?: string(name='ClientToken', description='clientToken'),
+  connectionId?: string(name='ConnectionId', description='ConnectionId'),
+  instanceId?: string(name='InstanceId', description='InstanceId'),
+  jobId?: string(name='JobId', description='JobId'),
+  requestId?: string(name='RequestId', description='requestId'),
+  stsTokenCallerUid?: long(name='StsTokenCallerUid', description='stsTokenCallerUid'),
+}
+
+model AnwserAgentMonitorResponseBody = {
+  code?: string(name='Code', description='code'),
+  message?: string(name='Message', description='message'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='success'),
+}
+
+model AnwserAgentMonitorResponse = {
+  headers: map[string]string(name='headers'),
+  body: AnwserAgentMonitorResponseBody(name='body'),
+}
+
+async function anwserAgentMonitorWithOptions(request: AnwserAgentMonitorRequest, runtime: Util.RuntimeOptions): AnwserAgentMonitorResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'AnwserAgentMonitor',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function anwserAgentMonitor(request: AnwserAgentMonitorRequest): AnwserAgentMonitorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return anwserAgentMonitorWithOptions(request, runtime);
+}
+
 model AppMessagePushRequest {
   expirationTime?: long(name='ExpirationTime', description='过期时间'),
   instanceId?: string(name='InstanceId', description='实例ID'),
@@ -118,10 +221,18 @@ model AppMessagePushResponse = {
 async function appMessagePushWithOptions(request: AppMessagePushRequest, runtime: Util.RuntimeOptions): AppMessagePushResponse {
   Util.validateModel(request);
   var query = {};
-  query['ExpirationTime'] = request.expirationTime;
-  query['InstanceId'] = request.instanceId;
-  query['Status'] = request.status;
-  query['UserId'] = request.userId;
+  if (!Util.isUnset(request.expirationTime)) {
+    query['ExpirationTime'] = request.expirationTime;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['Status'] = request.status;
+  }
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -323,6 +434,51 @@ async function closeTicket(request: CloseTicketRequest): CloseTicketResponse {
   return closeTicketWithOptions(request, runtime);
 }
 
+model CollectDeploymentArchiveRequest {
+  deploymentCode?: string(name='DeploymentCode', description='部署code'),
+  envType?: int32(name='EnvType', description='环境类型'),
+  name?: string(name='Name', description='部署快照名称'),
+}
+
+model CollectDeploymentArchiveResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: string(name='Data', description='部署快照id'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='httpStatusCode'),
+  message?: string(name='Message', description='message'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='success'),
+}
+
+model CollectDeploymentArchiveResponse = {
+  headers: map[string]string(name='headers'),
+  body: CollectDeploymentArchiveResponseBody(name='body'),
+}
+
+async function collectDeploymentArchiveWithOptions(request: CollectDeploymentArchiveRequest, runtime: Util.RuntimeOptions): CollectDeploymentArchiveResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CollectDeploymentArchive',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function collectDeploymentArchive(request: CollectDeploymentArchiveRequest): CollectDeploymentArchiveResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return collectDeploymentArchiveWithOptions(request, runtime);
+}
+
 model CreateAgentRequest {
   accountName?: string(name='AccountName'),
   clientToken?: string(name='ClientToken', description='js sdk中自动生成的鉴权token'),
@@ -428,20 +584,48 @@ model CreateCustomerResponse = {
 async function createCustomerWithOptions(request: CreateCustomerRequest, runtime: Util.RuntimeOptions): CreateCustomerResponse {
   Util.validateModel(request);
   var query = {};
-  query['BizType'] = request.bizType;
-  query['Contacter'] = request.contacter;
-  query['Dingding'] = request.dingding;
-  query['Email'] = request.email;
-  query['Industry'] = request.industry;
-  query['InstanceId'] = request.instanceId;
-  query['ManagerName'] = request.managerName;
-  query['Name'] = request.name;
-  query['OuterId'] = request.outerId;
-  query['OuterIdType'] = request.outerIdType;
-  query['Phone'] = request.phone;
-  query['Position'] = request.position;
-  query['ProdLineId'] = request.prodLineId;
-  query['TypeCode'] = request.typeCode;
+  if (!Util.isUnset(request.bizType)) {
+    query['BizType'] = request.bizType;
+  }
+  if (!Util.isUnset(request.contacter)) {
+    query['Contacter'] = request.contacter;
+  }
+  if (!Util.isUnset(request.dingding)) {
+    query['Dingding'] = request.dingding;
+  }
+  if (!Util.isUnset(request.email)) {
+    query['Email'] = request.email;
+  }
+  if (!Util.isUnset(request.industry)) {
+    query['Industry'] = request.industry;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.managerName)) {
+    query['ManagerName'] = request.managerName;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.outerId)) {
+    query['OuterId'] = request.outerId;
+  }
+  if (!Util.isUnset(request.outerIdType)) {
+    query['OuterIdType'] = request.outerIdType;
+  }
+  if (!Util.isUnset(request.phone)) {
+    query['Phone'] = request.phone;
+  }
+  if (!Util.isUnset(request.position)) {
+    query['Position'] = request.position;
+  }
+  if (!Util.isUnset(request.prodLineId)) {
+    query['ProdLineId'] = request.prodLineId;
+  }
+  if (!Util.isUnset(request.typeCode)) {
+    query['TypeCode'] = request.typeCode;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -462,6 +646,70 @@ async function createCustomerWithOptions(request: CreateCustomerRequest, runtime
 async function createCustomer(request: CreateCustomerRequest): CreateCustomerResponse {
   var runtime = new Util.RuntimeOptions{};
   return createCustomerWithOptions(request, runtime);
+}
+
+model CreateDeploymentTaskRequest {
+  appArchiveIds?: [ string ](name='AppArchiveIds', description='应用快照id列表'),
+  deploymentArchiveId?: string(name='DeploymentArchiveId', description='部署快照id'),
+  deploymentCode?: string(name='DeploymentCode', description='部署code'),
+  envType?: string(name='EnvType', description='环境类型'),
+}
+
+model CreateDeploymentTaskShrinkRequest {
+  appArchiveIdsShrink?: string(name='AppArchiveIds', description='应用快照id列表'),
+  deploymentArchiveId?: string(name='DeploymentArchiveId', description='部署快照id'),
+  deploymentCode?: string(name='DeploymentCode', description='部署code'),
+  envType?: string(name='EnvType', description='环境类型'),
+}
+
+model CreateDeploymentTaskResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: {
+    deploymentArchive?: DDeploymentArchive(name='DeploymentArchive', description='部署快照'),
+    gmtCreate?: long(name='GmtCreate', description='创建时间'),
+    id?: string(name='Id', description='id'),
+    name?: string(name='Name', description='名称'),
+    status?: DPair(name='Status', description='状态'),
+  }(name='Data', description='data'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='httpStatusCode'),
+  message?: string(name='Message', description='message'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='success'),
+}
+
+model CreateDeploymentTaskResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateDeploymentTaskResponseBody(name='body'),
+}
+
+async function createDeploymentTaskWithOptions(tmpReq: CreateDeploymentTaskRequest, runtime: Util.RuntimeOptions): CreateDeploymentTaskResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateDeploymentTaskShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.appArchiveIds)) {
+    request.appArchiveIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.appArchiveIds, 'AppArchiveIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateDeploymentTask',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createDeploymentTask(request: CreateDeploymentTaskRequest): CreateDeploymentTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createDeploymentTaskWithOptions(request, runtime);
 }
 
 model CreateEntityIvrRouteRequest {
@@ -795,18 +1043,42 @@ model CreateSubTicketResponse = {
 async function createSubTicketWithOptions(request: CreateSubTicketRequest, runtime: Util.RuntimeOptions): CreateSubTicketResponse {
   Util.validateModel(request);
   var query = {};
-  query['AgentId'] = request.agentId;
-  query['BizData'] = request.bizData;
-  query['CreatorId'] = request.creatorId;
-  query['CreatorName'] = request.creatorName;
-  query['FormData'] = request.formData;
-  query['FromInfo'] = request.fromInfo;
-  query['InstanceId'] = request.instanceId;
-  query['MemberId'] = request.memberId;
-  query['MemberName'] = request.memberName;
-  query['ParentCaseId'] = request.parentCaseId;
-  query['Priority'] = request.priority;
-  query['TemplateId'] = request.templateId;
+  if (!Util.isUnset(request.agentId)) {
+    query['AgentId'] = request.agentId;
+  }
+  if (!Util.isUnset(request.bizData)) {
+    query['BizData'] = request.bizData;
+  }
+  if (!Util.isUnset(request.creatorId)) {
+    query['CreatorId'] = request.creatorId;
+  }
+  if (!Util.isUnset(request.creatorName)) {
+    query['CreatorName'] = request.creatorName;
+  }
+  if (!Util.isUnset(request.formData)) {
+    query['FormData'] = request.formData;
+  }
+  if (!Util.isUnset(request.fromInfo)) {
+    query['FromInfo'] = request.fromInfo;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.memberId)) {
+    query['MemberId'] = request.memberId;
+  }
+  if (!Util.isUnset(request.memberName)) {
+    query['MemberName'] = request.memberName;
+  }
+  if (!Util.isUnset(request.parentCaseId)) {
+    query['ParentCaseId'] = request.parentCaseId;
+  }
+  if (!Util.isUnset(request.priority)) {
+    query['Priority'] = request.priority;
+  }
+  if (!Util.isUnset(request.templateId)) {
+    query['TemplateId'] = request.templateId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -1024,9 +1296,15 @@ model DeleteAgentResponse = {
 async function deleteAgentWithOptions(request: DeleteAgentRequest, runtime: Util.RuntimeOptions): DeleteAgentResponse {
   Util.validateModel(request);
   var query = {};
-  query['AccountName'] = request.accountName;
-  query['ClientToken'] = request.clientToken;
-  query['InstanceId'] = request.instanceId;
+  if (!Util.isUnset(request.accountName)) {
+    query['AccountName'] = request.accountName;
+  }
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -1147,6 +1425,45 @@ async function disableRoleWithOptions(request: DisableRoleRequest, runtime: Util
 async function disableRole(request: DisableRoleRequest): DisableRoleResponse {
   var runtime = new Util.RuntimeOptions{};
   return disableRoleWithOptions(request, runtime);
+}
+
+model EVENTQUERYRequest {
+  appName?: string(name='appName', description='应用名'),
+  token?: string(name='token', description='token'),
+}
+
+model EVENTQUERYResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model EVENTQUERYResponse = {
+  headers: map[string]string(name='headers'),
+  body: EVENTQUERYResponseBody(name='body'),
+}
+
+async function eVENTQUERYWithOptions(request: EVENTQUERYRequest, runtime: Util.RuntimeOptions): EVENTQUERYResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'EVENTQUERY',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function eVENTQUERY(request: EVENTQUERYRequest): EVENTQUERYResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return eVENTQUERYWithOptions(request, runtime);
 }
 
 model EditEntityRouteRequest {
@@ -1583,6 +1900,308 @@ async function getAgent(request: GetAgentRequest): GetAgentResponse {
   return getAgentWithOptions(request, runtime);
 }
 
+model GetAgentBasisStatusRequest {
+  agentIds?: [ long ](name='AgentIds', description='坐席id列表'),
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIds?: [ long ](name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+}
+
+model GetAgentBasisStatusShrinkRequest {
+  agentIdsShrink?: string(name='AgentIds', description='坐席id列表'),
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIdsShrink?: string(name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+}
+
+model GetAgentBasisStatusResponseBody = {
+  code?: string(name='Code', description='错误编码'),
+  data?: {
+    pageNum?: int32(name='PageNum', description='当前页数'),
+    pageSize?: int32(name='PageSize', description='页大小'),
+    rows?: string(name='Rows', description='信息为list<map>类型的json字符串'),
+    totalNum?: int32(name='TotalNum', description='总记录数'),
+  }(name='Data', description='data'),
+  message?: string(name='Message', description='错误描述'),
+  requestId?: string(name='RequestId', description='请求ID，用于跟踪错误原因'),
+  success?: string(name='Success', description='调用接口是否成功'),
+}
+
+model GetAgentBasisStatusResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetAgentBasisStatusResponseBody(name='body'),
+}
+
+async function getAgentBasisStatusWithOptions(tmpReq: GetAgentBasisStatusRequest, runtime: Util.RuntimeOptions): GetAgentBasisStatusResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetAgentBasisStatusShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.agentIds)) {
+    request.agentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.agentIds, 'AgentIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAgentBasisStatus',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getAgentBasisStatus(request: GetAgentBasisStatusRequest): GetAgentBasisStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAgentBasisStatusWithOptions(request, runtime);
+}
+
+model GetAgentDetailReportRequest {
+  agentIds?: [ long ](name='AgentIds', description='坐席id列表'),
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIds?: [ long ](name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping', description='是否根据坐席分组显示'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组显示'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+  timeLatitudeType?: string(name='TimeLatitudeType', description='时间纬度类型'),
+}
+
+model GetAgentDetailReportShrinkRequest {
+  agentIdsShrink?: string(name='AgentIds', description='坐席id列表'),
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIdsShrink?: string(name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping', description='是否根据坐席分组显示'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组显示'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+  timeLatitudeType?: string(name='TimeLatitudeType', description='时间纬度类型'),
+}
+
+model GetAgentDetailReportResponseBody = {
+  code?: string(name='Code', description='错误编码'),
+  data?: {
+    pageNum?: long(name='PageNum', description='当前页数'),
+    pageSize?: long(name='PageSize', description='页大小'),
+    rows?: string(name='Rows', description='信息为list<map>类型的json字符串'),
+    totalNum?: long(name='TotalNum', description='总记录数'),
+  }(name='Data', description='data'),
+  message?: string(name='Message', description='错误描述'),
+  requestId?: string(name='RequestId', description='请求ID，用于跟踪错误原因'),
+  success?: string(name='Success', description='调用接口是否成功'),
+}
+
+model GetAgentDetailReportResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetAgentDetailReportResponseBody(name='body'),
+}
+
+async function getAgentDetailReportWithOptions(tmpReq: GetAgentDetailReportRequest, runtime: Util.RuntimeOptions): GetAgentDetailReportResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetAgentDetailReportShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.agentIds)) {
+    request.agentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.agentIds, 'AgentIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAgentDetailReport',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getAgentDetailReport(request: GetAgentDetailReportRequest): GetAgentDetailReportResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAgentDetailReportWithOptions(request, runtime);
+}
+
+model GetAgentServiceStatusRequest {
+  agentIds?: [ long ](name='AgentIds', description='坐席id列表'),
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIds?: [ long ](name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping', description='是否根据坐席分组'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+  timeLatitudeType?: string(name='TimeLatitudeType', description='时间纬度类型'),
+}
+
+model GetAgentServiceStatusShrinkRequest {
+  agentIdsShrink?: string(name='AgentIds', description='坐席id列表'),
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIdsShrink?: string(name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping', description='是否根据坐席分组'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+  timeLatitudeType?: string(name='TimeLatitudeType', description='时间纬度类型'),
+}
+
+model GetAgentServiceStatusResponseBody = {
+  code?: string(name='Code', description='错误编码'),
+  data?: {
+    pageNum?: long(name='PageNum', description='当前页数'),
+    pageSize?: long(name='PageSize', description='页大小'),
+    rows?: string(name='Rows', description='信息为list<map>类型的json字符串'),
+    totalNum?: long(name='TotalNum', description='总记录数'),
+  }(name='Data', description='data'),
+  message?: string(name='Message', description='错误描述'),
+  requestId?: string(name='RequestId', description='请求ID，用于跟踪错误原因'),
+  success?: boolean(name='Success', description='调用接口是否成功'),
+}
+
+model GetAgentServiceStatusResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetAgentServiceStatusResponseBody(name='body'),
+}
+
+async function getAgentServiceStatusWithOptions(tmpReq: GetAgentServiceStatusRequest, runtime: Util.RuntimeOptions): GetAgentServiceStatusResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetAgentServiceStatusShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.agentIds)) {
+    request.agentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.agentIds, 'AgentIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAgentServiceStatus',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getAgentServiceStatus(request: GetAgentServiceStatusRequest): GetAgentServiceStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAgentServiceStatusWithOptions(request, runtime);
+}
+
+model GetAgentStatisticsRequest {
+  agentIds?: [ long ](name='AgentIds', description='坐席id列表'),
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIds?: [ long ](name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping', description='是否根据坐席分组'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+  timeLatitudeType?: string(name='TimeLatitudeType', description='时间纬度类型'),
+}
+
+model GetAgentStatisticsShrinkRequest {
+  agentIdsShrink?: string(name='AgentIds', description='坐席id列表'),
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIdsShrink?: string(name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping', description='是否根据坐席分组'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+  timeLatitudeType?: string(name='TimeLatitudeType', description='时间纬度类型'),
+}
+
+model GetAgentStatisticsResponseBody = {
+  code?: string(name='Code', description='错误编码'),
+  data?: {
+    pageNum?: int32(name='PageNum', description='当前页数'),
+    pageSize?: int32(name='PageSize', description='页大小'),
+    rows?: string(name='Rows', description='信息为list<map>类型的json字符串'),
+    totalNum?: int32(name='TotalNum', description='总记录数'),
+  }(name='Data', description='data'),
+  message?: string(name='Message', description='错误描述'),
+  requestId?: string(name='RequestId', description='请求ID，用于跟踪错误原因'),
+  success?: string(name='Success', description='调用接口是否成功'),
+}
+
+model GetAgentStatisticsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetAgentStatisticsResponseBody(name='body'),
+}
+
+async function getAgentStatisticsWithOptions(tmpReq: GetAgentStatisticsRequest, runtime: Util.RuntimeOptions): GetAgentStatisticsResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetAgentStatisticsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.agentIds)) {
+    request.agentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.agentIds, 'AgentIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAgentStatistics',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getAgentStatistics(request: GetAgentStatisticsRequest): GetAgentStatisticsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAgentStatisticsWithOptions(request, runtime);
+}
+
 model GetAllDepartmentRequest {
   instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
 }
@@ -1609,7 +2228,9 @@ model GetAllDepartmentResponse = {
 async function getAllDepartmentWithOptions(request: GetAllDepartmentRequest, runtime: Util.RuntimeOptions): GetAllDepartmentResponse {
   Util.validateModel(request);
   var query = {};
-  query['InstanceId'] = request.instanceId;
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -1630,6 +2251,106 @@ async function getAllDepartmentWithOptions(request: GetAllDepartmentRequest, run
 async function getAllDepartment(request: GetAllDepartmentRequest): GetAllDepartmentResponse {
   var runtime = new Util.RuntimeOptions{};
   return getAllDepartmentWithOptions(request, runtime);
+}
+
+model GetAppArchivesRequest {
+  deploymentArchiveId?: string(name='DeploymentArchiveId', description='部署快照id'),
+}
+
+model GetAppArchivesResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: [
+    DAppArchive
+  ](name='Data', description='应用快照列表'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='httpStatusCode'),
+  message?: string(name='Message', description='message'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='success'),
+}
+
+model GetAppArchivesResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetAppArchivesResponseBody(name='body'),
+}
+
+async function getAppArchivesWithOptions(request: GetAppArchivesRequest, runtime: Util.RuntimeOptions): GetAppArchivesResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAppArchives',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getAppArchives(request: GetAppArchivesRequest): GetAppArchivesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAppArchivesWithOptions(request, runtime);
+}
+
+model GetAppTasksRequest {
+  deploymentTaskId?: string(name='deploymentTaskId', description='部署任务id'),
+}
+
+model GetAppTasksResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: [ 
+    {
+      appArchive?: DAppArchive(name='AppArchive', description='当前应用快照'),
+      baseAppArchive?: DAppArchive(name='BaseAppArchive', description='基线应用快照'),
+      gmtCreate?: long(name='GmtCreate', description='创建时间'),
+      gmtModified?: long(name='GmtModified', description='更新时间'),
+      id?: string(name='Id', description='id'),
+      name?: string(name='Name', description='名称'),
+      pendingResCount?: DAppResCount(name='PendingResCount', description='待处理资源计数'),
+      resCount?: DAppResCount(name='ResCount', description='资源计数'),
+      status?: DPair(name='Status', description='状态'),
+    }
+  ](name='Data', description='应用任务列表'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='httpStatusCode'),
+  message?: string(name='Message', description='message'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='success'),
+}
+
+model GetAppTasksResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetAppTasksResponseBody(name='body'),
+}
+
+async function getAppTasksWithOptions(request: GetAppTasksRequest, runtime: Util.RuntimeOptions): GetAppTasksResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAppTasks',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getAppTasks(request: GetAppTasksRequest): GetAppTasksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAppTasksWithOptions(request, runtime);
 }
 
 model GetAuthInfoRequest {
@@ -1664,9 +2385,15 @@ model GetAuthInfoResponse = {
 async function getAuthInfoWithOptions(request: GetAuthInfoRequest, runtime: Util.RuntimeOptions): GetAuthInfoResponse {
   Util.validateModel(request);
   var query = {};
-  query['AppKey'] = request.appKey;
-  query['ForeignId'] = request.foreignId;
-  query['InstanceId'] = request.instanceId;
+  if (!Util.isUnset(request.appKey)) {
+    query['AppKey'] = request.appKey;
+  }
+  if (!Util.isUnset(request.foreignId)) {
+    query['ForeignId'] = request.foreignId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -1711,9 +2438,15 @@ model GetByForeignIdResponse = {
 async function getByForeignIdWithOptions(request: GetByForeignIdRequest, runtime: Util.RuntimeOptions): GetByForeignIdResponse {
   Util.validateModel(request);
   var query = {};
-  query['ForeignId'] = request.foreignId;
-  query['InstanceId'] = request.instanceId;
-  query['SourceId'] = request.sourceId;
+  if (!Util.isUnset(request.foreignId)) {
+    query['ForeignId'] = request.foreignId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.sourceId)) {
+    query['SourceId'] = request.sourceId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -1769,10 +2502,18 @@ model GetCMSIdByForeignIdResponse = {
 async function getCMSIdByForeignIdWithOptions(request: GetCMSIdByForeignIdRequest, runtime: Util.RuntimeOptions): GetCMSIdByForeignIdResponse {
   Util.validateModel(request);
   var query = {};
-  query['ForeignId'] = request.foreignId;
-  query['InstanceId'] = request.instanceId;
-  query['Nick'] = request.nick;
-  query['SourceId'] = request.sourceId;
+  if (!Util.isUnset(request.foreignId)) {
+    query['ForeignId'] = request.foreignId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.nick)) {
+    query['Nick'] = request.nick;
+  }
+  if (!Util.isUnset(request.sourceId)) {
+    query['SourceId'] = request.sourceId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -1860,6 +2601,117 @@ async function getCallsPerDayWithOptions(request: GetCallsPerDayRequest, runtime
 async function getCallsPerDay(request: GetCallsPerDayRequest): GetCallsPerDayResponse {
   var runtime = new Util.RuntimeOptions{};
   return getCallsPerDayWithOptions(request, runtime);
+}
+
+model GetDepartmentalLatitudeAgentStatusRequest {
+  currentPage?: long(name='CurrentPage', description='当前页（默认为1）'),
+  depIds?: [ long ](name='DepIds', description='技能组分组id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据技能组分组id分组显示'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: long(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+}
+
+model GetDepartmentalLatitudeAgentStatusShrinkRequest {
+  currentPage?: long(name='CurrentPage', description='当前页（默认为1）'),
+  depIdsShrink?: string(name='DepIds', description='技能组分组id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据技能组分组id分组显示'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: long(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+}
+
+model GetDepartmentalLatitudeAgentStatusResponseBody = {
+  code?: string(name='Code', description='错误编码'),
+  data?: {
+    pageNum?: int32(name='PageNum', description='当前页数'),
+    pageSize?: int32(name='PageSize', description='每页的数量'),
+    rows?: string(name='Rows', description='信息为list<map>类型的json字符串'),
+    totalNum?: int32(name='TotalNum', description='总共记录数'),
+  }(name='Data', description='数据'),
+  message?: string(name='Message', description='错误描述'),
+  requestId?: string(name='RequestId', description='请求ID，用于跟踪错误原因'),
+  success?: boolean(name='Success', description='接口调用是否成功'),
+}
+
+model GetDepartmentalLatitudeAgentStatusResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetDepartmentalLatitudeAgentStatusResponseBody(name='body'),
+}
+
+async function getDepartmentalLatitudeAgentStatusWithOptions(tmpReq: GetDepartmentalLatitudeAgentStatusRequest, runtime: Util.RuntimeOptions): GetDepartmentalLatitudeAgentStatusResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetDepartmentalLatitudeAgentStatusShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetDepartmentalLatitudeAgentStatus',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getDepartmentalLatitudeAgentStatus(request: GetDepartmentalLatitudeAgentStatusRequest): GetDepartmentalLatitudeAgentStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getDepartmentalLatitudeAgentStatusWithOptions(request, runtime);
+}
+
+model GetDeploymentArchiveRequest {
+  deploymentArchiveId?: string(name='deploymentArchiveId', description='部署快照id'),
+}
+
+model GetDeploymentArchiveResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: DDeploymentArchive(name='Data', description='部署快照'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='httpStatusCode'),
+  message?: string(name='Message', description='message'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='success'),
+}
+
+model GetDeploymentArchiveResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetDeploymentArchiveResponseBody(name='body'),
+}
+
+async function getDeploymentArchiveWithOptions(request: GetDeploymentArchiveRequest, runtime: Util.RuntimeOptions): GetDeploymentArchiveResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetDeploymentArchive',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getDeploymentArchive(request: GetDeploymentArchiveRequest): GetDeploymentArchiveResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getDeploymentArchiveWithOptions(request, runtime);
 }
 
 model GetEntityRouteRequest {
@@ -2214,13 +3066,27 @@ model GetHotlineAgentDetailReportResponse = {
 async function getHotlineAgentDetailReportWithOptions(request: GetHotlineAgentDetailReportRequest, runtime: Util.RuntimeOptions): GetHotlineAgentDetailReportResponse {
   Util.validateModel(request);
   var query = {};
-  query['CurrentPage'] = request.currentPage;
-  query['DepIds'] = request.depIds;
-  query['EndDate'] = request.endDate;
-  query['GroupIds'] = request.groupIds;
-  query['InstanceId'] = request.instanceId;
-  query['PageSize'] = request.pageSize;
-  query['StartDate'] = request.startDate;
+  if (!Util.isUnset(request.currentPage)) {
+    query['CurrentPage'] = request.currentPage;
+  }
+  if (!Util.isUnset(request.depIds)) {
+    query['DepIds'] = request.depIds;
+  }
+  if (!Util.isUnset(request.endDate)) {
+    query['EndDate'] = request.endDate;
+  }
+  if (!Util.isUnset(request.groupIds)) {
+    query['GroupIds'] = request.groupIds;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.startDate)) {
+    query['StartDate'] = request.startDate;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -2330,13 +3196,27 @@ model GetHotlineGroupDetailReportResponse = {
 async function getHotlineGroupDetailReportWithOptions(request: GetHotlineGroupDetailReportRequest, runtime: Util.RuntimeOptions): GetHotlineGroupDetailReportResponse {
   Util.validateModel(request);
   var query = {};
-  query['CurrentPage'] = request.currentPage;
-  query['DepIds'] = request.depIds;
-  query['EndDate'] = request.endDate;
-  query['GroupIds'] = request.groupIds;
-  query['InstanceId'] = request.instanceId;
-  query['PageSize'] = request.pageSize;
-  query['StartDate'] = request.startDate;
+  if (!Util.isUnset(request.currentPage)) {
+    query['CurrentPage'] = request.currentPage;
+  }
+  if (!Util.isUnset(request.depIds)) {
+    query['DepIds'] = request.depIds;
+  }
+  if (!Util.isUnset(request.endDate)) {
+    query['EndDate'] = request.endDate;
+  }
+  if (!Util.isUnset(request.groupIds)) {
+    query['GroupIds'] = request.groupIds;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.startDate)) {
+    query['StartDate'] = request.startDate;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -2357,6 +3237,90 @@ async function getHotlineGroupDetailReportWithOptions(request: GetHotlineGroupDe
 async function getHotlineGroupDetailReport(request: GetHotlineGroupDetailReportRequest): GetHotlineGroupDetailReportResponse {
   var runtime = new Util.RuntimeOptions{};
   return getHotlineGroupDetailReportWithOptions(request, runtime);
+}
+
+model GetHotlineServiceStatisticsRequest {
+  agentIds?: [ long ](name='AgentIds', description='坐席id列表'),
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIds?: [ long ](name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping', description='是否根据坐席分组'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping', description='是否根据技能组分组'),
+  groupIds?: [ long ](name='GroupIds', description='技能组id列表'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+  timeLatitudeType?: string(name='TimeLatitudeType', description='时间纬度类型'),
+}
+
+model GetHotlineServiceStatisticsShrinkRequest {
+  agentIdsShrink?: string(name='AgentIds', description='坐席id列表'),
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIdsShrink?: string(name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping', description='是否根据坐席分组'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping', description='是否根据技能组分组'),
+  groupIdsShrink?: string(name='GroupIds', description='技能组id列表'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+  timeLatitudeType?: string(name='TimeLatitudeType', description='时间纬度类型'),
+}
+
+model GetHotlineServiceStatisticsResponseBody = {
+  code?: string(name='Code', description='错误编码'),
+  data?: {
+    pageNum?: int32(name='PageNum', description='当前页数'),
+    pageSize?: int32(name='PageSize', description='页大小'),
+    rows?: string(name='Rows', description='信息为list<map>类型的json字符串'),
+    totalNum?: int32(name='TotalNum', description='总记录数'),
+  }(name='Data', description='data'),
+  message?: string(name='Message', description='错误描述'),
+  requestId?: string(name='RequestId', description='请求ID，用于跟踪错误原因'),
+  success?: string(name='Success', description='调用接口是否成功'),
+}
+
+model GetHotlineServiceStatisticsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetHotlineServiceStatisticsResponseBody(name='body'),
+}
+
+async function getHotlineServiceStatisticsWithOptions(tmpReq: GetHotlineServiceStatisticsRequest, runtime: Util.RuntimeOptions): GetHotlineServiceStatisticsResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetHotlineServiceStatisticsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.agentIds)) {
+    request.agentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.agentIds, 'AgentIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.groupIds)) {
+    request.groupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.groupIds, 'GroupIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetHotlineServiceStatistics',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getHotlineServiceStatistics(request: GetHotlineServiceStatisticsRequest): GetHotlineServiceStatisticsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getHotlineServiceStatisticsWithOptions(request, runtime);
 }
 
 model GetHotlineWaitingNumberRequest {
@@ -2447,6 +3411,161 @@ async function getNumLocationWithOptions(request: GetNumLocationRequest, runtime
 async function getNumLocation(request: GetNumLocationRequest): GetNumLocationResponse {
   var runtime = new Util.RuntimeOptions{};
   return getNumLocationWithOptions(request, runtime);
+}
+
+model GetOnlineSeatInformationRequest {
+  agentIds?: [ long ](name='AgentIds', description='坐席id列表'),
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIds?: [ long ](name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+}
+
+model GetOnlineSeatInformationShrinkRequest {
+  agentIdsShrink?: string(name='AgentIds', description='坐席id列表'),
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIdsShrink?: string(name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+}
+
+model GetOnlineSeatInformationResponseBody = {
+  code?: string(name='Code', description='错误编码'),
+  data?: {
+    pageNum?: int32(name='PageNum', description='当前页数'),
+    pageSize?: int32(name='PageSize', description='页大小'),
+    rows?: string(name='Rows', description='信息为list<map>类型的json字符串'),
+    totalNum?: int32(name='TotalNum', description='总记录数'),
+  }(name='Data', description='data'),
+  message?: string(name='Message', description='错误描述'),
+  requestId?: string(name='RequestId', description='请求ID，用于跟踪错误原因'),
+  success?: string(name='Success', description='调用接口是否成功'),
+}
+
+model GetOnlineSeatInformationResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetOnlineSeatInformationResponseBody(name='body'),
+}
+
+async function getOnlineSeatInformationWithOptions(tmpReq: GetOnlineSeatInformationRequest, runtime: Util.RuntimeOptions): GetOnlineSeatInformationResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetOnlineSeatInformationShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.agentIds)) {
+    request.agentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.agentIds, 'AgentIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetOnlineSeatInformation',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getOnlineSeatInformation(request: GetOnlineSeatInformationRequest): GetOnlineSeatInformationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getOnlineSeatInformationWithOptions(request, runtime);
+}
+
+model GetOnlineServiceVolumeRequest {
+  agentIds?: [ long ](name='AgentIds', description='坐席id列表'),
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIds?: [ long ](name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping', description='是否根据坐席分组'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping', description='是否根据技能组分组'),
+  groupIds?: [ long ](name='GroupIds', description='技能组id列表'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+  timeLatitudeType?: string(name='TimeLatitudeType', description='时间纬度类型'),
+}
+
+model GetOnlineServiceVolumeShrinkRequest {
+  agentIdsShrink?: string(name='AgentIds', description='坐席id列表'),
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIdsShrink?: string(name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping', description='是否根据坐席分组'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping', description='是否根据技能组分组'),
+  groupIdsShrink?: string(name='GroupIds', description='技能组id列表'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+  timeLatitudeType?: string(name='TimeLatitudeType', description='时间纬度类型'),
+}
+
+model GetOnlineServiceVolumeResponseBody = {
+  code?: string(name='Code', description='错误编码'),
+  data?: {
+    pageNum?: int32(name='PageNum', description='当前页数'),
+    pageSize?: int32(name='PageSize', description='页大小'),
+    rows?: string(name='Rows', description='信息为list<map>类型的json字符串'),
+    totalNum?: int32(name='TotalNum', description='总记录数'),
+  }(name='Data', description='data'),
+  message?: string(name='Message', description='错误描述'),
+  requestId?: string(name='RequestId', description='请求ID，用于跟踪错误原因'),
+  success?: string(name='Success', description='调用接口是否成功'),
+}
+
+model GetOnlineServiceVolumeResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetOnlineServiceVolumeResponseBody(name='body'),
+}
+
+async function getOnlineServiceVolumeWithOptions(tmpReq: GetOnlineServiceVolumeRequest, runtime: Util.RuntimeOptions): GetOnlineServiceVolumeResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetOnlineServiceVolumeShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.agentIds)) {
+    request.agentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.agentIds, 'AgentIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.groupIds)) {
+    request.groupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.groupIds, 'GroupIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetOnlineServiceVolume',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getOnlineServiceVolume(request: GetOnlineServiceVolumeRequest): GetOnlineServiceVolumeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getOnlineServiceVolumeWithOptions(request, runtime);
 }
 
 model GetOutbounNumListRequest {
@@ -2600,6 +3719,621 @@ async function getOuterCallCenterDataListWithOptions(request: GetOuterCallCenter
 async function getOuterCallCenterDataList(request: GetOuterCallCenterDataListRequest): GetOuterCallCenterDataListResponse {
   var runtime = new Util.RuntimeOptions{};
   return getOuterCallCenterDataListWithOptions(request, runtime);
+}
+
+model GetQueueInformationRequest {
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIds?: [ long ](name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping', description='是否根据技能组分组'),
+  groupIds?: [ long ](name='GroupIds', description='技能组id列表'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+}
+
+model GetQueueInformationShrinkRequest {
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIdsShrink?: string(name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping', description='是否根据技能组分组'),
+  groupIdsShrink?: string(name='GroupIds', description='技能组id列表'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+}
+
+model GetQueueInformationResponseBody = {
+  code?: string(name='Code', description='错误编码'),
+  data?: {
+    pageNum?: int32(name='PageNum', description='当前页数'),
+    pageSize?: int32(name='PageSize', description='页大小'),
+    rows?: string(name='Rows', description='信息为list<map>类型的json字符串'),
+    totalNum?: int32(name='TotalNum', description='总记录数'),
+  }(name='Data', description='data'),
+  message?: string(name='Message', description='错误描述'),
+  requestId?: string(name='RequestId', description='请求ID，用于跟踪错误原因'),
+  success?: string(name='Success', description='调用接口是否成功'),
+}
+
+model GetQueueInformationResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetQueueInformationResponseBody(name='body'),
+}
+
+async function getQueueInformationWithOptions(tmpReq: GetQueueInformationRequest, runtime: Util.RuntimeOptions): GetQueueInformationResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetQueueInformationShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.groupIds)) {
+    request.groupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.groupIds, 'GroupIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetQueueInformation',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getQueueInformation(request: GetQueueInformationRequest): GetQueueInformationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getQueueInformationWithOptions(request, runtime);
+}
+
+model GetSeatInformationRequest {
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  currentPage?: int32(name='currentPage', description='当前页（默认为1）'),
+  depIds?: [ long ](name='depIds', description='部门id列表'),
+  endDate?: long(name='endDate', description='结束日期时间戳（毫秒）'),
+  existDepartmentGrouping?: boolean(name='existDepartmentGrouping', description='是否根据部门分组'),
+  pageSize?: int32(name='pageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='startDate', description='开始日期时间戳（毫秒）'),
+}
+
+model GetSeatInformationShrinkRequest {
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  currentPage?: int32(name='currentPage', description='当前页（默认为1）'),
+  depIdsShrink?: string(name='depIds', description='部门id列表'),
+  endDate?: long(name='endDate', description='结束日期时间戳（毫秒）'),
+  existDepartmentGrouping?: boolean(name='existDepartmentGrouping', description='是否根据部门分组'),
+  pageSize?: int32(name='pageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='startDate', description='开始日期时间戳（毫秒）'),
+}
+
+model GetSeatInformationResponseBody = {
+  code?: string(name='Code', description='错误编码'),
+  data?: {
+    pageNum?: int32(name='PageNum', description='当前页数'),
+    pageSize?: int32(name='PageSize', description='页大小'),
+    rowr?: string(name='Rowr', description='信息为list<map>类型的json字符串'),
+    totalNum?: int32(name='TotalNum', description='总记录数'),
+  }(name='Data', description='data'),
+  message?: string(name='Message', description='错误描述'),
+  requestId?: string(name='RequestId', description='请求ID，用于跟踪错误原因'),
+  success?: string(name='Success', description='调用接口是否成功'),
+}
+
+model GetSeatInformationResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetSeatInformationResponseBody(name='body'),
+}
+
+async function getSeatInformationWithOptions(tmpReq: GetSeatInformationRequest, runtime: Util.RuntimeOptions): GetSeatInformationResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetSeatInformationShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'depIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSeatInformation',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getSeatInformation(request: GetSeatInformationRequest): GetSeatInformationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSeatInformationWithOptions(request, runtime);
+}
+
+model GetSkillGroupAgentStatusDetailsRequest {
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIds?: [ long ](name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping', description='是否根据技能组分组'),
+  groupIds?: [ long ](name='GroupIds', description='技能组id列表'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+}
+
+model GetSkillGroupAgentStatusDetailsShrinkRequest {
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIdsShrink?: string(name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping', description='是否根据技能组分组'),
+  groupIdsShrink?: string(name='GroupIds', description='技能组id列表'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+}
+
+model GetSkillGroupAgentStatusDetailsResponseBody = {
+  code?: string(name='Code', description='错误编码'),
+  data?: {
+    pageNum?: long(name='PageNum', description='当前页数'),
+    pageSize?: long(name='PageSize', description='每页的数量'),
+    rows?: string(name='Rows', description='信息为list<map>类型的json字符串'),
+    totalNum?: long(name='TotalNum', description='总记录数'),
+  }(name='Data', description='data'),
+  message?: string(name='Message', description='错误描述'),
+  requestId?: string(name='RequestId', description='请求ID，用于跟踪错误原因'),
+  success?: string(name='Success', description='接口调用是否成功'),
+}
+
+model GetSkillGroupAgentStatusDetailsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetSkillGroupAgentStatusDetailsResponseBody(name='body'),
+}
+
+async function getSkillGroupAgentStatusDetailsWithOptions(tmpReq: GetSkillGroupAgentStatusDetailsRequest, runtime: Util.RuntimeOptions): GetSkillGroupAgentStatusDetailsResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetSkillGroupAgentStatusDetailsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.groupIds)) {
+    request.groupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.groupIds, 'GroupIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSkillGroupAgentStatusDetails',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getSkillGroupAgentStatusDetails(request: GetSkillGroupAgentStatusDetailsRequest): GetSkillGroupAgentStatusDetailsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSkillGroupAgentStatusDetailsWithOptions(request, runtime);
+}
+
+model GetSkillGroupAndAgentStatusSummaryRequest {
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIds?: [ long ](name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping', description='是否根据技能组分组'),
+  groupIds?: [ long ](name='GroupIds', description='技能组id列表'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+}
+
+model GetSkillGroupAndAgentStatusSummaryShrinkRequest {
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIdsShrink?: string(name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping', description='是否根据技能组分组'),
+  groupIdsShrink?: string(name='GroupIds', description='技能组id列表'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+}
+
+model GetSkillGroupAndAgentStatusSummaryResponseBody = {
+  code?: string(name='Code', description='错误编码'),
+  data?: {
+    pageNum?: int32(name='PageNum', description='当前页数'),
+    pageSize?: int32(name='PageSize', description='每页的数量'),
+    rows?: string(name='Rows', description='信息为list<map>类型的json字符串'),
+    totalNum?: int32(name='TotalNum', description='总记录数'),
+  }(name='Data', description='data'),
+  message?: string(name='Message', description='错误描述'),
+  requestId?: string(name='RequestId', description='请求ID，用于跟踪错误原因'),
+  success?: string(name='Success', description='接口调用是否成功'),
+}
+
+model GetSkillGroupAndAgentStatusSummaryResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetSkillGroupAndAgentStatusSummaryResponseBody(name='body'),
+}
+
+async function getSkillGroupAndAgentStatusSummaryWithOptions(tmpReq: GetSkillGroupAndAgentStatusSummaryRequest, runtime: Util.RuntimeOptions): GetSkillGroupAndAgentStatusSummaryResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetSkillGroupAndAgentStatusSummaryShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.groupIds)) {
+    request.groupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.groupIds, 'GroupIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSkillGroupAndAgentStatusSummary',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getSkillGroupAndAgentStatusSummary(request: GetSkillGroupAndAgentStatusSummaryRequest): GetSkillGroupAndAgentStatusSummaryResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSkillGroupAndAgentStatusSummaryWithOptions(request, runtime);
+}
+
+model GetSkillGroupLatitudeStateRequest {
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIds?: [ long ](name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping', description='是否根据技能组分组'),
+  groupIds?: [ long ](name='GroupIds', description='技能组id列表'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+}
+
+model GetSkillGroupLatitudeStateShrinkRequest {
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIdsShrink?: string(name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping', description='是否根据技能组分组'),
+  groupIdsShrink?: string(name='GroupIds', description='技能组id列表'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+}
+
+model GetSkillGroupLatitudeStateResponseBody = {
+  code?: string(name='Code', description='错误编码'),
+  data?: {
+    pageNum?: int32(name='PageNum', description='当前页数'),
+    pageSize?: int32(name='PageSize', description='每页的数量'),
+    rows?: string(name='Rows', description='信息为list<map>类型的json字符串'),
+    totalNum?: int32(name='TotalNum', description='总共记录数'),
+  }(name='Data', description='data'),
+  message?: string(name='Message', description='错误描述'),
+  requestId?: string(name='RequestId', description='请求ID，用于跟踪错误原因'),
+  success?: string(name='Success', description='接口调用是否成功'),
+}
+
+model GetSkillGroupLatitudeStateResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetSkillGroupLatitudeStateResponseBody(name='body'),
+}
+
+async function getSkillGroupLatitudeStateWithOptions(tmpReq: GetSkillGroupLatitudeStateRequest, runtime: Util.RuntimeOptions): GetSkillGroupLatitudeStateResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetSkillGroupLatitudeStateShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.groupIds)) {
+    request.groupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.groupIds, 'GroupIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSkillGroupLatitudeState',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getSkillGroupLatitudeState(request: GetSkillGroupLatitudeStateRequest): GetSkillGroupLatitudeStateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSkillGroupLatitudeStateWithOptions(request, runtime);
+}
+
+model GetSkillGroupServiceCapabilityRequest {
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIds?: [ long ](name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping', description='是否根据技能组分组'),
+  groupIds?: [ long ](name='GroupIds', description='技能组id列表'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+}
+
+model GetSkillGroupServiceCapabilityShrinkRequest {
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIdsShrink?: string(name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping', description='是否根据技能组分组'),
+  groupIdsShrink?: string(name='GroupIds', description='技能组id列表'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+}
+
+model GetSkillGroupServiceCapabilityResponseBody = {
+  code?: string(name='Code', description='错误编码'),
+  data?: {
+    pageNum?: int32(name='PageNum', description='当前页数'),
+    pageSize?: int32(name='PageSize', description='页大小'),
+    rows?: string(name='Rows', description='信息为list<map>类型的json字符串'),
+    totalNum?: long(name='TotalNum', description='总记录数'),
+  }(name='Data', description='data'),
+  message?: string(name='Message', description='错误描述'),
+  requestId?: string(name='RequestId', description='请求ID，用于跟踪错误原因'),
+  success?: string(name='Success', description='调用接口是否成功'),
+}
+
+model GetSkillGroupServiceCapabilityResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetSkillGroupServiceCapabilityResponseBody(name='body'),
+}
+
+async function getSkillGroupServiceCapabilityWithOptions(tmpReq: GetSkillGroupServiceCapabilityRequest, runtime: Util.RuntimeOptions): GetSkillGroupServiceCapabilityResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetSkillGroupServiceCapabilityShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.groupIds)) {
+    request.groupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.groupIds, 'GroupIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSkillGroupServiceCapability',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getSkillGroupServiceCapability(request: GetSkillGroupServiceCapabilityRequest): GetSkillGroupServiceCapabilityResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSkillGroupServiceCapabilityWithOptions(request, runtime);
+}
+
+model GetSkillGroupServiceStatusRequest {
+  agentIds?: [ long ](name='AgentIds', description='技能组id列表'),
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIds?: [ long ](name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping', description='是否根据技能组分组'),
+  existChannelInstanceGrouping?: boolean(name='ExistChannelInstanceGrouping', description='是否根据渠道实例分组'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  existRobotInstanceGrouping?: boolean(name='ExistRobotInstanceGrouping', description='是否根据机器实例分组'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping', description='是否根据技能组分组'),
+  groupIds?: [ long ](name='GroupIds', description='技能组id列表'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+  timeLatitudeType?: string(name='TimeLatitudeType', description='时间纬度类型'),
+}
+
+model GetSkillGroupServiceStatusShrinkRequest {
+  agentIdsShrink?: string(name='AgentIds', description='技能组id列表'),
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIdsShrink?: string(name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping', description='是否根据技能组分组'),
+  existChannelInstanceGrouping?: boolean(name='ExistChannelInstanceGrouping', description='是否根据渠道实例分组'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  existRobotInstanceGrouping?: boolean(name='ExistRobotInstanceGrouping', description='是否根据机器实例分组'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping', description='是否根据技能组分组'),
+  groupIdsShrink?: string(name='GroupIds', description='技能组id列表'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+  timeLatitudeType?: string(name='TimeLatitudeType', description='时间纬度类型'),
+}
+
+model GetSkillGroupServiceStatusResponseBody = {
+  code?: string(name='Code', description='错误编码'),
+  data?: {
+    pageNum?: int32(name='PageNum', description='当前页数'),
+    pageSize?: int32(name='PageSize', description='页大小'),
+    rows?: string(name='Rows', description='信息为list<map>类型的json字符串'),
+    totalNum?: int32(name='TotalNum', description='总记录数'),
+  }(name='Data', description='data'),
+  message?: string(name='Message', description='错误描述'),
+  requestId?: string(name='RequestId', description='请求ID，用于跟踪错误原因'),
+  success?: string(name='Success', description='调用接口是否成功'),
+}
+
+model GetSkillGroupServiceStatusResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetSkillGroupServiceStatusResponseBody(name='body'),
+}
+
+async function getSkillGroupServiceStatusWithOptions(tmpReq: GetSkillGroupServiceStatusRequest, runtime: Util.RuntimeOptions): GetSkillGroupServiceStatusResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetSkillGroupServiceStatusShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.agentIds)) {
+    request.agentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.agentIds, 'AgentIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.groupIds)) {
+    request.groupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.groupIds, 'GroupIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSkillGroupServiceStatus',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getSkillGroupServiceStatus(request: GetSkillGroupServiceStatusRequest): GetSkillGroupServiceStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSkillGroupServiceStatusWithOptions(request, runtime);
+}
+
+model GetSkillGroupStatusTotalRequest {
+  agentIds?: [ long ](name='AgentIds', description='坐席id列表'),
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIds?: [ long ](name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping', description='是否根据坐席分组'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping', description='是否根据技能组分组'),
+  groupIds?: [ long ](name='GroupIds', description='技能组id列表'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+  timeLatitudeType?: string(name='TimeLatitudeType', description='时间纬度类型'),
+}
+
+model GetSkillGroupStatusTotalShrinkRequest {
+  agentIdsShrink?: string(name='AgentIds', description='坐席id列表'),
+  currentPage?: int32(name='CurrentPage', description='当前页（默认为1）'),
+  depIdsShrink?: string(name='DepIds', description='部门id列表'),
+  endDate?: long(name='EndDate', description='结束日期时间戳（毫秒）'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping', description='是否根据坐席分组'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping', description='是否根据部门分组'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping', description='是否根据技能组分组'),
+  groupIdsShrink?: string(name='GroupIds', description='技能组id列表'),
+  instanceId?: string(name='InstanceId', description='AICCS实例ID，在智能联络中心控制台上可以看到'),
+  pageSize?: int32(name='PageSize', description='每页大小（默认为10)'),
+  startDate?: long(name='StartDate', description='开始日期时间戳（毫秒）'),
+  timeLatitudeType?: string(name='TimeLatitudeType', description='时间纬度类型'),
+}
+
+model GetSkillGroupStatusTotalResponseBody = {
+  code?: string(name='Code', description='错误编码'),
+  data?: {
+    pageNum?: long(name='PageNum', description='当前页数'),
+    pageSize?: long(name='PageSize', description='页大小'),
+    rows?: string(name='Rows', description='信息为list<map>类型的json字符串'),
+    totalNum?: long(name='TotalNum', description='总记录数'),
+  }(name='Data', description='data'),
+  message?: string(name='Message', description='错误描述'),
+  requestId?: string(name='RequestId', description='请求ID，用于跟踪错误原因'),
+  success?: string(name='Success', description='接口调用是否成功'),
+}
+
+model GetSkillGroupStatusTotalResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetSkillGroupStatusTotalResponseBody(name='body'),
+}
+
+async function getSkillGroupStatusTotalWithOptions(tmpReq: GetSkillGroupStatusTotalRequest, runtime: Util.RuntimeOptions): GetSkillGroupStatusTotalResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetSkillGroupStatusTotalShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.agentIds)) {
+    request.agentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.agentIds, 'AgentIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.groupIds)) {
+    request.groupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.groupIds, 'GroupIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSkillGroupStatusTotal',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getSkillGroupStatusTotal(request: GetSkillGroupStatusTotalRequest): GetSkillGroupStatusTotalResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSkillGroupStatusTotalWithOptions(request, runtime);
 }
 
 model GetTagListRequest {
@@ -2906,6 +4640,57 @@ async function grantRolesWithOptions(request: GrantRolesRequest, runtime: Util.R
 async function grantRoles(request: GrantRolesRequest): GrantRolesResponse {
   var runtime = new Util.RuntimeOptions{};
   return grantRolesWithOptions(request, runtime);
+}
+
+model HangUpAgentMonitorRequest {
+  accountName?: string(name='AccountName', description='AccountName'),
+  callId?: string(name='CallId', description='CallId'),
+  callerParentId?: long(name='CallerParentId', description='callerParentId'),
+  callerType?: string(name='CallerType', description='callerType'),
+  callerUid?: long(name='CallerUid', description='callerUid'),
+  clientToken?: string(name='ClientToken', description='clientToken'),
+  connectionId?: string(name='ConnectionId', description='ConnectionId'),
+  instanceId?: string(name='InstanceId', description='InstanceId'),
+  jobId?: string(name='JobId', description='JobId'),
+  requestId?: string(name='RequestId', description='requestId'),
+  stsTokenCallerUid?: long(name='StsTokenCallerUid', description='stsTokenCallerUid'),
+}
+
+model HangUpAgentMonitorResponseBody = {
+  code?: string(name='Code', description='code'),
+  message?: string(name='Message', description='message'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='success'),
+}
+
+model HangUpAgentMonitorResponse = {
+  headers: map[string]string(name='headers'),
+  body: HangUpAgentMonitorResponseBody(name='body'),
+}
+
+async function hangUpAgentMonitorWithOptions(request: HangUpAgentMonitorRequest, runtime: Util.RuntimeOptions): HangUpAgentMonitorResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'HangUpAgentMonitor',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function hangUpAgentMonitor(request: HangUpAgentMonitorRequest): HangUpAgentMonitorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return hangUpAgentMonitorWithOptions(request, runtime);
 }
 
 model HangupCallRequest {
@@ -3238,8 +5023,11 @@ model ListAllHotLineSkillGroupsResponseBody = {
           agents?: [ 
             {
               accountName?: string(name='AccountName'),
+              acid?: string(name='Acid'),
               agentId?: long(name='AgentId'),
+              connId?: string(name='ConnId'),
               displayName?: string(name='DisplayName'),
+              jobId?: string(name='JobId'),
               status?: long(name='Status'),
             }
           ](name='Agents'),
@@ -3436,6 +5224,244 @@ async function listSkillGroup(request: ListSkillGroupRequest): ListSkillGroupRes
   return listSkillGroupWithOptions(request, runtime);
 }
 
+model LogOptimizationRequest {
+  acid?: string(name='Acid'),
+  data?: string(name='Data'),
+  phoneNum?: string(name='PhoneNum'),
+}
+
+model LogOptimizationResponseBody = {
+  code?: string(name='Code'),
+  data?: string(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success'),
+}
+
+model LogOptimizationResponse = {
+  headers: map[string]string(name='headers'),
+  body: LogOptimizationResponseBody(name='body'),
+}
+
+async function logOptimizationWithOptions(request: LogOptimizationRequest, runtime: Util.RuntimeOptions): LogOptimizationResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.acid)) {
+    query['Acid'] = request.acid;
+  }
+  if (!Util.isUnset(request.data)) {
+    query['Data'] = request.data;
+  }
+  if (!Util.isUnset(request.phoneNum)) {
+    query['PhoneNum'] = request.phoneNum;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'LogOptimization',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function logOptimization(request: LogOptimizationRequest): LogOptimizationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return logOptimizationWithOptions(request, runtime);
+}
+
+model QueryAppResDiffRequest {
+  appTaskId?: string(name='AppTaskId', description='应用任务id'),
+  diffKeyword?: string(name='DiffKeyword', description='差异关键字like'),
+  index?: int32(name='Index', description='页码, 从0开始'),
+  keyword?: string(name='Keyword', description='代码或名称like'),
+  resCode?: string(name='ResCode', description='配置代码'),
+  resName?: string(name='ResName', description='配置名称'),
+  resSubType?: string(name='ResSubType', description='配置子类型'),
+  resType?: string(name='ResType', description='配置类型'),
+  size?: int32(name='Size', description='页大小'),
+}
+
+model QueryAppResDiffResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: {
+    data?: [ 
+      {
+        baseFilteredValue?: string(name='BaseFilteredValue', description='过滤后前值'),
+        baseValue?: string(name='BaseValue', description='基线值'),
+        filteredValue?: string(name='FilteredValue', description='过滤后当前值'),
+        id?: string(name='Id', description='id'),
+        res?: DAppRes(name='Res', description='应用配置'),
+        row?: [ 
+          {
+            key?: string(name='Key', description='键, 和表头key对应'),
+            value?: string(name='Value', description='内容'),
+          }
+        ](name='Row', description='差异行'),
+        type?: DPair(name='Type', description='差异类型'),
+        value?: string(name='Value', description='当前值'),
+        status?: DPair(name='status', description='处理状态'),
+      }
+    ](name='Data', description='diff列表'),
+    head?: [ 
+      {
+        key?: string(name='Key', description='键'),
+        title?: string(name='Title', description='标题'),
+      }
+    ](name='Head', description='应用配置差异表头'),
+    resCount?: DAppResCount(name='ResCount', description='资源数量'),
+  }(name='Data', description='数据'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='httpStatusCode'),
+  message?: string(name='Message', description='message'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='success'),
+  totalCount?: long(name='TotalCount', description='总数'),
+}
+
+model QueryAppResDiffResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryAppResDiffResponseBody(name='body'),
+}
+
+async function queryAppResDiffWithOptions(request: QueryAppResDiffRequest, runtime: Util.RuntimeOptions): QueryAppResDiffResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryAppResDiff',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function queryAppResDiff(request: QueryAppResDiffRequest): QueryAppResDiffResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryAppResDiffWithOptions(request, runtime);
+}
+
+model QueryAppResValueRequest {
+  appTaskId?: string(name='AppTaskId', description='应用任务id'),
+  index?: int32(name='Index', description='页码, 从0开始'),
+  keyword?: string(name='Keyword', description='代码或名称like'),
+  resCode?: string(name='ResCode', description='配置代码'),
+  resName?: string(name='ResName', description='配置名称'),
+  resSubType?: string(name='ResSubType', description='配置子类型'),
+  resType?: string(name='ResType', description='配置类型'),
+  size?: int32(name='Size', description='页大小'),
+  valueKeyword?: string(name='ValueKeyword', description='值like'),
+}
+
+model QueryAppResValueResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: [ 
+    {
+      id?: string(name='Id', description='id'),
+      res?: DAppRes(name='Res', description='配置'),
+      value?: string(name='Value', description='配置值'),
+    }
+  ](name='Data', description='data'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='httpStatusCode'),
+  message?: string(name='Message', description='message'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='success'),
+  totalCount?: long(name='TotalCount', description='totalCount'),
+}
+
+model QueryAppResValueResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryAppResValueResponseBody(name='body'),
+}
+
+async function queryAppResValueWithOptions(request: QueryAppResValueRequest, runtime: Util.RuntimeOptions): QueryAppResValueResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryAppResValue',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function queryAppResValue(request: QueryAppResValueRequest): QueryAppResValueResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryAppResValueWithOptions(request, runtime);
+}
+
+model QueryDeploymentArchiveRequest {
+  deploymentCode?: string(name='DeploymentCode', description='部署code'),
+  envType?: int32(name='EnvType', description='环境类型'),
+  index?: int32(name='Index', description='页码, 从0开始'),
+  size?: int32(name='Size', description='页大小'),
+}
+
+model QueryDeploymentArchiveResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: [
+    DDeploymentArchive
+  ](name='Data', description='部署快照列表'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='httpStatusCode'),
+  message?: string(name='Message', description='message'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='success'),
+  totalCount?: long(name='TotalCount', description='totalCount'),
+}
+
+model QueryDeploymentArchiveResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryDeploymentArchiveResponseBody(name='body'),
+}
+
+async function queryDeploymentArchiveWithOptions(request: QueryDeploymentArchiveRequest, runtime: Util.RuntimeOptions): QueryDeploymentArchiveResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryDeploymentArchive',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function queryDeploymentArchive(request: QueryDeploymentArchiveRequest): QueryDeploymentArchiveResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryDeploymentArchiveWithOptions(request, runtime);
+}
+
 model QueryHotlineDashboardRequest {
   currentPageNum?: int32(name='CurrentPageNum', description='当前页码'),
   departmentIdList?: [ long ](name='DepartmentIdList', description='部门标识列表'),
@@ -3502,14 +5528,30 @@ async function queryHotlineDashboardWithOptions(tmpReq: QueryHotlineDashboardReq
     request.sortFieldListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sortFieldList, 'SortFieldList', 'json');
   }
   var query = {};
-  query['CurrentPageNum'] = request.currentPageNum;
-  query['DepartmentIdList'] = request.departmentIdListShrink;
-  query['EndDate'] = request.endDate;
-  query['InstanceId'] = request.instanceId;
-  query['PageSize'] = request.pageSize;
-  query['ServicerIdList'] = request.servicerIdListShrink;
-  query['SortFieldList'] = request.sortFieldListShrink;
-  query['StartDate'] = request.startDate;
+  if (!Util.isUnset(request.currentPageNum)) {
+    query['CurrentPageNum'] = request.currentPageNum;
+  }
+  if (!Util.isUnset(request.departmentIdListShrink)) {
+    query['DepartmentIdList'] = request.departmentIdListShrink;
+  }
+  if (!Util.isUnset(request.endDate)) {
+    query['EndDate'] = request.endDate;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.servicerIdListShrink)) {
+    query['ServicerIdList'] = request.servicerIdListShrink;
+  }
+  if (!Util.isUnset(request.sortFieldListShrink)) {
+    query['SortFieldList'] = request.sortFieldListShrink;
+  }
+  if (!Util.isUnset(request.startDate)) {
+    query['StartDate'] = request.startDate;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -3601,24 +5643,60 @@ model QueryHotlineSessionResponse = {
 async function queryHotlineSessionWithOptions(request: QueryHotlineSessionRequest, runtime: Util.RuntimeOptions): QueryHotlineSessionResponse {
   Util.validateModel(request);
   var query = {};
-  query['Acid'] = request.acid;
-  query['CallResult'] = request.callResult;
-  query['CallType'] = request.callType;
-  query['CalledNumber'] = request.calledNumber;
-  query['CallingNumber'] = request.callingNumber;
-  query['GroupId'] = request.groupId;
-  query['GroupName'] = request.groupName;
-  query['InstanceId'] = request.instanceId;
-  query['MemberId'] = request.memberId;
-  query['MemberName'] = request.memberName;
-  query['PageNo'] = request.pageNo;
-  query['PageSize'] = request.pageSize;
-  query['Params'] = request.params;
-  query['QueryEndTime'] = request.queryEndTime;
-  query['QueryStartTime'] = request.queryStartTime;
-  query['RequestId'] = request.requestId;
-  query['ServicerId'] = request.servicerId;
-  query['ServicerName'] = request.servicerName;
+  if (!Util.isUnset(request.acid)) {
+    query['Acid'] = request.acid;
+  }
+  if (!Util.isUnset(request.callResult)) {
+    query['CallResult'] = request.callResult;
+  }
+  if (!Util.isUnset(request.callType)) {
+    query['CallType'] = request.callType;
+  }
+  if (!Util.isUnset(request.calledNumber)) {
+    query['CalledNumber'] = request.calledNumber;
+  }
+  if (!Util.isUnset(request.callingNumber)) {
+    query['CallingNumber'] = request.callingNumber;
+  }
+  if (!Util.isUnset(request.groupId)) {
+    query['GroupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.groupName)) {
+    query['GroupName'] = request.groupName;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.memberId)) {
+    query['MemberId'] = request.memberId;
+  }
+  if (!Util.isUnset(request.memberName)) {
+    query['MemberName'] = request.memberName;
+  }
+  if (!Util.isUnset(request.pageNo)) {
+    query['PageNo'] = request.pageNo;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.params)) {
+    query['Params'] = request.params;
+  }
+  if (!Util.isUnset(request.queryEndTime)) {
+    query['QueryEndTime'] = request.queryEndTime;
+  }
+  if (!Util.isUnset(request.queryStartTime)) {
+    query['QueryStartTime'] = request.queryStartTime;
+  }
+  if (!Util.isUnset(request.requestId)) {
+    query['RequestId'] = request.requestId;
+  }
+  if (!Util.isUnset(request.servicerId)) {
+    query['ServicerId'] = request.servicerId;
+  }
+  if (!Util.isUnset(request.servicerName)) {
+    query['ServicerName'] = request.servicerName;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -4032,11 +6110,21 @@ async function queryServicerByDepartmentAndMixNameWithOptions(tmpReq: QueryServi
     request.departmentIdListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.departmentIdList, 'DepartmentIdList', 'json');
   }
   var query = {};
-  query['CurrentPageNum'] = request.currentPageNum;
-  query['DepartmentIdList'] = request.departmentIdListShrink;
-  query['InstanceId'] = request.instanceId;
-  query['KeyWord'] = request.keyWord;
-  query['PageSize'] = request.pageSize;
+  if (!Util.isUnset(request.currentPageNum)) {
+    query['CurrentPageNum'] = request.currentPageNum;
+  }
+  if (!Util.isUnset(request.departmentIdListShrink)) {
+    query['DepartmentIdList'] = request.departmentIdListShrink;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.keyWord)) {
+    query['KeyWord'] = request.keyWord;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -4087,8 +6175,12 @@ model QueryServicerByIdResponse = {
 async function queryServicerByIdWithOptions(request: QueryServicerByIdRequest, runtime: Util.RuntimeOptions): QueryServicerByIdResponse {
   Util.validateModel(request);
   var query = {};
-  query['InstanceId'] = request.instanceId;
-  query['ServicerId'] = request.servicerId;
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.servicerId)) {
+    query['ServicerId'] = request.servicerId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -4146,13 +6238,27 @@ model QuerySkillGroupsResponse = {
 async function querySkillGroupsWithOptions(request: QuerySkillGroupsRequest, runtime: Util.RuntimeOptions): QuerySkillGroupsResponse {
   Util.validateModel(request);
   var query = {};
-  query['ClientToken'] = request.clientToken;
-  query['GroupId'] = request.groupId;
-  query['GroupName'] = request.groupName;
-  query['GroupType'] = request.groupType;
-  query['InstanceId'] = request.instanceId;
-  query['PageNo'] = request.pageNo;
-  query['PageSize'] = request.pageSize;
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.groupId)) {
+    query['GroupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.groupName)) {
+    query['GroupName'] = request.groupName;
+  }
+  if (!Util.isUnset(request.groupType)) {
+    query['GroupType'] = request.groupType;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.pageNo)) {
+    query['PageNo'] = request.pageNo;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -4250,9 +6356,15 @@ model QueryTicketCountResponse = {
 async function queryTicketCountWithOptions(request: QueryTicketCountRequest, runtime: Util.RuntimeOptions): QueryTicketCountResponse {
   Util.validateModel(request);
   var query = {};
-  query['ClientToken'] = request.clientToken;
-  query['InstanceId'] = request.instanceId;
-  query['OperatorId'] = request.operatorId;
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.operatorId)) {
+    query['OperatorId'] = request.operatorId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -4807,6 +6919,57 @@ async function sendOutboundCommandWithOptions(request: SendOutboundCommandReques
 async function sendOutboundCommand(request: SendOutboundCommandRequest): SendOutboundCommandResponse {
   var runtime = new Util.RuntimeOptions{};
   return sendOutboundCommandWithOptions(request, runtime);
+}
+
+model StartAgentMonitorRequest {
+  accountName?: string(name='AccountName', description='param2'),
+  callId?: string(name='CallId', description='param4'),
+  callerParentId?: long(name='CallerParentId', description='callerParentId'),
+  callerType?: string(name='CallerType', description='callerType'),
+  callerUid?: long(name='CallerUid', description='callerUid'),
+  clientToken?: string(name='ClientToken', description='clientToken'),
+  connectionId?: string(name='ConnectionId', description='param6'),
+  instanceId?: string(name='InstanceId', description='param1'),
+  jobId?: string(name='JobId', description='param5'),
+  requestId?: string(name='RequestId', description='requestId'),
+  stsTokenCallerUid?: long(name='StsTokenCallerUid', description='stsTokenCallerUid'),
+}
+
+model StartAgentMonitorResponseBody = {
+  code?: string(name='Code', description='code'),
+  message?: string(name='Message', description='message'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='success'),
+}
+
+model StartAgentMonitorResponse = {
+  headers: map[string]string(name='headers'),
+  body: StartAgentMonitorResponseBody(name='body'),
+}
+
+async function startAgentMonitorWithOptions(request: StartAgentMonitorRequest, runtime: Util.RuntimeOptions): StartAgentMonitorResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'StartAgentMonitor',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function startAgentMonitor(request: StartAgentMonitorRequest): StartAgentMonitorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return startAgentMonitorWithOptions(request, runtime);
 }
 
 model StartCallRequest {
@@ -5513,21 +7676,51 @@ model UpdateCustomerResponse = {
 async function updateCustomerWithOptions(request: UpdateCustomerRequest, runtime: Util.RuntimeOptions): UpdateCustomerResponse {
   Util.validateModel(request);
   var query = {};
-  query['BizType'] = request.bizType;
-  query['Contacter'] = request.contacter;
-  query['CustomerId'] = request.customerId;
-  query['Dingding'] = request.dingding;
-  query['Email'] = request.email;
-  query['Industry'] = request.industry;
-  query['InstanceId'] = request.instanceId;
-  query['ManagerName'] = request.managerName;
-  query['Name'] = request.name;
-  query['OuterId'] = request.outerId;
-  query['OuterIdType'] = request.outerIdType;
-  query['Phone'] = request.phone;
-  query['Position'] = request.position;
-  query['ProdLineId'] = request.prodLineId;
-  query['TypeCode'] = request.typeCode;
+  if (!Util.isUnset(request.bizType)) {
+    query['BizType'] = request.bizType;
+  }
+  if (!Util.isUnset(request.contacter)) {
+    query['Contacter'] = request.contacter;
+  }
+  if (!Util.isUnset(request.customerId)) {
+    query['CustomerId'] = request.customerId;
+  }
+  if (!Util.isUnset(request.dingding)) {
+    query['Dingding'] = request.dingding;
+  }
+  if (!Util.isUnset(request.email)) {
+    query['Email'] = request.email;
+  }
+  if (!Util.isUnset(request.industry)) {
+    query['Industry'] = request.industry;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.managerName)) {
+    query['ManagerName'] = request.managerName;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.outerId)) {
+    query['OuterId'] = request.outerId;
+  }
+  if (!Util.isUnset(request.outerIdType)) {
+    query['OuterIdType'] = request.outerIdType;
+  }
+  if (!Util.isUnset(request.phone)) {
+    query['Phone'] = request.phone;
+  }
+  if (!Util.isUnset(request.position)) {
+    query['Position'] = request.position;
+  }
+  if (!Util.isUnset(request.prodLineId)) {
+    query['ProdLineId'] = request.prodLineId;
+  }
+  if (!Util.isUnset(request.typeCode)) {
+    query['TypeCode'] = request.typeCode;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -5748,13 +7941,27 @@ model UpdateSkillGroupResponse = {
 async function updateSkillGroupWithOptions(request: UpdateSkillGroupRequest, runtime: Util.RuntimeOptions): UpdateSkillGroupResponse {
   Util.validateModel(request);
   var query = {};
-  query['ChannelType'] = request.channelType;
-  query['ClientToken'] = request.clientToken;
-  query['Description'] = request.description;
-  query['DisplayName'] = request.displayName;
-  query['InstanceId'] = request.instanceId;
-  query['SkillGroupId'] = request.skillGroupId;
-  query['SkillGroupName'] = request.skillGroupName;
+  if (!Util.isUnset(request.channelType)) {
+    query['ChannelType'] = request.channelType;
+  }
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.description)) {
+    query['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.displayName)) {
+    query['DisplayName'] = request.displayName;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.skillGroupId)) {
+    query['SkillGroupId'] = request.skillGroupId;
+  }
+  if (!Util.isUnset(request.skillGroupName)) {
+    query['SkillGroupName'] = request.skillGroupName;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -5836,6 +8043,228 @@ async function updateTicketWithOptions(request: UpdateTicketRequest, runtime: Ut
 async function updateTicket(request: UpdateTicketRequest): UpdateTicketResponse {
   var runtime = new Util.RuntimeOptions{};
   return updateTicketWithOptions(request, runtime);
+}
+
+model XspaceNextbotChatRequest {
+  channel?: string(name='Channel'),
+  conversationId?: string(name='ConversationId'),
+  instanceId?: string(name='InstanceId'),
+  knowledgeId?: string(name='KnowledgeId'),
+  question?: string(name='Question'),
+  robotId?: string(name='RobotId'),
+  senderId?: string(name='SenderId'),
+  senderNick?: string(name='SenderNick'),
+  sessionId?: string(name='SessionId'),
+  tenantId?: long(name='TenantId'),
+}
+
+model XspaceNextbotChatResponseBody = {
+  code?: string(name='Code'),
+  data?: string(name='Data'),
+  httpStatusCode?: long(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success'),
+}
+
+model XspaceNextbotChatResponse = {
+  headers: map[string]string(name='headers'),
+  body: XspaceNextbotChatResponseBody(name='body'),
+}
+
+async function xspaceNextbotChatWithOptions(request: XspaceNextbotChatRequest, runtime: Util.RuntimeOptions): XspaceNextbotChatResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.channel)) {
+    query['Channel'] = request.channel;
+  }
+  if (!Util.isUnset(request.conversationId)) {
+    query['ConversationId'] = request.conversationId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.knowledgeId)) {
+    query['KnowledgeId'] = request.knowledgeId;
+  }
+  if (!Util.isUnset(request.question)) {
+    query['Question'] = request.question;
+  }
+  if (!Util.isUnset(request.robotId)) {
+    query['RobotId'] = request.robotId;
+  }
+  if (!Util.isUnset(request.senderId)) {
+    query['SenderId'] = request.senderId;
+  }
+  if (!Util.isUnset(request.senderNick)) {
+    query['SenderNick'] = request.senderNick;
+  }
+  if (!Util.isUnset(request.sessionId)) {
+    query['SessionId'] = request.sessionId;
+  }
+  if (!Util.isUnset(request.tenantId)) {
+    query['TenantId'] = request.tenantId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'XspaceNextbotChat',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function xspaceNextbotChat(request: XspaceNextbotChatRequest): XspaceNextbotChatResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return xspaceNextbotChatWithOptions(request, runtime);
+}
+
+model XspaceNextbotCreatTenantRequest {
+  buId?: string(name='BuId'),
+  buName?: string(name='BuName'),
+  instanceId?: string(name='InstanceId'),
+}
+
+model XspaceNextbotCreatTenantResponseBody = {
+  code?: string(name='Code'),
+  data?: long(name='Data'),
+  httpStatusCode?: long(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success'),
+}
+
+model XspaceNextbotCreatTenantResponse = {
+  headers: map[string]string(name='headers'),
+  body: XspaceNextbotCreatTenantResponseBody(name='body'),
+}
+
+async function xspaceNextbotCreatTenantWithOptions(request: XspaceNextbotCreatTenantRequest, runtime: Util.RuntimeOptions): XspaceNextbotCreatTenantResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.buId)) {
+    query['BuId'] = request.buId;
+  }
+  if (!Util.isUnset(request.buName)) {
+    query['BuName'] = request.buName;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'XspaceNextbotCreatTenant',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function xspaceNextbotCreatTenant(request: XspaceNextbotCreatTenantRequest): XspaceNextbotCreatTenantResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return xspaceNextbotCreatTenantWithOptions(request, runtime);
+}
+
+model XspaceNextbotInitTenantRequest {
+  account?: string(name='Account'),
+  accountType?: string(name='AccountType'),
+  instanceId?: string(name='InstanceId'),
+  kwLibrary?: string(name='KwLibrary'),
+  productEndTime?: long(name='ProductEndTime'),
+  productStartTime?: long(name='ProductStartTime'),
+  productValidPeriod?: long(name='ProductValidPeriod'),
+  tenantDesc?: string(name='TenantDesc'),
+  tenantId?: string(name='TenantId'),
+  tenantName?: string(name='TenantName'),
+  version?: string(name='Version'),
+}
+
+model XspaceNextbotInitTenantResponseBody = {
+  code?: string(name='Code'),
+  data?: string(name='Data'),
+  httpStatusCode?: long(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success'),
+}
+
+model XspaceNextbotInitTenantResponse = {
+  headers: map[string]string(name='headers'),
+  body: XspaceNextbotInitTenantResponseBody(name='body'),
+}
+
+async function xspaceNextbotInitTenantWithOptions(request: XspaceNextbotInitTenantRequest, runtime: Util.RuntimeOptions): XspaceNextbotInitTenantResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.account)) {
+    query['Account'] = request.account;
+  }
+  if (!Util.isUnset(request.accountType)) {
+    query['AccountType'] = request.accountType;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.kwLibrary)) {
+    query['KwLibrary'] = request.kwLibrary;
+  }
+  if (!Util.isUnset(request.productEndTime)) {
+    query['ProductEndTime'] = request.productEndTime;
+  }
+  if (!Util.isUnset(request.productStartTime)) {
+    query['ProductStartTime'] = request.productStartTime;
+  }
+  if (!Util.isUnset(request.productValidPeriod)) {
+    query['ProductValidPeriod'] = request.productValidPeriod;
+  }
+  if (!Util.isUnset(request.tenantDesc)) {
+    query['TenantDesc'] = request.tenantDesc;
+  }
+  if (!Util.isUnset(request.tenantId)) {
+    query['TenantId'] = request.tenantId;
+  }
+  if (!Util.isUnset(request.tenantName)) {
+    query['TenantName'] = request.tenantName;
+  }
+  if (!Util.isUnset(request.version)) {
+    query['Version'] = request.version;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'XspaceNextbotInitTenant',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function xspaceNextbotInitTenant(request: XspaceNextbotInitTenantRequest): XspaceNextbotInitTenantResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return xspaceNextbotInitTenantWithOptions(request, runtime);
 }
 
 model CreateTicketWithBizDataRequest {
