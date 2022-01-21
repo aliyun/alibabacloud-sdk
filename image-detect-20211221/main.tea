@@ -1,0 +1,94 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('image-detect', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model DetectImageRequest {
+  imageUrl?: string(name='ImageUrl'),
+}
+
+model DetectImageResponseBody = {
+  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  response?: {
+    data?: {
+      info?: {
+        conf?: double(name='Conf'),
+        direction?: string(name='Direction'),
+      }(name='Info'),
+      results?: [ 
+        {
+          category?: [ string ](name='Category'),
+          conf?: [ double ](name='Conf'),
+          direction?: string(name='Direction'),
+          rect?: [ double ](name='Rect'),
+          taskType?: string(name='TaskType'),
+        }
+      ](name='Results'),
+    }(name='Data'),
+    errorCode?: int32(name='ErrorCode'),
+    errorMessage?: string(name='ErrorMessage'),
+    flag?: boolean(name='Flag'),
+  }(name='Response'),
+  success?: boolean(name='Success'),
+}
+
+model DetectImageResponse = {
+  headers: map[string]string(name='headers'),
+  body: DetectImageResponseBody(name='body'),
+}
+
+async function detectImageWithOptions(request: DetectImageRequest, runtime: Util.RuntimeOptions): DetectImageResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.imageUrl)) {
+    query['ImageUrl'] = request.imageUrl;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DetectImage',
+    version = '2021-12-21',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function detectImage(request: DetectImageRequest): DetectImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return detectImageWithOptions(request, runtime);
+}
+
