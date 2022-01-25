@@ -8,10 +8,10 @@ import EndpointUtil;
 
 extends OpenApi;
 
+
 init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
-  
   @endpointMap = {
     ap-northeast-1 = 'idrsservice.aliyuncs.com',
     ap-northeast-2-pop = 'idrsservice.aliyuncs.com',
@@ -68,6 +68,7 @@ init(config: OpenApi.Config){
     us-east-1 = 'idrsservice.aliyuncs.com',
     us-west-1 = 'idrsservice.aliyuncs.com',
   };
+
   checkConfig(config);
   @endpoint = getEndpoint('idrsservice', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -76,23 +77,88 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   if (!Util.empty(endpoint)) {
     return endpoint;
   }
-
+  
   if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+
+model AssociateRoomRequest {
+  appId?: string(name='AppId', description='质检应用id'),
+  clientVersion?: string(name='ClientVersion'),
+  departmentId?: string(name='DepartmentId', description='部门id'),
+  roomId?: string(name='RoomId', description='Mrtc房间id'),
+}
+
+model AssociateRoomResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: string(name='Data', description='数据'),
+  errors?: [ 
+    {
+      field?: string(name='Field'),
+      message?: string(name='Message'),
+    }
+  ](name='Errors', description='错误列表'),
+  httpCode?: int32(name='HttpCode'),
+  message?: string(name='Message', description='提示'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='给 pop 使用的'),
+}
+
+model AssociateRoomResponse = {
+  headers: map[string]string(name='headers'),
+  body: AssociateRoomResponseBody(name='body'),
+}
+
+async function associateRoomWithOptions(request: AssociateRoomRequest, runtime: Util.RuntimeOptions): AssociateRoomResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.clientVersion)) {
+    query['ClientVersion'] = request.clientVersion;
+  }
+  if (!Util.isUnset(request.departmentId)) {
+    query['DepartmentId'] = request.departmentId;
+  }
+  if (!Util.isUnset(request.roomId)) {
+    query['RoomId'] = request.roomId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'AssociateRoom',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function associateRoom(request: AssociateRoomRequest): AssociateRoomResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return associateRoomWithOptions(request, runtime);
+}
+
 model CheckServiceLinkedRoleRequest {
   roleName?: string(name='RoleName'),
 }
 
 model CheckServiceLinkedRoleResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     hasRole?: boolean(name='HasRole'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model CheckServiceLinkedRoleResponse = {
@@ -102,10 +168,25 @@ model CheckServiceLinkedRoleResponse = {
 
 async function checkServiceLinkedRoleWithOptions(request: CheckServiceLinkedRoleRequest, runtime: Util.RuntimeOptions): CheckServiceLinkedRoleResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.roleName)) {
+    query['RoleName'] = request.roleName;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('CheckServiceLinkedRole', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CheckServiceLinkedRole',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function checkServiceLinkedRole(request: CheckServiceLinkedRoleRequest): CheckServiceLinkedRoleResponse {
@@ -114,23 +195,23 @@ async function checkServiceLinkedRole(request: CheckServiceLinkedRoleRequest): C
 }
 
 model CreateAppRequest {
+  clientToken?: string(name='ClientToken'),
+  departmentId?: string(name='DepartmentId'),
   name?: string(name='Name'),
   packageName?: string(name='PackageName'),
-  departmentId?: string(name='DepartmentId'),
-  clientToken?: string(name='ClientToken'),
 }
 
 model CreateAppResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
+    createdAt?: string(name='CreatedAt'),
     creatorName?: string(name='CreatorName'),
     disabled?: boolean(name='Disabled'),
-    createdAt?: string(name='CreatedAt'),
-    name?: string(name='Name'),
     id?: string(name='Id'),
+    name?: string(name='Name'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model CreateAppResponse = {
@@ -140,10 +221,34 @@ model CreateAppResponse = {
 
 async function createAppWithOptions(request: CreateAppRequest, runtime: Util.RuntimeOptions): CreateAppResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.departmentId)) {
+    query['DepartmentId'] = request.departmentId;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.packageName)) {
+    query['PackageName'] = request.packageName;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('CreateApp', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateApp',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function createApp(request: CreateAppRequest): CreateAppResponse {
@@ -152,22 +257,22 @@ async function createApp(request: CreateAppRequest): CreateAppResponse {
 }
 
 model CreateDepartmentRequest {
+  clientToken?: string(name='ClientToken'),
   description?: string(name='Description'),
   label?: string(name='Label'),
   name?: string(name='Name'),
-  clientToken?: string(name='ClientToken'),
 }
 
 model CreateDepartmentResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    createdAt?: string(name='CreatedAt'),
+    description?: string(name='Description'),
+    id?: string(name='Id'),
+    name?: string(name='Name'),
+  }(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: {
-    description?: string(name='Description'),
-    createdAt?: string(name='CreatedAt'),
-    name?: string(name='Name'),
-    id?: string(name='Id'),
-  }(name='Data'),
-  code?: string(name='Code'),
 }
 
 model CreateDepartmentResponse = {
@@ -177,10 +282,34 @@ model CreateDepartmentResponse = {
 
 async function createDepartmentWithOptions(request: CreateDepartmentRequest, runtime: Util.RuntimeOptions): CreateDepartmentResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.description)) {
+    query['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.label)) {
+    query['Label'] = request.label;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('CreateDepartment', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateDepartment',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function createDepartment(request: CreateDepartmentRequest): CreateDepartmentResponse {
@@ -189,24 +318,24 @@ async function createDepartment(request: CreateDepartmentRequest): CreateDepartm
 }
 
 model CreateDetectProcessRequest {
-  name?: string(name='Name'),
-  draft?: string(name='Draft'),
   content?: string(name='Content'),
+  draft?: string(name='Draft'),
+  name?: string(name='Name'),
 }
 
 model CreateDetectProcessResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
-    draft?: string(name='Draft'),
+    content?: string(name='Content'),
     createdAt?: string(name='CreatedAt'),
     disabled?: boolean(name='Disabled'),
+    draft?: string(name='Draft'),
+    id?: string(name='Id'),
     md5?: string(name='Md5'),
     name?: string(name='Name'),
-    content?: string(name='Content'),
-    id?: string(name='Id'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model CreateDetectProcessResponse = {
@@ -216,10 +345,31 @@ model CreateDetectProcessResponse = {
 
 async function createDetectProcessWithOptions(request: CreateDetectProcessRequest, runtime: Util.RuntimeOptions): CreateDetectProcessResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.content)) {
+    query['Content'] = request.content;
+  }
+  if (!Util.isUnset(request.draft)) {
+    query['Draft'] = request.draft;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('CreateDetectProcess', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateDetectProcess',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function createDetectProcess(request: CreateDetectProcessRequest): CreateDetectProcessResponse {
@@ -228,23 +378,23 @@ async function createDetectProcess(request: CreateDetectProcessRequest): CreateD
 }
 
 model CreateLiveRequest {
+  appId?: string(name='AppId'),
+  clientToken?: string(name='ClientToken'),
   name?: string(name='Name'),
   rtcCode?: string(name='RtcCode'),
   userId?: string(name='UserId'),
-  clientToken?: string(name='ClientToken'),
-  appId?: string(name='AppId'),
 }
 
 model CreateLiveResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    channel?: string(name='Channel'),
+    createdAt?: string(name='CreatedAt'),
+    id?: string(name='Id'),
+    name?: string(name='Name'),
+  }(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: {
-    createdAt?: string(name='CreatedAt'),
-    channel?: string(name='Channel'),
-    name?: string(name='Name'),
-    id?: string(name='Id'),
-  }(name='Data'),
-  code?: string(name='Code'),
 }
 
 model CreateLiveResponse = {
@@ -254,10 +404,37 @@ model CreateLiveResponse = {
 
 async function createLiveWithOptions(request: CreateLiveRequest, runtime: Util.RuntimeOptions): CreateLiveResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.rtcCode)) {
+    query['RtcCode'] = request.rtcCode;
+  }
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('CreateLive', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateLive',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function createLive(request: CreateLiveRequest): CreateLiveResponse {
@@ -266,20 +443,20 @@ async function createLive(request: CreateLiveRequest): CreateLiveResponse {
 }
 
 model CreateLiveDetectionRequest {
-  liveId?: string(name='LiveId'),
-  userId?: string(name='UserId'),
-  ruleId?: string(name='RuleId'),
-  metaUrl?: string(name='MetaUrl'),
   clientToken?: string(name='ClientToken'),
+  liveId?: string(name='LiveId'),
+  metaUrl?: string(name='MetaUrl'),
+  ruleId?: string(name='RuleId'),
+  userId?: string(name='UserId'),
 }
 
 model CreateLiveDetectionResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     id?: string(name='Id'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model CreateLiveDetectionResponse = {
@@ -289,10 +466,37 @@ model CreateLiveDetectionResponse = {
 
 async function createLiveDetectionWithOptions(request: CreateLiveDetectionRequest, runtime: Util.RuntimeOptions): CreateLiveDetectionResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.liveId)) {
+    query['LiveId'] = request.liveId;
+  }
+  if (!Util.isUnset(request.metaUrl)) {
+    query['MetaUrl'] = request.metaUrl;
+  }
+  if (!Util.isUnset(request.ruleId)) {
+    query['RuleId'] = request.ruleId;
+  }
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('CreateLiveDetection', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateLiveDetection',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function createLiveDetection(request: CreateLiveDetectionRequest): CreateLiveDetectionResponse {
@@ -301,32 +505,18 @@ async function createLiveDetection(request: CreateLiveDetectionRequest): CreateL
 }
 
 model CreateLiveRecordTemplateRequest {
-  rtcCode?: string(name='RtcCode'),
-  name?: string(name='Name'),
   backgroundColor?: int32(name='BackgroundColor'),
   backgrounds?: [ 
     {
       display?: int32(name='Display'),
+      height?: float(name='Height'),
       url?: string(name='Url'),
       width?: float(name='Width'),
-      height?: float(name='Height'),
       x?: float(name='X'),
       y?: float(name='Y'),
       ZOrder?: int32(name='ZOrder'),
     }
   ](name='Backgrounds'),
-  watermarks?: [ 
-    {
-      alpha?: float(name='Alpha'),
-      display?: int32(name='Display'),
-      url?: string(name='Url'),
-      width?: float(name='Width'),
-      height?: float(name='Height'),
-      x?: float(name='X'),
-      y?: float(name='Y'),
-      ZOrder?: int32(name='ZOrder'),
-    }
-  ](name='Watermarks'),
   clockWidgets?: [ 
     {
       fontColor?: int32(name='FontColor'),
@@ -337,25 +527,41 @@ model CreateLiveRecordTemplateRequest {
       ZOrder?: int32(name='ZOrder'),
     }
   ](name='ClockWidgets'),
+  layoutIds?: [ string ](name='LayoutIds'),
+  name?: string(name='Name'),
+  rtcCode?: string(name='RtcCode'),
+  watermarks?: [ 
+    {
+      alpha?: float(name='Alpha'),
+      display?: int32(name='Display'),
+      height?: float(name='Height'),
+      url?: string(name='Url'),
+      width?: float(name='Width'),
+      x?: float(name='X'),
+      y?: float(name='Y'),
+      ZOrder?: int32(name='ZOrder'),
+    }
+  ](name='Watermarks'),
 }
 
 model CreateLiveRecordTemplateShrinkRequest {
-  rtcCode?: string(name='RtcCode'),
-  name?: string(name='Name'),
   backgroundColor?: int32(name='BackgroundColor'),
   backgroundsShrink?: string(name='Backgrounds'),
-  watermarksShrink?: string(name='Watermarks'),
   clockWidgetsShrink?: string(name='ClockWidgets'),
+  layoutIds?: [ string ](name='LayoutIds'),
+  name?: string(name='Name'),
+  rtcCode?: string(name='RtcCode'),
+  watermarksShrink?: string(name='Watermarks'),
 }
 
 model CreateLiveRecordTemplateResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     createdAt?: string(name='CreatedAt'),
     id?: string(name='Id'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model CreateLiveRecordTemplateResponse = {
@@ -370,16 +576,49 @@ async function createLiveRecordTemplateWithOptions(tmpReq: CreateLiveRecordTempl
   if (!Util.isUnset(tmpReq.backgrounds)) {
     request.backgroundsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.backgrounds, 'Backgrounds', 'json');
   }
-  if (!Util.isUnset(tmpReq.watermarks)) {
-    request.watermarksShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.watermarks, 'Watermarks', 'json');
-  }
   if (!Util.isUnset(tmpReq.clockWidgets)) {
     request.clockWidgetsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.clockWidgets, 'ClockWidgets', 'json');
   }
+  if (!Util.isUnset(tmpReq.watermarks)) {
+    request.watermarksShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.watermarks, 'Watermarks', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.backgroundColor)) {
+    query['BackgroundColor'] = request.backgroundColor;
+  }
+  if (!Util.isUnset(request.backgroundsShrink)) {
+    query['Backgrounds'] = request.backgroundsShrink;
+  }
+  if (!Util.isUnset(request.clockWidgetsShrink)) {
+    query['ClockWidgets'] = request.clockWidgetsShrink;
+  }
+  if (!Util.isUnset(request.layoutIds)) {
+    query['LayoutIds'] = request.layoutIds;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.rtcCode)) {
+    query['RtcCode'] = request.rtcCode;
+  }
+  if (!Util.isUnset(request.watermarksShrink)) {
+    query['Watermarks'] = request.watermarksShrink;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('CreateLiveRecordTemplate', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateLiveRecordTemplate',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function createLiveRecordTemplate(request: CreateLiveRecordTemplateRequest): CreateLiveRecordTemplateResponse {
@@ -388,20 +627,20 @@ async function createLiveRecordTemplate(request: CreateLiveRecordTemplateRequest
 }
 
 model CreateRuleRequest {
-  name?: string(name='Name'),
-  content?: string(name='Content'),
   clientToken?: string(name='ClientToken'),
+  content?: string(name='Content'),
+  name?: string(name='Name'),
 }
 
 model CreateRuleResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
-    name?: string(name='Name'),
     content?: string(name='Content'),
     id?: string(name='Id'),
+    name?: string(name='Name'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model CreateRuleResponse = {
@@ -411,10 +650,31 @@ model CreateRuleResponse = {
 
 async function createRuleWithOptions(request: CreateRuleRequest, runtime: Util.RuntimeOptions): CreateRuleResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.content)) {
+    query['Content'] = request.content;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('CreateRule', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateRule',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function createRule(request: CreateRuleRequest): CreateRuleResponse {
@@ -422,19 +682,91 @@ async function createRule(request: CreateRuleRequest): CreateRuleResponse {
   return createRuleWithOptions(request, runtime);
 }
 
+model CreateSignatureRequest {
+  appId?: string(name='AppId', description='质检应用Id'),
+  clientVersion?: string(name='ClientVersion'),
+  expireTime?: long(name='ExpireTime', description='过期时间，单位秒，默认时间300s'),
+  uid?: string(name='Uid', description='rtc用户id'),
+}
+
+model CreateSignatureResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: {
+    expireTime?: string(name='ExpireTime'),
+    rtcAppId?: string(name='RtcAppId'),
+    rtcBizName?: string(name='RtcBizName'),
+    rtcSign?: string(name='RtcSign'),
+    rtcWorkspaceId?: string(name='RtcWorkspaceId'),
+  }(name='Data', description='数据'),
+  errors?: [ 
+    {
+      field?: string(name='Field'),
+      message?: string(name='Message'),
+    }
+  ](name='Errors', description='错误列表'),
+  httpCode?: int32(name='HttpCode'),
+  message?: string(name='Message', description='提示'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='给 pop 使用的'),
+}
+
+model CreateSignatureResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateSignatureResponseBody(name='body'),
+}
+
+async function createSignatureWithOptions(request: CreateSignatureRequest, runtime: Util.RuntimeOptions): CreateSignatureResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.clientVersion)) {
+    query['ClientVersion'] = request.clientVersion;
+  }
+  if (!Util.isUnset(request.expireTime)) {
+    query['ExpireTime'] = request.expireTime;
+  }
+  if (!Util.isUnset(request.uid)) {
+    query['Uid'] = request.uid;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateSignature',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createSignature(request: CreateSignatureRequest): CreateSignatureResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createSignatureWithOptions(request, runtime);
+}
+
 model CreateStatisticsRecordRequest {
-  deviceId?: string(name='DeviceId'),
   appId?: string(name='AppId'),
-  deviceType?: int32(name='DeviceType'),
   beginAt?: string(name='BeginAt'),
-  endAt?: string(name='EndAt'),
   clientToken?: string(name='ClientToken'),
+  clientVersion?: string(name='ClientVersion'),
+  deviceId?: string(name='DeviceId'),
+  deviceType?: int32(name='DeviceType'),
+  endAt?: string(name='EndAt'),
+  type?: string(name='Type'),
 }
 
 model CreateStatisticsRecordResponseBody = {
+  code?: string(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  code?: string(name='Code'),
 }
 
 model CreateStatisticsRecordResponse = {
@@ -444,10 +776,46 @@ model CreateStatisticsRecordResponse = {
 
 async function createStatisticsRecordWithOptions(request: CreateStatisticsRecordRequest, runtime: Util.RuntimeOptions): CreateStatisticsRecordResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.beginAt)) {
+    query['BeginAt'] = request.beginAt;
+  }
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.clientVersion)) {
+    query['ClientVersion'] = request.clientVersion;
+  }
+  if (!Util.isUnset(request.deviceId)) {
+    query['DeviceId'] = request.deviceId;
+  }
+  if (!Util.isUnset(request.deviceType)) {
+    query['DeviceType'] = request.deviceType;
+  }
+  if (!Util.isUnset(request.endAt)) {
+    query['EndAt'] = request.endAt;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['Type'] = request.type;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('CreateStatisticsRecord', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateStatisticsRecord',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function createStatisticsRecord(request: CreateStatisticsRecordRequest): CreateStatisticsRecordResponse {
@@ -456,16 +824,16 @@ async function createStatisticsRecord(request: CreateStatisticsRecordRequest): C
 }
 
 model CreateStatisticsTaskRequest {
+  clientToken?: string(name='ClientToken'),
   dateFrom?: string(name='DateFrom'),
   dateTo?: string(name='DateTo'),
-  clientToken?: string(name='ClientToken'),
   departmentId?: [ string ](name='DepartmentId'),
 }
 
 model CreateStatisticsTaskResponseBody = {
+  code?: string(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  code?: string(name='Code'),
 }
 
 model CreateStatisticsTaskResponse = {
@@ -475,10 +843,34 @@ model CreateStatisticsTaskResponse = {
 
 async function createStatisticsTaskWithOptions(request: CreateStatisticsTaskRequest, runtime: Util.RuntimeOptions): CreateStatisticsTaskResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.dateFrom)) {
+    query['DateFrom'] = request.dateFrom;
+  }
+  if (!Util.isUnset(request.dateTo)) {
+    query['DateTo'] = request.dateTo;
+  }
+  if (!Util.isUnset(request.departmentId)) {
+    query['DepartmentId'] = request.departmentId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('CreateStatisticsTask', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateStatisticsTask',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function createStatisticsTask(request: CreateStatisticsTaskRequest): CreateStatisticsTaskResponse {
@@ -488,32 +880,33 @@ async function createStatisticsTask(request: CreateStatisticsTaskRequest): Creat
 
 model CreateTaskGroupRequest {
   appId?: string(name='AppId'),
+  clientToken?: string(name='ClientToken'),
+  day?: [ int32 ](name='Day'),
   expireAt?: string(name='ExpireAt'),
   groupName?: string(name='GroupName'),
   ruleId?: string(name='RuleId'),
   runnableTimeFrom?: string(name='RunnableTimeFrom'),
   runnableTimeTo?: string(name='RunnableTimeTo'),
   triggerPeriod?: string(name='TriggerPeriod'),
-  clientToken?: string(name='ClientToken'),
-  day?: [ integer ](name='Day'),
+  videoMetaUrl?: [ string ](name='VideoMetaUrl'),
   videoUrl?: [ string ](name='VideoUrl'),
 }
 
 model CreateTaskGroupResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
-    status?: string(name='Status'),
     completedTasks?: int32(name='CompletedTasks'),
-    totalTasks?: int32(name='TotalTasks'),
     createdAt?: string(name='CreatedAt'),
-    name?: string(name='Name'),
-    taskIds?: [ string ](name='TaskIds'),
     id?: string(name='Id'),
+    name?: string(name='Name'),
     ruleId?: string(name='RuleId'),
     ruleName?: string(name='RuleName'),
+    status?: string(name='Status'),
+    taskIds?: [ string ](name='TaskIds'),
+    totalTasks?: int32(name='TotalTasks'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model CreateTaskGroupResponse = {
@@ -523,10 +916,55 @@ model CreateTaskGroupResponse = {
 
 async function createTaskGroupWithOptions(request: CreateTaskGroupRequest, runtime: Util.RuntimeOptions): CreateTaskGroupResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.day)) {
+    query['Day'] = request.day;
+  }
+  if (!Util.isUnset(request.expireAt)) {
+    query['ExpireAt'] = request.expireAt;
+  }
+  if (!Util.isUnset(request.groupName)) {
+    query['GroupName'] = request.groupName;
+  }
+  if (!Util.isUnset(request.ruleId)) {
+    query['RuleId'] = request.ruleId;
+  }
+  if (!Util.isUnset(request.runnableTimeFrom)) {
+    query['RunnableTimeFrom'] = request.runnableTimeFrom;
+  }
+  if (!Util.isUnset(request.runnableTimeTo)) {
+    query['RunnableTimeTo'] = request.runnableTimeTo;
+  }
+  if (!Util.isUnset(request.triggerPeriod)) {
+    query['TriggerPeriod'] = request.triggerPeriod;
+  }
+  if (!Util.isUnset(request.videoMetaUrl)) {
+    query['VideoMetaUrl'] = request.videoMetaUrl;
+  }
+  if (!Util.isUnset(request.videoUrl)) {
+    query['VideoUrl'] = request.videoUrl;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('CreateTaskGroup', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateTaskGroup',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function createTaskGroup(request: CreateTaskGroupRequest): CreateTaskGroupResponse {
@@ -535,16 +973,16 @@ async function createTaskGroup(request: CreateTaskGroupRequest): CreateTaskGroup
 }
 
 model CreateUserDepartmentsRequest {
-  userId?: [ string ](name='UserId'),
-  departmentId?: [ string ](name='DepartmentId'),
   clientToken?: string(name='ClientToken'),
+  departmentId?: [ string ](name='DepartmentId'),
+  userId?: [ string ](name='UserId'),
 }
 
 model CreateUserDepartmentsResponseBody = {
+  code?: string(name='Code'),
+  data?: map[string]any(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: map[string]any(name='Data'),
-  code?: string(name='Code'),
 }
 
 model CreateUserDepartmentsResponse = {
@@ -554,10 +992,31 @@ model CreateUserDepartmentsResponse = {
 
 async function createUserDepartmentsWithOptions(request: CreateUserDepartmentsRequest, runtime: Util.RuntimeOptions): CreateUserDepartmentsResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.departmentId)) {
+    query['DepartmentId'] = request.departmentId;
+  }
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('CreateUserDepartments', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateUserDepartments',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function createUserDepartments(request: CreateUserDepartmentsRequest): CreateUserDepartmentsResponse {
@@ -565,15 +1024,76 @@ async function createUserDepartments(request: CreateUserDepartmentsRequest): Cre
   return createUserDepartmentsWithOptions(request, runtime);
 }
 
+model CreateWatermarkRequest {
+  name?: string(name='Name'),
+  value?: string(name='Value'),
+}
+
+model CreateWatermarkResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: {
+    createdAt?: string(name='CreatedAt', description='创建时间'),
+    id?: string(name='Id', description='水印id'),
+    name?: string(name='Name', description='水印名称'),
+    value?: string(name='Value', description='水印信息'),
+  }(name='Data', description='数据'),
+  errors?: [ 
+    {
+      field?: string(name='Field'),
+      message?: string(name='Message'),
+    }
+  ](name='Errors', description='错误列表'),
+  httpCode?: int32(name='HttpCode'),
+  message?: string(name='Message', description='提示'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='给 pop 使用的'),
+}
+
+model CreateWatermarkResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateWatermarkResponseBody(name='body'),
+}
+
+async function createWatermarkWithOptions(request: CreateWatermarkRequest, runtime: Util.RuntimeOptions): CreateWatermarkResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.value)) {
+    query['Value'] = request.value;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateWatermark',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createWatermark(request: CreateWatermarkRequest): CreateWatermarkResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createWatermarkWithOptions(request, runtime);
+}
+
 model DeleteAppRequest {
   id?: string(name='Id'),
 }
 
 model DeleteAppResponseBody = {
+  code?: string(name='Code'),
+  data?: map[string]any(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: map[string]any(name='Data'),
-  code?: string(name='Code'),
 }
 
 model DeleteAppResponse = {
@@ -583,10 +1103,25 @@ model DeleteAppResponse = {
 
 async function deleteAppWithOptions(request: DeleteAppRequest, runtime: Util.RuntimeOptions): DeleteAppResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('DeleteApp', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'DeleteApp',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function deleteApp(request: DeleteAppRequest): DeleteAppResponse {
@@ -599,10 +1134,10 @@ model DeleteDepartmentRequest {
 }
 
 model DeleteDepartmentResponseBody = {
+  code?: string(name='Code'),
+  data?: map[string]any(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: map[string]any(name='Data'),
-  code?: string(name='Code'),
 }
 
 model DeleteDepartmentResponse = {
@@ -612,10 +1147,25 @@ model DeleteDepartmentResponse = {
 
 async function deleteDepartmentWithOptions(request: DeleteDepartmentRequest, runtime: Util.RuntimeOptions): DeleteDepartmentResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('DeleteDepartment', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'DeleteDepartment',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function deleteDepartment(request: DeleteDepartmentRequest): DeleteDepartmentResponse {
@@ -628,10 +1178,10 @@ model DeleteDetectProcessRequest {
 }
 
 model DeleteDetectProcessResponseBody = {
+  code?: string(name='Code'),
+  data?: map[string]any(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: map[string]any(name='Data'),
-  code?: string(name='Code'),
 }
 
 model DeleteDetectProcessResponse = {
@@ -641,10 +1191,25 @@ model DeleteDetectProcessResponse = {
 
 async function deleteDetectProcessWithOptions(request: DeleteDetectProcessRequest, runtime: Util.RuntimeOptions): DeleteDetectProcessResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('DeleteDetectProcess', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'DeleteDetectProcess',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function deleteDetectProcess(request: DeleteDetectProcessRequest): DeleteDetectProcessResponse {
@@ -657,10 +1222,10 @@ model DeleteLiveRecordTemplateRequest {
 }
 
 model DeleteLiveRecordTemplateResponseBody = {
+  code?: string(name='Code'),
+  data?: map[string]any(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: map[string]any(name='Data'),
-  code?: string(name='Code'),
 }
 
 model DeleteLiveRecordTemplateResponse = {
@@ -670,10 +1235,25 @@ model DeleteLiveRecordTemplateResponse = {
 
 async function deleteLiveRecordTemplateWithOptions(request: DeleteLiveRecordTemplateRequest, runtime: Util.RuntimeOptions): DeleteLiveRecordTemplateResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('DeleteLiveRecordTemplate', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'DeleteLiveRecordTemplate',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function deleteLiveRecordTemplate(request: DeleteLiveRecordTemplateRequest): DeleteLiveRecordTemplateResponse {
@@ -686,15 +1266,15 @@ model DeleteRuleRequest {
 }
 
 model DeleteRuleResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    content?: string(name='Content'),
+    createdAt?: string(name='CreatedAt'),
+    id?: string(name='Id'),
+    name?: string(name='Name'),
+  }(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: {
-    createdAt?: string(name='CreatedAt'),
-    name?: string(name='Name'),
-    content?: string(name='Content'),
-    id?: string(name='Id'),
-  }(name='Data'),
-  code?: string(name='Code'),
 }
 
 model DeleteRuleResponse = {
@@ -704,10 +1284,25 @@ model DeleteRuleResponse = {
 
 async function deleteRuleWithOptions(request: DeleteRuleRequest, runtime: Util.RuntimeOptions): DeleteRuleResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('DeleteRule', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'DeleteRule',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function deleteRule(request: DeleteRuleRequest): DeleteRuleResponse {
@@ -720,16 +1315,16 @@ model DeleteUserRequest {
 }
 
 model DeleteUserResponseBody = {
+  code?: string(name='Code'),
+  data?: map[string]any(name='Data'),
   errors?: [ 
     {
-      message?: string(name='Message'),
       field?: string(name='Field'),
+      message?: string(name='Message'),
     }
   ](name='Errors'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: map[string]any(name='Data'),
-  code?: string(name='Code'),
 }
 
 model DeleteUserResponse = {
@@ -739,10 +1334,25 @@ model DeleteUserResponse = {
 
 async function deleteUserWithOptions(request: DeleteUserRequest, runtime: Util.RuntimeOptions): DeleteUserResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('DeleteUser', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'DeleteUser',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function deleteUser(request: DeleteUserRequest): DeleteUserResponse {
@@ -751,15 +1361,15 @@ async function deleteUser(request: DeleteUserRequest): DeleteUserResponse {
 }
 
 model DeleteUserDepartmentsRequest {
-  userId?: [ string ](name='UserId'),
   departmentId?: [ string ](name='DepartmentId'),
+  userId?: [ string ](name='UserId'),
 }
 
 model DeleteUserDepartmentsResponseBody = {
+  code?: string(name='Code'),
+  data?: map[string]any(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: map[string]any(name='Data'),
-  code?: string(name='Code'),
 }
 
 model DeleteUserDepartmentsResponse = {
@@ -769,10 +1379,30 @@ model DeleteUserDepartmentsResponse = {
 
 async function deleteUserDepartmentsWithOptions(request: DeleteUserDepartmentsRequest, runtime: Util.RuntimeOptions): DeleteUserDepartmentsResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.departmentId)) {
+    query['DepartmentId'] = request.departmentId;
+  }
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.userId)) {
+    body['UserId'] = request.userId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('DeleteUserDepartments', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'DeleteUserDepartments',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function deleteUserDepartments(request: DeleteUserDepartmentsRequest): DeleteUserDepartmentsResponse {
@@ -780,19 +1410,76 @@ async function deleteUserDepartments(request: DeleteUserDepartmentsRequest): Del
   return deleteUserDepartmentsWithOptions(request, runtime);
 }
 
+model DeleteWatermarkRequest {
+  watermarkId?: string(name='WatermarkId'),
+}
+
+model DeleteWatermarkResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: {
+    createdAt?: string(name='CreatedAt', description='创建时间'),
+    id?: string(name='Id', description='水印id'),
+    name?: string(name='Name', description='水印名称'),
+    value?: string(name='Value', description='水印信息'),
+  }(name='Data', description='数据'),
+  errors?: [ 
+    {
+      field?: string(name='Field'),
+      message?: string(name='Message'),
+    }
+  ](name='Errors', description='错误列表'),
+  httpCode?: int32(name='HttpCode'),
+  message?: string(name='Message', description='提示'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='给 pop 使用的'),
+}
+
+model DeleteWatermarkResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteWatermarkResponseBody(name='body'),
+}
+
+async function deleteWatermarkWithOptions(request: DeleteWatermarkRequest, runtime: Util.RuntimeOptions): DeleteWatermarkResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.watermarkId)) {
+    query['WatermarkId'] = request.watermarkId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteWatermark',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deleteWatermark(request: DeleteWatermarkRequest): DeleteWatermarkResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteWatermarkWithOptions(request, runtime);
+}
+
 model ExitLiveRequest {
   channel?: string(name='Channel'),
-  userId?: string(name='UserId'),
   rtcCode?: string(name='RtcCode'),
+  userId?: string(name='UserId'),
 }
 
 model ExitLiveResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     code?: int32(name='Code'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model ExitLiveResponse = {
@@ -802,10 +1489,31 @@ model ExitLiveResponse = {
 
 async function exitLiveWithOptions(request: ExitLiveRequest, runtime: Util.RuntimeOptions): ExitLiveResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.channel)) {
+    query['Channel'] = request.channel;
+  }
+  if (!Util.isUnset(request.rtcCode)) {
+    query['RtcCode'] = request.rtcCode;
+  }
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('ExitLive', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ExitLive',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function exitLive(request: ExitLiveRequest): ExitLiveResponse {
@@ -814,20 +1522,22 @@ async function exitLive(request: ExitLiveRequest): ExitLiveResponse {
 }
 
 model GetAppRequest {
+  clientVersion?: string(name='ClientVersion'),
+  deviceId?: string(name='DeviceId'),
   id?: string(name='Id'),
   packageName?: string(name='PackageName'),
-  deviceId?: string(name='DeviceId'),
 }
 
 model GetAppResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
+    config?: string(name='Config'),
     createdAt?: int32(name='CreatedAt'),
     disabled?: string(name='Disabled'),
     name?: string(name='Name'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model GetAppResponse = {
@@ -837,10 +1547,34 @@ model GetAppResponse = {
 
 async function getAppWithOptions(request: GetAppRequest, runtime: Util.RuntimeOptions): GetAppResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clientVersion)) {
+    query['ClientVersion'] = request.clientVersion;
+  }
+  if (!Util.isUnset(request.deviceId)) {
+    query['DeviceId'] = request.deviceId;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.packageName)) {
+    query['PackageName'] = request.packageName;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('GetApp', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetApp',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getApp(request: GetAppRequest): GetAppResponse {
@@ -853,10 +1587,10 @@ model GetBatchSignedUrlRequest {
 }
 
 model GetBatchSignedUrlResponseBody = {
+  code?: string(name='Code'),
+  data?: [ string ](name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: [ string ](name='Data'),
-  code?: string(name='Code'),
 }
 
 model GetBatchSignedUrlResponse = {
@@ -866,10 +1600,25 @@ model GetBatchSignedUrlResponse = {
 
 async function getBatchSignedUrlWithOptions(request: GetBatchSignedUrlRequest, runtime: Util.RuntimeOptions): GetBatchSignedUrlResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.fileUrlList)) {
+    query['FileUrlList'] = request.fileUrlList;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('GetBatchSignedUrl', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetBatchSignedUrl',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getBatchSignedUrl(request: GetBatchSignedUrlRequest): GetBatchSignedUrlResponse {
@@ -882,16 +1631,16 @@ model GetDepartmentRequest {
 }
 
 model GetDepartmentResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    createdAt?: string(name='CreatedAt'),
+    description?: string(name='Description'),
+    id?: string(name='Id'),
+    name?: string(name='Name'),
+    updatedAt?: string(name='UpdatedAt'),
+  }(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: {
-    description?: string(name='Description'),
-    createdAt?: string(name='CreatedAt'),
-    updatedAt?: string(name='UpdatedAt'),
-    name?: string(name='Name'),
-    id?: string(name='Id'),
-  }(name='Data'),
-  code?: string(name='Code'),
 }
 
 model GetDepartmentResponse = {
@@ -901,10 +1650,25 @@ model GetDepartmentResponse = {
 
 async function getDepartmentWithOptions(request: GetDepartmentRequest, runtime: Util.RuntimeOptions): GetDepartmentResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('GetDepartment', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetDepartment',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getDepartment(request: GetDepartmentRequest): GetDepartmentResponse {
@@ -913,27 +1677,27 @@ async function getDepartment(request: GetDepartmentRequest): GetDepartmentRespon
 }
 
 model GetDetectEvaluationRequest {
-  startTime?: string(name='StartTime'),
   endTime?: string(name='EndTime'),
+  startTime?: string(name='StartTime'),
 }
 
 model GetDetectEvaluationResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: [ 
     {
       day?: string(name='Day'),
       evaluationItemList?: [ 
         {
-          successRate?: string(name='SuccessRate'),
           handleCount?: int32(name='HandleCount'),
           name?: string(name='Name'),
           successCount?: int32(name='SuccessCount'),
+          successRate?: string(name='SuccessRate'),
         }
       ](name='EvaluationItemList'),
     }
   ](name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model GetDetectEvaluationResponse = {
@@ -943,10 +1707,28 @@ model GetDetectEvaluationResponse = {
 
 async function getDetectEvaluationWithOptions(request: GetDetectEvaluationRequest, runtime: Util.RuntimeOptions): GetDetectEvaluationResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['StartTime'] = request.startTime;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('GetDetectEvaluation', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetDetectEvaluation',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getDetectEvaluation(request: GetDetectEvaluationRequest): GetDetectEvaluationResponse {
@@ -954,71 +1736,24 @@ async function getDetectEvaluation(request: GetDetectEvaluationRequest): GetDete
   return getDetectEvaluationWithOptions(request, runtime);
 }
 
-model GetDetectionRequest {
-  id?: string(name='Id'),
-}
-
-model GetDetectionResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-  data?: {
-    status?: string(name='Status'),
-    departmentName?: string(name='DepartmentName'),
-    tasks?: [ 
-      {
-        status?: string(name='Status'),
-        videoMetaUrl?: string(name='VideoMetaUrl'),
-        createdAt?: string(name='CreatedAt'),
-        id?: string(name='Id'),
-        videoUrl?: string(name='VideoUrl'),
-      }
-    ](name='Tasks'),
-    recordingType?: string(name='RecordingType'),
-    createdAt?: string(name='CreatedAt'),
-    departmentId?: string(name='DepartmentId'),
-    id?: string(name='Id'),
-    ruleName?: string(name='RuleName'),
-    ruleId?: string(name='RuleId'),
-  }(name='Data'),
-  code?: string(name='Code'),
-}
-
-model GetDetectionResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetDetectionResponseBody(name='body'),
-}
-
-async function getDetectionWithOptions(request: GetDetectionRequest, runtime: Util.RuntimeOptions): GetDetectionResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('GetDetection', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function getDetection(request: GetDetectionRequest): GetDetectionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getDetectionWithOptions(request, runtime);
-}
-
 model GetDetectProcessRequest {
   id?: string(name='Id'),
 }
 
 model GetDetectProcessResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
-    draft?: string(name='Draft'),
+    content?: string(name='Content'),
     createdAt?: string(name='CreatedAt'),
+    draft?: string(name='Draft'),
+    id?: string(name='Id'),
     md5?: string(name='Md5'),
-    updatedAt?: string(name='UpdatedAt'),
     name?: string(name='Name'),
     newVersion?: boolean(name='NewVersion'),
-    content?: string(name='Content'),
-    id?: string(name='Id'),
+    updatedAt?: string(name='UpdatedAt'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model GetDetectProcessResponse = {
@@ -1028,10 +1763,25 @@ model GetDetectProcessResponse = {
 
 async function getDetectProcessWithOptions(request: GetDetectProcessRequest, runtime: Util.RuntimeOptions): GetDetectProcessResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('GetDetectProcess', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetDetectProcess',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getDetectProcess(request: GetDetectProcessRequest): GetDetectProcessResponse {
@@ -1044,10 +1794,10 @@ model GetDetectProcessJsonFileRequest {
 }
 
 model GetDetectProcessJsonFileResponseBody = {
+  code?: string(name='Code'),
+  data?: string(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: string(name='Data'),
-  code?: string(name='Code'),
 }
 
 model GetDetectProcessJsonFileResponse = {
@@ -1057,10 +1807,25 @@ model GetDetectProcessJsonFileResponse = {
 
 async function getDetectProcessJsonFileWithOptions(request: GetDetectProcessJsonFileRequest, runtime: Util.RuntimeOptions): GetDetectProcessJsonFileResponse {
   Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.id)) {
+    body['Id'] = request.id;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('GetDetectProcessJsonFile', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetDetectProcessJsonFile',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getDetectProcessJsonFile(request: GetDetectProcessJsonFileRequest): GetDetectProcessJsonFileResponse {
@@ -1069,10 +1834,10 @@ async function getDetectProcessJsonFile(request: GetDetectProcessJsonFileRequest
 }
 
 model GetDetectProcessTemplateResponseBody = {
+  code?: string(name='Code'),
+  data?: string(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: string(name='Data'),
-  code?: string(name='Code'),
 }
 
 model GetDetectProcessTemplateResponse = {
@@ -1082,7 +1847,18 @@ model GetDetectProcessTemplateResponse = {
 
 async function getDetectProcessTemplateWithOptions(runtime: Util.RuntimeOptions): GetDetectProcessTemplateResponse {
   var req = new OpenApi.OpenApiRequest{};
-  return doRPCRequest('GetDetectProcessTemplate', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetDetectProcessTemplate',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getDetectProcessTemplate(): GetDetectProcessTemplateResponse {
@@ -1090,15 +1866,77 @@ async function getDetectProcessTemplate(): GetDetectProcessTemplateResponse {
   return getDetectProcessTemplateWithOptions(runtime);
 }
 
+model GetDetectionRequest {
+  id?: string(name='Id'),
+}
+
+model GetDetectionResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    createdAt?: string(name='CreatedAt'),
+    departmentId?: string(name='DepartmentId'),
+    departmentName?: string(name='DepartmentName'),
+    id?: string(name='Id'),
+    recordingType?: string(name='RecordingType'),
+    ruleId?: string(name='RuleId'),
+    ruleName?: string(name='RuleName'),
+    status?: string(name='Status'),
+    tasks?: [ 
+      {
+        createdAt?: string(name='CreatedAt'),
+        id?: string(name='Id'),
+        status?: string(name='Status'),
+        videoMetaUrl?: string(name='VideoMetaUrl'),
+        videoUrl?: string(name='VideoUrl'),
+      }
+    ](name='Tasks'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+}
+
+model GetDetectionResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetDetectionResponseBody(name='body'),
+}
+
+async function getDetectionWithOptions(request: GetDetectionRequest, runtime: Util.RuntimeOptions): GetDetectionResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetDetection',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getDetection(request: GetDetectionRequest): GetDetectionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getDetectionWithOptions(request, runtime);
+}
+
 model GetGlobalConfigRequest {
   name?: string(name='Name'),
 }
 
 model GetGlobalConfigResponseBody = {
+  code?: string(name='Code'),
+  data?: string(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: string(name='Data'),
-  code?: string(name='Code'),
 }
 
 model GetGlobalConfigResponse = {
@@ -1108,10 +1946,25 @@ model GetGlobalConfigResponse = {
 
 async function getGlobalConfigWithOptions(request: GetGlobalConfigRequest, runtime: Util.RuntimeOptions): GetGlobalConfigResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('GetGlobalConfig', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetGlobalConfig',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getGlobalConfig(request: GetGlobalConfigRequest): GetGlobalConfigResponse {
@@ -1124,49 +1977,50 @@ model GetLiveRecordTemplateRequest {
 }
 
 model GetLiveRecordTemplateResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
-    createdAt?: int32(name='CreatedAt'),
-    disabled?: string(name='Disabled'),
-    name?: string(name='Name'),
-    id?: string(name='Id'),
-    rtcCode?: string(name='RtcCode'),
-    description?: string(name='Description'),
     backgrounds?: [ 
       {
         display?: long(name='Display'),
+        height?: float(name='Height'),
+        width?: float(name='Width'),
         x?: float(name='X'),
         y?: float(name='Y'),
-        width?: float(name='Width'),
-        height?: float(name='Height'),
         ZOrder?: long(name='ZOrder'),
       }
     ](name='Backgrounds'),
-    watermarks?: [ 
-      {
-        url?: string(name='Url'),
-        alpha?: float(name='Alpha'),
-        display?: long(name='Display'),
-        x?: float(name='X'),
-        y?: float(name='Y'),
-        width?: float(name='Width'),
-        height?: float(name='Height'),
-        ZOrder?: long(name='ZOrder'),
-      }
-    ](name='Watermarks'),
     clockWidgets?: [ 
       {
-        fontType?: long(name='FontType'),
-        fontSize?: long(name='FontSize'),
         fontColor?: long(name='FontColor'),
+        fontSize?: long(name='FontSize'),
+        fontType?: long(name='FontType'),
         x?: float(name='X'),
         y?: float(name='Y'),
         ZOrder?: long(name='ZOrder'),
       }
     ](name='ClockWidgets'),
+    createdAt?: int32(name='CreatedAt'),
+    description?: string(name='Description'),
+    disabled?: string(name='Disabled'),
+    id?: string(name='Id'),
+    layoutIds?: [ bytes ](name='LayoutIds'),
+    name?: string(name='Name'),
+    rtcCode?: string(name='RtcCode'),
+    watermarks?: [ 
+      {
+        alpha?: float(name='Alpha'),
+        display?: long(name='Display'),
+        height?: float(name='Height'),
+        url?: string(name='Url'),
+        width?: float(name='Width'),
+        x?: float(name='X'),
+        y?: float(name='Y'),
+        ZOrder?: long(name='ZOrder'),
+      }
+    ](name='Watermarks'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model GetLiveRecordTemplateResponse = {
@@ -1176,10 +2030,25 @@ model GetLiveRecordTemplateResponse = {
 
 async function getLiveRecordTemplateWithOptions(request: GetLiveRecordTemplateRequest, runtime: Util.RuntimeOptions): GetLiveRecordTemplateResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('GetLiveRecordTemplate', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetLiveRecordTemplate',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getLiveRecordTemplate(request: GetLiveRecordTemplateRequest): GetLiveRecordTemplateResponse {
@@ -1192,16 +2061,16 @@ model GetModelSignedUrlRequest {
 }
 
 model GetModelSignedUrlResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: [ 
     {
-      publicUrl?: string(name='PublicUrl'),
       md5?: string(name='Md5'),
       modelPath?: string(name='ModelPath'),
+      publicUrl?: string(name='PublicUrl'),
     }
   ](name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model GetModelSignedUrlResponse = {
@@ -1211,10 +2080,25 @@ model GetModelSignedUrlResponse = {
 
 async function getModelSignedUrlWithOptions(request: GetModelSignedUrlRequest, runtime: Util.RuntimeOptions): GetModelSignedUrlResponse {
   Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.modelPath)) {
+    body['ModelPath'] = request.modelPath;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('GetModelSignedUrl', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetModelSignedUrl',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getModelSignedUrl(request: GetModelSignedUrlRequest): GetModelSignedUrlResponse {
@@ -1223,14 +2107,15 @@ async function getModelSignedUrl(request: GetModelSignedUrlRequest): GetModelSig
 }
 
 model GetPreSignedUrlRequest {
+  clientVersion?: string(name='ClientVersion'),
   prefix?: string(name='Prefix'),
 }
 
 model GetPreSignedUrlResponseBody = {
+  code?: string(name='Code'),
+  data?: string(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: string(name='Data'),
-  code?: string(name='Code'),
 }
 
 model GetPreSignedUrlResponse = {
@@ -1240,10 +2125,30 @@ model GetPreSignedUrlResponse = {
 
 async function getPreSignedUrlWithOptions(request: GetPreSignedUrlRequest, runtime: Util.RuntimeOptions): GetPreSignedUrlResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clientVersion)) {
+    query['ClientVersion'] = request.clientVersion;
+  }
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.prefix)) {
+    body['Prefix'] = request.prefix;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('GetPreSignedUrl', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetPreSignedUrl',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getPreSignedUrl(request: GetPreSignedUrlRequest): GetPreSignedUrlResponse {
@@ -1251,20 +2156,96 @@ async function getPreSignedUrl(request: GetPreSignedUrlRequest): GetPreSignedUrl
   return getPreSignedUrlWithOptions(request, runtime);
 }
 
+model GetRecordResultRequest {
+  recordId?: string(name='RecordId'),
+}
+
+model GetRecordResultResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: {
+    appName?: string(name='AppName', description='应用名'),
+    createdAt?: string(name='CreatedAt', description='创建时间'),
+    departmentName?: string(name='DepartmentName', description='部门名'),
+    detectProcessName?: string(name='DetectProcessName', description='业务检测流程名'),
+    duration?: long(name='Duration', description='时长'),
+    id?: string(name='Id', description='双录记录id'),
+    metaUrl?: string(name='MetaUrl', description='meta地址'),
+    recordAt?: string(name='RecordAt', description='录制时间'),
+    recordRoomList?: [ 
+      {
+        recordType?: string(name='RecordType', description='录制视频类型'),
+        role?: string(name='Role', description='角色'),
+        roomMetaUrl?: string(name='RoomMetaUrl', description='meta地址'),
+        roomRecordAt?: string(name='RoomRecordAt', description='录制时间'),
+        roomResultUrl?: string(name='RoomResultUrl', description='结果地址'),
+        roomStatus?: string(name='RoomStatus', description='检测状态'),
+        roomVideoUrl?: string(name='RoomVideoUrl', description='视频地址'),
+      }
+    ](name='RecordRoomList', description='远程双录文件地址列表'),
+    resultUrl?: string(name='ResultUrl', description='结果地址'),
+    roomId?: string(name='RoomId', description='mrtc房间id'),
+    status?: string(name='Status', description='检测状态'),
+    videoUrl?: string(name='VideoUrl', description='视频地址'),
+  }(name='Data', description='数据'),
+  errors?: [ 
+    {
+      field?: string(name='Field'),
+      message?: string(name='Message'),
+    }
+  ](name='Errors', description='错误列表'),
+  httpCode?: int32(name='HttpCode'),
+  message?: string(name='Message', description='提示'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='给 pop 使用的'),
+}
+
+model GetRecordResultResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetRecordResultResponseBody(name='body'),
+}
+
+async function getRecordResultWithOptions(request: GetRecordResultRequest, runtime: Util.RuntimeOptions): GetRecordResultResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.recordId)) {
+    query['RecordId'] = request.recordId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetRecordResult',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getRecordResult(request: GetRecordResultRequest): GetRecordResultResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getRecordResultWithOptions(request, runtime);
+}
+
 model GetRuleRequest {
   id?: string(name='Id'),
 }
 
 model GetRuleResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    content?: string(name='Content'),
+    createdAt?: string(name='CreatedAt'),
+    id?: string(name='Id'),
+    name?: string(name='Name'),
+  }(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: {
-    createdAt?: string(name='CreatedAt'),
-    name?: string(name='Name'),
-    content?: string(name='Content'),
-    id?: string(name='Id'),
-  }(name='Data'),
-  code?: string(name='Code'),
 }
 
 model GetRuleResponse = {
@@ -1274,10 +2255,25 @@ model GetRuleResponse = {
 
 async function getRuleWithOptions(request: GetRuleRequest, runtime: Util.RuntimeOptions): GetRuleResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('GetRule', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetRule',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getRule(request: GetRuleRequest): GetRuleResponse {
@@ -1290,19 +2286,19 @@ model GetServiceConfigurationRequest {
 }
 
 model GetServiceConfigurationResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
+    clientQueueSize?: int32(name='ClientQueueSize'),
     liveRecordAll?: boolean(name='LiveRecordAll'),
+    liveRecordEveryOne?: boolean(name='LiveRecordEveryOne'),
     liveRecordLayout?: int32(name='LiveRecordLayout'),
     liveRecordMaxClient?: int32(name='LiveRecordMaxClient'),
-    liveRecordEveryOne?: boolean(name='LiveRecordEveryOne'),
     liveRecordTaskProfile?: string(name='LiveRecordTaskProfile'),
     liveRecordVideoResolution?: int32(name='LiveRecordVideoResolution'),
     taskItemQueueSize?: int32(name='TaskItemQueueSize'),
-    clientQueueSize?: int32(name='ClientQueueSize'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model GetServiceConfigurationResponse = {
@@ -1312,10 +2308,25 @@ model GetServiceConfigurationResponse = {
 
 async function getServiceConfigurationWithOptions(request: GetServiceConfigurationRequest, runtime: Util.RuntimeOptions): GetServiceConfigurationResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('GetServiceConfiguration', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetServiceConfiguration',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getServiceConfiguration(request: GetServiceConfigurationRequest): GetServiceConfigurationResponse {
@@ -1328,10 +2339,10 @@ model GetSignedUrlRequest {
 }
 
 model GetSignedUrlResponseBody = {
+  code?: string(name='Code'),
+  data?: string(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: string(name='Data'),
-  code?: string(name='Code'),
 }
 
 model GetSignedUrlResponse = {
@@ -1341,10 +2352,25 @@ model GetSignedUrlResponse = {
 
 async function getSignedUrlWithOptions(request: GetSignedUrlRequest, runtime: Util.RuntimeOptions): GetSignedUrlResponse {
   Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.fileUrl)) {
+    body['FileUrl'] = request.fileUrl;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('GetSignedUrl', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetSignedUrl',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getSignedUrl(request: GetSignedUrlRequest): GetSignedUrlResponse {
@@ -1357,19 +2383,19 @@ model GetSlrConfigurationRequest {
 }
 
 model GetSlrConfigurationResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    mqEndpoint?: string(name='MqEndpoint'),
+    mqEventList?: [ string ](name='MqEventList'),
+    mqGroupId?: string(name='MqGroupId'),
+    mqGroupIdTest?: string(name='MqGroupIdTest'),
+    mqInstanceId?: string(name='MqInstanceId'),
+    mqSubscribe?: boolean(name='MqSubscribe'),
+    mqTopic?: string(name='MqTopic'),
+    mqTopicTest?: string(name='MqTopicTest'),
+  }(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: {
-    mqGroupId?: string(name='MqGroupId'),
-    mqTopic?: string(name='MqTopic'),
-    mqInstanceId?: string(name='MqInstanceId'),
-    mqEventList?: [ string ](name='MqEventList'),
-    mqTopicTest?: string(name='MqTopicTest'),
-    mqGroupIdTest?: string(name='MqGroupIdTest'),
-    mqEndpoint?: string(name='MqEndpoint'),
-    mqSubscribe?: boolean(name='MqSubscribe'),
-  }(name='Data'),
-  code?: string(name='Code'),
 }
 
 model GetSlrConfigurationResponse = {
@@ -1379,10 +2405,25 @@ model GetSlrConfigurationResponse = {
 
 async function getSlrConfigurationWithOptions(request: GetSlrConfigurationRequest, runtime: Util.RuntimeOptions): GetSlrConfigurationResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('GetSlrConfiguration', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetSlrConfiguration',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getSlrConfiguration(request: GetSlrConfigurationRequest): GetSlrConfigurationResponse {
@@ -1397,28 +2438,28 @@ model GetStatisticsRequest {
 }
 
 model GetStatisticsResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     items?: [ 
       {
-        departmentName?: string(name='DepartmentName'),
-        cloudCount?: long(name='CloudCount'),
-        month?: string(name='Month'),
         clientCount?: long(name='ClientCount'),
+        cloudCount?: long(name='CloudCount'),
+        departmentName?: string(name='DepartmentName'),
         detail?: [ 
           {
-            departmentName?: string(name='DepartmentName'),
+            clientCount?: long(name='ClientCount'),
             cloudCount?: long(name='CloudCount'),
             departmentId?: string(name='DepartmentId'),
+            departmentName?: string(name='DepartmentName'),
             month?: int32(name='Month'),
-            clientCount?: long(name='ClientCount'),
           }
         ](name='Detail'),
+        month?: string(name='Month'),
       }
     ](name='Items'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model GetStatisticsResponse = {
@@ -1428,10 +2469,31 @@ model GetStatisticsResponse = {
 
 async function getStatisticsWithOptions(request: GetStatisticsRequest, runtime: Util.RuntimeOptions): GetStatisticsResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.dateFrom)) {
+    query['DateFrom'] = request.dateFrom;
+  }
+  if (!Util.isUnset(request.dateTo)) {
+    query['DateTo'] = request.dateTo;
+  }
+  if (!Util.isUnset(request.departmentId)) {
+    query['DepartmentId'] = request.departmentId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('GetStatistics', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetStatistics',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getStatistics(request: GetStatisticsRequest): GetStatisticsResponse {
@@ -1444,15 +2506,15 @@ model GetTaskRequest {
 }
 
 model GetTaskResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
-    status?: string(name='Status'),
     createdAt?: string(name='CreatedAt'),
     id?: string(name='Id'),
+    status?: string(name='Status'),
     videoUrl?: string(name='VideoUrl'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model GetTaskResponse = {
@@ -1462,10 +2524,25 @@ model GetTaskResponse = {
 
 async function getTaskWithOptions(request: GetTaskRequest, runtime: Util.RuntimeOptions): GetTaskResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.taskId)) {
+    query['TaskId'] = request.taskId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('GetTask', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetTask',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getTask(request: GetTaskRequest): GetTaskResponse {
@@ -1478,20 +2555,20 @@ model GetTaskGroupRequest {
 }
 
 model GetTaskGroupResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
-    status?: string(name='Status'),
     completedTasks?: int32(name='CompletedTasks'),
-    totalTasks?: int32(name='TotalTasks'),
     createdAt?: string(name='CreatedAt'),
-    name?: string(name='Name'),
-    taskIds?: [ string ](name='TaskIds'),
     id?: string(name='Id'),
+    name?: string(name='Name'),
     ruleId?: string(name='RuleId'),
     ruleName?: string(name='RuleName'),
+    status?: string(name='Status'),
+    taskIds?: [ string ](name='TaskIds'),
+    totalTasks?: int32(name='TotalTasks'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model GetTaskGroupResponse = {
@@ -1501,10 +2578,25 @@ model GetTaskGroupResponse = {
 
 async function getTaskGroupWithOptions(request: GetTaskGroupRequest, runtime: Util.RuntimeOptions): GetTaskGroupResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('GetTaskGroup', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetTaskGroup',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getTaskGroup(request: GetTaskGroupRequest): GetTaskGroupResponse {
@@ -1517,29 +2609,29 @@ model GetUserRequest {
 }
 
 model GetUserResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
-    email?: string(name='Email'),
-    phoneNumber?: string(name='PhoneNumber'),
+    createdAt?: string(name='CreatedAt'),
     departments?: [ 
       {
         description?: string(name='Description'),
         gmtCreate?: string(name='GmtCreate'),
-        name?: string(name='Name'),
         gmtModified?: string(name='GmtModified'),
         id?: string(name='Id'),
+        name?: string(name='Name'),
       }
     ](name='Departments'),
-    createdAt?: string(name='CreatedAt'),
-    updatedAt?: string(name='UpdatedAt'),
-    source?: string(name='Source'),
-    role?: string(name='Role'),
-    name?: string(name='Name'),
+    email?: string(name='Email'),
     id?: string(name='Id'),
+    name?: string(name='Name'),
+    phoneNumber?: string(name='PhoneNumber'),
+    role?: string(name='Role'),
+    source?: string(name='Source'),
+    updatedAt?: string(name='UpdatedAt'),
     username?: string(name='Username'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model GetUserResponse = {
@@ -1549,10 +2641,25 @@ model GetUserResponse = {
 
 async function getUserWithOptions(request: GetUserRequest, runtime: Util.RuntimeOptions): GetUserResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('GetUser', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetUser',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getUser(request: GetUserRequest): GetUserResponse {
@@ -1560,18 +2667,79 @@ async function getUser(request: GetUserRequest): GetUserResponse {
   return getUserWithOptions(request, runtime);
 }
 
+model GetWatermarkRequest {
+  clientVersion?: string(name='ClientVersion'),
+  watermarkId?: string(name='WatermarkId'),
+}
+
+model GetWatermarkResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: {
+    createdAt?: string(name='CreatedAt', description='创建时间'),
+    id?: string(name='Id', description='水印id'),
+    name?: string(name='Name', description='水印名称'),
+    value?: string(name='Value', description='水印信息'),
+  }(name='Data', description='数据'),
+  errors?: [ 
+    {
+      field?: string(name='Field'),
+      message?: string(name='Message'),
+    }
+  ](name='Errors', description='错误列表'),
+  httpCode?: int32(name='HttpCode'),
+  message?: string(name='Message', description='提示'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='给 pop 使用的'),
+}
+
+model GetWatermarkResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetWatermarkResponseBody(name='body'),
+}
+
+async function getWatermarkWithOptions(request: GetWatermarkRequest, runtime: Util.RuntimeOptions): GetWatermarkResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clientVersion)) {
+    query['ClientVersion'] = request.clientVersion;
+  }
+  if (!Util.isUnset(request.watermarkId)) {
+    query['WatermarkId'] = request.watermarkId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetWatermark',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getWatermark(request: GetWatermarkRequest): GetWatermarkResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getWatermarkWithOptions(request, runtime);
+}
+
 model InitializeServiceLinkedRoleRequest {
   roleName?: string(name='RoleName'),
 }
 
 model InitializeServiceLinkedRoleResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    createSuccess?: boolean(name='CreateSuccess'),
+    errorMessage?: string(name='ErrorMessage'),
+  }(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: {
-    errorMessage?: string(name='ErrorMessage'),
-    createSuccess?: boolean(name='CreateSuccess'),
-  }(name='Data'),
-  code?: string(name='Code'),
 }
 
 model InitializeServiceLinkedRoleResponse = {
@@ -1581,10 +2749,25 @@ model InitializeServiceLinkedRoleResponse = {
 
 async function initializeServiceLinkedRoleWithOptions(request: InitializeServiceLinkedRoleRequest, runtime: Util.RuntimeOptions): InitializeServiceLinkedRoleResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.roleName)) {
+    query['RoleName'] = request.roleName;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('InitializeServiceLinkedRole', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'InitializeServiceLinkedRole',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function initializeServiceLinkedRole(request: InitializeServiceLinkedRoleRequest): InitializeServiceLinkedRoleResponse {
@@ -1593,31 +2776,31 @@ async function initializeServiceLinkedRole(request: InitializeServiceLinkedRoleR
 }
 
 model JoinLiveRequest {
-  userId?: string(name='UserId'),
   channel?: string(name='Channel'),
   rtcCode?: string(name='RtcCode'),
+  userId?: string(name='UserId'),
 }
 
 model JoinLiveResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     code?: int32(name='Code'),
     tokenData?: {
+      appId?: string(name='AppId'),
+      gslb?: [ string ](name='Gslb'),
+      liveId?: string(name='LiveId'),
+      nonce?: string(name='Nonce'),
+      timestamp?: long(name='Timestamp'),
+      token?: string(name='Token'),
       turn?: {
         password?: string(name='Password'),
         username?: string(name='Username'),
       }(name='Turn'),
-      token?: string(name='Token'),
-      appId?: string(name='AppId'),
-      nonce?: string(name='Nonce'),
-      gslb?: [ string ](name='Gslb'),
-      liveId?: string(name='LiveId'),
       userId?: string(name='UserId'),
-      timestamp?: long(name='Timestamp'),
     }(name='TokenData'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model JoinLiveResponse = {
@@ -1627,10 +2810,31 @@ model JoinLiveResponse = {
 
 async function joinLiveWithOptions(request: JoinLiveRequest, runtime: Util.RuntimeOptions): JoinLiveResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.channel)) {
+    query['Channel'] = request.channel;
+  }
+  if (!Util.isUnset(request.rtcCode)) {
+    query['RtcCode'] = request.rtcCode;
+  }
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('JoinLive', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'JoinLive',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function joinLive(request: JoinLiveRequest): JoinLiveResponse {
@@ -1644,24 +2848,24 @@ model ListAppsRequest {
 }
 
 model ListAppsResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     items?: [ 
       {
-        departmentName?: string(name='DepartmentName'),
-        packageName?: string(name='PackageName'),
         createdAt?: string(name='CreatedAt'),
         departmentId?: string(name='DepartmentId'),
+        departmentName?: string(name='DepartmentName'),
         disabled?: boolean(name='Disabled'),
-        name?: string(name='Name'),
         id?: string(name='Id'),
+        name?: string(name='Name'),
+        packageName?: string(name='PackageName'),
       }
     ](name='Items'),
-    totalPages?: int32(name='TotalPages'),
     totalElements?: long(name='TotalElements'),
+    totalPages?: int32(name='TotalPages'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model ListAppsResponse = {
@@ -1671,10 +2875,28 @@ model ListAppsResponse = {
 
 async function listAppsWithOptions(request: ListAppsRequest, runtime: Util.RuntimeOptions): ListAppsResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.pageIndex)) {
+    query['PageIndex'] = request.pageIndex;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('ListApps', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListApps',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function listApps(request: ListAppsRequest): ListAppsResponse {
@@ -1690,28 +2912,28 @@ model ListDepartmentsRequest {
 }
 
 model ListDepartmentsResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     items?: [ 
       {
-        description?: string(name='Description'),
         administrators?: [ 
           {
-            name?: string(name='Name'),
             id?: string(name='Id'),
+            name?: string(name='Name'),
           }
         ](name='Administrators'),
         createdAt?: string(name='CreatedAt'),
-        updatedAt?: string(name='UpdatedAt'),
-        name?: string(name='Name'),
+        description?: string(name='Description'),
         id?: string(name='Id'),
+        name?: string(name='Name'),
+        updatedAt?: string(name='UpdatedAt'),
       }
     ](name='Items'),
-    totalPages?: int32(name='TotalPages'),
     totalElements?: long(name='TotalElements'),
+    totalPages?: int32(name='TotalPages'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model ListDepartmentsResponse = {
@@ -1721,15 +2943,113 @@ model ListDepartmentsResponse = {
 
 async function listDepartmentsWithOptions(request: ListDepartmentsRequest, runtime: Util.RuntimeOptions): ListDepartmentsResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.pageIndex)) {
+    query['PageIndex'] = request.pageIndex;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('ListDepartments', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListDepartments',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function listDepartments(request: ListDepartmentsRequest): ListDepartmentsResponse {
   var runtime = new Util.RuntimeOptions{};
   return listDepartmentsWithOptions(request, runtime);
+}
+
+model ListDetectProcessesRequest {
+  name?: string(name='Name'),
+  pageIndex?: int32(name='PageIndex'),
+  pageSize?: int32(name='PageSize'),
+  publishStatus?: boolean(name='PublishStatus'),
+}
+
+model ListDetectProcessesResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    items?: [ 
+      {
+        content?: string(name='Content'),
+        contentAt?: string(name='ContentAt', description='发布时间'),
+        createdAt?: string(name='CreatedAt'),
+        draft?: string(name='Draft'),
+        draftAt?: string(name='DraftAt', description='保存时间'),
+        fileUrl?: string(name='FileUrl'),
+        id?: string(name='Id'),
+        md5?: string(name='Md5'),
+        name?: string(name='Name'),
+        newVersion?: boolean(name='NewVersion'),
+        updatedAt?: string(name='UpdatedAt'),
+      }
+    ](name='Items'),
+    totalElements?: long(name='TotalElements'),
+    totalPages?: int32(name='TotalPages'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+}
+
+model ListDetectProcessesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListDetectProcessesResponseBody(name='body'),
+}
+
+async function listDetectProcessesWithOptions(request: ListDetectProcessesRequest, runtime: Util.RuntimeOptions): ListDetectProcessesResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.pageIndex)) {
+    query['PageIndex'] = request.pageIndex;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.publishStatus)) {
+    query['PublishStatus'] = request.publishStatus;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListDetectProcesses',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listDetectProcesses(request: ListDetectProcessesRequest): ListDetectProcessesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listDetectProcessesWithOptions(request, runtime);
 }
 
 model ListDetectionsRequest {
@@ -1743,40 +3063,40 @@ model ListDetectionsRequest {
 }
 
 model ListDetectionsResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    items?: [ 
+      {
+        createdAt?: string(name='CreatedAt'),
+        departmentId?: string(name='DepartmentId'),
+        departmentName?: string(name='DepartmentName'),
+        id?: string(name='Id'),
+        recordingType?: string(name='RecordingType'),
+        ruleId?: string(name='RuleId'),
+        ruleName?: string(name='RuleName'),
+        status?: string(name='Status'),
+        tasks?: [ 
+          {
+            createdAt?: string(name='CreatedAt'),
+            id?: string(name='Id'),
+            status?: string(name='Status'),
+            videoMetaUrl?: string(name='VideoMetaUrl'),
+            videoUrl?: string(name='VideoUrl'),
+          }
+        ](name='Tasks'),
+      }
+    ](name='Items'),
+    totalElements?: long(name='TotalElements'),
+    totalPages?: int32(name='TotalPages'),
+  }(name='Data'),
   errors?: [ 
     {
-      message?: string(name='Message'),
       field?: string(name='Field'),
+      message?: string(name='Message'),
     }
   ](name='Errors'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: {
-    items?: [ 
-      {
-        status?: string(name='Status'),
-        departmentName?: string(name='DepartmentName'),
-        tasks?: [ 
-          {
-            status?: string(name='Status'),
-            videoMetaUrl?: string(name='VideoMetaUrl'),
-            createdAt?: string(name='CreatedAt'),
-            id?: string(name='Id'),
-            videoUrl?: string(name='VideoUrl'),
-          }
-        ](name='Tasks'),
-        recordingType?: string(name='RecordingType'),
-        createdAt?: string(name='CreatedAt'),
-        departmentId?: string(name='DepartmentId'),
-        id?: string(name='Id'),
-        ruleName?: string(name='RuleName'),
-        ruleId?: string(name='RuleId'),
-      }
-    ](name='Items'),
-    totalPages?: int32(name='TotalPages'),
-    totalElements?: long(name='TotalElements'),
-  }(name='Data'),
-  code?: string(name='Code'),
 }
 
 model ListDetectionsResponse = {
@@ -1786,10 +3106,43 @@ model ListDetectionsResponse = {
 
 async function listDetectionsWithOptions(request: ListDetectionsRequest, runtime: Util.RuntimeOptions): ListDetectionsResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.createDateFrom)) {
+    query['CreateDateFrom'] = request.createDateFrom;
+  }
+  if (!Util.isUnset(request.createDateTo)) {
+    query['CreateDateTo'] = request.createDateTo;
+  }
+  if (!Util.isUnset(request.departmentId)) {
+    query['DepartmentId'] = request.departmentId;
+  }
+  if (!Util.isUnset(request.pageIndex)) {
+    query['PageIndex'] = request.pageIndex;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.recordingType)) {
+    query['RecordingType'] = request.recordingType;
+  }
+  if (!Util.isUnset(request.ruleId)) {
+    query['RuleId'] = request.ruleId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('ListDetections', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListDetections',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function listDetections(request: ListDetectionsRequest): ListDetectionsResponse {
@@ -1797,64 +3150,16 @@ async function listDetections(request: ListDetectionsRequest): ListDetectionsRes
   return listDetectionsWithOptions(request, runtime);
 }
 
-model ListDetectProcessesRequest {
-  pageIndex?: int32(name='PageIndex'),
-  pageSize?: int32(name='PageSize'),
-  name?: string(name='Name'),
-  publishStatus?: boolean(name='PublishStatus'),
-}
-
-model ListDetectProcessesResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-  data?: {
-    items?: [ 
-      {
-        draft?: string(name='Draft'),
-        fileUrl?: string(name='FileUrl'),
-        createdAt?: string(name='CreatedAt'),
-        md5?: string(name='Md5'),
-        updatedAt?: string(name='UpdatedAt'),
-        newVersion?: boolean(name='NewVersion'),
-        name?: string(name='Name'),
-        content?: string(name='Content'),
-        id?: string(name='Id'),
-      }
-    ](name='Items'),
-    totalPages?: int32(name='TotalPages'),
-    totalElements?: long(name='TotalElements'),
-  }(name='Data'),
-  code?: string(name='Code'),
-}
-
-model ListDetectProcessesResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListDetectProcessesResponseBody(name='body'),
-}
-
-async function listDetectProcessesWithOptions(request: ListDetectProcessesRequest, runtime: Util.RuntimeOptions): ListDetectProcessesResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ListDetectProcesses', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function listDetectProcesses(request: ListDetectProcessesRequest): ListDetectProcessesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listDetectProcessesWithOptions(request, runtime);
-}
-
 model ListFilesRequest {
-  prefix?: string(name='Prefix'),
   limit?: int32(name='Limit'),
+  prefix?: string(name='Prefix'),
 }
 
 model ListFilesResponseBody = {
+  code?: string(name='Code'),
+  data?: string(name='Data', description='数据'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: [ string ](name='Data'),
-  code?: string(name='Code'),
 }
 
 model ListFilesResponse = {
@@ -1864,10 +3169,28 @@ model ListFilesResponse = {
 
 async function listFilesWithOptions(request: ListFilesRequest, runtime: Util.RuntimeOptions): ListFilesResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.limit)) {
+    query['Limit'] = request.limit;
+  }
+  if (!Util.isUnset(request.prefix)) {
+    query['Prefix'] = request.prefix;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('ListFiles', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListFiles',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function listFiles(request: ListFilesRequest): ListFilesResponse {
@@ -1881,21 +3204,21 @@ model ListLiveAppsRequest {
 }
 
 model ListLiveAppsResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     items?: [ 
       {
         createdAt?: string(name='CreatedAt'),
-        rtcCode?: string(name='RtcCode'),
-        name?: string(name='Name'),
         id?: string(name='Id'),
+        name?: string(name='Name'),
+        rtcCode?: string(name='RtcCode'),
       }
     ](name='Items'),
-    totalPages?: int32(name='TotalPages'),
     totalElements?: long(name='TotalElements'),
+    totalPages?: int32(name='TotalPages'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model ListLiveAppsResponse = {
@@ -1905,10 +3228,28 @@ model ListLiveAppsResponse = {
 
 async function listLiveAppsWithOptions(request: ListLiveAppsRequest, runtime: Util.RuntimeOptions): ListLiveAppsResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.pageIndex)) {
+    query['PageIndex'] = request.pageIndex;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('ListLiveApps', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListLiveApps',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function listLiveApps(request: ListLiveAppsRequest): ListLiveAppsResponse {
@@ -1922,22 +3263,22 @@ model ListLiveRecordTemplatesRequest {
 }
 
 model ListLiveRecordTemplatesResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     items?: [ 
       {
         createdAt?: string(name='CreatedAt'),
-        updatedAt?: string(name='UpdatedAt'),
-        name?: string(name='Name'),
         id?: string(name='Id'),
+        name?: string(name='Name'),
         rtcCode?: string(name='RtcCode'),
+        updatedAt?: string(name='UpdatedAt'),
       }
     ](name='Items'),
-    totalPages?: int32(name='TotalPages'),
     totalElements?: long(name='TotalElements'),
+    totalPages?: int32(name='TotalPages'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model ListLiveRecordTemplatesResponse = {
@@ -1947,15 +3288,97 @@ model ListLiveRecordTemplatesResponse = {
 
 async function listLiveRecordTemplatesWithOptions(request: ListLiveRecordTemplatesRequest, runtime: Util.RuntimeOptions): ListLiveRecordTemplatesResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.pageIndex)) {
+    query['PageIndex'] = request.pageIndex;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('ListLiveRecordTemplates', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListLiveRecordTemplates',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function listLiveRecordTemplates(request: ListLiveRecordTemplatesRequest): ListLiveRecordTemplatesResponse {
   var runtime = new Util.RuntimeOptions{};
   return listLiveRecordTemplatesWithOptions(request, runtime);
+}
+
+model ListLiveRecordsRequest {
+  liveId?: string(name='LiveId'),
+  pageIndex?: int32(name='PageIndex'),
+  pageSize?: int32(name='PageSize'),
+}
+
+model ListLiveRecordsResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    items?: [ 
+      {
+        channel?: string(name='Channel'),
+        createdAt?: string(name='CreatedAt'),
+        id?: string(name='Id'),
+        sourceType?: long(name='SourceType'),
+        videoUrl?: string(name='VideoUrl'),
+      }
+    ](name='Items'),
+    totalElements?: long(name='TotalElements'),
+    totalPages?: int32(name='TotalPages'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+}
+
+model ListLiveRecordsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListLiveRecordsResponseBody(name='body'),
+}
+
+async function listLiveRecordsWithOptions(request: ListLiveRecordsRequest, runtime: Util.RuntimeOptions): ListLiveRecordsResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.liveId)) {
+    query['LiveId'] = request.liveId;
+  }
+  if (!Util.isUnset(request.pageIndex)) {
+    query['PageIndex'] = request.pageIndex;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListLiveRecords',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listLiveRecords(request: ListLiveRecordsRequest): ListLiveRecordsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listLiveRecordsWithOptions(request, runtime);
 }
 
 model ListLivesRequest {
@@ -1964,24 +3387,24 @@ model ListLivesRequest {
 }
 
 model ListLivesResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     items?: [ 
       {
+        channel?: string(name='Channel'),
+        createdAt?: string(name='CreatedAt'),
+        id?: string(name='Id'),
+        name?: string(name='Name'),
+        publicId?: string(name='PublicId'),
         status?: string(name='Status'),
         userId?: string(name='UserId'),
-        createdAt?: string(name='CreatedAt'),
-        channel?: string(name='Channel'),
-        name?: string(name='Name'),
-        id?: string(name='Id'),
-        publicId?: string(name='PublicId'),
       }
     ](name='Items'),
-    totalPages?: int32(name='TotalPages'),
     totalElements?: long(name='TotalElements'),
+    totalPages?: int32(name='TotalPages'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model ListLivesResponse = {
@@ -1991,10 +3414,28 @@ model ListLivesResponse = {
 
 async function listLivesWithOptions(request: ListLivesRequest, runtime: Util.RuntimeOptions): ListLivesResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.pageIndex)) {
+    query['PageIndex'] = request.pageIndex;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('ListLives', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListLives',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function listLives(request: ListLivesRequest): ListLivesResponse {
@@ -2002,11 +3443,106 @@ async function listLives(request: ListLivesRequest): ListLivesResponse {
   return listLivesWithOptions(request, runtime);
 }
 
+model ListRecordResultsRequest {
+  createDateFrom?: string(name='CreateDateFrom', description='yyyy-MM-dd'),
+  createDateTo?: string(name='CreateDateTo', description='yyyy-MM-dd'),
+  departmentId?: string(name='DepartmentId'),
+  pageIndex?: int32(name='PageIndex'),
+  pageSize?: int32(name='PageSize'),
+  recordId?: string(name='RecordId'),
+  type?: string(name='Type'),
+}
+
+model ListRecordResultsResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: {
+    items?: [ 
+      {
+        appName?: string(name='AppName', description='应用名'),
+        createdAt?: string(name='CreatedAt', description='创建时间'),
+        departmentName?: string(name='DepartmentName', description='部门名'),
+        detectProcessName?: string(name='DetectProcessName', description='业务检测流程名'),
+        duration?: long(name='Duration', description='时长'),
+        id?: string(name='Id', description='双录记录id'),
+        metaUrl?: string(name='MetaUrl', description='meta地址'),
+        recordAt?: string(name='RecordAt', description='录制时间'),
+        resultUrl?: string(name='ResultUrl', description='结果地址'),
+        roomId?: string(name='RoomId', description='mrtc房间id'),
+        status?: string(name='Status', description='检测状态'),
+        videoUrl?: string(name='VideoUrl', description='视频地址'),
+      }
+    ](name='Items', description='当前页面数据项'),
+    totalElements?: long(name='TotalElements', description='总数据项数'),
+    totalPages?: int32(name='TotalPages', description='总页数'),
+  }(name='Data', description='数据'),
+  errors?: [ 
+    {
+      field?: string(name='Field'),
+      message?: string(name='Message'),
+    }
+  ](name='Errors', description='错误列表'),
+  httpCode?: int32(name='HttpCode'),
+  message?: string(name='Message', description='提示'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='给 pop 使用的'),
+}
+
+model ListRecordResultsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListRecordResultsResponseBody(name='body'),
+}
+
+async function listRecordResultsWithOptions(request: ListRecordResultsRequest, runtime: Util.RuntimeOptions): ListRecordResultsResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.createDateFrom)) {
+    query['CreateDateFrom'] = request.createDateFrom;
+  }
+  if (!Util.isUnset(request.createDateTo)) {
+    query['CreateDateTo'] = request.createDateTo;
+  }
+  if (!Util.isUnset(request.departmentId)) {
+    query['DepartmentId'] = request.departmentId;
+  }
+  if (!Util.isUnset(request.pageIndex)) {
+    query['PageIndex'] = request.pageIndex;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.recordId)) {
+    query['RecordId'] = request.recordId;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['Type'] = request.type;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListRecordResults',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listRecordResults(request: ListRecordResultsRequest): ListRecordResultsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listRecordResultsWithOptions(request, runtime);
+}
+
 model ListRolesResponseBody = {
+  code?: string(name='Code'),
+  data?: [ string ](name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: [ string ](name='Data'),
-  code?: string(name='Code'),
 }
 
 model ListRolesResponse = {
@@ -2016,7 +3552,18 @@ model ListRolesResponse = {
 
 async function listRolesWithOptions(runtime: Util.RuntimeOptions): ListRolesResponse {
   var req = new OpenApi.OpenApiRequest{};
-  return doRPCRequest('ListRoles', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListRoles',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function listRoles(): ListRolesResponse {
@@ -2030,21 +3577,21 @@ model ListRulesRequest {
 }
 
 model ListRulesResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     items?: [ 
       {
-        createdAt?: string(name='CreatedAt'),
-        name?: string(name='Name'),
         content?: string(name='Content'),
+        createdAt?: string(name='CreatedAt'),
         id?: string(name='Id'),
+        name?: string(name='Name'),
       }
     ](name='Items'),
-    totalPages?: int32(name='TotalPages'),
     totalElements?: long(name='TotalElements'),
+    totalPages?: int32(name='TotalPages'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model ListRulesResponse = {
@@ -2054,10 +3601,28 @@ model ListRulesResponse = {
 
 async function listRulesWithOptions(request: ListRulesRequest, runtime: Util.RuntimeOptions): ListRulesResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.pageIndex)) {
+    query['PageIndex'] = request.pageIndex;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('ListRules', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListRules',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function listRules(request: ListRulesRequest): ListRulesResponse {
@@ -2071,21 +3636,21 @@ model ListStatisticsTaskRequest {
 }
 
 model ListStatisticsTaskResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     items?: [ 
       {
-        status?: int32(name='Status'),
-        fileUrl?: string(name='FileUrl'),
         createdAt?: string(name='CreatedAt'),
+        fileUrl?: string(name='FileUrl'),
         name?: string(name='Name'),
+        status?: int32(name='Status'),
       }
     ](name='Items'),
-    totalPages?: int32(name='TotalPages'),
     totalElements?: long(name='TotalElements'),
+    totalPages?: int32(name='TotalPages'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model ListStatisticsTaskResponse = {
@@ -2095,10 +3660,28 @@ model ListStatisticsTaskResponse = {
 
 async function listStatisticsTaskWithOptions(request: ListStatisticsTaskRequest, runtime: Util.RuntimeOptions): ListStatisticsTaskResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.pageIndex)) {
+    query['PageIndex'] = request.pageIndex;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('ListStatisticsTask', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListStatisticsTask',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function listStatisticsTask(request: ListStatisticsTaskRequest): ListStatisticsTaskResponse {
@@ -2113,26 +3696,26 @@ model ListTaskGroupsRequest {
 }
 
 model ListTaskGroupsResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     items?: [ 
       {
-        status?: string(name='Status'),
         completedTasks?: int32(name='CompletedTasks'),
-        totalTasks?: int32(name='TotalTasks'),
         createdAt?: string(name='CreatedAt'),
-        name?: string(name='Name'),
-        taskIds?: [ string ](name='TaskIds'),
         id?: string(name='Id'),
+        name?: string(name='Name'),
         ruleId?: string(name='RuleId'),
         ruleName?: string(name='RuleName'),
+        status?: string(name='Status'),
+        taskIds?: [ string ](name='TaskIds'),
+        totalTasks?: int32(name='TotalTasks'),
       }
     ](name='Items'),
-    totalPages?: int32(name='TotalPages'),
     totalElements?: long(name='TotalElements'),
+    totalPages?: int32(name='TotalPages'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model ListTaskGroupsResponse = {
@@ -2142,10 +3725,31 @@ model ListTaskGroupsResponse = {
 
 async function listTaskGroupsWithOptions(request: ListTaskGroupsRequest, runtime: Util.RuntimeOptions): ListTaskGroupsResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.pageIndex)) {
+    query['PageIndex'] = request.pageIndex;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['Status'] = request.status;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('ListTaskGroups', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListTaskGroups',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function listTaskGroups(request: ListTaskGroupsRequest): ListTaskGroupsResponse {
@@ -2153,24 +3757,112 @@ async function listTaskGroups(request: ListTaskGroupsRequest): ListTaskGroupsRes
   return listTaskGroupsWithOptions(request, runtime);
 }
 
+model ListTaskGroupsByConstraintRequest {
+  appId?: string(name='AppId'),
+  id?: string(name='Id'),
+  name?: string(name='Name'),
+  pageIndex?: int32(name='PageIndex'),
+  pageSize?: int32(name='PageSize'),
+  ruleId?: string(name='RuleId'),
+}
+
+model ListTaskGroupsByConstraintResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: {
+    items?: [ 
+      {
+        completedTasks?: int32(name='CompletedTasks', description='已经完成任务数'),
+        createdAt?: string(name='CreatedAt', description='创建时间'),
+        id?: string(name='Id', description='任务组id'),
+        name?: string(name='Name', description='名称'),
+        ruleId?: string(name='RuleId', description='规则id'),
+        ruleName?: string(name='RuleName', description='规则名称'),
+        status?: string(name='Status', description='状态'),
+        taskIds?: [ string ](name='TaskIds', description='任务组下的所有任务id列表'),
+        totalTasks?: int32(name='TotalTasks', description='总任务数'),
+      }
+    ](name='Items', description='当前页面数据项'),
+    totalElements?: long(name='TotalElements', description='总数据项数'),
+    totalPages?: int32(name='TotalPages', description='总页数'),
+  }(name='Data', description='数据'),
+  errors?: [ 
+    {
+      field?: string(name='Field'),
+      message?: string(name='Message'),
+    }
+  ](name='Errors', description='错误列表'),
+  httpCode?: int32(name='HttpCode'),
+  message?: string(name='Message', description='提示'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='给 pop 使用的'),
+}
+
+model ListTaskGroupsByConstraintResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListTaskGroupsByConstraintResponseBody(name='body'),
+}
+
+async function listTaskGroupsByConstraintWithOptions(request: ListTaskGroupsByConstraintRequest, runtime: Util.RuntimeOptions): ListTaskGroupsByConstraintResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.pageIndex)) {
+    query['PageIndex'] = request.pageIndex;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.ruleId)) {
+    query['RuleId'] = request.ruleId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListTaskGroupsByConstraint',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listTaskGroupsByConstraint(request: ListTaskGroupsByConstraintRequest): ListTaskGroupsByConstraintResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listTaskGroupsByConstraintWithOptions(request, runtime);
+}
+
 model ListTaskItemsRequest {
   taskId?: string(name='TaskId'),
 }
 
 model ListTaskItemsResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: [ 
     {
-      status?: string(name='Status'),
       createdAt?: string(name='CreatedAt'),
       message?: string(name='Message'),
-      output?: string(name='Output'),
       name?: string(name='Name'),
+      output?: string(name='Output'),
       segmentSeq?: long(name='SegmentSeq'),
+      status?: string(name='Status'),
     }
   ](name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model ListTaskItemsResponse = {
@@ -2180,10 +3872,25 @@ model ListTaskItemsResponse = {
 
 async function listTaskItemsWithOptions(request: ListTaskItemsRequest, runtime: Util.RuntimeOptions): ListTaskItemsResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.taskId)) {
+    query['TaskId'] = request.taskId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('ListTaskItems', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListTaskItems',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function listTaskItems(request: ListTaskItemsRequest): ListTaskItemsResponse {
@@ -2198,22 +3905,22 @@ model ListTasksRequest {
 }
 
 model ListTasksResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     items?: [ 
       {
-        status?: string(name='Status'),
-        videoMetaUrl?: string(name='VideoMetaUrl'),
         createdAt?: string(name='CreatedAt'),
         id?: string(name='Id'),
+        status?: string(name='Status'),
+        videoMetaUrl?: string(name='VideoMetaUrl'),
         videoUrl?: string(name='VideoUrl'),
       }
     ](name='Items'),
-    totalPages?: int32(name='TotalPages'),
     totalElements?: long(name='TotalElements'),
+    totalPages?: int32(name='TotalPages'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model ListTasksResponse = {
@@ -2223,10 +3930,31 @@ model ListTasksResponse = {
 
 async function listTasksWithOptions(request: ListTasksRequest, runtime: Util.RuntimeOptions): ListTasksResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.pageIndex)) {
+    query['PageIndex'] = request.pageIndex;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.taskGroupId)) {
+    query['TaskGroupId'] = request.taskGroupId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('ListTasks', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListTasks',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function listTasks(request: ListTasksRequest): ListTasksResponse {
@@ -2242,36 +3970,36 @@ model ListUsersRequest {
 }
 
 model ListUsersResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     items?: [ 
       {
-        ramUsername?: string(name='RamUsername'),
-        email?: string(name='Email'),
-        phoneNumber?: string(name='PhoneNumber'),
+        createdAt?: string(name='CreatedAt'),
         departments?: [ 
           {
-            description?: string(name='Description'),
             createdAt?: string(name='CreatedAt'),
-            updatedAt?: string(name='UpdatedAt'),
-            name?: string(name='Name'),
+            description?: string(name='Description'),
             id?: string(name='Id'),
+            name?: string(name='Name'),
+            updatedAt?: string(name='UpdatedAt'),
           }
         ](name='Departments'),
-        createdAt?: string(name='CreatedAt'),
-        updatedAt?: string(name='UpdatedAt'),
-        source?: string(name='Source'),
-        role?: string(name='Role'),
-        name?: string(name='Name'),
+        email?: string(name='Email'),
         id?: string(name='Id'),
+        name?: string(name='Name'),
+        phoneNumber?: string(name='PhoneNumber'),
+        ramUsername?: string(name='RamUsername'),
+        role?: string(name='Role'),
+        source?: string(name='Source'),
+        updatedAt?: string(name='UpdatedAt'),
         username?: string(name='Username'),
       }
     ](name='Items'),
-    totalPages?: int32(name='TotalPages'),
     totalElements?: long(name='TotalElements'),
+    totalPages?: int32(name='TotalPages'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model ListUsersResponse = {
@@ -2281,15 +4009,106 @@ model ListUsersResponse = {
 
 async function listUsersWithOptions(request: ListUsersRequest, runtime: Util.RuntimeOptions): ListUsersResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.departmentId)) {
+    query['DepartmentId'] = request.departmentId;
+  }
+  if (!Util.isUnset(request.pageIndex)) {
+    query['PageIndex'] = request.pageIndex;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.username)) {
+    query['Username'] = request.username;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('ListUsers', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListUsers',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function listUsers(request: ListUsersRequest): ListUsersResponse {
   var runtime = new Util.RuntimeOptions{};
   return listUsersWithOptions(request, runtime);
+}
+
+model ListWatermarksRequest {
+  pageIndex?: int32(name='PageIndex'),
+  pageSize?: int32(name='PageSize'),
+}
+
+model ListWatermarksResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: {
+    items?: [ 
+      {
+        createdAt?: string(name='CreatedAt', description='创建时间'),
+        id?: string(name='Id', description='水印id'),
+        name?: string(name='Name', description='水印名称'),
+        value?: string(name='Value', description='水印信息'),
+      }
+    ](name='Items', description='当前页面数据项'),
+    totalElements?: long(name='TotalElements', description='总数据项数'),
+    totalPages?: int32(name='TotalPages', description='总页数'),
+  }(name='Data', description='数据'),
+  errors?: [ 
+    {
+      field?: string(name='Field'),
+      message?: string(name='Message'),
+    }
+  ](name='Errors', description='错误列表'),
+  httpCode?: int32(name='HttpCode'),
+  message?: string(name='Message', description='提示'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='给 pop 使用的'),
+}
+
+model ListWatermarksResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListWatermarksResponseBody(name='body'),
+}
+
+async function listWatermarksWithOptions(request: ListWatermarksRequest, runtime: Util.RuntimeOptions): ListWatermarksResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.pageIndex)) {
+    query['PageIndex'] = request.pageIndex;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListWatermarks',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listWatermarks(request: ListWatermarksRequest): ListWatermarksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listWatermarksWithOptions(request, runtime);
 }
 
 model RenameDetectProcessRequest {
@@ -2298,17 +4117,17 @@ model RenameDetectProcessRequest {
 }
 
 model RenameDetectProcessResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
-    draft?: string(name='Draft'),
+    content?: string(name='Content'),
     createdAt?: string(name='CreatedAt'),
+    draft?: string(name='Draft'),
+    id?: string(name='Id'),
     md5?: string(name='Md5'),
     name?: string(name='Name'),
-    content?: string(name='Content'),
-    id?: string(name='Id'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model RenameDetectProcessResponse = {
@@ -2318,10 +4137,28 @@ model RenameDetectProcessResponse = {
 
 async function renameDetectProcessWithOptions(request: RenameDetectProcessRequest, runtime: Util.RuntimeOptions): RenameDetectProcessResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('RenameDetectProcess', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'RenameDetectProcess',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function renameDetectProcess(request: RenameDetectProcessRequest): RenameDetectProcessResponse {
@@ -2330,11 +4167,6 @@ async function renameDetectProcess(request: RenameDetectProcessRequest): RenameD
 }
 
 model StartLiveRecordTaskRequest {
-  liveId?: string(name='LiveId'),
-  userId?: string(name='UserId'),
-  rtcCode?: string(name='RtcCode'),
-  name?: string(name='Name'),
-  templateId?: string(name='TemplateId'),
   backgroundColor?: int32(name='BackgroundColor'),
   clockWidgets?: [ 
     {
@@ -2346,6 +4178,13 @@ model StartLiveRecordTaskRequest {
       ZOrder?: int32(name='ZOrder'),
     }
   ](name='ClockWidgets'),
+  dynamicLayout?: boolean(name='DynamicLayout'),
+  liveId?: string(name='LiveId'),
+  name?: string(name='Name'),
+  rtcCode?: string(name='RtcCode'),
+  sourceType?: boolean(name='SourceType'),
+  templateId?: string(name='TemplateId'),
+  userId?: string(name='UserId'),
   userPanes?: [ 
     {
       images?: [ 
@@ -2355,8 +4194,8 @@ model StartLiveRecordTaskRequest {
           url?: string(name='Url'),
           width?: float(name='Width'),
           x?: float(name='X'),
-          ZOrder?: int32(name='ZOrder'),
           y?: float(name='Y'),
+          ZOrder?: int32(name='ZOrder'),
         }
       ](name='Images'),
       paneId?: int32(name='PaneId'),
@@ -2368,8 +4207,8 @@ model StartLiveRecordTaskRequest {
           fontType?: int32(name='FontType'),
           text?: string(name='Text'),
           x?: float(name='X'),
-          ZOrder?: int32(name='ZOrder'),
           y?: float(name='Y'),
+          ZOrder?: int32(name='ZOrder'),
         }
       ](name='Texts'),
       userId?: string(name='UserId'),
@@ -2378,24 +4217,26 @@ model StartLiveRecordTaskRequest {
 }
 
 model StartLiveRecordTaskShrinkRequest {
-  liveId?: string(name='LiveId'),
-  userId?: string(name='UserId'),
-  rtcCode?: string(name='RtcCode'),
-  name?: string(name='Name'),
-  templateId?: string(name='TemplateId'),
   backgroundColor?: int32(name='BackgroundColor'),
   clockWidgetsShrink?: string(name='ClockWidgets'),
+  dynamicLayout?: boolean(name='DynamicLayout'),
+  liveId?: string(name='LiveId'),
+  name?: string(name='Name'),
+  rtcCode?: string(name='RtcCode'),
+  sourceType?: boolean(name='SourceType'),
+  templateId?: string(name='TemplateId'),
+  userId?: string(name='UserId'),
   userPanesShrink?: string(name='UserPanes'),
 }
 
 model StartLiveRecordTaskResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     createdAt?: string(name='CreatedAt'),
     id?: string(name='Id'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model StartLiveRecordTaskResponse = {
@@ -2413,10 +4254,52 @@ async function startLiveRecordTaskWithOptions(tmpReq: StartLiveRecordTaskRequest
   if (!Util.isUnset(tmpReq.userPanes)) {
     request.userPanesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.userPanes, 'UserPanes', 'json');
   }
+  var query = {};
+  if (!Util.isUnset(request.backgroundColor)) {
+    query['BackgroundColor'] = request.backgroundColor;
+  }
+  if (!Util.isUnset(request.clockWidgetsShrink)) {
+    query['ClockWidgets'] = request.clockWidgetsShrink;
+  }
+  if (!Util.isUnset(request.dynamicLayout)) {
+    query['DynamicLayout'] = request.dynamicLayout;
+  }
+  if (!Util.isUnset(request.liveId)) {
+    query['LiveId'] = request.liveId;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.rtcCode)) {
+    query['RtcCode'] = request.rtcCode;
+  }
+  if (!Util.isUnset(request.sourceType)) {
+    query['SourceType'] = request.sourceType;
+  }
+  if (!Util.isUnset(request.templateId)) {
+    query['TemplateId'] = request.templateId;
+  }
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
+  }
+  if (!Util.isUnset(request.userPanesShrink)) {
+    query['UserPanes'] = request.userPanesShrink;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('StartLiveRecordTask', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'StartLiveRecordTask',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function startLiveRecordTask(request: StartLiveRecordTaskRequest): StartLiveRecordTaskResponse {
@@ -2430,12 +4313,12 @@ model StopLiveRecordTaskRequest {
 }
 
 model StopLiveRecordTaskResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     id?: string(name='Id'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model StopLiveRecordTaskResponse = {
@@ -2445,10 +4328,28 @@ model StopLiveRecordTaskResponse = {
 
 async function stopLiveRecordTaskWithOptions(request: StopLiveRecordTaskRequest, runtime: Util.RuntimeOptions): StopLiveRecordTaskResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.liveId)) {
+    query['LiveId'] = request.liveId;
+  }
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('StopLiveRecordTask', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'StopLiveRecordTask',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function stopLiveRecordTask(request: StopLiveRecordTaskRequest): StopLiveRecordTaskResponse {
@@ -2457,18 +4358,18 @@ async function stopLiveRecordTask(request: StopLiveRecordTaskRequest): StopLiveR
 }
 
 model UpdateAppRequest {
+  departmentId?: string(name='DepartmentId'),
+  disabled?: boolean(name='Disabled'),
   id?: string(name='Id'),
   name?: string(name='Name'),
-  disabled?: boolean(name='Disabled'),
   packageName?: string(name='PackageName'),
-  departmentId?: string(name='DepartmentId'),
 }
 
 model UpdateAppResponseBody = {
+  code?: string(name='Code'),
+  data?: map[string]any(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: map[string]any(name='Data'),
-  code?: string(name='Code'),
 }
 
 model UpdateAppResponse = {
@@ -2478,10 +4379,37 @@ model UpdateAppResponse = {
 
 async function updateAppWithOptions(request: UpdateAppRequest, runtime: Util.RuntimeOptions): UpdateAppResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.departmentId)) {
+    query['DepartmentId'] = request.departmentId;
+  }
+  if (!Util.isUnset(request.disabled)) {
+    query['Disabled'] = request.disabled;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.packageName)) {
+    query['PackageName'] = request.packageName;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('UpdateApp', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UpdateApp',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function updateApp(request: UpdateAppRequest): UpdateAppResponse {
@@ -2491,16 +4419,16 @@ async function updateApp(request: UpdateAppRequest): UpdateAppResponse {
 
 model UpdateDepartmentRequest {
   description?: string(name='Description'),
+  id?: string(name='Id'),
   label?: string(name='Label'),
   name?: string(name='Name'),
-  id?: string(name='Id'),
 }
 
 model UpdateDepartmentResponseBody = {
+  code?: string(name='Code'),
+  data?: map[string]any(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: map[string]any(name='Data'),
-  code?: string(name='Code'),
 }
 
 model UpdateDepartmentResponse = {
@@ -2510,10 +4438,36 @@ model UpdateDepartmentResponse = {
 
 async function updateDepartmentWithOptions(request: UpdateDepartmentRequest, runtime: Util.RuntimeOptions): UpdateDepartmentResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.description)) {
+    body['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.label)) {
+    body['Label'] = request.label;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['Name'] = request.name;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('UpdateDepartment', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UpdateDepartment',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function updateDepartment(request: UpdateDepartmentRequest): UpdateDepartmentResponse {
@@ -2522,24 +4476,24 @@ async function updateDepartment(request: UpdateDepartmentRequest): UpdateDepartm
 }
 
 model UpdateDetectProcessRequest {
+  content?: string(name='Content'),
+  draft?: string(name='Draft'),
   id?: string(name='Id'),
   name?: string(name='Name'),
-  draft?: string(name='Draft'),
-  content?: string(name='Content'),
 }
 
 model UpdateDetectProcessResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
-    draft?: string(name='Draft'),
+    content?: string(name='Content'),
     createdAt?: string(name='CreatedAt'),
+    draft?: string(name='Draft'),
+    id?: string(name='Id'),
     md5?: string(name='Md5'),
     name?: string(name='Name'),
-    content?: string(name='Content'),
-    id?: string(name='Id'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model UpdateDetectProcessResponse = {
@@ -2549,10 +4503,34 @@ model UpdateDetectProcessResponse = {
 
 async function updateDetectProcessWithOptions(request: UpdateDetectProcessRequest, runtime: Util.RuntimeOptions): UpdateDetectProcessResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.content)) {
+    query['Content'] = request.content;
+  }
+  if (!Util.isUnset(request.draft)) {
+    query['Draft'] = request.draft;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('UpdateDetectProcess', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UpdateDetectProcess',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function updateDetectProcess(request: UpdateDetectProcessRequest): UpdateDetectProcessResponse {
@@ -2567,13 +4545,13 @@ model UpdateLiveRequest {
 }
 
 model UpdateLiveResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     createdAt?: string(name='CreatedAt'),
     id?: string(name='Id'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model UpdateLiveResponse = {
@@ -2583,10 +4561,31 @@ model UpdateLiveResponse = {
 
 async function updateLiveWithOptions(request: UpdateLiveRequest, runtime: Util.RuntimeOptions): UpdateLiveResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.liveId)) {
+    query['LiveId'] = request.liveId;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['Status'] = request.status;
+  }
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('UpdateLive', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UpdateLive',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function updateLive(request: UpdateLiveRequest): UpdateLiveResponse {
@@ -2595,11 +4594,6 @@ async function updateLive(request: UpdateLiveRequest): UpdateLiveResponse {
 }
 
 model UpdateLiveRecordTaskRequest {
-  liveId?: string(name='LiveId'),
-  userId?: string(name='UserId'),
-  rtcCode?: string(name='RtcCode'),
-  name?: string(name='Name'),
-  templateId?: string(name='TemplateId'),
   backgroundColor?: int32(name='BackgroundColor'),
   clockWidgets?: [ 
     {
@@ -2611,6 +4605,13 @@ model UpdateLiveRecordTaskRequest {
       ZOrder?: int32(name='ZOrder'),
     }
   ](name='ClockWidgets'),
+  dynamicLayout?: boolean(name='DynamicLayout'),
+  liveId?: string(name='LiveId'),
+  name?: string(name='Name'),
+  rtcCode?: string(name='RtcCode'),
+  sourceType?: boolean(name='SourceType'),
+  templateId?: string(name='TemplateId'),
+  userId?: string(name='UserId'),
   userPanes?: [ 
     {
       images?: [ 
@@ -2620,8 +4621,8 @@ model UpdateLiveRecordTaskRequest {
           url?: string(name='Url'),
           width?: float(name='Width'),
           x?: float(name='X'),
-          ZOrder?: int32(name='ZOrder'),
           y?: float(name='Y'),
+          ZOrder?: int32(name='ZOrder'),
         }
       ](name='Images'),
       paneId?: int32(name='PaneId'),
@@ -2633,8 +4634,8 @@ model UpdateLiveRecordTaskRequest {
           fontType?: int32(name='FontType'),
           text?: string(name='Text'),
           x?: float(name='X'),
-          ZOrder?: int32(name='ZOrder'),
           y?: float(name='Y'),
+          ZOrder?: int32(name='ZOrder'),
         }
       ](name='Texts'),
       userId?: string(name='UserId'),
@@ -2643,24 +4644,26 @@ model UpdateLiveRecordTaskRequest {
 }
 
 model UpdateLiveRecordTaskShrinkRequest {
-  liveId?: string(name='LiveId'),
-  userId?: string(name='UserId'),
-  rtcCode?: string(name='RtcCode'),
-  name?: string(name='Name'),
-  templateId?: string(name='TemplateId'),
   backgroundColor?: int32(name='BackgroundColor'),
   clockWidgetsShrink?: string(name='ClockWidgets'),
+  dynamicLayout?: boolean(name='DynamicLayout'),
+  liveId?: string(name='LiveId'),
+  name?: string(name='Name'),
+  rtcCode?: string(name='RtcCode'),
+  sourceType?: boolean(name='SourceType'),
+  templateId?: string(name='TemplateId'),
+  userId?: string(name='UserId'),
   userPanesShrink?: string(name='UserPanes'),
 }
 
 model UpdateLiveRecordTaskResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     createdAt?: string(name='CreatedAt'),
     id?: string(name='Id'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model UpdateLiveRecordTaskResponse = {
@@ -2678,10 +4681,52 @@ async function updateLiveRecordTaskWithOptions(tmpReq: UpdateLiveRecordTaskReque
   if (!Util.isUnset(tmpReq.userPanes)) {
     request.userPanesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.userPanes, 'UserPanes', 'json');
   }
+  var query = {};
+  if (!Util.isUnset(request.backgroundColor)) {
+    query['BackgroundColor'] = request.backgroundColor;
+  }
+  if (!Util.isUnset(request.clockWidgetsShrink)) {
+    query['ClockWidgets'] = request.clockWidgetsShrink;
+  }
+  if (!Util.isUnset(request.dynamicLayout)) {
+    query['DynamicLayout'] = request.dynamicLayout;
+  }
+  if (!Util.isUnset(request.liveId)) {
+    query['LiveId'] = request.liveId;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.rtcCode)) {
+    query['RtcCode'] = request.rtcCode;
+  }
+  if (!Util.isUnset(request.sourceType)) {
+    query['SourceType'] = request.sourceType;
+  }
+  if (!Util.isUnset(request.templateId)) {
+    query['TemplateId'] = request.templateId;
+  }
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
+  }
+  if (!Util.isUnset(request.userPanesShrink)) {
+    query['UserPanes'] = request.userPanesShrink;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('UpdateLiveRecordTask', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UpdateLiveRecordTask',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function updateLiveRecordTask(request: UpdateLiveRecordTaskRequest): UpdateLiveRecordTaskResponse {
@@ -2690,33 +4735,18 @@ async function updateLiveRecordTask(request: UpdateLiveRecordTaskRequest): Updat
 }
 
 model UpdateLiveRecordTemplateRequest {
-  rtcCode?: string(name='RtcCode'),
-  name?: string(name='Name'),
-  id?: string(name='Id'),
   backgroundColor?: int32(name='BackgroundColor'),
   backgrounds?: [ 
     {
       display?: int32(name='Display'),
+      height?: float(name='Height'),
       url?: string(name='Url'),
       width?: float(name='Width'),
-      height?: float(name='Height'),
       x?: float(name='X'),
       y?: float(name='Y'),
       ZOrder?: int32(name='ZOrder'),
     }
   ](name='Backgrounds'),
-  watermarks?: [ 
-    {
-      alpha?: float(name='Alpha'),
-      display?: int32(name='Display'),
-      url?: string(name='Url'),
-      width?: float(name='Width'),
-      height?: float(name='Height'),
-      x?: float(name='X'),
-      y?: float(name='Y'),
-      ZOrder?: int32(name='ZOrder'),
-    }
-  ](name='Watermarks'),
   clockWidgets?: [ 
     {
       fontColor?: int32(name='FontColor'),
@@ -2727,26 +4757,43 @@ model UpdateLiveRecordTemplateRequest {
       ZOrder?: int32(name='ZOrder'),
     }
   ](name='ClockWidgets'),
+  id?: string(name='Id'),
+  layoutIds?: [ string ](name='LayoutIds'),
+  name?: string(name='Name'),
+  rtcCode?: string(name='RtcCode'),
+  watermarks?: [ 
+    {
+      alpha?: float(name='Alpha'),
+      display?: int32(name='Display'),
+      height?: float(name='Height'),
+      url?: string(name='Url'),
+      width?: float(name='Width'),
+      x?: float(name='X'),
+      y?: float(name='Y'),
+      ZOrder?: int32(name='ZOrder'),
+    }
+  ](name='Watermarks'),
 }
 
 model UpdateLiveRecordTemplateShrinkRequest {
-  rtcCode?: string(name='RtcCode'),
-  name?: string(name='Name'),
-  id?: string(name='Id'),
   backgroundColor?: int32(name='BackgroundColor'),
   backgroundsShrink?: string(name='Backgrounds'),
-  watermarksShrink?: string(name='Watermarks'),
   clockWidgetsShrink?: string(name='ClockWidgets'),
+  id?: string(name='Id'),
+  layoutIds?: [ string ](name='LayoutIds'),
+  name?: string(name='Name'),
+  rtcCode?: string(name='RtcCode'),
+  watermarksShrink?: string(name='Watermarks'),
 }
 
 model UpdateLiveRecordTemplateResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code'),
   data?: {
     createdAt?: string(name='CreatedAt'),
     id?: string(name='Id'),
   }(name='Data'),
-  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
 }
 
 model UpdateLiveRecordTemplateResponse = {
@@ -2761,16 +4808,52 @@ async function updateLiveRecordTemplateWithOptions(tmpReq: UpdateLiveRecordTempl
   if (!Util.isUnset(tmpReq.backgrounds)) {
     request.backgroundsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.backgrounds, 'Backgrounds', 'json');
   }
-  if (!Util.isUnset(tmpReq.watermarks)) {
-    request.watermarksShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.watermarks, 'Watermarks', 'json');
-  }
   if (!Util.isUnset(tmpReq.clockWidgets)) {
     request.clockWidgetsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.clockWidgets, 'ClockWidgets', 'json');
   }
+  if (!Util.isUnset(tmpReq.watermarks)) {
+    request.watermarksShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.watermarks, 'Watermarks', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.backgroundColor)) {
+    query['BackgroundColor'] = request.backgroundColor;
+  }
+  if (!Util.isUnset(request.backgroundsShrink)) {
+    query['Backgrounds'] = request.backgroundsShrink;
+  }
+  if (!Util.isUnset(request.clockWidgetsShrink)) {
+    query['ClockWidgets'] = request.clockWidgetsShrink;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.layoutIds)) {
+    query['LayoutIds'] = request.layoutIds;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.rtcCode)) {
+    query['RtcCode'] = request.rtcCode;
+  }
+  if (!Util.isUnset(request.watermarksShrink)) {
+    query['Watermarks'] = request.watermarksShrink;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('UpdateLiveRecordTemplate', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UpdateLiveRecordTemplate',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function updateLiveRecordTemplate(request: UpdateLiveRecordTemplateRequest): UpdateLiveRecordTemplateResponse {
@@ -2779,21 +4862,21 @@ async function updateLiveRecordTemplate(request: UpdateLiveRecordTemplateRequest
 }
 
 model UpdateRuleRequest {
+  content?: string(name='Content'),
   id?: string(name='Id'),
   name?: string(name='Name'),
-  content?: string(name='Content'),
 }
 
 model UpdateRuleResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    content?: string(name='Content'),
+    createdAt?: string(name='CreatedAt'),
+    id?: string(name='Id'),
+    name?: string(name='Name'),
+  }(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: {
-    createdAt?: string(name='CreatedAt'),
-    name?: string(name='Name'),
-    content?: string(name='Content'),
-    id?: string(name='Id'),
-  }(name='Data'),
-  code?: string(name='Code'),
 }
 
 model UpdateRuleResponse = {
@@ -2803,10 +4886,31 @@ model UpdateRuleResponse = {
 
 async function updateRuleWithOptions(request: UpdateRuleRequest, runtime: Util.RuntimeOptions): UpdateRuleResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.content)) {
+    query['Content'] = request.content;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('UpdateRule', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UpdateRule',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function updateRule(request: UpdateRuleRequest): UpdateRuleResponse {
@@ -2815,20 +4919,20 @@ async function updateRule(request: UpdateRuleRequest): UpdateRuleResponse {
 }
 
 model UpdateServiceConfigurationRequest {
-  taskItemQueueSize?: int32(name='TaskItemQueueSize'),
   clientQueueSize?: int32(name='ClientQueueSize'),
-  liveRecordEveryOne?: boolean(name='LiveRecordEveryOne'),
   liveRecordAll?: boolean(name='LiveRecordAll'),
+  liveRecordEveryOne?: boolean(name='LiveRecordEveryOne'),
   liveRecordLayout?: int32(name='LiveRecordLayout'),
-  liveRecordTaskProfile?: string(name='LiveRecordTaskProfile'),
   liveRecordMaxClient?: int32(name='LiveRecordMaxClient'),
+  liveRecordTaskProfile?: string(name='LiveRecordTaskProfile'),
   liveRecordVideoResolution?: int32(name='LiveRecordVideoResolution'),
+  taskItemQueueSize?: int32(name='TaskItemQueueSize'),
 }
 
 model UpdateServiceConfigurationResponseBody = {
+  code?: string(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  code?: string(name='Code'),
 }
 
 model UpdateServiceConfigurationResponse = {
@@ -2838,10 +4942,46 @@ model UpdateServiceConfigurationResponse = {
 
 async function updateServiceConfigurationWithOptions(request: UpdateServiceConfigurationRequest, runtime: Util.RuntimeOptions): UpdateServiceConfigurationResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clientQueueSize)) {
+    query['ClientQueueSize'] = request.clientQueueSize;
+  }
+  if (!Util.isUnset(request.liveRecordAll)) {
+    query['LiveRecordAll'] = request.liveRecordAll;
+  }
+  if (!Util.isUnset(request.liveRecordEveryOne)) {
+    query['LiveRecordEveryOne'] = request.liveRecordEveryOne;
+  }
+  if (!Util.isUnset(request.liveRecordLayout)) {
+    query['LiveRecordLayout'] = request.liveRecordLayout;
+  }
+  if (!Util.isUnset(request.liveRecordMaxClient)) {
+    query['LiveRecordMaxClient'] = request.liveRecordMaxClient;
+  }
+  if (!Util.isUnset(request.liveRecordTaskProfile)) {
+    query['LiveRecordTaskProfile'] = request.liveRecordTaskProfile;
+  }
+  if (!Util.isUnset(request.liveRecordVideoResolution)) {
+    query['LiveRecordVideoResolution'] = request.liveRecordVideoResolution;
+  }
+  if (!Util.isUnset(request.taskItemQueueSize)) {
+    query['TaskItemQueueSize'] = request.taskItemQueueSize;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('UpdateServiceConfiguration', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UpdateServiceConfiguration',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function updateServiceConfiguration(request: UpdateServiceConfigurationRequest): UpdateServiceConfigurationResponse {
@@ -2850,20 +4990,20 @@ async function updateServiceConfiguration(request: UpdateServiceConfigurationReq
 }
 
 model UpdateSlrConfigurationRequest {
-  mqSubscribe?: boolean(name='MqSubscribe'),
   mqEndpoint?: string(name='MqEndpoint'),
-  mqInstanceId?: string(name='MqInstanceId'),
-  mqTopic?: string(name='MqTopic'),
-  mqGroupId?: string(name='MqGroupId'),
-  mqTopicTest?: string(name='MqTopicTest'),
-  mqGroupIdTest?: string(name='MqGroupIdTest'),
   mqEvent?: [ string ](name='MqEvent'),
+  mqGroupId?: string(name='MqGroupId'),
+  mqGroupIdTest?: string(name='MqGroupIdTest'),
+  mqInstanceId?: string(name='MqInstanceId'),
+  mqSubscribe?: boolean(name='MqSubscribe'),
+  mqTopic?: string(name='MqTopic'),
+  mqTopicTest?: string(name='MqTopicTest'),
 }
 
 model UpdateSlrConfigurationResponseBody = {
+  code?: string(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  code?: string(name='Code'),
 }
 
 model UpdateSlrConfigurationResponse = {
@@ -2873,10 +5013,46 @@ model UpdateSlrConfigurationResponse = {
 
 async function updateSlrConfigurationWithOptions(request: UpdateSlrConfigurationRequest, runtime: Util.RuntimeOptions): UpdateSlrConfigurationResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.mqEndpoint)) {
+    query['MqEndpoint'] = request.mqEndpoint;
+  }
+  if (!Util.isUnset(request.mqEvent)) {
+    query['MqEvent'] = request.mqEvent;
+  }
+  if (!Util.isUnset(request.mqGroupId)) {
+    query['MqGroupId'] = request.mqGroupId;
+  }
+  if (!Util.isUnset(request.mqGroupIdTest)) {
+    query['MqGroupIdTest'] = request.mqGroupIdTest;
+  }
+  if (!Util.isUnset(request.mqInstanceId)) {
+    query['MqInstanceId'] = request.mqInstanceId;
+  }
+  if (!Util.isUnset(request.mqSubscribe)) {
+    query['MqSubscribe'] = request.mqSubscribe;
+  }
+  if (!Util.isUnset(request.mqTopic)) {
+    query['MqTopic'] = request.mqTopic;
+  }
+  if (!Util.isUnset(request.mqTopicTest)) {
+    query['MqTopicTest'] = request.mqTopicTest;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('UpdateSlrConfiguration', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UpdateSlrConfiguration',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function updateSlrConfiguration(request: UpdateSlrConfigurationRequest): UpdateSlrConfigurationResponse {
@@ -2886,17 +5062,17 @@ async function updateSlrConfiguration(request: UpdateSlrConfigurationRequest): U
 
 model UpdateUserRequest {
   email?: string(name='Email'),
+  id?: string(name='Id'),
   name?: string(name='Name'),
   phoneNumber?: string(name='PhoneNumber'),
   role?: string(name='Role'),
-  id?: string(name='Id'),
 }
 
 model UpdateUserResponseBody = {
+  code?: string(name='Code'),
+  data?: map[string]any(name='Data'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  data?: map[string]any(name='Data'),
-  code?: string(name='Code'),
 }
 
 model UpdateUserResponse = {
@@ -2906,14 +5082,210 @@ model UpdateUserResponse = {
 
 async function updateUserWithOptions(request: UpdateUserRequest, runtime: Util.RuntimeOptions): UpdateUserResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.email)) {
+    query['Email'] = request.email;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.phoneNumber)) {
+    query['PhoneNumber'] = request.phoneNumber;
+  }
+  if (!Util.isUnset(request.role)) {
+    query['Role'] = request.role;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('UpdateUser', '2020-06-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UpdateUser',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function updateUser(request: UpdateUserRequest): UpdateUserResponse {
   var runtime = new Util.RuntimeOptions{};
   return updateUserWithOptions(request, runtime);
+}
+
+model UpdateWatermarkRequest {
+  name?: string(name='Name'),
+  value?: string(name='Value'),
+  watermarkId?: string(name='WatermarkId'),
+}
+
+model UpdateWatermarkResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: {
+    createdAt?: string(name='CreatedAt', description='创建时间'),
+    id?: string(name='Id', description='水印id'),
+    name?: string(name='Name', description='水印名称'),
+    value?: string(name='Value', description='水印信息'),
+  }(name='Data', description='数据'),
+  errors?: [ 
+    {
+      field?: string(name='Field'),
+      message?: string(name='Message'),
+    }
+  ](name='Errors', description='错误列表'),
+  httpCode?: int32(name='HttpCode'),
+  message?: string(name='Message', description='提示'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='给 pop 使用的'),
+}
+
+model UpdateWatermarkResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateWatermarkResponseBody(name='body'),
+}
+
+async function updateWatermarkWithOptions(request: UpdateWatermarkRequest, runtime: Util.RuntimeOptions): UpdateWatermarkResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.value)) {
+    query['Value'] = request.value;
+  }
+  if (!Util.isUnset(request.watermarkId)) {
+    query['WatermarkId'] = request.watermarkId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateWatermark',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function updateWatermark(request: UpdateWatermarkRequest): UpdateWatermarkResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateWatermarkWithOptions(request, runtime);
+}
+
+model UploadReportRequest {
+  appId?: string(name='AppId'),
+  clientVersion?: string(name='ClientVersion'),
+  departmentId?: string(name='DepartmentId'),
+  detectProcessId?: string(name='DetectProcessId'),
+  duration?: long(name='Duration'),
+  metaUrl?: string(name='MetaUrl'),
+  recordAt?: string(name='RecordAt', description='yyyy-MM-dd hh:mm:ss'),
+  resultUrl?: string(name='ResultUrl'),
+  roomId?: string(name='RoomId'),
+  type?: string(name='Type'),
+  userId?: string(name='UserId'),
+  videoUrl?: string(name='VideoUrl'),
+}
+
+model UploadReportResponseBody = {
+  code?: string(name='Code', description='code'),
+  data?: {
+    createdAt?: string(name='CreatedAt', description='创建时间'),
+    duration?: long(name='Duration', description='时长'),
+    id?: string(name='Id', description='双录记录id'),
+    metaUrl?: string(name='MetaUrl', description='meta地址'),
+    recordAt?: string(name='RecordAt', description='录制时间'),
+    resultUrl?: string(name='ResultUrl', description='结果地址'),
+    videoUrl?: string(name='VideoUrl', description='视频地址'),
+  }(name='Data', description='数据'),
+  errors?: [ 
+    {
+      field?: string(name='Field'),
+      message?: string(name='Message'),
+    }
+  ](name='Errors', description='错误列表'),
+  httpCode?: int32(name='HttpCode'),
+  message?: string(name='Message', description='提示'),
+  requestId?: string(name='RequestId', description='requestId'),
+  success?: boolean(name='Success', description='给 pop 使用的'),
+}
+
+model UploadReportResponse = {
+  headers: map[string]string(name='headers'),
+  body: UploadReportResponseBody(name='body'),
+}
+
+async function uploadReportWithOptions(request: UploadReportRequest, runtime: Util.RuntimeOptions): UploadReportResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.clientVersion)) {
+    query['ClientVersion'] = request.clientVersion;
+  }
+  if (!Util.isUnset(request.departmentId)) {
+    query['DepartmentId'] = request.departmentId;
+  }
+  if (!Util.isUnset(request.detectProcessId)) {
+    query['DetectProcessId'] = request.detectProcessId;
+  }
+  if (!Util.isUnset(request.duration)) {
+    query['Duration'] = request.duration;
+  }
+  if (!Util.isUnset(request.metaUrl)) {
+    query['MetaUrl'] = request.metaUrl;
+  }
+  if (!Util.isUnset(request.recordAt)) {
+    query['RecordAt'] = request.recordAt;
+  }
+  if (!Util.isUnset(request.resultUrl)) {
+    query['ResultUrl'] = request.resultUrl;
+  }
+  if (!Util.isUnset(request.roomId)) {
+    query['RoomId'] = request.roomId;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['Type'] = request.type;
+  }
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
+  }
+  if (!Util.isUnset(request.videoUrl)) {
+    query['VideoUrl'] = request.videoUrl;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UploadReport',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function uploadReport(request: UploadReportRequest): UploadReportResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return uploadReportWithOptions(request, runtime);
 }
 
