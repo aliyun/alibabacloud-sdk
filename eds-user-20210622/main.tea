@@ -3,10 +3,11 @@
  */
 import Util;
 import OpenApi;
-
+import OpenApiUtil;
 import EndpointUtil;
 
 extends OpenApi;
+
 
 init(config: OpenApi.Config){
   super(config);
@@ -20,12 +21,13 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   if (!Util.empty(endpoint)) {
     return endpoint;
   }
-
+  
   if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+
 model GetUserByTokenRequest {
   token?: string(name='Token'),
 }
@@ -33,10 +35,13 @@ model GetUserByTokenRequest {
 model GetUserByTokenResponseBody = {
   requestId?: string(name='RequestId', description='Id of the request'),
   user?: {
+    adDomain?: string(name='AdDomain'),
+    email?: string(name='Email'),
     id?: long(name='Id'),
     name?: string(name='Name'),
-    email?: string(name='Email'),
+    officeSiteId?: string(name='OfficeSiteId'),
     tenantId?: string(name='TenantId'),
+    type?: string(name='Type'),
   }(name='User'),
 }
 
@@ -47,10 +52,25 @@ model GetUserByTokenResponse = {
 
 async function getUserByTokenWithOptions(request: GetUserByTokenRequest, runtime: Util.RuntimeOptions): GetUserByTokenResponse {
   Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.token)) {
+    body['Token'] = request.token;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('GetUserByToken', '2021-06-22', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetUserByToken',
+    version = '2021-06-22',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getUserByToken(request: GetUserByTokenRequest): GetUserByTokenResponse {
