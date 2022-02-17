@@ -70,6 +70,7 @@ model FoundationVersion {
   description?: string(name='description', description='description'),
   documents?: string(name='documents', description='documents'),
   features?: [ string ](name='features', description='底座功能列表'),
+  labels?: string(name='labels', description='标签'),
   name?: string(name='name', description='name，目前仅能是 “ADP 底座“'),
   packageTools?: [ 
     {
@@ -134,6 +135,7 @@ model InstanceInfo {
   dataDisk?: [
     Disk
   ](name='dataDisk', description='dataDisk'),
+  diskConfigAnnotations?: map[string]string(name='diskConfigAnnotations', description='diskConfigAnnotations'),
   hostName?: string(name='hostName', description='hostName'),
   identifier?: string(name='identifier', description='identifier'),
   imageID?: string(name='imageID', description='imageID'),
@@ -407,6 +409,7 @@ model AddProductVersionConfigRequest {
   name?: string(name='name', description='配置信息key'),
   parentComponentVersionUID?: string(name='parentComponentVersionUID', description='父组件uid'),
   value?: string(name='value', description='配置信息value'),
+  valueType?: string(name='valueType'),
 }
 
 model AddProductVersionConfigResponseBody = {
@@ -448,6 +451,9 @@ async function addProductVersionConfigWithOptions(uid: string, request: AddProdu
   if (!Util.isUnset(request.value)) {
     body['value'] = request.value;
   }
+  if (!Util.isUnset(request.valueType)) {
+    body['valueType'] = request.valueType;
+  }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
@@ -467,32 +473,34 @@ async function addProductVersionConfigWithOptions(uid: string, request: AddProdu
   return callApi(params, req, runtime);
 }
 
-model AuthorizeProductVersionRequest {
-  grantee?: string(name='grantee', description='被授权者uid'),
+model BatchAddEnvironmentNodesRequest {
+  instanceList?: [
+    InstanceInfo
+  ](name='instanceList'),
 }
 
-model AuthorizeProductVersionResponseBody = {
-  code?: string(name='code', description='错误码'),
-  msg?: string(name='msg', description='错误信息'),
+model BatchAddEnvironmentNodesResponseBody = {
+  code?: string(name='code'),
+  msg?: string(name='msg'),
 }
 
-model AuthorizeProductVersionResponse = {
+model BatchAddEnvironmentNodesResponse = {
   headers: map[string]string(name='headers'),
-  body: AuthorizeProductVersionResponseBody(name='body'),
+  body: BatchAddEnvironmentNodesResponseBody(name='body'),
 }
 
-async function authorizeProductVersion(uid: string, request: AuthorizeProductVersionRequest): AuthorizeProductVersionResponse {
+async function batchAddEnvironmentNodes(uid: string, request: BatchAddEnvironmentNodesRequest): BatchAddEnvironmentNodesResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return authorizeProductVersionWithOptions(uid, request, headers, runtime);
+  return batchAddEnvironmentNodesWithOptions(uid, request, headers, runtime);
 }
 
-async function authorizeProductVersionWithOptions(uid: string, request: AuthorizeProductVersionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): AuthorizeProductVersionResponse {
+async function batchAddEnvironmentNodesWithOptions(uid: string, request: BatchAddEnvironmentNodesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): BatchAddEnvironmentNodesResponse {
   Util.validateModel(request);
   uid = OpenApiUtil.getEncodeParam(uid);
   var body : map[string]any= {};
-  if (!Util.isUnset(request.grantee)) {
-    body['grantee'] = request.grantee;
+  if (!Util.isUnset(request.instanceList)) {
+    body['instanceList'] = request.instanceList;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -500,10 +508,65 @@ async function authorizeProductVersionWithOptions(uid: string, request: Authoriz
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
-    action = 'AuthorizeProductVersion',
+    action = 'BatchAddEnvironmentNodes',
     version = '2021-07-20',
     protocol = 'HTTPS',
-    pathname = `/api/v2/product-versions/${uid}/authorizations`,
+    pathname = `/api/v2/environments/${uid}/batch/nodes`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model BatchAddProductVersionConfigRequest {
+  productVersionConfigList?: [ 
+    {
+      componentVersionUID?: string(name='componentVersionUID', description='组件uid'),
+      description?: string(name='description', description='配置说明'),
+      name?: string(name='name', description='配置信息key'),
+      parentComponentVersionUID?: string(name='parentComponentVersionUID', description='父组件uid'),
+      value?: string(name='value', description='配置信息value'),
+      valueType?: string(name='valueType'),
+    }
+  ](name='productVersionConfigList'),
+}
+
+model BatchAddProductVersionConfigResponseBody = {
+  code?: string(name='code'),
+  msg?: string(name='msg'),
+}
+
+model BatchAddProductVersionConfigResponse = {
+  headers: map[string]string(name='headers'),
+  body: BatchAddProductVersionConfigResponseBody(name='body'),
+}
+
+async function batchAddProductVersionConfig(uid: string, request: BatchAddProductVersionConfigRequest): BatchAddProductVersionConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return batchAddProductVersionConfigWithOptions(uid, request, headers, runtime);
+}
+
+async function batchAddProductVersionConfigWithOptions(uid: string, request: BatchAddProductVersionConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): BatchAddProductVersionConfigResponse {
+  Util.validateModel(request);
+  uid = OpenApiUtil.getEncodeParam(uid);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.productVersionConfigList)) {
+    body['productVersionConfigList'] = request.productVersionConfigList;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'BatchAddProductVersionConfig',
+    version = '2021-07-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/product-versions/${uid}/batch/configs`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
@@ -596,6 +659,71 @@ async function createEnvironmentWithOptions(request: CreateEnvironmentRequest, h
     version = '2021-07-20',
     protocol = 'HTTPS',
     pathname = `/api/v2/environments`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model CreateEnvironmentLicenseRequest {
+  companyName?: string(name='companyName', description='企业名称'),
+  contact?: string(name='contact', description='联系方式'),
+  machineFingerprint?: string(name='machineFingerprint', description='机器指纹信息'),
+  scenario?: string(name='scenario', description='使用场景'),
+  type?: string(name='type', description='证书类型'),
+}
+
+model CreateEnvironmentLicenseResponseBody = {
+  code?: string(name='code'),
+  data?: {
+    uid?: string(name='uid', description='license uid'),
+  }(name='data', description='业务数据'),
+  msg?: string(name='msg'),
+}
+
+model CreateEnvironmentLicenseResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateEnvironmentLicenseResponseBody(name='body'),
+}
+
+async function createEnvironmentLicense(uid: string, request: CreateEnvironmentLicenseRequest): CreateEnvironmentLicenseResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createEnvironmentLicenseWithOptions(uid, request, headers, runtime);
+}
+
+async function createEnvironmentLicenseWithOptions(uid: string, request: CreateEnvironmentLicenseRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateEnvironmentLicenseResponse {
+  Util.validateModel(request);
+  uid = OpenApiUtil.getEncodeParam(uid);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.companyName)) {
+    body['companyName'] = request.companyName;
+  }
+  if (!Util.isUnset(request.contact)) {
+    body['contact'] = request.contact;
+  }
+  if (!Util.isUnset(request.machineFingerprint)) {
+    body['machineFingerprint'] = request.machineFingerprint;
+  }
+  if (!Util.isUnset(request.scenario)) {
+    body['scenario'] = request.scenario;
+  }
+  if (!Util.isUnset(request.type)) {
+    body['type'] = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateEnvironmentLicense',
+    version = '2021-07-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/environments/${uid}/licenses`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
@@ -1406,6 +1534,62 @@ async function getEnvironmentWithOptions(uid: string, headers: map[string]string
   return callApi(params, req, runtime);
 }
 
+model GetEnvironmentLicenseResponseBody = {
+  code?: string(name='code', description='错误码'),
+  data?: {
+    expireTime?: string(name='expireTime', description='过期时间'),
+    licenseKey?: string(name='licenseKey', description='license内容'),
+    licenseQuota?: {
+      clusterQuota?: {
+        cpuCoreLimit?: long(name='cpuCoreLimit', description='cpu核数限制'),
+      }(name='clusterQuota', description='集群配额'),
+      componentQuotas?: [ 
+        {
+          componentName?: string(name='componentName', description='组件名'),
+          componentSource?: string(name='componentSource', description='组件来源'),
+          instanceLimit?: long(name='instanceLimit', description='实例数限制'),
+        }
+      ](name='componentQuotas', description='组件配额'),
+    }(name='licenseQuota', description='license配额'),
+    rejectReason?: string(name='rejectReason', description='拒绝原因'),
+    status?: string(name='status', description='状态'),
+    type?: string(name='type', description='类型'),
+    uid?: string(name='uid', description='license uid'),
+  }(name='data'),
+  msg?: string(name='msg', description='错误信息'),
+}
+
+model GetEnvironmentLicenseResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetEnvironmentLicenseResponseBody(name='body'),
+}
+
+async function getEnvironmentLicense(uid: string, licenseUID: string): GetEnvironmentLicenseResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getEnvironmentLicenseWithOptions(uid, licenseUID, headers, runtime);
+}
+
+async function getEnvironmentLicenseWithOptions(uid: string, licenseUID: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetEnvironmentLicenseResponse {
+  uid = OpenApiUtil.getEncodeParam(uid);
+  licenseUID = OpenApiUtil.getEncodeParam(licenseUID);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetEnvironmentLicense',
+    version = '2021-07-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/environments/${uid}/licenses/${licenseUID}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
 model GetEnvironmentNodeResponseBody = {
   code?: string(name='code'),
   data?: {
@@ -1546,6 +1730,7 @@ model GetFoundationVersionResponseBody = {
   data?: {
     description?: string(name='description', description='description'),
     features?: [ string ](name='features', description='底座功能列表'),
+    labels?: string(name='labels'),
     name?: string(name='name', description='name，目前仅能是 “ADP 底座“'),
     platforms?: [
       Platform
@@ -2229,6 +2414,87 @@ async function listComponentsWithOptions(request: ListComponentsRequest, headers
   return callApi(params, req, runtime);
 }
 
+model ListEnvironmentLicensesRequest {
+  pageNum?: int32(name='pageNum', description='页码'),
+  pageSize?: int32(name='pageSize', description='页大小'),
+  type?: string(name='type', description='类型'),
+}
+
+model ListEnvironmentLicensesResponseBody = {
+  code?: string(name='code', description='错误码'),
+  data?: {
+    list?: [ 
+      {
+        expireTime?: string(name='expireTime', description='过期时间'),
+        licenseKey?: string(name='licenseKey', description='license内容'),
+        licenseQuota?: {
+          clusterQuota?: {
+            cpuCoreLimit?: int32(name='cpuCoreLimit', description='cpu核数限制'),
+          }(name='clusterQuota', description='集群配额'),
+          componentQuotas?: [ 
+            {
+              componentName?: string(name='componentName', description='组件名'),
+              componentSource?: string(name='componentSource', description='组件来源'),
+              instanceLimit?: int32(name='instanceLimit', description='实例数限制'),
+            }
+          ](name='componentQuotas', description='组件配额'),
+        }(name='licenseQuota', description='license配额'),
+        rejectReason?: string(name='rejectReason', description='拒绝原因'),
+        status?: string(name='status', description='状态'),
+        type?: string(name='type', description='类型'),
+        uid?: string(name='uid', description='license uid'),
+      }
+    ](name='list', description='license列表'),
+    pageNum?: int32(name='pageNum', description='页码'),
+    pageSize?: int32(name='pageSize', description='页大小'),
+    total?: int32(name='total', description='总数'),
+  }(name='data', description='业务数据'),
+  msg?: string(name='msg', description='错误信息'),
+}
+
+model ListEnvironmentLicensesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListEnvironmentLicensesResponseBody(name='body'),
+}
+
+async function listEnvironmentLicenses(uid: string, request: ListEnvironmentLicensesRequest): ListEnvironmentLicensesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listEnvironmentLicensesWithOptions(uid, request, headers, runtime);
+}
+
+async function listEnvironmentLicensesWithOptions(uid: string, request: ListEnvironmentLicensesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListEnvironmentLicensesResponse {
+  Util.validateModel(request);
+  uid = OpenApiUtil.getEncodeParam(uid);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.pageNum)) {
+    query['pageNum'] = request.pageNum;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListEnvironmentLicenses',
+    version = '2021-07-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/environments/${uid}/licenses`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
 model ListEnvironmentNodesRequest {
   pageNum?: int32(name='pageNum'),
   pageSize?: int32(name='pageSize'),
@@ -2841,6 +3107,7 @@ model ListProductInstanceConfigsResponseBody = {
         productVersionUID?: string(name='productVersionUID'),
         uid?: string(name='uid'),
         value?: string(name='value'),
+        valueType?: string(name='valueType'),
         vendorType?: string(name='vendorType'),
       }
     ](name='list'),
@@ -3386,6 +3653,7 @@ model PutProductInstanceConfigRequest {
   releaseName?: string(name='releaseName'),
   scope?: [ string ](name='scope'),
   value?: string(name='value'),
+  valueType?: string(name='valueType'),
 }
 
 model PutProductInstanceConfigResponseBody = {
@@ -3445,6 +3713,9 @@ async function putProductInstanceConfigWithOptions(request: PutProductInstanceCo
   }
   if (!Util.isUnset(request.value)) {
     body['value'] = request.value;
+  }
+  if (!Util.isUnset(request.valueType)) {
+    body['valueType'] = request.valueType;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -3943,6 +4214,7 @@ model UpdateProductVersionConfigRequest {
   name?: string(name='name', description='配置信息key'),
   parentComponentVersionUID?: string(name='parentComponentVersionUID', description='父组件versionid'),
   value?: string(name='value', description='配置信息value'),
+  valueType?: string(name='valueType', description='value类型'),
 }
 
 model UpdateProductVersionConfigResponseBody = {
@@ -3981,6 +4253,9 @@ async function updateProductVersionConfigWithOptions(uid: string, configUID: str
   }
   if (!Util.isUnset(request.value)) {
     body['value'] = request.value;
+  }
+  if (!Util.isUnset(request.valueType)) {
+    body['valueType'] = request.valueType;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
