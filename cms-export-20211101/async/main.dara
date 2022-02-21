@@ -1,0 +1,113 @@
+/**
+ *
+ */
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
+
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'cms-export';
+  @version = '2021-11-01';
+  @endpointRule = '';
+  @endpointMap = {
+  };
+}
+
+function close(): void {
+  @handler.close();
+}
+
+model BatchGetRequest {
+  compressionType?: string(name='CompressionType', position='Body'),
+  cursor: string(name='Cursor', position='Body'),
+  length: int32(name='Length', position='Body'),
+  metric: string(name='Metric', position='Body'),
+  namespace: string(name='Namespace', position='Body'),
+  recordKeyWhiteList?: string(name='RecordKeyWhiteList', position='Body'),
+}
+
+model BatchGetResponseBody = {
+  code?: int32(name='Code'),
+  data?: {
+    compressionKeys?: [ string ](name='CompressionKeys'),
+    compressionValues?: [[  map[string]any ]    ](name='CompressionValues'),
+    cursor?: string(name='Cursor'),
+    length?: long(name='Length'),
+    records?: [ 
+      {
+        labelValues?: [ string ](name='LabelValues'),
+        labels?: [ string ](name='Labels'),
+        measureLabels?: [ string ](name='MeasureLabels'),
+        measureValues?: [ string ](name='MeasureValues'),
+        metric?: string(name='Metric'),
+        namespace?: string(name='Namespace'),
+        period?: int32(name='Period'),
+        tagValues?: [ string ](name='TagValues'),
+        tags?: [ string ](name='Tags'),
+        timestamp?: long(name='Timestamp'),
+      }
+    ](name='Records'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success'),
+}
+
+model BatchGetResponse = {
+  headers: map[string]string(name='headers'),
+  body: BatchGetResponseBody(name='body'),
+}
+
+async function batchGet(request: BatchGetRequest): BatchGetResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'BatchGet', 'POST', '/', 'json', true, 'form', request);
+}
+
+model CursorRequest {
+  endTime: long(name='EndTime', position='Body'),
+  matchers?: [ 
+    {
+      label?: string(name='Label'),
+      operator?: string(name='Operator'),
+      value?: string(name='Value'),
+    }
+  ](name='Matchers', position='Body'),
+  metric: string(name='Metric', position='Body'),
+  namespace: string(name='Namespace', position='Body'),
+  period: int32(name='Period', position='Body'),
+  startTime: long(name='StartTime', position='Body'),
+}
+
+model CursorResponseBody = {
+  code?: int32(name='Code'),
+  data?: {
+    cursor?: string(name='Cursor'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model CursorResponse = {
+  headers: map[string]string(name='headers'),
+  body: CursorResponseBody(name='body'),
+}
+
+async function cursor(request: CursorRequest): CursorResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'Cursor', 'POST', '/', 'json', true, 'form', request);
+}
+
