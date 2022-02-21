@@ -1,31 +1,35 @@
 /**
  *
  */
-import Util;
-import OpenApi;
-import OpenApiUtil;
-import EndpointUtil;
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
 
-extends OpenApi;
-
-init(config: OpenApi.Config){
-  super(config);
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'Chatbot';
+  @version = '2017-10-11';
   @endpointRule = '';
-  
-  checkConfig(config);
-  @endpoint = getEndpoint('chatbot', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+  @endpointMap = {
+  };
 }
 
-function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
-    return endpoint;
-  }
-
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
-    return endpointMap[regionId];
-  }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+function close(): void {
+  @handler.close();
 }
+
 model Children {
   areaCode?: string(name='AreaCode', description='地区代号'),
   categoryId?: long(name='CategoryId', description='分类Id'),
@@ -113,14 +117,6 @@ model PaasFunctionPluginFieldDataDTO {
     PaasSwitchCaseDTO
   ](name='Switch', description='Switch'),
   type?: string(name='Type', description='Type'),
-}
-
-model PaasFunctionPluginParams {
-  body?: string(name='Body', description='Body'),
-  header?: map[string]string(name='Header', description='Header'),
-  method?: string(name='Method', description='Method'),
-  query?: map[string]string(name='Query', description='Query'),
-  url?: string(name='Url', description='Url'),
 }
 
 model PaasNodeDTO {
@@ -225,15 +221,6 @@ model TagMtopDTO {
   value?: string(name='Value', description='Value'),
 }
 
-model UpdateDialogFlowModuleDefinition {
-  edges?: [
-    PaasEdgeDTO
-  ](name='Edges', description='Edges'),
-  nodes?: [
-    PaasNodeDTO
-  ](name='Nodes', description='Nodes'),
-}
-
 model UsersayMtopDTO {
   data?: [
     SectionMtopDTO
@@ -243,7 +230,8 @@ model UsersayMtopDTO {
 }
 
 model ActivatePerspectiveRequest {
-  perspectiveId?: string(name='PerspectiveId'),
+  perspectiveId: string(name='PerspectiveId', position='Query'),
+  regionId?: string(name='RegionId', position='Host'),
 }
 
 model ActivatePerspectiveResponseBody = {
@@ -255,22 +243,14 @@ model ActivatePerspectiveResponse = {
   body: ActivatePerspectiveResponseBody(name='body'),
 }
 
-async function activatePerspectiveWithOptions(request: ActivatePerspectiveRequest, runtime: Util.RuntimeOptions): ActivatePerspectiveResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ActivatePerspective', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function activatePerspective(request: ActivatePerspectiveRequest): ActivatePerspectiveResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return activatePerspectiveWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ActivatePerspective', 'POST', '/', 'json', false, 'json', request);
 }
 
 model AddSynonymRequest {
-  coreWordName?: string(name='CoreWordName'),
-  synonym?: string(name='Synonym'),
+  coreWordName: string(name='CoreWordName', position='Query'),
+  synonym: string(name='Synonym', position='Query'),
 }
 
 model AddSynonymResponseBody = {
@@ -282,32 +262,18 @@ model AddSynonymResponse = {
   body: AddSynonymResponseBody(name='body'),
 }
 
-async function addSynonymWithOptions(request: AddSynonymRequest, runtime: Util.RuntimeOptions): AddSynonymResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('AddSynonym', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function addSynonym(request: AddSynonymRequest): AddSynonymResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return addSynonymWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'AddSynonym', 'POST', '/', 'json', false, 'json', request);
 }
 
 model AppendEntityMemberRequest {
-  applyType?: string(name='ApplyType'),
-  entityId?: long(name='EntityId'),
-  member?: {
-    memberName?: string(name='MemberName'),
-    synonyms?: [ string ](name='Synonyms'),
-  }(name='Member'),
-}
-
-model AppendEntityMemberShrinkRequest {
-  applyType?: string(name='ApplyType'),
-  entityId?: long(name='EntityId'),
-  memberShrink?: string(name='Member'),
+  applyType: string(name='ApplyType', position='Query'),
+  entityId: long(name='EntityId', position='Query'),
+  member: {
+    memberName: string(name='MemberName'),
+    synonyms: [ string ](name='Synonyms'),
+  }(name='Member', position='Query'),
 }
 
 model AppendEntityMemberResponseBody = {
@@ -320,30 +286,18 @@ model AppendEntityMemberResponse = {
   body: AppendEntityMemberResponseBody(name='body'),
 }
 
-async function appendEntityMemberWithOptions(tmpReq: AppendEntityMemberRequest, runtime: Util.RuntimeOptions): AppendEntityMemberResponse {
-  Util.validateModel(tmpReq);
-  var request = new AppendEntityMemberShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.member)) {
-    request.memberShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.member, 'Member', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('AppendEntityMember', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function appendEntityMember(request: AppendEntityMemberRequest): AppendEntityMemberResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return appendEntityMemberWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'AppendEntityMember', 'POST', '/', 'json', false, 'json', request);
 }
 
 model AssociateRequest {
-  instanceId?: string(name='InstanceId'),
-  perspective?: [ string ](name='Perspective'),
-  recommendNum?: int32(name='RecommendNum'),
-  sessionId?: string(name='SessionId'),
-  utterance?: string(name='Utterance'),
+  instanceId: string(name='InstanceId', position='Query'),
+  perspective?: [ string ](name='Perspective', position='Query'),
+  recommendNum?: int32(name='RecommendNum', position='Query'),
+  regionId?: string(name='RegionId', position='Host'),
+  sessionId?: string(name='SessionId', position='Query'),
+  utterance: string(name='Utterance', position='Query'),
 }
 
 model AssociateResponseBody = {
@@ -362,31 +316,23 @@ model AssociateResponse = {
   body: AssociateResponseBody(name='body'),
 }
 
-async function associateWithOptions(request: AssociateRequest, runtime: Util.RuntimeOptions): AssociateResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('Associate', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function associate(request: AssociateRequest): AssociateResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return associateWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'Associate', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ChatRequest {
-  instanceId?: string(name='InstanceId'),
-  intentName?: string(name='IntentName'),
-  knowledgeId?: string(name='KnowledgeId'),
-  perspective?: [ string ](name='Perspective'),
-  recommend?: boolean(name='Recommend'),
-  senderId?: string(name='SenderId'),
-  senderNick?: string(name='SenderNick'),
-  sessionId?: string(name='SessionId'),
-  tag?: string(name='Tag'),
-  utterance?: string(name='Utterance'),
-  vendorParam?: string(name='VendorParam'),
+  instanceId: string(name='InstanceId', position='Query'),
+  intentName?: string(name='IntentName', position='Query'),
+  knowledgeId?: string(name='KnowledgeId', position='Query'),
+  perspective?: [ string ](name='Perspective', position='Query'),
+  recommend?: boolean(name='Recommend', position='Query'),
+  senderId?: string(name='SenderId', position='Query'),
+  senderNick?: string(name='SenderNick', position='Query'),
+  sessionId?: string(name='SessionId', position='Query'),
+  tag?: string(name='Tag', position='Query'),
+  utterance: string(name='Utterance', position='Query'),
+  vendorParam?: string(name='VendorParam', position='Query'),
 }
 
 model ChatResponseBody = {
@@ -460,25 +406,41 @@ model ChatResponse = {
   body: ChatResponseBody(name='body'),
 }
 
-async function chatWithOptions(request: ChatRequest, runtime: Util.RuntimeOptions): ChatResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('Chat', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+async function chat(request: ChatRequest): ChatResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'Chat', 'POST', '/', 'json', false, 'json', request);
 }
 
-async function chat(request: ChatRequest): ChatResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return chatWithOptions(request, runtime);
+model CreateBizDataRangeRequest {
+  dataType: string(name='DataType', position='Query'),
+  manageCode: string(name='ManageCode', position='Query'),
+  name: string(name='Name', position='Query'),
+  parentBizDataRangeId?: long(name='ParentBizDataRangeId', position='Query'),
+}
+
+model CreateBizDataRangeResponseBody = {
+  bizDataRangeId?: long(name='BizDataRangeId'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model CreateBizDataRangeResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateBizDataRangeResponseBody(name='body'),
+}
+
+async function createBizDataRange(request: CreateBizDataRangeRequest): CreateBizDataRangeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateBizDataRange', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateBotRequest {
-  avatar?: string(name='Avatar'),
-  introduction?: string(name='Introduction'),
-  languageCode?: string(name='LanguageCode'),
-  name?: string(name='Name'),
-  robotType?: string(name='RobotType'),
+  avatar?: string(name='Avatar', position='Query'),
+  introduction?: string(name='Introduction', position='Query'),
+  languageCode: string(name='LanguageCode', position='Query'),
+  name: string(name='Name', position='Query'),
+  regionId?: string(name='RegionId', position='Host'),
+  robotType?: string(name='RobotType', position='Query'),
 }
 
 model CreateBotResponseBody = {
@@ -491,24 +453,16 @@ model CreateBotResponse = {
   body: CreateBotResponseBody(name='body'),
 }
 
-async function createBotWithOptions(request: CreateBotRequest, runtime: Util.RuntimeOptions): CreateBotResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('CreateBot', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function createBot(request: CreateBotRequest): CreateBotResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createBotWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateBot', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateCategoryRequest {
-  bizCode?: string(name='BizCode'),
-  knowledgeType?: int32(name='KnowledgeType'),
-  name?: string(name='Name'),
-  parentCategoryId?: long(name='ParentCategoryId'),
+  bizCode?: string(name='BizCode', position='Query'),
+  knowledgeType?: int32(name='KnowledgeType', position='Query'),
+  name: string(name='Name', position='Query'),
+  parentCategoryId?: long(name='ParentCategoryId', position='Query'),
 }
 
 model CreateCategoryResponseBody = {
@@ -522,21 +476,34 @@ model CreateCategoryResponse = {
   body: CreateCategoryResponseBody(name='body'),
 }
 
-async function createCategoryWithOptions(request: CreateCategoryRequest, runtime: Util.RuntimeOptions): CreateCategoryResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('CreateCategory', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+async function createCategory(request: CreateCategoryRequest): CreateCategoryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateCategory', 'POST', '/', 'json', false, 'json', request);
 }
 
-async function createCategory(request: CreateCategoryRequest): CreateCategoryResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createCategoryWithOptions(request, runtime);
+model CreateClusterLoopRequest {
+  params: string(name='Params', position='Query'),
+  title: string(name='Title', position='Query'),
+}
+
+model CreateClusterLoopResponseBody = {
+  data?: long(name='Data'),
+  message?: string(name='Message'),
+  success?: boolean(name='Success'),
+}
+
+model CreateClusterLoopResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateClusterLoopResponseBody(name='body'),
+}
+
+async function createClusterLoop(request: CreateClusterLoopRequest): CreateClusterLoopResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateClusterLoop', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateCoreWordRequest {
-  coreWordName?: string(name='CoreWordName'),
+  coreWordName: string(name='CoreWordName', position='Query'),
 }
 
 model CreateCoreWordResponseBody = {
@@ -549,23 +516,15 @@ model CreateCoreWordResponse = {
   body: CreateCoreWordResponseBody(name='body'),
 }
 
-async function createCoreWordWithOptions(request: CreateCoreWordRequest, runtime: Util.RuntimeOptions): CreateCoreWordResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('CreateCoreWord', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function createCoreWord(request: CreateCoreWordRequest): CreateCoreWordResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createCoreWordWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateCoreWord', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateDialogRequest {
-  description?: string(name='Description'),
-  dialogName?: string(name='DialogName'),
-  instanceId?: string(name='InstanceId'),
+  description?: string(name='Description', position='Query'),
+  dialogName: string(name='DialogName', position='Query'),
+  instanceId: string(name='InstanceId', position='Query'),
 }
 
 model CreateDialogResponseBody = {
@@ -578,38 +537,22 @@ model CreateDialogResponse = {
   body: CreateDialogResponseBody(name='body'),
 }
 
-async function createDialogWithOptions(request: CreateDialogRequest, runtime: Util.RuntimeOptions): CreateDialogResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('CreateDialog', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function createDialog(request: CreateDialogRequest): CreateDialogResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createDialogWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateDialog', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateEntityRequest {
-  dialogId?: long(name='DialogId'),
-  entityName?: string(name='EntityName'),
-  entityType?: string(name='EntityType'),
+  dialogId: long(name='DialogId', position='Query'),
+  entityName: string(name='EntityName', position='Query'),
+  entityType: string(name='EntityType', position='Query'),
   members?: [ 
     {
       memberName?: string(name='MemberName'),
       synonyms?: [ string ](name='Synonyms'),
     }
-  ](name='Members'),
-  regex?: string(name='Regex'),
-}
-
-model CreateEntityShrinkRequest {
-  dialogId?: long(name='DialogId'),
-  entityName?: string(name='EntityName'),
-  entityType?: string(name='EntityType'),
-  membersShrink?: string(name='Members'),
-  regex?: string(name='Regex'),
+  ](name='Members', position='Query'),
+  regex?: string(name='Regex', position='Query'),
 }
 
 model CreateEntityResponseBody = {
@@ -622,32 +565,14 @@ model CreateEntityResponse = {
   body: CreateEntityResponseBody(name='body'),
 }
 
-async function createEntityWithOptions(tmpReq: CreateEntityRequest, runtime: Util.RuntimeOptions): CreateEntityResponse {
-  Util.validateModel(tmpReq);
-  var request = new CreateEntityShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.members)) {
-    request.membersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.members, 'Members', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('CreateEntity', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function createEntity(request: CreateEntityRequest): CreateEntityResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createEntityWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateEntity', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateIntentRequest {
-  dialogId?: long(name='DialogId'),
-  intentDefinition?: IntentCreateDTO(name='IntentDefinition'),
-}
-
-model CreateIntentShrinkRequest {
-  dialogId?: long(name='DialogId'),
-  intentDefinitionShrink?: string(name='IntentDefinition'),
+  dialogId: long(name='DialogId', position='Query'),
+  intentDefinition: IntentCreateDTO(name='IntentDefinition', position='Query'),
 }
 
 model CreateIntentResponseBody = {
@@ -660,29 +585,16 @@ model CreateIntentResponse = {
   body: CreateIntentResponseBody(name='body'),
 }
 
-async function createIntentWithOptions(tmpReq: CreateIntentRequest, runtime: Util.RuntimeOptions): CreateIntentResponse {
-  Util.validateModel(tmpReq);
-  var request = new CreateIntentShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.intentDefinition)) {
-    request.intentDefinitionShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.intentDefinition, 'IntentDefinition', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('CreateIntent', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function createIntent(request: CreateIntentRequest): CreateIntentResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createIntentWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateIntent', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateKnowledgeRequest {
-  knowledge?: {
-    categoryId?: long(name='CategoryId'),
+  knowledge: {
+    categoryId: long(name='CategoryId'),
     endDate?: string(name='EndDate'),
-    knowledgeTitle?: string(name='KnowledgeTitle'),
+    knowledgeTitle: string(name='KnowledgeTitle'),
     knowledgeType?: int32(name='KnowledgeType'),
     outlines?: [ 
       {
@@ -692,22 +604,18 @@ model CreateKnowledgeRequest {
     ](name='Outlines'),
     simQuestions?: [ 
       {
-        title?: string(name='Title'),
+        title: string(name='Title'),
       }
     ](name='SimQuestions'),
-    solutions?: [ 
+    solutions: [ 
       {
-        content?: string(name='Content'),
+        content: string(name='Content'),
         perspectiveIds?: [ string ](name='PerspectiveIds'),
-        plainText?: string(name='PlainText'),
+        plainText: string(name='PlainText'),
       }
     ](name='Solutions'),
     startDate?: string(name='StartDate'),
-  }(name='Knowledge'),
-}
-
-model CreateKnowledgeShrinkRequest {
-  knowledgeShrink?: string(name='Knowledge'),
+  }(name='Knowledge', position='Body'),
 }
 
 model CreateKnowledgeResponseBody = {
@@ -720,26 +628,14 @@ model CreateKnowledgeResponse = {
   body: CreateKnowledgeResponseBody(name='body'),
 }
 
-async function createKnowledgeWithOptions(tmpReq: CreateKnowledgeRequest, runtime: Util.RuntimeOptions): CreateKnowledgeResponse {
-  Util.validateModel(tmpReq);
-  var request = new CreateKnowledgeShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.knowledge)) {
-    request.knowledgeShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.knowledge, 'Knowledge', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('CreateKnowledge', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function createKnowledge(request: CreateKnowledgeRequest): CreateKnowledgeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createKnowledgeWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateKnowledge', 'POST', '/', 'json', true, 'form', request);
 }
 
 model CreatePerspectiveRequest {
-  name?: string(name='Name'),
+  name: string(name='Name', position='Query'),
+  regionId?: string(name='RegionId', position='Host'),
 }
 
 model CreatePerspectiveResponseBody = {
@@ -752,21 +648,55 @@ model CreatePerspectiveResponse = {
   body: CreatePerspectiveResponseBody(name='body'),
 }
 
-async function createPerspectiveWithOptions(request: CreatePerspectiveRequest, runtime: Util.RuntimeOptions): CreatePerspectiveResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('CreatePerspective', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+async function createPerspective(request: CreatePerspectiveRequest): CreatePerspectiveResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreatePerspective', 'POST', '/', 'json', false, 'json', request);
 }
 
-async function createPerspective(request: CreatePerspectiveRequest): CreatePerspectiveResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createPerspectiveWithOptions(request, runtime);
+model CreateSimilarityLoopRequest {
+  multiParams: string(name='MultiParams', position='Query'),
+  params: string(name='Params', position='Query'),
+  title: string(name='Title', position='Query'),
+}
+
+model CreateSimilarityLoopResponseBody = {
+  data?: long(name='Data'),
+  message?: string(name='Message'),
+  success?: boolean(name='Success'),
+}
+
+model CreateSimilarityLoopResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateSimilarityLoopResponseBody(name='body'),
+}
+
+async function createSimilarityLoop(request: CreateSimilarityLoopRequest): CreateSimilarityLoopResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateSimilarityLoop', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DeleteBizDataRangeRequest {
+  bizDataRangeId: long(name='BizDataRangeId', position='Query'),
+}
+
+model DeleteBizDataRangeResponseBody = {
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model DeleteBizDataRangeResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteBizDataRangeResponseBody(name='body'),
+}
+
+async function deleteBizDataRange(request: DeleteBizDataRangeRequest): DeleteBizDataRangeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteBizDataRange', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteBotRequest {
-  instanceId?: string(name='InstanceId'),
+  instanceId: string(name='InstanceId', position='Query'),
+  regionId?: string(name='RegionId', position='Host'),
 }
 
 model DeleteBotResponseBody = {
@@ -778,21 +708,13 @@ model DeleteBotResponse = {
   body: DeleteBotResponseBody(name='body'),
 }
 
-async function deleteBotWithOptions(request: DeleteBotRequest, runtime: Util.RuntimeOptions): DeleteBotResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DeleteBot', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function deleteBot(request: DeleteBotRequest): DeleteBotResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteBotWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteBot', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteCategoryRequest {
-  categoryId?: long(name='CategoryId'),
+  categoryId: long(name='CategoryId', position='Query'),
 }
 
 model DeleteCategoryResponseBody = {
@@ -805,21 +727,13 @@ model DeleteCategoryResponse = {
   body: DeleteCategoryResponseBody(name='body'),
 }
 
-async function deleteCategoryWithOptions(request: DeleteCategoryRequest, runtime: Util.RuntimeOptions): DeleteCategoryResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DeleteCategory', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function deleteCategory(request: DeleteCategoryRequest): DeleteCategoryResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteCategoryWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteCategory', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteCoreWordRequest {
-  coreWordName?: string(name='CoreWordName'),
+  coreWordName: string(name='CoreWordName', position='Query'),
 }
 
 model DeleteCoreWordResponseBody = {
@@ -832,21 +746,13 @@ model DeleteCoreWordResponse = {
   body: DeleteCoreWordResponseBody(name='body'),
 }
 
-async function deleteCoreWordWithOptions(request: DeleteCoreWordRequest, runtime: Util.RuntimeOptions): DeleteCoreWordResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DeleteCoreWord', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function deleteCoreWord(request: DeleteCoreWordRequest): DeleteCoreWordResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteCoreWordWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteCoreWord', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteDialogRequest {
-  dialogId?: long(name='DialogId'),
+  dialogId: long(name='DialogId', position='Query'),
 }
 
 model DeleteDialogResponseBody = {
@@ -858,21 +764,13 @@ model DeleteDialogResponse = {
   body: DeleteDialogResponseBody(name='body'),
 }
 
-async function deleteDialogWithOptions(request: DeleteDialogRequest, runtime: Util.RuntimeOptions): DeleteDialogResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DeleteDialog', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function deleteDialog(request: DeleteDialogRequest): DeleteDialogResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteDialogWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteDialog', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteEntityRequest {
-  entityId?: long(name='EntityId'),
+  entityId: long(name='EntityId', position='Query'),
 }
 
 model DeleteEntityResponseBody = {
@@ -885,21 +783,13 @@ model DeleteEntityResponse = {
   body: DeleteEntityResponseBody(name='body'),
 }
 
-async function deleteEntityWithOptions(request: DeleteEntityRequest, runtime: Util.RuntimeOptions): DeleteEntityResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DeleteEntity', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function deleteEntity(request: DeleteEntityRequest): DeleteEntityResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteEntityWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteEntity', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteIntentRequest {
-  intentId?: long(name='IntentId'),
+  intentId: long(name='IntentId', position='Query'),
 }
 
 model DeleteIntentResponseBody = {
@@ -912,21 +802,13 @@ model DeleteIntentResponse = {
   body: DeleteIntentResponseBody(name='body'),
 }
 
-async function deleteIntentWithOptions(request: DeleteIntentRequest, runtime: Util.RuntimeOptions): DeleteIntentResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DeleteIntent', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function deleteIntent(request: DeleteIntentRequest): DeleteIntentResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteIntentWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteIntent', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteKnowledgeRequest {
-  knowledgeId?: long(name='KnowledgeId'),
+  knowledgeId: long(name='KnowledgeId', position='Query'),
 }
 
 model DeleteKnowledgeResponseBody = {
@@ -938,21 +820,37 @@ model DeleteKnowledgeResponse = {
   body: DeleteKnowledgeResponseBody(name='body'),
 }
 
-async function deleteKnowledgeWithOptions(request: DeleteKnowledgeRequest, runtime: Util.RuntimeOptions): DeleteKnowledgeResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DeleteKnowledge', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+async function deleteKnowledge(request: DeleteKnowledgeRequest): DeleteKnowledgeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteKnowledge', 'POST', '/', 'json', false, 'json', request);
 }
 
-async function deleteKnowledge(request: DeleteKnowledgeRequest): DeleteKnowledgeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteKnowledgeWithOptions(request, runtime);
+model DescribeBizDataRangeRequest {
+  bizDataRangeId: long(name='BizDataRangeId', position='Query'),
+}
+
+model DescribeBizDataRangeResponseBody = {
+  bizDataRangeId?: long(name='BizDataRangeId'),
+  dataType?: int32(name='DataType'),
+  manageCode?: string(name='ManageCode'),
+  name?: string(name='Name'),
+  parentBizDataRangeId?: long(name='ParentBizDataRangeId'),
+  requestId?: string(name='RequestId'),
+}
+
+model DescribeBizDataRangeResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeBizDataRangeResponseBody(name='body'),
+}
+
+async function describeBizDataRange(request: DescribeBizDataRangeRequest): DescribeBizDataRangeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeBizDataRange', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeBotRequest {
-  instanceId?: string(name='InstanceId'),
+  instanceId: string(name='InstanceId', position='Query'),
+  regionId?: string(name='RegionId', position='Host'),
 }
 
 model DescribeBotResponseBody = {
@@ -979,21 +877,13 @@ model DescribeBotResponse = {
   body: DescribeBotResponseBody(name='body'),
 }
 
-async function describeBotWithOptions(request: DescribeBotRequest, runtime: Util.RuntimeOptions): DescribeBotResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DescribeBot', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function describeBot(request: DescribeBotRequest): DescribeBotResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeBotWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeBot', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeCategoryRequest {
-  categoryId?: long(name='CategoryId'),
+  categoryId: long(name='CategoryId', position='Query'),
 }
 
 model DescribeCategoryResponseBody = {
@@ -1008,21 +898,13 @@ model DescribeCategoryResponse = {
   body: DescribeCategoryResponseBody(name='body'),
 }
 
-async function describeCategoryWithOptions(request: DescribeCategoryRequest, runtime: Util.RuntimeOptions): DescribeCategoryResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DescribeCategory', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function describeCategory(request: DescribeCategoryRequest): DescribeCategoryResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeCategoryWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeCategory', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeCoreWordRequest {
-  coreWordName?: string(name='CoreWordName'),
+  coreWordName: string(name='CoreWordName', position='Query'),
 }
 
 model DescribeCoreWordResponseBody = {
@@ -1039,21 +921,13 @@ model DescribeCoreWordResponse = {
   body: DescribeCoreWordResponseBody(name='body'),
 }
 
-async function describeCoreWordWithOptions(request: DescribeCoreWordRequest, runtime: Util.RuntimeOptions): DescribeCoreWordResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DescribeCoreWord', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function describeCoreWord(request: DescribeCoreWordRequest): DescribeCoreWordResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeCoreWordWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeCoreWord', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeDialogRequest {
-  dialogId?: long(name='DialogId'),
+  dialogId: long(name='DialogId', position='Query'),
 }
 
 model DescribeDialogResponseBody = {
@@ -1077,21 +951,13 @@ model DescribeDialogResponse = {
   body: DescribeDialogResponseBody(name='body'),
 }
 
-async function describeDialogWithOptions(request: DescribeDialogRequest, runtime: Util.RuntimeOptions): DescribeDialogResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DescribeDialog', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function describeDialog(request: DescribeDialogRequest): DescribeDialogResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeDialogWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeDialog', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeDialogFlowRequest {
-  dialogId?: long(name='DialogId'),
+  dialogId: long(name='DialogId', position='Query'),
 }
 
 model DescribeDialogFlowResponseBody = {
@@ -1120,21 +986,13 @@ model DescribeDialogFlowResponse = {
   body: DescribeDialogFlowResponseBody(name='body'),
 }
 
-async function describeDialogFlowWithOptions(request: DescribeDialogFlowRequest, runtime: Util.RuntimeOptions): DescribeDialogFlowResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DescribeDialogFlow', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function describeDialogFlow(request: DescribeDialogFlowRequest): DescribeDialogFlowResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeDialogFlowWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeDialogFlow', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeEntitiesRequest {
-  entityId?: long(name='EntityId'),
+  entityId: long(name='EntityId', position='Query'),
 }
 
 model DescribeEntitiesResponseBody = {
@@ -1162,21 +1020,13 @@ model DescribeEntitiesResponse = {
   body: DescribeEntitiesResponseBody(name='body'),
 }
 
-async function describeEntitiesWithOptions(request: DescribeEntitiesRequest, runtime: Util.RuntimeOptions): DescribeEntitiesResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DescribeEntities', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function describeEntities(request: DescribeEntitiesRequest): DescribeEntitiesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeEntitiesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeEntities', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeIntentRequest {
-  intentId?: long(name='IntentId'),
+  intentId: long(name='IntentId', position='Query'),
 }
 
 model DescribeIntentResponseBody = {
@@ -1235,21 +1085,13 @@ model DescribeIntentResponse = {
   body: DescribeIntentResponseBody(name='body'),
 }
 
-async function describeIntentWithOptions(request: DescribeIntentRequest, runtime: Util.RuntimeOptions): DescribeIntentResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DescribeIntent', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function describeIntent(request: DescribeIntentRequest): DescribeIntentResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeIntentWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeIntent', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeKnowledgeRequest {
-  knowledgeId?: long(name='KnowledgeId'),
+  knowledgeId: long(name='KnowledgeId', position='Query'),
 }
 
 model DescribeKnowledgeResponseBody = {
@@ -1301,21 +1143,14 @@ model DescribeKnowledgeResponse = {
   body: DescribeKnowledgeResponseBody(name='body'),
 }
 
-async function describeKnowledgeWithOptions(request: DescribeKnowledgeRequest, runtime: Util.RuntimeOptions): DescribeKnowledgeResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DescribeKnowledge', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function describeKnowledge(request: DescribeKnowledgeRequest): DescribeKnowledgeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeKnowledgeWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeKnowledge', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribePerspectiveRequest {
-  perspectiveId?: string(name='PerspectiveId'),
+  perspectiveId: string(name='PerspectiveId', position='Query'),
+  regionId?: string(name='RegionId', position='Host'),
 }
 
 model DescribePerspectiveResponseBody = {
@@ -1336,21 +1171,13 @@ model DescribePerspectiveResponse = {
   body: DescribePerspectiveResponseBody(name='body'),
 }
 
-async function describePerspectiveWithOptions(request: DescribePerspectiveRequest, runtime: Util.RuntimeOptions): DescribePerspectiveResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DescribePerspective', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function describePerspective(request: DescribePerspectiveRequest): DescribePerspectiveResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describePerspectiveWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribePerspective', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DisableDialogFlowRequest {
-  dialogId?: long(name='DialogId'),
+  dialogId: long(name='DialogId', position='Query'),
 }
 
 model DisableDialogFlowResponseBody = {
@@ -1362,21 +1189,13 @@ model DisableDialogFlowResponse = {
   body: DisableDialogFlowResponseBody(name='body'),
 }
 
-async function disableDialogFlowWithOptions(request: DisableDialogFlowRequest, runtime: Util.RuntimeOptions): DisableDialogFlowResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DisableDialogFlow', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function disableDialogFlow(request: DisableDialogFlowRequest): DisableDialogFlowResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return disableDialogFlowWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DisableDialogFlow', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DisableKnowledgeRequest {
-  knowledgeId?: long(name='KnowledgeId'),
+  knowledgeId: long(name='KnowledgeId', position='Query'),
 }
 
 model DisableKnowledgeResponseBody = {
@@ -1388,24 +1207,16 @@ model DisableKnowledgeResponse = {
   body: DisableKnowledgeResponseBody(name='body'),
 }
 
-async function disableKnowledgeWithOptions(request: DisableKnowledgeRequest, runtime: Util.RuntimeOptions): DisableKnowledgeResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('DisableKnowledge', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function disableKnowledge(request: DisableKnowledgeRequest): DisableKnowledgeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return disableKnowledgeWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DisableKnowledge', 'POST', '/', 'json', false, 'json', request);
 }
 
 model FeedbackRequest {
-  feedback?: string(name='Feedback'),
-  instanceId?: string(name='InstanceId'),
-  messageId?: string(name='MessageId'),
-  sessionId?: string(name='SessionId'),
+  feedback: string(name='Feedback', position='Query'),
+  instanceId?: string(name='InstanceId', position='Query'),
+  messageId: string(name='MessageId', position='Query'),
+  sessionId?: string(name='SessionId', position='Query'),
 }
 
 model FeedbackResponseBody = {
@@ -1421,21 +1232,14 @@ model FeedbackResponse = {
   body: FeedbackResponseBody(name='body'),
 }
 
-async function feedbackWithOptions(request: FeedbackRequest, runtime: Util.RuntimeOptions): FeedbackResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('Feedback', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function feedback(request: FeedbackRequest): FeedbackResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return feedbackWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'Feedback', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetAsyncResultRequest {
-  taskId?: string(name='TaskId'),
+  regionId?: string(name='RegionId', position='Host'),
+  taskId: string(name='TaskId', minimum=0, maximum=100000000, position='Query'),
 }
 
 model GetAsyncResultResponseBody = {
@@ -1451,23 +1255,15 @@ model GetAsyncResultResponse = {
   body: GetAsyncResultResponseBody(name='body'),
 }
 
-async function getAsyncResultWithOptions(request: GetAsyncResultRequest, runtime: Util.RuntimeOptions): GetAsyncResultResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('GetAsyncResult', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function getAsyncResult(request: GetAsyncResultRequest): GetAsyncResultResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getAsyncResultWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetAsyncResult', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetBotChatDataRequest {
-  endTime?: string(name='EndTime'),
-  robotInstanceId?: string(name='RobotInstanceId'),
-  startTime?: string(name='StartTime'),
+  endTime: string(name='EndTime', position='Query'),
+  robotInstanceId: string(name='RobotInstanceId', position='Query'),
+  startTime: string(name='StartTime', position='Query'),
 }
 
 model GetBotChatDataResponseBody = {
@@ -1481,23 +1277,15 @@ model GetBotChatDataResponse = {
   body: GetBotChatDataResponseBody(name='body'),
 }
 
-async function getBotChatDataWithOptions(request: GetBotChatDataRequest, runtime: Util.RuntimeOptions): GetBotChatDataResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('GetBotChatData', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function getBotChatData(request: GetBotChatDataRequest): GetBotChatDataResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getBotChatDataWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetBotChatData', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetBotDsStatDataRequest {
-  endTime?: string(name='EndTime'),
-  robotInstanceId?: string(name='RobotInstanceId'),
-  startTime?: string(name='StartTime'),
+  endTime: string(name='EndTime', position='Query'),
+  robotInstanceId: string(name='RobotInstanceId', position='Query'),
+  startTime: string(name='StartTime', position='Query'),
 }
 
 model GetBotDsStatDataResponseBody = {
@@ -1511,23 +1299,15 @@ model GetBotDsStatDataResponse = {
   body: GetBotDsStatDataResponseBody(name='body'),
 }
 
-async function getBotDsStatDataWithOptions(request: GetBotDsStatDataRequest, runtime: Util.RuntimeOptions): GetBotDsStatDataResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('GetBotDsStatData', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function getBotDsStatData(request: GetBotDsStatDataRequest): GetBotDsStatDataResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getBotDsStatDataWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetBotDsStatData', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetBotKnowledgeStatDataRequest {
-  endTime?: string(name='EndTime'),
-  robotInstanceId?: string(name='RobotInstanceId'),
-  startTime?: string(name='StartTime'),
+  endTime: string(name='EndTime', position='Query'),
+  robotInstanceId: string(name='RobotInstanceId', position='Query'),
+  startTime: string(name='StartTime', position='Query'),
 }
 
 model GetBotKnowledgeStatDataResponseBody = {
@@ -1541,23 +1321,15 @@ model GetBotKnowledgeStatDataResponse = {
   body: GetBotKnowledgeStatDataResponseBody(name='body'),
 }
 
-async function getBotKnowledgeStatDataWithOptions(request: GetBotKnowledgeStatDataRequest, runtime: Util.RuntimeOptions): GetBotKnowledgeStatDataResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('GetBotKnowledgeStatData', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function getBotKnowledgeStatData(request: GetBotKnowledgeStatDataRequest): GetBotKnowledgeStatDataResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getBotKnowledgeStatDataWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetBotKnowledgeStatData', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetBotSessionDataRequest {
-  endTime?: string(name='EndTime'),
-  robotInstanceId?: string(name='RobotInstanceId'),
-  startTime?: string(name='StartTime'),
+  endTime: string(name='EndTime', position='Query'),
+  robotInstanceId: string(name='RobotInstanceId', position='Query'),
+  startTime: string(name='StartTime', position='Query'),
 }
 
 model GetBotSessionDataResponseBody = {
@@ -1571,27 +1343,19 @@ model GetBotSessionDataResponse = {
   body: GetBotSessionDataResponseBody(name='body'),
 }
 
-async function getBotSessionDataWithOptions(request: GetBotSessionDataRequest, runtime: Util.RuntimeOptions): GetBotSessionDataResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('GetBotSessionData', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function getBotSessionData(request: GetBotSessionDataRequest): GetBotSessionDataResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getBotSessionDataWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetBotSessionData', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetConversationListRequest {
-  endDate?: string(name='EndDate'),
-  instanceId?: string(name='InstanceId'),
-  pageNumber?: string(name='PageNumber'),
-  pageSize?: string(name='PageSize'),
-  senderId?: string(name='SenderId'),
-  sessionId?: string(name='SessionId'),
-  startDate?: string(name='StartDate'),
+  endDate?: string(name='EndDate', position='Query'),
+  instanceId: string(name='InstanceId', position='Query'),
+  pageNumber?: string(name='PageNumber', position='Query'),
+  pageSize?: string(name='PageSize', position='Query'),
+  senderId?: string(name='SenderId', position='Query'),
+  sessionId?: string(name='SessionId', position='Query'),
+  startDate?: string(name='StartDate', position='Query'),
 }
 
 model GetConversationListResponseBody = {
@@ -1607,24 +1371,16 @@ model GetConversationListResponse = {
   body: GetConversationListResponseBody(name='body'),
 }
 
-async function getConversationListWithOptions(request: GetConversationListRequest, runtime: Util.RuntimeOptions): GetConversationListResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('GetConversationList', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function getConversationList(request: GetConversationListRequest): GetConversationListResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getConversationListWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetConversationList', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListBotChatHistorysRequest {
-  endTime?: string(name='EndTime'),
-  limit?: int32(name='Limit'),
-  robotInstanceId?: string(name='RobotInstanceId'),
-  startTime?: string(name='StartTime'),
+  endTime: string(name='EndTime', position='Query'),
+  limit?: int32(name='Limit', position='Query'),
+  robotInstanceId: string(name='RobotInstanceId', position='Query'),
+  startTime: string(name='StartTime', position='Query'),
 }
 
 model ListBotChatHistorysResponseBody = {
@@ -1638,24 +1394,16 @@ model ListBotChatHistorysResponse = {
   body: ListBotChatHistorysResponseBody(name='body'),
 }
 
-async function listBotChatHistorysWithOptions(request: ListBotChatHistorysRequest, runtime: Util.RuntimeOptions): ListBotChatHistorysResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ListBotChatHistorys', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function listBotChatHistorys(request: ListBotChatHistorysRequest): ListBotChatHistorysResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listBotChatHistorysWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListBotChatHistorys', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListBotColdDsDatasRequest {
-  endTime?: string(name='EndTime'),
-  limit?: int32(name='Limit'),
-  robotInstanceId?: string(name='RobotInstanceId'),
-  startTime?: string(name='StartTime'),
+  endTime: string(name='EndTime', position='Query'),
+  limit?: int32(name='Limit', position='Query'),
+  robotInstanceId: string(name='RobotInstanceId', position='Query'),
+  startTime: string(name='StartTime', position='Query'),
 }
 
 model ListBotColdDsDatasResponseBody = {
@@ -1669,24 +1417,16 @@ model ListBotColdDsDatasResponse = {
   body: ListBotColdDsDatasResponseBody(name='body'),
 }
 
-async function listBotColdDsDatasWithOptions(request: ListBotColdDsDatasRequest, runtime: Util.RuntimeOptions): ListBotColdDsDatasResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ListBotColdDsDatas', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function listBotColdDsDatas(request: ListBotColdDsDatasRequest): ListBotColdDsDatasResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listBotColdDsDatasWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListBotColdDsDatas', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListBotColdKnowledgesRequest {
-  endTime?: string(name='EndTime'),
-  limit?: int32(name='Limit'),
-  robotInstanceId?: string(name='RobotInstanceId'),
-  startTime?: string(name='StartTime'),
+  endTime: string(name='EndTime', position='Query'),
+  limit?: int32(name='Limit', position='Query'),
+  robotInstanceId: string(name='RobotInstanceId', position='Query'),
+  startTime: string(name='StartTime', position='Query'),
 }
 
 model ListBotColdKnowledgesResponseBody = {
@@ -1700,24 +1440,16 @@ model ListBotColdKnowledgesResponse = {
   body: ListBotColdKnowledgesResponseBody(name='body'),
 }
 
-async function listBotColdKnowledgesWithOptions(request: ListBotColdKnowledgesRequest, runtime: Util.RuntimeOptions): ListBotColdKnowledgesResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ListBotColdKnowledges', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function listBotColdKnowledges(request: ListBotColdKnowledgesRequest): ListBotColdKnowledgesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listBotColdKnowledgesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListBotColdKnowledges', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListBotDsDetailsRequest {
-  endTime?: string(name='EndTime'),
-  limit?: int32(name='Limit'),
-  robotInstanceId?: string(name='RobotInstanceId'),
-  startTime?: string(name='StartTime'),
+  endTime: string(name='EndTime', position='Query'),
+  limit?: int32(name='Limit', position='Query'),
+  robotInstanceId: string(name='RobotInstanceId', position='Query'),
+  startTime: string(name='StartTime', position='Query'),
 }
 
 model ListBotDsDetailsResponseBody = {
@@ -1731,24 +1463,16 @@ model ListBotDsDetailsResponse = {
   body: ListBotDsDetailsResponseBody(name='body'),
 }
 
-async function listBotDsDetailsWithOptions(request: ListBotDsDetailsRequest, runtime: Util.RuntimeOptions): ListBotDsDetailsResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ListBotDsDetails', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function listBotDsDetails(request: ListBotDsDetailsRequest): ListBotDsDetailsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listBotDsDetailsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListBotDsDetails', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListBotHotDsDatasRequest {
-  endTime?: string(name='EndTime'),
-  limit?: int32(name='Limit'),
-  robotInstanceId?: string(name='RobotInstanceId'),
-  startTime?: string(name='StartTime'),
+  endTime: string(name='EndTime', position='Query'),
+  limit?: int32(name='Limit', position='Query'),
+  robotInstanceId: string(name='RobotInstanceId', position='Query'),
+  startTime: string(name='StartTime', position='Query'),
 }
 
 model ListBotHotDsDatasResponseBody = {
@@ -1762,24 +1486,16 @@ model ListBotHotDsDatasResponse = {
   body: ListBotHotDsDatasResponseBody(name='body'),
 }
 
-async function listBotHotDsDatasWithOptions(request: ListBotHotDsDatasRequest, runtime: Util.RuntimeOptions): ListBotHotDsDatasResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ListBotHotDsDatas', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function listBotHotDsDatas(request: ListBotHotDsDatasRequest): ListBotHotDsDatasResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listBotHotDsDatasWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListBotHotDsDatas', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListBotHotKnowledgesRequest {
-  endTime?: string(name='EndTime'),
-  limit?: int32(name='Limit'),
-  robotInstanceId?: string(name='RobotInstanceId'),
-  startTime?: string(name='StartTime'),
+  endTime: string(name='EndTime', position='Query'),
+  limit?: int32(name='Limit', position='Query'),
+  robotInstanceId: string(name='RobotInstanceId', position='Query'),
+  startTime: string(name='StartTime', position='Query'),
 }
 
 model ListBotHotKnowledgesResponseBody = {
@@ -1793,24 +1509,16 @@ model ListBotHotKnowledgesResponse = {
   body: ListBotHotKnowledgesResponseBody(name='body'),
 }
 
-async function listBotHotKnowledgesWithOptions(request: ListBotHotKnowledgesRequest, runtime: Util.RuntimeOptions): ListBotHotKnowledgesResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ListBotHotKnowledges', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function listBotHotKnowledges(request: ListBotHotKnowledgesRequest): ListBotHotKnowledgesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listBotHotKnowledgesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListBotHotKnowledges', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListBotKnowledgeDetailsRequest {
-  endTime?: string(name='EndTime'),
-  limit?: string(name='Limit'),
-  robotInstanceId?: string(name='RobotInstanceId'),
-  startTime?: string(name='StartTime'),
+  endTime: string(name='EndTime', position='Query'),
+  limit?: string(name='Limit', position='Query'),
+  robotInstanceId: string(name='RobotInstanceId', position='Query'),
+  startTime: string(name='StartTime', position='Query'),
 }
 
 model ListBotKnowledgeDetailsResponseBody = {
@@ -1824,23 +1532,15 @@ model ListBotKnowledgeDetailsResponse = {
   body: ListBotKnowledgeDetailsResponseBody(name='body'),
 }
 
-async function listBotKnowledgeDetailsWithOptions(request: ListBotKnowledgeDetailsRequest, runtime: Util.RuntimeOptions): ListBotKnowledgeDetailsResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ListBotKnowledgeDetails', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function listBotKnowledgeDetails(request: ListBotKnowledgeDetailsRequest): ListBotKnowledgeDetailsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listBotKnowledgeDetailsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListBotKnowledgeDetails', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListBotReceptionDetailDatasRequest {
-  endTime?: string(name='EndTime'),
-  robotInstanceId?: string(name='RobotInstanceId'),
-  startTime?: string(name='StartTime'),
+  endTime: string(name='EndTime', position='Query'),
+  robotInstanceId: string(name='RobotInstanceId', position='Query'),
+  startTime: string(name='StartTime', position='Query'),
 }
 
 model ListBotReceptionDetailDatasResponseBody = {
@@ -1854,21 +1554,13 @@ model ListBotReceptionDetailDatasResponse = {
   body: ListBotReceptionDetailDatasResponseBody(name='body'),
 }
 
-async function listBotReceptionDetailDatasWithOptions(request: ListBotReceptionDetailDatasRequest, runtime: Util.RuntimeOptions): ListBotReceptionDetailDatasResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ListBotReceptionDetailDatas', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function listBotReceptionDetailDatas(request: ListBotReceptionDetailDatasRequest): ListBotReceptionDetailDatasResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listBotReceptionDetailDatasWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListBotReceptionDetailDatas', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListConversationLogsRequest {
-  sessionId?: string(name='SessionId'),
+  sessionId?: string(name='SessionId', position='Query'),
 }
 
 model ListConversationLogsResponseBody = {
@@ -1882,22 +1574,14 @@ model ListConversationLogsResponse = {
   body: ListConversationLogsResponseBody(name='body'),
 }
 
-async function listConversationLogsWithOptions(request: ListConversationLogsRequest, runtime: Util.RuntimeOptions): ListConversationLogsResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ListConversationLogs', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function listConversationLogs(request: ListConversationLogsRequest): ListConversationLogsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listConversationLogsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListConversationLogs', 'POST', '/', 'json', false, 'json', request);
 }
 
 model MoveKnowledgeCategoryRequest {
-  categoryId?: long(name='CategoryId'),
-  knowledgeId?: long(name='KnowledgeId'),
+  categoryId: long(name='CategoryId', position='Query'),
+  knowledgeId: long(name='KnowledgeId', position='Query'),
 }
 
 model MoveKnowledgeCategoryResponseBody = {
@@ -1909,21 +1593,13 @@ model MoveKnowledgeCategoryResponse = {
   body: MoveKnowledgeCategoryResponseBody(name='body'),
 }
 
-async function moveKnowledgeCategoryWithOptions(request: MoveKnowledgeCategoryRequest, runtime: Util.RuntimeOptions): MoveKnowledgeCategoryResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('MoveKnowledgeCategory', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function moveKnowledgeCategory(request: MoveKnowledgeCategoryRequest): MoveKnowledgeCategoryResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return moveKnowledgeCategoryWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'MoveKnowledgeCategory', 'POST', '/', 'json', false, 'json', request);
 }
 
 model PublishDialogFlowRequest {
-  dialogId?: long(name='DialogId'),
+  dialogId: long(name='DialogId', position='Query'),
 }
 
 model PublishDialogFlowResponseBody = {
@@ -1935,22 +1611,14 @@ model PublishDialogFlowResponse = {
   body: PublishDialogFlowResponseBody(name='body'),
 }
 
-async function publishDialogFlowWithOptions(request: PublishDialogFlowRequest, runtime: Util.RuntimeOptions): PublishDialogFlowResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('PublishDialogFlow', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function publishDialogFlow(request: PublishDialogFlowRequest): PublishDialogFlowResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return publishDialogFlowWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'PublishDialogFlow', 'POST', '/', 'json', false, 'json', request);
 }
 
 model PublishKnowledgeRequest {
-  async?: boolean(name='Async'),
-  knowledgeId?: long(name='KnowledgeId'),
+  async?: boolean(name='Async', position='Query'),
+  knowledgeId: long(name='KnowledgeId', position='Query'),
 }
 
 model PublishKnowledgeResponseBody = {
@@ -1962,22 +1630,45 @@ model PublishKnowledgeResponse = {
   body: PublishKnowledgeResponseBody(name='body'),
 }
 
-async function publishKnowledgeWithOptions(request: PublishKnowledgeRequest, runtime: Util.RuntimeOptions): PublishKnowledgeResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('PublishKnowledge', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+async function publishKnowledge(request: PublishKnowledgeRequest): PublishKnowledgeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'PublishKnowledge', 'POST', '/', 'json', false, 'json', request);
 }
 
-async function publishKnowledge(request: PublishKnowledgeRequest): PublishKnowledgeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return publishKnowledgeWithOptions(request, runtime);
+model QueryBizDataRangesRequest {
+  dataType?: string(name='DataType', position='Query'),
+  manageCode?: string(name='ManageCode', position='Query'),
+  name?: string(name='Name', position='Query'),
+  parentBizDataRangeId?: long(name='ParentBizDataRangeId', position='Query'),
+}
+
+model QueryBizDataRangesResponseBody = {
+  bizDataRanges?: [ 
+    {
+      bizDataRangeId?: long(name='BizDataRangeId'),
+      dataType?: int32(name='DataType'),
+      manageCode?: string(name='ManageCode'),
+      name?: string(name='Name'),
+      parentBizDataRangeId?: long(name='ParentBizDataRangeId'),
+    }
+  ](name='BizDataRanges'),
+  requestId?: string(name='RequestId'),
+}
+
+model QueryBizDataRangesResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryBizDataRangesResponseBody(name='body'),
+}
+
+async function queryBizDataRanges(request: QueryBizDataRangesRequest): QueryBizDataRangesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryBizDataRanges', 'POST', '/', 'json', false, 'json', request);
 }
 
 model QueryBotsRequest {
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
+  pageNumber?: int32(name='PageNumber', position='Query'),
+  pageSize?: int32(name='PageSize', position='Query'),
+  regionId?: string(name='RegionId', position='Host'),
 }
 
 model QueryBotsResponseBody = {
@@ -2003,23 +1694,15 @@ model QueryBotsResponse = {
   body: QueryBotsResponseBody(name='body'),
 }
 
-async function queryBotsWithOptions(request: QueryBotsRequest, runtime: Util.RuntimeOptions): QueryBotsResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('QueryBots', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function queryBots(request: QueryBotsRequest): QueryBotsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryBotsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryBots', 'POST', '/', 'json', false, 'json', request);
 }
 
 model QueryCategoriesRequest {
-  knowledgeType?: long(name='KnowledgeType'),
-  parentCategoryId?: long(name='ParentCategoryId'),
-  showChildrens?: boolean(name='ShowChildrens'),
+  knowledgeType?: long(name='KnowledgeType', position='Query'),
+  parentCategoryId?: long(name='ParentCategoryId', position='Query'),
+  showChildrens?: boolean(name='ShowChildrens', position='Query'),
 }
 
 model QueryCategoriesResponseBody = {
@@ -2034,24 +1717,16 @@ model QueryCategoriesResponse = {
   body: QueryCategoriesResponseBody(name='body'),
 }
 
-async function queryCategoriesWithOptions(request: QueryCategoriesRequest, runtime: Util.RuntimeOptions): QueryCategoriesResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('QueryCategories', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function queryCategories(request: QueryCategoriesRequest): QueryCategoriesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryCategoriesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryCategories', 'POST', '/', 'json', false, 'json', request);
 }
 
 model QueryCoreWordsRequest {
-  coreWordName?: string(name='CoreWordName'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  synonym?: string(name='Synonym'),
+  coreWordName?: string(name='CoreWordName', position='Query'),
+  pageNumber?: int32(name='PageNumber', position='Query'),
+  pageSize?: int32(name='PageSize', position='Query'),
+  synonym?: string(name='Synonym', position='Query'),
 }
 
 model QueryCoreWordsResponseBody = {
@@ -2075,24 +1750,16 @@ model QueryCoreWordsResponse = {
   body: QueryCoreWordsResponseBody(name='body'),
 }
 
-async function queryCoreWordsWithOptions(request: QueryCoreWordsRequest, runtime: Util.RuntimeOptions): QueryCoreWordsResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('QueryCoreWords', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function queryCoreWords(request: QueryCoreWordsRequest): QueryCoreWordsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryCoreWordsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryCoreWords', 'POST', '/', 'json', false, 'json', request);
 }
 
 model QueryDialogsRequest {
-  dialogName?: string(name='DialogName'),
-  instanceId?: string(name='InstanceId'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
+  dialogName?: string(name='DialogName', position='Query'),
+  instanceId: string(name='InstanceId', position='Query'),
+  pageNumber?: int32(name='PageNumber', position='Query'),
+  pageSize?: int32(name='PageSize', position='Query'),
 }
 
 model QueryDialogsResponseBody = {
@@ -2123,24 +1790,16 @@ model QueryDialogsResponse = {
   body: QueryDialogsResponseBody(name='body'),
 }
 
-async function queryDialogsWithOptions(request: QueryDialogsRequest, runtime: Util.RuntimeOptions): QueryDialogsResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('QueryDialogs', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function queryDialogs(request: QueryDialogsRequest): QueryDialogsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryDialogsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryDialogs', 'POST', '/', 'json', false, 'json', request);
 }
 
 model QueryEntitiesRequest {
-  dialogId?: long(name='DialogId'),
-  entityName?: string(name='EntityName'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
+  dialogId: long(name='DialogId', position='Query'),
+  entityName?: string(name='EntityName', position='Query'),
+  pageNumber?: int32(name='PageNumber', position='Query'),
+  pageSize?: int32(name='PageSize', position='Query'),
 }
 
 model QueryEntitiesResponseBody = {
@@ -2175,24 +1834,16 @@ model QueryEntitiesResponse = {
   body: QueryEntitiesResponseBody(name='body'),
 }
 
-async function queryEntitiesWithOptions(request: QueryEntitiesRequest, runtime: Util.RuntimeOptions): QueryEntitiesResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('QueryEntities', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function queryEntities(request: QueryEntitiesRequest): QueryEntitiesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryEntitiesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryEntities', 'POST', '/', 'json', false, 'json', request);
 }
 
 model QueryIntentsRequest {
-  dialogId?: long(name='DialogId'),
-  intentName?: string(name='IntentName'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
+  dialogId: long(name='DialogId', position='Query'),
+  intentName?: string(name='IntentName', position='Query'),
+  pageNumber?: int32(name='PageNumber', position='Query'),
+  pageSize?: int32(name='PageSize', position='Query'),
 }
 
 model QueryIntentsResponseBody = {
@@ -2256,25 +1907,17 @@ model QueryIntentsResponse = {
   body: QueryIntentsResponseBody(name='body'),
 }
 
-async function queryIntentsWithOptions(request: QueryIntentsRequest, runtime: Util.RuntimeOptions): QueryIntentsResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('QueryIntents', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function queryIntents(request: QueryIntentsRequest): QueryIntentsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryIntentsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryIntents', 'POST', '/', 'json', false, 'json', request);
 }
 
 model QueryKnowledgesRequest {
-  categoryId?: long(name='CategoryId'),
-  coreWordName?: string(name='CoreWordName'),
-  knowledgeTitle?: string(name='KnowledgeTitle'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
+  categoryId?: long(name='CategoryId', position='Query'),
+  coreWordName?: string(name='CoreWordName', position='Query'),
+  knowledgeTitle?: string(name='KnowledgeTitle', position='Query'),
+  pageNumber?: int32(name='PageNumber', position='Query'),
+  pageSize?: int32(name='PageSize', position='Query'),
 }
 
 model QueryKnowledgesResponseBody = {
@@ -2305,17 +1948,72 @@ model QueryKnowledgesResponse = {
   body: QueryKnowledgesResponseBody(name='body'),
 }
 
-async function queryKnowledgesWithOptions(request: QueryKnowledgesRequest, runtime: Util.RuntimeOptions): QueryKnowledgesResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('QueryKnowledges', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+async function queryKnowledges(request: QueryKnowledgesRequest): QueryKnowledgesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryKnowledges', 'POST', '/', 'json', false, 'json', request);
 }
 
-async function queryKnowledges(request: QueryKnowledgesRequest): QueryKnowledgesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryKnowledgesWithOptions(request, runtime);
+model QueryLoopListRequest {
+}
+
+model QueryLoopListResponseBody = {
+  data?: string(name='Data'),
+  message?: string(name='Message'),
+  success?: boolean(name='Success'),
+}
+
+model QueryLoopListResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryLoopListResponseBody(name='body'),
+}
+
+async function queryLoopList(request: QueryLoopListRequest): QueryLoopListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryLoopList', 'POST', '/', 'json', false, 'json', request);
+}
+
+model QueryLoopResultRequest {
+  loopId: long(name='LoopId', position='Query'),
+}
+
+model QueryLoopResultResponseBody = {
+  data?: string(name='Data'),
+  message?: string(name='Message'),
+  success?: boolean(name='Success'),
+}
+
+model QueryLoopResultResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryLoopResultResponseBody(name='body'),
+}
+
+async function queryLoopResult(request: QueryLoopResultRequest): QueryLoopResultResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryLoopResult', 'POST', '/', 'json', false, 'json', request);
+}
+
+model QueryLoopStatusRequest {
+  loopId: long(name='LoopId', position='Query'),
+}
+
+model QueryLoopStatusResponseBody = {
+  data?: string(name='Data'),
+  message?: string(name='Message'),
+  success?: boolean(name='Success'),
+}
+
+model QueryLoopStatusResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryLoopStatusResponseBody(name='body'),
+}
+
+async function queryLoopStatus(request: QueryLoopStatusRequest): QueryLoopStatusResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryLoopStatus', 'POST', '/', 'json', false, 'json', request);
+}
+
+model QueryPerspectivesRequest {
+  regionId?: string(name='RegionId', position='Host'),
 }
 
 model QueryPerspectivesResponseBody = {
@@ -2340,18 +2038,13 @@ model QueryPerspectivesResponse = {
   body: QueryPerspectivesResponseBody(name='body'),
 }
 
-async function queryPerspectivesWithOptions(runtime: Util.RuntimeOptions): QueryPerspectivesResponse {
-  var req = new OpenApi.OpenApiRequest{};
-  return doRPCRequest('QueryPerspectives', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function queryPerspectives(): QueryPerspectivesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryPerspectivesWithOptions(runtime);
+async function queryPerspectives(request: QueryPerspectivesRequest): QueryPerspectivesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryPerspectives', 'POST', '/', 'json', false, 'json', request);
 }
 
 model QuerySystemEntitiesRequest {
-  entityName?: string(name='EntityName'),
+  entityName?: string(name='EntityName', position='Query'),
 }
 
 model QuerySystemEntitiesResponseBody = {
@@ -2370,32 +2063,18 @@ model QuerySystemEntitiesResponse = {
   body: QuerySystemEntitiesResponseBody(name='body'),
 }
 
-async function querySystemEntitiesWithOptions(request: QuerySystemEntitiesRequest, runtime: Util.RuntimeOptions): QuerySystemEntitiesResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('QuerySystemEntities', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function querySystemEntities(request: QuerySystemEntitiesRequest): QuerySystemEntitiesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return querySystemEntitiesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QuerySystemEntities', 'POST', '/', 'json', false, 'json', request);
 }
 
 model RemoveEntityMemberRequest {
-  entityId?: long(name='EntityId'),
-  member?: {
+  entityId: long(name='EntityId', position='Query'),
+  member: {
     memberName?: string(name='MemberName'),
     synonyms?: [ string ](name='Synonyms'),
-  }(name='Member'),
-  removeType?: string(name='RemoveType'),
-}
-
-model RemoveEntityMemberShrinkRequest {
-  entityId?: long(name='EntityId'),
-  memberShrink?: string(name='Member'),
-  removeType?: string(name='RemoveType'),
+  }(name='Member', position='Query'),
+  removeType: string(name='RemoveType', position='Query'),
 }
 
 model RemoveEntityMemberResponseBody = {
@@ -2408,27 +2087,14 @@ model RemoveEntityMemberResponse = {
   body: RemoveEntityMemberResponseBody(name='body'),
 }
 
-async function removeEntityMemberWithOptions(tmpReq: RemoveEntityMemberRequest, runtime: Util.RuntimeOptions): RemoveEntityMemberResponse {
-  Util.validateModel(tmpReq);
-  var request = new RemoveEntityMemberShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.member)) {
-    request.memberShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.member, 'Member', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RemoveEntityMember', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function removeEntityMember(request: RemoveEntityMemberRequest): RemoveEntityMemberResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return removeEntityMemberWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'RemoveEntityMember', 'POST', '/', 'json', false, 'json', request);
 }
 
 model RemoveSynonymRequest {
-  coreWordName?: string(name='CoreWordName'),
-  synonym?: string(name='Synonym'),
+  coreWordName: string(name='CoreWordName', position='Query'),
+  synonym: string(name='Synonym', position='Query'),
 }
 
 model RemoveSynonymResponseBody = {
@@ -2440,21 +2106,49 @@ model RemoveSynonymResponse = {
   body: RemoveSynonymResponseBody(name='body'),
 }
 
-async function removeSynonymWithOptions(request: RemoveSynonymRequest, runtime: Util.RuntimeOptions): RemoveSynonymResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('RemoveSynonym', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+async function removeSynonym(request: RemoveSynonymRequest): RemoveSynonymResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'RemoveSynonym', 'POST', '/', 'json', false, 'json', request);
 }
 
-async function removeSynonym(request: RemoveSynonymRequest): RemoveSynonymResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return removeSynonymWithOptions(request, runtime);
+model SearchQaRequest {
+  pageNumber?: int32(name='PageNumber', position='Query'),
+  pageSize?: int32(name='PageSize', position='Query'),
+  userQuerys?: string(name='UserQuerys', position='Query'),
+}
+
+model SearchQaResponseBody = {
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  questionList?: [ 
+    {
+      categoryPath?: string(name='CategoryPath'),
+      createUserName?: string(name='CreateUserName'),
+      gmtCreate?: string(name='GmtCreate'),
+      gmtModified?: string(name='GmtModified'),
+      modifiedUserName?: string(name='ModifiedUserName'),
+      questionId?: long(name='QuestionId'),
+      questionType?: int32(name='QuestionType'),
+      status?: int32(name='Status'),
+      title?: string(name='Title'),
+    }
+  ](name='QuestionList'),
+  requestId?: string(name='RequestId'),
+  totalCount?: int32(name='TotalCount'),
+}
+
+model SearchQaResponse = {
+  headers: map[string]string(name='headers'),
+  body: SearchQaResponseBody(name='body'),
+}
+
+async function searchQa(request: SearchQaRequest): SearchQaResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SearchQa', 'POST', '/', 'json', false, 'json', request);
 }
 
 model TestDialogFlowRequest {
-  dialogId?: long(name='DialogId'),
+  dialogId: long(name='DialogId', position='Query'),
 }
 
 model TestDialogFlowResponseBody = {
@@ -2466,22 +2160,55 @@ model TestDialogFlowResponse = {
   body: TestDialogFlowResponseBody(name='body'),
 }
 
-async function testDialogFlowWithOptions(request: TestDialogFlowRequest, runtime: Util.RuntimeOptions): TestDialogFlowResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('TestDialogFlow', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+async function testDialogFlow(request: TestDialogFlowRequest): TestDialogFlowResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'TestDialogFlow', 'POST', '/', 'json', false, 'json', request);
 }
 
-async function testDialogFlow(request: TestDialogFlowRequest): TestDialogFlowResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return testDialogFlowWithOptions(request, runtime);
+model TestGrayRequest {
+  name: string(name='Name', position='Query'),
+}
+
+model TestGrayResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model TestGrayResponse = {
+  headers: map[string]string(name='headers'),
+  body: TestGrayResponseBody(name='body'),
+}
+
+async function testGray(request: TestGrayRequest): TestGrayResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'TestGray', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UpdateBizDataRangeRequest {
+  bizDataRangeId: long(name='BizDataRangeId', position='Query'),
+  dataType?: string(name='DataType', position='Query'),
+  manageCode?: string(name='ManageCode', position='Query'),
+  name?: string(name='Name', position='Query'),
+  parentBizDataRangeId?: long(name='ParentBizDataRangeId', position='Query'),
+}
+
+model UpdateBizDataRangeResponseBody = {
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model UpdateBizDataRangeResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateBizDataRangeResponseBody(name='body'),
+}
+
+async function updateBizDataRange(request: UpdateBizDataRangeRequest): UpdateBizDataRangeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateBizDataRange', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateCategoryRequest {
-  categoryId?: long(name='CategoryId'),
-  name?: string(name='Name'),
+  categoryId: long(name='CategoryId', position='Query'),
+  name?: string(name='Name', position='Query'),
 }
 
 model UpdateCategoryResponseBody = {
@@ -2494,22 +2221,14 @@ model UpdateCategoryResponse = {
   body: UpdateCategoryResponseBody(name='body'),
 }
 
-async function updateCategoryWithOptions(request: UpdateCategoryRequest, runtime: Util.RuntimeOptions): UpdateCategoryResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('UpdateCategory', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function updateCategory(request: UpdateCategoryRequest): UpdateCategoryResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateCategoryWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateCategory', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateCoreWordRequest {
-  coreWordCode?: string(name='CoreWordCode'),
-  coreWordName?: string(name='CoreWordName'),
+  coreWordCode: string(name='CoreWordCode', position='Query'),
+  coreWordName: string(name='CoreWordName', position='Query'),
 }
 
 model UpdateCoreWordResponseBody = {
@@ -2522,23 +2241,15 @@ model UpdateCoreWordResponse = {
   body: UpdateCoreWordResponseBody(name='body'),
 }
 
-async function updateCoreWordWithOptions(request: UpdateCoreWordRequest, runtime: Util.RuntimeOptions): UpdateCoreWordResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('UpdateCoreWord', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function updateCoreWord(request: UpdateCoreWordRequest): UpdateCoreWordResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateCoreWordWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateCoreWord', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateDialogRequest {
-  description?: string(name='Description'),
-  dialogId?: long(name='DialogId'),
-  dialogName?: string(name='DialogName'),
+  description?: string(name='Description', position='Query'),
+  dialogId: long(name='DialogId', position='Query'),
+  dialogName: string(name='DialogName', position='Query'),
 }
 
 model UpdateDialogResponseBody = {
@@ -2550,30 +2261,17 @@ model UpdateDialogResponse = {
   body: UpdateDialogResponseBody(name='body'),
 }
 
-async function updateDialogWithOptions(request: UpdateDialogRequest, runtime: Util.RuntimeOptions): UpdateDialogResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('UpdateDialog', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function updateDialog(request: UpdateDialogRequest): UpdateDialogResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateDialogWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateDialog', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateDialogFlowRequest {
-  dialogId?: long(name='DialogId'),
-  moduleDefinition?: {
+  dialogId: long(name='DialogId', position='Query'),
+  moduleDefinition: {
     globalVars?: map[string]any(name='GlobalVars'),
     moduleDefinition?: PaasProcessData(name='ModuleDefinition'),
-  }(name='ModuleDefinition'),
-}
-
-model UpdateDialogFlowShrinkRequest {
-  dialogId?: long(name='DialogId'),
-  moduleDefinitionShrink?: string(name='ModuleDefinition'),
+  }(name='ModuleDefinition', position='Body'),
 }
 
 model UpdateDialogFlowResponseBody = {
@@ -2585,43 +2283,22 @@ model UpdateDialogFlowResponse = {
   body: UpdateDialogFlowResponseBody(name='body'),
 }
 
-async function updateDialogFlowWithOptions(tmpReq: UpdateDialogFlowRequest, runtime: Util.RuntimeOptions): UpdateDialogFlowResponse {
-  Util.validateModel(tmpReq);
-  var request = new UpdateDialogFlowShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.moduleDefinition)) {
-    request.moduleDefinitionShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.moduleDefinition, 'ModuleDefinition', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('UpdateDialogFlow', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function updateDialogFlow(request: UpdateDialogFlowRequest): UpdateDialogFlowResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateDialogFlowWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateDialogFlow', 'POST', '/', 'json', true, 'form', request);
 }
 
 model UpdateEntityRequest {
-  entityId?: long(name='EntityId'),
-  entityName?: string(name='EntityName'),
-  entityType?: string(name='EntityType'),
+  entityId: long(name='EntityId', position='Query'),
+  entityName: string(name='EntityName', position='Query'),
+  entityType: string(name='EntityType', position='Query'),
   members?: [ 
     {
       memberName?: string(name='MemberName'),
       synonyms?: [ string ](name='Synonyms'),
     }
-  ](name='Members'),
-  regex?: string(name='Regex'),
-}
-
-model UpdateEntityShrinkRequest {
-  entityId?: long(name='EntityId'),
-  entityName?: string(name='EntityName'),
-  entityType?: string(name='EntityType'),
-  membersShrink?: string(name='Members'),
-  regex?: string(name='Regex'),
+  ](name='Members', position='Body'),
+  regex?: string(name='Regex', position='Query'),
 }
 
 model UpdateEntityResponseBody = {
@@ -2634,32 +2311,14 @@ model UpdateEntityResponse = {
   body: UpdateEntityResponseBody(name='body'),
 }
 
-async function updateEntityWithOptions(tmpReq: UpdateEntityRequest, runtime: Util.RuntimeOptions): UpdateEntityResponse {
-  Util.validateModel(tmpReq);
-  var request = new UpdateEntityShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.members)) {
-    request.membersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.members, 'Members', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('UpdateEntity', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function updateEntity(request: UpdateEntityRequest): UpdateEntityResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateEntityWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateEntity', 'POST', '/', 'json', true, 'form', request);
 }
 
 model UpdateIntentRequest {
-  intentDefinition?: IntentCreateDTO(name='IntentDefinition'),
-  intentId?: long(name='IntentId'),
-}
-
-model UpdateIntentShrinkRequest {
-  intentDefinitionShrink?: string(name='IntentDefinition'),
-  intentId?: long(name='IntentId'),
+  intentDefinition: IntentCreateDTO(name='IntentDefinition', position='Query'),
+  intentId: long(name='IntentId', position='Query'),
 }
 
 model UpdateIntentResponseBody = {
@@ -2672,61 +2331,44 @@ model UpdateIntentResponse = {
   body: UpdateIntentResponseBody(name='body'),
 }
 
-async function updateIntentWithOptions(tmpReq: UpdateIntentRequest, runtime: Util.RuntimeOptions): UpdateIntentResponse {
-  Util.validateModel(tmpReq);
-  var request = new UpdateIntentShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.intentDefinition)) {
-    request.intentDefinitionShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.intentDefinition, 'IntentDefinition', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('UpdateIntent', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function updateIntent(request: UpdateIntentRequest): UpdateIntentResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateIntentWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateIntent', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateKnowledgeRequest {
-  knowledge?: {
+  knowledge: {
     categoryId?: long(name='CategoryId'),
     endDate?: string(name='EndDate'),
-    knowledgeId?: long(name='KnowledgeId'),
-    knowledgeTitle?: string(name='KnowledgeTitle'),
+    knowledgeId: long(name='KnowledgeId'),
+    knowledgeTitle: string(name='KnowledgeTitle'),
     knowledgeType?: int32(name='KnowledgeType'),
     outlines?: [ 
       {
-        action?: string(name='Action'),
-        knowledgeId?: long(name='KnowledgeId'),
+        action: string(name='Action'),
+        knowledgeId: long(name='KnowledgeId'),
         outlineId?: long(name='OutlineId'),
-        title?: string(name='Title'),
+        title: string(name='Title'),
       }
     ](name='Outlines'),
     simQuestions?: [ 
       {
-        action?: string(name='Action'),
+        action: string(name='Action'),
         simQuestionId?: long(name='SimQuestionId'),
-        title?: string(name='Title'),
+        title: string(name='Title'),
       }
     ](name='SimQuestions'),
-    solutions?: [ 
+    solutions: [ 
       {
-        action?: string(name='Action'),
-        content?: string(name='Content'),
-        perspectiveIds?: [ string ](name='PerspectiveIds'),
-        plainText?: string(name='PlainText'),
+        action: string(name='Action'),
+        content: string(name='Content'),
+        perspectiveIds: [ string ](name='PerspectiveIds'),
+        plainText: string(name='PlainText'),
         solutionId?: long(name='SolutionId'),
       }
     ](name='Solutions'),
     startDate?: string(name='StartDate'),
-  }(name='Knowledge'),
-}
-
-model UpdateKnowledgeShrinkRequest {
-  knowledgeShrink?: string(name='Knowledge'),
+  }(name='Knowledge', position='Body'),
 }
 
 model UpdateKnowledgeResponseBody = {
@@ -2739,27 +2381,15 @@ model UpdateKnowledgeResponse = {
   body: UpdateKnowledgeResponseBody(name='body'),
 }
 
-async function updateKnowledgeWithOptions(tmpReq: UpdateKnowledgeRequest, runtime: Util.RuntimeOptions): UpdateKnowledgeResponse {
-  Util.validateModel(tmpReq);
-  var request = new UpdateKnowledgeShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.knowledge)) {
-    request.knowledgeShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.knowledge, 'Knowledge', 'json');
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('UpdateKnowledge', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function updateKnowledge(request: UpdateKnowledgeRequest): UpdateKnowledgeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateKnowledgeWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateKnowledge', 'POST', '/', 'json', true, 'form', request);
 }
 
 model UpdatePerspectiveRequest {
-  name?: string(name='Name'),
-  perspectiveId?: string(name='PerspectiveId'),
+  name: string(name='Name', position='Query'),
+  perspectiveId: string(name='PerspectiveId', position='Query'),
+  regionId?: string(name='RegionId', position='Host'),
 }
 
 model UpdatePerspectiveResponseBody = {
@@ -2771,16 +2401,8 @@ model UpdatePerspectiveResponse = {
   body: UpdatePerspectiveResponseBody(name='body'),
 }
 
-async function updatePerspectiveWithOptions(request: UpdatePerspectiveRequest, runtime: Util.RuntimeOptions): UpdatePerspectiveResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('UpdatePerspective', '2017-10-11', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function updatePerspective(request: UpdatePerspectiveRequest): UpdatePerspectiveResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updatePerspectiveWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdatePerspective', 'POST', '/', 'json', false, 'json', request);
 }
 
