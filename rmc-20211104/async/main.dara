@@ -1,31 +1,35 @@
 /**
  *
  */
-import Util;
-import OpenApi;
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
 
-import EndpointUtil;
-
-extends OpenApi;
-
-init(config: OpenApi.Config){
-  super(config);
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'RMC';
+  @version = '2021-11-04';
   @endpointRule = '';
-  
-  checkConfig(config);
-  @endpoint = getEndpoint('rmc', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+  @endpointMap = {
+  };
 }
 
-function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
-    return endpoint;
-  }
-
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
-    return endpointMap[regionId];
-  }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+function close(): void {
+  @handler.close();
 }
+
 model SearchResourcesRequest {
   filter?: [ 
     {
@@ -33,10 +37,10 @@ model SearchResourcesRequest {
       matchType?: string(name='MatchType'),
       value?: [ string ](name='Value'),
     }
-  ](name='Filter'),
-  maxResults?: int32(name='MaxResults'),
-  nextToken?: string(name='NextToken'),
-  resourceGroupId?: string(name='ResourceGroupId'),
+  ](name='Filter', position='Query'),
+  maxResults?: int32(name='MaxResults', minimum=1, maximum=100, position='Query'),
+  nextToken?: string(name='NextToken', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
 }
 
 model SearchResourcesResponseBody = {
@@ -76,16 +80,8 @@ model SearchResourcesResponse = {
   body: SearchResourcesResponseBody(name='body'),
 }
 
-async function searchResourcesWithOptions(request: SearchResourcesRequest, runtime: Util.RuntimeOptions): SearchResourcesResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('SearchResources', '2021-11-04', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
 async function searchResources(request: SearchResourcesRequest): SearchResourcesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return searchResourcesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SearchResources', 'POST', '/', 'json', false, 'json', request);
 }
 
