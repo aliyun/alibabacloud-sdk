@@ -1,0 +1,112 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('paiplugin', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model SendMessageRequest {
+  groupId?: string(name='GroupId', description='人群ID，用于关联人群。'),
+  outIds?: [ string ](name='OutIds', description='外部拓展字段。'),
+  phoneNumbers?: [ string ](name='PhoneNumbers', description='手机号，每个手机号对应一个模板变量、上行拓展码和外部拓展字段。'),
+  scheduleId?: string(name='ScheduleId', description='发送计划ID，用于关联发送计划。'),
+  signName?: string(name='SignName', description='签名名称。'),
+  signatureId?: string(name='SignatureId', description='签名ID，同时只能指定签名名称或签名ID其中之一。'),
+  smsUpExtendCodes?: [ string ](name='SmsUpExtendCodes', description='短信上行拓展码。'),
+  templateCode?: string(name='TemplateCode', description='模板Code。'),
+  templateId?: string(name='TemplateId', description='模板ID，同时只能指定模板Code或模板ID其中之一。'),
+  templateParams?: [ string ](name='TemplateParams', description='短信模板变量对应的实际值，JSON格式。支持传入多个参数，示例：{"name":"张三","number":"15038****76"}。'),
+}
+
+model SendMessageResponseBody = {
+  data?: string(name='Data', description='返回数据'),
+  errorCode?: int32(name='ErrorCode', description='错误码'),
+  errorMessage?: string(name='ErrorMessage', description='错误信息'),
+}
+
+model SendMessageResponse = {
+  headers: map[string]string(name='headers'),
+  body: SendMessageResponseBody(name='body'),
+}
+
+async function sendMessage(request: SendMessageRequest): SendMessageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return sendMessageWithOptions(request, headers, runtime);
+}
+
+async function sendMessageWithOptions(request: SendMessageRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SendMessageResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.groupId)) {
+    body['GroupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.outIds)) {
+    body['OutIds'] = request.outIds;
+  }
+  if (!Util.isUnset(request.phoneNumbers)) {
+    body['PhoneNumbers'] = request.phoneNumbers;
+  }
+  if (!Util.isUnset(request.scheduleId)) {
+    body['ScheduleId'] = request.scheduleId;
+  }
+  if (!Util.isUnset(request.signName)) {
+    body['SignName'] = request.signName;
+  }
+  if (!Util.isUnset(request.signatureId)) {
+    body['SignatureId'] = request.signatureId;
+  }
+  if (!Util.isUnset(request.smsUpExtendCodes)) {
+    body['SmsUpExtendCodes'] = request.smsUpExtendCodes;
+  }
+  if (!Util.isUnset(request.templateCode)) {
+    body['TemplateCode'] = request.templateCode;
+  }
+  if (!Util.isUnset(request.templateId)) {
+    body['TemplateId'] = request.templateId;
+  }
+  if (!Util.isUnset(request.templateParams)) {
+    body['TemplateParams'] = request.templateParams;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SendMessage',
+    version = '2022-01-12',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/messages`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
