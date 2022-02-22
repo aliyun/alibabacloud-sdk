@@ -106,13 +106,12 @@ model Resource {
   clusterId?: string(name='ClusterId', description='资源组所在的集群'),
   cpuCount?: int32(name='CpuCount', description='资源组CPU数量'),
   createTime?: string(name='CreateTime', description='资源组创建时间'),
-  extraData?: string(name='ExtraData', description='资源组自定义数据'),
+  extraData?: map[string]any(name='ExtraData', description='资源组自定义数据'),
   gpuCount?: int32(name='GpuCount', description='资源组GPU个数'),
   instanceCount?: int32(name='InstanceCount', description='资源组实例个数'),
   message?: string(name='Message', description='资源组摘要信息'),
   postPaidInstanceCount?: int32(name='PostPaidInstanceCount', description='资源组按量付费实例个数'),
   prePaidInstanceCount?: int32(name='PrePaidInstanceCount', description='资源组预付费实例个数'),
-  requestId?: string(name='RequestId', description='请求ID'),
   resourceId?: string(name='ResourceId', description='资源组ID'),
   resourceName?: string(name='ResourceName', description='资源组名字'),
   status?: string(name='Status', description='资源组的状态'),
@@ -493,6 +492,63 @@ async function createServiceAutoScalerWithOptions(ClusterId: string, ServiceName
   return callApi(params, req, runtime);
 }
 
+model CreateServiceCronScalerRequest {
+  excludeDates?: [ string ](name='ExcludeDates', description='需要排除的时间点的cron表达式'),
+  scaleJobs?: [ 
+    {
+      name?: string(name='Name'),
+      schedule?: string(name='Schedule', description='要执行伸缩任务的cron表达式'),
+      targetSize?: int32(name='TargetSize', description='执行伸缩任务的目标replica'),
+    }
+  ](name='ScaleJobs', description='定时伸缩任务描述'),
+}
+
+model CreateServiceCronScalerResponseBody = {
+  message?: string(name='Message', description='操作成功消息'),
+  requestId?: string(name='RequestId', description='请求ID'),
+}
+
+model CreateServiceCronScalerResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateServiceCronScalerResponseBody(name='body'),
+}
+
+async function createServiceCronScaler(ClusterId: string, ServiceName: string, request: CreateServiceCronScalerRequest): CreateServiceCronScalerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createServiceCronScalerWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
+async function createServiceCronScalerWithOptions(ClusterId: string, ServiceName: string, request: CreateServiceCronScalerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateServiceCronScalerResponse {
+  Util.validateModel(request);
+  ClusterId = OpenApiUtil.getEncodeParam(ClusterId);
+  ServiceName = OpenApiUtil.getEncodeParam(ServiceName);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.excludeDates)) {
+    body['ExcludeDates'] = request.excludeDates;
+  }
+  if (!Util.isUnset(request.scaleJobs)) {
+    body['ScaleJobs'] = request.scaleJobs;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateServiceCronScaler',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${ClusterId}/${ServiceName}/cronscaler`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
 model CreateServiceMirrorRequest {
   ratio?: int32(name='Ratio', description='比例 [0, 100]'),
   target?: [ string ](name='Target', description='服务实例列表'),
@@ -775,6 +831,42 @@ async function deleteServiceAutoScalerWithOptions(ClusterId: string, ServiceName
   return callApi(params, req, runtime);
 }
 
+model DeleteServiceCronScalerResponseBody = {
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model DeleteServiceCronScalerResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteServiceCronScalerResponseBody(name='body'),
+}
+
+async function deleteServiceCronScaler(ClusterId: string, ServiceName: string): DeleteServiceCronScalerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteServiceCronScalerWithOptions(ClusterId, ServiceName, headers, runtime);
+}
+
+async function deleteServiceCronScalerWithOptions(ClusterId: string, ServiceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteServiceCronScalerResponse {
+  ClusterId = OpenApiUtil.getEncodeParam(ClusterId);
+  ServiceName = OpenApiUtil.getEncodeParam(ServiceName);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteServiceCronScaler',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${ClusterId}/${ServiceName}/cronscaler`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
 model DeleteServiceInstancesRequest {
   instanceList?: string(name='InstanceList', description='删除的实例列表，多个实例名字之间逗号隔开'),
 }
@@ -858,9 +950,27 @@ async function deleteServiceMirrorWithOptions(ClusterId: string, ServiceName: st
   return callApi(params, req, runtime);
 }
 
+model DescribeResourceResponseBody = {
+  clusterId?: string(name='ClusterId'),
+  cpuCount?: int32(name='CpuCount'),
+  createTime?: string(name='CreateTime'),
+  extraData?: string(name='ExtraData'),
+  gpuCount?: int32(name='GpuCount'),
+  instanceCount?: int32(name='InstanceCount'),
+  message?: string(name='Message'),
+  ownerUid?: string(name='OwnerUid'),
+  postPaidInstanceCount?: int32(name='PostPaidInstanceCount'),
+  prePaidInstanceCount?: int32(name='PrePaidInstanceCount'),
+  requestId?: string(name='RequestId'),
+  resourceId?: string(name='ResourceId'),
+  resourceName?: string(name='ResourceName'),
+  status?: string(name='Status'),
+  updateTime?: string(name='UpdateTime'),
+}
+
 model DescribeResourceResponse = {
   headers: map[string]string(name='headers'),
-  body: Resource  
+  body: DescribeResourceResponseBody(name='body'),
 }
 
 async function describeResource(ClusterId: string, ResourceId: string): DescribeResourceResponse {
@@ -1064,6 +1174,53 @@ async function describeServiceAutoScalerWithOptions(ClusterId: string, ServiceNa
     version = '2021-07-01',
     protocol = 'HTTPS',
     pathname = `/api/v2/services/${ClusterId}/${ServiceName}/autoscaler`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model DescribeServiceCronScalerResponseBody = {
+  excludeDates?: [ string ](name='ExcludeDates'),
+  requestId?: string(name='RequestId'),
+  scaleJobs?: [ 
+    {
+      lastProbeTime?: string(name='LastProbeTime'),
+      message?: string(name='Message'),
+      name?: string(name='Name'),
+      schedule?: string(name='Schedule'),
+      state?: string(name='State'),
+      targetSize?: int32(name='TargetSize'),
+    }
+  ](name='ScaleJobs'),
+  serviceName?: string(name='ServiceName'),
+}
+
+model DescribeServiceCronScalerResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeServiceCronScalerResponseBody(name='body'),
+}
+
+async function describeServiceCronScaler(ClusterId: string, ServiceName: string): DescribeServiceCronScalerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeServiceCronScalerWithOptions(ClusterId, ServiceName, headers, runtime);
+}
+
+async function describeServiceCronScalerWithOptions(ClusterId: string, ServiceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeServiceCronScalerResponse {
+  ClusterId = OpenApiUtil.getEncodeParam(ClusterId);
+  ServiceName = OpenApiUtil.getEncodeParam(ServiceName);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeServiceCronScaler',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${ClusterId}/${ServiceName}/cronscaler`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1843,6 +2000,63 @@ async function updateServiceAutoScalerWithOptions(ClusterId: string, ServiceName
     version = '2021-07-01',
     protocol = 'HTTPS',
     pathname = `/api/v2/services/${ClusterId}/${ServiceName}/autoscaler`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model UpdateServiceCronScalerRequest {
+  excludeDates?: [ string ](name='ExcludeDates', description='需要排除的时间点的cron表达式'),
+  scaleJobs?: [ 
+    {
+      name?: string(name='Name'),
+      schedule?: string(name='Schedule', description='要执行伸缩任务的cron表达式'),
+      targetSize?: int32(name='TargetSize', description='执行伸缩任务的目标replica'),
+    }
+  ](name='ScaleJobs', description='定时伸缩任务描述'),
+}
+
+model UpdateServiceCronScalerResponseBody = {
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model UpdateServiceCronScalerResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateServiceCronScalerResponseBody(name='body'),
+}
+
+async function updateServiceCronScaler(ClusterId: string, ServiceName: string, request: UpdateServiceCronScalerRequest): UpdateServiceCronScalerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateServiceCronScalerWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
+async function updateServiceCronScalerWithOptions(ClusterId: string, ServiceName: string, request: UpdateServiceCronScalerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateServiceCronScalerResponse {
+  Util.validateModel(request);
+  ClusterId = OpenApiUtil.getEncodeParam(ClusterId);
+  ServiceName = OpenApiUtil.getEncodeParam(ServiceName);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.excludeDates)) {
+    body['ExcludeDates'] = request.excludeDates;
+  }
+  if (!Util.isUnset(request.scaleJobs)) {
+    body['ScaleJobs'] = request.scaleJobs;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateServiceCronScaler',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${ClusterId}/${ServiceName}/cronscaler`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
