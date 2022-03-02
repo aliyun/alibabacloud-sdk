@@ -8,6 +8,7 @@ import EndpointUtil;
 
 extends OpenApi;
 
+
 init(config: OpenApi.Config){
   super(config);
   @endpointRule = '';
@@ -20,12 +21,66 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   if (!Util.empty(endpoint)) {
     return endpoint;
   }
-
+  
   if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+
+model CreateSessionRequest {
+  sessionName?: string(name='sessionName'),
+}
+
+model CreateSessionResponseBody = {
+  code?: string(name='code', description='ErrorCode'),
+  data?: {
+    localInstanceId?: string(name='localInstanceId', description='本地实例ID'),
+    remoteInstanceId?: string(name='remoteInstanceId', description='远端实例ID'),
+    sessionId?: string(name='sessionId', description='Session ID'),
+    sessionName?: string(name='sessionName', description='Session名字'),
+  }(name='data'),
+  message?: string(name='message', description='错误信息'),
+  requestId?: string(name='requestId', description='请求ID'),
+  success?: boolean(name='success', description='是否成功'),
+}
+
+model CreateSessionResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateSessionResponseBody(name='body'),
+}
+
+async function createSession(request: CreateSessionRequest): CreateSessionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createSessionWithOptions(request, headers, runtime);
+}
+
+async function createSessionWithOptions(request: CreateSessionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateSessionResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.sessionName)) {
+    body['sessionName'] = request.sessionName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateSession',
+    version = '2021-05-09',
+    protocol = 'HTTPS',
+    pathname = `/v1/sessions/`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
 model DeleteSessionResponseBody = {
   code?: string(name='code', description='错误码'),
   data?: {
@@ -48,10 +103,22 @@ async function deleteSession(sessionId: string): DeleteSessionResponse {
 }
 
 async function deleteSessionWithOptions(sessionId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteSessionResponse {
+  sessionId = OpenApiUtil.getEncodeParam(sessionId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
-  return doROARequest('DeleteSession', '2021-05-09', 'HTTPS', 'DELETE', 'AK', `/v1/sessions/${sessionId}`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'DeleteSession',
+    version = '2021-05-09',
+    protocol = 'HTTPS',
+    pathname = `/v1/sessions/${sessionId}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model GetInstanceResponseBody = {
@@ -87,10 +154,68 @@ async function getInstance(instanceId: string): GetInstanceResponse {
 }
 
 async function getInstanceWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetInstanceResponse {
+  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
-  return doROARequest('GetInstance', '2021-05-09', 'HTTPS', 'GET', 'AK', `/v1/instances/${instanceId}`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetInstance',
+    version = '2021-05-09',
+    protocol = 'HTTPS',
+    pathname = `/v1/instances/${instanceId}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model GetSessionResponseBody = {
+  code?: string(name='code', description='ErrorCode'),
+  data?: {
+    localInstanceId?: string(name='localInstanceId', description='本地实例ID'),
+    proxyId?: string(name='proxyId', description='代理实例ID'),
+    proxyIp?: string(name='proxyIp', description='代理实例公网IP'),
+    proxyRemotePort?: string(name='proxyRemotePort', description='代理实例端口'),
+    remoteInstanceId?: string(name='remoteInstanceId', description='远端实例ID'),
+    sessionId?: string(name='sessionId', description='session ID'),
+    status?: string(name='status', description='session 状态'),
+  }(name='data'),
+  message?: string(name='message', description='错误信息'),
+  requestId?: string(name='requestId', description='请求ID'),
+  success?: boolean(name='success', description='是否成功'),
+}
+
+model GetSessionResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetSessionResponseBody(name='body'),
+}
+
+async function getSession(sessionId: string): GetSessionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getSessionWithOptions(sessionId, headers, runtime);
+}
+
+async function getSessionWithOptions(sessionId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetSessionResponse {
+  sessionId = OpenApiUtil.getEncodeParam(sessionId);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSession',
+    version = '2021-05-09',
+    protocol = 'HTTPS',
+    pathname = `/v1/sessions/${sessionId}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model HeartBeatRequest {
@@ -124,99 +249,109 @@ async function heartBeatWithOptions(request: HeartBeatRequest, headers: map[stri
   Util.validateModel(request);
   var body : map[string]any= {};
   if (!Util.isUnset(request.instanceId)) {
-    body.instanceId = request.instanceId;
+    body['instanceId'] = request.instanceId;
   }
   if (!Util.isUnset(request.instanceType)) {
-    body.instanceType = request.instanceType;
+    body['instanceType'] = request.instanceType;
   }
   if (!Util.isUnset(request.sessionStatus)) {
-    body.sessionStatus = request.sessionStatus;
+    body['sessionStatus'] = request.sessionStatus;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('HeartBeat', '2021-05-09', 'HTTPS', 'PUT', 'AK', `/v1/sessions/`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'HeartBeat',
+    version = '2021-05-09',
+    protocol = 'HTTPS',
+    pathname = `/v1/sessions/`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-model UnRegisterInstanceResponseBody = {
+model ListSessionsRequest {
+  pageNum?: int32(name='pageNum'),
+  pageSize?: int32(name='pageSize'),
+}
+
+model ListSessionsResponseBody = {
   code?: string(name='code', description='错误码'),
   data?: {
-    instanceId?: string(name='instanceId', description='实例ID'),
+    hasNextPage?: boolean(name='hasNextPage', description='是否有下一页'),
+    nextPageNum?: int32(name='nextPageNum', description='下一页'),
+    nextPageSize?: int32(name='nextPageSize', description='下一页的session个数限制'),
+    sessions?: [ 
+      {
+        localInstanceId?: string(name='localInstanceId', description='本地实例ID'),
+        proxyId?: string(name='proxyId', description='代理实例ID'),
+        proxyIp?: string(name='proxyIp', description='代理实例公网IP'),
+        proxyRemotePort?: string(name='proxyRemotePort', description='代理实例端口'),
+        remoteInstanceId?: string(name='remoteInstanceId', description='远端实例ID'),
+        sessionId?: string(name='sessionId', description='session ID'),
+        sessionName?: string(name='sessionName', description='session 名字'),
+        status?: string(name='status', description='session 状态'),
+      }
+    ](name='sessions'),
+    total?: int32(name='total', description='session 总个数'),
   }(name='data'),
   message?: string(name='message', description='错误详情'),
   requestId?: string(name='requestId', description='请求ID'),
   success?: boolean(name='success', description='是否成功'),
 }
 
-model UnRegisterInstanceResponse = {
+model ListSessionsResponse = {
   headers: map[string]string(name='headers'),
-  body: UnRegisterInstanceResponseBody(name='body'),
+  body: ListSessionsResponseBody(name='body'),
 }
 
-async function unRegisterInstance(instanceId: string): UnRegisterInstanceResponse {
+async function listSessions(request: ListSessionsRequest): ListSessionsResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return unRegisterInstanceWithOptions(instanceId, headers, runtime);
+  return listSessionsWithOptions(request, headers, runtime);
 }
 
-async function unRegisterInstanceWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): UnRegisterInstanceResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  return doROARequest('UnRegisterInstance', '2021-05-09', 'HTTPS', 'PUT', 'AK', `/v1/instances/${instanceId}`, 'json', req, runtime);
-}
-
-model CreateSessionRequest {
-  sessionName?: string(name='sessionName'),
-}
-
-model CreateSessionResponseBody = {
-  code?: string(name='code', description='ErrorCode'),
-  data?: {
-    localInstanceId?: string(name='localInstanceId', description='本地实例ID'),
-    remoteInstanceId?: string(name='remoteInstanceId', description='远端实例ID'),
-    sessionId?: string(name='sessionId', description='Session ID'),
-    sessionName?: string(name='sessionName', description='Session名字'),
-  }(name='data'),
-  message?: string(name='message', description='错误信息'),
-  requestId?: string(name='requestId', description='请求ID'),
-  success?: boolean(name='success', description='是否成功'),
-}
-
-model CreateSessionResponse = {
-  headers: map[string]string(name='headers'),
-  body: CreateSessionResponseBody(name='body'),
-}
-
-async function createSession(request: CreateSessionRequest): CreateSessionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createSessionWithOptions(request, headers, runtime);
-}
-
-async function createSessionWithOptions(request: CreateSessionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateSessionResponse {
+async function listSessionsWithOptions(request: ListSessionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListSessionsResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.sessionName)) {
-    body.sessionName = request.sessionName;
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.pageNum)) {
+    query['pageNum'] = request.pageNum;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    query = OpenApiUtil.query(query),
   };
-  return doROARequest('CreateSession', '2021-05-09', 'HTTPS', 'POST', 'AK', `/v1/sessions/`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListSessions',
+    version = '2021-05-09',
+    protocol = 'HTTPS',
+    pathname = `/v1/sessions/`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model RegisterInstanceRequest {
-  instanceId?: string(name='instanceId'),
-  sessionId?: string(name='sessionId'),
-  instanceType?: string(name='instanceType'),
-  source?: string(name='source'),
   description?: string(name='description'),
+  instanceId?: string(name='instanceId'),
+  instanceType?: string(name='instanceType'),
   params?: string(name='params'),
+  sessionId?: string(name='sessionId'),
+  source?: string(name='source'),
 }
 
 model RegisterInstanceResponseBody = {
@@ -243,121 +378,80 @@ async function registerInstance(request: RegisterInstanceRequest): RegisterInsta
 async function registerInstanceWithOptions(request: RegisterInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): RegisterInstanceResponse {
   Util.validateModel(request);
   var body : map[string]any= {};
-  if (!Util.isUnset(request.instanceId)) {
-    body.instanceId = request.instanceId;
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
   }
-  if (!Util.isUnset(request.sessionId)) {
-    body.sessionId = request.sessionId;
+  if (!Util.isUnset(request.instanceId)) {
+    body['instanceId'] = request.instanceId;
   }
   if (!Util.isUnset(request.instanceType)) {
-    body.instanceType = request.instanceType;
-  }
-  if (!Util.isUnset(request.source)) {
-    body.source = request.source;
-  }
-  if (!Util.isUnset(request.description)) {
-    body.description = request.description;
+    body['instanceType'] = request.instanceType;
   }
   if (!Util.isUnset(request.params)) {
-    body.params = request.params;
+    body['params'] = request.params;
+  }
+  if (!Util.isUnset(request.sessionId)) {
+    body['sessionId'] = request.sessionId;
+  }
+  if (!Util.isUnset(request.source)) {
+    body['source'] = request.source;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('RegisterInstance', '2021-05-09', 'HTTPS', 'POST', 'AK', `/v1/instances/`, 'json', req, runtime);
-}
-
-model GetSessionResponseBody = {
-  code?: string(name='code', description='ErrorCode'),
-  data?: {
-    localInstanceId?: string(name='localInstanceId', description='本地实例ID'),
-    proxyId?: string(name='proxyId', description='代理实例ID'),
-    proxyIp?: string(name='proxyIp', description='代理实例公网IP'),
-    proxyRemotePort?: string(name='proxyRemotePort', description='代理实例端口'),
-    remoteInstanceId?: string(name='remoteInstanceId', description='远端实例ID'),
-    sessionId?: string(name='sessionId', description='session ID'),
-    status?: string(name='status', description='session 状态'),
-  }(name='data'),
-  message?: string(name='message', description='错误信息'),
-  requestId?: string(name='requestId', description='请求ID'),
-  success?: boolean(name='success', description='是否成功'),
-}
-
-model GetSessionResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetSessionResponseBody(name='body'),
-}
-
-async function getSession(sessionId: string): GetSessionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getSessionWithOptions(sessionId, headers, runtime);
-}
-
-async function getSessionWithOptions(sessionId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetSessionResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
+  var params = new OpenApi.Params{
+    action = 'RegisterInstance',
+    version = '2021-05-09',
+    protocol = 'HTTPS',
+    pathname = `/v1/instances/`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
   };
-  return doROARequest('GetSession', '2021-05-09', 'HTTPS', 'GET', 'AK', `/v1/sessions/${sessionId}`, 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
-model ListSessionsRequest {
-  pageNum?: int32(name='pageNum'),
-  pageSize?: int32(name='pageSize'),
-}
-
-model ListSessionsResponseBody = {
+model UnRegisterInstanceResponseBody = {
   code?: string(name='code', description='错误码'),
   data?: {
-    hasNextPage?: boolean(name='hasNextPage', description='是否有下一页'),
-    nextPageNum?: int32(name='nextPageNum', description='下一页'),
-    nextPageSize?: int32(name='nextPageSize', description='下一页的session个数限制'),
-    sessions?: [ 
-      {
-        localInstanceId?: string(name='localInstanceId', description='本地实例ID'),
-        proxyId?: string(name='proxyId', description='代理实例ID'),
-        proxyIp?: string(name='proxyIp', description='代理实例公网IP'),
-        proxyRemotePort?: string(name='proxyRemotePort', description='代理实例端口'),
-        remoteInstanceId?: string(name='remoteInstanceId', description='远端实例ID'),
-        sessionId?: string(name='sessionId', description='session ID'),
-        status?: string(name='status', description='session 状态'),
-        sessionName?: string(name='sessionName', description='session 名字'),
-      }
-    ](name='sessions'),
-    total?: int32(name='total', description='session 总个数'),
+    instanceId?: string(name='instanceId', description='实例ID'),
   }(name='data'),
   message?: string(name='message', description='错误详情'),
   requestId?: string(name='requestId', description='请求ID'),
   success?: boolean(name='success', description='是否成功'),
 }
 
-model ListSessionsResponse = {
+model UnRegisterInstanceResponse = {
   headers: map[string]string(name='headers'),
-  body: ListSessionsResponseBody(name='body'),
+  body: UnRegisterInstanceResponseBody(name='body'),
 }
 
-async function listSessions(request: ListSessionsRequest): ListSessionsResponse {
+async function unRegisterInstance(instanceId: string): UnRegisterInstanceResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return listSessionsWithOptions(request, headers, runtime);
+  return unRegisterInstanceWithOptions(instanceId, headers, runtime);
 }
 
-async function listSessionsWithOptions(request: ListSessionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListSessionsResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.pageNum)) {
-    query.pageNum = request.pageNum;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query.pageSize = request.pageSize;
-  }
-
+async function unRegisterInstanceWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): UnRegisterInstanceResponse {
+  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
-    query = OpenApiUtil.query(query),
   };
-  return doROARequest('ListSessions', '2021-05-09', 'HTTPS', 'GET', 'AK', `/v1/sessions/`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UnRegisterInstance',
+    version = '2021-05-09',
+    protocol = 'HTTPS',
+    pathname = `/v1/instances/${instanceId}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
