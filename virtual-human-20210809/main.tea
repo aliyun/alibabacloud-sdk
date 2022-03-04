@@ -8,6 +8,7 @@ import EndpointUtil;
 
 extends OpenApi;
 
+
 init(config: OpenApi.Config){
   super(config);
   @endpointRule = '';
@@ -20,95 +21,195 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   if (!Util.empty(endpoint)) {
     return endpoint;
   }
-
+  
   if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-model TextToVideoRequest {
+
+model FinishRequest {
   taskId?: string(name='TaskId'),
-  speechText?: string(name='SpeechText'),
-  id?: string(name='Id'),
-  commandType?: string(name='CommandType'),
-  sceneType?: string(name='SceneType'),
-  beginText?: string(name='BeginText'),
-  beginAction?: string(name='BeginAction'),
-  endText?: string(name='EndText'),
-  endAction?: string(name='EndAction'),
   virtualHumanCode?: string(name='VirtualHumanCode'),
-  extendParams?: map[string]string(name='ExtendParams'),
 }
 
-model TextToVideoShrinkRequest {
-  taskId?: string(name='TaskId'),
-  speechText?: string(name='SpeechText'),
-  id?: string(name='Id'),
-  commandType?: string(name='CommandType'),
-  sceneType?: string(name='SceneType'),
-  beginText?: string(name='BeginText'),
-  beginAction?: string(name='BeginAction'),
-  endText?: string(name='EndText'),
-  endAction?: string(name='EndAction'),
-  virtualHumanCode?: string(name='VirtualHumanCode'),
-  extendParamsShrink?: string(name='ExtendParams'),
-}
-
-model TextToVideoResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
+model FinishResponseBody = {
   code?: string(name='Code'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  message1?: string(name='Message1'),
   data?: string(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', description='Id of the request'),
 }
 
-model TextToVideoResponse = {
+model FinishResponse = {
   headers: map[string]string(name='headers'),
-  body: TextToVideoResponseBody(name='body'),
+  body: FinishResponseBody(name='body'),
 }
 
-async function textToVideoWithOptions(tmpReq: TextToVideoRequest, runtime: Util.RuntimeOptions): TextToVideoResponse {
-  Util.validateModel(tmpReq);
-  var request = new TextToVideoShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.extendParams)) {
-    request.extendParamsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.extendParams, 'ExtendParams', 'json');
+async function finishWithOptions(request: FinishRequest, runtime: Util.RuntimeOptions): FinishResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.taskId)) {
+    query['TaskId'] = request.taskId;
+  }
+  if (!Util.isUnset(request.virtualHumanCode)) {
+    query['VirtualHumanCode'] = request.virtualHumanCode;
   }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('TextToVideo', '2021-08-09', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'Finish',
+    version = '2021-08-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-async function textToVideo(request: TextToVideoRequest): TextToVideoResponse {
+async function finish(request: FinishRequest): FinishResponse {
   var runtime = new Util.RuntimeOptions{};
-  return textToVideoWithOptions(request, runtime);
+  return finishWithOptions(request, runtime);
+}
+
+model GetVirtualHumanStatusRequest {
+  roomId?: string(name='RoomId'),
+  userId?: string(name='UserId'),
+}
+
+model GetVirtualHumanStatusResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    roomId?: string(name='RoomId'),
+    status?: string(name='Status'),
+    userId?: string(name='UserId'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model GetVirtualHumanStatusResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetVirtualHumanStatusResponseBody(name='body'),
+}
+
+async function getVirtualHumanStatusWithOptions(request: GetVirtualHumanStatusRequest, runtime: Util.RuntimeOptions): GetVirtualHumanStatusResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.roomId)) {
+    body['RoomId'] = request.roomId;
+  }
+  if (!Util.isUnset(request.userId)) {
+    body['UserId'] = request.userId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetVirtualHumanStatus',
+    version = '2021-08-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getVirtualHumanStatus(request: GetVirtualHumanStatusRequest): GetVirtualHumanStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getVirtualHumanStatusWithOptions(request, runtime);
+}
+
+model GetVirtualHumanStatusesRequest {
+  groups?: [ 
+    {
+      roomId?: string(name='RoomId'),
+      userId?: string(name='UserId'),
+    }
+  ](name='Groups'),
+}
+
+model GetVirtualHumanStatusesResponseBody = {
+  code?: string(name='Code'),
+  data?: [ 
+    {
+      roomId?: string(name='RoomId'),
+      status?: string(name='Status'),
+      userId?: string(name='UserId'),
+    }
+  ](name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model GetVirtualHumanStatusesResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetVirtualHumanStatusesResponseBody(name='body'),
+}
+
+async function getVirtualHumanStatusesWithOptions(request: GetVirtualHumanStatusesRequest, runtime: Util.RuntimeOptions): GetVirtualHumanStatusesResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.groups)) {
+    body['Groups'] = request.groups;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetVirtualHumanStatuses',
+    version = '2021-08-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getVirtualHumanStatuses(request: GetVirtualHumanStatusesRequest): GetVirtualHumanStatusesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getVirtualHumanStatusesWithOptions(request, runtime);
 }
 
 model StartRequest {
+  extendParams?: map[string]string(name='ExtendParams'),
+  pushStreamUrl?: string(name='PushStreamUrl'),
   roomId?: string(name='RoomId'),
   token?: string(name='Token'),
   videoType?: string(name='VideoType'),
-  pushStreamUrl?: string(name='PushStreamUrl'),
-  extendParams?: map[string]string(name='ExtendParams'),
   virtualHumanCode?: string(name='VirtualHumanCode'),
 }
 
 model StartShrinkRequest {
+  extendParamsShrink?: string(name='ExtendParams'),
+  pushStreamUrl?: string(name='PushStreamUrl'),
   roomId?: string(name='RoomId'),
   token?: string(name='Token'),
   videoType?: string(name='VideoType'),
-  pushStreamUrl?: string(name='PushStreamUrl'),
-  extendParamsShrink?: string(name='ExtendParams'),
   virtualHumanCode?: string(name='VirtualHumanCode'),
 }
 
 model StartResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
   code?: string(name='Code'),
+  data?: string(name='Data'),
   httpStatusCode?: int32(name='HttpStatusCode'),
   message?: string(name='Message'),
-  data?: string(name='Data'),
+  requestId?: string(name='RequestId', description='Id of the request'),
 }
 
 model StartResponse = {
@@ -123,10 +224,40 @@ async function startWithOptions(tmpReq: StartRequest, runtime: Util.RuntimeOptio
   if (!Util.isUnset(tmpReq.extendParams)) {
     request.extendParamsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.extendParams, 'ExtendParams', 'json');
   }
+  var query = {};
+  if (!Util.isUnset(request.extendParamsShrink)) {
+    query['ExtendParams'] = request.extendParamsShrink;
+  }
+  if (!Util.isUnset(request.pushStreamUrl)) {
+    query['PushStreamUrl'] = request.pushStreamUrl;
+  }
+  if (!Util.isUnset(request.roomId)) {
+    query['RoomId'] = request.roomId;
+  }
+  if (!Util.isUnset(request.token)) {
+    query['Token'] = request.token;
+  }
+  if (!Util.isUnset(request.videoType)) {
+    query['VideoType'] = request.videoType;
+  }
+  if (!Util.isUnset(request.virtualHumanCode)) {
+    query['VirtualHumanCode'] = request.virtualHumanCode;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('Start', '2021-08-09', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'Start',
+    version = '2021-08-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function start(request: StartRequest): StartResponse {
@@ -134,34 +265,325 @@ async function start(request: StartRequest): StartResponse {
   return startWithOptions(request, runtime);
 }
 
-model FinishRequest {
+model SwitchOffVirtualHumanRequest {
+  roomId?: string(name='RoomId'),
+  userId?: string(name='UserId'),
+}
+
+model SwitchOffVirtualHumanResponseBody = {
+  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model SwitchOffVirtualHumanResponse = {
+  headers: map[string]string(name='headers'),
+  body: SwitchOffVirtualHumanResponseBody(name='body'),
+}
+
+async function switchOffVirtualHumanWithOptions(request: SwitchOffVirtualHumanRequest, runtime: Util.RuntimeOptions): SwitchOffVirtualHumanResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.roomId)) {
+    body['RoomId'] = request.roomId;
+  }
+  if (!Util.isUnset(request.userId)) {
+    body['UserId'] = request.userId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SwitchOffVirtualHuman',
+    version = '2021-08-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function switchOffVirtualHuman(request: SwitchOffVirtualHumanRequest): SwitchOffVirtualHumanResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return switchOffVirtualHumanWithOptions(request, runtime);
+}
+
+model SwitchOffVirtualHumansRequest {
+  groups?: [ 
+    {
+      roomId?: string(name='RoomId'),
+      userId?: string(name='UserId'),
+    }
+  ](name='Groups'),
+}
+
+model SwitchOffVirtualHumansResponseBody = {
+  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model SwitchOffVirtualHumansResponse = {
+  headers: map[string]string(name='headers'),
+  body: SwitchOffVirtualHumansResponseBody(name='body'),
+}
+
+async function switchOffVirtualHumansWithOptions(request: SwitchOffVirtualHumansRequest, runtime: Util.RuntimeOptions): SwitchOffVirtualHumansResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.groups)) {
+    body['Groups'] = request.groups;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SwitchOffVirtualHumans',
+    version = '2021-08-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function switchOffVirtualHumans(request: SwitchOffVirtualHumansRequest): SwitchOffVirtualHumansResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return switchOffVirtualHumansWithOptions(request, runtime);
+}
+
+model SwitchOnVirtualHumanRequest {
+  avatarConfig?: string(name='AvatarConfig'),
+  avatarId?: long(name='AvatarId'),
+  roomId?: string(name='RoomId'),
+  userId?: string(name='UserId'),
+}
+
+model SwitchOnVirtualHumanResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    pullUrl?: string(name='PullUrl'),
+    pushUrl?: string(name='PushUrl'),
+    roomId?: string(name='RoomId'),
+    userId?: string(name='UserId'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model SwitchOnVirtualHumanResponse = {
+  headers: map[string]string(name='headers'),
+  body: SwitchOnVirtualHumanResponseBody(name='body'),
+}
+
+async function switchOnVirtualHumanWithOptions(request: SwitchOnVirtualHumanRequest, runtime: Util.RuntimeOptions): SwitchOnVirtualHumanResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.avatarConfig)) {
+    body['AvatarConfig'] = request.avatarConfig;
+  }
+  if (!Util.isUnset(request.avatarId)) {
+    body['AvatarId'] = request.avatarId;
+  }
+  if (!Util.isUnset(request.roomId)) {
+    body['RoomId'] = request.roomId;
+  }
+  if (!Util.isUnset(request.userId)) {
+    body['UserId'] = request.userId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SwitchOnVirtualHuman',
+    version = '2021-08-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function switchOnVirtualHuman(request: SwitchOnVirtualHumanRequest): SwitchOnVirtualHumanResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return switchOnVirtualHumanWithOptions(request, runtime);
+}
+
+model SwitchOnVirtualHumansRequest {
+  groups?: [ 
+    {
+      avatarConfig?: string(name='AvatarConfig'),
+      avatarId?: long(name='AvatarId'),
+      roomId?: string(name='RoomId'),
+      userId?: string(name='UserId'),
+    }
+  ](name='Groups'),
+}
+
+model SwitchOnVirtualHumansResponseBody = {
+  code?: string(name='Code'),
+  data?: [ 
+    {
+      pullUrl?: string(name='PullUrl'),
+      pushUrl?: string(name='PushUrl'),
+      roomId?: string(name='RoomId'),
+      userId?: string(name='UserId'),
+    }
+  ](name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model SwitchOnVirtualHumansResponse = {
+  headers: map[string]string(name='headers'),
+  body: SwitchOnVirtualHumansResponseBody(name='body'),
+}
+
+async function switchOnVirtualHumansWithOptions(request: SwitchOnVirtualHumansRequest, runtime: Util.RuntimeOptions): SwitchOnVirtualHumansResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.groups)) {
+    body['Groups'] = request.groups;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SwitchOnVirtualHumans',
+    version = '2021-08-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function switchOnVirtualHumans(request: SwitchOnVirtualHumansRequest): SwitchOnVirtualHumansResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return switchOnVirtualHumansWithOptions(request, runtime);
+}
+
+model TextToVideoRequest {
+  beginAction?: string(name='BeginAction'),
+  beginText?: string(name='BeginText'),
+  commandType?: string(name='CommandType'),
+  endAction?: string(name='EndAction'),
+  endText?: string(name='EndText'),
+  extendParams?: map[string]string(name='ExtendParams'),
+  id?: string(name='Id'),
+  sceneType?: string(name='SceneType'),
+  speechText?: string(name='SpeechText'),
   taskId?: string(name='TaskId'),
   virtualHumanCode?: string(name='VirtualHumanCode'),
 }
 
-model FinishResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
+model TextToVideoShrinkRequest {
+  beginAction?: string(name='BeginAction'),
+  beginText?: string(name='BeginText'),
+  commandType?: string(name='CommandType'),
+  endAction?: string(name='EndAction'),
+  endText?: string(name='EndText'),
+  extendParamsShrink?: string(name='ExtendParams'),
+  id?: string(name='Id'),
+  sceneType?: string(name='SceneType'),
+  speechText?: string(name='SpeechText'),
+  taskId?: string(name='TaskId'),
+  virtualHumanCode?: string(name='VirtualHumanCode'),
+}
+
+model TextToVideoResponseBody = {
   code?: string(name='Code'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  message?: string(name='Message'),
   data?: string(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message1?: string(name='Message1'),
+  requestId?: string(name='RequestId', description='Id of the request'),
 }
 
-model FinishResponse = {
+model TextToVideoResponse = {
   headers: map[string]string(name='headers'),
-  body: FinishResponseBody(name='body'),
+  body: TextToVideoResponseBody(name='body'),
 }
 
-async function finishWithOptions(request: FinishRequest, runtime: Util.RuntimeOptions): FinishResponse {
-  Util.validateModel(request);
+async function textToVideoWithOptions(tmpReq: TextToVideoRequest, runtime: Util.RuntimeOptions): TextToVideoResponse {
+  Util.validateModel(tmpReq);
+  var request = new TextToVideoShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.extendParams)) {
+    request.extendParamsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.extendParams, 'ExtendParams', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.beginAction)) {
+    query['BeginAction'] = request.beginAction;
+  }
+  if (!Util.isUnset(request.beginText)) {
+    query['BeginText'] = request.beginText;
+  }
+  if (!Util.isUnset(request.commandType)) {
+    query['CommandType'] = request.commandType;
+  }
+  if (!Util.isUnset(request.endAction)) {
+    query['EndAction'] = request.endAction;
+  }
+  if (!Util.isUnset(request.endText)) {
+    query['EndText'] = request.endText;
+  }
+  if (!Util.isUnset(request.extendParamsShrink)) {
+    query['ExtendParams'] = request.extendParamsShrink;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.sceneType)) {
+    query['SceneType'] = request.sceneType;
+  }
+  if (!Util.isUnset(request.speechText)) {
+    query['SpeechText'] = request.speechText;
+  }
+  if (!Util.isUnset(request.taskId)) {
+    query['TaskId'] = request.taskId;
+  }
+  if (!Util.isUnset(request.virtualHumanCode)) {
+    query['VirtualHumanCode'] = request.virtualHumanCode;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('Finish', '2021-08-09', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'TextToVideo',
+    version = '2021-08-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-async function finish(request: FinishRequest): FinishResponse {
+async function textToVideo(request: TextToVideoRequest): TextToVideoResponse {
   var runtime = new Util.RuntimeOptions{};
-  return finishWithOptions(request, runtime);
+  return textToVideoWithOptions(request, runtime);
 }
 
