@@ -2,6 +2,11 @@
  *
  */
 import Util;
+import OSS;
+import RPC;
+import OpenPlatform;
+import OSSUtil;
+import FileForm;
 import OpenApi;
 import OpenApiUtil;
 import EndpointUtil;
@@ -90,6 +95,53 @@ model ConfigureDtsJobRequest {
   dataInitialization?: boolean(name='DataInitialization'),
   dataSynchronization?: boolean(name='DataSynchronization'),
   dbList?: string(name='DbList'),
+  dedicatedClusterId?: string(name='DedicatedClusterId'),
+  delayNotice?: boolean(name='DelayNotice'),
+  delayPhone?: string(name='DelayPhone'),
+  delayRuleTime?: long(name='DelayRuleTime'),
+  destinationEndpointDataBaseName?: string(name='DestinationEndpointDataBaseName'),
+  destinationEndpointEngineName?: string(name='DestinationEndpointEngineName'),
+  destinationEndpointIP?: string(name='DestinationEndpointIP'),
+  destinationEndpointInstanceID?: string(name='DestinationEndpointInstanceID'),
+  destinationEndpointInstanceType?: string(name='DestinationEndpointInstanceType'),
+  destinationEndpointOracleSID?: string(name='DestinationEndpointOracleSID'),
+  destinationEndpointPassword?: string(name='DestinationEndpointPassword'),
+  destinationEndpointPort?: string(name='DestinationEndpointPort'),
+  destinationEndpointRegion?: string(name='DestinationEndpointRegion'),
+  destinationEndpointUserName?: string(name='DestinationEndpointUserName'),
+  dtsInstanceId?: string(name='DtsInstanceId'),
+  dtsJobId?: string(name='DtsJobId'),
+  dtsJobName?: string(name='DtsJobName'),
+  errorNotice?: boolean(name='ErrorNotice'),
+  errorPhone?: string(name='ErrorPhone'),
+  fileOssUrl?: string(name='FileOssUrl'),
+  jobType?: string(name='JobType'),
+  ownerId?: string(name='OwnerId'),
+  regionId?: string(name='RegionId'),
+  reserve?: string(name='Reserve'),
+  sourceEndpointDatabaseName?: string(name='SourceEndpointDatabaseName'),
+  sourceEndpointEngineName?: string(name='SourceEndpointEngineName'),
+  sourceEndpointIP?: string(name='SourceEndpointIP'),
+  sourceEndpointInstanceID?: string(name='SourceEndpointInstanceID'),
+  sourceEndpointInstanceType?: string(name='SourceEndpointInstanceType'),
+  sourceEndpointOracleSID?: string(name='SourceEndpointOracleSID'),
+  sourceEndpointOwnerID?: string(name='SourceEndpointOwnerID'),
+  sourceEndpointPassword?: string(name='SourceEndpointPassword'),
+  sourceEndpointPort?: string(name='SourceEndpointPort'),
+  sourceEndpointRegion?: string(name='SourceEndpointRegion'),
+  sourceEndpointRole?: string(name='SourceEndpointRole'),
+  sourceEndpointUserName?: string(name='SourceEndpointUserName'),
+  structureInitialization?: boolean(name='StructureInitialization'),
+  synchronizationDirection?: string(name='SynchronizationDirection'),
+}
+
+model ConfigureDtsJobAdvanceRequest {
+  fileOssUrlObject: readable(name='FileOssUrlObject'),
+  checkpoint?: string(name='Checkpoint'),
+  dataInitialization?: boolean(name='DataInitialization'),
+  dataSynchronization?: boolean(name='DataSynchronization'),
+  dbList?: string(name='DbList'),
+  dedicatedClusterId?: string(name='DedicatedClusterId'),
   delayNotice?: boolean(name='DelayNotice'),
   delayPhone?: string(name='DelayPhone'),
   delayRuleTime?: long(name='DelayRuleTime'),
@@ -155,6 +207,9 @@ async function configureDtsJobWithOptions(request: ConfigureDtsJobRequest, runti
   if (!Util.isUnset(request.dataSynchronization)) {
     query['DataSynchronization'] = request.dataSynchronization;
   }
+  if (!Util.isUnset(request.dedicatedClusterId)) {
+    query['DedicatedClusterId'] = request.dedicatedClusterId;
+  }
   if (!Util.isUnset(request.delayNotice)) {
     query['DelayNotice'] = request.delayNotice;
   }
@@ -208,6 +263,9 @@ async function configureDtsJobWithOptions(request: ConfigureDtsJobRequest, runti
   }
   if (!Util.isUnset(request.errorPhone)) {
     query['ErrorPhone'] = request.errorPhone;
+  }
+  if (!Util.isUnset(request.fileOssUrl)) {
+    query['FileOssUrl'] = request.fileOssUrl;
   }
   if (!Util.isUnset(request.jobType)) {
     query['JobType'] = request.jobType;
@@ -288,6 +346,80 @@ async function configureDtsJobWithOptions(request: ConfigureDtsJobRequest, runti
 async function configureDtsJob(request: ConfigureDtsJobRequest): ConfigureDtsJobResponse {
   var runtime = new Util.RuntimeOptions{};
   return configureDtsJobWithOptions(request, runtime);
+}
+
+async function configureDtsJobAdvance(request: ConfigureDtsJobAdvanceRequest, runtime: Util.RuntimeOptions): ConfigureDtsJobResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'Dts',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var configureDtsJobReq = new ConfigureDtsJobRequest{};
+  OpenApiUtil.convert(request, configureDtsJobReq);
+
+  if(!Util.isUnset(request.fileOssUrlObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.fileOssUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    configureDtsJobReq.fileOssUrl =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var configureDtsJobResp = configureDtsJobWithOptions(configureDtsJobReq, runtime);
+  return configureDtsJobResp;
 }
 
 model ConfigureMigrationJobRequest {
@@ -483,6 +615,7 @@ async function configureMigrationJobAlert(request: ConfigureMigrationJobAlertReq
 model ConfigureSubscriptionRequest {
   checkpoint?: string(name='Checkpoint'),
   dbList?: string(name='DbList'),
+  dedicatedClusterId?: string(name='DedicatedClusterId'),
   delayNotice?: boolean(name='DelayNotice'),
   delayPhone?: string(name='DelayPhone'),
   delayRuleTime?: long(name='DelayRuleTime'),
@@ -535,6 +668,9 @@ async function configureSubscriptionWithOptions(request: ConfigureSubscriptionRe
   }
   if (!Util.isUnset(request.dbList)) {
     query['DbList'] = request.dbList;
+  }
+  if (!Util.isUnset(request.dedicatedClusterId)) {
+    query['DedicatedClusterId'] = request.dedicatedClusterId;
   }
   if (!Util.isUnset(request.delayNotice)) {
     query['DelayNotice'] = request.delayNotice;
@@ -1306,6 +1442,7 @@ model CreateDtsInstanceRequest {
   databaseCount?: int32(name='DatabaseCount'),
   destinationEndpointEngineName?: string(name='DestinationEndpointEngineName'),
   destinationRegion?: string(name='DestinationRegion'),
+  du?: int32(name='Du'),
   feeType?: string(name='FeeType'),
   instanceClass?: string(name='InstanceClass'),
   jobId?: string(name='JobId'),
@@ -1354,6 +1491,9 @@ async function createDtsInstanceWithOptions(request: CreateDtsInstanceRequest, r
   }
   if (!Util.isUnset(request.destinationRegion)) {
     query['DestinationRegion'] = request.destinationRegion;
+  }
+  if (!Util.isUnset(request.du)) {
+    query['Du'] = request.du;
   }
   if (!Util.isUnset(request.feeType)) {
     query['FeeType'] = request.feeType;
@@ -2568,6 +2708,7 @@ model DescribeDtsJobDetailResponseBody = {
   createTime?: string(name='CreateTime'),
   databaseCount?: int32(name='DatabaseCount'),
   dbObject?: string(name='DbObject'),
+  dedicatedClusterId?: string(name='DedicatedClusterId'),
   delay?: long(name='Delay'),
   demoJob?: boolean(name='DemoJob'),
   destNetType?: string(name='DestNetType'),
@@ -3284,11 +3425,14 @@ async function describeDtsJobDetail(request: DescribeDtsJobDetailRequest): Descr
 }
 
 model DescribeDtsJobsRequest {
+  dedicatedClusterId?: string(name='DedicatedClusterId'),
+  dedicatedClusterNodeId?: long(name='DedicatedClusterNodeId'),
   dtsJobId?: string(name='DtsJobId'),
   groupId?: string(name='GroupId'),
   jobType?: string(name='JobType'),
   orderColumn?: string(name='OrderColumn'),
   orderDirection?: string(name='OrderDirection'),
+  ownerId?: string(name='OwnerId'),
   pageNumber?: int32(name='PageNumber'),
   pageSize?: int32(name='PageSize'),
   params?: string(name='Params'),
@@ -3307,6 +3451,7 @@ model DescribeDtsJobsResponseBody = {
       checkpoint?: string(name='Checkpoint'),
       consumptionCheckpoint?: string(name='ConsumptionCheckpoint'),
       consumptionClient?: string(name='ConsumptionClient'),
+      cpuUsage?: string(name='CpuUsage'),
       createTime?: string(name='CreateTime'),
       dataEtlStatus?: {
         errorMessage?: string(name='ErrorMessage'),
@@ -3328,6 +3473,7 @@ model DescribeDtsJobsResponseBody = {
         status?: string(name='Status'),
       }(name='DataSynchronizationStatus'),
       dbObject?: string(name='DbObject'),
+      dedicatedClusterId?: string(name='DedicatedClusterId'),
       delay?: long(name='Delay'),
       destinationEndpoint?: {
         databaseName?: string(name='DatabaseName'),
@@ -3346,10 +3492,12 @@ model DescribeDtsJobsResponseBody = {
       dtsJobDirection?: string(name='DtsJobDirection'),
       dtsJobId?: string(name='DtsJobId'),
       dtsJobName?: string(name='DtsJobName'),
+      duUsage?: long(name='DuUsage'),
       endTimestamp?: string(name='EndTimestamp'),
       errorMessage?: string(name='ErrorMessage'),
       expireTime?: string(name='ExpireTime'),
       jobType?: string(name='JobType', description='DTS任务类型'),
+      memUsage?: string(name='MemUsage'),
       migrationMode?: {
         dataInitialization?: boolean(name='DataInitialization'),
         dataSynchronization?: boolean(name='DataSynchronization'),
@@ -3385,6 +3533,7 @@ model DescribeDtsJobsResponseBody = {
       }(name='RetryState'),
       reverseJob?: {
         checkpoint?: string(name='Checkpoint'),
+        cpuUsage?: string(name='CpuUsage'),
         createTime?: string(name='CreateTime'),
         dataInitializationStatus?: {
           errorMessage?: string(name='ErrorMessage'),
@@ -3400,6 +3549,7 @@ model DescribeDtsJobsResponseBody = {
           status?: string(name='Status'),
         }(name='DataSynchronizationStatus'),
         dbObject?: string(name='DbObject'),
+        dedicatedClusterId?: string(name='DedicatedClusterId'),
         delay?: long(name='Delay'),
         destinationEndpoint?: {
           databaseName?: string(name='DatabaseName'),
@@ -3418,8 +3568,10 @@ model DescribeDtsJobsResponseBody = {
         dtsJobDirection?: string(name='DtsJobDirection'),
         dtsJobId?: string(name='DtsJobId'),
         dtsJobName?: string(name='DtsJobName'),
+        duUsage?: long(name='DuUsage'),
         errorMessage?: string(name='ErrorMessage'),
         expireTime?: string(name='ExpireTime'),
+        memUsage?: string(name='MemUsage'),
         migrationMode?: {
           dataInitialization?: boolean(name='DataInitialization'),
           dataSynchronization?: boolean(name='DataSynchronization'),
@@ -3704,6 +3856,12 @@ model DescribeDtsJobsResponse = {
 async function describeDtsJobsWithOptions(request: DescribeDtsJobsRequest, runtime: Util.RuntimeOptions): DescribeDtsJobsResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.dedicatedClusterId)) {
+    query['DedicatedClusterId'] = request.dedicatedClusterId;
+  }
+  if (!Util.isUnset(request.dedicatedClusterNodeId)) {
+    query['DedicatedClusterNodeId'] = request.dedicatedClusterNodeId;
+  }
   if (!Util.isUnset(request.dtsJobId)) {
     query['DtsJobId'] = request.dtsJobId;
   }
@@ -3718,6 +3876,9 @@ async function describeDtsJobsWithOptions(request: DescribeDtsJobsRequest, runti
   }
   if (!Util.isUnset(request.orderDirection)) {
     query['OrderDirection'] = request.orderDirection;
+  }
+  if (!Util.isUnset(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
   }
   if (!Util.isUnset(request.pageNumber)) {
     query['PageNumber'] = request.pageNumber;
@@ -6262,6 +6423,19 @@ model ModifyDtsJobRequest {
   dbList?: map[string]any(name='DbList'),
   dtsInstanceId?: string(name='DtsInstanceId'),
   etlOperatorColumnReference?: string(name='EtlOperatorColumnReference'),
+  fileOssUrl?: string(name='FileOssUrl', description='文件上传后的url'),
+  modifyTypeEnum?: string(name='ModifyTypeEnum', description='修改任务的方式，当为UPDATE_RESERVED时为修改reserve字段，不传默认修改dbList'),
+  regionId?: string(name='RegionId'),
+  reserved?: string(name='Reserved', description='新增的reserved字段，新增而不是覆盖'),
+  synchronizationDirection?: string(name='SynchronizationDirection'),
+}
+
+model ModifyDtsJobAdvanceRequest {
+  fileOssUrlObject: readable(name='FileOssUrlObject'),
+  clientToken?: string(name='ClientToken'),
+  dbList?: map[string]any(name='DbList'),
+  dtsInstanceId?: string(name='DtsInstanceId'),
+  etlOperatorColumnReference?: string(name='EtlOperatorColumnReference'),
   modifyTypeEnum?: string(name='ModifyTypeEnum', description='修改任务的方式，当为UPDATE_RESERVED时为修改reserve字段，不传默认修改dbList'),
   regionId?: string(name='RegionId'),
   reserved?: string(name='Reserved', description='新增的reserved字段，新增而不是覆盖'),
@@ -6273,6 +6447,7 @@ model ModifyDtsJobShrinkRequest {
   dbListShrink?: string(name='DbList'),
   dtsInstanceId?: string(name='DtsInstanceId'),
   etlOperatorColumnReference?: string(name='EtlOperatorColumnReference'),
+  fileOssUrl?: string(name='FileOssUrl', description='文件上传后的url'),
   modifyTypeEnum?: string(name='ModifyTypeEnum', description='修改任务的方式，当为UPDATE_RESERVED时为修改reserve字段，不传默认修改dbList'),
   regionId?: string(name='RegionId'),
   reserved?: string(name='Reserved', description='新增的reserved字段，新增而不是覆盖'),
@@ -6306,6 +6481,9 @@ async function modifyDtsJobWithOptions(tmpReq: ModifyDtsJobRequest, runtime: Uti
   }
   if (!Util.isUnset(request.dtsInstanceId)) {
     query['DtsInstanceId'] = request.dtsInstanceId;
+  }
+  if (!Util.isUnset(request.fileOssUrl)) {
+    query['FileOssUrl'] = request.fileOssUrl;
   }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
@@ -6347,6 +6525,80 @@ async function modifyDtsJobWithOptions(tmpReq: ModifyDtsJobRequest, runtime: Uti
 async function modifyDtsJob(request: ModifyDtsJobRequest): ModifyDtsJobResponse {
   var runtime = new Util.RuntimeOptions{};
   return modifyDtsJobWithOptions(request, runtime);
+}
+
+async function modifyDtsJobAdvance(request: ModifyDtsJobAdvanceRequest, runtime: Util.RuntimeOptions): ModifyDtsJobResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'Dts',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var modifyDtsJobReq = new ModifyDtsJobRequest{};
+  OpenApiUtil.convert(request, modifyDtsJobReq);
+
+  if(!Util.isUnset(request.fileOssUrlObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.fileOssUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    modifyDtsJobReq.fileOssUrl =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var modifyDtsJobResp = modifyDtsJobWithOptions(modifyDtsJobReq, runtime);
+  return modifyDtsJobResp;
 }
 
 model ModifyDtsJobNameRequest {
