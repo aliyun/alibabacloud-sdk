@@ -44,6 +44,7 @@ model GatewayDomain {
 model GatewayOption {
   disableHttp2Alpn?: boolean(name='DisableHttp2Alpn', description='是否禁用http'),
   enableHardwareAcceleration?: boolean(name='EnableHardwareAcceleration', description='是否开启硬件加速'),
+  enableWaf?: boolean(name='EnableWaf', description='是否开启waf'),
   logConfigDetails?: {
     logEnabled?: boolean(name='LogEnabled', description='是否开启日志投递'),
     logStoreName?: string(name='LogStoreName', description='投递的目标logstore'),
@@ -774,86 +775,24 @@ model AddSSLCertResponse = {
 
 async function addSSLCertWithOptions(request: AddSSLCertRequest, runtime: Util.RuntimeOptions): AddSSLCertResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.certIdentifier)) {
+    query['CertIdentifier'] = request.certIdentifier;
+  }
+  if (!Util.isUnset(request.domainId)) {
+    query['DomainId'] = request.domainId;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'AddSSLCert',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'GET',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function addSSLCert(request: AddSSLCertRequest): AddSSLCertResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return addSSLCertWithOptions(request, runtime);
-}
-
-model AddSeataServerRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  name?: string(name='Name', description='集群名称'),
-  primaryUser?: string(name='PrimaryUser'),
-  region?: string(name='Region', description='地域'),
-  replica?: int32(name='Replica', description='节点数量'),
-  securityGroup?: string(name='SecurityGroup'),
-  vpc?: string(name='Vpc', description='专有网络ID'),
-  vswitch?: string(name='Vswitch'),
-}
-
-model AddSeataServerResponseBody = {
-  code?: int32(name='Code'),
-  data?: string(name='Data'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success'),
-}
-
-model AddSeataServerResponse = {
-  headers: map[string]string(name='headers'),
-  body: AddSeataServerResponseBody(name='body'),
-}
-
-async function addSeataServerWithOptions(request: AddSeataServerRequest, runtime: Util.RuntimeOptions): AddSeataServerResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.acceptLanguage)) {
-    query['AcceptLanguage'] = request.acceptLanguage;
-  }
-  if (!Util.isUnset(request.name)) {
-    query['Name'] = request.name;
-  }
-  if (!Util.isUnset(request.primaryUser)) {
-    query['PrimaryUser'] = request.primaryUser;
-  }
-  if (!Util.isUnset(request.region)) {
-    query['Region'] = request.region;
-  }
-  if (!Util.isUnset(request.replica)) {
-    query['Replica'] = request.replica;
-  }
-  if (!Util.isUnset(request.securityGroup)) {
-    query['SecurityGroup'] = request.securityGroup;
-  }
-  if (!Util.isUnset(request.vpc)) {
-    query['Vpc'] = request.vpc;
-  }
-  if (!Util.isUnset(request.vswitch)) {
-    query['Vswitch'] = request.vswitch;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'AddSeataServer',
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
@@ -866,9 +805,9 @@ async function addSeataServerWithOptions(request: AddSeataServerRequest, runtime
   return callApi(params, req, runtime);
 }
 
-async function addSeataServer(request: AddSeataServerRequest): AddSeataServerResponse {
+async function addSSLCert(request: AddSSLCertRequest): AddSSLCertResponse {
   var runtime = new Util.RuntimeOptions{};
-  return addSeataServerWithOptions(request, runtime);
+  return addSSLCertWithOptions(request, runtime);
 }
 
 model AddSecurityGroupRuleRequest {
@@ -937,6 +876,21 @@ model AddServiceSourceRequest {
   acceptLanguage?: string(name='AcceptLanguage'),
   address?: string(name='Address'),
   gatewayUniqueId?: string(name='GatewayUniqueId'),
+  ingressOptionsRequest?: {
+    enableIngress?: boolean(name='EnableIngress'),
+    ingressClass?: string(name='IngressClass'),
+    watchNamespace?: string(name='WatchNamespace'),
+  }(name='IngressOptionsRequest'),
+  name?: string(name='Name'),
+  source?: string(name='Source'),
+  type?: string(name='Type'),
+}
+
+model AddServiceSourceShrinkRequest {
+  acceptLanguage?: string(name='AcceptLanguage'),
+  address?: string(name='Address'),
+  gatewayUniqueId?: string(name='GatewayUniqueId'),
+  ingressOptionsRequestShrink?: string(name='IngressOptionsRequest'),
   name?: string(name='Name'),
   source?: string(name='Source'),
   type?: string(name='Type'),
@@ -956,8 +910,13 @@ model AddServiceSourceResponse = {
   body: AddServiceSourceResponseBody(name='body'),
 }
 
-async function addServiceSourceWithOptions(request: AddServiceSourceRequest, runtime: Util.RuntimeOptions): AddServiceSourceResponse {
-  Util.validateModel(request);
+async function addServiceSourceWithOptions(tmpReq: AddServiceSourceRequest, runtime: Util.RuntimeOptions): AddServiceSourceResponse {
+  Util.validateModel(tmpReq);
+  var request = new AddServiceSourceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.ingressOptionsRequest)) {
+    request.ingressOptionsRequestShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.ingressOptionsRequest, 'IngressOptionsRequest', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.acceptLanguage)) {
     query['AcceptLanguage'] = request.acceptLanguage;
@@ -967,6 +926,9 @@ async function addServiceSourceWithOptions(request: AddServiceSourceRequest, run
   }
   if (!Util.isUnset(request.gatewayUniqueId)) {
     query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
+  if (!Util.isUnset(request.ingressOptionsRequestShrink)) {
+    query['IngressOptionsRequest'] = request.ingressOptionsRequestShrink;
   }
   if (!Util.isUnset(request.name)) {
     query['Name'] = request.name;
@@ -999,124 +961,6 @@ async function addServiceSource(request: AddServiceSourceRequest): AddServiceSou
   return addServiceSourceWithOptions(request, runtime);
 }
 
-model AddTestRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  descSort?: boolean(name='DescSort'),
-  orderItem?: string(name='OrderItem'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-}
-
-model AddTestResponseBody = {
-  code?: int32(name='Code'),
-  data?: {
-    pageNumber?: int32(name='PageNumber'),
-    pageSize?: int32(name='PageSize'),
-    result?: [ 
-      {
-        ahasOn?: boolean(name='AhasOn'),
-        armsOn?: boolean(name='ArmsOn'),
-        chargeType?: string(name='ChargeType'),
-        currentVersion?: string(name='CurrentVersion'),
-        endDate?: string(name='EndDate'),
-        gatewayType?: string(name='GatewayType'),
-        gatewayUniqueId?: string(name='GatewayUniqueId'),
-        gmtCreate?: string(name='GmtCreate'),
-        gmtModified?: string(name='GmtModified'),
-        id?: long(name='Id'),
-        instanceId?: string(name='InstanceId'),
-        internetSlb?: [ 
-          {
-            gatewaySlbMode?: string(name='GatewaySlbMode'),
-            gatewaySlbStatus?: string(name='GatewaySlbStatus'),
-            internetNetworkFlow?: string(name='InternetNetworkFlow'),
-            slbId?: string(name='SlbId'),
-            slbIp?: string(name='SlbIp'),
-            slbPort?: string(name='SlbPort'),
-            slbSpec?: string(name='SlbSpec'),
-            statusDesc?: string(name='StatusDesc'),
-            type?: string(name='Type'),
-          }
-        ](name='InternetSlb'),
-        latestVersion?: string(name='LatestVersion'),
-        mustUpgrade?: boolean(name='MustUpgrade'),
-        name?: string(name='Name'),
-        primaryUser?: string(name='PrimaryUser'),
-        region?: string(name='Region'),
-        replica?: int32(name='Replica'),
-        slb?: [ 
-          {
-            gatewaySlbMode?: string(name='GatewaySlbMode'),
-            gatewaySlbStatus?: string(name='GatewaySlbStatus'),
-            slbId?: string(name='SlbId'),
-            slbIp?: string(name='SlbIp'),
-            slbPort?: string(name='SlbPort'),
-            slbSpec?: string(name='SlbSpec'),
-            statusDesc?: string(name='StatusDesc'),
-            type?: string(name='Type'),
-          }
-        ](name='Slb'),
-        spec?: string(name='Spec'),
-        status?: int32(name='Status'),
-        statusDesc?: string(name='StatusDesc'),
-        tag?: string(name='Tag'),
-        upgrade?: boolean(name='Upgrade'),
-        vswitch2?: string(name='Vswitch2'),
-      }
-    ](name='Result'),
-    totalSize?: long(name='TotalSize'),
-  }(name='Data'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success'),
-}
-
-model AddTestResponse = {
-  headers: map[string]string(name='headers'),
-  body: AddTestResponseBody(name='body'),
-}
-
-async function addTestWithOptions(request: AddTestRequest, runtime: Util.RuntimeOptions): AddTestResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.acceptLanguage)) {
-    query['AcceptLanguage'] = request.acceptLanguage;
-  }
-  if (!Util.isUnset(request.descSort)) {
-    query['DescSort'] = request.descSort;
-  }
-  if (!Util.isUnset(request.orderItem)) {
-    query['OrderItem'] = request.orderItem;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    query['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query['PageSize'] = request.pageSize;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'AddTest',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function addTest(request: AddTestRequest): AddTestResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return addTestWithOptions(request, runtime);
-}
-
 model ApplyGatewayRouteRequest {
   acceptLanguage?: string(name='AcceptLanguage'),
   gatewayUniqueId?: string(name='GatewayUniqueId'),
@@ -1139,7 +983,16 @@ model ApplyGatewayRouteResponse = {
 
 async function applyGatewayRouteWithOptions(request: ApplyGatewayRouteRequest, runtime: Util.RuntimeOptions): ApplyGatewayRouteResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
+  if (!Util.isUnset(request.routeId)) {
+    query['RouteId'] = request.routeId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -1148,7 +1001,7 @@ async function applyGatewayRouteWithOptions(request: ApplyGatewayRouteRequest, r
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -1328,114 +1181,15 @@ async function cloneNacosConfig(request: CloneNacosConfigRequest): CloneNacosCon
   return cloneNacosConfigWithOptions(request, runtime);
 }
 
-model CreateAlarmRuleRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  aggregates?: string(name='Aggregates'),
-  alarmAliasName?: string(name='AlarmAliasName'),
-  alarmItem?: string(name='AlarmItem'),
-  alertWay?: map[string]any(name='AlertWay'),
-  contactGroupIds?: map[string]any(name='ContactGroupIds'),
-  instanceId?: string(name='InstanceId'),
-  NValue?: int32(name='NValue'),
-  operator?: string(name='Operator'),
-  value?: float(name='Value'),
-}
-
-model CreateAlarmRuleShrinkRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  aggregates?: string(name='Aggregates'),
-  alarmAliasName?: string(name='AlarmAliasName'),
-  alarmItem?: string(name='AlarmItem'),
-  alertWayShrink?: string(name='AlertWay'),
-  contactGroupIdsShrink?: string(name='ContactGroupIds'),
-  instanceId?: string(name='InstanceId'),
-  NValue?: int32(name='NValue'),
-  operator?: string(name='Operator'),
-  value?: float(name='Value'),
-}
-
-model CreateAlarmRuleResponseBody = {
-  errorCode?: string(name='ErrorCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-}
-
-model CreateAlarmRuleResponse = {
-  headers: map[string]string(name='headers'),
-  body: CreateAlarmRuleResponseBody(name='body'),
-}
-
-async function createAlarmRuleWithOptions(tmpReq: CreateAlarmRuleRequest, runtime: Util.RuntimeOptions): CreateAlarmRuleResponse {
-  Util.validateModel(tmpReq);
-  var request = new CreateAlarmRuleShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.alertWay)) {
-    request.alertWayShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.alertWay, 'AlertWay', 'json');
-  }
-  if (!Util.isUnset(tmpReq.contactGroupIds)) {
-    request.contactGroupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.contactGroupIds, 'ContactGroupIds', 'json');
-  }
-  var query = {};
-  if (!Util.isUnset(request.acceptLanguage)) {
-    query['AcceptLanguage'] = request.acceptLanguage;
-  }
-  if (!Util.isUnset(request.aggregates)) {
-    query['Aggregates'] = request.aggregates;
-  }
-  if (!Util.isUnset(request.alarmAliasName)) {
-    query['AlarmAliasName'] = request.alarmAliasName;
-  }
-  if (!Util.isUnset(request.alarmItem)) {
-    query['AlarmItem'] = request.alarmItem;
-  }
-  if (!Util.isUnset(request.alertWayShrink)) {
-    query['AlertWay'] = request.alertWayShrink;
-  }
-  if (!Util.isUnset(request.contactGroupIdsShrink)) {
-    query['ContactGroupIds'] = request.contactGroupIdsShrink;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.NValue)) {
-    query['NValue'] = request.NValue;
-  }
-  if (!Util.isUnset(request.operator)) {
-    query['Operator'] = request.operator;
-  }
-  if (!Util.isUnset(request.value)) {
-    query['Value'] = request.value;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'CreateAlarmRule',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function createAlarmRule(request: CreateAlarmRuleRequest): CreateAlarmRuleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createAlarmRuleWithOptions(request, runtime);
-}
-
 model CreateApplicationRequest {
   acceptLanguage?: string(name='AcceptLanguage'),
   appName?: string(name='AppName'),
   extraInfo?: string(name='ExtraInfo'),
   language?: string(name='Language'),
   region?: string(name='Region'),
+  sentinelEnable?: string(name='SentinelEnable'),
   source?: string(name='Source'),
+  switchEnable?: string(name='SwitchEnable'),
 }
 
 model CreateApplicationResponseBody = {
@@ -1482,8 +1236,14 @@ async function createApplicationWithOptions(request: CreateApplicationRequest, r
   if (!Util.isUnset(request.region)) {
     query['Region'] = request.region;
   }
+  if (!Util.isUnset(request.sentinelEnable)) {
+    query['SentinelEnable'] = request.sentinelEnable;
+  }
   if (!Util.isUnset(request.source)) {
     query['Source'] = request.source;
+  }
+  if (!Util.isUnset(request.switchEnable)) {
+    query['SwitchEnable'] = request.switchEnable;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1617,7 +1377,6 @@ model CreateEngineNamespaceRequest {
   acceptLanguage?: string(name='AcceptLanguage'),
   clusterId?: string(name='ClusterId'),
   desc?: string(name='Desc'),
-  id?: string(name='Id'),
   instanceId?: string(name='InstanceId'),
   name?: string(name='Name'),
   serviceCount?: int32(name='ServiceCount'),
@@ -1656,9 +1415,6 @@ async function createEngineNamespaceWithOptions(request: CreateEngineNamespaceRe
   }
   if (!Util.isUnset(request.desc)) {
     query['Desc'] = request.desc;
-  }
-  if (!Util.isUnset(request.id)) {
-    query['Id'] = request.id;
   }
   if (!Util.isUnset(request.instanceId)) {
     query['InstanceId'] = request.instanceId;
@@ -2231,59 +1987,6 @@ async function createZnode(request: CreateZnodeRequest): CreateZnodeResponse {
   return createZnodeWithOptions(request, runtime);
 }
 
-model DeleteAlarmRuleRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  alarmRuleId?: string(name='AlarmRuleId'),
-  requestPars?: string(name='RequestPars'),
-}
-
-model DeleteAlarmRuleResponseBody = {
-  errorCode?: string(name='ErrorCode'),
-  httpCode?: string(name='HttpCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-}
-
-model DeleteAlarmRuleResponse = {
-  headers: map[string]string(name='headers'),
-  body: DeleteAlarmRuleResponseBody(name='body'),
-}
-
-async function deleteAlarmRuleWithOptions(request: DeleteAlarmRuleRequest, runtime: Util.RuntimeOptions): DeleteAlarmRuleResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.acceptLanguage)) {
-    query['AcceptLanguage'] = request.acceptLanguage;
-  }
-  if (!Util.isUnset(request.alarmRuleId)) {
-    query['AlarmRuleId'] = request.alarmRuleId;
-  }
-  if (!Util.isUnset(request.requestPars)) {
-    query['RequestPars'] = request.requestPars;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'DeleteAlarmRule',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function deleteAlarmRule(request: DeleteAlarmRuleRequest): DeleteAlarmRuleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteAlarmRuleWithOptions(request, runtime);
-}
-
 model DeleteAuthResourceRequest {
   acceptLanguage?: string(name='AcceptLanguage'),
   gatewayUniqueId?: string(name='GatewayUniqueId'),
@@ -2317,7 +2020,16 @@ model DeleteAuthResourceResponse = {
 
 async function deleteAuthResourceWithOptions(request: DeleteAuthResourceRequest, runtime: Util.RuntimeOptions): DeleteAuthResourceResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -2326,7 +2038,7 @@ async function deleteAuthResourceWithOptions(request: DeleteAuthResourceRequest,
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -2482,7 +2194,16 @@ model DeleteGatewayResponse = {
 
 async function deleteGatewayWithOptions(request: DeleteGatewayRequest, runtime: Util.RuntimeOptions): DeleteGatewayResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.deleteSlb)) {
+    query['DeleteSlb'] = request.deleteSlb;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -2491,7 +2212,7 @@ async function deleteGatewayWithOptions(request: DeleteGatewayRequest, runtime: 
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -2514,7 +2235,7 @@ model DeleteGatewayDomainRequest {
 model DeleteGatewayDomainResponseBody = {
   code?: int32(name='Code'),
   data?: {
-    certIdentifier?: int32(name='CertIdentifier'),
+    certIdentifier?: string(name='CertIdentifier'),
     gatewayId?: long(name='GatewayId'),
     gatewayUniqueId?: string(name='GatewayUniqueId'),
     gmtCreate?: string(name='GmtCreate'),
@@ -2537,7 +2258,16 @@ model DeleteGatewayDomainResponse = {
 
 async function deleteGatewayDomainWithOptions(request: DeleteGatewayDomainRequest, runtime: Util.RuntimeOptions): DeleteGatewayDomainResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -2546,7 +2276,7 @@ async function deleteGatewayDomainWithOptions(request: DeleteGatewayDomainReques
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -2593,7 +2323,16 @@ model DeleteGatewayRouteResponse = {
 
 async function deleteGatewayRouteWithOptions(request: DeleteGatewayRouteRequest, runtime: Util.RuntimeOptions): DeleteGatewayRouteResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
+  if (!Util.isUnset(request.routeId)) {
+    query['RouteId'] = request.routeId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -2602,7 +2341,7 @@ async function deleteGatewayRouteWithOptions(request: DeleteGatewayRouteRequest,
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -2653,7 +2392,19 @@ model DeleteGatewayServiceResponse = {
 
 async function deleteGatewayServiceWithOptions(request: DeleteGatewayServiceRequest, runtime: Util.RuntimeOptions): DeleteGatewayServiceResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayId)) {
+    query['GatewayId'] = request.gatewayId;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
+  if (!Util.isUnset(request.serviceId)) {
+    query['ServiceId'] = request.serviceId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -2662,7 +2413,7 @@ async function deleteGatewayServiceWithOptions(request: DeleteGatewayServiceRequ
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -2757,7 +2508,19 @@ model DeleteGatewaySlbResponse = {
 
 async function deleteGatewaySlbWithOptions(request: DeleteGatewaySlbRequest, runtime: Util.RuntimeOptions): DeleteGatewaySlbResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.deleteSlb)) {
+    query['DeleteSlb'] = request.deleteSlb;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -2766,7 +2529,7 @@ async function deleteGatewaySlbWithOptions(request: DeleteGatewaySlbRequest, run
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -3078,7 +2841,16 @@ model DeleteSecurityGroupRuleResponse = {
 
 async function deleteSecurityGroupRuleWithOptions(request: DeleteSecurityGroupRuleRequest, runtime: Util.RuntimeOptions): DeleteSecurityGroupRuleResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -3087,7 +2859,7 @@ async function deleteSecurityGroupRuleWithOptions(request: DeleteSecurityGroupRu
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -3122,7 +2894,16 @@ model DeleteServiceSourceResponse = {
 
 async function deleteServiceSourceWithOptions(request: DeleteServiceSourceRequest, runtime: Util.RuntimeOptions): DeleteServiceSourceResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
+  if (!Util.isUnset(request.sourceId)) {
+    query['SourceId'] = request.sourceId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -3131,7 +2912,7 @@ async function deleteServiceSourceWithOptions(request: DeleteServiceSourceReques
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -3422,7 +3203,22 @@ model GetBlackWhiteListResponse = {
 
 async function getBlackWhiteListWithOptions(request: GetBlackWhiteListRequest, runtime: Util.RuntimeOptions): GetBlackWhiteListResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
+  if (!Util.isUnset(request.isWhite)) {
+    query['IsWhite'] = request.isWhite;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query['ResourceType'] = request.resourceType;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['Type'] = request.type;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -3431,7 +3227,7 @@ async function getBlackWhiteListWithOptions(request: GetBlackWhiteListRequest, r
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -3443,131 +3239,6 @@ async function getBlackWhiteListWithOptions(request: GetBlackWhiteListRequest, r
 async function getBlackWhiteList(request: GetBlackWhiteListRequest): GetBlackWhiteListResponse {
   var runtime = new Util.RuntimeOptions{};
   return getBlackWhiteListWithOptions(request, runtime);
-}
-
-model GetCanaryStatusRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  appId?: string(name='AppId'),
-  region?: string(name='Region'),
-}
-
-model GetCanaryStatusResponseBody = {
-  code?: int32(name='Code'),
-  data?: [ 
-    {
-      instanceInfoList?: [ 
-        {
-          ip?: string(name='Ip'),
-          port?: string(name='Port'),
-          tags?: [ 
-            {
-              tag?: string(name='Tag'),
-              type?: string(name='Type'),
-            }
-          ](name='Tags'),
-        }
-      ](name='InstanceInfoList'),
-      old?: boolean(name='Old'),
-      rate?: int32(name='Rate'),
-      routePolicy?: {
-        appId?: string(name='AppId'),
-        carryData?: boolean(name='CarryData'),
-        dubboArgRules?: [ 
-          {
-            appId?: string(name='AppId'),
-            argumentItems?: [ 
-              {
-                cond?: string(name='Cond'),
-                datum?: string(name='Datum'),
-                divisor?: long(name='Divisor'),
-                expr?: string(name='Expr'),
-                index?: long(name='Index'),
-                nameList?: [ string ](name='NameList'),
-                operator?: string(name='Operator'),
-                rate?: long(name='Rate'),
-                remainder?: long(name='Remainder'),
-              }
-            ](name='ArgumentItems'),
-            carryData?: boolean(name='CarryData'),
-            condition?: string(name='Condition'),
-            group?: string(name='Group'),
-            methodName?: string(name='MethodName'),
-            paramTypes?: [ string ](name='ParamTypes'),
-            serviceName?: string(name='ServiceName'),
-            tags?: [ string ](name='Tags'),
-            triggerPolicy?: string(name='TriggerPolicy'),
-            version?: string(name='Version'),
-          }
-        ](name='DubboArgRules'),
-        id?: long(name='Id'),
-        istioRules?: string(name='IstioRules'),
-        rate?: int32(name='Rate'),
-        regionId?: string(name='RegionId'),
-        scRules?: [ 
-          {
-            appId?: string(name='AppId'),
-            carryData?: boolean(name='CarryData'),
-            condition?: string(name='Condition'),
-            path?: string(name='Path'),
-            restItems?: [ 
-              {
-                cond?: string(name='Cond'),
-                datum?: string(name='Datum'),
-                divisor?: long(name='Divisor'),
-                name?: string(name='Name'),
-                nameList?: [ string ](name='NameList'),
-                operator?: string(name='Operator'),
-                rate?: long(name='Rate'),
-                remainder?: long(name='Remainder'),
-                type?: string(name='Type'),
-              }
-            ](name='RestItems'),
-            tags?: [ string ](name='Tags'),
-            triggerPolicy?: string(name='TriggerPolicy'),
-          }
-        ](name='ScRules'),
-        tag?: string(name='Tag'),
-        triggerPolicy?: string(name='TriggerPolicy'),
-      }(name='RoutePolicy'),
-      status?: string(name='Status'),
-      updateTime?: long(name='UpdateTime'),
-      version?: string(name='Version'),
-    }
-  ](name='Data'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-}
-
-model GetCanaryStatusResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetCanaryStatusResponseBody(name='body'),
-}
-
-async function getCanaryStatusWithOptions(request: GetCanaryStatusRequest, runtime: Util.RuntimeOptions): GetCanaryStatusResponse {
-  Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetCanaryStatus',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'GET',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function getCanaryStatus(request: GetCanaryStatusRequest): GetCanaryStatusResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getCanaryStatusWithOptions(request, runtime);
 }
 
 model GetEngineNamepaceRequest {
@@ -3681,7 +3352,13 @@ model GetGatewayResponse = {
 
 async function getGatewayWithOptions(request: GetGatewayRequest, runtime: Util.RuntimeOptions): GetGatewayResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -3690,7 +3367,7 @@ async function getGatewayWithOptions(request: GetGatewayRequest, runtime: Util.R
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -3716,7 +3393,7 @@ model GetGatewayDomainDetailResponseBody = {
     afterDate?: long(name='AfterDate'),
     algorithm?: string(name='Algorithm'),
     beforeDate?: long(name='BeforeDate'),
-    certIdentifier?: int32(name='CertIdentifier'),
+    certIdentifier?: string(name='CertIdentifier'),
     certName?: string(name='CertName'),
     commonName?: string(name='CommonName'),
     gatewayId?: long(name='GatewayId'),
@@ -3745,7 +3422,16 @@ model GetGatewayDomainDetailResponse = {
 
 async function getGatewayDomainDetailWithOptions(request: GetGatewayDomainDetailRequest, runtime: Util.RuntimeOptions): GetGatewayDomainDetailResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -3754,7 +3440,7 @@ async function getGatewayDomainDetailWithOptions(request: GetGatewayDomainDetail
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -4033,7 +3719,16 @@ model GetGatewayServiceDetailResponse = {
 
 async function getGatewayServiceDetailWithOptions(request: GetGatewayServiceDetailRequest, runtime: Util.RuntimeOptions): GetGatewayServiceDetailResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
+  if (!Util.isUnset(request.serviceId)) {
+    query['ServiceId'] = request.serviceId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -4042,7 +3737,7 @@ async function getGatewayServiceDetailWithOptions(request: GetGatewayServiceDeta
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -4343,7 +4038,13 @@ model GetKubernetesSourceResponse = {
 
 async function getKubernetesSourceWithOptions(request: GetKubernetesSourceRequest, runtime: Util.RuntimeOptions): GetKubernetesSourceResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -4352,7 +4053,7 @@ async function getKubernetesSourceWithOptions(request: GetKubernetesSourceReques
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -4481,7 +4182,6 @@ model GetNacosConfigResponseBody = {
     desc?: string(name='Desc'),
     encryptedDataKey?: string(name='EncryptedDataKey'),
     group?: string(name='Group'),
-    id?: string(name='Id'),
     md5?: string(name='Md5'),
     tags?: string(name='Tags'),
     type?: string(name='Type'),
@@ -4968,233 +4668,6 @@ async function importServicesWithOptions(tmpReq: ImportServicesRequest, runtime:
 async function importServices(request: ImportServicesRequest): ImportServicesResponse {
   var runtime = new Util.RuntimeOptions{};
   return importServicesWithOptions(request, runtime);
-}
-
-model ListAlarmContactGroupsRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  pageNum?: int32(name='PageNum'),
-  pageSize?: int32(name='PageSize'),
-  requestPars?: string(name='RequestPars'),
-}
-
-model ListAlarmContactGroupsResponseBody = {
-  data?: [ 
-    {
-      contactGroupId?: string(name='ContactGroupId'),
-      contactGroupName?: string(name='ContactGroupName'),
-    }
-  ](name='Data'),
-  errorCode?: string(name='ErrorCode'),
-  httpCode?: string(name='HttpCode'),
-  message?: string(name='Message'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-  totalCount?: int32(name='TotalCount'),
-}
-
-model ListAlarmContactGroupsResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListAlarmContactGroupsResponseBody(name='body'),
-}
-
-async function listAlarmContactGroupsWithOptions(request: ListAlarmContactGroupsRequest, runtime: Util.RuntimeOptions): ListAlarmContactGroupsResponse {
-  Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListAlarmContactGroups',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'GET',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function listAlarmContactGroups(request: ListAlarmContactGroupsRequest): ListAlarmContactGroupsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listAlarmContactGroupsWithOptions(request, runtime);
-}
-
-model ListAlarmHistoriesRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  alarmMseType?: string(name='AlarmMseType'),
-  alarmName?: string(name='AlarmName'),
-  endTime?: long(name='EndTime'),
-  pageNum?: int32(name='PageNum'),
-  pageSize?: int32(name='PageSize'),
-  requestPars?: string(name='RequestPars'),
-  startTime?: long(name='StartTime'),
-}
-
-model ListAlarmHistoriesResponseBody = {
-  data?: [ 
-    {
-      alarmContent?: string(name='AlarmContent'),
-      alarmDingDing?: string(name='AlarmDingDing'),
-      alarmEmail?: string(name='AlarmEmail'),
-      alarmName?: string(name='AlarmName'),
-      alarmPhone?: string(name='AlarmPhone'),
-      alarmTime?: string(name='AlarmTime'),
-    }
-  ](name='Data'),
-  errorCode?: string(name='ErrorCode'),
-  httpCode?: string(name='HttpCode'),
-  message?: string(name='Message'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-  totalCount?: int32(name='TotalCount'),
-}
-
-model ListAlarmHistoriesResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListAlarmHistoriesResponseBody(name='body'),
-}
-
-async function listAlarmHistoriesWithOptions(request: ListAlarmHistoriesRequest, runtime: Util.RuntimeOptions): ListAlarmHistoriesResponse {
-  Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListAlarmHistories',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'GET',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function listAlarmHistories(request: ListAlarmHistoriesRequest): ListAlarmHistoriesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listAlarmHistoriesWithOptions(request, runtime);
-}
-
-model ListAlarmItemsRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  requestPars?: string(name='RequestPars'),
-}
-
-model ListAlarmItemsResponseBody = {
-  data?: [ 
-    {
-      alarmCode?: string(name='AlarmCode'),
-      alarmDesc?: string(name='AlarmDesc'),
-      clusterType?: string(name='ClusterType'),
-    }
-  ](name='Data'),
-  errorCode?: string(name='ErrorCode'),
-  httpCode?: string(name='HttpCode'),
-  message?: string(name='Message'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-  totalCount?: int32(name='TotalCount'),
-}
-
-model ListAlarmItemsResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListAlarmItemsResponseBody(name='body'),
-}
-
-async function listAlarmItemsWithOptions(request: ListAlarmItemsRequest, runtime: Util.RuntimeOptions): ListAlarmItemsResponse {
-  Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListAlarmItems',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'GET',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function listAlarmItems(request: ListAlarmItemsRequest): ListAlarmItemsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listAlarmItemsWithOptions(request, runtime);
-}
-
-model ListAlarmRulesRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  alarmMseType?: string(name='AlarmMseType'),
-  pageNum?: int32(name='PageNum'),
-  pageSize?: int32(name='PageSize'),
-  requestPars?: string(name='RequestPars'),
-}
-
-model ListAlarmRulesResponseBody = {
-  data?: [ 
-    {
-      alarmName?: string(name='AlarmName'),
-      alarmRuleDetail?: string(name='AlarmRuleDetail'),
-      alarmRuleId?: string(name='AlarmRuleId'),
-      alarmStatus?: string(name='AlarmStatus'),
-      createTime?: string(name='CreateTime'),
-    }
-  ](name='Data'),
-  errorCode?: string(name='ErrorCode'),
-  httpCode?: string(name='HttpCode'),
-  message?: string(name='Message'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-  totalCount?: int32(name='TotalCount'),
-}
-
-model ListAlarmRulesResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListAlarmRulesResponseBody(name='body'),
-}
-
-async function listAlarmRulesWithOptions(request: ListAlarmRulesRequest, runtime: Util.RuntimeOptions): ListAlarmRulesResponse {
-  Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListAlarmRules',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'GET',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function listAlarmRules(request: ListAlarmRulesRequest): ListAlarmRulesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listAlarmRulesWithOptions(request, runtime);
 }
 
 model ListAnsInstancesRequest {
@@ -6105,6 +5578,7 @@ async function listGateway(request: ListGatewayRequest): ListGatewayResponse {
 model ListGatewayDomainRequest {
   acceptLanguage?: string(name='AcceptLanguage'),
   gatewayUniqueId?: string(name='GatewayUniqueId'),
+  type?: string(name='Type'),
 }
 
 model ListGatewayDomainResponseBody = {
@@ -6113,6 +5587,9 @@ model ListGatewayDomainResponseBody = {
     {
       certBeforeDate?: string(name='CertBeforeDate'),
       certIdentifier?: string(name='CertIdentifier'),
+      comment?: {
+        status?: string(name='Status'),
+      }(name='Comment'),
       gatewayId?: long(name='GatewayId'),
       gmtCreate?: string(name='GmtCreate'),
       gmtModified?: string(name='GmtModified'),
@@ -6120,6 +5597,8 @@ model ListGatewayDomainResponseBody = {
       mustHttps?: boolean(name='MustHttps'),
       name?: string(name='Name'),
       protocol?: string(name='Protocol'),
+      status?: int32(name='Status'),
+      type?: string(name='Type'),
     }
   ](name='Data'),
   httpStatusCode?: int32(name='HttpStatusCode'),
@@ -6135,7 +5614,16 @@ model ListGatewayDomainResponse = {
 
 async function listGatewayDomainWithOptions(request: ListGatewayDomainRequest, runtime: Util.RuntimeOptions): ListGatewayDomainResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['Type'] = request.type;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -6144,7 +5632,7 @@ async function listGatewayDomainWithOptions(request: ListGatewayDomainRequest, r
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -6164,6 +5652,7 @@ model ListGatewayRouteRequest {
   filterParams?: {
     defaultServiceId?: long(name='DefaultServiceId'),
     domainId?: long(name='DomainId'),
+    domainName?: string(name='DomainName'),
     gatewayId?: long(name='GatewayId'),
     gatewayUniqueId?: string(name='GatewayUniqueId'),
     name?: string(name='Name'),
@@ -6191,6 +5680,9 @@ model ListGatewayRouteResponseBody = {
     pageSize?: int32(name='PageSize'),
     result?: [ 
       {
+        comment?: {
+          status?: string(name='Status'),
+        }(name='Comment'),
         defaultServiceId?: long(name='DefaultServiceId'),
         defaultServiceName?: string(name='DefaultServiceName'),
         destinationType?: string(name='DestinationType'),
@@ -6251,6 +5743,7 @@ model ListGatewayRouteResponseBody = {
         ](name='RouteServices'),
         services?: string(name='Services'),
         status?: int32(name='Status'),
+        type?: string(name='Type'),
       }
     ](name='Result'),
     totalSize?: long(name='TotalSize'),
@@ -6462,7 +5955,13 @@ model ListGatewaySlbResponse = {
 
 async function listGatewaySlbWithOptions(request: ListGatewaySlbRequest, runtime: Util.RuntimeOptions): ListGatewaySlbResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -6471,7 +5970,7 @@ async function listGatewaySlbWithOptions(request: ListGatewaySlbRequest, runtime
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -6851,7 +6350,13 @@ model ListSSLCertResponse = {
 
 async function listSSLCertWithOptions(request: ListSSLCertRequest, runtime: Util.RuntimeOptions): ListSSLCertResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -6860,7 +6365,7 @@ async function listSSLCertWithOptions(request: ListSSLCertRequest, runtime: Util
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -6902,7 +6407,13 @@ model ListSecurityGroupResponse = {
 
 async function listSecurityGroupWithOptions(request: ListSecurityGroupRequest, runtime: Util.RuntimeOptions): ListSecurityGroupResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -6911,7 +6422,7 @@ async function listSecurityGroupWithOptions(request: ListSecurityGroupRequest, r
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -6996,6 +6507,11 @@ model ListServiceSourceResponseBody = {
       gmtCreate?: string(name='GmtCreate'),
       gmtModified?: string(name='GmtModified'),
       id?: long(name='Id'),
+      ingressOptions?: {
+        enableIngress?: boolean(name='EnableIngress'),
+        ingressClass?: string(name='IngressClass'),
+        watchNamespace?: string(name='WatchNamespace'),
+      }(name='IngressOptions'),
       name?: string(name='Name'),
       source?: string(name='Source'),
       sourceUniqueId?: string(name='SourceUniqueId'),
@@ -7015,7 +6531,13 @@ model ListServiceSourceResponse = {
 
 async function listServiceSourceWithOptions(request: ListServiceSourceRequest, runtime: Util.RuntimeOptions): ListServiceSourceResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -7024,7 +6546,7 @@ async function listServiceSourceWithOptions(request: ListServiceSourceRequest, r
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -7169,7 +6691,16 @@ model OfflineGatewayRouteResponse = {
 
 async function offlineGatewayRouteWithOptions(request: OfflineGatewayRouteRequest, runtime: Util.RuntimeOptions): OfflineGatewayRouteResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
+  if (!Util.isUnset(request.routeId)) {
+    query['RouteId'] = request.routeId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -7178,7 +6709,7 @@ async function offlineGatewayRouteWithOptions(request: OfflineGatewayRouteReques
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -7195,7 +6726,6 @@ async function offlineGatewayRoute(request: OfflineGatewayRouteRequest): Offline
 model PullServicesRequest {
   acceptLanguage?: string(name='AcceptLanguage'),
   gatewayUniqueId?: string(name='GatewayUniqueId'),
-  sourceId?: string(name='SourceId'),
   sourceType?: string(name='SourceType'),
 }
 
@@ -7230,7 +6760,16 @@ model PullServicesResponse = {
 
 async function pullServicesWithOptions(request: PullServicesRequest, runtime: Util.RuntimeOptions): PullServicesResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
+  if (!Util.isUnset(request.sourceType)) {
+    query['SourceType'] = request.sourceType;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -7239,7 +6778,7 @@ async function pullServicesWithOptions(request: PullServicesRequest, runtime: Ut
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -7716,7 +7255,10 @@ model QueryGatewayRegionResponse = {
 
 async function queryGatewayRegionWithOptions(request: QueryGatewayRegionRequest, runtime: Util.RuntimeOptions): QueryGatewayRegionResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -7725,7 +7267,7 @@ async function queryGatewayRegionWithOptions(request: QueryGatewayRegionRequest,
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -7759,7 +7301,10 @@ model QueryGatewayTypeResponse = {
 
 async function queryGatewayTypeWithOptions(request: QueryGatewayTypeRequest, runtime: Util.RuntimeOptions): QueryGatewayTypeResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -7768,7 +7313,7 @@ async function queryGatewayTypeWithOptions(request: QueryGatewayTypeRequest, run
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -8001,67 +7546,10 @@ async function querySwimmingLaneById(request: QuerySwimmingLaneByIdRequest): Que
   return querySwimmingLaneByIdWithOptions(request, runtime);
 }
 
-model QueryUserIdByLicenseKeyRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  licenseKey?: string(name='LicenseKey'),
-  mode?: string(name='Mode', description='0 表示 只用了mse switch，1 表示 只用了mse sentinel，2表示用了mse switch跟mse sentinel'),
-  regionId?: string(name='RegionId'),
-}
-
-model QueryUserIdByLicenseKeyResponseBody = {
-  code?: string(name='Code'),
-  data?: any(name='Data'),
-  httpCode?: string(name='HttpCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-}
-
-model QueryUserIdByLicenseKeyResponse = {
-  headers: map[string]string(name='headers'),
-  body: QueryUserIdByLicenseKeyResponseBody(name='body'),
-}
-
-async function queryUserIdByLicenseKeyWithOptions(request: QueryUserIdByLicenseKeyRequest, runtime: Util.RuntimeOptions): QueryUserIdByLicenseKeyResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.acceptLanguage)) {
-    query['AcceptLanguage'] = request.acceptLanguage;
-  }
-  if (!Util.isUnset(request.licenseKey)) {
-    query['LicenseKey'] = request.licenseKey;
-  }
-  if (!Util.isUnset(request.mode)) {
-    query['Mode'] = request.mode;
-  }
-  if (!Util.isUnset(request.regionId)) {
-    query['RegionId'] = request.regionId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryUserIdByLicenseKey',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function queryUserIdByLicenseKey(request: QueryUserIdByLicenseKeyRequest): QueryUserIdByLicenseKeyResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryUserIdByLicenseKeyWithOptions(request, runtime);
-}
-
 model QueryZnodeDetailRequest {
   acceptLanguage?: string(name='AcceptLanguage'),
   clusterId?: string(name='ClusterId'),
+  instanceId?: string(name='InstanceId'),
   path?: string(name='Path'),
   requestPars?: string(name='RequestPars'),
 }
@@ -8334,54 +7822,6 @@ async function selectGatewaySlbWithOptions(request: SelectGatewaySlbRequest, run
 async function selectGatewaySlb(request: SelectGatewaySlbRequest): SelectGatewaySlbResponse {
   var runtime = new Util.RuntimeOptions{};
   return selectGatewaySlbWithOptions(request, runtime);
-}
-
-model TestAnonymousRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  agentInfoJson?: string(name='AgentInfoJson'),
-}
-
-model TestAnonymousResponseBody = {
-  errorCode?: string(name='ErrorCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-}
-
-model TestAnonymousResponse = {
-  headers: map[string]string(name='headers'),
-  body: TestAnonymousResponseBody(name='body'),
-}
-
-async function testAnonymousWithOptions(request: TestAnonymousRequest, runtime: Util.RuntimeOptions): TestAnonymousResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.acceptLanguage)) {
-    query['AcceptLanguage'] = request.acceptLanguage;
-  }
-  if (!Util.isUnset(request.agentInfoJson)) {
-    query['AgentInfoJson'] = request.agentInfoJson;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'TestAnonymous',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function testAnonymous(request: TestAnonymousRequest): TestAnonymousResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return testAnonymousWithOptions(request, runtime);
 }
 
 model UpdateAclRequest {
@@ -8853,7 +8293,16 @@ model UpdateGatewayNameResponse = {
 
 async function updateGatewayNameWithOptions(request: UpdateGatewayNameRequest, runtime: Util.RuntimeOptions): UpdateGatewayNameResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -8862,7 +8311,7 @@ async function updateGatewayNameWithOptions(request: UpdateGatewayNameRequest, r
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -10011,7 +9460,19 @@ model UpdateSSLCertResponse = {
 
 async function updateSSLCertWithOptions(request: UpdateSSLCertRequest, runtime: Util.RuntimeOptions): UpdateSSLCertResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.certIdentifier)) {
+    query['CertIdentifier'] = request.certIdentifier;
+  }
+  if (!Util.isUnset(request.domainId)) {
+    query['DomainId'] = request.domainId;
+  }
+  if (!Util.isUnset(request.gatewayUniqueId)) {
+    query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -10020,7 +9481,7 @@ async function updateSSLCertWithOptions(request: UpdateSSLCertRequest, runtime: 
     version = '2019-05-31',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
