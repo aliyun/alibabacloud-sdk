@@ -28,50 +28,145 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model Application {
+  autoDeploy?: string(name='autoDeploy', description='是否直接跳过plan直接进行发布'),
+  createdTime?: string(name='createdTime', description='应用创建时间'),
+  description?: string(name='description', description='应用描述'),
+  envVars?: map[string]any(name='envVars', description='环境变量'),
+  localSource?: string(name='localSource', description='指定本地代码源'),
+  name?: string(name='name', description='应用名称，同账号下唯一，创建后不允许变更'),
+  ossSource?: {
+    bucketName?: string(name='bucketName', description='OSS Bucket名字'),
+    objectName?: string(name='objectName', description='OSS Object名字'),
+  }(name='ossSource', description='指定OSS的代码源'),
+  parameter?: map[string]any(name='parameter', description='应用参数，schema由应用模板所定义'),
+  repoSource?: {
+    owner?: string(name='owner', description='代码库owner'),
+    provider?: string(name='provider', description='代码源VCS'),
+    repo?: string(name='repo', description='代码库名称'),
+  }(name='repoSource', description='指定仓库的代码源'),
+  roleArn?: string(name='roleArn', description='指定role进行角色扮演'),
+  template?: string(name='template', description='关联的模板，用于Web应用、模板应用的创建'),
+  trigger?: {
+    branch?: [ string ](name='branch', description='代码分支'),
+    on?: string(name='on', description='触发条件'),
+    paths?: [ string ](name='paths', description='代码路径。指定时，只有当匹配的path变化才触发'),
+  }(name='trigger', description='触发配置，不指定表示手动触发'),
+  uid?: string(name='uid', description='阿里云主账号ID，只读'),
+  updatedTime?: string(name='updatedTime', description='应用更新时间'),
+  workDir?: string(name='workDir', description='s.yaml所在目录，不指定则默认使用当前目录'),
+}
+
 model Environment {
-  creationTime?: string(name='creationTime', description='A time representing the server time when this object was created. Clients may not set this value. Populated by the system. Read-only.'),
+  createdTime?: string(name='createdTime', description='A time representing the server time when this object was created. Clients may not set this value. Populated by the system. Read-only.'),
   description?: string(name='description', description='Human-readable description of the resource'),
   generation?: int32(name='generation', description='A sequence number representing a specific generation of the desired state. Populated by the system. Read-only.'),
   kind?: string(name='kind', description='The kind of the resource'),
   name?: string(name='name', description='Name must be unique within a namespace. Is required when creating resources. Cannot be updated.'),
-  spec?: {
-    region?: string(name='region', description='A region ID at Aliyun. For example, "cn-hangzhou"'),
-    roleArn?: string(name='roleArn', description='The ARN (Aliyun Resource Name) of the role designated by a user to allow the system to manage his Aliyun resources. If null, use roleArn of role AliyunFCDefaultRole.'),
-    template?: string(name='template', description='The name of the template for the Environment'),
-    templateVariables?: map[string]any(name='templateVariables', description='Variables for specified template'),
-  }(name='spec', description='Specification of the desired behavior of the Environment'),
-  status?: {
-    credentials?: StsCredentials(name='credentials', description='Credentials required for tasks'),
-    message?: string(name='message', description='A human-readable message indicating details about why the Environment is in this condition'),
-    observedGeneration?: int32(name='observedGeneration', description='The most recent generation observed'),
-    observedTime?: string(name='observedTime', description='Time when the last update of the status is observed'),
-    output?: map[string]any(name='output', description='Details of current state of the Environment'),
-    phase?: string(name='phase', description='A simple, high-level summary of where the Environment is in its lifecycle'),
-  }(name='status', description='Most recently observed status of the Environment. This data may not be up-to-date. Populated by the system. Read-only'),
+  spec?: EnvironmentSpec(name='spec', description='Specification of the desired behavior of the Environment.'),
+  status?: EnvironmentStatus(name='status', description='Most recently observed status of the Environment. This data may not be up-to-date. Populated by the system. Read-only.'),
   uid?: string(name='uid', description='Main user ID of an Aliyun account'),
 }
 
+model EnvironmentRevision {
+  createdTime?: string(name='createdTime', description='A time representing the server time when this object was created. Clients may not set this value. Populated by the system. Read-only.'),
+  environmentGeneration?: int32(name='environmentGeneration', description='The generation of the environment.'),
+  environmentName?: string(name='environmentName', description='The name of an environment.'),
+  kind?: string(name='kind', description='The kind of the resource.'),
+  spec?: EnvironmentSpec(name='spec', description='Specification of the desired behavior of the Environment.'),
+  status?: EnvironmentStatus(name='status', description='Most recently observed status of the Environment. This data may not be up-to-date. Populated by the system. Read-only.'),
+  uid?: string(name='uid', description='Main user ID of an Aliyun account.'),
+}
+
+model EnvironmentSpec {
+  region?: string(name='region', description='A region ID at Aliyun. For example, "cn-hangzhou"'),
+  roleArn?: string(name='roleArn', description='The ARN (Aliyun Resource Name) of the role designated by a user to allow the system to manage his Aliyun resources. If null, use roleArn of role AliyunFCDefaultRole.'),
+  template?: string(name='template', description='The name of the template for the Environment'),
+  templateVariables?: map[string]any(name='templateVariables', description='Variables for specified template'),
+  templateVersion?: int32(name='templateVersion', description='The major version of the template. "1" by default.'),
+}
+
+model EnvironmentStatus {
+  message?: string(name='message', description='A human-readable message indicating details about why the Environment is in this condition'),
+  observedGeneration?: int32(name='observedGeneration', description='The most recent generation observed'),
+  observedTime?: string(name='observedTime', description='Time when the last update of the status is observed'),
+  output?: map[string]any(name='output', description='Details of current state of the Environment'),
+  phase?: string(name='phase', description='A simple, high-level summary of where the Environment is in its lifecycle'),
+}
+
+model InputVariable {
+  defaultJson?: string(name='defaultJson', description='A default value (as JSON string) which then makes the variable optional.'),
+  description?: string(name='description', description='This specifies the input variable\'s documentation.'),
+  name?: string(name='name', description='The identifier of an input variable. Identifiers can contain letters, digits, underscores (_), and hyphens (-). The first character of an identifier must not be a digit, to avoid ambiguity with literal numbers.'),
+  nullable?: boolean(name='nullable', description='Specify if the variable can be null. True by default.'),
+  sensitive?: boolean(name='sensitive', description='Specify if the variable contains sensitive material. False by default.'),
+  type?: string(name='type', description='This argument specifies what value types are accepted for the variable.'),
+}
+
+model OutputValue {
+  description?: string(name='description', description='The description should concisely explain the purpose of the output and what kind of value is expected.'),
+  name?: string(name='name', description='The identifier of an output value. Identifiers can contain letters, digits, underscores (_), and hyphens (-). The first character of an identifier must not be a digit, to avoid ambiguity with literal numbers.'),
+  sensitive?: boolean(name='sensitive', description='Specify if the output value contains sensitive material. False by default.'),
+}
+
+model Release {
+  appConfig?: map[string]any(name='appConfig', description='本次发布的应用快照，只读'),
+  codeVersion?: {
+    branch?: string(name='branch', description='代码分支，不指定则使用default分支'),
+    commit?: string(name='commit', description='commit id'),
+  }(name='codeVersion', description='代码版本，不指定则使用最新的commit'),
+  createdTime?: string(name='createdTime', description='创建时间，只读'),
+  description?: string(name='description', description='本地发布描述'),
+  finishedTime?: string(name='finishedTime', description='完成时间，只读'),
+  output?: map[string]any(name='output', description='本次发布的输出，只读'),
+  pipeline?: {
+    stages?: [ 
+      {
+        environment?: string(name='environment', description='执行环境'),
+        name?: string(name='name', description='stage名字'),
+      }
+    ](name='stages', description='stage配置'),
+  }(name='pipeline', description='流水线配置，不指定则直接部署'),
+  status?: string(name='status', description='本地发布状态：published: 发布完成 publishing：发布中 failed：发布失败 canceled：已撤销'),
+  uid?: string(name='uid', description='阿里云主账号ID，只读'),
+  versionId?: long(name='versionId', description='本次发布版本号，由系统生成，只读'),
+}
+
 model Service {
-  creationTime?: string(name='creationTime', description='A time representing the server time when this object was created. Clients may not set this value. Populated by the system. Read-only.'),
+  createdTime?: string(name='createdTime', description='A time representing the server time when this object was created. Clients may not set this value. Populated by the system. Read-only.'),
   description?: string(name='description', description='Human-readable description of the resource'),
   generation?: int32(name='generation', description='A sequence number representing a specific generation of the desired state. Populated by the system. Read-only.'),
   kind?: string(name='kind', description='The kind of the resource'),
   name?: string(name='name', description='Name must be unique within a namespace. Is required when creating resources. Cannot be updated.'),
-  spec?: {
-    environment?: string(name='environment', description='The name of the associated Environment for the Service'),
-    roleArn?: string(name='roleArn', description='The ARN (Aliyun Resource Name) of the role designated by a user to allow the system to manage his Aliyun resources. If null, use roleArn of role AliyunFCDefaultRole.'),
-    template?: string(name='template', description='The name of the template for the Service'),
-    templateVariables?: map[string]any(name='templateVariables', description='Variables for specified template'),
-  }(name='spec', description='Specification of the desired behavior of the Service'),
-  status?: {
-    credentials?: StsCredentials(name='credentials', description='Credentials required for tasks'),
-    message?: string(name='message', description='A human-readable message indicating details about why the Service is in this condition'),
-    observedGeneration?: int32(name='observedGeneration', description='The most recent generation observed'),
-    observedTime?: string(name='observedTime', description='Time when the last update of the status is observed'),
-    output?: map[string]any(name='output', description='Details of current state of the Service'),
-    phase?: string(name='phase', description='A simple, high-level summary of where the Service is in its lifecycle'),
-  }(name='status', description='Most recently observed status of the Service. This data may not be up-to-date. Populated by the system. Read-only'),
+  spec?: ServiceSpec(name='spec', description='Specification of the desired behavior of the Service.'),
+  status?: ServiceStatus(name='status', description='Most recently observed status of the Service. This data may not be up-to-date. Populated by the system. Read-only.'),
   uid?: string(name='uid', description='Main user ID of an Aliyun account'),
+}
+
+model ServiceRevision {
+  createdTime?: string(name='createdTime', description='A time representing the server time when this object was created. Clients may not set this value. Populated by the system. Read-only.'),
+  kind?: string(name='kind', description='The kind of the resource.'),
+  serviceGeneration?: int32(name='serviceGeneration', description='The generation of the service.'),
+  serviceName?: string(name='serviceName', description='The name of a service.'),
+  spec?: ServiceSpec(name='spec', description='Specification of the desired behavior of the Service.'),
+  status?: EnvironmentStatus(name='status', description='Most recently observed status of the Environment. This data may not be up-to-date. Populated by the system. Read-only.'),
+  uid?: string(name='uid', description='Main user ID of an Aliyun account.'),
+}
+
+model ServiceSpec {
+  environment?: string(name='environment', description='The name of the associated Environment for the Service'),
+  roleArn?: string(name='roleArn', description='The ARN (Aliyun Resource Name) of the role designated by a user to allow the system to manage his Aliyun resources. If null, use roleArn of role AliyunFCDefaultRole.'),
+  template?: string(name='template', description='The name of the template for the Service'),
+  templateVariables?: map[string]any(name='templateVariables', description='Variables for specified template'),
+  templateVersion?: int32(name='templateVersion', description='The major version of the template. "1" by default.'),
+}
+
+model ServiceStatus {
+  message?: string(name='message', description='A human-readable message indicating details about why the Service is in this condition'),
+  observedGeneration?: int32(name='observedGeneration', description='The most recent generation observed'),
+  observedTime?: string(name='observedTime', description='Time when the last update of the status is observed'),
+  output?: map[string]any(name='output', description='Details of current state of the Service'),
+  phase?: string(name='phase', description='A simple, high-level summary of where the Service is in its lifecycle'),
 }
 
 model StsCredentials {
@@ -80,6 +175,180 @@ model StsCredentials {
   kind?: string(name='kind', description='The kind of the credentials'),
   secretAccessKey?: string(name='secretAccessKey', description='Secret access key'),
   token?: string(name='token', description='Token'),
+}
+
+model Template {
+  createdTime?: string(name='createdTime', description='A time representing the server time when this object was created. Clients may not set this value. Populated by the system. Read-only.'),
+  description?: string(name='description', description='Human-readable description of the resource'),
+  generation?: int32(name='generation', description='A sequence number representing a specific generation of the desired state. Populated by the system. Read-only.'),
+  kind?: string(name='kind', description='The kind of the resource'),
+  name?: string(name='name', description='Name must be unique within a namespace. Is required when creating resources. Cannot be updated.'),
+  spec?: TemplateSpec(name='spec', description='Specification of the desired behavior of the Template.'),
+  status?: TemplateStatus(name='status', description='Most recently observed status of the Template. This data may not be up-to-date. Populated by the system. Read-only.'),
+  uid?: string(name='uid', description='Main user ID of an Aliyun account'),
+  version?: int32(name='version', description='The major version of the template. "1" by default. You should ONLY increment the major version when the template are not backwards compatible with the previous major version.'),
+}
+
+model TemplateRevision {
+  createdTime?: string(name='createdTime', description='A time representing the server time when this object was created. Clients may not set this value. Populated by the system. Read-only.'),
+  kind?: string(name='kind', description='The kind of the resource.'),
+  spec?: TemplateSpec(name='spec', description='Specification of the desired behavior of the Template.'),
+  status?: TemplateStatus(name='status', description='Most recently observed status of the Template. This data may not be up-to-date. Populated by the system. Read-only.'),
+  templateGeneration?: int32(name='templateGeneration', description='The generation of the template.'),
+  templateName?: string(name='templateName', description='The name of a template.'),
+  templateVersion?: int32(name='templateVersion', description='The version of a template.'),
+  uid?: string(name='uid', description='Main user ID of an Aliyun account.'),
+}
+
+model TemplateSpec {
+  content?: string(name='content', description='The raw content of the template.'),
+  contentType?: string(name='contentType', description='The media type of the template content. At the moment, only "application/hcl+terraform" is supported.'),
+  ramPolicy?: string(name='ramPolicy', description='The content of RAM policy  required for this template.'),
+  type?: string(name='type', description='The type of the applicable resource for this template. Must be either "Environment" or "Service".'),
+}
+
+model TemplateStatus {
+  message?: string(name='message', description='A human-readable message indicating details about why the Template is in this condition.'),
+  observedGeneration?: int32(name='observedGeneration', description='The most recent generation observed.'),
+  observedTime?: string(name='observedTime', description='Time when the last update of the status is observed.'),
+  outputs?: [
+    OutputValue
+  ](name='outputs', description='The definition of output values of the template parsed from the template content.'),
+  phase?: string(name='phase', description='A simple, high-level summary of where the Template is in its lifecycle.'),
+  variables?: [
+    InputVariable
+  ](name='variables', description='The definition of input variables of the template parsed from the template content.'),
+}
+
+model CreateApplicationRequest {
+  body?: Application(name='body'),
+}
+
+model CreateApplicationResponse = {
+  headers: map[string]string(name='headers'),
+  body: Application  
+}
+
+async function createApplication(request: CreateApplicationRequest): CreateApplicationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createApplicationWithOptions(request, headers, runtime);
+}
+
+async function createApplicationWithOptions(request: CreateApplicationRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateApplicationResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateApplication',
+    version = '2021-09-24',
+    protocol = 'HTTPS',
+    pathname = `/apis/serverlessdeployment/v1/applications`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model CreateReleaseRequest {
+  body?: Release(name='body'),
+}
+
+model CreateReleaseResponse = {
+  headers: map[string]string(name='headers'),
+  body: Release  
+}
+
+async function createRelease(appName: string, request: CreateReleaseRequest): CreateReleaseResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createReleaseWithOptions(appName, request, headers, runtime);
+}
+
+async function createReleaseWithOptions(appName: string, request: CreateReleaseRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateReleaseResponse {
+  Util.validateModel(request);
+  appName = OpenApiUtil.getEncodeParam(appName);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateRelease',
+    version = '2021-09-24',
+    protocol = 'HTTPS',
+    pathname = `/apis/serverlessdeployment/v1/applications/${appName}/releases`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model DeleteApplicationResponse = {
+  headers: map[string]string(name='headers'),
+  body: string(name='body'),
+}
+
+async function deleteApplication(name: string): DeleteApplicationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteApplicationWithOptions(name, headers, runtime);
+}
+
+async function deleteApplicationWithOptions(name: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteApplicationResponse {
+  name = OpenApiUtil.getEncodeParam(name);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteApplication',
+    version = '2021-09-24',
+    protocol = 'HTTPS',
+    pathname = `/apis/serverlessdeployment/v1/applications/${name}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'string',
+  };
+  return callApi(params, req, runtime);
+}
+
+model GetApplicationResponse = {
+  headers: map[string]string(name='headers'),
+  body: Application  
+}
+
+async function getApplication(name: string): GetApplicationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getApplicationWithOptions(name, headers, runtime);
+}
+
+async function getApplicationWithOptions(name: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetApplicationResponse {
+  name = OpenApiUtil.getEncodeParam(name);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetApplication',
+    version = '2021-09-24',
+    protocol = 'HTTPS',
+    pathname = `/apis/serverlessdeployment/v1/applications/${name}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model GetEnvironmentResponse = {
@@ -103,6 +372,37 @@ async function getEnvironmentWithOptions(name: string, headers: map[string]strin
     version = '2021-09-24',
     protocol = 'HTTPS',
     pathname = `/apis/serverlessdeployment/v1/environments/${name}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model GetReleaseResponse = {
+  headers: map[string]string(name='headers'),
+  body: Release  
+}
+
+async function getRelease(appName: string, versionId: string): GetReleaseResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getReleaseWithOptions(appName, versionId, headers, runtime);
+}
+
+async function getReleaseWithOptions(appName: string, versionId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetReleaseResponse {
+  appName = OpenApiUtil.getEncodeParam(appName);
+  versionId = OpenApiUtil.getEncodeParam(versionId);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetRelease',
+    version = '2021-09-24',
+    protocol = 'HTTPS',
+    pathname = `/apis/serverlessdeployment/v1/applications/${appName}/releases/${versionId}`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -142,6 +442,89 @@ async function getServiceWithOptions(name: string, headers: map[string]string, r
   return callApi(params, req, runtime);
 }
 
+model GetTemplateRequest {
+  version?: int32(name='version', description='The major version of the template. "1" by default.'),
+}
+
+model GetTemplateResponse = {
+  headers: map[string]string(name='headers'),
+  body: Template  
+}
+
+async function getTemplate(name: string, request: GetTemplateRequest): GetTemplateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getTemplateWithOptions(name, request, headers, runtime);
+}
+
+async function getTemplateWithOptions(name: string, request: GetTemplateRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetTemplateResponse {
+  Util.validateModel(request);
+  name = OpenApiUtil.getEncodeParam(name);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.version)) {
+    query['version'] = request.version;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetTemplate',
+    version = '2021-09-24',
+    protocol = 'HTTPS',
+    pathname = `/apis/serverlessdeployment/v1/templates/${name}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model ListEnvironmentRevisionsRequest {
+  environmentName?: string(name='environmentName', description='The name of an environment.'),
+}
+
+model ListEnvironmentRevisionsResponse = {
+  headers: map[string]string(name='headers'),
+  body: [
+    EnvironmentRevision
+  ](name='body'),
+}
+
+async function listEnvironmentRevisions(request: ListEnvironmentRevisionsRequest): ListEnvironmentRevisionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listEnvironmentRevisionsWithOptions(request, headers, runtime);
+}
+
+async function listEnvironmentRevisionsWithOptions(request: ListEnvironmentRevisionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListEnvironmentRevisionsResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.environmentName)) {
+    query['environmentName'] = request.environmentName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListEnvironmentRevisions',
+    version = '2021-09-24',
+    protocol = 'HTTPS',
+    pathname = `/apis/serverlessdeployment/v1/environmentrevisions/`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'array',
+  };
+  return callApi(params, req, runtime);
+}
+
 model ListEnvironmentsResponse = {
   headers: map[string]string(name='headers'),
   body: [
@@ -173,6 +556,48 @@ async function listEnvironmentsWithOptions(headers: map[string]string, runtime: 
   return callApi(params, req, runtime);
 }
 
+model ListServiceRevisionsRequest {
+  serviceName?: string(name='serviceName', description='The name of a service.'),
+}
+
+model ListServiceRevisionsResponse = {
+  headers: map[string]string(name='headers'),
+  body: [
+    ServiceRevision
+  ](name='body'),
+}
+
+async function listServiceRevisions(request: ListServiceRevisionsRequest): ListServiceRevisionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listServiceRevisionsWithOptions(request, headers, runtime);
+}
+
+async function listServiceRevisionsWithOptions(request: ListServiceRevisionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListServiceRevisionsResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.serviceName)) {
+    query['serviceName'] = request.serviceName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListServiceRevisions',
+    version = '2021-09-24',
+    protocol = 'HTTPS',
+    pathname = `/apis/serverlessdeployment/v1/servicerevisions/`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'array',
+  };
+  return callApi(params, req, runtime);
+}
+
 model ListServicesResponse = {
   headers: map[string]string(name='headers'),
   body: [
@@ -195,6 +620,94 @@ async function listServicesWithOptions(headers: map[string]string, runtime: Util
     version = '2021-09-24',
     protocol = 'HTTPS',
     pathname = `/apis/serverlessdeployment/v1/services/`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'array',
+  };
+  return callApi(params, req, runtime);
+}
+
+model ListTemplateRevisionsRequest {
+  templateName?: string(name='templateName', description='The name of a template.'),
+  templateVersion?: int32(name='templateVersion', description='The major version of the template. "1" by default.'),
+}
+
+model ListTemplateRevisionsResponse = {
+  headers: map[string]string(name='headers'),
+  body: [
+    TemplateRevision
+  ](name='body'),
+}
+
+async function listTemplateRevisions(request: ListTemplateRevisionsRequest): ListTemplateRevisionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listTemplateRevisionsWithOptions(request, headers, runtime);
+}
+
+async function listTemplateRevisionsWithOptions(request: ListTemplateRevisionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTemplateRevisionsResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.templateName)) {
+    query['templateName'] = request.templateName;
+  }
+  if (!Util.isUnset(request.templateVersion)) {
+    query['templateVersion'] = request.templateVersion;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListTemplateRevisions',
+    version = '2021-09-24',
+    protocol = 'HTTPS',
+    pathname = `/apis/serverlessdeployment/v1/templaterevisions/`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'array',
+  };
+  return callApi(params, req, runtime);
+}
+
+model ListTemplatesRequest {
+  type?: string(name='type', description='The type of the applicable resource for this template. Must be either "Environment" or "Service".'),
+}
+
+model ListTemplatesResponse = {
+  headers: map[string]string(name='headers'),
+  body: [
+    Template
+  ](name='body'),
+}
+
+async function listTemplates(request: ListTemplatesRequest): ListTemplatesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listTemplatesWithOptions(request, headers, runtime);
+}
+
+async function listTemplatesWithOptions(request: ListTemplatesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTemplatesResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListTemplates',
+    version = '2021-09-24',
+    protocol = 'HTTPS',
+    pathname = `/apis/serverlessdeployment/v1/templates/`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -267,6 +780,85 @@ async function putServiceWithOptions(name: string, request: PutServiceRequest, h
     version = '2021-09-24',
     protocol = 'HTTPS',
     pathname = `/apis/serverlessdeployment/v1/services/${name}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model PutTemplateRequest {
+  body?: Template(name='body', description='A custom template'),
+  version?: int32(name='version', description='The major version of the template. "1" by default.'),
+}
+
+model PutTemplateResponse = {
+  headers: map[string]string(name='headers'),
+  body: Template  
+}
+
+async function putTemplate(name: string, request: PutTemplateRequest): PutTemplateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return putTemplateWithOptions(name, request, headers, runtime);
+}
+
+async function putTemplateWithOptions(name: string, request: PutTemplateRequest, headers: map[string]string, runtime: Util.RuntimeOptions): PutTemplateResponse {
+  Util.validateModel(request);
+  name = OpenApiUtil.getEncodeParam(name);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.version)) {
+    query['version'] = request.version;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'PutTemplate',
+    version = '2021-09-24',
+    protocol = 'HTTPS',
+    pathname = `/apis/serverlessdeployment/v1/templates/${name}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model UpdateApplicationRequest {
+  body?: Application(name='body'),
+}
+
+model UpdateApplicationResponse = {
+  headers: map[string]string(name='headers'),
+  body: Application  
+}
+
+async function updateApplication(name: string, request: UpdateApplicationRequest): UpdateApplicationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateApplicationWithOptions(name, request, headers, runtime);
+}
+
+async function updateApplicationWithOptions(name: string, request: UpdateApplicationRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateApplicationResponse {
+  Util.validateModel(request);
+  name = OpenApiUtil.getEncodeParam(name);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateApplication',
+    version = '2021-09-24',
+    protocol = 'HTTPS',
+    pathname = `/apis/serverlessdeployment/v1/applications/${name}`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
