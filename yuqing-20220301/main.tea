@@ -28,6 +28,12 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model FieldCondition {
+  fieldName?: string(name='fieldName', description='字段名称'),
+  operateType?: string(name='operateType', description='操作符'),
+  value?: string(name='value', description='字段值'),
+}
+
 model ProductInstance {
   appCode?: string(name='appCode', description='应用码'),
   buyerName?: string(name='buyerName', description='购买者名称'),
@@ -42,6 +48,63 @@ model ProductInstance {
   start?: long(name='start', description='生效开始时间'),
   tenantName?: string(name='tenantName', description='租户名称'),
   tenantUid?: string(name='tenantUid', description='租户uid'),
+}
+
+model SearchCondition {
+  assKeywords?: string(name='assKeywords', description='搭配词'),
+  atAuthorName?: string(name='atAuthorName', description='被@的用户名称'),
+  authorName?: string(name='authorName', description='作者名称'),
+  createTimeEnd?: string(name='createTimeEnd', description='抓取截止时间'),
+  createTimeStart?: string(name='createTimeStart', description='抓取起始时间'),
+  docId?: string(name='docId', description='舆情文章唯一docId'),
+  excludeAuthorName?: string(name='excludeAuthorName', description='排除作者名称'),
+  excludeHostName?: string(name='excludeHostName', description='排除网站域名'),
+  excludeKeywords?: string(name='excludeKeywords', description='排除词'),
+  excludeKeywordsInTitle?: string(name='excludeKeywordsInTitle', description='标题排除词'),
+  hostName?: string(name='hostName', description='网站域名'),
+  keywordTagIds?: string(name='keywordTagIds', description='关键词标签Id列表'),
+  mediaLibraryIds?: string(name='mediaLibraryIds', description='媒体库id列表'),
+  mediaName?: string(name='mediaName', description='媒体名称'),
+  mediaType?: string(name='mediaType', description='媒体类型，枚举值'),
+  messageType?: string(name='messageType', description='消息类型，枚举值'),
+  pageNow?: int32(name='pageNow', description='当前页'),
+  pageSize?: int32(name='pageSize', description='页大小'),
+  parentDocId?: string(name='parentDocId', description='舆情父文章的docId，一般用于查看某篇文章的评论'),
+  posKeywords?: string(name='posKeywords', description='关键词'),
+  posKeywordsInTitle?: string(name='posKeywordsInTitle', description='标题关键词'),
+  publishTimeEnd?: string(name='publishTimeEnd', description='截止发布时间'),
+  publishTimeStart?: string(name='publishTimeStart', description='起始发布时间'),
+  sortBy?: string(name='sortBy', description='排序字段'),
+  sortByDirection?: string(name='sortByDirection', description='指定正反向排序'),
+  subCondition?: SearchCondition(name='subCondition', description='嵌套查询AND条件'),
+  updateTimeEnd?: string(name='updateTimeEnd', description='舆情文章截止更新时间'),
+  updateTimeStart?: string(name='updateTimeStart', description='舆情文章起始更新时间'),
+}
+
+model YuqingMessage {
+  authorAvatarUrl?: string(name='authorAvatarUrl', description='作者头像地址'),
+  authorFollowersCount?: long(name='authorFollowersCount', description='粉丝数'),
+  authorFriendsCount?: long(name='authorFriendsCount', description='好友数'),
+  authorId?: string(name='authorId', description='作者id'),
+  authorName?: string(name='authorName', description='作者名称'),
+  authorStatusesCount?: long(name='authorStatusesCount', description='发文数'),
+  authorVerifyType?: string(name='authorVerifyType', description='作者认证类型'),
+  contentEmotionType?: int32(name='contentEmotionType', description='情感的正负面，-1代表负面，1代表非负面'),
+  createTime?: long(name='createTime', description='舆情文章被抓取的时间戳'),
+  docContent?: string(name='docContent', description='文章正文内容'),
+  docContentBrief?: string(name='docContentBrief', description='文章摘要'),
+  docContentSign?: string(name='docContentSign', description='文章内容签名，如果是转发微博或者其他有父内容的doc，计算的是父文章的得分。一般用于去重，相同的doc_content_sign说明内容相同'),
+  docId?: string(name='docId', description='文章唯一docId'),
+  docSelfContentSign?: string(name='docSelfContentSign', description='文章自身的内容签名，转发微博计算的是转发内容的contentSign，与父微博无关'),
+  docTitle?: string(name='docTitle', description='文章标题'),
+  docUrl?: string(name='docUrl', description='原文地址'),
+  mediaType?: string(name='mediaType', description='媒体类型，枚举值'),
+  messageType?: string(name='messageType', description='舆情消息类型:转发,评论/回复, 原文,群聊等'),
+  parentDocId?: string(name='parentDocId', description='文章的父docId，如被转发的文章docId'),
+  publishTime?: long(name='publishTime', description='舆情文章的发布时间戳'),
+  relevanceScore?: double(name='relevanceScore', description='相关性得分'),
+  similarNumber?: long(name='similarNumber', description='相似文章数'),
+  updateTime?: long(name='updateTime', description='文章更新时间'),
 }
 
 model CloseProductRequest {
@@ -182,6 +245,58 @@ async function openProductWithOptions(request: OpenProductRequest, headers: map[
     version = '2022-03-01',
     protocol = 'HTTPS',
     pathname = `/openapi/aliyun/openProduct.json`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model QueryYuqingMessageRequest {
+  searchCondition?: SearchCondition(name='searchCondition'),
+  teamHashId?: string(name='teamHashId'),
+}
+
+model QueryYuqingMessageResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request'),
+  totalCount?: long(name='totalCount'),
+  yuqingMessages?: [
+    YuqingMessage
+  ](name='yuqingMessages'),
+}
+
+model QueryYuqingMessageResponse = {
+  headers: map[string]string(name='headers'),
+  body: QueryYuqingMessageResponseBody(name='body'),
+}
+
+async function queryYuqingMessage(request: QueryYuqingMessageRequest): QueryYuqingMessageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return queryYuqingMessageWithOptions(request, headers, runtime);
+}
+
+async function queryYuqingMessageWithOptions(request: QueryYuqingMessageRequest, headers: map[string]string, runtime: Util.RuntimeOptions): QueryYuqingMessageResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.searchCondition)) {
+    body['searchCondition'] = request.searchCondition;
+  }
+  if (!Util.isUnset(request.teamHashId)) {
+    body['teamHashId'] = request.teamHashId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryYuqingMessage',
+    version = '2022-03-01',
+    protocol = 'HTTPS',
+    pathname = `/openapi/aliyun/queryYuqingMessage.json`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
