@@ -1873,6 +1873,171 @@ async function saveOpenJMeterScene(request: SaveOpenJMeterSceneRequest): SaveOpe
   return saveOpenJMeterSceneWithOptions(request, runtime);
 }
 
+model SavePtsSceneRequest {
+  scene?: {
+    advanceSetting?: {
+      connectionTimeoutInSecond?: int32(name='ConnectionTimeoutInSecond', description='超时时间，单位秒'),
+      domainBindingList?: [ 
+        {
+          domain?: string(name='Domain', description='域名'),
+          ips?: [ string ](name='Ips', description='对应的IP'),
+        }
+      ](name='DomainBindingList', description='域名绑定IP关系'),
+      logRate?: int32(name='LogRate', description='日志采样率，[1,50]，且是10的倍数'),
+      successCode?: string(name='SuccessCode', description='新增成功状态码，多个用英文逗号隔开'),
+    }(name='AdvanceSetting', description='高级设置'),
+    fileParameterList?: [ 
+      {
+        fileName?: string(name='FileName', description='文件名'),
+        fileOssAddress?: string(name='FileOssAddress', description='文件的oss地址，必须是公网可访问的'),
+      }
+    ](name='FileParameterList', description='文件参数'),
+    globalParameterList?: [ 
+      {
+        paramName?: string(name='ParamName', description='参数名'),
+        paramValue?: string(name='ParamValue', description='全局参数值，不可参数化'),
+      }
+    ](name='GlobalParameterList', description='全局自定义参数'),
+    loadConfig?: {
+      agentCount?: int32(name='AgentCount', description='指定机器数，并发必须大于250(RPS大于2000)才能使用，最大扩展机器数不能超过 最大并发/250(最大RPS/2000)'),
+      apiLoadConfigList?: [ 
+        {
+          apiId?: string(name='ApiId', description='apiId'),
+          rpsBegin?: int32(name='RpsBegin', description='起始RPS值'),
+          rpsLimit?: int32(name='RpsLimit', description='最大RPS值'),
+        }
+      ](name='ApiLoadConfigList', description='API的起始、最大RPS值设置，在RPS模式下使用'),
+      autoStep?: boolean(name='AutoStep', description='是否自动递增，只有在并发模式下有效，即 testMode=concurrency_mode 时'),
+      configuration?: {
+        allConcurrencyBegin?: int32(name='AllConcurrencyBegin', description='所有链路的起始并发总值，均分给每个链路，在并发模式下使用，若不设置该值，则relationLoadConfig必须填写'),
+        allConcurrencyLimit?: int32(name='AllConcurrencyLimit', description='所有链路的最大并发总值，均分给每个链路，在并发模式下使用，若不设置该值，则relationLoadConfig必须填写'),
+        allRpsBegin?: int32(name='AllRpsBegin', description='所有API的起始RPS总值，均分给每个API，在RPS模式下使用，若不设置该值，则apiLoadConfig必须填写'),
+        allRpsLimit?: int32(name='AllRpsLimit', description='所有API的最大RPS总值，均分给每个API，在RPS模式下使用，若不设置该值，则apiLoadConfig必须填写'),
+      }(name='Configuration', description='场景施压量级配置信息'),
+      increment?: int32(name='Increment', description='递增百分比，取值范围[10,100]，且是整十倍；只有在并发模式且是自动递增模式下有效，即 testMode=concurrency_mode 且 autoStep=true 时'),
+      keepTime?: int32(name='KeepTime', description='单量级持续时长，单位分钟，一定是小于施压时长 maxRunningTime'),
+      maxRunningTime?: int32(name='MaxRunningTime', description='施压时长，单位分钟，[1-1440]'),
+      relationLoadConfigList?: [ 
+        {
+          concurrencyBegin?: int32(name='ConcurrencyBegin', description='concurrencyBegin'),
+          concurrencyLimit?: int32(name='ConcurrencyLimit', description='最大并发'),
+          relationId?: string(name='RelationId', description='链路id'),
+        }
+      ](name='RelationLoadConfigList', description='链路的起始、最大并发值设置，在并发模式下使用'),
+      testMode?: string(name='TestMode', description='施压模式，并发模式(concurrency_mode) 和RPS模式(tps_mode)'),
+      vpcLoadConfig?: {
+        regionId?: string(name='RegionId', description='regionId'),
+        securityGroupId?: string(name='SecurityGroupId', description='安全组的Id'),
+        vSwitchId?: string(name='VSwitchId', description='交换机的Id'),
+        vpcId?: string(name='VpcId', description='vpcId'),
+      }(name='VpcLoadConfig', description='VPC配置'),
+    }(name='LoadConfig', description='施压配置'),
+    relationList?: [ 
+      {
+        apiList?: [ 
+          {
+            apiId?: string(name='ApiId', description='API的id'),
+            apiName?: string(name='ApiName', description='API名'),
+            body?: {
+              bodyValue?: string(name='BodyValue', description='body 的实际内容 形式 {"key1":"value2","key2":"value2"}'),
+              contentType?: string(name='ContentType', description='body 类型，默认 application/x-www-form-urlencoded'),
+            }(name='Body', description='请求body'),
+            checkPointList?: [ 
+              {
+                checkPoint?: string(name='CheckPoint', description='检查对象 type=HEADER 时，表示header中的字段，type=EXPORTED_PARAM ，表示出参名'),
+                checkType?: string(name='CheckType', description='检查点类型 响应body(BODY_TEXT)，响应header(HEADER)， 响应状态码(STATUS_CODE) ，出参（EXPORTED_PARAM）'),
+                expectValue?: string(name='ExpectValue', description='检查内容，即期望值'),
+                operator?: string(name='Operator', description='检查条件 CheckPointOperator 中'),
+              }
+            ](name='CheckPointList', description='检查点'),
+            exportList?: [ 
+              {
+                count?: string(name='Count', description='第几个匹配项，可以是数字 或 random（ BODY_TEXT情况下才需要count）'),
+                exportName?: string(name='ExportName', description='出参名'),
+                exportType?: string(name='ExportType', description='出参来源 请求体(BODY_TEXT)，请求体(BODY_JSON)，请求头(HEADER)，响应状态码(STATUS_CODE)'),
+                exportValue?: string(name='ExportValue', description='出参的解析表达式'),
+              }
+            ](name='ExportList', description='出参'),
+            headerList?: [ 
+              {
+                headerName?: string(name='HeaderName', description='header参数名'),
+                headerValue?: string(name='HeaderValue', description='参数对应的值'),
+              }
+            ](name='HeaderList', description='headerList'),
+            method?: string(name='Method', description='请求方法'),
+            redirectCountLimit?: int32(name='RedirectCountLimit', description='重定向次数，只能是0（允许重定向）或者10（不允许重定向）'),
+            timeoutInSecond?: int32(name='TimeoutInSecond', description='API超时时间，单位秒，默认5s，范围[1-60]'),
+            url?: string(name='Url', description='压测URL'),
+          }
+        ](name='ApiList', description='链路下的API信息'),
+        fileParameterExplainList?: [ 
+          {
+            baseFile?: boolean(name='BaseFile', description='是否作为基准文件'),
+            cycleOnce?: boolean(name='CycleOnce', description='文件是否轮询一次'),
+            fileName?: string(name='FileName', description='文件名'),
+            fileParamName?: string(name='FileParamName', description='文件使用的参数列名'),
+          }
+        ](name='FileParameterExplainList', description='链路中的文件参数配置信息'),
+        relationId?: string(name='RelationId', description='链路id'),
+        relationName?: string(name='RelationName', description='链路名'),
+      }
+    ](name='RelationList', description='链路配置'),
+    sceneId?: string(name='SceneId', description='场景ID，不传为新建，传递为修改'),
+    sceneName?: string(name='SceneName', description='场景名'),
+  }(name='Scene', description='场景详细信息'),
+}
+
+model SavePtsSceneShrinkRequest {
+  sceneShrink?: string(name='Scene', description='场景详细信息'),
+}
+
+model SavePtsSceneResponseBody = {
+  code?: string(name='Code'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  sceneId?: string(name='SceneId', description='场景ID'),
+  success?: boolean(name='Success'),
+}
+
+model SavePtsSceneResponse = {
+  headers: map[string]string(name='headers'),
+  body: SavePtsSceneResponseBody(name='body'),
+}
+
+async function savePtsSceneWithOptions(tmpReq: SavePtsSceneRequest, runtime: Util.RuntimeOptions): SavePtsSceneResponse {
+  Util.validateModel(tmpReq);
+  var request = new SavePtsSceneShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.scene)) {
+    request.sceneShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.scene, 'Scene', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.sceneShrink)) {
+    query['Scene'] = request.sceneShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'SavePtsScene',
+    version = '2020-10-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function savePtsScene(request: SavePtsSceneRequest): SavePtsSceneResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return savePtsSceneWithOptions(request, runtime);
+}
+
 model StartDebugPtsSceneRequest {
   sceneId?: string(name='SceneId'),
 }
