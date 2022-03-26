@@ -3,15 +3,15 @@
  */
 import Util;
 import OpenApi;
-
+import OpenApiUtil;
 import EndpointUtil;
 
 extends OpenApi;
 
+
 init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
-  
   @endpointMap = {
     ap-northeast-2-pop = 'sts.aliyuncs.com',
     cn-beijing-finance-1 = 'sts.aliyuncs.com',
@@ -49,6 +49,7 @@ init(config: OpenApi.Config){
     eu-west-1-oxs = 'sts.aliyuncs.com',
     rus-west-1-pop = 'sts.aliyuncs.com',
   };
+
   checkConfig(config);
   @endpoint = getEndpoint('sts', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -57,12 +58,13 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   if (!Util.empty(endpoint)) {
     return endpoint;
   }
-
+  
   if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+
 model AssumeRoleRequest {
   durationSeconds?: long(name='DurationSeconds'),
   policy?: string(name='Policy'),
@@ -71,17 +73,17 @@ model AssumeRoleRequest {
 }
 
 model AssumeRoleResponseBody = {
-  requestId?: string(name='RequestId'),
   assumedRoleUser?: {
-    assumedRoleId?: string(name='AssumedRoleId'),
     arn?: string(name='Arn'),
+    assumedRoleId?: string(name='AssumedRoleId'),
   }(name='AssumedRoleUser'),
   credentials?: {
-    securityToken?: string(name='SecurityToken'),
-    expiration?: string(name='Expiration'),
-    accessKeySecret?: string(name='AccessKeySecret'),
     accessKeyId?: string(name='AccessKeyId'),
+    accessKeySecret?: string(name='AccessKeySecret'),
+    expiration?: string(name='Expiration'),
+    securityToken?: string(name='SecurityToken'),
   }(name='Credentials'),
+  requestId?: string(name='RequestId'),
 }
 
 model AssumeRoleResponse = {
@@ -91,10 +93,34 @@ model AssumeRoleResponse = {
 
 async function assumeRoleWithOptions(request: AssumeRoleRequest, runtime: Util.RuntimeOptions): AssumeRoleResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.durationSeconds)) {
+    query['DurationSeconds'] = request.durationSeconds;
+  }
+  if (!Util.isUnset(request.policy)) {
+    query['Policy'] = request.policy;
+  }
+  if (!Util.isUnset(request.roleArn)) {
+    query['RoleArn'] = request.roleArn;
+  }
+  if (!Util.isUnset(request.roleSessionName)) {
+    query['RoleSessionName'] = request.roleSessionName;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('AssumeRole', '2015-04-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'AssumeRole',
+    version = '2015-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function assumeRole(request: AssumeRoleRequest): AssumeRoleResponse {
@@ -103,31 +129,31 @@ async function assumeRole(request: AssumeRoleRequest): AssumeRoleResponse {
 }
 
 model AssumeRoleWithOIDCRequest {
+  durationSeconds?: long(name='DurationSeconds', description='Session过期时间，单位为秒。'),
   OIDCProviderArn?: string(name='OIDCProviderArn', description='OIDC Provider的ARN'),
-  roleArn?: string(name='RoleArn', description='需要扮演的角色的ARN'),
   OIDCToken?: string(name='OIDCToken', description='OIDC的ID Token，需输入原始Token，无需Base64解码'),
   policy?: string(name='Policy', description='权限策略。 生成STS Token时可以指定一个额外的权限策略，以进一步限制STS Token的权限。若不指定则返回的Token拥有指定角色的所有权限。'),
-  durationSeconds?: long(name='DurationSeconds', description='Session过期时间，单位为秒。'),
+  roleArn?: string(name='RoleArn', description='需要扮演的角色的ARN'),
   roleSessionName?: string(name='RoleSessionName', description='用户自定义参数。此参数用来区分不同的令牌，可用于用户级别的访问审计。'),
 }
 
 model AssumeRoleWithOIDCResponseBody = {
-  requestId?: string(name='RequestId'),
-  OIDCTokenInfo?: {
-    subject?: string(name='Subject'),
-    issuer?: string(name='Issuer'),
-    clientIds?: string(name='ClientIds'),
-  }(name='OIDCTokenInfo'),
   assumedRoleUser?: {
-    assumedRoleId?: string(name='AssumedRoleId'),
     arn?: string(name='Arn'),
+    assumedRoleId?: string(name='AssumedRoleId'),
   }(name='AssumedRoleUser'),
   credentials?: {
-    securityToken?: string(name='SecurityToken'),
-    expiration?: string(name='Expiration'),
-    accessKeySecret?: string(name='AccessKeySecret'),
     accessKeyId?: string(name='AccessKeyId'),
+    accessKeySecret?: string(name='AccessKeySecret'),
+    expiration?: string(name='Expiration'),
+    securityToken?: string(name='SecurityToken'),
   }(name='Credentials'),
+  OIDCTokenInfo?: {
+    clientIds?: string(name='ClientIds'),
+    issuer?: string(name='Issuer'),
+    subject?: string(name='Subject'),
+  }(name='OIDCTokenInfo'),
+  requestId?: string(name='RequestId'),
 }
 
 model AssumeRoleWithOIDCResponse = {
@@ -137,10 +163,40 @@ model AssumeRoleWithOIDCResponse = {
 
 async function assumeRoleWithOIDCWithOptions(request: AssumeRoleWithOIDCRequest, runtime: Util.RuntimeOptions): AssumeRoleWithOIDCResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.durationSeconds)) {
+    query['DurationSeconds'] = request.durationSeconds;
+  }
+  if (!Util.isUnset(request.OIDCProviderArn)) {
+    query['OIDCProviderArn'] = request.OIDCProviderArn;
+  }
+  if (!Util.isUnset(request.OIDCToken)) {
+    query['OIDCToken'] = request.OIDCToken;
+  }
+  if (!Util.isUnset(request.policy)) {
+    query['Policy'] = request.policy;
+  }
+  if (!Util.isUnset(request.roleArn)) {
+    query['RoleArn'] = request.roleArn;
+  }
+  if (!Util.isUnset(request.roleSessionName)) {
+    query['RoleSessionName'] = request.roleSessionName;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('AssumeRoleWithOIDC', '2015-04-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'AssumeRoleWithOIDC',
+    version = '2015-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'Anonymous',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function assumeRoleWithOIDC(request: AssumeRoleWithOIDCRequest): AssumeRoleWithOIDCResponse {
@@ -149,31 +205,31 @@ async function assumeRoleWithOIDC(request: AssumeRoleWithOIDCRequest): AssumeRol
 }
 
 model AssumeRoleWithSAMLRequest {
-  SAMLProviderArn?: string(name='SAMLProviderArn'),
+  durationSeconds?: long(name='DurationSeconds'),
+  policy?: string(name='Policy'),
   roleArn?: string(name='RoleArn'),
   SAMLAssertion?: string(name='SAMLAssertion'),
-  policy?: string(name='Policy'),
-  durationSeconds?: long(name='DurationSeconds'),
+  SAMLProviderArn?: string(name='SAMLProviderArn'),
 }
 
 model AssumeRoleWithSAMLResponseBody = {
-  requestId?: string(name='RequestId'),
-  SAMLAssertionInfo?: {
-    subjectType?: string(name='SubjectType'),
-    subject?: string(name='Subject'),
-    issuer?: string(name='Issuer'),
-    recipient?: string(name='Recipient'),
-  }(name='SAMLAssertionInfo'),
   assumedRoleUser?: {
-    assumedRoleId?: string(name='AssumedRoleId'),
     arn?: string(name='Arn'),
+    assumedRoleId?: string(name='AssumedRoleId'),
   }(name='AssumedRoleUser'),
   credentials?: {
-    securityToken?: string(name='SecurityToken'),
-    expiration?: string(name='Expiration'),
-    accessKeySecret?: string(name='AccessKeySecret'),
     accessKeyId?: string(name='AccessKeyId'),
+    accessKeySecret?: string(name='AccessKeySecret'),
+    expiration?: string(name='Expiration'),
+    securityToken?: string(name='SecurityToken'),
   }(name='Credentials'),
+  requestId?: string(name='RequestId'),
+  SAMLAssertionInfo?: {
+    issuer?: string(name='Issuer'),
+    recipient?: string(name='Recipient'),
+    subject?: string(name='Subject'),
+    subjectType?: string(name='SubjectType'),
+  }(name='SAMLAssertionInfo'),
 }
 
 model AssumeRoleWithSAMLResponse = {
@@ -183,10 +239,37 @@ model AssumeRoleWithSAMLResponse = {
 
 async function assumeRoleWithSAMLWithOptions(request: AssumeRoleWithSAMLRequest, runtime: Util.RuntimeOptions): AssumeRoleWithSAMLResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.durationSeconds)) {
+    query['DurationSeconds'] = request.durationSeconds;
+  }
+  if (!Util.isUnset(request.policy)) {
+    query['Policy'] = request.policy;
+  }
+  if (!Util.isUnset(request.roleArn)) {
+    query['RoleArn'] = request.roleArn;
+  }
+  if (!Util.isUnset(request.SAMLAssertion)) {
+    query['SAMLAssertion'] = request.SAMLAssertion;
+  }
+  if (!Util.isUnset(request.SAMLProviderArn)) {
+    query['SAMLProviderArn'] = request.SAMLProviderArn;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('AssumeRoleWithSAML', '2015-04-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'AssumeRoleWithSAML',
+    version = '2015-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'Anonymous',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function assumeRoleWithSAML(request: AssumeRoleWithSAMLRequest): AssumeRoleWithSAMLResponse {
@@ -195,13 +278,13 @@ async function assumeRoleWithSAML(request: AssumeRoleWithSAMLRequest): AssumeRol
 }
 
 model GetCallerIdentityResponseBody = {
-  identityType?: string(name='IdentityType'),
   accountId?: string(name='AccountId'),
-  requestId?: string(name='RequestId'),
-  principalId?: string(name='PrincipalId'),
-  userId?: string(name='UserId'),
   arn?: string(name='Arn'),
+  identityType?: string(name='IdentityType'),
+  principalId?: string(name='PrincipalId'),
+  requestId?: string(name='RequestId'),
   roleId?: string(name='RoleId'),
+  userId?: string(name='UserId'),
 }
 
 model GetCallerIdentityResponse = {
@@ -211,7 +294,18 @@ model GetCallerIdentityResponse = {
 
 async function getCallerIdentityWithOptions(runtime: Util.RuntimeOptions): GetCallerIdentityResponse {
   var req = new OpenApi.OpenApiRequest{};
-  return doRPCRequest('GetCallerIdentity', '2015-04-01', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetCallerIdentity',
+    version = '2015-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getCallerIdentity(): GetCallerIdentityResponse {
