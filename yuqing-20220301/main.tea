@@ -54,9 +54,14 @@ model SearchCondition {
   assKeywords?: string(name='assKeywords', description='搭配词'),
   atAuthorName?: string(name='atAuthorName', description='被@的用户名称'),
   authorName?: string(name='authorName', description='作者名称'),
-  createTimeEnd?: string(name='createTimeEnd', description='抓取截止时间'),
-  createTimeStart?: string(name='createTimeStart', description='抓取起始时间'),
+  createTimeEnd?: long(name='createTimeEnd', description='抓取截止时间'),
+  createTimeStart?: long(name='createTimeStart', description='抓取起始时间'),
+  docContentSign?: string(name='docContentSign', description='文章签名'),
   docId?: string(name='docId', description='舆情文章唯一docId'),
+  duplicateRemoval?: boolean(name='duplicateRemoval', description='是否去重'),
+  emotionScoreMax?: double(name='emotionScoreMax', description='情感分上限'),
+  emotionScoreMin?: double(name='emotionScoreMin', description='情感分下限'),
+  enableKeywordHighlight?: boolean(name='enableKeywordHighlight', description='是否高亮关键词'),
   excludeAuthorName?: string(name='excludeAuthorName', description='排除作者名称'),
   excludeHostName?: string(name='excludeHostName', description='排除网站域名'),
   excludeKeywords?: string(name='excludeKeywords', description='排除词'),
@@ -72,13 +77,14 @@ model SearchCondition {
   parentDocId?: string(name='parentDocId', description='舆情父文章的docId，一般用于查看某篇文章的评论'),
   posKeywords?: string(name='posKeywords', description='关键词'),
   posKeywordsInTitle?: string(name='posKeywordsInTitle', description='标题关键词'),
-  publishTimeEnd?: string(name='publishTimeEnd', description='截止发布时间'),
-  publishTimeStart?: string(name='publishTimeStart', description='起始发布时间'),
+  publishTimeEnd?: long(name='publishTimeEnd', description='截止发布时间'),
+  publishTimeStart?: long(name='publishTimeStart', description='起始发布时间'),
   sortBy?: string(name='sortBy', description='排序字段'),
   sortByDirection?: string(name='sortByDirection', description='指定正反向排序'),
   subCondition?: SearchCondition(name='subCondition', description='嵌套查询AND条件'),
-  updateTimeEnd?: string(name='updateTimeEnd', description='舆情文章截止更新时间'),
-  updateTimeStart?: string(name='updateTimeStart', description='舆情文章起始更新时间'),
+  topics?: string(name='topics', description='#话题'),
+  updateTimeEnd?: long(name='updateTimeEnd', description='舆情文章截止更新时间'),
+  updateTimeStart?: long(name='updateTimeStart', description='舆情文章起始更新时间'),
 }
 
 model YuqingMessage {
@@ -306,6 +312,11 @@ async function queryYuqingMessageWithOptions(request: QueryYuqingMessageRequest,
   return callApi(params, req, runtime);
 }
 
+model SayHelloHeaders {
+  commonHeaders?: map[string]string,
+  contentType?: string(name='Content-Type'),
+}
+
 model SayHelloRequest {
   word?: string(name='word'),
 }
@@ -322,19 +333,26 @@ model SayHelloResponse = {
 
 async function sayHello(request: SayHelloRequest): SayHelloResponse {
   var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
+  var headers = new SayHelloHeaders{};
   return sayHelloWithOptions(request, headers, runtime);
 }
 
-async function sayHelloWithOptions(request: SayHelloRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SayHelloResponse {
+async function sayHelloWithOptions(request: SayHelloRequest, headers: SayHelloHeaders, runtime: Util.RuntimeOptions): SayHelloResponse {
   Util.validateModel(request);
   var query : map[string]any= {};
   if (!Util.isUnset(request.word)) {
     query['word'] = request.word;
   }
 
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.contentType)) {
+    realHeaders['Content-Type'] = Util.toJSONString(headers.contentType);
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
+    headers = realHeaders,
     query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
