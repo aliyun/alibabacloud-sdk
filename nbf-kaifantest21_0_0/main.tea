@@ -1,0 +1,69 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('nbf', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model KaifanHttpTestRequest {
+  body?: string(name='body'),
+}
+
+model KaifanHttpTestResponseBody = {
+  test?: string(name='test'),
+}
+
+model KaifanHttpTestResponse = {
+  headers: map[string]string(name='headers'),
+  body: KaifanHttpTestResponseBody(name='body'),
+}
+
+async function kaifanHttpTest(request: KaifanHttpTestRequest): KaifanHttpTestResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return kaifanHttpTestWithOptions(request, headers, runtime);
+}
+
+async function kaifanHttpTestWithOptions(request: KaifanHttpTestRequest, headers: map[string]string, runtime: Util.RuntimeOptions): KaifanHttpTestResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = request.body,
+  };
+  var params = new OpenApi.Params{
+    action = 'KaifanHttpTest',
+    version = 'kaifan-test21_0_0',
+    protocol = 'HTTP',
+    pathname = `/kaifan-test2/1_0_0/kaifanHttpTest`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
