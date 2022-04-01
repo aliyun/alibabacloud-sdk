@@ -55,6 +55,12 @@ model AccelerationInfo {
   status?: string(name='status', description='镜像加速状态，取值 Preparing 或 Ready'),
 }
 
+model AsyncConfigMeta {
+  functionName?: string(name='functionName', description='异步配置所属函数名称。'),
+  qualifier?: string(name='qualifier', description='异步配置所属服务版本/别名。'),
+  serviceName?: string(name='serviceName', description='异步配置所属服务名称。'),
+}
+
 model CertConfig {
   certName?: string(name='certName', description='证书名称'),
   certificate?: string(name='certificate', description='证书，如果是证书链则依次填写多个证书'),
@@ -62,8 +68,6 @@ model CertConfig {
 }
 
 model Code {
-  codeCheckSum?: string(name='codeCheckSum', description='codeCheckSum'),
-  err?: string(name='err', description='error'),
   ossBucketName?: string(name='ossBucketName', description='函数代码包的OSS bucket name'),
   ossObjectName?: string(name='ossObjectName', description='函数代码包的OSS对象名'),
   zipFile?: string(name='zipFile', description='直接在request body中上传code zip包的base64编码'),
@@ -209,18 +213,29 @@ model ScheduledActions {
 }
 
 model StatefulAsyncInvocation {
-  alreadyRetriedTimes?: long(name='alreadyRetriedTimes', description='alreadyRetriedTimes'),
-  destinationStatus?: string(name='destinationStatus', description='destinationStatus'),
-  endTime?: long(name='endTime', description='endTime'),
-  functionName?: string(name='functionName', description='functionName'),
-  invocationErrorMessage?: string(name='invocationErrorMessage', description='invocationErrorMessage'),
-  invocationId?: string(name='invocationId', description='invocationId'),
-  invocationPayload?: string(name='invocationPayload', description='invocationPayload'),
-  qualifier?: string(name='qualifier', description='qualifier'),
-  requestId?: string(name='requestId', description='requestId'),
-  serviceName?: string(name='serviceName', description='serviceName'),
-  startedTime?: long(name='startedTime', description='startedTime'),
-  status?: string(name='status', description='status'),
+  alreadyRetriedTimes?: long(name='alreadyRetriedTimes', description='异步任务调用失败后的已重试次数。'),
+  destinationStatus?: string(name='destinationStatus', description='异步任务的目的状态。'),
+  endTime?: long(name='endTime', description='异步任务的结束时间。'),
+  events?: [
+    StatefulAsyncInvocationEvent
+  ](name='events', description='异步任务事件列表。'),
+  functionName?: string(name='functionName', description='异步任务所属的函数的名称。'),
+  instanceId?: string(name='instanceId', description='异步任务的执行实例ID。'),
+  invocationErrorMessage?: string(name='invocationErrorMessage', description='异步任务的错误消息。'),
+  invocationId?: string(name='invocationId', description='异步任务ID。'),
+  invocationPayload?: string(name='invocationPayload', description='异步任务的任务触发事件。'),
+  qualifier?: string(name='qualifier', description='异步任务所属的服务的别名或版本。'),
+  requestId?: string(name='requestId', description='异步任务的请求ID。'),
+  serviceName?: string(name='serviceName', description='异步任务所属的服务的名称。'),
+  startedTime?: long(name='startedTime', description='异步任务的开始时间。'),
+  status?: string(name='status', description='异步任务的执行状态。      Enqueued：异步消息已入队，等待处理。      Succeeded：调用执行成功。      Failed：调用执行失败。      Running：调用执行中。      Stopped：调用执行终止。      Stopping：执行停止中。      Invalid：您的执行因函数被删除等原因处于无效状态（任务未被执行）。      Expired：您为任务配置了最长排队等待的期限。该任务因为超期被丢弃（任务未被执行）。      Retrying：异步调用因执行错误重试中。'),
+}
+
+model StatefulAsyncInvocationEvent {
+  eventDetail?: string(name='eventDetail', description='事件详细数据。'),
+  eventId?: long(name='eventId', description='事件ID。'),
+  status?: string(name='status', description='事件执行状态。'),
+  timestamp?: long(name='timestamp', description='事件时间。'),
 }
 
 model TargetTrackingPolicies {
@@ -249,10 +264,7 @@ model VPCConfig {
 model CreateAliasHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -307,17 +319,8 @@ async function createAliasWithOptions(serviceName: string, request: CreateAliasR
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -343,10 +346,7 @@ async function createAliasWithOptions(serviceName: string, request: CreateAliasR
 model CreateCustomDomainHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -402,17 +402,8 @@ async function createCustomDomainWithOptions(request: CreateCustomDomainRequest,
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -440,8 +431,6 @@ model CreateFunctionHeaders {
   xFcAccountId?: string(name='X-Fc-Account-Id'),
   xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -574,12 +563,6 @@ async function createFunctionWithOptions(serviceName: string, request: CreateFun
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
   }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
-  }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
   }
@@ -604,10 +587,7 @@ async function createFunctionWithOptions(serviceName: string, request: CreateFun
 model CreateLayerVersionHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -662,17 +642,8 @@ async function createLayerVersionWithOptions(layerName: string, request: CreateL
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -698,10 +669,7 @@ async function createLayerVersionWithOptions(layerName: string, request: CreateL
 model CreateServiceHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -776,17 +744,8 @@ async function createServiceWithOptions(request: CreateServiceRequest, headers: 
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -812,10 +771,7 @@ async function createServiceWithOptions(request: CreateServiceRequest, headers: 
 model CreateTriggerHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -888,17 +844,8 @@ async function createTriggerWithOptions(serviceName: string, functionName: strin
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -924,10 +871,7 @@ async function createTriggerWithOptions(serviceName: string, functionName: strin
 model CreateVpcBindingHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -960,17 +904,8 @@ async function createVpcBindingWithOptions(serviceName: string, request: CreateV
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -997,10 +932,7 @@ model DeleteAliasHeaders {
   commonHeaders?: map[string]string,
   ifMatch?: string(name='If-Match'),
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -1027,17 +959,8 @@ async function deleteAliasWithOptions(serviceName: string, aliasName: string, he
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -1062,10 +985,7 @@ async function deleteAliasWithOptions(serviceName: string, aliasName: string, he
 model DeleteCustomDomainHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -1088,17 +1008,8 @@ async function deleteCustomDomainWithOptions(domainName: string, headers: Delete
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -1124,10 +1035,7 @@ model DeleteFunctionHeaders {
   commonHeaders?: map[string]string,
   ifMatch?: string(name='If-Match', description='用于确保实际更改的资源和期望更改的资源是一致的，该值来自Create，Get和Update API的响应'),
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -1154,17 +1062,8 @@ async function deleteFunctionWithOptions(serviceName: string, functionName: stri
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -1189,10 +1088,7 @@ async function deleteFunctionWithOptions(serviceName: string, functionName: stri
 model DeleteFunctionAsyncInvokeConfigHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -1226,17 +1122,8 @@ async function deleteFunctionAsyncInvokeConfigWithOptions(serviceName: string, f
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -1263,10 +1150,7 @@ model DeleteFunctionOnDemandConfigHeaders {
   commonHeaders?: map[string]string,
   ifMatch?: string(name='If-Match'),
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -1303,17 +1187,8 @@ async function deleteFunctionOnDemandConfigWithOptions(serviceName: string, func
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -1339,10 +1214,7 @@ async function deleteFunctionOnDemandConfigWithOptions(serviceName: string, func
 model DeleteLayerVersionHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -1366,17 +1238,8 @@ async function deleteLayerVersionWithOptions(layerName: string, version: string,
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -1402,10 +1265,7 @@ model DeleteServiceHeaders {
   commonHeaders?: map[string]string,
   ifMatch?: string(name='If-Match', description='用于确保实际更改的资源和期望更改的资源是一致的，该值来自Create，Get和Update API的响应'),
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -1431,17 +1291,8 @@ async function deleteServiceWithOptions(serviceName: string, headers: DeleteServ
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -1466,10 +1317,7 @@ async function deleteServiceWithOptions(serviceName: string, headers: DeleteServ
 model DeleteServiceVersionHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -1493,17 +1341,8 @@ async function deleteServiceVersionWithOptions(serviceName: string, versionId: s
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -1529,10 +1368,7 @@ model DeleteTriggerHeaders {
   commonHeaders?: map[string]string,
   ifMatch?: string(name='If-Match', description='用于确保实际更改的资源和期望更改的资源是一致的，该值来自Create，Get和Update API的响应'),
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -1560,17 +1396,8 @@ async function deleteTriggerWithOptions(serviceName: string, functionName: strin
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -1595,10 +1422,7 @@ async function deleteTriggerWithOptions(serviceName: string, functionName: strin
 model DeleteVpcBindingHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -1622,17 +1446,8 @@ async function deleteVpcBindingWithOptions(serviceName: string, vpcId: string, h
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -1657,10 +1472,7 @@ async function deleteVpcBindingWithOptions(serviceName: string, vpcId: string, h
 model DeregisterEventSourceHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -1695,17 +1507,8 @@ async function deregisterEventSourceWithOptions(serviceName: string, functionNam
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -1731,10 +1534,7 @@ async function deregisterEventSourceWithOptions(serviceName: string, functionNam
 model GetAccountSettingsHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -1761,17 +1561,8 @@ async function getAccountSettingsWithOptions(headers: GetAccountSettingsHeaders,
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -1796,10 +1587,7 @@ async function getAccountSettingsWithOptions(headers: GetAccountSettingsHeaders,
 model GetAliasHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -1833,17 +1621,8 @@ async function getAliasWithOptions(serviceName: string, aliasName: string, heade
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -1868,10 +1647,7 @@ async function getAliasWithOptions(serviceName: string, aliasName: string, heade
 model GetCustomDomainHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -1906,17 +1682,8 @@ async function getCustomDomainWithOptions(domainName: string, headers: GetCustom
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -1941,10 +1708,7 @@ async function getCustomDomainWithOptions(domainName: string, headers: GetCustom
 model GetFunctionHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -2004,17 +1768,8 @@ async function getFunctionWithOptions(serviceName: string, functionName: string,
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -2040,10 +1795,7 @@ async function getFunctionWithOptions(serviceName: string, functionName: string,
 model GetFunctionAsyncInvokeConfigHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -2090,17 +1842,8 @@ async function getFunctionAsyncInvokeConfigWithOptions(serviceName: string, func
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -2126,10 +1869,7 @@ async function getFunctionAsyncInvokeConfigWithOptions(serviceName: string, func
 model GetFunctionCodeHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -2169,17 +1909,8 @@ async function getFunctionCodeWithOptions(serviceName: string, functionName: str
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -2205,10 +1936,7 @@ async function getFunctionCodeWithOptions(serviceName: string, functionName: str
 model GetFunctionOnDemandConfigHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -2248,17 +1976,8 @@ async function getFunctionOnDemandConfigWithOptions(serviceName: string, functio
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -2284,10 +2003,7 @@ async function getFunctionOnDemandConfigWithOptions(serviceName: string, functio
 model GetLayerVersionHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -2312,17 +2028,8 @@ async function getLayerVersionWithOptions(layerName: string, version: string, he
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -2344,88 +2051,10 @@ async function getLayerVersionWithOptions(layerName: string, version: string, he
   return callApi(params, req, runtime);
 }
 
-model GetLayerVersionByArnHeaders {
-  commonHeaders?: map[string]string,
-  xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
-  xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
-  xFcTraceId?: string(name='X-Fc-Trace-Id'),
-}
-
-model GetLayerVersionByArnResponseBody = {
-  acl?: int32(name='acl'),
-  arn?: string(name='arn'),
-  code?: OutputCodeLocation(name='code'),
-  codeChecksum?: string(name='codeChecksum'),
-  codesize?: long(name='codesize'),
-  compatibleRuntime?: [ string ](name='compatibleRuntime'),
-  createTime?: string(name='createTime'),
-  description?: string(name='description'),
-  layerName?: string(name='layerName'),
-  version?: int32(name='version'),
-}
-
-model GetLayerVersionByArnResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetLayerVersionByArnResponseBody(name='body'),
-}
-
-async function getLayerVersionByArn(arn: string): GetLayerVersionByArnResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers = new GetLayerVersionByArnHeaders{};
-  return getLayerVersionByArnWithOptions(arn, headers, runtime);
-}
-
-async function getLayerVersionByArnWithOptions(arn: string, headers: GetLayerVersionByArnHeaders, runtime: Util.RuntimeOptions): GetLayerVersionByArnResponse {
-  arn = OpenApiUtil.getEncodeParam(arn);
-  var realHeaders : map[string]string = {};
-  if (!Util.isUnset(headers.commonHeaders)) {
-    realHeaders = headers.commonHeaders;
-  }
-  if (!Util.isUnset(headers.xFcAccountId)) {
-    realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
-  }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
-  if (!Util.isUnset(headers.xFcDate)) {
-    realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
-  }
-  if (!Util.isUnset(headers.xFcTraceId)) {
-    realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = realHeaders,
-  };
-  var params = new OpenApi.Params{
-    action = 'GetLayerVersionByArn',
-    version = '2021-04-06',
-    protocol = 'HTTPS',
-    pathname = `/2021-04-06/layerarn/${arn}`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 model GetProvisionConfigHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -2473,17 +2102,8 @@ async function getProvisionConfigWithOptions(serviceName: string, functionName: 
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -2509,10 +2129,7 @@ async function getProvisionConfigWithOptions(serviceName: string, functionName: 
 model GetResourceTagsHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -2550,17 +2167,8 @@ async function getResourceTagsWithOptions(request: GetResourceTagsRequest, heade
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -2586,10 +2194,7 @@ async function getResourceTagsWithOptions(request: GetResourceTagsRequest, heade
 model GetServiceHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -2637,17 +2242,8 @@ async function getServiceWithOptions(serviceName: string, request: GetServiceReq
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -2748,10 +2344,7 @@ async function getStatefulAsyncInvocationWithOptions(serviceName: string, functi
 model GetTriggerHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -2791,17 +2384,8 @@ async function getTriggerWithOptions(serviceName: string, functionName: string, 
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -2826,7 +2410,6 @@ async function getTriggerWithOptions(serviceName: string, functionName: string, 
 model InvokeFunctionHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
   xFcInvocationType?: string(name='X-Fc-Invocation-Type', description='调用方式:Sync或者Async，默认值：Sync'),
   xFcLogType?: string(name='X-Fc-Log-Type', description='请求返回日志类型, Tail 为返回函数日志最后 4KB 数据，None 或空值则返回不带有日志，默认为 None'),
@@ -2866,9 +2449,6 @@ async function invokeFunctionWithOptions(serviceName: string, functionName: stri
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
   }
@@ -2906,10 +2486,7 @@ async function invokeFunctionWithOptions(serviceName: string, functionName: stri
 model ListAliasesHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -2969,17 +2546,8 @@ async function listAliasesWithOptions(serviceName: string, request: ListAliasesR
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -3005,10 +2573,7 @@ async function listAliasesWithOptions(serviceName: string, request: ListAliasesR
 model ListCustomDomainsHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -3069,17 +2634,8 @@ async function listCustomDomainsWithOptions(request: ListCustomDomainsRequest, h
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -3105,10 +2661,7 @@ async function listCustomDomainsWithOptions(request: ListCustomDomainsRequest, h
 model ListEventSourcesHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -3152,17 +2705,8 @@ async function listEventSourcesWithOptions(serviceName: string, functionName: st
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -3283,10 +2827,7 @@ async function listFunctionAsyncInvokeConfigsWithOptions(serviceName: string, fu
 model ListFunctionsHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -3364,17 +2905,8 @@ async function listFunctionsWithOptions(serviceName: string, request: ListFuncti
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -3397,84 +2929,10 @@ async function listFunctionsWithOptions(serviceName: string, request: ListFuncti
   return callApi(params, req, runtime);
 }
 
-model ListInstancesHeaders {
-  commonHeaders?: map[string]string,
-  xFcAccountId?: string(name='X-Fc-Account-Id'),
-}
-
-model ListInstancesRequest {
-  limit?: int32(name='limit', description='限定此次返回资源的数量。如果不设定，默认返回20，最大不能超过100。返回结果可能小于指定的数量，但不会多于指定的数量'),
-  nextToken?: string(name='nextToken', description='用来返回更多结果。第一次查询不需要提供这个参数，后续查询的token从返回结果中获取'),
-  qualifier?: string(name='qualifier', description='service版本, 可以是versionId或者aliasName'),
-}
-
-model ListInstancesResponseBody = {
-  instances?: [ 
-    {
-      instanceId?: string(name='instanceId'),
-      versionId?: string(name='versionId'),
-    }
-  ](name='instances'),
-}
-
-model ListInstancesResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListInstancesResponseBody(name='body'),
-}
-
-async function listInstances(serviceName: string, functionName: string, request: ListInstancesRequest): ListInstancesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers = new ListInstancesHeaders{};
-  return listInstancesWithOptions(serviceName, functionName, request, headers, runtime);
-}
-
-async function listInstancesWithOptions(serviceName: string, functionName: string, request: ListInstancesRequest, headers: ListInstancesHeaders, runtime: Util.RuntimeOptions): ListInstancesResponse {
-  Util.validateModel(request);
-  serviceName = OpenApiUtil.getEncodeParam(serviceName);
-  functionName = OpenApiUtil.getEncodeParam(functionName);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.limit)) {
-    query['limit'] = request.limit;
-  }
-  if (!Util.isUnset(request.nextToken)) {
-    query['nextToken'] = request.nextToken;
-  }
-  if (!Util.isUnset(request.qualifier)) {
-    query['qualifier'] = request.qualifier;
-  }
-
-  var realHeaders : map[string]string = {};
-  if (!Util.isUnset(headers.commonHeaders)) {
-    realHeaders = headers.commonHeaders;
-  }
-  if (!Util.isUnset(headers.xFcAccountId)) {
-    realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = realHeaders,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListInstances',
-    version = '2021-04-06',
-    protocol = 'HTTPS',
-    pathname = `/2021-04-06/services/${serviceName}/functions/${functionName}/instances`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 model ListLayerVersionsHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -3519,17 +2977,8 @@ async function listLayerVersionsWithOptions(layerName: string, request: ListLaye
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -3555,10 +3004,7 @@ async function listLayerVersionsWithOptions(layerName: string, request: ListLaye
 model ListLayersHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -3610,17 +3056,8 @@ async function listLayersWithOptions(request: ListLayersRequest, headers: ListLa
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -3646,10 +3083,7 @@ async function listLayersWithOptions(request: ListLayersRequest, headers: ListLa
 model ListOnDemandConfigsHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -3701,17 +3135,8 @@ async function listOnDemandConfigsWithOptions(request: ListOnDemandConfigsReques
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -3737,22 +3162,19 @@ async function listOnDemandConfigsWithOptions(request: ListOnDemandConfigsReques
 model ListProvisionConfigsHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
 model ListProvisionConfigsRequest {
-  limit?: long(name='limit', description='限定此次返回资源的数量。如果不设定，默认返回20，最大不能超过100。返回结果可能小于指定的数量，但不会多于指定的数量	'),
+  limit?: long(name='limit', description='限定此次返回资源的数量。如果不设定，默认返回20，最大不能超过100。返回结果可能小于指定的数量，但不会多于指定的数量'),
   nextToken?: string(name='nextToken', description='用来返回更多结果。第一次查询不需要提供这个参数，后续查询的token从返回结果中获取'),
   qualifier?: string(name='qualifier', description='限定返回的资源名称必须属于该qualifier。qualifier只能是aliasName，且必须和serviceName共同使用'),
   serviceName?: string(name='serviceName', description='限定返回的资源名称必须属于该service'),
 }
 
 model ListProvisionConfigsResponseBody = {
-  nextToken?: string(name='nextToken', description='下次查询的起始token	'),
+  nextToken?: string(name='nextToken', description='下次查询的起始token'),
   provisionConfigs?: [ 
     {
       current?: long(name='current', description='实际资源个数'),
@@ -3803,17 +3225,8 @@ async function listProvisionConfigsWithOptions(request: ListProvisionConfigsRequ
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -3839,10 +3252,7 @@ async function listProvisionConfigsWithOptions(request: ListProvisionConfigsRequ
 model ListReservedCapacitiesHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -3886,17 +3296,8 @@ async function listReservedCapacitiesWithOptions(request: ListReservedCapacities
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -3922,10 +3323,7 @@ async function listReservedCapacitiesWithOptions(request: ListReservedCapacities
 model ListServiceVersionsHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -3984,17 +3382,8 @@ async function listServiceVersionsWithOptions(serviceName: string, request: List
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -4020,10 +3409,7 @@ async function listServiceVersionsWithOptions(serviceName: string, request: List
 model ListServicesHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -4087,17 +3473,8 @@ async function listServicesWithOptions(request: ListServicesRequest, headers: Li
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -4111,6 +3488,77 @@ async function listServicesWithOptions(request: ListServicesRequest, headers: Li
     version = '2021-04-06',
     protocol = 'HTTPS',
     pathname = `/2021-04-06/services`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model ListStatefulAsyncInvocationFunctionsHeaders {
+  commonHeaders?: map[string]string,
+  xFcAccountId?: string(name='X-Fc-Account-Id', description='您的阿里云账号（主账号）ID。'),
+  xFcDate?: string(name='X-Fc-Date', description='发起API调用的日期，用于对请求签名。格式为yyyy-mm-ddhh:mm:ss。'),
+  xFcTraceId?: string(name='X-Fc-Trace-Id', description='用于链路追踪的ID。'),
+}
+
+model ListStatefulAsyncInvocationFunctionsRequest {
+  limit?: int32(name='limit', description='限定此次返回资源的数量。如果不设定，默认返回20，最大不能超过100。返回结果可以小于指定的数量，但不会多于指定的数量。'),
+  nextToken?: string(name='nextToken', description='用来标记当前开始读取的位置，置空表示从头开始。第一次查询不需要提供这个参数，后续查询的Token从前一次查询的返回结果中获取。'),
+}
+
+model ListStatefulAsyncInvocationFunctionsResponseBody = {
+  data?: [
+    AsyncConfigMeta
+  ](name='data', description='返回的实际数据列表。'),
+  nextToken?: string(name='nextToken', description='用来表示当前调用返回读取到的位置，空代表数据已经读取完毕。'),
+}
+
+model ListStatefulAsyncInvocationFunctionsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListStatefulAsyncInvocationFunctionsResponseBody(name='body'),
+}
+
+async function listStatefulAsyncInvocationFunctions(request: ListStatefulAsyncInvocationFunctionsRequest): ListStatefulAsyncInvocationFunctionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new ListStatefulAsyncInvocationFunctionsHeaders{};
+  return listStatefulAsyncInvocationFunctionsWithOptions(request, headers, runtime);
+}
+
+async function listStatefulAsyncInvocationFunctionsWithOptions(request: ListStatefulAsyncInvocationFunctionsRequest, headers: ListStatefulAsyncInvocationFunctionsHeaders, runtime: Util.RuntimeOptions): ListStatefulAsyncInvocationFunctionsResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.limit)) {
+    query['limit'] = request.limit;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xFcAccountId)) {
+    realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
+  }
+  if (!Util.isUnset(headers.xFcDate)) {
+    realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
+  }
+  if (!Util.isUnset(headers.xFcTraceId)) {
+    realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListStatefulAsyncInvocationFunctions',
+    version = '2021-04-06',
+    protocol = 'HTTPS',
+    pathname = `/2021-04-06/stateful-async-invocation-functions`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -4236,10 +3684,7 @@ async function listStatefulAsyncInvocationsWithOptions(serviceName: string, func
 model ListTaggedResourcesHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -4283,17 +3728,8 @@ async function listTaggedResourcesWithOptions(request: ListTaggedResourcesReques
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -4319,10 +3755,7 @@ async function listTaggedResourcesWithOptions(request: ListTaggedResourcesReques
 model ListTriggersHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -4388,17 +3821,8 @@ async function listTriggersWithOptions(serviceName: string, functionName: string
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -4424,10 +3848,7 @@ async function listTriggersWithOptions(serviceName: string, functionName: string
 model ListVpcBindingsHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -4455,17 +3876,8 @@ async function listVpcBindingsWithOptions(serviceName: string, headers: ListVpcB
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -4487,139 +3899,11 @@ async function listVpcBindingsWithOptions(serviceName: string, headers: ListVpcB
   return callApi(params, req, runtime);
 }
 
-model PermanentDeleteLayerVersionHeaders {
-  commonHeaders?: map[string]string,
-  xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
-  xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
-  xFcTraceId?: string(name='X-Fc-Trace-Id'),
-}
-
-model PermanentDeleteLayerVersionResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function permanentDeleteLayerVersion(userID: string, layerName: string, version: string): PermanentDeleteLayerVersionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers = new PermanentDeleteLayerVersionHeaders{};
-  return permanentDeleteLayerVersionWithOptions(userID, layerName, version, headers, runtime);
-}
-
-async function permanentDeleteLayerVersionWithOptions(userID: string, layerName: string, version: string, headers: PermanentDeleteLayerVersionHeaders, runtime: Util.RuntimeOptions): PermanentDeleteLayerVersionResponse {
-  userID = OpenApiUtil.getEncodeParam(userID);
-  layerName = OpenApiUtil.getEncodeParam(layerName);
-  version = OpenApiUtil.getEncodeParam(version);
-  var realHeaders : map[string]string = {};
-  if (!Util.isUnset(headers.commonHeaders)) {
-    realHeaders = headers.commonHeaders;
-  }
-  if (!Util.isUnset(headers.xFcAccountId)) {
-    realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
-  }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
-  if (!Util.isUnset(headers.xFcDate)) {
-    realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
-  }
-  if (!Util.isUnset(headers.xFcTraceId)) {
-    realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = realHeaders,
-  };
-  var params = new OpenApi.Params{
-    action = 'PermanentDeleteLayerVersion',
-    version = '2021-04-06',
-    protocol = 'HTTPS',
-    pathname = `/2021-04-06/adminlayers/${userID}/${layerName}/versions/${version}`,
-    method = 'DELETE',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'none',
-  };
-  return callApi(params, req, runtime);
-}
-
-model PublishLayerAsPublicHeaders {
-  commonHeaders?: map[string]string,
-  xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
-  xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
-  xFcTraceId?: string(name='X-Fc-Trace-Id'),
-}
-
-model PublishLayerAsPublicResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function publishLayerAsPublic(layerName: string, version: string): PublishLayerAsPublicResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers = new PublishLayerAsPublicHeaders{};
-  return publishLayerAsPublicWithOptions(layerName, version, headers, runtime);
-}
-
-async function publishLayerAsPublicWithOptions(layerName: string, version: string, headers: PublishLayerAsPublicHeaders, runtime: Util.RuntimeOptions): PublishLayerAsPublicResponse {
-  layerName = OpenApiUtil.getEncodeParam(layerName);
-  version = OpenApiUtil.getEncodeParam(version);
-  var realHeaders : map[string]string = {};
-  if (!Util.isUnset(headers.commonHeaders)) {
-    realHeaders = headers.commonHeaders;
-  }
-  if (!Util.isUnset(headers.xFcAccountId)) {
-    realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
-  }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
-  if (!Util.isUnset(headers.xFcDate)) {
-    realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
-  }
-  if (!Util.isUnset(headers.xFcTraceId)) {
-    realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = realHeaders,
-  };
-  var params = new OpenApi.Params{
-    action = 'PublishLayerAsPublic',
-    version = '2021-04-06',
-    protocol = 'HTTPS',
-    pathname = `/2021-04-06/layers/${layerName}/versions/${version}`,
-    method = 'POST',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'none',
-  };
-  return callApi(params, req, runtime);
-}
-
 model PublishServiceVersionHeaders {
   commonHeaders?: map[string]string,
   ifMatch?: string(name='If-Match'),
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -4663,17 +3947,8 @@ async function publishServiceVersionWithOptions(serviceName: string, request: Pu
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -4699,10 +3974,7 @@ async function publishServiceVersionWithOptions(serviceName: string, request: Pu
 model PutFunctionAsyncInvokeConfigHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -4767,17 +4039,8 @@ async function putFunctionAsyncInvokeConfigWithOptions(serviceName: string, func
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -4805,10 +4068,7 @@ model PutFunctionOnDemandConfigHeaders {
   commonHeaders?: map[string]string,
   ifMatch?: string(name='If-Match'),
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -4857,17 +4117,8 @@ async function putFunctionOnDemandConfigWithOptions(serviceName: string, functio
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -4894,10 +4145,7 @@ async function putFunctionOnDemandConfigWithOptions(serviceName: string, functio
 model PutProvisionConfigHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -4962,17 +4210,8 @@ async function putProvisionConfigWithOptions(serviceName: string, functionName: 
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -4999,10 +4238,7 @@ async function putProvisionConfigWithOptions(serviceName: string, functionName: 
 model RegisterEventSourceHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -5048,17 +4284,8 @@ async function registerEventSourceWithOptions(serviceName: string, functionName:
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -5085,10 +4312,7 @@ async function registerEventSourceWithOptions(serviceName: string, functionName:
 model StopStatefulAsyncInvocationHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -5123,17 +4347,8 @@ async function stopStatefulAsyncInvocationWithOptions(serviceName: string, funct
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -5159,10 +4374,7 @@ async function stopStatefulAsyncInvocationWithOptions(serviceName: string, funct
 model TagResourceHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -5198,17 +4410,8 @@ async function tagResourceWithOptions(request: TagResourceRequest, headers: TagR
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -5234,10 +4437,7 @@ async function tagResourceWithOptions(request: TagResourceRequest, headers: TagR
 model UntagResourceHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -5277,17 +4477,8 @@ async function untagResourceWithOptions(request: UntagResourceRequest, headers: 
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -5314,10 +4505,7 @@ model UpdateAliasHeaders {
   commonHeaders?: map[string]string,
   ifMatch?: string(name='If-Match'),
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -5372,17 +4560,8 @@ async function updateAliasWithOptions(serviceName: string, aliasName: string, re
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -5408,10 +4587,7 @@ async function updateAliasWithOptions(serviceName: string, aliasName: string, re
 model UpdateCustomDomainHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -5464,17 +4640,8 @@ async function updateCustomDomainWithOptions(domainName: string, request: Update
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -5503,8 +4670,6 @@ model UpdateFunctionHeaders {
   xFcAccountId?: string(name='X-Fc-Account-Id'),
   xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -5636,12 +4801,6 @@ async function updateFunctionWithOptions(serviceName: string, functionName: stri
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
   }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
-  }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
   }
@@ -5667,10 +4826,7 @@ model UpdateServiceHeaders {
   commonHeaders?: map[string]string,
   ifMatch?: string(name='If-Match', description='用于确保实际更改的资源和期望更改的资源是一致的，该值来自Create，Get和Update API的响应'),
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -5745,17 +4901,8 @@ async function updateServiceWithOptions(serviceName: string, request: UpdateServ
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
@@ -5782,10 +4929,7 @@ model UpdateTriggerHeaders {
   commonHeaders?: map[string]string,
   ifMatch?: string(name='If-Match', description='用于确保实际更改的资源和期望更改的资源是一致的，该值来自Create，Get和Update API的响应'),
   xFcAccountId?: string(name='X-Fc-Account-Id'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum'),
   xFcDate?: string(name='X-Fc-Date'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type'),
-  xFcLogType?: string(name='X-Fc-Log-Type'),
   xFcTraceId?: string(name='X-Fc-Trace-Id'),
 }
 
@@ -5793,7 +4937,7 @@ model UpdateTriggerRequest {
   description?: string(name='description'),
   invocationRole?: string(name='invocationRole', description='event source，如OSS，使用该role去invoke function'),
   qualifier?: string(name='qualifier', description='service版本'),
-  triggerConfig?: string(name='triggerConfig', description='trigger配置，针对不同的trigger类型，trigger配置会有所不同	'),
+  triggerConfig?: string(name='triggerConfig', description='trigger配置，针对不同的trigger类型，trigger配置会有所不同'),
 }
 
 model UpdateTriggerResponseBody = {
@@ -5850,17 +4994,8 @@ async function updateTriggerWithOptions(serviceName: string, functionName: strin
   if (!Util.isUnset(headers.xFcAccountId)) {
     realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
   }
-  if (!Util.isUnset(headers.xFcCodeChecksum)) {
-    realHeaders['X-Fc-Code-Checksum'] = Util.toJSONString(headers.xFcCodeChecksum);
-  }
   if (!Util.isUnset(headers.xFcDate)) {
     realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
-  }
-  if (!Util.isUnset(headers.xFcInvocationType)) {
-    realHeaders['X-Fc-Invocation-Type'] = Util.toJSONString(headers.xFcInvocationType);
-  }
-  if (!Util.isUnset(headers.xFcLogType)) {
-    realHeaders['X-Fc-Log-Type'] = Util.toJSONString(headers.xFcLogType);
   }
   if (!Util.isUnset(headers.xFcTraceId)) {
     realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);

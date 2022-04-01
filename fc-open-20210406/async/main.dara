@@ -55,6 +55,12 @@ model AccelerationInfo {
   status?: string(name='status', description='镜像加速状态，取值 Preparing 或 Ready'),
 }
 
+model AsyncConfigMeta {
+  functionName?: string(name='functionName', description='异步配置所属函数名称。'),
+  qualifier?: string(name='qualifier', description='异步配置所属服务版本/别名。'),
+  serviceName?: string(name='serviceName', description='异步配置所属服务名称。'),
+}
+
 model CertConfig {
   certName?: string(name='certName', description='证书名称'),
   certificate?: string(name='certificate', description='证书，如果是证书链则依次填写多个证书'),
@@ -62,8 +68,6 @@ model CertConfig {
 }
 
 model Code {
-  codeCheckSum?: string(name='codeCheckSum', description='codeCheckSum'),
-  err?: string(name='err', description='error'),
   ossBucketName?: string(name='ossBucketName', description='函数代码包的OSS bucket name'),
   ossObjectName?: string(name='ossObjectName', description='函数代码包的OSS对象名'),
   zipFile?: string(name='zipFile', description='直接在request body中上传code zip包的base64编码'),
@@ -209,18 +213,29 @@ model ScheduledActions {
 }
 
 model StatefulAsyncInvocation {
-  alreadyRetriedTimes?: long(name='alreadyRetriedTimes', description='alreadyRetriedTimes'),
-  destinationStatus?: string(name='destinationStatus', description='destinationStatus'),
-  endTime?: long(name='endTime', description='endTime'),
-  functionName?: string(name='functionName', description='functionName'),
-  invocationErrorMessage?: string(name='invocationErrorMessage', description='invocationErrorMessage'),
-  invocationId?: string(name='invocationId', description='invocationId'),
-  invocationPayload?: string(name='invocationPayload', description='invocationPayload'),
-  qualifier?: string(name='qualifier', description='qualifier'),
-  requestId?: string(name='requestId', description='requestId'),
-  serviceName?: string(name='serviceName', description='serviceName'),
-  startedTime?: long(name='startedTime', description='startedTime'),
-  status?: string(name='status', description='status'),
+  alreadyRetriedTimes?: long(name='alreadyRetriedTimes', description='异步任务调用失败后的已重试次数。'),
+  destinationStatus?: string(name='destinationStatus', description='异步任务的目的状态。'),
+  endTime?: long(name='endTime', description='异步任务的结束时间。'),
+  events?: [
+    StatefulAsyncInvocationEvent
+  ](name='events', description='异步任务事件列表。'),
+  functionName?: string(name='functionName', description='异步任务所属的函数的名称。'),
+  instanceId?: string(name='instanceId', description='异步任务的执行实例ID。'),
+  invocationErrorMessage?: string(name='invocationErrorMessage', description='异步任务的错误消息。'),
+  invocationId?: string(name='invocationId', description='异步任务ID。'),
+  invocationPayload?: string(name='invocationPayload', description='异步任务的任务触发事件。'),
+  qualifier?: string(name='qualifier', description='异步任务所属的服务的别名或版本。'),
+  requestId?: string(name='requestId', description='异步任务的请求ID。'),
+  serviceName?: string(name='serviceName', description='异步任务所属的服务的名称。'),
+  startedTime?: long(name='startedTime', description='异步任务的开始时间。'),
+  status?: string(name='status', description='异步任务的执行状态。      Enqueued：异步消息已入队，等待处理。      Succeeded：调用执行成功。      Failed：调用执行失败。      Running：调用执行中。      Stopped：调用执行终止。      Stopping：执行停止中。      Invalid：您的执行因函数被删除等原因处于无效状态（任务未被执行）。      Expired：您为任务配置了最长排队等待的期限。该任务因为超期被丢弃（任务未被执行）。      Retrying：异步调用因执行错误重试中。'),
+}
+
+model StatefulAsyncInvocationEvent {
+  eventDetail?: string(name='eventDetail', description='事件详细数据。'),
+  eventId?: long(name='eventId', description='事件ID。'),
+  status?: string(name='status', description='事件执行状态。'),
+  timestamp?: long(name='timestamp', description='事件时间。'),
 }
 
 model TargetTrackingPolicies {
@@ -248,12 +263,8 @@ model VPCConfig {
 
 model CreateAliasRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   additionalVersionWeight?: map[string]float(name='additionalVersionWeight', description='额外版本权重', position='Body'),
   aliasName: string(name='aliasName', description='别名名称', position='Body'),
@@ -281,12 +292,8 @@ async function createAlias(request: CreateAliasRequest): CreateAliasResponse {
 }
 
 model CreateCustomDomainRequest {
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   certConfig?: CertConfig(name='certConfig', position='Body'),
   domainName?: string(name='domainName', position='Body'),
@@ -317,12 +324,9 @@ async function createCustomDomain(request: CreateCustomDomainRequest): CreateCus
 
 model CreateFunctionRequest {
   serviceName?: string(name='serviceName', description='服务名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
   xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   caPort?: int32(name='caPort', description='自定义、自定义容器运行时 HTTP Server 的监听端口', position='Body'),
   code?: Code(name='code', position='Body'),
@@ -381,12 +385,8 @@ async function createFunction(request: CreateFunctionRequest): CreateFunctionRes
 
 model CreateLayerVersionRequest {
   layerName?: string(name='layerName', description='A short description of struct', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   code?: Code(name='Code', position='Body'),
   compatibleRuntime?: [ string ](name='compatibleRuntime', position='Body'),
@@ -417,12 +417,8 @@ async function createLayerVersion(request: CreateLayerVersionRequest): CreateLay
 }
 
 model CreateServiceRequest {
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   description?: string(name='description', description='服务描述', position='Body'),
   internetAccess?: boolean(name='internetAccess', description='公网访问设置', position='Body'),
@@ -461,12 +457,8 @@ async function createService(request: CreateServiceRequest): CreateServiceRespon
 model CreateTriggerRequest {
   serviceName: string(name='serviceName', description='service名称', position='Path'),
   functionName: string(name='functionName', description='function名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   description?: string(name='description', position='Body'),
   invocationRole?: string(name='invocationRole', description='event source，如OSS，使用该role去invoke function', position='Body'),
@@ -503,12 +495,8 @@ async function createTrigger(request: CreateTriggerRequest): CreateTriggerRespon
 
 model CreateVpcBindingRequest {
   serviceName?: string(name='serviceName', description='A short description of struct', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   vpcId?: string(name='vpcId', position='Body'),
 }
@@ -525,13 +513,9 @@ async function createVpcBinding(request: CreateVpcBindingRequest): CreateVpcBind
 model DeleteAliasRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
   aliasName: string(name='aliasName', description='别名', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   ifMatch?: string(name='If-Match', position='Header'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
 }
 
@@ -546,12 +530,8 @@ async function deleteAlias(request: DeleteAliasRequest): DeleteAliasResponse {
 
 model DeleteCustomDomainRequest {
   domainName: string(name='domainName', description='域名名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
 }
 
@@ -567,13 +547,9 @@ async function deleteCustomDomain(request: DeleteCustomDomainRequest): DeleteCus
 model DeleteFunctionRequest {
   serviceName: string(name='serviceName', description='service名称', position='Path'),
   functionName: string(name='functionName', description='function名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   ifMatch?: string(name='If-Match', description='用于确保实际更改的资源和期望更改的资源是一致的，该值来自Create，Get和Update API的响应', position='Header'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
 }
 
@@ -589,12 +565,8 @@ async function deleteFunction(request: DeleteFunctionRequest): DeleteFunctionRes
 model DeleteFunctionAsyncInvokeConfigRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
   functionName: string(name='functionName', description='函数名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   qualifier?: string(name='qualifier', description='限定符', position='Query'),
 }
@@ -611,13 +583,9 @@ async function deleteFunctionAsyncInvokeConfig(request: DeleteFunctionAsyncInvok
 model DeleteFunctionOnDemandConfigRequest {
   serviceName?: string(name='serviceName', position='Path'),
   functionName?: string(name='functionName', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   ifMatch?: string(name='If-Match', position='Header'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   qualifier?: string(name='qualifier', position='Query'),
 }
@@ -634,12 +602,8 @@ async function deleteFunctionOnDemandConfig(request: DeleteFunctionOnDemandConfi
 model DeleteLayerVersionRequest {
   layerName: string(name='layerName', description='层名称', position='Path'),
   version: string(name='version', description='层版本', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
 }
 
@@ -654,13 +618,9 @@ async function deleteLayerVersion(request: DeleteLayerVersionRequest): DeleteLay
 
 model DeleteServiceRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   ifMatch?: string(name='If-Match', description='用于确保实际更改的资源和期望更改的资源是一致的，该值来自Create，Get和Update API的响应', position='Header'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
 }
 
@@ -676,12 +636,8 @@ async function deleteService(request: DeleteServiceRequest): DeleteServiceRespon
 model DeleteServiceVersionRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
   versionId: string(name='versionId', description='版本ID', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
 }
 
@@ -698,13 +654,9 @@ model DeleteTriggerRequest {
   serviceName: string(name='serviceName', description='service名称', position='Path'),
   functionName: string(name='functionName', description='function名称', position='Path'),
   triggerName: string(name='triggerName', description='删除trigger', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   ifMatch?: string(name='If-Match', description='用于确保实际更改的资源和期望更改的资源是一致的，该值来自Create，Get和Update API的响应', position='Header'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
 }
 
@@ -720,12 +672,8 @@ async function deleteTrigger(request: DeleteTriggerRequest): DeleteTriggerRespon
 model DeleteVpcBindingRequest {
   serviceName?: string(name='serviceName', position='Path'),
   vpcId?: string(name='vpcId', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
 }
 
@@ -742,12 +690,8 @@ model DeregisterEventSourceRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
   functionName: string(name='functionName', description='函数名称', position='Path'),
   sourceArn?: string(name='sourceArn', description='事件源资源标识符', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   qualifier?: string(name='qualifier', description='别名或版本', position='Query'),
 }
@@ -762,12 +706,8 @@ async function deregisterEventSource(request: DeregisterEventSourceRequest): Der
 }
 
 model GetAccountSettingsRequest {
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
 }
 
@@ -788,12 +728,8 @@ async function getAccountSettings(request: GetAccountSettingsRequest): GetAccoun
 model GetAliasRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
   aliasName: string(name='aliasName', description='别名', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
 }
 
@@ -818,12 +754,8 @@ async function getAlias(request: GetAliasRequest): GetAliasResponse {
 
 model GetCustomDomainRequest {
   domainName?: string(name='domainName', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
 }
 
@@ -851,12 +783,8 @@ async function getCustomDomain(request: GetCustomDomainRequest): GetCustomDomain
 model GetFunctionRequest {
   serviceName: string(name='serviceName', description='service名称', position='Path'),
   functionName: string(name='functionName', description='function名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   qualifier?: string(name='qualifier', description='service版本, 可以是versionId或者aliasName', position='Query'),
 }
@@ -899,12 +827,8 @@ async function getFunction(request: GetFunctionRequest): GetFunctionResponse {
 model GetFunctionAsyncInvokeConfigRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
   functionName: string(name='functionName', description='函数名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   qualifier?: string(name='qualifier', description='限定符', position='Query'),
 }
@@ -934,12 +858,8 @@ async function getFunctionAsyncInvokeConfig(request: GetFunctionAsyncInvokeConfi
 model GetFunctionCodeRequest {
   serviceName: string(name='serviceName', description='service名称', position='Path'),
   functionName: string(name='functionName', description='function名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   qualifier?: string(name='qualifier', description='service版本, 可以是versionId或者aliasName', position='Query'),
 }
@@ -962,12 +882,8 @@ async function getFunctionCode(request: GetFunctionCodeRequest): GetFunctionCode
 model GetFunctionOnDemandConfigRequest {
   serviceName?: string(name='serviceName', position='Path'),
   functionName?: string(name='functionName', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   qualifier?: string(name='qualifier', position='Query'),
 }
@@ -990,12 +906,8 @@ async function getFunctionOnDemandConfig(request: GetFunctionOnDemandConfigReque
 model GetLayerVersionRequest {
   layerName: string(name='layerName', description='层名称', position='Path'),
   version: string(name='version', description='层版本', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
 }
 
@@ -1009,49 +921,11 @@ async function getLayerVersion(request: GetLayerVersionRequest): GetLayerVersion
   return @handler.do('RESTFUL', 'GetLayerVersion', 'GET', '/2021-04-06/layers/{layerName}/versions/{version}', 'json', false, 'json', request);
 }
 
-model GetLayerVersionByArnRequest {
-  arn?: string(name='arn', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
-  xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
-  xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
-  xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
-}
-
-model GetLayerVersionByArnResponseBody = {
-  acl?: int32(name='acl'),
-  arn?: string(name='arn'),
-  code?: OutputCodeLocation(name='code'),
-  codeChecksum?: string(name='codeChecksum'),
-  codesize?: long(name='codesize'),
-  compatibleRuntime?: [ string ](name='compatibleRuntime'),
-  createTime?: string(name='createTime'),
-  description?: string(name='description'),
-  layerName?: string(name='layerName'),
-  version?: int32(name='version'),
-}
-
-model GetLayerVersionByArnResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetLayerVersionByArnResponseBody(name='body'),
-}
-
-async function getLayerVersionByArn(request: GetLayerVersionByArnRequest): GetLayerVersionByArnResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'GetLayerVersionByArn', 'GET', '/2021-04-06/layerarn/{arn}', 'json', false, 'json', request);
-}
-
 model GetProvisionConfigRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
   functionName: string(name='functionName', description='函数名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   qualifier: string(name='qualifier', description='别名名称', position='Query'),
 }
@@ -1080,12 +954,8 @@ async function getProvisionConfig(request: GetProvisionConfigRequest): GetProvis
 }
 
 model GetResourceTagsRequest {
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   resourceArn: string(name='resourceArn', description='Resource ARN 全称或者简称', position='Query'),
 }
@@ -1107,12 +977,8 @@ async function getResourceTags(request: GetResourceTagsRequest): GetResourceTags
 
 model GetServiceRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   qualifier?: string(name='qualifier', description='限定符', position='Query'),
 }
@@ -1169,12 +1035,8 @@ model GetTriggerRequest {
   serviceName: string(name='serviceName', description='service名称', position='Path'),
   functionName: string(name='functionName', description='function名称', position='Path'),
   triggerName: string(name='triggerName', description='trigger名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
 }
 
@@ -1205,9 +1067,7 @@ async function getTrigger(request: GetTriggerRequest): GetTriggerResponse {
 model InvokeFunctionRequest {
   serviceName: string(name='serviceName', description='service名称', position='Path'),
   functionName: string(name='functionName', description='function名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
   xFcInvocationType?: string(name='X-Fc-Invocation-Type', description='调用方式:Sync或者Async，默认值：Sync', position='Header'),
   xFcLogType?: string(name='X-Fc-Log-Type', description='请求返回日志类型, Tail 为返回函数日志最后 4KB 数据，None 或空值则返回不带有日志，默认为 None', position='Header'),
@@ -1229,12 +1089,8 @@ async function invokeFunction(request: InvokeFunctionRequest): InvokeFunctionRes
 
 model ListAliasesRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   limit?: int32(name='limit', description='最多返回个数', position='Query'),
   nextToken?: string(name='nextToken', description='下次查询token', position='Query'),
@@ -1267,12 +1123,8 @@ async function listAliases(request: ListAliasesRequest): ListAliasesResponse {
 }
 
 model ListCustomDomainsRequest {
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   limit?: int32(name='limit', position='Query'),
   nextToken?: string(name='nextToken', position='Query'),
@@ -1309,12 +1161,8 @@ async function listCustomDomains(request: ListCustomDomainsRequest): ListCustomD
 model ListEventSourcesRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
   functionName: string(name='functionName', description='函数名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   qualifier?: string(name='qualifier', description='别名或版本', position='Query'),
 }
@@ -1381,12 +1229,8 @@ async function listFunctionAsyncInvokeConfigs(request: ListFunctionAsyncInvokeCo
 
 model ListFunctionsRequest {
   serviceName?: string(name='serviceName', description='service名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   limit?: int32(name='limit', description='限定此次返回资源的数量。如果不设定，默认返回20，最大不能超过100。返回结果可能小于指定的数量，但不会多于指定的数量', position='Query'),
   nextToken?: string(name='nextToken', description='用来返回更多结果。第一次查询不需要提供这个参数，后续查询的token从返回结果中获取', position='Query'),
@@ -1433,42 +1277,10 @@ async function listFunctions(request: ListFunctionsRequest): ListFunctionsRespon
   return @handler.do('RESTFUL', 'ListFunctions', 'GET', '/2021-04-06/services/{serviceName}/functions', 'json', false, 'json', request);
 }
 
-model ListInstancesRequest {
-  serviceName: string(name='serviceName', description='service名称', position='Path'),
-  functionName: string(name='functionName', description='function名称', position='Path'),
-  xFcAccountId: string(name='X-Fc-Account-Id', position='Header'),
-  limit?: int32(name='limit', description='限定此次返回资源的数量。如果不设定，默认返回20，最大不能超过100。返回结果可能小于指定的数量，但不会多于指定的数量', position='Query'),
-  nextToken?: string(name='nextToken', description='用来返回更多结果。第一次查询不需要提供这个参数，后续查询的token从返回结果中获取', position='Query'),
-  qualifier?: string(name='qualifier', description='service版本, 可以是versionId或者aliasName', position='Query'),
-}
-
-model ListInstancesResponseBody = {
-  instances?: [ 
-    {
-      instanceId?: string(name='instanceId'),
-      versionId?: string(name='versionId'),
-    }
-  ](name='instances'),
-}
-
-model ListInstancesResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListInstancesResponseBody(name='body'),
-}
-
-async function listInstances(request: ListInstancesRequest): ListInstancesResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'ListInstances', 'GET', '/2021-04-06/services/{serviceName}/functions/{functionName}/instances', 'json', false, 'json', request);
-}
-
 model ListLayerVersionsRequest {
   layerName: string(name='layerName', description='层名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   limit?: int32(name='limit', description='本次读取的最大数据记录数量', position='Query'),
   startVersion?: int32(name='startVersion', description='起始版本', position='Query'),
@@ -1492,12 +1304,8 @@ async function listLayerVersions(request: ListLayerVersionsRequest): ListLayerVe
 }
 
 model ListLayersRequest {
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   limit?: int32(name='limit', description='最大返回条目数', position='Query'),
   nextToken?: string(name='nextToken', description='下一个层名称', position='Query'),
@@ -1523,12 +1331,8 @@ async function listLayers(request: ListLayersRequest): ListLayersResponse {
 }
 
 model ListOnDemandConfigsRequest {
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   limit?: int32(name='limit', description='限定此次返回资源的数量。如果不设定，默认返回20，最大不能超过100。返回结果可以小于指定的数量，但不会多于指定的数量。', position='Query'),
   nextToken?: string(name='nextToken', description='用来返回更多结果。第一次查询不需要提供这个参数，后续查询的Token从返回结果中获取。', position='Query'),
@@ -1554,12 +1358,8 @@ async function listOnDemandConfigs(request: ListOnDemandConfigsRequest): ListOnD
 }
 
 model ListProvisionConfigsRequest {
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   limit?: long(name='limit', description='限定此次返回资源的数量。如果不设定，默认返回20，最大不能超过100。返回结果可能小于指定的数量，但不会多于指定的数量	', position='Query'),
   nextToken?: string(name='nextToken', description='用来返回更多结果。第一次查询不需要提供这个参数，后续查询的token从返回结果中获取', position='Query'),
@@ -1596,12 +1396,8 @@ async function listProvisionConfigs(request: ListProvisionConfigsRequest): ListP
 }
 
 model ListReservedCapacitiesRequest {
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   limit?: string(name='limit', position='Query'),
   nextToken?: string(name='nextToken', position='Query'),
@@ -1626,12 +1422,8 @@ async function listReservedCapacities(request: ListReservedCapacitiesRequest): L
 
 model ListServiceVersionsRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   direction?: string(name='direction', description='排序方向', position='Query'),
   limit?: int32(name='limit', description='最多返回个数', position='Query'),
@@ -1663,12 +1455,8 @@ async function listServiceVersions(request: ListServiceVersionsRequest): ListSer
 }
 
 model ListServicesRequest {
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   limit?: int32(name='limit', description='最多返回个数', position='Query'),
   nextToken?: string(name='nextToken', description='下次查询token', position='Query'),
@@ -1703,6 +1491,31 @@ model ListServicesResponse = {
 async function listServices(request: ListServicesRequest): ListServicesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListServices', 'GET', '/2021-04-06/services', 'json', false, 'json', request);
+}
+
+model ListStatefulAsyncInvocationFunctionsRequest {
+  xFcAccountId?: string(name='X-Fc-Account-Id', description='您的阿里云账号（主账号）ID。', position='Header'),
+  xFcDate?: string(name='X-Fc-Date', description='发起API调用的日期，用于对请求签名。格式为yyyy-mm-ddhh:mm:ss。', position='Header'),
+  xFcTraceId?: string(name='X-Fc-Trace-Id', description='用于链路追踪的ID。', position='Header'),
+  limit?: int32(name='limit', description='限定此次返回资源的数量。如果不设定，默认返回20，最大不能超过100。返回结果可以小于指定的数量，但不会多于指定的数量。', minimum=0, maximum=100, position='Query'),
+  nextToken?: string(name='nextToken', description='用来标记当前开始读取的位置，置空表示从头开始。第一次查询不需要提供这个参数，后续查询的Token从前一次查询的返回结果中获取。', position='Query'),
+}
+
+model ListStatefulAsyncInvocationFunctionsResponseBody = {
+  data?: [
+    AsyncConfigMeta
+  ](name='data', description='返回的实际数据列表。'),
+  nextToken?: string(name='nextToken', description='用来表示当前调用返回读取到的位置，空代表数据已经读取完毕。'),
+}
+
+model ListStatefulAsyncInvocationFunctionsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListStatefulAsyncInvocationFunctionsResponseBody(name='body'),
+}
+
+async function listStatefulAsyncInvocationFunctions(request: ListStatefulAsyncInvocationFunctionsRequest): ListStatefulAsyncInvocationFunctionsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListStatefulAsyncInvocationFunctions', 'GET', '/2021-04-06/stateful-async-invocation-functions', 'json', false, 'json', request);
 }
 
 model ListStatefulAsyncInvocationsRequest {
@@ -1744,12 +1557,8 @@ async function listStatefulAsyncInvocations(request: ListStatefulAsyncInvocation
 }
 
 model ListTaggedResourcesRequest {
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   limit?: int32(name='limit', position='Query'),
   nextToken?: string(name='nextToken', position='Query'),
@@ -1775,12 +1584,8 @@ async function listTaggedResources(request: ListTaggedResourcesRequest): ListTag
 model ListTriggersRequest {
   serviceName: string(name='serviceName', description='service名称', position='Path'),
   functionName: string(name='functionName', description='function名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   limit?: int32(name='limit', description='限定此次返回资源的数量。如果不设定，默认返回20，最大不能超过100。返回结果可能小于指定的数量，但不会多于指定的数量', position='Query'),
   nextToken?: int32(name='nextToken', description='用来返回更多结果。第一次查询不需要提供这个参数，后续查询的token从返回结果中获取', position='Query'),
@@ -1819,12 +1624,8 @@ async function listTriggers(request: ListTriggersRequest): ListTriggersResponse 
 
 model ListVpcBindingsRequest {
   serviceName?: string(name='serviceName', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
 }
 
@@ -1842,58 +1643,11 @@ async function listVpcBindings(request: ListVpcBindingsRequest): ListVpcBindings
   return @handler.do('RESTFUL', 'ListVpcBindings', 'GET', '/2021-04-06/services/{serviceName}/bindings', 'json', false, 'json', request);
 }
 
-model PermanentDeleteLayerVersionRequest {
-  userID?: string(name='userID', position='Path'),
-  layerName?: string(name='layerName', position='Path'),
-  version?: string(name='version', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
-  xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
-  xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
-  xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
-}
-
-model PermanentDeleteLayerVersionResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function permanentDeleteLayerVersion(request: PermanentDeleteLayerVersionRequest): PermanentDeleteLayerVersionResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'PermanentDeleteLayerVersion', 'DELETE', '/2021-04-06/adminlayers/{userID}/{layerName}/versions/{version}', 'none', false, 'json', request);
-}
-
-model PublishLayerAsPublicRequest {
-  layerName?: string(name='layerName', description='A short description of struct', position='Path'),
-  version?: string(name='version', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
-  xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
-  xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
-  xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
-}
-
-model PublishLayerAsPublicResponse = {
-  headers: map[string]string(name='headers'),
-}
-
-async function publishLayerAsPublic(request: PublishLayerAsPublicRequest): PublishLayerAsPublicResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'PublishLayerAsPublic', 'POST', '/2021-04-06/layers/{layerName}/versions/{version}', 'none', false, 'json', request);
-}
-
 model PublishServiceVersionRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   ifMatch?: string(name='If-Match', position='Header'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   description?: string(name='description', description='版本描述', position='Body'),
 }
@@ -1918,12 +1672,8 @@ async function publishServiceVersion(request: PublishServiceVersionRequest): Pub
 model PutFunctionAsyncInvokeConfigRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
   functionName: string(name='functionName', description='函数名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   destinationConfig?: DestinationConfig(name='destinationConfig', position='Body'),
   maxAsyncEventAgeInSeconds?: long(name='maxAsyncEventAgeInSeconds', description='消息最大存活时长', position='Body'),
@@ -1957,13 +1707,9 @@ async function putFunctionAsyncInvokeConfig(request: PutFunctionAsyncInvokeConfi
 model PutFunctionOnDemandConfigRequest {
   serviceName?: string(name='serviceName', position='Path'),
   functionName?: string(name='functionName', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   ifMatch?: string(name='If-Match', position='Header'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   maximumInstanceCount?: long(name='maximumInstanceCount', position='Body'),
   qualifier?: string(name='qualifier', position='Query'),
@@ -1987,12 +1733,8 @@ async function putFunctionOnDemandConfig(request: PutFunctionOnDemandConfigReque
 model PutProvisionConfigRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
   functionName: string(name='functionName', description='函数名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   scheduledActions?: [
     ScheduledActions
@@ -2029,12 +1771,8 @@ async function putProvisionConfig(request: PutProvisionConfigRequest): PutProvis
 model RegisterEventSourceRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
   functionName: string(name='functionName', description='函数名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   sourceArn?: string(name='sourceArn', description='事件源资源标识符', position='Body'),
   qualifier?: string(name='qualifier', description='别名或版本', position='Query'),
@@ -2059,12 +1797,8 @@ model StopStatefulAsyncInvocationRequest {
   serviceName?: string(name='serviceName', position='Path'),
   functionName?: string(name='functionName', position='Path'),
   invocationId?: string(name='invocationId', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   qualifier?: string(name='qualifier', position='Query'),
 }
@@ -2079,12 +1813,8 @@ async function stopStatefulAsyncInvocation(request: StopStatefulAsyncInvocationR
 }
 
 model TagResourceRequest {
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   resourceArn?: string(name='resourceArn', position='Body'),
   tags?: map[string]string(name='tags', position='Body'),
@@ -2100,12 +1830,8 @@ async function tagResource(request: TagResourceRequest): TagResourceResponse {
 }
 
 model UntagResourceRequest {
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   all?: boolean(name='all', description='删除所有 tag，默认值为 false', position='Body'),
   resourceArn: string(name='resourceArn', description='目前只能给 top level 资源 service 进行标签的相关操作, ARN 可以是类似 services/foo 或者 acs:fc:cn-shanghai:123456789:services/foo', position='Body'),
@@ -2124,13 +1850,9 @@ async function untagResource(request: UntagResourceRequest): UntagResourceRespon
 model UpdateAliasRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
   aliasName: string(name='aliasName', description='别名', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   ifMatch?: string(name='If-Match', position='Header'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   additionalVersionWeight?: map[string]float(name='additionalVersionWeight', description='额外版本权重', position='Body'),
   description?: string(name='description', description='别名描述', position='Body'),
@@ -2158,12 +1880,8 @@ async function updateAlias(request: UpdateAliasRequest): UpdateAliasResponse {
 
 model UpdateCustomDomainRequest {
   domainName?: string(name='domainName', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   certConfig?: CertConfig(name='certConfig', position='Body'),
   protocol?: string(name='protocol', position='Body'),
@@ -2194,13 +1912,10 @@ async function updateCustomDomain(request: UpdateCustomDomainRequest): UpdateCus
 model UpdateFunctionRequest {
   serviceName?: string(name='serviceName', description='service名称', position='Path'),
   functionName?: string(name='functionName', description='function名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   ifMatch?: string(name='If-Match', description='用于确保实际更改的资源和期望更改的资源是一致的，该值来自Create，Get和Update API的响应', position='Header'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
   xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   instanceConcurrency?: int32(name='InstanceConcurrency', position='Body'),
   caPort?: int32(name='caPort', description='自定义、自定义容器运行时 HTTP Server 的监听端口', position='Body'),
@@ -2257,13 +1972,9 @@ async function updateFunction(request: UpdateFunctionRequest): UpdateFunctionRes
 
 model UpdateServiceRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   ifMatch?: string(name='If-Match', description='用于确保实际更改的资源和期望更改的资源是一致的，该值来自Create，Get和Update API的响应', position='Header'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   description?: string(name='description', description='服务描述', position='Body'),
   internetAccess?: boolean(name='internetAccess', description='公网访问设置', position='Body'),
@@ -2302,13 +2013,9 @@ model UpdateTriggerRequest {
   serviceName: string(name='serviceName', description='service名称', position='Path'),
   functionName: string(name='functionName', description='function名称', position='Path'),
   triggerName: string(name='triggerName', description='trigger名称', position='Path'),
-  accountID?: string(name='AccountID', position='Host'),
   ifMatch?: string(name='If-Match', description='用于确保实际更改的资源和期望更改的资源是一致的，该值来自Create，Get和Update API的响应', position='Header'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
-  xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcInvocationType?: string(name='X-Fc-Invocation-Type', position='Header'),
-  xFcLogType?: string(name='X-Fc-Log-Type', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   description?: string(name='description', position='Body'),
   invocationRole?: string(name='invocationRole', description='event source，如OSS，使用该role去invoke function', position='Body'),
