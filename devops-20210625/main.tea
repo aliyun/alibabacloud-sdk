@@ -28,6 +28,79 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model AddRepositoryMemberRequest {
+  accessToken?: string(name='AccessToken', description='Codeup访问令牌，使用AK/SK方式访问可以不用填AccessToken'),
+  accessLevel?: int32(name='accessLevel', description='成员权限'),
+  aliyunPks?: string(name='aliyunPks', description='需要添加为代码库成员的用户阿里云ID。支持多个，以","分割'),
+  organizationId?: string(name='organizationId', description='企业ID'),
+}
+
+model AddRepositoryMemberResponseBody = {
+  errorCode?: string(name='ErrorCode', description='错误码'),
+  errorMessage?: string(name='ErrorMessage', description='错误信息'),
+  requestId?: string(name='RequestId', description='请求ID'),
+  result?: [ 
+    {
+      accessLevel?: int32(name='AccessLevel', description='权限类型'),
+      avatarUrl?: string(name='AvatarUrl', description='头像地址'),
+      email?: string(name='Email', description='邮箱'),
+      externUserId?: string(name='ExternUserId', description='云效用户ID'),
+      id?: long(name='Id', description='Codeup用户Id'),
+      state?: string(name='State', description='状态'),
+    }
+  ](name='Result', description='返回结果'),
+  success?: boolean(name='Success', description='请求状态'),
+}
+
+model AddRepositoryMemberResponse = {
+  headers: map[string]string(name='headers'),
+  body: AddRepositoryMemberResponseBody(name='body'),
+}
+
+async function addRepositoryMember(repositoryId: string, request: AddRepositoryMemberRequest): AddRepositoryMemberResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return addRepositoryMemberWithOptions(repositoryId, request, headers, runtime);
+}
+
+async function addRepositoryMemberWithOptions(repositoryId: string, request: AddRepositoryMemberRequest, headers: map[string]string, runtime: Util.RuntimeOptions): AddRepositoryMemberResponse {
+  Util.validateModel(request);
+  repositoryId = OpenApiUtil.getEncodeParam(repositoryId);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.accessToken)) {
+    query['AccessToken'] = request.accessToken;
+  }
+  if (!Util.isUnset(request.organizationId)) {
+    query['organizationId'] = request.organizationId;
+  }
+
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.accessLevel)) {
+    body['accessLevel'] = request.accessLevel;
+  }
+  if (!Util.isUnset(request.aliyunPks)) {
+    body['aliyunPks'] = request.aliyunPks;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'AddRepositoryMember',
+    version = '2021-06-25',
+    protocol = 'HTTPS',
+    pathname = `/repository/${repositoryId}/members`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
 model AddWebhookRequest {
   accessToken?: string(name='AccessToken'),
   organizationId?: string(name='OrganizationId'),
@@ -46,12 +119,10 @@ model AddWebhookResponseBody = {
   errorMessage?: string(name='errorMessage'),
   requestId?: string(name='requestId'),
   result?: {
-    enableSslVerification?: boolean(name='EnableSslVerification'),
-    buildEvents?: boolean(name='buildEvents'),
     createdAt?: string(name='createdAt'),
     description?: string(name='description'),
+    enableSslVerification?: boolean(name='enableSslVerification'),
     id?: long(name='id'),
-    issuesEvents?: boolean(name='issuesEvents'),
     lastTestResult?: string(name='lastTestResult'),
     mergeRequestsEvents?: boolean(name='mergeRequestsEvents'),
     noteEvents?: boolean(name='noteEvents'),
@@ -408,20 +479,6 @@ model CreateRepositoryRequest {
   importAccount?: string(name='importAccount', description='导入时使用的账号'),
   importDemoProject?: boolean(name='importDemoProject', description='使用使用demo库内容进行初始化'),
   importRepoType?: string(name='importRepoType', description='导入代码库类型 (GIT: Git库, SVN: SVN库)'),
-  importSvnRepoConfig?: {
-    authorMapping?: string(name='authorMapping', description='author 映射'),
-    branchMapping?: string(name='branchMapping', description='分支映射'),
-    noBranches?: boolean(name='noBranches', description='不导入branch'),
-    noTags?: boolean(name='noTags', description='不导入tag'),
-    password?: string(name='password', description='svn密码'),
-    path?: string(name='path', description='导入代码库目标path'),
-    rootIsTrunk?: boolean(name='rootIsTrunk', description='根目录映射trunk'),
-    standardLayout?: boolean(name='standardLayout', description='标准布局'),
-    svnImportUrl?: string(name='svnImportUrl', description='svn仓库地址'),
-    tagMapping?: string(name='tagMapping', description='标签映射'),
-    trunkMapping?: string(name='trunkMapping', description='trunk映射'),
-    username?: string(name='username', description='svn用户名'),
-  }(name='importSvnRepoConfig', description='导入SVN库的设置'),
   importToken?: string(name='importToken', description='导入时账号的token'),
   importTokenEncrypted?: string(name='importTokenEncrypted', description='import_token字段的传输格式，使用明文或rsa加密'),
   importUrl?: string(name='importUrl', description='导入地址（http协议地址）'),
@@ -522,9 +579,6 @@ async function createRepositoryWithOptions(request: CreateRepositoryRequest, hea
   }
   if (!Util.isUnset(request.importRepoType)) {
     body['importRepoType'] = request.importRepoType;
-  }
-  if (!Util.isUnset(request.importSvnRepoConfig)) {
-    body['importSvnRepoConfig'] = request.importSvnRepoConfig;
   }
   if (!Util.isUnset(request.importToken)) {
     body['importToken'] = request.importToken;
