@@ -52,6 +52,7 @@ model Instance {
   instanceName?: string(name='InstanceName', description='实例的名字'),
   instancePort?: int32(name='InstancePort', description='实例的网络端口'),
   lastState?: [  map[string]any ](name='LastState', description='实例上一次退出的状态'),
+  namespace?: string(name='Namespace', description='实例的命名空间'),
   readyProcesses?: int32(name='ReadyProcesses', description='实例已经启动完成的进程数'),
   reason?: string(name='Reason', description='实例当前状态的标识'),
   restartCount?: int32(name='RestartCount', description='实例重启次数'),
@@ -150,7 +151,7 @@ model CreateResourceResponseBody = {
   clusterId?: string(name='ClusterId', description='资源组所在集群ID'),
   ownerUid?: string(name='OwnerUid', description='资源组的Owner UID'),
   requestId?: string(name='RequestId', description='Id of the request'),
-  resourceID?: string(name='ResourceID', description='资源组ID'),
+  resourceId?: string(name='ResourceId', description='资源组ID'),
   resourceName?: string(name='ResourceName', description='资源组名称'),
 }
 
@@ -874,6 +875,44 @@ async function deleteServiceMirrorWithOptions(ClusterId: string, ServiceName: st
   return callApi(params, req, runtime);
 }
 
+model DescribeRegionsResponseBody = {
+  regions?: [ 
+    {
+      regionId?: string(name='RegionId', description='地域Id'),
+    }
+  ](name='Regions', description='可用地域列表'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model DescribeRegionsResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeRegionsResponseBody(name='body'),
+}
+
+async function describeRegions(): DescribeRegionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeRegionsWithOptions(headers, runtime);
+}
+
+async function describeRegionsWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): DescribeRegionsResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeRegions',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/regions`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
 model DescribeResourceResponseBody = {
   clusterId?: string(name='ClusterId'),
   cpuCount?: int32(name='CpuCount'),
@@ -1034,6 +1073,7 @@ async function describeServiceWithOptions(ClusterId: string, ServiceName: string
 }
 
 model DescribeServiceAutoScalerResponseBody = {
+  currentValues?: map[string]any(name='CurrentValues'),
   maxReplica?: int32(name='MaxReplica', description='服务最大实例数'),
   minReplica?: int32(name='MinReplica', description='服务最小实例数'),
   requestId?: string(name='RequestId', description='Id of the request'),
@@ -1077,6 +1117,7 @@ model DescribeServiceCronScalerResponseBody = {
   requestId?: string(name='RequestId'),
   scaleJobs?: [ 
     {
+      createTime?: string(name='CreateTime'),
       lastProbeTime?: string(name='LastProbeTime'),
       message?: string(name='Message'),
       name?: string(name='Name'),
