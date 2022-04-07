@@ -53,6 +53,21 @@ model CORSRule {
   maxAgeSeconds?: long(name='MaxAgeSeconds', description='description'),
 }
 
+model CSVInput {
+  allowQuotedRecordDelimiter?: boolean(name='AllowQuotedRecordDelimiter', description='description'),
+  commentCharacter?: string(name='CommentCharacter', description='description'),
+  fieldDelimiter?: string(name='FieldDelimiter', description='description'),
+  fileHeaderInfo?:   string(name='FileHeaderInfo'),
+  quoteCharacter?: string(name='QuoteCharacter', description='description'),
+  range?: string(name='Range', description='description'),
+  recordDelimiter?: string(name='RecordDelimiter', description='description'),
+}
+
+model CSVOutput {
+  fieldDelimiter?: string(name='FieldDelimiter', description='description'),
+  recordDelimiter?: string(name='RecordDelimiter', description='description'),
+}
+
 model CommonPrefix {
   prefix?: string(name='Prefix', description='The prefix that the names of returned objects contain'),
 }
@@ -90,12 +105,29 @@ model DeletedObject {
   versionId?: string(name='VersionId', description='description'),
 }
 
+model ErrorDocument {
+  httpStatus?: string(name='HttpStatus', description='description'),
+  key?: string(name='Key', description='description'),
+}
+
 model ExtendWormConfiguration {
   retentionPeriodInDays?: int32(name='RetentionPeriodInDays', description='The number of days for which objects can be retained'),
 }
 
+model IndexDocument {
+  suffix?: string(name='Suffix', description='description'),
+  supportSubDir?: boolean(name='SupportSubDir', description='description'),
+  type?: string(name='Type', description='description'),
+}
+
 model InitiateWormConfiguration {
   retentionPeriodInDays?: int32(name='RetentionPeriodInDays', description='The number of days for which objects can be retained'),
+}
+
+model InputSerialization {
+  csv?: CSVInput(name='CSV'),
+  compressionType?:   string(name='CompressionType'),
+  json?: JSONInput(name='JSON'),
 }
 
 model InventoryConfiguration {
@@ -138,10 +170,20 @@ model InventorySchedule {
   frequency?:   string(name='Frequency'),
 }
 
+model JSONInput {
+  parseJsonNumberAsString?: boolean(name='ParseJsonNumberAsString', description='description'),
+  range?: string(name='Range', description='description'),
+  type?:   string(name='Type'),
+}
+
+model JSONOutput {
+  recordDelimiter?: string(name='RecordDelimiter', description='description'),
+}
+
 model LifecycleConfiguration {
   rule?: [
     LifecycleRule
-  ](name='Rule', description='生命周期规则'),
+  ](name='Rule', description='description'),
 }
 
 model LifecycleRule {
@@ -277,6 +319,15 @@ model ObjectVersion {
   versionId?: string(name='VersionId', description='The version ID of the object'),
 }
 
+model OutputSerialization {
+  csv?: CSVOutput(name='CSV'),
+  enablePayloadCrc?: boolean(name='EnablePayloadCrc', description='description'),
+  json?: JSONOutput(name='JSON'),
+  keepAllColumns?: boolean(name='KeepAllColumns', description='description'),
+  outputHeader?: boolean(name='OutputHeader', description='description'),
+  outputRawData?: boolean(name='OutputRawData', description='description'),
+}
+
 model Owner {
   displayName?: string(name='DisplayName', description='The display name of the owner'),
   ID?: string(name='ID', description='The ID of the owner'),
@@ -291,6 +342,7 @@ model Part {
 
 model RefererConfiguration {
   allowEmptyReferer?: boolean(name='AllowEmptyReferer', description='是否允许Referer字段为空的请求访问'),
+  allowTruncateQueryString?: boolean(name='AllowTruncateQueryString', description='description'),
   refererList?: {
     referer?: [ string ](name='Referer', description='指定一条Referer访问白名单'),
   }(name='RefererList', description='保存Referer访问白名单'),
@@ -395,7 +447,7 @@ model RoutingRuleRedirect {
   }(name='MirrorHeaders', description='description'),
   mirrorPassQueryString?: boolean(name='MirrorPassQueryString', description='description'),
   mirrorURL?: string(name='MirrorURL', description='description'),
-  passQueryString?: string(name='PassQueryString', description='description'),
+  passQueryString?: boolean(name='PassQueryString', description='description'),
   protocol?: string(name='Protocol', description='description'),
   redirectType?: string(name='RedirectType', description='description'),
   replaceKeyPrefixWith?: string(name='ReplaceKeyPrefixWith', description='description'),
@@ -410,8 +462,31 @@ model SSEKMS {
 model SSEOSS {
 }
 
+model SelectMetaRequest {
+  inputSerialization?: InputSerialization(name='InputSerialization'),
+  overwriteIfExists?: boolean(name='OverwriteIfExists', description='description'),
+}
+
+model SelectMetaStatus {
+  colsCount?: long(name='ColsCount', description='description'),
+  errorMessage?: string(name='ErrorMessage', description='description'),
+  offset?: long(name='Offset', description='description'),
+  rowsCount?: long(name='RowsCount', description='description'),
+  splitsCount?: long(name='SplitsCount', description='description'),
+  status?: long(name='Status', description='description'),
+  totalScannedBytes?: long(name='TotalScannedBytes', description='description'),
+}
+
 model SelectRequest {
   expression?: string(name='Expression', description='description'),
+  inputSerialization?: InputSerialization(name='InputSerialization'),
+  options?: SelectRequestOptions(name='Options'),
+  outputSerialization?: OutputSerialization(name='OutputSerialization'),
+}
+
+model SelectRequestOptions {
+  maxSkippedRecordsAllowed?: long(name='MaxSkippedRecordsAllowed', description='description'),
+  skipPartialDataRecord?: boolean(name='SkipPartialDataRecord', description='description'),
 }
 
 model ServerSideEncryptionRule {
@@ -448,17 +523,10 @@ model VersioningConfiguration {
 }
 
 model WebsiteConfiguration {
-  errorDocument?: {
-    httpStatus?: string(name='HttpStatus', description='description'),
-    key?: string(name='Key', description='description'),
-  }(name='ErrorDocument', description='description'),
-  indexDocument?: {
-    suffix?: string(name='Suffix', description='description'),
-    supportSubDir?: boolean(name='SupportSubDir', description='description'),
-    type?: string(name='Type', description='description'),
-  }(name='IndexDocument', description='description'),
+  errorDocument?: ErrorDocument(name='ErrorDocument'),
+  indexDocument?: IndexDocument(name='IndexDocument'),
   routingRules?: {
-    routingRules?: [
+    routingRule?: [
       RoutingRule
     ](name='RoutingRule', description='description'),
   }(name='RoutingRules', description='description'),
@@ -490,7 +558,7 @@ async function abortBucketWormWithOptions(bucket: string, headers: map[string]st
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -533,7 +601,7 @@ async function abortMultipartUploadWithOptions(bucket: string, key: string, requ
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -546,9 +614,9 @@ model AppendObjectHeaders {
   contentMD5?: string(name='Content-MD5'),
   expires?: string(name='Expires'),
   metaData?: map[string]string(name='x-oss-meta-*'),
-  acl?: string(name='x-oss-object-acl'),
+  acl?:   string(name='x-oss-object-acl'),
   serverSideEncryption	?: string(name='x-oss-server-side-encryption'),
-  storageClass?: string(name='x-oss-storage-class'),
+  storageClass?:   string(name='x-oss-storage-class'),
 }
 
 model AppendObjectRequest {
@@ -623,7 +691,7 @@ async function appendObjectWithOptions(bucket: string, key: string, request: App
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'binary',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -665,7 +733,7 @@ async function completeBucketWormWithOptions(bucket: string, request: CompleteBu
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -758,12 +826,12 @@ model CopyObjectHeaders {
   forbidOverwrite?: string(name='x-oss-forbid-overwrite'),
   metaData?: map[string]string(name='x-oss-meta-*'),
   metadataDirective?: string(name='x-oss-metadata-directive'),
-  acl?: string(name='x-oss-object-acl'),
-  sse?: string(name='x-oss-server-side-encryption'),
+  acl?:   string(name='x-oss-object-acl'),
+  serverSideEncryption?: string(name='x-oss-server-side-encryption'),
   sseKeyId?: string(name='x-oss-server-side-encryption-key-id'),
-  storageClass?: string(name='x-oss-storage-class'),
+  storageClass?:   string(name='x-oss-storage-class'),
   tagging?: string(name='x-oss-tagging'),
-  xOssTaggingDirective?: string(name='x-oss-tagging-directive'),
+  taggingDirective?: string(name='x-oss-tagging-directive'),
 }
 
 model CopyObjectResponseBody = {
@@ -817,8 +885,8 @@ async function copyObjectWithOptions(bucket: string, key: string, headers: CopyO
   if (!Util.isUnset(headers.acl)) {
     realHeaders['x-oss-object-acl'] = Util.toJSONString(headers.acl);
   }
-  if (!Util.isUnset(headers.sse)) {
-    realHeaders['x-oss-server-side-encryption'] = Util.toJSONString(headers.sse);
+  if (!Util.isUnset(headers.serverSideEncryption)) {
+    realHeaders['x-oss-server-side-encryption'] = Util.toJSONString(headers.serverSideEncryption);
   }
   if (!Util.isUnset(headers.sseKeyId)) {
     realHeaders['x-oss-server-side-encryption-key-id'] = Util.toJSONString(headers.sseKeyId);
@@ -829,8 +897,8 @@ async function copyObjectWithOptions(bucket: string, key: string, headers: CopyO
   if (!Util.isUnset(headers.tagging)) {
     realHeaders['x-oss-tagging'] = Util.toJSONString(headers.tagging);
   }
-  if (!Util.isUnset(headers.xOssTaggingDirective)) {
-    realHeaders['x-oss-tagging-directive'] = Util.toJSONString(headers.xOssTaggingDirective);
+  if (!Util.isUnset(headers.taggingDirective)) {
+    realHeaders['x-oss-tagging-directive'] = Util.toJSONString(headers.taggingDirective);
   }
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
@@ -844,8 +912,47 @@ async function copyObjectWithOptions(bucket: string, key: string, headers: CopyO
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
-    reqBodyType = 'binary',
+    reqBodyType = 'xml',
     bodyType = 'xml',  };
+  return execute(params, req, runtime);
+}
+
+model CreateSelectObjectMetaRequest {
+  selectMetaRequest?: SelectMetaRequest(name='body'),
+}
+
+model CreateSelectObjectMetaResponse = {
+  headers: map[string]string(name='headers'),
+  body: SelectMetaStatus  
+}
+
+async function createSelectObjectMeta(bucket: string, key: string, request: CreateSelectObjectMetaRequest): CreateSelectObjectMetaResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createSelectObjectMetaWithOptions(bucket, key, request, headers, runtime);
+}
+
+async function createSelectObjectMetaWithOptions(bucket: string, key: string, request: CreateSelectObjectMetaRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateSelectObjectMetaResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['bucket'] = bucket;
+  key = OpenApiUtil.getEncodeParam(key);
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.selectMetaRequest),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateSelectObjectMeta',
+    version = '2019-05-17',
+    protocol = 'HTTPS',
+    pathname = `/${key}`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'xml',
+    bodyType = 'json',
+  };
   return execute(params, req, runtime);
 }
 
@@ -875,7 +982,7 @@ async function deleteBucketWithOptions(bucket: string, headers: map[string]strin
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -906,7 +1013,7 @@ async function deleteBucketCorsWithOptions(bucket: string, headers: map[string]s
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -937,7 +1044,7 @@ async function deleteBucketEncryptionWithOptions(bucket: string, headers: map[st
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -979,7 +1086,7 @@ async function deleteBucketInventoryWithOptions(bucket: string, request: DeleteB
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -1010,7 +1117,7 @@ async function deleteBucketLifecycleWithOptions(bucket: string, headers: map[str
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -1041,7 +1148,7 @@ async function deleteBucketLoggingWithOptions(bucket: string, headers: map[strin
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -1072,13 +1179,13 @@ async function deleteBucketPolicyWithOptions(bucket: string, headers: map[string
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
 
 model DeleteBucketReplicationRequest {
-  body?: ReplicationRules(name='body'),
+  body?: ReplicationRules(name='ReplicationRules'),
 }
 
 model DeleteBucketReplicationResponse = {
@@ -1095,15 +1202,10 @@ async function deleteBucketReplicationWithOptions(bucket: string, request: Delet
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.body)) {
-    body['body'] = request.body;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.body),
   };
   var params = new OpenApi.Params{
     action = 'DeleteBucketReplication',
@@ -1114,7 +1216,7 @@ async function deleteBucketReplicationWithOptions(bucket: string, request: Delet
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -1145,7 +1247,7 @@ async function deleteBucketTagsWithOptions(bucket: string, headers: map[string]s
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -1176,7 +1278,7 @@ async function deleteBucketWebsiteWithOptions(bucket: string, headers: map[strin
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -1208,21 +1310,21 @@ async function deleteLiveChannelWithOptions(bucket: string, channel: string, hea
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
 
 model DeleteMultipleObjectsRequest {
-  body?: Delete(name='body'),
-  delete?: Delete(name='delete'),
-  encodingType?: string(name='encoding-type'),
+  delete?: Delete(name='Delete'),
+  encodingType?:   string(name='encoding-type'),
 }
 
 model DeleteMultipleObjectsResponseBody = {
   deleted?: [
     DeletedObject
   ](name='Deleted'),
+  encodingType?: string(name='EncodingType'),
 }
 
 model DeleteMultipleObjectsResponse = {
@@ -1230,28 +1332,26 @@ model DeleteMultipleObjectsResponse = {
   body: DeleteMultipleObjectsResponseBody(name='body'),
 }
 
-async function deleteMultipleObjects(request: DeleteMultipleObjectsRequest): DeleteMultipleObjectsResponse {
+async function deleteMultipleObjects(bucket: string, request: DeleteMultipleObjectsRequest): DeleteMultipleObjectsResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return deleteMultipleObjectsWithOptions(request, headers, runtime);
+  return deleteMultipleObjectsWithOptions(bucket, request, headers, runtime);
 }
 
-async function deleteMultipleObjectsWithOptions(request: DeleteMultipleObjectsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteMultipleObjectsResponse {
+async function deleteMultipleObjectsWithOptions(bucket: string, request: DeleteMultipleObjectsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteMultipleObjectsResponse {
   Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['bucket'] = bucket;
   var query : map[string]any= {};
   if (!Util.isUnset(request.encodingType)) {
     query['encoding-type'] = request.encodingType;
   }
 
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.delete)) {
-    body['delete'] = request.delete;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
     headers = headers,
     query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.delete),
   };
   var params = new OpenApi.Params{
     action = 'DeleteMultipleObjects',
@@ -1303,7 +1403,7 @@ async function deleteObjectWithOptions(bucket: string, key: string, request: Del
     method = 'DELETE',
     authType = 'AK',
     style = 'ROA',
-    reqBodyType = 'binary',
+    reqBodyType = 'xml',
     bodyType = 'none',
   };
   return execute(params, req, runtime);
@@ -1347,7 +1447,7 @@ async function deleteObjectTaggingWithOptions(bucket: string, key: string, reque
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -1441,81 +1541,8 @@ async function extendBucketWormWithOptions(bucket: string, request: ExtendBucket
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
-  return execute(params, req, runtime);
-}
-
-model GetBucketRequest {
-  delimiter?: string(name='delimiter'),
-  encodingType?:   string(name='encoding-type'),
-  marker?: string(name='marker'),
-  maxKeys?: long(name='max-keys'),
-  prefix?: string(name='prefix'),
-}
-
-model GetBucketResponseBody = {
-  commonPrefixes?: [
-    CommonPrefix
-  ](name='CommonPrefixes', description='Objects whose names contain the same string that ranges from the prefix to the next occurrence of the delimiter are grouped as a single result element'),
-  contents?: [
-    ObjectSummary
-  ](name='Contents', description='The container that stores the returned object metadata'),
-  delimiter?: string(name='Delimiter', description='The character used to group objects by name'),
-  isTruncated?: boolean(name='IsTruncated', description='Indicates whether the returned results are truncated'),
-  marker?: string(name='Marker', description='The name of the object from which the list operation begins'),
-  maxKeys?: int32(name='MaxKeys', description='The maximum number of returned objects in the response'),
-  name?: string(name='Name', description='The bucket name'),
-  prefix?: string(name='Prefix', description='The prefix that the names of returned objects contain'),
-}
-
-model GetBucketResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetBucketResponseBody(name='body'),
-}
-
-async function getBucket(bucket: string, request: GetBucketRequest): GetBucketResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getBucketWithOptions(bucket, request, headers, runtime);
-}
-
-async function getBucketWithOptions(bucket: string, request: GetBucketRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetBucketResponse {
-  Util.validateModel(request);
-  var hostMap : map[string]string = {};
-  hostMap['bucket'] = bucket;
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.delimiter)) {
-    query['delimiter'] = request.delimiter;
-  }
-  if (!Util.isUnset(request.encodingType)) {
-    query['encoding-type'] = request.encodingType;
-  }
-  if (!Util.isUnset(request.marker)) {
-    query['marker'] = request.marker;
-  }
-  if (!Util.isUnset(request.maxKeys)) {
-    query['max-keys'] = request.maxKeys;
-  }
-  if (!Util.isUnset(request.prefix)) {
-    query['prefix'] = request.prefix;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    hostMap = hostMap,
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetBucket',
-    version = '2019-05-17',
-    protocol = 'HTTPS',
-    pathname = `/`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'xml',
-    bodyType = 'xml',  };
   return execute(params, req, runtime);
 }
 
@@ -1736,7 +1763,9 @@ async function getBucketInventoryWithOptions(bucket: string, request: GetBucketI
 }
 
 model GetBucketLifecycleResponseBody = {
-  rule?: LifecycleRule(name='Rule'),
+  rules?: [
+    LifecycleRule
+  ](name='Rule'),
 }
 
 model GetBucketLifecycleResponse = {
@@ -2174,13 +2203,8 @@ async function getBucketVersioningWithOptions(bucket: string, headers: map[strin
 }
 
 model GetBucketWebsiteResponseBody = {
-  errorDocument?: {
-    httpStatus?: string(name='HttpStatus'),
-    key?: string(name='Key'),
-  }(name='ErrorDocument'),
-  indexDocument?: {
-    suffix?: string(name='Suffix'),
-  }(name='IndexDocument'),
+  errorDocument?: ErrorDocument(name='ErrorDocument'),
+  indexDocument?: IndexDocument(name='IndexDocument'),
   routingRules?: {
     routingRules?: [
       RoutingRule
@@ -2221,7 +2245,7 @@ async function getBucketWebsiteWithOptions(bucket: string, headers: map[string]s
 
 model GetBucketWormResponseBody = {
   creationDate?: string(name='CreationDate'),
-  retentionPeriodInDays?: long(name='RetentionPeriodInDays'),
+  retentionPeriodInDays?: int32(name='RetentionPeriodInDays'),
   state?:   string(name='State'),
   wormId?: string(name='WormId'),
 }
@@ -2375,21 +2399,21 @@ async function getLiveChannelStatWithOptions(bucket: string, channel: string, he
 
 model GetObjectHeaders {
   commonHeaders?: map[string]string,
-  acceptEncoding	?: string(name='Accept-Encoding'),
-  ifMatch	?: string(name='If-Match'),
+  acceptEncoding?: string(name='Accept-Encoding'),
+  ifMatch?: string(name='If-Match'),
   ifModifiedSince?: string(name='If-Modified-Since'),
-  ifNoneMatch	?: string(name='If-None-Match'),
-  ifUnmodifiedSince	?: string(name='If-Unmodified-Since'),
+  ifNoneMatch?: string(name='If-None-Match'),
+  ifUnmodifiedSince?: string(name='If-Unmodified-Since'),
   range?: string(name='Range'),
 }
 
 model GetObjectRequest {
-  responseCacheControl	?: string(name='response-cache-control'),
-  responseContentDisposition	?: string(name='response-content-disposition'),
-  responseContentEncoding	?: string(name='response-content-encoding'),
-  responseContentLanguage	?: string(name='response-content-language'),
+  responseCacheControl?: string(name='response-cache-control'),
+  responseContentDisposition?: string(name='response-content-disposition'),
+  responseContentEncoding?: string(name='response-content-encoding'),
+  responseContentLanguage?: string(name='response-content-language'),
   responseContentType?: string(name='response-content-type'),
-  responseExpires	?: string(name='response-expires'),
+  responseExpires?: string(name='response-expires'),
 }
 
 model GetObjectResponse = {
@@ -2409,43 +2433,43 @@ async function getObjectWithOptions(bucket: string, key: string, request: GetObj
   hostMap['bucket'] = bucket;
   key = OpenApiUtil.getEncodeParam(key);
   var query : map[string]any= {};
-  if (!Util.isUnset(request.responseCacheControl	)) {
-    query['response-cache-control'] = request.responseCacheControl	;
+  if (!Util.isUnset(request.responseCacheControl)) {
+    query['response-cache-control'] = request.responseCacheControl;
   }
-  if (!Util.isUnset(request.responseContentDisposition	)) {
-    query['response-content-disposition'] = request.responseContentDisposition	;
+  if (!Util.isUnset(request.responseContentDisposition)) {
+    query['response-content-disposition'] = request.responseContentDisposition;
   }
-  if (!Util.isUnset(request.responseContentEncoding	)) {
-    query['response-content-encoding'] = request.responseContentEncoding	;
+  if (!Util.isUnset(request.responseContentEncoding)) {
+    query['response-content-encoding'] = request.responseContentEncoding;
   }
-  if (!Util.isUnset(request.responseContentLanguage	)) {
-    query['response-content-language'] = request.responseContentLanguage	;
+  if (!Util.isUnset(request.responseContentLanguage)) {
+    query['response-content-language'] = request.responseContentLanguage;
   }
   if (!Util.isUnset(request.responseContentType)) {
     query['response-content-type'] = request.responseContentType;
   }
-  if (!Util.isUnset(request.responseExpires	)) {
-    query['response-expires'] = request.responseExpires	;
+  if (!Util.isUnset(request.responseExpires)) {
+    query['response-expires'] = request.responseExpires;
   }
 
   var realHeaders : map[string]string = {};
   if (!Util.isUnset(headers.commonHeaders)) {
     realHeaders = headers.commonHeaders;
   }
-  if (!Util.isUnset(headers.acceptEncoding	)) {
-    realHeaders['Accept-Encoding'] = Util.toJSONString(headers.acceptEncoding	);
+  if (!Util.isUnset(headers.acceptEncoding)) {
+    realHeaders['Accept-Encoding'] = Util.toJSONString(headers.acceptEncoding);
   }
-  if (!Util.isUnset(headers.ifMatch	)) {
-    realHeaders['If-Match'] = Util.toJSONString(headers.ifMatch	);
+  if (!Util.isUnset(headers.ifMatch)) {
+    realHeaders['If-Match'] = Util.toJSONString(headers.ifMatch);
   }
   if (!Util.isUnset(headers.ifModifiedSince)) {
     realHeaders['If-Modified-Since'] = Util.toJSONString(headers.ifModifiedSince);
   }
-  if (!Util.isUnset(headers.ifNoneMatch	)) {
-    realHeaders['If-None-Match'] = Util.toJSONString(headers.ifNoneMatch	);
+  if (!Util.isUnset(headers.ifNoneMatch)) {
+    realHeaders['If-None-Match'] = Util.toJSONString(headers.ifNoneMatch);
   }
-  if (!Util.isUnset(headers.ifUnmodifiedSince	)) {
-    realHeaders['If-Unmodified-Since'] = Util.toJSONString(headers.ifUnmodifiedSince	);
+  if (!Util.isUnset(headers.ifUnmodifiedSince)) {
+    realHeaders['If-Unmodified-Since'] = Util.toJSONString(headers.ifUnmodifiedSince);
   }
   if (!Util.isUnset(headers.range)) {
     realHeaders['Range'] = Util.toJSONString(headers.range);
@@ -2556,7 +2580,7 @@ async function getObjectMetaWithOptions(bucket: string, key: string, request: Ge
     method = 'HEAD',
     authType = 'AK',
     style = 'ROA',
-    reqBodyType = 'binary',
+    reqBodyType = 'xml',
     bodyType = 'none',
   };
   return execute(params, req, runtime);
@@ -2609,62 +2633,6 @@ async function getObjectTaggingWithOptions(bucket: string, key: string, request:
   return execute(params, req, runtime);
 }
 
-model GetServiceRequest {
-  marker?: string(name='marker'),
-  maxKeys?: long(name='max-keys'),
-  prefix?: string(name='prefix'),
-}
-
-model GetServiceResponseBody = {
-  buckets?: {
-    buckets?: [
-      Bucket
-    ](name='Bucket'),
-  }(name='Buckets'),
-  owner?: Owner(name='Owner'),
-}
-
-model GetServiceResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetServiceResponseBody(name='body'),
-}
-
-async function getService(request: GetServiceRequest): GetServiceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getServiceWithOptions(request, headers, runtime);
-}
-
-async function getServiceWithOptions(request: GetServiceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetServiceResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.marker)) {
-    query['marker'] = request.marker;
-  }
-  if (!Util.isUnset(request.maxKeys)) {
-    query['max-keys'] = request.maxKeys;
-  }
-  if (!Util.isUnset(request.prefix)) {
-    query['prefix'] = request.prefix;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetService',
-    version = '2019-05-17',
-    protocol = 'HTTPS',
-    pathname = `/`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'xml',
-    bodyType = 'xml',  };
-  return execute(params, req, runtime);
-}
-
 model GetSymlinkRequest {
   versionId?: string(name='versionId'),
 }
@@ -2703,7 +2671,7 @@ async function getSymlinkWithOptions(bucket: string, key: string, request: GetSy
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -2841,15 +2809,10 @@ async function initiateBucketWormWithOptions(bucket: string, request: InitiateBu
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.initiateWormConfiguration)) {
-    body['InitiateWormConfiguration'] = request.initiateWormConfiguration;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.initiateWormConfiguration),
   };
   var params = new OpenApi.Params{
     action = 'InitiateBucketWorm',
@@ -2860,7 +2823,7 @@ async function initiateBucketWormWithOptions(bucket: string, request: InitiateBu
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -3025,7 +2988,12 @@ model ListBucketsResponseBody = {
       Bucket
     ](name='Bucket'),
   }(name='Buckets'),
+  isTruncated?: boolean(name='IsTruncated'),
+  marker?: string(name='Marker'),
+  maxKeys?: long(name='MaxKeys'),
+  nextMarker?: string(name='NextMarker'),
   owner?: Owner(name='Owner'),
+  prefix?: string(name='Prefix'),
 }
 
 model ListBucketsResponse = {
@@ -3132,21 +3100,26 @@ async function listLiveChannelWithOptions(bucket: string, request: ListLiveChann
 
 model ListMultipartUploadsRequest {
   delimiter?: string(name='delimiter'),
-  encodingType?: string(name='encoding-type'),
+  encodingType?:   string(name='encoding-type'),
   keyMarker?: string(name='key-marker'),
-  maxUploads?: string(name='max-uploads'),
+  maxUploads?: long(name='max-uploads'),
   prefix?: string(name='prefix'),
   uploadIdMarker?: string(name='upload-id-marker'),
 }
 
 model ListMultipartUploadsResponseBody = {
   bucket?: string(name='Bucket'),
+  commonPrefixes?: [
+    CommonPrefix
+  ](name='CommonPrefixes'),
+  delimiter?: string(name='Delimiter'),
   encodingType?: string(name='EncodingType'),
   isTruncated?: boolean(name='IsTruncated'),
   keyMarker?: string(name='KeyMarker'),
   maxUploads?: long(name='MaxUploads'),
   nextKeyMarker?: string(name='NextKeyMarker'),
-  nextUploadMarker?: string(name='NextUploadMarker'),
+  nextUploadIdMarker?: string(name='NextUploadIdMarker'),
+  prefix?: string(name='Prefix'),
   uploads?: [
     Upload
   ](name='Upload'),
@@ -3577,7 +3550,7 @@ async function optionObjectWithOptions(bucket: string, key: string, headers: Opt
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -3608,7 +3581,7 @@ async function postObjectWithOptions(bucket: string, headers: map[string]string,
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'none',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -3656,7 +3629,7 @@ async function postVodPlaylistWithOptions(bucket: string, channel: string, playl
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -3684,11 +3657,6 @@ async function putBucketWithOptions(bucket: string, request: PutBucketRequest, h
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.createBucketConfiguration)) {
-    body['CreateBucketConfiguration'] = request.createBucketConfiguration;
-  }
-
   var realHeaders : map[string]string = {};
   if (!Util.isUnset(headers.commonHeaders)) {
     realHeaders = headers.commonHeaders;
@@ -3699,7 +3667,7 @@ async function putBucketWithOptions(bucket: string, request: PutBucketRequest, h
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = realHeaders,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.createBucketConfiguration),
   };
   var params = new OpenApi.Params{
     action = 'PutBucket',
@@ -3710,7 +3678,7 @@ async function putBucketWithOptions(bucket: string, request: PutBucketRequest, h
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -3753,7 +3721,7 @@ async function putBucketAclWithOptions(bucket: string, headers: PutBucketAclHead
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -3776,15 +3744,10 @@ async function putBucketCorsWithOptions(bucket: string, request: PutBucketCorsRe
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.cORSConfiguration)) {
-    body['CORSConfiguration'] = request.cORSConfiguration;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.cORSConfiguration),
   };
   var params = new OpenApi.Params{
     action = 'PutBucketCors',
@@ -3795,7 +3758,7 @@ async function putBucketCorsWithOptions(bucket: string, request: PutBucketCorsRe
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -3818,15 +3781,10 @@ async function putBucketEncryptionWithOptions(bucket: string, request: PutBucket
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.serverSideEncryptionRule)) {
-    body['ServerSideEncryptionRule'] = request.serverSideEncryptionRule;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.serverSideEncryptionRule),
   };
   var params = new OpenApi.Params{
     action = 'PutBucketEncryption',
@@ -3837,7 +3795,7 @@ async function putBucketEncryptionWithOptions(bucket: string, request: PutBucket
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -3866,16 +3824,11 @@ async function putBucketInventoryWithOptions(bucket: string, request: PutBucketI
     query['inventoryId'] = request.inventoryId;
   }
 
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.inventoryConfiguration)) {
-    body['InventoryConfiguration'] = request.inventoryConfiguration;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
     query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.inventoryConfiguration),
   };
   var params = new OpenApi.Params{
     action = 'PutBucketInventory',
@@ -3886,7 +3839,7 @@ async function putBucketInventoryWithOptions(bucket: string, request: PutBucketI
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -3909,15 +3862,10 @@ async function putBucketLifecycleWithOptions(bucket: string, request: PutBucketL
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.lifecycleConfiguration)) {
-    body['LifecycleConfiguration'] = request.lifecycleConfiguration;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.lifecycleConfiguration),
   };
   var params = new OpenApi.Params{
     action = 'PutBucketLifecycle',
@@ -3928,7 +3876,7 @@ async function putBucketLifecycleWithOptions(bucket: string, request: PutBucketL
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -3951,15 +3899,10 @@ async function putBucketLoggingWithOptions(bucket: string, request: PutBucketLog
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.bucketLoggingStatus)) {
-    body['BucketLoggingStatus'] = request.bucketLoggingStatus;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.bucketLoggingStatus),
   };
   var params = new OpenApi.Params{
     action = 'PutBucketLogging',
@@ -3970,7 +3913,7 @@ async function putBucketLoggingWithOptions(bucket: string, request: PutBucketLog
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -4007,7 +3950,7 @@ async function putBucketPolicyWithOptions(bucket: string, request: PutBucketPoli
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
-    bodyType = 'none',
+    bodyType = 'json',
   };
   return execute(params, req, runtime);
 }
@@ -4030,15 +3973,10 @@ async function putBucketRefererWithOptions(bucket: string, request: PutBucketRef
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.refererConfiguration)) {
-    body['RefererConfiguration'] = request.refererConfiguration;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.refererConfiguration),
   };
   var params = new OpenApi.Params{
     action = 'PutBucketReferer',
@@ -4049,7 +3987,7 @@ async function putBucketRefererWithOptions(bucket: string, request: PutBucketRef
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -4072,15 +4010,10 @@ async function putBucketReplicationWithOptions(bucket: string, request: PutBucke
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.replicationConfiguration)) {
-    body['ReplicationConfiguration'] = request.replicationConfiguration;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.replicationConfiguration),
   };
   var params = new OpenApi.Params{
     action = 'PutBucketReplication',
@@ -4091,7 +4024,7 @@ async function putBucketReplicationWithOptions(bucket: string, request: PutBucke
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -4114,15 +4047,10 @@ async function putBucketRequestPaymentWithOptions(bucket: string, request: PutBu
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.requestPaymentConfiguration)) {
-    body['RequestPaymentConfiguration'] = request.requestPaymentConfiguration;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.requestPaymentConfiguration),
   };
   var params = new OpenApi.Params{
     action = 'PutBucketRequestPayment',
@@ -4133,7 +4061,7 @@ async function putBucketRequestPaymentWithOptions(bucket: string, request: PutBu
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -4156,15 +4084,10 @@ async function putBucketTagsWithOptions(bucket: string, request: PutBucketTagsRe
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.tagging)) {
-    body['Tagging'] = request.tagging;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.tagging),
   };
   var params = new OpenApi.Params{
     action = 'PutBucketTags',
@@ -4175,7 +4098,7 @@ async function putBucketTagsWithOptions(bucket: string, request: PutBucketTagsRe
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -4198,15 +4121,10 @@ async function putBucketTransferAccelerationWithOptions(bucket: string, request:
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.transferAccelerationConfiguration)) {
-    body['TransferAccelerationConfiguration'] = request.transferAccelerationConfiguration;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.transferAccelerationConfiguration),
   };
   var params = new OpenApi.Params{
     action = 'PutBucketTransferAcceleration',
@@ -4217,7 +4135,7 @@ async function putBucketTransferAccelerationWithOptions(bucket: string, request:
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -4240,15 +4158,10 @@ async function putBucketVersioningWithOptions(bucket: string, request: PutBucket
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.versioningConfiguration)) {
-    body['VersioningConfiguration'] = request.versioningConfiguration;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.versioningConfiguration),
   };
   var params = new OpenApi.Params{
     action = 'PutBucketVersioning',
@@ -4259,7 +4172,7 @@ async function putBucketVersioningWithOptions(bucket: string, request: PutBucket
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -4282,15 +4195,10 @@ async function putBucketWebsiteWithOptions(bucket: string, request: PutBucketWeb
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.websiteConfiguration)) {
-    body['WebsiteConfiguration'] = request.websiteConfiguration;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.websiteConfiguration),
   };
   var params = new OpenApi.Params{
     action = 'PutBucketWebsite',
@@ -4301,7 +4209,7 @@ async function putBucketWebsiteWithOptions(bucket: string, request: PutBucketWeb
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -4331,15 +4239,10 @@ async function putLiveChannelWithOptions(bucket: string, channel: string, reques
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
   channel = OpenApiUtil.getEncodeParam(channel);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.liveChannelConfiguration)) {
-    body['LiveChannelConfiguration'] = request.liveChannelConfiguration;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.liveChannelConfiguration),
   };
   var params = new OpenApi.Params{
     action = 'PutLiveChannel',
@@ -4392,7 +4295,7 @@ async function putLiveChannelStatusWithOptions(bucket: string, channel: string, 
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -4526,7 +4429,7 @@ async function putObjectAclWithOptions(bucket: string, key: string, request: Put
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -4556,16 +4459,11 @@ async function putObjectTaggingWithOptions(bucket: string, key: string, request:
     query['versionId'] = request.versionId;
   }
 
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.tagging)) {
-    body['Tagging'] = request.tagging;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
     query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.tagging),
   };
   var params = new OpenApi.Params{
     action = 'PutObjectTagging',
@@ -4576,7 +4474,7 @@ async function putObjectTaggingWithOptions(bucket: string, key: string, request:
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -4632,13 +4530,13 @@ async function putSymlinkWithOptions(bucket: string, key: string, headers: PutSy
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
 
 model RestoreObjectRequest {
-  body?: RestoreRequest(name='body'),
+  restoreRequest?: RestoreRequest(name='RestoreRequest'),
   versionId?: string(name='versionId'),
 }
 
@@ -4662,16 +4560,11 @@ async function restoreObjectWithOptions(bucket: string, key: string, request: Re
     query['versionId'] = request.versionId;
   }
 
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.body)) {
-    body['body'] = request.body;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
     query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.restoreRequest),
   };
   var params = new OpenApi.Params{
     action = 'RestoreObject',
@@ -4682,7 +4575,7 @@ async function restoreObjectWithOptions(bucket: string, key: string, request: Re
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'xml',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -4707,15 +4600,10 @@ async function selectObjectWithOptions(bucket: string, key: string, request: Sel
   var hostMap : map[string]string = {};
   hostMap['bucket'] = bucket;
   key = OpenApiUtil.getEncodeParam(key);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.selectRequest)) {
-    body['SelectRequest'] = request.selectRequest;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.selectRequest),
   };
   var params = new OpenApi.Params{
     action = 'SelectObject',
@@ -4776,7 +4664,7 @@ async function uploadPartWithOptions(bucket: string, key: string, request: Uploa
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'binary',
-    bodyType = 'none',
+    bodyType = 'xml',
   };
   return execute(params, req, runtime);
 }
@@ -4792,7 +4680,7 @@ model UploadPartCopyHeaders {
 }
 
 model UploadPartCopyRequest {
-  partNumber?: string(name='partNumber'),
+  partNumber?: long(name='partNumber'),
   uploadId?: string(name='uploadId'),
 }
 
