@@ -13,6 +13,7 @@ import EndpointUtil;
 
 extends OpenApi;
 
+
 init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
@@ -25,26 +26,26 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   if (!Util.empty(endpoint)) {
     return endpoint;
   }
-
+  
   if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+
 model GetAsyncJobResultRequest {
-  async?: boolean(name='Async'),
   jobId?: string(name='JobId'),
 }
 
 model GetAsyncJobResultResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
-    status?: string(name='Status'),
-    errorMessage?: string(name='ErrorMessage'),
-    result?: string(name='Result'),
     errorCode?: string(name='ErrorCode'),
+    errorMessage?: string(name='ErrorMessage'),
     jobId?: string(name='JobId'),
+    result?: string(name='Result'),
+    status?: string(name='Status'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model GetAsyncJobResultResponse = {
@@ -54,10 +55,25 @@ model GetAsyncJobResultResponse = {
 
 async function getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
   Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.jobId)) {
+    body['JobId'] = request.jobId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('GetAsyncJobResult', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetAsyncJobResult',
+    version = '2020-03-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getAsyncJobResult(request: GetAsyncJobResultRequest): GetAsyncJobResultResponse {
@@ -67,19 +83,17 @@ async function getAsyncJobResult(request: GetAsyncJobResultRequest): GetAsyncJob
 
 model SegmentGreenScreenVideoRequest {
   videoURL?: string(name='VideoURL', description='A short description of struct'),
-  async?: boolean(name='Async'),
 }
 
 model SegmentGreenScreenVideoAdvanceRequest {
   videoURLObject: readable(name='VideoURLObject'),
-  async?: boolean(name='Async'),
 }
 
 model SegmentGreenScreenVideoResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
   data?: {
     videoURL?: string(name='VideoURL'),
   }(name='Data'),
+  requestId?: string(name='RequestId', description='Id of the request'),
 }
 
 model SegmentGreenScreenVideoResponse = {
@@ -89,10 +103,25 @@ model SegmentGreenScreenVideoResponse = {
 
 async function segmentGreenScreenVideoWithOptions(request: SegmentGreenScreenVideoRequest, runtime: Util.RuntimeOptions): SegmentGreenScreenVideoResponse {
   Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.videoURL)) {
+    body['VideoURL'] = request.videoURL;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('SegmentGreenScreenVideo', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'SegmentGreenScreenVideo',
+    version = '2020-03-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function segmentGreenScreenVideo(request: SegmentGreenScreenVideoRequest): SegmentGreenScreenVideoResponse {
@@ -104,11 +133,21 @@ async function segmentGreenScreenVideoAdvance(request: SegmentGreenScreenVideoAd
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
   var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
     protocol = @protocol,
     regionId = @regionId,
   };
@@ -134,49 +173,49 @@ async function segmentGreenScreenVideoAdvance(request: SegmentGreenScreenVideoAd
   var segmentGreenScreenVideoReq = new SegmentGreenScreenVideoRequest{};
   OpenApiUtil.convert(request, segmentGreenScreenVideoReq);
 
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
+  if(!Util.isUnset(request.videoURLObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
 
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.videoURLObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  segmentGreenScreenVideoReq.videoURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.videoURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    segmentGreenScreenVideoReq.videoURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
   var segmentGreenScreenVideoResp = segmentGreenScreenVideoWithOptions(segmentGreenScreenVideoReq, runtime);
   return segmentGreenScreenVideoResp;
 }
 
 model SegmentHalfBodyRequest {
   videoUrl?: string(name='VideoUrl'),
-  async?: boolean(name='Async'),
 }
 
 model SegmentHalfBodyAdvanceRequest {
   videoUrlObject: readable(name='VideoUrlObject'),
-  async?: boolean(name='Async'),
 }
 
 model SegmentHalfBodyResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     videoUrl?: string(name='VideoUrl'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model SegmentHalfBodyResponse = {
@@ -186,10 +225,25 @@ model SegmentHalfBodyResponse = {
 
 async function segmentHalfBodyWithOptions(request: SegmentHalfBodyRequest, runtime: Util.RuntimeOptions): SegmentHalfBodyResponse {
   Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.videoUrl)) {
+    body['VideoUrl'] = request.videoUrl;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('SegmentHalfBody', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'SegmentHalfBody',
+    version = '2020-03-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function segmentHalfBody(request: SegmentHalfBodyRequest): SegmentHalfBodyResponse {
@@ -201,11 +255,21 @@ async function segmentHalfBodyAdvance(request: SegmentHalfBodyAdvanceRequest, ru
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
   var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
     protocol = @protocol,
     regionId = @regionId,
   };
@@ -231,49 +295,49 @@ async function segmentHalfBodyAdvance(request: SegmentHalfBodyAdvanceRequest, ru
   var segmentHalfBodyReq = new SegmentHalfBodyRequest{};
   OpenApiUtil.convert(request, segmentHalfBodyReq);
 
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
+  if(!Util.isUnset(request.videoUrlObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
 
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.videoUrlObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  segmentHalfBodyReq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.videoUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    segmentHalfBodyReq.videoUrl =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
   var segmentHalfBodyResp = segmentHalfBodyWithOptions(segmentHalfBodyReq, runtime);
   return segmentHalfBodyResp;
 }
 
 model SegmentVideoBodyRequest {
   videoUrl?: string(name='VideoUrl'),
-  async?: boolean(name='Async'),
 }
 
 model SegmentVideoBodyAdvanceRequest {
   videoUrlObject: readable(name='VideoUrlObject'),
-  async?: boolean(name='Async'),
 }
 
 model SegmentVideoBodyResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     videoUrl?: string(name='VideoUrl'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model SegmentVideoBodyResponse = {
@@ -283,10 +347,25 @@ model SegmentVideoBodyResponse = {
 
 async function segmentVideoBodyWithOptions(request: SegmentVideoBodyRequest, runtime: Util.RuntimeOptions): SegmentVideoBodyResponse {
   Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.videoUrl)) {
+    body['VideoUrl'] = request.videoUrl;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('SegmentVideoBody', '2020-03-20', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'SegmentVideoBody',
+    version = '2020-03-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function segmentVideoBody(request: SegmentVideoBodyRequest): SegmentVideoBodyResponse {
@@ -298,11 +377,21 @@ async function segmentVideoBodyAdvance(request: SegmentVideoBodyAdvanceRequest, 
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
   var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
     protocol = @protocol,
     regionId = @regionId,
   };
@@ -328,30 +417,32 @@ async function segmentVideoBodyAdvance(request: SegmentVideoBodyAdvanceRequest, 
   var segmentVideoBodyReq = new SegmentVideoBodyRequest{};
   OpenApiUtil.convert(request, segmentVideoBodyReq);
 
-  authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-  ossConfig.accessKeyId = authResponse.accessKeyId;
-  ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
-  ossClient = new OSS(ossConfig);
+  if(!Util.isUnset(request.videoUrlObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
 
-  fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.videoUrlObject,
-    contentType = '',
-  };
-  ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  ossClient.postObject(uploadRequest, ossRuntime);
-  segmentVideoBodyReq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.videoUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    segmentVideoBodyReq.videoUrl =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
   var segmentVideoBodyResp = segmentVideoBodyWithOptions(segmentVideoBodyReq, runtime);
   return segmentVideoBodyResp;
 }
