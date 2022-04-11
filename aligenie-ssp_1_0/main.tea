@@ -8,6 +8,7 @@ import EndpointUtil;
 
 extends OpenApi;
 
+
 init(config: OpenApi.Config){
   super(config);
   @endpointRule = '';
@@ -20,12 +21,96 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   if (!Util.empty(endpoint)) {
     return endpoint;
   }
-
+  
   if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+
+model GetDeviceBasicInfoHeaders {
+  commonHeaders?: map[string]string,
+  xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
+  authorization?: string(name='Authorization'),
+}
+
+model GetDeviceBasicInfoRequest {
+  deviceInfo?: {
+    encodeKey?: string(name='EncodeKey', description='编码类型对应的值，此处填写天猫精灵AI平台中，该产品ProductKey所在项目的Project ID。'),
+    encodeType?: string(name='EncodeType', description='编码类型，此处填写“PROJECT_ID”'),
+    id?: string(name='Id', description='设备标识（deviceOpenId或deviceUnionId）'),
+    idType?: string(name='IdType', description='设备Id的类型  - OPEN_ID：默认的设备ID标识 - UNION_ID: 组织维度的设备ID标识，在开放平台申请过组织后才会有'),
+    organizationId?: string(name='OrganizationId', description='组织ID，如果IdType为UNION_ID时必填'),
+  }(name='DeviceInfo', description='设备标识信息'),
+}
+
+model GetDeviceBasicInfoShrinkRequest {
+  deviceInfoShrink?: string(name='DeviceInfo', description='设备标识信息'),
+}
+
+model GetDeviceBasicInfoResponseBody = {
+  code?: int32(name='Code', description='返回的错误码'),
+  message?: string(name='Message', description='返回的错误信息'),
+  requestId?: string(name='RequestId', description='请求id'),
+  result?: {
+    firmwareVersion?: string(name='FirmwareVersion', description='固件版本'),
+    mac?: string(name='Mac', description='设备MAC地址'),
+    name?: string(name='Name', description='设备名称'),
+    sn?: string(name='Sn', description='设备SN'),
+  }(name='Result', description='返回result'),
+}
+
+model GetDeviceBasicInfoResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetDeviceBasicInfoResponseBody(name='body'),
+}
+
+async function getDeviceBasicInfo(request: GetDeviceBasicInfoRequest): GetDeviceBasicInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new GetDeviceBasicInfoHeaders{};
+  return getDeviceBasicInfoWithOptions(request, headers, runtime);
+}
+
+async function getDeviceBasicInfoWithOptions(tmpReq: GetDeviceBasicInfoRequest, headers: GetDeviceBasicInfoHeaders, runtime: Util.RuntimeOptions): GetDeviceBasicInfoResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetDeviceBasicInfoShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.deviceInfo)) {
+    request.deviceInfoShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.deviceInfo, 'DeviceInfo', 'json');
+  }
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.deviceInfoShrink)) {
+    query['DeviceInfo'] = request.deviceInfoShrink;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xAcsAligenieAccessToken)) {
+    realHeaders['x-acs-aligenie-access-token'] = Util.toJSONString(headers.xAcsAligenieAccessToken);
+  }
+  if (!Util.isUnset(headers.authorization)) {
+    realHeaders['Authorization'] = Util.toJSONString(headers.authorization);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetDeviceBasicInfo',
+    version = 'ssp_1.0',
+    protocol = 'HTTPS',
+    pathname = `/v1.0/ssp/getDeviceBasicInfo`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
 model GetDeviceIdByIdentityHeaders {
   commonHeaders?: map[string]string,
   xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
@@ -33,18 +118,26 @@ model GetDeviceIdByIdentityHeaders {
 }
 
 model GetDeviceIdByIdentityRequest {
-  identityType?: string(name='IdentityType', description='认证类型，MAC/SN'),
-  encodeType?: string(name='EncodeType', description='编码类型'),
-  identityId?: string(name='IdentityId', description='认证标识，具体的MAC地址或者SN号'),
-  productKey?: string(name='ProductKey', description='产品productKey'),
-  encodeKey?: string(name='EncodeKey', description='编码Key'),
+  encodeKey?: string(name='EncodeKey', description='编码类型对应的值，此处填写天猫精灵AI平台中，该产品ProductKey所在项目的Project ID。'),
+  encodeType?: string(name='EncodeType', description='编码类型，此处填写“PROJECT_ID”'),
+  identityId?: string(name='IdentityId', description='认证标识，填写MAC地址或者SN的值。'),
+  identityType?: string(name='IdentityType', description='填写设备认证类型，“MAC”或者“SN”'),
+  productKey?: string(name='ProductKey', description='产品唯一标志符productKey，在天猫精灵AI平台中创建产品时，平台颁发的全局唯一标识。'),
 }
 
 model GetDeviceIdByIdentityResponseBody = {
-  message?: string(name='Message', description='message'),
-  code?: int32(name='Code', description='code'),
-  result?: string(name='Result', description='result'),
-  requestId?: string(name='RequestId'),
+  code?: int32(name='Code', description='返回的错误码'),
+  message?: string(name='Message', description='返回的错误信息'),
+  requestId?: string(name='RequestId', description='请求ID，用于排查问题，如果没有这个参数，可以在responseHeader里进行排查。'),
+  result?: {
+    deviceOpenId?: string(name='DeviceOpenId', description='设备信息对应的openId'),
+    deviceUnionIds?: [ 
+      {
+        deviceUnionId?: string(name='DeviceUnionId', description='组织id对应的归一id'),
+        organizationId?: string(name='OrganizationId', description='组织id'),
+      }
+    ](name='DeviceUnionIds', description='组织id及归一id列表'),
+  }(name='Result', description='返回result'),
 }
 
 model GetDeviceIdByIdentityResponse = {
@@ -61,20 +154,20 @@ async function getDeviceIdByIdentity(request: GetDeviceIdByIdentityRequest): Get
 async function getDeviceIdByIdentityWithOptions(request: GetDeviceIdByIdentityRequest, headers: GetDeviceIdByIdentityHeaders, runtime: Util.RuntimeOptions): GetDeviceIdByIdentityResponse {
   Util.validateModel(request);
   var query : map[string]any= {};
-  if (!Util.isUnset(request.identityType)) {
-    query.IdentityType = request.identityType;
+  if (!Util.isUnset(request.encodeKey)) {
+    query['EncodeKey'] = request.encodeKey;
   }
   if (!Util.isUnset(request.encodeType)) {
-    query.EncodeType = request.encodeType;
+    query['EncodeType'] = request.encodeType;
   }
   if (!Util.isUnset(request.identityId)) {
-    query.IdentityId = request.identityId;
+    query['IdentityId'] = request.identityId;
+  }
+  if (!Util.isUnset(request.identityType)) {
+    query['IdentityType'] = request.identityType;
   }
   if (!Util.isUnset(request.productKey)) {
-    query.ProductKey = request.productKey;
-  }
-  if (!Util.isUnset(request.encodeKey)) {
-    query.EncodeKey = request.encodeKey;
+    query['ProductKey'] = request.productKey;
   }
 
   var realHeaders : map[string]string = {};
@@ -82,15 +175,722 @@ async function getDeviceIdByIdentityWithOptions(request: GetDeviceIdByIdentityRe
     realHeaders = headers.commonHeaders;
   }
   if (!Util.isUnset(headers.xAcsAligenieAccessToken)) {
-    realHeaders.x-acs-aligenie-access-token = headers.xAcsAligenieAccessToken;
+    realHeaders['x-acs-aligenie-access-token'] = Util.toJSONString(headers.xAcsAligenieAccessToken);
   }
   if (!Util.isUnset(headers.authorization)) {
-    realHeaders.Authorization = headers.authorization;
+    realHeaders['Authorization'] = Util.toJSONString(headers.authorization);
   }
   var req = new OpenApi.OpenApiRequest{ 
     headers = realHeaders,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('GetDeviceIdByIdentity', 'ssp_1.0', 'HTTPS', 'GET', 'AK', `/getDeviceIdByIdentity`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetDeviceIdByIdentity',
+    version = 'ssp_1.0',
+    protocol = 'HTTPS',
+    pathname = `/v1.0/ssp/getDeviceIdByIdentity`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model GetDeviceIdentityHeaders {
+  commonHeaders?: map[string]string,
+  xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
+  authorization?: string(name='Authorization'),
+}
+
+model GetDeviceIdentityRequest {
+  deviceInfo?: {
+    encodeKey?: string(name='EncodeKey', description='编码类型对应的值，此处填写天猫精灵AI平台中，该产品ProductKey所在项目的Project ID。'),
+    encodeType?: string(name='EncodeType', description='编码类型，此处填写“PROJECT_ID”'),
+    id?: string(name='Id', description='设备标识（deviceOpenId或deviceUnionId）'),
+    idType?: string(name='IdType', description='设备Id的类型  - OPEN_ID：默认的设备ID标识 - UNION_ID: 组织维度的设备ID标识，在开放平台申请过组织后才会有'),
+    organizationId?: string(name='OrganizationId', description='组织ID，如果IdType为UNION_ID时必填'),
+  }(name='DeviceInfo', description='设备标识信息'),
+}
+
+model GetDeviceIdentityShrinkRequest {
+  deviceInfoShrink?: string(name='DeviceInfo', description='设备标识信息'),
+}
+
+model GetDeviceIdentityResponseBody = {
+  code?: int32(name='Code', description='返回的错误码'),
+  message?: string(name='Message', description='返回的错误信息'),
+  requestId?: string(name='RequestId', description='请求id'),
+  result?: {
+    firmwareVersion?: string(name='FirmwareVersion', description='固件版本'),
+    name?: string(name='Name', description='设备名称'),
+  }(name='Result', description='返回result'),
+}
+
+model GetDeviceIdentityResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetDeviceIdentityResponseBody(name='body'),
+}
+
+async function getDeviceIdentity(request: GetDeviceIdentityRequest): GetDeviceIdentityResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new GetDeviceIdentityHeaders{};
+  return getDeviceIdentityWithOptions(request, headers, runtime);
+}
+
+async function getDeviceIdentityWithOptions(tmpReq: GetDeviceIdentityRequest, headers: GetDeviceIdentityHeaders, runtime: Util.RuntimeOptions): GetDeviceIdentityResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetDeviceIdentityShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.deviceInfo)) {
+    request.deviceInfoShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.deviceInfo, 'DeviceInfo', 'json');
+  }
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.deviceInfoShrink)) {
+    query['DeviceInfo'] = request.deviceInfoShrink;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xAcsAligenieAccessToken)) {
+    realHeaders['x-acs-aligenie-access-token'] = Util.toJSONString(headers.xAcsAligenieAccessToken);
+  }
+  if (!Util.isUnset(headers.authorization)) {
+    realHeaders['Authorization'] = Util.toJSONString(headers.authorization);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetDeviceIdentity',
+    version = 'ssp_1.0',
+    protocol = 'HTTPS',
+    pathname = `/v1.0/ssp/getDeviceIdentity`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model GetDeviceStatusInfoHeaders {
+  commonHeaders?: map[string]string,
+  xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
+  authorization?: string(name='Authorization'),
+}
+
+model GetDeviceStatusInfoRequest {
+  deviceInfo?: {
+    encodeKey?: string(name='EncodeKey', description='编码类型对应的值，此处填写天猫精灵AI平台中，该产品ProductKey所在项目的Project ID。'),
+    encodeType?: string(name='EncodeType', description='编码类型，此处填写“PROJECT_ID”'),
+    id?: string(name='Id', description='设备标识（deviceOpenId或deviceUnionId）'),
+    idType?: string(name='IdType', description='设备Id的类型  - OPEN_ID：默认的设备ID标识 - UNION_ID: 组织维度的设备ID标识，在开放平台申请过组织后才会有'),
+    organizationId?: string(name='OrganizationId', description='组织ID，如果IdType为UNION_ID时必填'),
+  }(name='DeviceInfo', description='设备标识信息'),
+}
+
+model GetDeviceStatusInfoShrinkRequest {
+  deviceInfoShrink?: string(name='DeviceInfo', description='设备标识信息'),
+}
+
+model GetDeviceStatusInfoResponseBody = {
+  code?: int32(name='Code', description='返回的错误码'),
+  message?: string(name='Message', description='返回的错误信息'),
+  requestId?: string(name='RequestId', description='请求id'),
+  result?: {
+    online?: int32(name='Online', description='是否在线，0为不在线，1为在线'),
+  }(name='Result', description='返回result'),
+}
+
+model GetDeviceStatusInfoResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetDeviceStatusInfoResponseBody(name='body'),
+}
+
+async function getDeviceStatusInfo(request: GetDeviceStatusInfoRequest): GetDeviceStatusInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new GetDeviceStatusInfoHeaders{};
+  return getDeviceStatusInfoWithOptions(request, headers, runtime);
+}
+
+async function getDeviceStatusInfoWithOptions(tmpReq: GetDeviceStatusInfoRequest, headers: GetDeviceStatusInfoHeaders, runtime: Util.RuntimeOptions): GetDeviceStatusInfoResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetDeviceStatusInfoShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.deviceInfo)) {
+    request.deviceInfoShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.deviceInfo, 'DeviceInfo', 'json');
+  }
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.deviceInfoShrink)) {
+    query['DeviceInfo'] = request.deviceInfoShrink;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xAcsAligenieAccessToken)) {
+    realHeaders['x-acs-aligenie-access-token'] = Util.toJSONString(headers.xAcsAligenieAccessToken);
+  }
+  if (!Util.isUnset(headers.authorization)) {
+    realHeaders['Authorization'] = Util.toJSONString(headers.authorization);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetDeviceStatusInfo',
+    version = 'ssp_1.0',
+    protocol = 'HTTPS',
+    pathname = `/v1.0/ssp/getDeviceStatusInfo`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model GetDeviceTagHeaders {
+  commonHeaders?: map[string]string,
+  xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
+  authorization?: string(name='Authorization'),
+}
+
+model GetDeviceTagRequest {
+  deviceInfo?: {
+    encodeKey?: string(name='EncodeKey', description='编码类型对应的值，此处填写天猫精灵AI平台中，该产品ProductKey所在项目的Project ID。'),
+    encodeType?: string(name='EncodeType', description='编码类型，此处填写“PROJECT_ID”'),
+    id?: string(name='Id', description='设备标识（deviceOpenId或deviceUnionId）'),
+    idType?: string(name='IdType', description='设备Id的类型  - OPEN_ID：默认的设备ID标识 - UNION_ID: 组织维度的设备ID标识，在开放平台申请过组织后才会有'),
+    organizationId?: string(name='OrganizationId', description='组织ID，如果IdType为UNION_ID时必填'),
+  }(name='DeviceInfo', description='设备标识信息'),
+}
+
+model GetDeviceTagShrinkRequest {
+  deviceInfoShrink?: string(name='DeviceInfo', description='设备标识信息'),
+}
+
+model GetDeviceTagResponseBody = {
+  code?: int32(name='Code', description='返回的错误码'),
+  message?: string(name='Message', description='返回的错误信息'),
+  requestId?: string(name='RequestId', description='请求id'),
+  result?: {
+    deviceTags?: map[string]any(name='DeviceTags', description='设备标签结果'),
+  }(name='Result', description='返回result'),
+}
+
+model GetDeviceTagResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetDeviceTagResponseBody(name='body'),
+}
+
+async function getDeviceTag(request: GetDeviceTagRequest): GetDeviceTagResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new GetDeviceTagHeaders{};
+  return getDeviceTagWithOptions(request, headers, runtime);
+}
+
+async function getDeviceTagWithOptions(tmpReq: GetDeviceTagRequest, headers: GetDeviceTagHeaders, runtime: Util.RuntimeOptions): GetDeviceTagResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetDeviceTagShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.deviceInfo)) {
+    request.deviceInfoShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.deviceInfo, 'DeviceInfo', 'json');
+  }
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.deviceInfoShrink)) {
+    query['DeviceInfo'] = request.deviceInfoShrink;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xAcsAligenieAccessToken)) {
+    realHeaders['x-acs-aligenie-access-token'] = Util.toJSONString(headers.xAcsAligenieAccessToken);
+  }
+  if (!Util.isUnset(headers.authorization)) {
+    realHeaders['Authorization'] = Util.toJSONString(headers.authorization);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetDeviceTag',
+    version = 'ssp_1.0',
+    protocol = 'HTTPS',
+    pathname = `/v1.0/ssp/getDeviceTag`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model GetUserByDeviceIdHeaders {
+  commonHeaders?: map[string]string,
+  xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
+  authorization?: string(name='Authorization'),
+}
+
+model GetUserByDeviceIdRequest {
+  deviceInfo?: {
+    encodeKey?: string(name='EncodeKey', description='编码类型对应的值，此处填写天猫精灵AI平台中，该产品ProductKey所在项目的Project ID。'),
+    encodeType?: string(name='EncodeType', description='编码类型，此处填写“PROJECT_ID”'),
+    id?: string(name='Id', description='设备标识（deviceOpenId或deviceUnionId）'),
+    idType?: string(name='IdType', description='设备Id的类型  - OPEN_ID：默认的设备ID标识 - UNION_ID: 组织维度的设备ID标识，在开放平台申请过组织后才会有'),
+    organizationId?: string(name='OrganizationId', description='组织ID，如果IdType为UNION_ID时必填'),
+  }(name='DeviceInfo', description='设备标识信息'),
+}
+
+model GetUserByDeviceIdShrinkRequest {
+  deviceInfoShrink?: string(name='DeviceInfo', description='设备标识信息'),
+}
+
+model GetUserByDeviceIdResponseBody = {
+  code?: int32(name='Code', description='返回的错误码'),
+  message?: string(name='Message', description='返回的错误信息'),
+  requestId?: string(name='RequestId', description='请求id'),
+  result?: {
+    userOpenId?: string(name='UserOpenId', description='用户信息对应的openId'),
+    userUnionIds?: [ 
+      {
+        organizationId?: string(name='OrganizationId', description='组织id'),
+        userUnionId?: string(name='UserUnionId', description='组织id对应的归一id'),
+      }
+    ](name='UserUnionIds', description='组织id及归一id列表'),
+  }(name='Result', description='用户open信息'),
+}
+
+model GetUserByDeviceIdResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetUserByDeviceIdResponseBody(name='body'),
+}
+
+async function getUserByDeviceId(request: GetUserByDeviceIdRequest): GetUserByDeviceIdResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new GetUserByDeviceIdHeaders{};
+  return getUserByDeviceIdWithOptions(request, headers, runtime);
+}
+
+async function getUserByDeviceIdWithOptions(tmpReq: GetUserByDeviceIdRequest, headers: GetUserByDeviceIdHeaders, runtime: Util.RuntimeOptions): GetUserByDeviceIdResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetUserByDeviceIdShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.deviceInfo)) {
+    request.deviceInfoShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.deviceInfo, 'DeviceInfo', 'json');
+  }
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.deviceInfoShrink)) {
+    query['DeviceInfo'] = request.deviceInfoShrink;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xAcsAligenieAccessToken)) {
+    realHeaders['x-acs-aligenie-access-token'] = Util.toJSONString(headers.xAcsAligenieAccessToken);
+  }
+  if (!Util.isUnset(headers.authorization)) {
+    realHeaders['Authorization'] = Util.toJSONString(headers.authorization);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetUserByDeviceId',
+    version = 'ssp_1.0',
+    protocol = 'HTTPS',
+    pathname = `/v1.0/ssp/getUserByDeviceId`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model ListDeviceBasicInfoHeaders {
+  commonHeaders?: map[string]string,
+  xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
+  authorization?: string(name='Authorization'),
+}
+
+model ListDeviceBasicInfoRequest {
+  deviceInfos?: {
+    encodeKey?: string(name='EncodeKey', description='编码类型对应的值，此处填写天猫精灵AI平台中，该产品ProductKey所在项目的Project ID。'),
+    encodeType?: string(name='EncodeType', description='编码类型，此处填写“PROJECT_ID”'),
+    idType?: string(name='IdType', description='设备Id的类型  - OPEN_ID：默认的设备ID标识 - UNION_ID: 组织维度的设备ID标识，在开放平台申请过组织后才会有'),
+    ids?: [ string ](name='Ids', description='设备标识列表（deviceOpenId或deviceUnionId）'),
+    organizationId?: string(name='OrganizationId', description='组织ID，如果IdType为UNION_ID时必填'),
+  }(name='DeviceInfos', description='设备标识信息'),
+}
+
+model ListDeviceBasicInfoShrinkRequest {
+  deviceInfosShrink?: string(name='DeviceInfos', description='设备标识信息'),
+}
+
+model ListDeviceBasicInfoResponseBody = {
+  code?: int32(name='Code', description='返回的错误码'),
+  message?: string(name='Message', description='返回的错误信息'),
+  requestId?: string(name='RequestId', description='请求id'),
+  result?: map[string]ResultValue(name='Result', description='返回result，key为deviceOpenId或deviceUnionId，value为对应的设备信息'),
+}
+
+model ListDeviceBasicInfoResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListDeviceBasicInfoResponseBody(name='body'),
+}
+
+async function listDeviceBasicInfo(request: ListDeviceBasicInfoRequest): ListDeviceBasicInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new ListDeviceBasicInfoHeaders{};
+  return listDeviceBasicInfoWithOptions(request, headers, runtime);
+}
+
+async function listDeviceBasicInfoWithOptions(tmpReq: ListDeviceBasicInfoRequest, headers: ListDeviceBasicInfoHeaders, runtime: Util.RuntimeOptions): ListDeviceBasicInfoResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListDeviceBasicInfoShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.deviceInfos)) {
+    request.deviceInfosShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.deviceInfos, 'DeviceInfos', 'json');
+  }
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.deviceInfosShrink)) {
+    query['DeviceInfos'] = request.deviceInfosShrink;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xAcsAligenieAccessToken)) {
+    realHeaders['x-acs-aligenie-access-token'] = Util.toJSONString(headers.xAcsAligenieAccessToken);
+  }
+  if (!Util.isUnset(headers.authorization)) {
+    realHeaders['Authorization'] = Util.toJSONString(headers.authorization);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListDeviceBasicInfo',
+    version = 'ssp_1.0',
+    protocol = 'HTTPS',
+    pathname = `/v1.0/ssp/listDeviceBasicInfo`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model ListDeviceByUserIdHeaders {
+  commonHeaders?: map[string]string,
+  xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
+  authorization?: string(name='Authorization'),
+}
+
+model ListDeviceByUserIdRequest {
+  userInfo?: {
+    encodeKey?: string(name='EncodeKey', description='编码类型对应的值，此处填写天猫精灵AI平台中，该产品ProductKey所在项目的Project ID。'),
+    encodeType?: string(name='EncodeType', description='编码类型，此处填写“PROJECT_ID”'),
+    id?: string(name='Id', description='用户标识（userOpenId或userUnionId）'),
+    idType?: string(name='IdType', description='用户Id的类型  - OPEN_ID：默认的用户ID标识 - UNION_ID: 组织维度的用户ID标识，在开放平台申请过组织后才会有'),
+    organizationId?: string(name='OrganizationId', description='组织ID，如果IdType为UNION_ID时必填'),
+  }(name='UserInfo', description='用户标识信息'),
+}
+
+model ListDeviceByUserIdShrinkRequest {
+  userInfoShrink?: string(name='UserInfo', description='用户标识信息'),
+}
+
+model ListDeviceByUserIdResponseBody = {
+  code?: int32(name='Code', description='返回的错误码'),
+  message?: string(name='Message', description='返回的错误信息'),
+  requestId?: string(name='RequestId', description='请求id'),
+  result?: [ 
+    {
+      deviceOpenId?: string(name='DeviceOpenId', description='设备信息对应的openId'),
+      deviceUnionIds?: [ 
+        {
+          deviceUnionId?: string(name='DeviceUnionId', description='组织id对应的归一id'),
+          organizationId?: string(name='OrganizationId', description='组织id'),
+        }
+      ](name='DeviceUnionIds', description='组织id及归一id列表'),
+    }
+  ](name='Result', description='返回result'),
+}
+
+model ListDeviceByUserIdResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListDeviceByUserIdResponseBody(name='body'),
+}
+
+async function listDeviceByUserId(request: ListDeviceByUserIdRequest): ListDeviceByUserIdResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new ListDeviceByUserIdHeaders{};
+  return listDeviceByUserIdWithOptions(request, headers, runtime);
+}
+
+async function listDeviceByUserIdWithOptions(tmpReq: ListDeviceByUserIdRequest, headers: ListDeviceByUserIdHeaders, runtime: Util.RuntimeOptions): ListDeviceByUserIdResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListDeviceByUserIdShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.userInfo)) {
+    request.userInfoShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.userInfo, 'UserInfo', 'json');
+  }
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.userInfoShrink)) {
+    query['UserInfo'] = request.userInfoShrink;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xAcsAligenieAccessToken)) {
+    realHeaders['x-acs-aligenie-access-token'] = Util.toJSONString(headers.xAcsAligenieAccessToken);
+  }
+  if (!Util.isUnset(headers.authorization)) {
+    realHeaders['Authorization'] = Util.toJSONString(headers.authorization);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListDeviceByUserId',
+    version = 'ssp_1.0',
+    protocol = 'HTTPS',
+    pathname = `/v1.0/ssp/listDeviceByUserId`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model ListDeviceIdByIdentitiesHeaders {
+  commonHeaders?: map[string]string,
+  xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
+  authorization?: string(name='Authorization'),
+}
+
+model ListDeviceIdByIdentitiesRequest {
+  encodeKey?: string(name='EncodeKey', description='编码类型对应的值，此处填写天猫精灵AI平台中，该产品ProductKey所在项目的Project ID。'),
+  encodeType?: string(name='EncodeType', description='编码类型，此处填写“PROJECT_ID”'),
+  identityIds?: [ string ](name='IdentityIds'),
+  identityType?: string(name='IdentityType', description='填写设备认证类型，“MAC”或者“SN”'),
+  productKey?: string(name='ProductKey', description='产品唯一标志符productKey，在天猫精灵AI平台中创建产品时，平台颁发的全局唯一标识。'),
+}
+
+model ListDeviceIdByIdentitiesShrinkRequest {
+  encodeKey?: string(name='EncodeKey', description='编码类型对应的值，此处填写天猫精灵AI平台中，该产品ProductKey所在项目的Project ID。'),
+  encodeType?: string(name='EncodeType', description='编码类型，此处填写“PROJECT_ID”'),
+  identityIdsShrink?: string(name='IdentityIds'),
+  identityType?: string(name='IdentityType', description='填写设备认证类型，“MAC”或者“SN”'),
+  productKey?: string(name='ProductKey', description='产品唯一标志符productKey，在天猫精灵AI平台中创建产品时，平台颁发的全局唯一标识。'),
+}
+
+model ListDeviceIdByIdentitiesResponseBody = {
+  code?: int32(name='Code', description='返回的错误码'),
+  message?: string(name='Message', description='返回的错误信息'),
+  requestId?: string(name='RequestId', description='请求id'),
+  result?: map[string]ResultValue(name='Result', description='返回result'),
+}
+
+model ListDeviceIdByIdentitiesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListDeviceIdByIdentitiesResponseBody(name='body'),
+}
+
+async function listDeviceIdByIdentities(request: ListDeviceIdByIdentitiesRequest): ListDeviceIdByIdentitiesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new ListDeviceIdByIdentitiesHeaders{};
+  return listDeviceIdByIdentitiesWithOptions(request, headers, runtime);
+}
+
+async function listDeviceIdByIdentitiesWithOptions(tmpReq: ListDeviceIdByIdentitiesRequest, headers: ListDeviceIdByIdentitiesHeaders, runtime: Util.RuntimeOptions): ListDeviceIdByIdentitiesResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListDeviceIdByIdentitiesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.identityIds)) {
+    request.identityIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.identityIds, 'IdentityIds', 'json');
+  }
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.encodeKey)) {
+    query['EncodeKey'] = request.encodeKey;
+  }
+  if (!Util.isUnset(request.encodeType)) {
+    query['EncodeType'] = request.encodeType;
+  }
+  if (!Util.isUnset(request.identityIdsShrink)) {
+    query['IdentityIds'] = request.identityIdsShrink;
+  }
+  if (!Util.isUnset(request.identityType)) {
+    query['IdentityType'] = request.identityType;
+  }
+  if (!Util.isUnset(request.productKey)) {
+    query['ProductKey'] = request.productKey;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xAcsAligenieAccessToken)) {
+    realHeaders['x-acs-aligenie-access-token'] = Util.toJSONString(headers.xAcsAligenieAccessToken);
+  }
+  if (!Util.isUnset(headers.authorization)) {
+    realHeaders['Authorization'] = Util.toJSONString(headers.authorization);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListDeviceIdByIdentities',
+    version = 'ssp_1.0',
+    protocol = 'HTTPS',
+    pathname = `/v1.0/ssp/listDeviceIdByIdentities`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model UnbindDeviceHeaders {
+  commonHeaders?: map[string]string,
+  xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
+  authorization?: string(name='Authorization'),
+}
+
+model UnbindDeviceRequest {
+  deviceInfo?: {
+    encodeKey?: string(name='EncodeKey', description='编码类型对应的值，此处填写天猫精灵AI平台中，该产品ProductKey所在项目的Project ID。'),
+    encodeType?: string(name='EncodeType', description='编码类型，此处填写“PROJECT_ID”'),
+    id?: string(name='Id', description='设备标识（deviceOpenId或deviceUnionId）'),
+    idType?: string(name='IdType', description='设备Id的类型  - OPEN_ID：默认的设备ID标识 - UNION_ID: 组织维度的设备ID标识，在开放平台申请过组织后才会有'),
+    organizationId?: string(name='OrganizationId', description='组织ID，如果IdType为UNION_ID时必填'),
+  }(name='DeviceInfo', description='设备标识信息'),
+  userInfo?: {
+    encodeKey?: string(name='EncodeKey', description='编码类型对应的值，此处填写天猫精灵AI平台中，该产品ProductKey所在项目的Project ID。'),
+    encodeType?: string(name='EncodeType', description='编码类型，此处填写“PROJECT_ID”'),
+    id?: string(name='Id', description='用户标识（userOpenId或userUnionId）'),
+    idType?: string(name='IdType', description='用户Id的类型  - OPEN_ID：默认的用户ID标识 - UNION_ID: 组织维度的用户ID标识，在开放平台申请过组织后才会有'),
+    organizationId?: string(name='OrganizationId', description='组织ID，如果IdType为UNION_ID时必填'),
+  }(name='UserInfo', description='用户标识信息'),
+}
+
+model UnbindDeviceShrinkRequest {
+  deviceInfoShrink?: string(name='DeviceInfo', description='设备标识信息'),
+  userInfoShrink?: string(name='UserInfo', description='用户标识信息'),
+}
+
+model UnbindDeviceResponseBody = {
+  code?: int32(name='Code', description='返回的错误码'),
+  message?: string(name='Message', description='返回的错误信息'),
+  requestId?: string(name='RequestId', description='请求id'),
+  result?: boolean(name='Result', description='是否解绑成功'),
+}
+
+model UnbindDeviceResponse = {
+  headers: map[string]string(name='headers'),
+  body: UnbindDeviceResponseBody(name='body'),
+}
+
+async function unbindDevice(request: UnbindDeviceRequest): UnbindDeviceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new UnbindDeviceHeaders{};
+  return unbindDeviceWithOptions(request, headers, runtime);
+}
+
+async function unbindDeviceWithOptions(tmpReq: UnbindDeviceRequest, headers: UnbindDeviceHeaders, runtime: Util.RuntimeOptions): UnbindDeviceResponse {
+  Util.validateModel(tmpReq);
+  var request = new UnbindDeviceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.deviceInfo)) {
+    request.deviceInfoShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.deviceInfo, 'DeviceInfo', 'json');
+  }
+  if (!Util.isUnset(tmpReq.userInfo)) {
+    request.userInfoShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.userInfo, 'UserInfo', 'json');
+  }
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.deviceInfoShrink)) {
+    body['DeviceInfo'] = request.deviceInfoShrink;
+  }
+  if (!Util.isUnset(request.userInfoShrink)) {
+    body['UserInfo'] = request.userInfoShrink;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xAcsAligenieAccessToken)) {
+    realHeaders['x-acs-aligenie-access-token'] = Util.toJSONString(headers.xAcsAligenieAccessToken);
+  }
+  if (!Util.isUnset(headers.authorization)) {
+    realHeaders['Authorization'] = Util.toJSONString(headers.authorization);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UnbindDevice',
+    version = 'ssp_1.0',
+    protocol = 'HTTPS',
+    pathname = `/v1.0/ssp/unbindDevice`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model ResultValue = {
+  deviceOpenId?: string(name='DeviceOpenId', description='设备信息对应的openId'),
+  deviceUnionIds?: [ 
+    {
+      organizationId?: string(name='OrganizationId', description='组织id'),
+      deviceUnionId?: string(name='DeviceUnionId', description='组织id对应的归一id'),
+    }
+  ](name='DeviceUnionIds', description='组织id及归一id列表'),
+  name?: string(name='Name', description='设备名称'),
+  firmwareVersion?: string(name='FirmwareVersion', description='固件版本'),
+  mac?: string(name='Mac', description='设备MAC地址'),
+  sn?: string(name='Sn', description='设备SN'),
+}
+
+model ResultValueValue = {
+  organizationId?: string(name='OrganizationId', description='组织id'),
+  deviceUnionId?: string(name='DeviceUnionId', description='组织id对应的归一id'),
 }
 
