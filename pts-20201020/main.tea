@@ -28,6 +28,56 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model AdjustJMeterSceneSpeedRequest {
+  reportId?: string(name='ReportId', description='报告id'),
+  speed?: int32(name='Speed', description='要调整到的压力值'),
+}
+
+model AdjustJMeterSceneSpeedResponseBody = {
+  code?: string(name='Code'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  reportId?: string(name='ReportId', description='报告ID'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model AdjustJMeterSceneSpeedResponse = {
+  headers: map[string]string(name='headers'),
+  body: AdjustJMeterSceneSpeedResponseBody(name='body'),
+}
+
+async function adjustJMeterSceneSpeedWithOptions(request: AdjustJMeterSceneSpeedRequest, runtime: Util.RuntimeOptions): AdjustJMeterSceneSpeedResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.reportId)) {
+    query['ReportId'] = request.reportId;
+  }
+  if (!Util.isUnset(request.speed)) {
+    query['Speed'] = request.speed;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'AdjustJMeterSceneSpeed',
+    version = '2020-10-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function adjustJMeterSceneSpeed(request: AdjustJMeterSceneSpeedRequest): AdjustJMeterSceneSpeedResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return adjustJMeterSceneSpeedWithOptions(request, runtime);
+}
+
 model CreatePtsSceneRequest {
   scene?: string(name='Scene'),
 }
@@ -265,6 +315,41 @@ async function deletePtsScenesWithOptions(tmpReq: DeletePtsScenesRequest, runtim
 async function deletePtsScenes(request: DeletePtsScenesRequest): DeletePtsScenesResponse {
   var runtime = new Util.RuntimeOptions{};
   return deletePtsScenesWithOptions(request, runtime);
+}
+
+model GetAllRegionsResponseBody = {
+  allRegions?: map[string]string(name='AllRegions'),
+  code?: string(name='Code'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model GetAllRegionsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetAllRegionsResponseBody(name='body'),
+}
+
+async function getAllRegionsWithOptions(runtime: Util.RuntimeOptions): GetAllRegionsResponse {
+  var req = new OpenApi.OpenApiRequest{};
+  var params = new OpenApi.Params{
+    action = 'GetAllRegions',
+    version = '2020-10-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getAllRegions(): GetAllRegionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAllRegionsWithOptions(runtime);
 }
 
 model GetJMeterLogsRequest {
@@ -584,7 +669,7 @@ model GetOpenJMeterSceneResponseBody = {
       remark?: string(name='Remark', description='备注'),
       resource?: string(name='Resource', description='场景来源'),
     }(name='BaseInfo', description='基本信息'),
-    concurrency?: int32(name='Concurrency', description='最大并发'),
+    concurrency?: int32(name='Concurrency', description='最大并发，并发模式下生效'),
     constantThroughputTimerType?: string(name='ConstantThroughputTimerType', description='constantThroughputTimerType'),
     dnsCacheConfig?: {
       clearCacheEachIteration?: boolean(name='ClearCacheEachIteration', description='是否清除缓存'),
@@ -605,11 +690,16 @@ model GetOpenJMeterSceneResponseBody = {
       }
     ](name='FileList', description='文件列表'),
     isVpcTest?: boolean(name='IsVpcTest', description='是否为VPC压测'),
+    maxRps?: int32(name='MaxRps'),
+    mode?: string(name='Mode', description='施压模式，concurrency_mode表示并发压测,tps_mode表示RPS压测'),
+    pool?: string(name='Pool', description='压力来源。“”表示公网，intranet-vpc表示VPC'),
     rampUp?: int32(name='RampUp', description='递增时间，单位s'),
     regionId?: string(name='RegionId', description='VPC压测时配置'),
     sceneId?: string(name='SceneId', description='场景id'),
     sceneName?: string(name='SceneName', description='场景名'),
     securityGroupId?: string(name='SecurityGroupId', description='安全组id，VPC压测时配置'),
+    startConcurrency?: int32(name='StartConcurrency'),
+    startRps?: int32(name='StartRps'),
     steps?: int32(name='Steps', description='递增阶梯数。预热时间和预热阶段数都不配置时 使用固定压力值 只配置预热时间，不配置阶段数时 使用均匀递增 预热时间和阶段数都配置时，并且steps<rampUp 使用阶梯递增 不能只配置steps，不配置rampUp 如果这样配置，默认使用固定压力值'),
     syncTimerType?: string(name='SyncTimerType', description='synchronizing timer 类型'),
     testFile?: string(name='TestFile', description='测试文件'),
@@ -1275,6 +1365,258 @@ async function getPtsSceneRunningStatus(request: GetPtsSceneRunningStatusRequest
   return getPtsSceneRunningStatusWithOptions(request, runtime);
 }
 
+model GetUserVpcSecurityGroupRequest {
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  regionId?: string(name='RegionId'),
+  vpcId?: string(name='VpcId'),
+}
+
+model GetUserVpcSecurityGroupResponseBody = {
+  code?: string(name='Code'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  securityGroupCount?: int32(name='SecurityGroupCount'),
+  securityGroupList?: [ 
+    {
+      availableInstanceAmount?: int32(name='AvailableInstanceAmount'),
+      creationTime?: string(name='CreationTime'),
+      description?: string(name='Description'),
+      ecsCount?: int32(name='EcsCount'),
+      resourceGroupId?: string(name='ResourceGroupId'),
+      securityGroupId?: string(name='SecurityGroupId'),
+      securityGroupName?: string(name='SecurityGroupName'),
+      tags?: [ 
+        {
+          key?: string(name='Key'),
+          value?: string(name='Value'),
+        }
+      ](name='Tags'),
+      vpcId?: string(name='VpcId'),
+    }
+  ](name='SecurityGroupList'),
+  success?: boolean(name='Success'),
+}
+
+model GetUserVpcSecurityGroupResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetUserVpcSecurityGroupResponseBody(name='body'),
+}
+
+async function getUserVpcSecurityGroupWithOptions(request: GetUserVpcSecurityGroupRequest, runtime: Util.RuntimeOptions): GetUserVpcSecurityGroupResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.vpcId)) {
+    query['VpcId'] = request.vpcId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetUserVpcSecurityGroup',
+    version = '2020-10-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getUserVpcSecurityGroup(request: GetUserVpcSecurityGroupRequest): GetUserVpcSecurityGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getUserVpcSecurityGroupWithOptions(request, runtime);
+}
+
+model GetUserVpcVSwitchRequest {
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  regionId?: string(name='RegionId'),
+  vpcId?: string(name='VpcId'),
+}
+
+model GetUserVpcVSwitchResponseBody = {
+  code?: string(name='Code'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+  vSwitchCount?: int32(name='VSwitchCount'),
+  vSwitchList?: [ 
+    {
+      availableIpAddressCount?: long(name='AvailableIpAddressCount'),
+      cidrBlock?: string(name='CidrBlock'),
+      creationTime?: string(name='CreationTime'),
+      description?: string(name='Description'),
+      ipv6CidrBlock?: string(name='Ipv6CidrBlock'),
+      isDefault?: boolean(name='IsDefault'),
+      maxAgentCount?: int32(name='MaxAgentCount'),
+      resourceGroupId?: string(name='ResourceGroupId'),
+      routeTable?: [ 
+        {
+          routeTableId?: string(name='RouteTableId'),
+          routeTableType?: string(name='RouteTableType'),
+        }
+      ](name='RouteTable'),
+      status?: string(name='Status'),
+      tags?: [ 
+        {
+          key?: string(name='Key'),
+          value?: string(name='Value'),
+        }
+      ](name='Tags'),
+      vSwitchId?: string(name='VSwitchId'),
+      vSwitchName?: string(name='VSwitchName'),
+      vpcId?: string(name='VpcId'),
+      zoneId?: string(name='ZoneId'),
+    }
+  ](name='VSwitchList'),
+}
+
+model GetUserVpcVSwitchResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetUserVpcVSwitchResponseBody(name='body'),
+}
+
+async function getUserVpcVSwitchWithOptions(request: GetUserVpcVSwitchRequest, runtime: Util.RuntimeOptions): GetUserVpcVSwitchResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.vpcId)) {
+    query['VpcId'] = request.vpcId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetUserVpcVSwitch',
+    version = '2020-10-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getUserVpcVSwitch(request: GetUserVpcVSwitchRequest): GetUserVpcVSwitchResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getUserVpcVSwitchWithOptions(request, runtime);
+}
+
+model GetUserVpcsRequest {
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  regionId?: string(name='RegionId'),
+  vpcId?: string(name='VpcId'),
+}
+
+model GetUserVpcsResponseBody = {
+  code?: string(name='Code'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+  totalCount?: long(name='TotalCount'),
+  vpcs?: [ 
+    {
+      cidrBlock?: string(name='CidrBlock'),
+      creationTime?: string(name='CreationTime'),
+      description?: string(name='Description'),
+      ipv6CidrBlock?: string(name='Ipv6CidrBlock'),
+      isDefault?: boolean(name='IsDefault'),
+      natGatewayIds?: [ string ](name='NatGatewayIds'),
+      regionId?: string(name='RegionId'),
+      resourceGroupId?: string(name='ResourceGroupId'),
+      routerTableIds?: [ string ](name='RouterTableIds'),
+      status?: string(name='Status'),
+      tags?: [ 
+        {
+          key?: string(name='Key'),
+          value?: string(name='Value'),
+        }
+      ](name='Tags'),
+      userCidrs?: [ string ](name='UserCidrs'),
+      VRouterId?: string(name='VRouterId'),
+      vSwitchIds?: [ string ](name='VSwitchIds'),
+      vpcId?: string(name='VpcId'),
+      vpcName?: string(name='VpcName'),
+    }
+  ](name='Vpcs'),
+}
+
+model GetUserVpcsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetUserVpcsResponseBody(name='body'),
+}
+
+async function getUserVpcsWithOptions(request: GetUserVpcsRequest, runtime: Util.RuntimeOptions): GetUserVpcsResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.vpcId)) {
+    query['VpcId'] = request.vpcId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetUserVpcs',
+    version = '2020-10-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getUserVpcs(request: GetUserVpcsRequest): GetUserVpcsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getUserVpcsWithOptions(request, runtime);
+}
+
 model ListEnvsRequest {
   envId?: string(name='EnvId', description='环境ID'),
   envName?: string(name='EnvName', description='环境名'),
@@ -1809,11 +2151,15 @@ model SaveOpenJMeterSceneRequest {
       }
     ](name='JMeterProperties', description='Jmeter属性'),
     jmeterPluginLabel?: string(name='JmeterPluginLabel', description='jmeter插件的环境标签'),
+    maxRps?: int32(name='MaxRps'),
+    mode?: string(name='Mode', description='压力模式'),
     rampUp?: int32(name='RampUp', description='预热时间'),
     regionId?: string(name='RegionId', description='region的id，VPC压测时配置'),
     sceneId?: string(name='SceneId', description='场景ID'),
     sceneName?: string(name='SceneName', description='场景名'),
     securityGroupId?: string(name='SecurityGroupId', description='安全组id，VPC压测时配置'),
+    startConcurrency?: int32(name='StartConcurrency'),
+    startRps?: int32(name='StartRps'),
     steps?: int32(name='Steps', description='预热阶段'),
     syncTimerType?: string(name='SyncTimerType', description='synchronizing timer 类型'),
     testFile?: string(name='TestFile', description='测试文件'),
@@ -1915,6 +2261,7 @@ model SavePtsSceneRequest {
         allRpsLimit?: int32(name='AllRpsLimit', description='所有API的最大RPS总值，均分给每个API，在RPS模式下使用，若不设置该值，则apiLoadConfig必须填写'),
       }(name='Configuration', description='场景施压量级配置信息'),
       increment?: int32(name='Increment', description='递增百分比，取值范围[10,100]，且是整十倍；只有在并发模式且是自动递增模式下有效，即 testMode=concurrency_mode 且 autoStep=true 时'),
+      isVpcTest?: string(name='IsVpcTest', description='是否为VPC测试。默认为false，表示公网测试。当此值为true时，VPC相关配置才会生效。'),
       keepTime?: int32(name='KeepTime', description='单量级持续时长，单位分钟，一定是小于施压时长 maxRunningTime'),
       maxRunningTime?: int32(name='MaxRunningTime', description='施压时长，单位分钟，[1-1440]'),
       relationLoadConfigList?: [ 
