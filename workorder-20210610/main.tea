@@ -78,8 +78,27 @@ async function closeTicket(request: CloseTicketRequest): CloseTicketResponse {
 
 model CreateTicketRequest {
   categoryId?: string(name='CategoryId'),
+  creatorId?: string(name='CreatorId'),
   description?: string(name='Description'),
+  email?: string(name='Email'),
+  fileNameList?: [ string ](name='FileNameList'),
+  secretInfo?: {
+    content?: string(name='Content'),
+    fileNameList?: [ string ](name='FileNameList'),
+  }(name='SecretInfo'),
   severity?: int32(name='Severity'),
+  title?: string(name='Title'),
+}
+
+model CreateTicketShrinkRequest {
+  categoryId?: string(name='CategoryId'),
+  creatorId?: string(name='CreatorId'),
+  description?: string(name='Description'),
+  email?: string(name='Email'),
+  fileNameListShrink?: string(name='FileNameList'),
+  secretInfoShrink?: string(name='SecretInfo'),
+  severity?: int32(name='Severity'),
+  title?: string(name='Title'),
 }
 
 model CreateTicketResponseBody = {
@@ -95,19 +114,44 @@ model CreateTicketResponse = {
   body: CreateTicketResponseBody(name='body'),
 }
 
-async function createTicketWithOptions(request: CreateTicketRequest, runtime: Util.RuntimeOptions): CreateTicketResponse {
-  Util.validateModel(request);
+async function createTicketWithOptions(tmpReq: CreateTicketRequest, runtime: Util.RuntimeOptions): CreateTicketResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateTicketShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.fileNameList)) {
+    request.fileNameListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.fileNameList, 'FileNameList', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.secretInfo)) {
+    request.secretInfoShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.secretInfo, 'SecretInfo', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.secretInfoShrink)) {
+    query['SecretInfo'] = request.secretInfoShrink;
+  }
   var body : map[string]any= {};
   if (!Util.isUnset(request.categoryId)) {
     body['CategoryId'] = request.categoryId;
   }
+  if (!Util.isUnset(request.creatorId)) {
+    body['CreatorId'] = request.creatorId;
+  }
   if (!Util.isUnset(request.description)) {
     body['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.email)) {
+    body['Email'] = request.email;
+  }
+  if (!Util.isUnset(request.fileNameListShrink)) {
+    body['FileNameList'] = request.fileNameListShrink;
   }
   if (!Util.isUnset(request.severity)) {
     body['Severity'] = request.severity;
   }
+  if (!Util.isUnset(request.title)) {
+    body['Title'] = request.title;
+  }
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
@@ -185,6 +229,55 @@ async function evaluateTicket(request: EvaluateTicketRequest): EvaluateTicketRes
   return evaluateTicketWithOptions(request, runtime);
 }
 
+model GetAttachmentUploadUrlRequest {
+  fileName?: string(name='FileName'),
+}
+
+model GetAttachmentUploadUrlResponseBody = {
+  code?: int32(name='Code'),
+  data?: {
+    getSignedUrl?: string(name='GetSignedUrl'),
+    objectKey?: string(name='ObjectKey'),
+    putSignedUrl?: string(name='PutSignedUrl'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model GetAttachmentUploadUrlResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetAttachmentUploadUrlResponseBody(name='body'),
+}
+
+async function getAttachmentUploadUrlWithOptions(request: GetAttachmentUploadUrlRequest, runtime: Util.RuntimeOptions): GetAttachmentUploadUrlResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.fileName)) {
+    body['FileName'] = request.fileName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAttachmentUploadUrl',
+    version = '2021-06-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getAttachmentUploadUrl(request: GetAttachmentUploadUrlRequest): GetAttachmentUploadUrlResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAttachmentUploadUrlWithOptions(request, runtime);
+}
+
 model GetMqConsumerTagResponseBody = {
   code?: int32(name='Code'),
   data?: string(name='Data'),
@@ -219,7 +312,71 @@ async function getMqConsumerTag(): GetMqConsumerTagResponse {
   return getMqConsumerTagWithOptions(runtime);
 }
 
+model GetTicketRequest {
+  ticketId?: string(name='TicketId'),
+}
+
+model GetTicketResponseBody = {
+  code?: int32(name='Code'),
+  data?: {
+    categoryId?: string(name='CategoryId'),
+    createTime?: long(name='CreateTime'),
+    creatorId?: string(name='CreatorId'),
+    description?: string(name='Description'),
+    severity?: {
+      label?: string(name='Label'),
+      value?: string(name='Value'),
+    }(name='Severity'),
+    status?: {
+      label?: string(name='Label'),
+      value?: string(name='Value'),
+    }(name='Status'),
+    ticketId?: string(name='TicketId'),
+    title?: string(name='Title'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+  totalCount?: long(name='TotalCount'),
+}
+
+model GetTicketResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetTicketResponseBody(name='body'),
+}
+
+async function getTicketWithOptions(request: GetTicketRequest, runtime: Util.RuntimeOptions): GetTicketResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.ticketId)) {
+    body['TicketId'] = request.ticketId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetTicket',
+    version = '2021-06-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getTicket(request: GetTicketRequest): GetTicketResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getTicketWithOptions(request, runtime);
+}
+
 model ListCategoriesRequest {
+  language?: string(name='Language'),
   name?: string(name='Name'),
   productId?: long(name='ProductId'),
 }
@@ -244,6 +401,10 @@ model ListCategoriesResponse = {
 
 async function listCategoriesWithOptions(request: ListCategoriesRequest, runtime: Util.RuntimeOptions): ListCategoriesResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.language)) {
+    query['Language'] = request.language;
+  }
   var body : map[string]any= {};
   if (!Util.isUnset(request.name)) {
     body['Name'] = request.name;
@@ -252,6 +413,7 @@ async function listCategoriesWithOptions(request: ListCategoriesRequest, runtime
     body['ProductId'] = request.productId;
   }
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
@@ -274,6 +436,7 @@ async function listCategories(request: ListCategoriesRequest): ListCategoriesRes
 }
 
 model ListProductsRequest {
+  language?: string(name='Language'),
   name?: string(name='Name'),
 }
 
@@ -304,6 +467,9 @@ model ListProductsResponse = {
 async function listProductsWithOptions(request: ListProductsRequest, runtime: Util.RuntimeOptions): ListProductsResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.language)) {
+    query['Language'] = request.language;
+  }
   if (!Util.isUnset(request.name)) {
     query['Name'] = request.name;
   }
@@ -337,6 +503,12 @@ model ListTicketNotesResponseBody = {
   code?: int32(name='Code'),
   data?: [ 
     {
+      attachments?: [ 
+        {
+          name?: string(name='Name'),
+          url?: string(name='Url'),
+        }
+      ](name='Attachments'),
       createTime?: long(name='CreateTime'),
       dialog?: {
         content?: string(name='Content'),
@@ -398,6 +570,18 @@ model ListTicketsRequest {
   startDate?: long(name='StartDate'),
   statusList?: [ string ](name='StatusList'),
   ticketId?: string(name='TicketId'),
+  ticketIdList?: [ string ](name='TicketIdList'),
+}
+
+model ListTicketsShrinkRequest {
+  endDate?: long(name='EndDate'),
+  keyword?: string(name='Keyword'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+  statusList?: [ string ](name='StatusList'),
+  ticketId?: string(name='TicketId'),
+  ticketIdListShrink?: string(name='TicketIdList'),
 }
 
 model ListTicketsResponseBody = {
@@ -425,8 +609,13 @@ model ListTicketsResponse = {
   body: ListTicketsResponseBody(name='body'),
 }
 
-async function listTicketsWithOptions(request: ListTicketsRequest, runtime: Util.RuntimeOptions): ListTicketsResponse {
-  Util.validateModel(request);
+async function listTicketsWithOptions(tmpReq: ListTicketsRequest, runtime: Util.RuntimeOptions): ListTicketsResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListTicketsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.ticketIdList)) {
+    request.ticketIdListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.ticketIdList, 'TicketIdList', 'simple');
+  }
   var query = {};
   if (!Util.isUnset(request.pageNumber)) {
     query['PageNumber'] = request.pageNumber;
@@ -449,6 +638,9 @@ async function listTicketsWithOptions(request: ListTicketsRequest, runtime: Util
   }
   if (!Util.isUnset(request.ticketId)) {
     body['TicketId'] = request.ticketId;
+  }
+  if (!Util.isUnset(request.ticketIdListShrink)) {
+    body['TicketIdList'] = request.ticketIdListShrink;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -473,9 +665,66 @@ async function listTickets(request: ListTicketsRequest): ListTicketsResponse {
   return listTicketsWithOptions(request, runtime);
 }
 
+model ReopenTicketRequest {
+  content?: string(name='Content'),
+  ticketId?: string(name='TicketId'),
+}
+
+model ReopenTicketResponseBody = {
+  code?: int32(name='Code'),
+  data?: string(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model ReopenTicketResponse = {
+  headers: map[string]string(name='headers'),
+  body: ReopenTicketResponseBody(name='body'),
+}
+
+async function reopenTicketWithOptions(request: ReopenTicketRequest, runtime: Util.RuntimeOptions): ReopenTicketResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.content)) {
+    body['Content'] = request.content;
+  }
+  if (!Util.isUnset(request.ticketId)) {
+    body['TicketId'] = request.ticketId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ReopenTicket',
+    version = '2021-06-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function reopenTicket(request: ReopenTicketRequest): ReopenTicketResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return reopenTicketWithOptions(request, runtime);
+}
+
 model ReplyTicketRequest {
   content?: string(name='Content'),
   encrypt?: boolean(name='Encrypt'),
+  fileNameList?: [ string ](name='FileNameList'),
+  ticketId?: string(name='TicketId'),
+}
+
+model ReplyTicketShrinkRequest {
+  content?: string(name='Content'),
+  encrypt?: boolean(name='Encrypt'),
+  fileNameListShrink?: string(name='FileNameList'),
   ticketId?: string(name='TicketId'),
 }
 
@@ -492,8 +741,17 @@ model ReplyTicketResponse = {
   body: ReplyTicketResponseBody(name='body'),
 }
 
-async function replyTicketWithOptions(request: ReplyTicketRequest, runtime: Util.RuntimeOptions): ReplyTicketResponse {
-  Util.validateModel(request);
+async function replyTicketWithOptions(tmpReq: ReplyTicketRequest, runtime: Util.RuntimeOptions): ReplyTicketResponse {
+  Util.validateModel(tmpReq);
+  var request = new ReplyTicketShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.fileNameList)) {
+    request.fileNameListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.fileNameList, 'FileNameList', 'simple');
+  }
+  var query = {};
+  if (!Util.isUnset(request.fileNameListShrink)) {
+    query['FileNameList'] = request.fileNameListShrink;
+  }
   var body : map[string]any= {};
   if (!Util.isUnset(request.content)) {
     body['Content'] = request.content;
@@ -505,6 +763,7 @@ async function replyTicketWithOptions(request: ReplyTicketRequest, runtime: Util
     body['TicketId'] = request.ticketId;
   }
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
