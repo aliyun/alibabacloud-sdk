@@ -471,6 +471,7 @@ model CreateServiceMeshRequest {
   autoRenew?: boolean(name='AutoRenew'),
   autoRenewPeriod?: int32(name='AutoRenewPeriod'),
   CRAggregationEnabled?: boolean(name='CRAggregationEnabled'),
+  canaryUpgradeEnabled?: boolean(name='CanaryUpgradeEnabled'),
   chargeType?: string(name='ChargeType'),
   clusterSpec?: string(name='ClusterSpec'),
   configSourceEnabled?: boolean(name='ConfigSourceEnabled'),
@@ -577,6 +578,9 @@ async function createServiceMeshWithOptions(request: CreateServiceMeshRequest, r
   }
   if (!Util.isUnset(request.CRAggregationEnabled)) {
     body['CRAggregationEnabled'] = request.CRAggregationEnabled;
+  }
+  if (!Util.isUnset(request.canaryUpgradeEnabled)) {
+    body['CanaryUpgradeEnabled'] = request.canaryUpgradeEnabled;
   }
   if (!Util.isUnset(request.chargeType)) {
     body['ChargeType'] = request.chargeType;
@@ -2023,6 +2027,12 @@ model DescribeManagedServicesResponseBody = {
       selector?: map[string]string(name='Selector'),
       serviceName?: string(name='ServiceName'),
       sidecarInjectStatus?: string(name='SidecarInjectStatus'),
+      sidecarResource?: {
+        limitCPU?: string(name='LimitCPU'),
+        limitMemory?: string(name='LimitMemory'),
+        requestCPU?: string(name='RequestCPU'),
+        requestMemory?: string(name='RequestMemory'),
+      }(name='SidecarResource'),
     }
   ](name='ManagedServiceInfo'),
   mark?: string(name='Mark'),
@@ -2081,14 +2091,22 @@ model DescribeNamespaceScopeSidecarConfigRequest {
 
 model DescribeNamespaceScopeSidecarConfigResponseBody = {
   configPatches?: {
+    concurrency?: int32(name='Concurrency'),
     excludeInboundPorts?: string(name='ExcludeInboundPorts'),
     excludeOutboundIPRanges?: string(name='ExcludeOutboundIPRanges'),
     excludeOutboundPorts?: string(name='ExcludeOutboundPorts'),
+    holdApplicationUntilProxyStarts?: boolean(name='HoldApplicationUntilProxyStarts'),
     includeInboundPorts?: string(name='IncludeInboundPorts'),
     includeOutboundIPRanges?: string(name='IncludeOutboundIPRanges'),
     includeOutboundPorts?: string(name='IncludeOutboundPorts'),
     istioDNSProxyEnabled?: boolean(name='IstioDNSProxyEnabled'),
     lifecycleStr?: string(name='LifecycleStr'),
+    logLevel?: string(name='LogLevel'),
+    proxyStatsMatcher?: {
+      inclusionPrefixes?: [ string ](name='InclusionPrefixes'),
+      inclusionRegexps?: [ string ](name='InclusionRegexps'),
+      inclusionSuffixes?: [ string ](name='InclusionSuffixes'),
+    }(name='ProxyStatsMatcher'),
     sidecarProxyInitResourceLimit?: {
       resourceCPULimit?: string(name='ResourceCPULimit'),
       resourceMemoryLimit?: string(name='ResourceMemoryLimit'),
@@ -2303,64 +2321,6 @@ async function describeServiceAccessDetail(request: DescribeServiceAccessDetailR
   return describeServiceAccessDetailWithOptions(request, runtime);
 }
 
-model DescribeServiceManagedResourceRequest {
-  guestCluster?: string(name='GuestCluster'),
-  namespace?: string(name='Namespace'),
-  serviceMeshId?: string(name='ServiceMeshId'),
-  serviceName?: string(name='ServiceName'),
-}
-
-model DescribeServiceManagedResourceResponseBody = {
-  managedResource?: {
-    destinationRules?: [ string ](name='DestinationRules'),
-    localRateLimiters?: [ string ](name='LocalRateLimiters'),
-    virtualServices?: [ string ](name='VirtualServices'),
-  }(name='ManagedResource'),
-  requestId?: string(name='RequestId'),
-}
-
-model DescribeServiceManagedResourceResponse = {
-  headers: map[string]string(name='headers'),
-  body: DescribeServiceManagedResourceResponseBody(name='body'),
-}
-
-async function describeServiceManagedResourceWithOptions(request: DescribeServiceManagedResourceRequest, runtime: Util.RuntimeOptions): DescribeServiceManagedResourceResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.guestCluster)) {
-    body['GuestCluster'] = request.guestCluster;
-  }
-  if (!Util.isUnset(request.namespace)) {
-    body['Namespace'] = request.namespace;
-  }
-  if (!Util.isUnset(request.serviceMeshId)) {
-    body['ServiceMeshId'] = request.serviceMeshId;
-  }
-  if (!Util.isUnset(request.serviceName)) {
-    body['ServiceName'] = request.serviceName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'DescribeServiceManagedResource',
-    version = '2020-01-11',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function describeServiceManagedResource(request: DescribeServiceManagedResourceRequest): DescribeServiceManagedResourceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeServiceManagedResourceWithOptions(request, runtime);
-}
-
 model DescribeServiceMeshAdditionalStatusRequest {
   checkMode?: string(name='CheckMode'),
   serviceMeshId?: string(name='ServiceMeshId'),
@@ -2510,6 +2470,8 @@ model DescribeServiceMeshDetailResponseBody = {
       publicApiServerEndpoint?: string(name='PublicApiServerEndpoint'),
       publicPilotEndpoint?: string(name='PublicPilotEndpoint'),
     }(name='Endpoints'),
+    ownerId?: string(name='OwnerId'),
+    ownerType?: string(name='OwnerType'),
     serviceMeshInfo?: {
       creationTime?: string(name='CreationTime'),
       errorMessage?: string(name='ErrorMessage'),
@@ -2561,44 +2523,44 @@ model DescribeServiceMeshDetailResponseBody = {
           lifecycle?: {
             postStart?: {
               exec?: {
-                command?: [ string ](name='Command'),
-              }(name='Exec'),
-              HTTPGet?: {
-                HTTPHeaders?: [ 
+                command?: [ string ](name='command'),
+              }(name='exec'),
+              httpGet?: {
+                host?: string(name='host'),
+                httpHeaders?: [ 
                   {
-                    name?: string(name='Name'),
-                    value?: string(name='Value'),
+                    name?: string(name='name'),
+                    value?: string(name='value'),
                   }
-                ](name='HTTPHeaders'),
-                host?: string(name='Host'),
-                port?: string(name='Port'),
-                scheme?: string(name='Scheme'),
-              }(name='HTTPGet'),
-              TCPSocket?: {
-                host?: string(name='Host'),
-                port?: string(name='Port'),
-              }(name='TCPSocket'),
-            }(name='PostStart'),
+                ](name='httpHeaders'),
+                port?: string(name='port'),
+                scheme?: string(name='scheme'),
+              }(name='httpGet'),
+              tcpSocket?: {
+                host?: string(name='host'),
+                port?: string(name='port'),
+              }(name='tcpSocket'),
+            }(name='postStart'),
             preStop?: {
               exec?: {
-                command?: [ string ](name='Command'),
-              }(name='Exec'),
-              HTTPGet?: {
-                HTTPHeaders?: [ 
+                command?: [ string ](name='command'),
+              }(name='exec'),
+              httpGet?: {
+                host?: string(name='host'),
+                httpHeaders?: [ 
                   {
-                    name?: string(name='Name'),
-                    value?: string(name='Value'),
+                    name?: string(name='name'),
+                    value?: string(name='value'),
                   }
-                ](name='HTTPHeaders'),
-                host?: string(name='Host'),
-                port?: string(name='Port'),
-                scheme?: string(name='Scheme'),
-              }(name='HTTPGet'),
-              TCPSocket?: {
-                host?: string(name='Host'),
-                port?: string(name='Port'),
-              }(name='TCPSocket'),
-            }(name='PreStop'),
+                ](name='httpHeaders'),
+                port?: string(name='port'),
+                scheme?: string(name='scheme'),
+              }(name='httpGet'),
+              tcpSocket?: {
+                host?: string(name='host'),
+                port?: string(name='port'),
+              }(name='tcpSocket'),
+            }(name='preStop'),
           }(name='Lifecycle'),
           multiBuffer?: {
             enabled?: boolean(name='Enabled'),
@@ -3064,6 +3026,8 @@ model DescribeServiceMeshesResponseBody = {
         publicPilotEndpoint?: string(name='PublicPilotEndpoint'),
         reverseTunnelEndpoint?: string(name='ReverseTunnelEndpoint'),
       }(name='Endpoints'),
+      ownerId?: string(name='OwnerId'),
+      ownerType?: string(name='OwnerType'),
       serviceMeshInfo?: {
         creationTime?: string(name='CreationTime'),
         errorMessage?: string(name='ErrorMessage'),
@@ -3356,10 +3320,18 @@ model DescribeVersionManagementResponseBody = {
           nodeIp?: string(name='NodeIp'),
           podIP?: string(name='PodIP'),
           podName?: string(name='PodName'),
+          restartTime?: int32(name='RestartTime'),
+          status?: string(name='Status'),
         }
       ](name='PodInstances'),
       readyReplicas?: int32(name='ReadyReplicas'),
       replicas?: int32(name='Replicas'),
+      resource?: {
+        CPULimit?: string(name='CPULimit'),
+        CPURequest?: string(name='CPURequest'),
+        memoryLimit?: string(name='MemoryLimit'),
+        memoryRequest?: string(name='MemoryRequest'),
+      }(name='Resource'),
       version?: string(name='Version'),
     }
   ](name='VersionDetails'),
@@ -4168,75 +4140,6 @@ async function updateASMGatewayImportedServices(request: UpdateASMGatewayImporte
   return updateASMGatewayImportedServicesWithOptions(request, runtime);
 }
 
-model UpdateInjectedProxyConfigRequest {
-  deploymentNames?: string(name='DeploymentNames'),
-  guestCluster?: string(name='GuestCluster'),
-  limitCPUs?: string(name='LimitCPUs'),
-  limitMemories?: string(name='LimitMemories'),
-  namespace?: string(name='Namespace'),
-  requestCPUs?: string(name='RequestCPUs'),
-  requestMemories?: string(name='RequestMemories'),
-  serviceMeshId?: string(name='ServiceMeshId'),
-}
-
-model UpdateInjectedProxyConfigResponseBody = {
-  requestId?: string(name='RequestId'),
-}
-
-model UpdateInjectedProxyConfigResponse = {
-  headers: map[string]string(name='headers'),
-  body: UpdateInjectedProxyConfigResponseBody(name='body'),
-}
-
-async function updateInjectedProxyConfigWithOptions(request: UpdateInjectedProxyConfigRequest, runtime: Util.RuntimeOptions): UpdateInjectedProxyConfigResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.deploymentNames)) {
-    body['DeploymentNames'] = request.deploymentNames;
-  }
-  if (!Util.isUnset(request.guestCluster)) {
-    body['GuestCluster'] = request.guestCluster;
-  }
-  if (!Util.isUnset(request.limitCPUs)) {
-    body['LimitCPUs'] = request.limitCPUs;
-  }
-  if (!Util.isUnset(request.limitMemories)) {
-    body['LimitMemories'] = request.limitMemories;
-  }
-  if (!Util.isUnset(request.namespace)) {
-    body['Namespace'] = request.namespace;
-  }
-  if (!Util.isUnset(request.requestCPUs)) {
-    body['RequestCPUs'] = request.requestCPUs;
-  }
-  if (!Util.isUnset(request.requestMemories)) {
-    body['RequestMemories'] = request.requestMemories;
-  }
-  if (!Util.isUnset(request.serviceMeshId)) {
-    body['ServiceMeshId'] = request.serviceMeshId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'UpdateInjectedProxyConfig',
-    version = '2020-01-11',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function updateInjectedProxyConfig(request: UpdateInjectedProxyConfigRequest): UpdateInjectedProxyConfigResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateInjectedProxyConfigWithOptions(request, runtime);
-}
-
 model UpdateIstioGatewayRoutesRequest {
   description?: string(name='Description'),
   gatewayRoute?: {
@@ -4799,19 +4702,25 @@ async function updateMeshFeature(request: UpdateMeshFeatureRequest): UpdateMeshF
 }
 
 model UpdateNamespaceScopeSidecarConfigRequest {
+  concurrency?: int32(name='Concurrency'),
   excludeIPRanges?: string(name='ExcludeIPRanges'),
   excludeInboundPorts?: string(name='ExcludeInboundPorts'),
   excludeOutboundPorts?: string(name='ExcludeOutboundPorts'),
+  holdApplicationUntilProxyStarts?: boolean(name='HoldApplicationUntilProxyStarts'),
   includeIPRanges?: string(name='IncludeIPRanges'),
   includeInboundPorts?: string(name='IncludeInboundPorts'),
   includeOutboundPorts?: string(name='IncludeOutboundPorts'),
   istioDNSProxyEnabled?: boolean(name='IstioDNSProxyEnabled'),
   lifecycle?: string(name='Lifecycle'),
+  logLevel?: string(name='LogLevel'),
   namespace?: string(name='Namespace'),
+  postStart?: string(name='PostStart'),
+  preStop?: string(name='PreStop'),
   proxyInitCPUResourceLimit?: string(name='ProxyInitCPUResourceLimit'),
   proxyInitCPUResourceRequest?: string(name='ProxyInitCPUResourceRequest'),
   proxyInitMemoryResourceLimit?: string(name='ProxyInitMemoryResourceLimit'),
   proxyInitMemoryResourceRequest?: string(name='ProxyInitMemoryResourceRequest'),
+  proxyStatsMatcher?: string(name='ProxyStatsMatcher'),
   serviceMeshId?: string(name='ServiceMeshId'),
   sidecarProxyCPUResourceLimit?: string(name='SidecarProxyCPUResourceLimit'),
   sidecarProxyCPUResourceRequest?: string(name='SidecarProxyCPUResourceRequest'),
@@ -4832,6 +4741,9 @@ model UpdateNamespaceScopeSidecarConfigResponse = {
 async function updateNamespaceScopeSidecarConfigWithOptions(request: UpdateNamespaceScopeSidecarConfigRequest, runtime: Util.RuntimeOptions): UpdateNamespaceScopeSidecarConfigResponse {
   Util.validateModel(request);
   var body : map[string]any= {};
+  if (!Util.isUnset(request.concurrency)) {
+    body['Concurrency'] = request.concurrency;
+  }
   if (!Util.isUnset(request.excludeIPRanges)) {
     body['ExcludeIPRanges'] = request.excludeIPRanges;
   }
@@ -4840,6 +4752,9 @@ async function updateNamespaceScopeSidecarConfigWithOptions(request: UpdateNames
   }
   if (!Util.isUnset(request.excludeOutboundPorts)) {
     body['ExcludeOutboundPorts'] = request.excludeOutboundPorts;
+  }
+  if (!Util.isUnset(request.holdApplicationUntilProxyStarts)) {
+    body['HoldApplicationUntilProxyStarts'] = request.holdApplicationUntilProxyStarts;
   }
   if (!Util.isUnset(request.includeIPRanges)) {
     body['IncludeIPRanges'] = request.includeIPRanges;
@@ -4856,8 +4771,17 @@ async function updateNamespaceScopeSidecarConfigWithOptions(request: UpdateNames
   if (!Util.isUnset(request.lifecycle)) {
     body['Lifecycle'] = request.lifecycle;
   }
+  if (!Util.isUnset(request.logLevel)) {
+    body['LogLevel'] = request.logLevel;
+  }
   if (!Util.isUnset(request.namespace)) {
     body['Namespace'] = request.namespace;
+  }
+  if (!Util.isUnset(request.postStart)) {
+    body['PostStart'] = request.postStart;
+  }
+  if (!Util.isUnset(request.preStop)) {
+    body['PreStop'] = request.preStop;
   }
   if (!Util.isUnset(request.proxyInitCPUResourceLimit)) {
     body['ProxyInitCPUResourceLimit'] = request.proxyInitCPUResourceLimit;
@@ -4870,6 +4794,9 @@ async function updateNamespaceScopeSidecarConfigWithOptions(request: UpdateNames
   }
   if (!Util.isUnset(request.proxyInitMemoryResourceRequest)) {
     body['ProxyInitMemoryResourceRequest'] = request.proxyInitMemoryResourceRequest;
+  }
+  if (!Util.isUnset(request.proxyStatsMatcher)) {
+    body['ProxyStatsMatcher'] = request.proxyStatsMatcher;
   }
   if (!Util.isUnset(request.serviceMeshId)) {
     body['ServiceMeshId'] = request.serviceMeshId;
@@ -4909,132 +4836,6 @@ async function updateNamespaceScopeSidecarConfigWithOptions(request: UpdateNames
 async function updateNamespaceScopeSidecarConfig(request: UpdateNamespaceScopeSidecarConfigRequest): UpdateNamespaceScopeSidecarConfigResponse {
   var runtime = new Util.RuntimeOptions{};
   return updateNamespaceScopeSidecarConfigWithOptions(request, runtime);
-}
-
-model UpdateServiceSidecarInjectRequest {
-  guestCluster?: string(name='GuestCluster'),
-  inject?: boolean(name='Inject'),
-  limitCPU?: string(name='LimitCPU'),
-  limitMemory?: string(name='LimitMemory'),
-  namespace?: string(name='Namespace'),
-  requestCPU?: string(name='RequestCPU'),
-  requestMemory?: string(name='RequestMemory'),
-  serviceMeshId?: string(name='ServiceMeshId'),
-  serviceName?: string(name='ServiceName'),
-}
-
-model UpdateServiceSidecarInjectResponseBody = {
-  requestId?: string(name='RequestId'),
-}
-
-model UpdateServiceSidecarInjectResponse = {
-  headers: map[string]string(name='headers'),
-  body: UpdateServiceSidecarInjectResponseBody(name='body'),
-}
-
-async function updateServiceSidecarInjectWithOptions(request: UpdateServiceSidecarInjectRequest, runtime: Util.RuntimeOptions): UpdateServiceSidecarInjectResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.guestCluster)) {
-    body['GuestCluster'] = request.guestCluster;
-  }
-  if (!Util.isUnset(request.inject)) {
-    body['Inject'] = request.inject;
-  }
-  if (!Util.isUnset(request.limitCPU)) {
-    body['LimitCPU'] = request.limitCPU;
-  }
-  if (!Util.isUnset(request.limitMemory)) {
-    body['LimitMemory'] = request.limitMemory;
-  }
-  if (!Util.isUnset(request.namespace)) {
-    body['Namespace'] = request.namespace;
-  }
-  if (!Util.isUnset(request.requestCPU)) {
-    body['RequestCPU'] = request.requestCPU;
-  }
-  if (!Util.isUnset(request.requestMemory)) {
-    body['RequestMemory'] = request.requestMemory;
-  }
-  if (!Util.isUnset(request.serviceMeshId)) {
-    body['ServiceMeshId'] = request.serviceMeshId;
-  }
-  if (!Util.isUnset(request.serviceName)) {
-    body['ServiceName'] = request.serviceName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'UpdateServiceSidecarInject',
-    version = '2020-01-11',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function updateServiceSidecarInject(request: UpdateServiceSidecarInjectRequest): UpdateServiceSidecarInjectResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateServiceSidecarInjectWithOptions(request, runtime);
-}
-
-model UpdateUnlabeledServiceManagedResourceRequest {
-  guestCluster?: string(name='GuestCluster'),
-  namespace?: string(name='Namespace'),
-  serviceMeshId?: string(name='ServiceMeshId'),
-  serviceName?: string(name='ServiceName'),
-}
-
-model UpdateUnlabeledServiceManagedResourceResponseBody = {
-  requestId?: string(name='RequestId'),
-}
-
-model UpdateUnlabeledServiceManagedResourceResponse = {
-  headers: map[string]string(name='headers'),
-  body: UpdateUnlabeledServiceManagedResourceResponseBody(name='body'),
-}
-
-async function updateUnlabeledServiceManagedResourceWithOptions(request: UpdateUnlabeledServiceManagedResourceRequest, runtime: Util.RuntimeOptions): UpdateUnlabeledServiceManagedResourceResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.guestCluster)) {
-    body['GuestCluster'] = request.guestCluster;
-  }
-  if (!Util.isUnset(request.namespace)) {
-    body['Namespace'] = request.namespace;
-  }
-  if (!Util.isUnset(request.serviceMeshId)) {
-    body['ServiceMeshId'] = request.serviceMeshId;
-  }
-  if (!Util.isUnset(request.serviceName)) {
-    body['ServiceName'] = request.serviceName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'UpdateUnlabeledServiceManagedResource',
-    version = '2020-01-11',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function updateUnlabeledServiceManagedResource(request: UpdateUnlabeledServiceManagedResourceRequest): UpdateUnlabeledServiceManagedResourceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateUnlabeledServiceManagedResourceWithOptions(request, runtime);
 }
 
 model UpgradeMeshEditionPartiallyRequest {
@@ -5171,10 +4972,5 @@ model UpgradeDetailGatewayStatusRecordValue = {
   status?: string(name='Status'),
   message?: string(name='Message'),
   version?: string(name='Version'),
-}
-
-model ClusterStatusLogtailStatusRecordValueValue = {
-  title?: string(name='Title'),
-  url?: string(name='Url'),
 }
 
