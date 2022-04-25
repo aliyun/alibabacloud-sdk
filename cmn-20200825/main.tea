@@ -664,6 +664,25 @@ model PhysicalSpace {
   spaceName?: string(name='SpaceName', description='物理空间名称'),
 }
 
+model PhysicalSpaceDto {
+  address?: string(name='Address', description='具体地址'),
+  children?: [
+    PhysicalSpaceDto
+  ](name='Children', description='下一级'),
+  city?: string(name='City', description='所属城市'),
+  country?: string(name='Country', description='所属国家'),
+  fullParentPath?: string(name='FullParentPath', description='上级全路径'),
+  instance?: string(name='Instance', description='实例'),
+  owner?: string(name='Owner', description='负责人'),
+  parentUid?: string(name='ParentUid', description='上级物理空间'),
+  physicalSpaceId?: string(name='PhysicalSpaceId', description='物理空间ID'),
+  physicalSpaceName?: string(name='PhysicalSpaceName', description='物理空间名称'),
+  province?: string(name='Province', description='所属省份'),
+  remark?: string(name='Remark', description='备注'),
+  spaceAbbreviation?: string(name='SpaceAbbreviation', description='缩写'),
+  spaceType?: string(name='SpaceType', description='模型'),
+}
+
 model Port {
   deviceId?: string(name='DeviceId', description='设备ID'),
   gmtCreate?: string(name='GmtCreate', description='创建时间'),
@@ -2094,6 +2113,7 @@ model CreatePhysicalSpaceRequest {
   country?: string(name='Country', description='所属国家'),
   instanceId?: string(name='InstanceId', description='实例ID'),
   owner?: string(name='Owner', description='负责人'),
+  parentUid?: string(name='ParentUid'),
   physicalSpaceName?: string(name='PhysicalSpaceName', description='物理空间名称'),
   province?: string(name='Province', description='所属省份'),
   remark?: string(name='Remark', description='备注'),
@@ -2132,6 +2152,9 @@ async function createPhysicalSpaceWithOptions(request: CreatePhysicalSpaceReques
   }
   if (!Util.isUnset(request.owner)) {
     body['Owner'] = request.owner;
+  }
+  if (!Util.isUnset(request.parentUid)) {
+    body['ParentUid'] = request.parentUid;
   }
   if (!Util.isUnset(request.physicalSpaceName)) {
     body['PhysicalSpaceName'] = request.physicalSpaceName;
@@ -4542,6 +4565,79 @@ async function getInspectionTask(request: GetInspectionTaskRequest): GetInspecti
   return getInspectionTaskWithOptions(request, runtime);
 }
 
+model GetMonitorItemRequest {
+  instanceId?: string(name='InstanceId', description='实例ID'),
+  monitorItemId?: string(name='MonitorItemId', description='监控项ID'),
+}
+
+model GetMonitorItemResponseBody = {
+  monitorItem?: {
+    alarmRuleList?: [ 
+      {
+        alarmStatus?: string(name='AlarmStatus', description='告警规则'),
+        expression?: string(name='Expression', description='表达式'),
+        value?: string(name='Value', description='比较值'),
+        variable?: string(name='Variable', description='指标名'),
+      }
+    ](name='AlarmRuleList', description='通用告警规则列表'),
+    analysisCode?: string(name='AnalysisCode', description='解析代码'),
+    collectionType?: string(name='CollectionType', description='采集类型'),
+    config?: string(name='Config', description='监控项参数配置'),
+    createTime?: string(name='CreateTime', description='创建时间'),
+    dataItem?: string(name='DataItem', description='数据项'),
+    deviceForm?: string(name='DeviceForm', description='设备形态'),
+    effective?: int32(name='Effective', description='是否启用'),
+    execInterval?: int32(name='ExecInterval', description='执行间隔(s)'),
+    monitorItemDescription?: string(name='MonitorItemDescription', description='监控项描述'),
+    monitorItemId?: string(name='MonitorItemId', description='监控项ID'),
+    monitorItemName?: string(name='MonitorItemName', description='监控项名称'),
+    personalizedAlarmRuleList?: [ 
+      {
+        alarmStatus?: string(name='AlarmStatus', description='告警规则'),
+        expression?: string(name='Expression', description='表达式'),
+        fieldName?: string(name='FieldName', description='个性化对象类型'),
+        fieldValue?: string(name='FieldValue', description='个性化对象值'),
+        value?: string(name='Value', description='类型'),
+        variable?: string(name='Variable', description='指标名'),
+      }
+    ](name='PersonalizedAlarmRuleList', description='个性化告警规则列表'),
+    securityDomain?: string(name='SecurityDomain', description='安全域'),
+    type?: string(name='Type', description='类型'),
+    updateTime?: string(name='UpdateTime', description='修改时间'),
+  }(name='MonitorItem', description='数据'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model GetMonitorItemResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetMonitorItemResponseBody(name='body'),
+}
+
+async function getMonitorItemWithOptions(request: GetMonitorItemRequest, runtime: Util.RuntimeOptions): GetMonitorItemResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetMonitorItem',
+    version = '2020-08-25',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getMonitorItem(request: GetMonitorItemRequest): GetMonitorItemResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getMonitorItemWithOptions(request, runtime);
+}
+
 model GetOsDownloadPathRequest {
   instanceId?: string(name='InstanceId'),
   osVersionId?: string(name='OsVersionId', description='架构资源uuid'),
@@ -5729,7 +5825,10 @@ async function listConnectionPolicies(request: ListConnectionPoliciesRequest): L
 
 model ListDedicatedLinesRequest {
   instanceId?: string(name='InstanceId', description='实例ID'),
+  maxResults?: int32(name='MaxResults'),
+  nextToken?: string(name='NextToken'),
   physicalSpaceId?: string(name='PhysicalSpaceId', description='物理空间ID'),
+  spaceName?: string(name='SpaceName', description='物理空间名称'),
 }
 
 model ListDedicatedLinesResponseBody = {
@@ -5748,9 +5847,13 @@ model ListDedicatedLinesResponseBody = {
       isp?: string(name='Isp', description='运营商'),
       phone?: string(name='Phone', description='联系电话'),
       physicalSpaceId?: string(name='PhysicalSpaceId', description='关联物理空间ID'),
+      spaceName?: string(name='SpaceName'),
     }
   ](name='DedicatedLines', description='数组，返回示例目录。'),
+  maxResults?: int32(name='MaxResults'),
+  nextToken?: int32(name='NextToken'),
   requestId?: string(name='RequestId', description='Id of the request'),
+  totalCount?: int32(name='TotalCount'),
 }
 
 model ListDedicatedLinesResponse = {
@@ -5796,6 +5899,7 @@ model ListDeviceFormsResponseBody = {
       attributeList?: [ 
         {
           attributeBuiltIn?: boolean(name='AttributeBuiltIn', description='设备形态属性是否内置'),
+          attributeContent?: string(name='AttributeContent'),
           attributeFormat?: string(name='AttributeFormat', description='设备形态属性值格式'),
           attributeFuzzyQuery?: boolean(name='AttributeFuzzyQuery', description='前端查询控件是否支持模糊搜索'),
           attributeKey?: string(name='AttributeKey', description='设备形态属性主键'),
@@ -7448,6 +7552,55 @@ async function listTasksHistories(request: ListTasksHistoriesRequest): ListTasks
   return listTasksHistoriesWithOptions(request, runtime);
 }
 
+model ListTreePhysicalSpacesRequest {
+  instanceId?: string(name='InstanceId', description='实例ID'),
+  maxResults?: string(name='MaxResults', description='返回结果的最大个数。'),
+  nextToken?: string(name='NextToken', description='当总结果个数大于MaxResults时，用于翻页的token。'),
+  physicalSpaceIds?: [ string ](name='PhysicalSpaceIds', description='物理空间ID'),
+  physicalSpaceName?: string(name='PhysicalSpaceName'),
+  tree?: boolean(name='Tree', description='如果Tree为true时，分页失效'),
+}
+
+model ListTreePhysicalSpacesResponseBody = {
+  maxResults?: int32(name='MaxResults'),
+  nextToken?: int32(name='NextToken'),
+  physicalSpaces?: [
+    PhysicalSpaceDto
+  ](name='PhysicalSpaces'),
+  requestId?: string(name='RequestId'),
+  totalCount?: int32(name='TotalCount'),
+}
+
+model ListTreePhysicalSpacesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListTreePhysicalSpacesResponseBody(name='body'),
+}
+
+async function listTreePhysicalSpacesWithOptions(request: ListTreePhysicalSpacesRequest, runtime: Util.RuntimeOptions): ListTreePhysicalSpacesResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListTreePhysicalSpaces',
+    version = '2020-08-25',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listTreePhysicalSpaces(request: ListTreePhysicalSpacesRequest): ListTreePhysicalSpacesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listTreePhysicalSpacesWithOptions(request, runtime);
+}
+
 model ListWorkOrdersRequest {
   deviceSnA?: string(name='DeviceSnA', description='A-设备SN'),
   instanceId?: string(name='InstanceId', description='实例ID'),
@@ -8786,6 +8939,7 @@ model UpdatePhysicalSpaceRequest {
   country?: string(name='Country', description='所属国家'),
   instanceId?: string(name='InstanceId', description='实例ID'),
   owner?: string(name='Owner', description='负责人'),
+  parentUid?: string(name='ParentUid'),
   physicalSpaceId?: string(name='PhysicalSpaceId', description='实例 ID。'),
   physicalSpaceName?: string(name='PhysicalSpaceName', description='物理空间名称'),
   province?: string(name='Province', description='所属省份'),
@@ -8821,6 +8975,9 @@ async function updatePhysicalSpaceWithOptions(request: UpdatePhysicalSpaceReques
   }
   if (!Util.isUnset(request.owner)) {
     body['Owner'] = request.owner;
+  }
+  if (!Util.isUnset(request.parentUid)) {
+    body['ParentUid'] = request.parentUid;
   }
   if (!Util.isUnset(request.physicalSpaceId)) {
     body['PhysicalSpaceId'] = request.physicalSpaceId;
