@@ -64,6 +64,7 @@ model AudioStream {
   codecTagString?: string(name='CodecTagString', description='CodecTagString'),
   codecTimeBase?: string(name='CodecTimeBase', description='CodecTimeBase'),
   duration?: float(name='Duration', description='Duration'),
+  frameCount?: long(name='FrameCount', description='FrameCount'),
   index?: long(name='Index', description='Index'),
   language?: string(name='Language', description='Language'),
   lyric?: string(name='Lyric', description='Lyric'),
@@ -404,9 +405,18 @@ model Story {
 }
 
 model SubtitleStream {
+  bitrate?: long(name='Bitrate', description='Bitrate'),
+  codecLongName?: string(name='CodecLongName', description='CodecLongName'),
+  codecName?: string(name='CodecName', description='CodecName'),
+  codecTag?: string(name='CodecTag', description='CodecTag'),
+  codecTagString?: string(name='CodecTagString', description='CodecTagString'),
   content?: string(name='Content', description='Content'),
+  duration?: float(name='Duration', description='Duration'),
+  height?: long(name='Height', description='Height'),
   index?: long(name='Index', description='Index'),
   language?: string(name='Language', description='Language'),
+  startTime?: float(name='StartTime', description='StartTime'),
+  width?: long(name='Width', description='Width'),
 }
 
 model TaskInfo {
@@ -415,6 +425,7 @@ model TaskInfo {
   message?: string(name='Message', description='错误消息'),
   startTime?: string(name='StartTime', description='任务开始时间'),
   status?: string(name='Status', description='任务状态'),
+  tags?: map[string]any(name='Tags', description='标签'),
   taskId?: string(name='TaskId', description='任务唯一ID'),
   taskType?: string(name='TaskType', description='任务类型'),
   userData?: string(name='UserData', description='用户自定义信息'),
@@ -425,14 +436,26 @@ model TimeRange {
   start?: string(name='Start', description='start time'),
 }
 
+model TrimPolicy {
+  disableDeleteEmptyCell?: boolean(name='DisableDeleteEmptyCell', description='禁止删除所有空单元格'),
+  disableDeleteRepeatedStyle?: boolean(name='DisableDeleteRepeatedStyle', description='禁止删除所有重复样式'),
+  disableDeleteUnusedPicture?: boolean(name='DisableDeleteUnusedPicture', description='禁止删除未使用的单元格图片'),
+  disableDeleteUnusedShape?: boolean(name='DisableDeleteUnusedShape', description='禁止删除没有使用的Shape'),
+}
+
 model VideoStream {
   averageFrameRate?: string(name='AverageFrameRate', description='AverageFrameRate'),
+  bitDepth?: long(name='BitDepth', description='BitDepth'),
   bitrate?: long(name='Bitrate', description='Bitrate'),
   codecLongName?: string(name='CodecLongName', description='CodecLongName'),
   codecName?: string(name='CodecName', description='CodecName'),
   codecTag?: string(name='CodecTag', description='CodecTag'),
   codecTagString?: string(name='CodecTagString', description='CodecTagString'),
   codecTimeBase?: string(name='CodecTimeBase', description='CodecTimeBase'),
+  colorPrimaries?: string(name='ColorPrimaries', description='ColorPrimaries'),
+  colorRange?: string(name='ColorRange', description='ColorRange'),
+  colorSpace?: string(name='ColorSpace', description='ColorSpace'),
+  colorTransfer?: string(name='ColorTransfer', description='ColorTransfer'),
   displayAspectRatio?: string(name='DisplayAspectRatio', description='DisplayAspectRatio'),
   duration?: float(name='Duration', description='Duration'),
   frameCount?: long(name='FrameCount', description='FrameCount'),
@@ -474,6 +497,51 @@ model WebofficeWatermark {
   type?: long(name='Type', description='水印类型，目前仅支持文字水印，0: 无水印；1: 文字水印'),
   value?: string(name='Value', description='水印文字'),
   vertical?: long(name='Vertical', description='垂直间距'),
+}
+
+model AttachOSSBucketRequest {
+  OSSBucket?: string(name='OSSBucket'),
+  projectName?: string(name='ProjectName', description='项目名称'),
+}
+
+model AttachOSSBucketResponseBody = {
+  requestId?: string(name='RequestId', description='RequestId'),
+}
+
+model AttachOSSBucketResponse = {
+  headers: map[string]string(name='headers'),
+  body: AttachOSSBucketResponseBody(name='body'),
+}
+
+async function attachOSSBucketWithOptions(request: AttachOSSBucketRequest, runtime: Util.RuntimeOptions): AttachOSSBucketResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.OSSBucket)) {
+    query['OSSBucket'] = request.OSSBucket;
+  }
+  if (!Util.isUnset(request.projectName)) {
+    query['ProjectName'] = request.projectName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'AttachOSSBucket',
+    version = '2020-09-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function attachOSSBucket(request: AttachOSSBucketRequest): AttachOSSBucketResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return attachOSSBucketWithOptions(request, runtime);
 }
 
 model BatchDeleteFileMetaRequest {
@@ -870,6 +938,16 @@ model CreateDetectVideoLabelsTaskRequest {
   notifyTopicName?: string(name='NotifyTopicName', description='NotifyTopicName'),
   projectName?: string(name='ProjectName', description='项目名称'),
   sourceURI?: string(name='SourceURI', description='SourceURI'),
+  tags?: map[string]any(name='Tags'),
+  userData?: string(name='UserData', description='UserData'),
+}
+
+model CreateDetectVideoLabelsTaskShrinkRequest {
+  notifyEndpoint?: string(name='NotifyEndpoint', description='NotifyEndpoint'),
+  notifyTopicName?: string(name='NotifyTopicName', description='NotifyTopicName'),
+  projectName?: string(name='ProjectName', description='项目名称'),
+  sourceURI?: string(name='SourceURI', description='SourceURI'),
+  tagsShrink?: string(name='Tags'),
   userData?: string(name='UserData', description='UserData'),
 }
 
@@ -884,8 +962,13 @@ model CreateDetectVideoLabelsTaskResponse = {
   body: CreateDetectVideoLabelsTaskResponseBody(name='body'),
 }
 
-async function createDetectVideoLabelsTaskWithOptions(request: CreateDetectVideoLabelsTaskRequest, runtime: Util.RuntimeOptions): CreateDetectVideoLabelsTaskResponse {
-  Util.validateModel(request);
+async function createDetectVideoLabelsTaskWithOptions(tmpReq: CreateDetectVideoLabelsTaskRequest, runtime: Util.RuntimeOptions): CreateDetectVideoLabelsTaskResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateDetectVideoLabelsTaskShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.tags)) {
+    request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'Tags', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.notifyEndpoint)) {
     query['NotifyEndpoint'] = request.notifyEndpoint;
@@ -898,6 +981,9 @@ async function createDetectVideoLabelsTaskWithOptions(request: CreateDetectVideo
   }
   if (!Util.isUnset(request.sourceURI)) {
     query['SourceURI'] = request.sourceURI;
+  }
+  if (!Util.isUnset(request.tagsShrink)) {
+    query['Tags'] = request.tagsShrink;
   }
   if (!Util.isUnset(request.userData)) {
     query['UserData'] = request.userData;
@@ -929,6 +1015,16 @@ model CreateFigureClusteringTaskRequest {
   notifyEndpoint?: string(name='NotifyEndpoint'),
   notifyTopicName?: string(name='NotifyTopicName'),
   projectName?: string(name='ProjectName'),
+  tags?: map[string]any(name='Tags'),
+  userData?: string(name='UserData'),
+}
+
+model CreateFigureClusteringTaskShrinkRequest {
+  datasetName?: string(name='DatasetName'),
+  notifyEndpoint?: string(name='NotifyEndpoint'),
+  notifyTopicName?: string(name='NotifyTopicName'),
+  projectName?: string(name='ProjectName'),
+  tagsShrink?: string(name='Tags'),
   userData?: string(name='UserData'),
 }
 
@@ -943,8 +1039,13 @@ model CreateFigureClusteringTaskResponse = {
   body: CreateFigureClusteringTaskResponseBody(name='body'),
 }
 
-async function createFigureClusteringTaskWithOptions(request: CreateFigureClusteringTaskRequest, runtime: Util.RuntimeOptions): CreateFigureClusteringTaskResponse {
-  Util.validateModel(request);
+async function createFigureClusteringTaskWithOptions(tmpReq: CreateFigureClusteringTaskRequest, runtime: Util.RuntimeOptions): CreateFigureClusteringTaskResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateFigureClusteringTaskShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.tags)) {
+    request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'Tags', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.datasetName)) {
     query['DatasetName'] = request.datasetName;
@@ -957,6 +1058,9 @@ async function createFigureClusteringTaskWithOptions(request: CreateFigureCluste
   }
   if (!Util.isUnset(request.projectName)) {
     query['ProjectName'] = request.projectName;
+  }
+  if (!Util.isUnset(request.tagsShrink)) {
+    query['Tags'] = request.tagsShrink;
   }
   if (!Util.isUnset(request.userData)) {
     query['UserData'] = request.userData;
@@ -989,6 +1093,18 @@ model CreateFigureClustersMergingTaskRequest {
   notifyEndpoint?: string(name='NotifyEndpoint'),
   notifyTopicName?: string(name='NotifyTopicName'),
   projectName?: string(name='ProjectName'),
+  tags?: map[string]any(name='Tags'),
+  to?: string(name='To', description='目的cluster'),
+  userData?: string(name='UserData'),
+}
+
+model CreateFigureClustersMergingTaskShrinkRequest {
+  datasetName?: string(name='DatasetName'),
+  from?: string(name='From', description='源cluster'),
+  notifyEndpoint?: string(name='NotifyEndpoint'),
+  notifyTopicName?: string(name='NotifyTopicName'),
+  projectName?: string(name='ProjectName'),
+  tagsShrink?: string(name='Tags'),
   to?: string(name='To', description='目的cluster'),
   userData?: string(name='UserData'),
 }
@@ -1004,8 +1120,13 @@ model CreateFigureClustersMergingTaskResponse = {
   body: CreateFigureClustersMergingTaskResponseBody(name='body'),
 }
 
-async function createFigureClustersMergingTaskWithOptions(request: CreateFigureClustersMergingTaskRequest, runtime: Util.RuntimeOptions): CreateFigureClustersMergingTaskResponse {
-  Util.validateModel(request);
+async function createFigureClustersMergingTaskWithOptions(tmpReq: CreateFigureClustersMergingTaskRequest, runtime: Util.RuntimeOptions): CreateFigureClustersMergingTaskResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateFigureClustersMergingTaskShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.tags)) {
+    request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'Tags', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.datasetName)) {
     query['DatasetName'] = request.datasetName;
@@ -1021,6 +1142,9 @@ async function createFigureClustersMergingTaskWithOptions(request: CreateFigureC
   }
   if (!Util.isUnset(request.projectName)) {
     query['ProjectName'] = request.projectName;
+  }
+  if (!Util.isUnset(request.tagsShrink)) {
+    query['Tags'] = request.tagsShrink;
   }
   if (!Util.isUnset(request.to)) {
     query['To'] = request.to;
@@ -1048,6 +1172,423 @@ async function createFigureClustersMergingTaskWithOptions(request: CreateFigureC
 async function createFigureClustersMergingTask(request: CreateFigureClustersMergingTaskRequest): CreateFigureClustersMergingTaskResponse {
   var runtime = new Util.RuntimeOptions{};
   return createFigureClustersMergingTaskWithOptions(request, runtime);
+}
+
+model CreateMediaConvertTaskRequest {
+  datasetName?: string(name='DatasetName'),
+  notifyEndpoint?: string(name='NotifyEndpoint'),
+  notifyTopicName?: string(name='NotifyTopicName'),
+  projectName?: string(name='ProjectName'),
+  sources?: [ 
+    {
+      duration?: float(name='Duration'),
+      startTime?: float(name='StartTime'),
+      subtitles?: [ 
+        {
+          language?: string(name='Language'),
+          timeOffset?: float(name='TimeOffset'),
+          URI?: string(name='URI'),
+        }
+      ](name='Subtitles'),
+      URI?: string(name='URI'),
+    }
+  ](name='Sources'),
+  tags?: map[string]any(name='Tags'),
+  targets?: [ 
+    {
+      audio?: {
+        disableAudio?: boolean(name='DisableAudio'),
+        filterAudio?: {
+          mixing?: boolean(name='Mixing'),
+        }(name='FilterAudio'),
+        transcodeAudio?: {
+          bitrate?: int32(name='Bitrate'),
+          channel?: int32(name='Channel'),
+          codec?: string(name='Codec'),
+          quality?: int32(name='Quality'),
+          sampleRate?: int32(name='SampleRate'),
+        }(name='TranscodeAudio'),
+      }(name='Audio'),
+      container?: string(name='Container'),
+      image?: {
+        snapshots?: [ 
+          {
+            format?: string(name='Format'),
+            height?: int32(name='Height'),
+            interval?: float(name='Interval'),
+            number?: int32(name='Number'),
+            scaleType?: string(name='ScaleType'),
+            startTime?: float(name='StartTime'),
+            URI?: string(name='URI'),
+            width?: int32(name='Width'),
+          }
+        ](name='Snapshots'),
+        sprites?: [ 
+          {
+            format?: string(name='Format'),
+            interval?: float(name='Interval'),
+            margin?: int32(name='Margin'),
+            number?: int32(name='Number'),
+            pad?: int32(name='Pad'),
+            scaleHeight?: float(name='ScaleHeight'),
+            scaleType?: string(name='ScaleType'),
+            scaleWidth?: float(name='ScaleWidth'),
+            startTime?: float(name='StartTime'),
+            tileHeight?: int32(name='TileHeight'),
+            tileWidth?: int32(name='TileWidth'),
+            URI?: string(name='URI'),
+          }
+        ](name='Sprites'),
+      }(name='Image'),
+      presetId?: string(name='PresetId'),
+      segment?: {
+        duration?: float(name='Duration'),
+        format?: string(name='Format'),
+      }(name='Segment'),
+      speed?: float(name='Speed'),
+      subtitle?: {
+        disableSubtitle?: boolean(name='DisableSubtitle'),
+        extractSubtitle?: {
+          format?: string(name='Format'),
+          URI?: string(name='URI'),
+        }(name='ExtractSubtitle'),
+      }(name='Subtitle'),
+      URI?: string(name='URI'),
+      video?: {
+        disableVideo?: boolean(name='DisableVideo'),
+        filterVideo?: {
+          delogos?: [ 
+            {
+              durtion?: float(name='Durtion'),
+              dx?: float(name='Dx'),
+              dy?: float(name='Dy'),
+              height?: float(name='Height'),
+              referPos?: string(name='ReferPos'),
+              startTime?: float(name='StartTime'),
+              width?: float(name='Width'),
+            }
+          ](name='Delogos'),
+          watermarks?: [ 
+            {
+              borderColor?: string(name='BorderColor'),
+              borderWidth?: int32(name='BorderWidth'),
+              content?: string(name='Content'),
+              duration?: float(name='Duration'),
+              dx?: float(name='Dx'),
+              dy?: float(name='Dy'),
+              fontApha?: float(name='FontApha'),
+              fontColor?: string(name='FontColor'),
+              fontName?: string(name='FontName'),
+              fontSize?: int32(name='FontSize'),
+              height?: float(name='Height'),
+              referPos?: string(name='ReferPos'),
+              startTime?: float(name='StartTime'),
+              type?: string(name='Type'),
+              URI?: string(name='URI'),
+              width?: float(name='Width'),
+            }
+          ](name='Watermarks'),
+        }(name='FilterVideo'),
+        transcodeVideo?: {
+          adaptiveResolutionDirection?: boolean(name='AdaptiveResolutionDirection'),
+          BFrames?: int32(name='BFrames'),
+          bitrate?: int32(name='Bitrate'),
+          bufferSize?: int32(name='BufferSize'),
+          CRF?: float(name='CRF'),
+          codec?: string(name='Codec'),
+          frameRate?: float(name='FrameRate'),
+          GOPSize?: int32(name='GOPSize'),
+          maxBitrate?: int32(name='MaxBitrate'),
+          pixelFormat?: string(name='PixelFormat'),
+          refs?: int32(name='Refs'),
+          resolution?: string(name='Resolution'),
+          rotation?: int32(name='Rotation'),
+          scaleType?: string(name='ScaleType'),
+        }(name='TranscodeVideo'),
+      }(name='Video'),
+    }
+  ](name='Targets'),
+  userData?: string(name='UserData'),
+}
+
+model CreateMediaConvertTaskShrinkRequest {
+  datasetName?: string(name='DatasetName'),
+  notifyEndpoint?: string(name='NotifyEndpoint'),
+  notifyTopicName?: string(name='NotifyTopicName'),
+  projectName?: string(name='ProjectName'),
+  sourcesShrink?: string(name='Sources'),
+  tagsShrink?: string(name='Tags'),
+  targetsShrink?: string(name='Targets'),
+  userData?: string(name='UserData'),
+}
+
+model CreateMediaConvertTaskResponseBody = {
+  eventId?: string(name='EventId'),
+  requestId?: string(name='RequestId', description='请求 ID'),
+  taskId?: string(name='TaskId'),
+}
+
+model CreateMediaConvertTaskResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateMediaConvertTaskResponseBody(name='body'),
+}
+
+async function createMediaConvertTaskWithOptions(tmpReq: CreateMediaConvertTaskRequest, runtime: Util.RuntimeOptions): CreateMediaConvertTaskResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateMediaConvertTaskShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.sources)) {
+    request.sourcesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sources, 'Sources', 'json');
+  }
+  if (!Util.isUnset(tmpReq.tags)) {
+    request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'Tags', 'json');
+  }
+  if (!Util.isUnset(tmpReq.targets)) {
+    request.targetsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.targets, 'Targets', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.datasetName)) {
+    query['DatasetName'] = request.datasetName;
+  }
+  if (!Util.isUnset(request.notifyEndpoint)) {
+    query['NotifyEndpoint'] = request.notifyEndpoint;
+  }
+  if (!Util.isUnset(request.notifyTopicName)) {
+    query['NotifyTopicName'] = request.notifyTopicName;
+  }
+  if (!Util.isUnset(request.projectName)) {
+    query['ProjectName'] = request.projectName;
+  }
+  if (!Util.isUnset(request.sourcesShrink)) {
+    query['Sources'] = request.sourcesShrink;
+  }
+  if (!Util.isUnset(request.tagsShrink)) {
+    query['Tags'] = request.tagsShrink;
+  }
+  if (!Util.isUnset(request.targetsShrink)) {
+    query['Targets'] = request.targetsShrink;
+  }
+  if (!Util.isUnset(request.userData)) {
+    query['UserData'] = request.userData;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateMediaConvertTask',
+    version = '2020-09-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createMediaConvertTask(request: CreateMediaConvertTaskRequest): CreateMediaConvertTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createMediaConvertTaskWithOptions(request, runtime);
+}
+
+model CreateOfficeConversionTaskRequest {
+  assumeRoleChain?: AssumeRoleChain(name='AssumeRoleChain', description='链式授权'),
+  endPage?: long(name='EndPage', description='转换终止页，包含终止页，默认转换到最后一页，表格转图片时需要指定 SheetIndex 才有效'),
+  firstPage?: boolean(name='FirstPage', description='表格转图片参数，是否只返回表格的第一张图片，默认为否'),
+  fitToHeight?: boolean(name='FitToHeight', description='表格转图片参数，是否将所有行输出到一张图片，默认为否'),
+  fitToWidth?: boolean(name='FitToWidth', description='表格转图片参数，是否将所有列输出到一张图片，默认为否'),
+  holdLineFeed?: boolean(name='HoldLineFeed', description='转文本时是否保留文档中的换行符，默认不保留'),
+  longPicture?: boolean(name='LongPicture', description='转图片时是否转换成一张长图，最多支持将 20 页合成一张长图，超过可能报错，默认为不转成长图'),
+  longText?: boolean(name='LongText', description='转文本时是否转换成长文本，默认每页是个独立的文本'),
+  maxSheetColumn?: long(name='MaxSheetColumn', description='表格转图片的最大列数，在 LongPicture 为 true 时生效，默认转所有列'),
+  maxSheetRow?: long(name='MaxSheetRow', description='表格转图片的最大行数，在 LongPicture 为 true 时生效，默认转所有行'),
+  notifyEndpoint?: string(name='NotifyEndpoint', description='mns 消息通知地址'),
+  notifyTopicName?: string(name='NotifyTopicName', description='mns 消息通知 topic'),
+  paperHorizontal?: boolean(name='PaperHorizontal', description='表格转图片纸张是否水平放置，默认为否'),
+  paperSize?: string(name='PaperSize', description='表格转图片纸张大小，支持 A4/A2/A0，默认A4，配合 FitToHeight 或 FitToWidth 一起使用才有效'),
+  password?: string(name='Password', description='文档密码'),
+  projectName?: string(name='ProjectName', description='项目名称'),
+  quality?: long(name='Quality', description='质量参数，范围是0-100，越大质量越好，默认系统自动选择适合的分辨率'),
+  scalePercentage?: long(name='ScalePercentage', description='缩放参数，允许范围 20~200，100代表不缩放，小于100表示缩小，大于100表示放大，默认不缩放'),
+  sheetCount?: long(name='SheetCount', description='表格转图片参数，指定转换表格中的 sheet 数量，默认转换所有 sheet'),
+  sheetIndex?: long(name='SheetIndex', description='表格转图片参数，指定转换哪一个 sheet，从 1 开始，默认从起始页开始转'),
+  showComments?: boolean(name='ShowComments', description='文字转图片，是否显示批注，目前只支持文字转图片时携带批注，默认不显示批注'),
+  sourceType?: string(name='SourceType', description='输入文件格式，默认使用文件名后缀小写格式'),
+  sourceURI?: string(name='SourceURI', description='文档转换输入文件地址'),
+  startPage?: long(name='StartPage', description='转换起始页，从 1 开始，包含起始页，默认从第一页开始转换，表格转图片时需要指定 SheetIndex 才有效'),
+  tags?: map[string]any(name='Tags', description='用户自定义标签'),
+  targetType?: string(name='TargetType', description='输出文件格式'),
+  targetURIPrefix?: string(name='TargetURIPrefix', description='文档转换输出文件地址前缀'),
+  trimPolicy?: TrimPolicy(name='TrimPolicy', description='表格瘦身'),
+  userData?: string(name='UserData', description='用户自定义数据，在消息通知中返回'),
+}
+
+model CreateOfficeConversionTaskShrinkRequest {
+  assumeRoleChainShrink?: string(name='AssumeRoleChain', description='链式授权'),
+  endPage?: long(name='EndPage', description='转换终止页，包含终止页，默认转换到最后一页，表格转图片时需要指定 SheetIndex 才有效'),
+  firstPage?: boolean(name='FirstPage', description='表格转图片参数，是否只返回表格的第一张图片，默认为否'),
+  fitToHeight?: boolean(name='FitToHeight', description='表格转图片参数，是否将所有行输出到一张图片，默认为否'),
+  fitToWidth?: boolean(name='FitToWidth', description='表格转图片参数，是否将所有列输出到一张图片，默认为否'),
+  holdLineFeed?: boolean(name='HoldLineFeed', description='转文本时是否保留文档中的换行符，默认不保留'),
+  longPicture?: boolean(name='LongPicture', description='转图片时是否转换成一张长图，最多支持将 20 页合成一张长图，超过可能报错，默认为不转成长图'),
+  longText?: boolean(name='LongText', description='转文本时是否转换成长文本，默认每页是个独立的文本'),
+  maxSheetColumn?: long(name='MaxSheetColumn', description='表格转图片的最大列数，在 LongPicture 为 true 时生效，默认转所有列'),
+  maxSheetRow?: long(name='MaxSheetRow', description='表格转图片的最大行数，在 LongPicture 为 true 时生效，默认转所有行'),
+  notifyEndpoint?: string(name='NotifyEndpoint', description='mns 消息通知地址'),
+  notifyTopicName?: string(name='NotifyTopicName', description='mns 消息通知 topic'),
+  paperHorizontal?: boolean(name='PaperHorizontal', description='表格转图片纸张是否水平放置，默认为否'),
+  paperSize?: string(name='PaperSize', description='表格转图片纸张大小，支持 A4/A2/A0，默认A4，配合 FitToHeight 或 FitToWidth 一起使用才有效'),
+  password?: string(name='Password', description='文档密码'),
+  projectName?: string(name='ProjectName', description='项目名称'),
+  quality?: long(name='Quality', description='质量参数，范围是0-100，越大质量越好，默认系统自动选择适合的分辨率'),
+  scalePercentage?: long(name='ScalePercentage', description='缩放参数，允许范围 20~200，100代表不缩放，小于100表示缩小，大于100表示放大，默认不缩放'),
+  sheetCount?: long(name='SheetCount', description='表格转图片参数，指定转换表格中的 sheet 数量，默认转换所有 sheet'),
+  sheetIndex?: long(name='SheetIndex', description='表格转图片参数，指定转换哪一个 sheet，从 1 开始，默认从起始页开始转'),
+  showComments?: boolean(name='ShowComments', description='文字转图片，是否显示批注，目前只支持文字转图片时携带批注，默认不显示批注'),
+  sourceType?: string(name='SourceType', description='输入文件格式，默认使用文件名后缀小写格式'),
+  sourceURI?: string(name='SourceURI', description='文档转换输入文件地址'),
+  startPage?: long(name='StartPage', description='转换起始页，从 1 开始，包含起始页，默认从第一页开始转换，表格转图片时需要指定 SheetIndex 才有效'),
+  tagsShrink?: string(name='Tags', description='用户自定义标签'),
+  targetType?: string(name='TargetType', description='输出文件格式'),
+  targetURIPrefix?: string(name='TargetURIPrefix', description='文档转换输出文件地址前缀'),
+  trimPolicyShrink?: string(name='TrimPolicy', description='表格瘦身'),
+  userData?: string(name='UserData', description='用户自定义数据，在消息通知中返回'),
+}
+
+model CreateOfficeConversionTaskResponseBody = {
+  eventId?: string(name='EventId'),
+  requestId?: string(name='RequestId', description='请求 id'),
+  taskId?: string(name='TaskId', description='任务 id'),
+}
+
+model CreateOfficeConversionTaskResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateOfficeConversionTaskResponseBody(name='body'),
+}
+
+async function createOfficeConversionTaskWithOptions(tmpReq: CreateOfficeConversionTaskRequest, runtime: Util.RuntimeOptions): CreateOfficeConversionTaskResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateOfficeConversionTaskShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.assumeRoleChain)) {
+    request.assumeRoleChainShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.assumeRoleChain, 'AssumeRoleChain', 'json');
+  }
+  if (!Util.isUnset(tmpReq.tags)) {
+    request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'Tags', 'json');
+  }
+  if (!Util.isUnset(tmpReq.trimPolicy)) {
+    request.trimPolicyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.trimPolicy, 'TrimPolicy', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.assumeRoleChainShrink)) {
+    query['AssumeRoleChain'] = request.assumeRoleChainShrink;
+  }
+  if (!Util.isUnset(request.endPage)) {
+    query['EndPage'] = request.endPage;
+  }
+  if (!Util.isUnset(request.firstPage)) {
+    query['FirstPage'] = request.firstPage;
+  }
+  if (!Util.isUnset(request.fitToHeight)) {
+    query['FitToHeight'] = request.fitToHeight;
+  }
+  if (!Util.isUnset(request.fitToWidth)) {
+    query['FitToWidth'] = request.fitToWidth;
+  }
+  if (!Util.isUnset(request.holdLineFeed)) {
+    query['HoldLineFeed'] = request.holdLineFeed;
+  }
+  if (!Util.isUnset(request.longPicture)) {
+    query['LongPicture'] = request.longPicture;
+  }
+  if (!Util.isUnset(request.longText)) {
+    query['LongText'] = request.longText;
+  }
+  if (!Util.isUnset(request.maxSheetColumn)) {
+    query['MaxSheetColumn'] = request.maxSheetColumn;
+  }
+  if (!Util.isUnset(request.maxSheetRow)) {
+    query['MaxSheetRow'] = request.maxSheetRow;
+  }
+  if (!Util.isUnset(request.notifyEndpoint)) {
+    query['NotifyEndpoint'] = request.notifyEndpoint;
+  }
+  if (!Util.isUnset(request.notifyTopicName)) {
+    query['NotifyTopicName'] = request.notifyTopicName;
+  }
+  if (!Util.isUnset(request.paperHorizontal)) {
+    query['PaperHorizontal'] = request.paperHorizontal;
+  }
+  if (!Util.isUnset(request.paperSize)) {
+    query['PaperSize'] = request.paperSize;
+  }
+  if (!Util.isUnset(request.password)) {
+    query['Password'] = request.password;
+  }
+  if (!Util.isUnset(request.projectName)) {
+    query['ProjectName'] = request.projectName;
+  }
+  if (!Util.isUnset(request.quality)) {
+    query['Quality'] = request.quality;
+  }
+  if (!Util.isUnset(request.scalePercentage)) {
+    query['ScalePercentage'] = request.scalePercentage;
+  }
+  if (!Util.isUnset(request.sheetCount)) {
+    query['SheetCount'] = request.sheetCount;
+  }
+  if (!Util.isUnset(request.sheetIndex)) {
+    query['SheetIndex'] = request.sheetIndex;
+  }
+  if (!Util.isUnset(request.showComments)) {
+    query['ShowComments'] = request.showComments;
+  }
+  if (!Util.isUnset(request.sourceType)) {
+    query['SourceType'] = request.sourceType;
+  }
+  if (!Util.isUnset(request.sourceURI)) {
+    query['SourceURI'] = request.sourceURI;
+  }
+  if (!Util.isUnset(request.startPage)) {
+    query['StartPage'] = request.startPage;
+  }
+  if (!Util.isUnset(request.tagsShrink)) {
+    query['Tags'] = request.tagsShrink;
+  }
+  if (!Util.isUnset(request.targetType)) {
+    query['TargetType'] = request.targetType;
+  }
+  if (!Util.isUnset(request.targetURIPrefix)) {
+    query['TargetURIPrefix'] = request.targetURIPrefix;
+  }
+  if (!Util.isUnset(request.trimPolicyShrink)) {
+    query['TrimPolicy'] = request.trimPolicyShrink;
+  }
+  if (!Util.isUnset(request.userData)) {
+    query['UserData'] = request.userData;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateOfficeConversionTask',
+    version = '2020-09-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createOfficeConversionTask(request: CreateOfficeConversionTaskRequest): CreateOfficeConversionTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createOfficeConversionTaskWithOptions(request, runtime);
 }
 
 model CreateProjectRequest {
@@ -1151,6 +1692,8 @@ model CreateStoryRequest {
   storyStartTime?: string(name='StoryStartTime'),
   storySubType?: string(name='StorySubType'),
   storyType?: string(name='StoryType'),
+  tags?: map[string]any(name='Tags'),
+  userData?: string(name='UserData'),
 }
 
 model CreateStoryShrinkRequest {
@@ -1168,6 +1711,8 @@ model CreateStoryShrinkRequest {
   storyStartTime?: string(name='StoryStartTime'),
   storySubType?: string(name='StorySubType'),
   storyType?: string(name='StoryType'),
+  tagsShrink?: string(name='Tags'),
+  userData?: string(name='UserData'),
 }
 
 model CreateStoryResponseBody = {
@@ -1187,6 +1732,16 @@ async function createStoryWithOptions(tmpReq: CreateStoryRequest, runtime: Util.
   OpenApiUtil.convert(tmpReq, request);
   if (!Util.isUnset(tmpReq.customLabels)) {
     request.customLabelsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.customLabels, 'CustomLabels', 'json');
+  }
+  if (!Util.isUnset(tmpReq.tags)) {
+    request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'Tags', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.tagsShrink)) {
+    query['Tags'] = request.tagsShrink;
+  }
+  if (!Util.isUnset(request.userData)) {
+    query['UserData'] = request.userData;
   }
   var body : map[string]any= {};
   if (!Util.isUnset(request.customId)) {
@@ -1232,6 +1787,7 @@ async function createStoryWithOptions(tmpReq: CreateStoryRequest, runtime: Util.
     body['StoryType'] = request.storyType;
   }
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
@@ -1488,6 +2044,99 @@ async function deleteStoryWithOptions(request: DeleteStoryRequest, runtime: Util
 async function deleteStory(request: DeleteStoryRequest): DeleteStoryResponse {
   var runtime = new Util.RuntimeOptions{};
   return deleteStoryWithOptions(request, runtime);
+}
+
+model DetachOSSBucketRequest {
+  OSSBucket?: string(name='OSSBucket'),
+}
+
+model DetachOSSBucketResponseBody = {
+  requestId?: string(name='RequestId', description='RequestId'),
+}
+
+model DetachOSSBucketResponse = {
+  headers: map[string]string(name='headers'),
+  body: DetachOSSBucketResponseBody(name='body'),
+}
+
+async function detachOSSBucketWithOptions(request: DetachOSSBucketRequest, runtime: Util.RuntimeOptions): DetachOSSBucketResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.OSSBucket)) {
+    query['OSSBucket'] = request.OSSBucket;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DetachOSSBucket',
+    version = '2020-09-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function detachOSSBucket(request: DetachOSSBucketRequest): DetachOSSBucketResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return detachOSSBucketWithOptions(request, runtime);
+}
+
+model DetectImageCroppingRequest {
+  aspectRatios?: string(name='AspectRatios'),
+  projectName?: string(name='ProjectName', description='项目名称'),
+  sourceURI?: string(name='SourceURI', description='SourceURI'),
+}
+
+model DetectImageCroppingResponseBody = {
+  croppings?: [
+    CroppingSuggestion
+  ](name='Croppings', description='图片裁剪结果'),
+  requestId?: string(name='RequestId', description='请求唯一ID'),
+}
+
+model DetectImageCroppingResponse = {
+  headers: map[string]string(name='headers'),
+  body: DetectImageCroppingResponseBody(name='body'),
+}
+
+async function detectImageCroppingWithOptions(request: DetectImageCroppingRequest, runtime: Util.RuntimeOptions): DetectImageCroppingResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.aspectRatios)) {
+    query['AspectRatios'] = request.aspectRatios;
+  }
+  if (!Util.isUnset(request.projectName)) {
+    query['ProjectName'] = request.projectName;
+  }
+  if (!Util.isUnset(request.sourceURI)) {
+    query['SourceURI'] = request.sourceURI;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DetectImageCropping',
+    version = '2020-09-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function detectImageCropping(request: DetectImageCroppingRequest): DetectImageCroppingResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return detectImageCroppingWithOptions(request, runtime);
 }
 
 model DetectImageFacesRequest {
@@ -1963,6 +2612,124 @@ async function getFileMeta(request: GetFileMetaRequest): GetFileMetaResponse {
   return getFileMetaWithOptions(request, runtime);
 }
 
+model GetMediaMetaRequest {
+  projectName?: string(name='ProjectName'),
+  sourceURI?: string(name='SourceURI'),
+}
+
+model GetMediaMetaResponseBody = {
+  addresses?: [
+    Address
+  ](name='Addresses'),
+  album?: string(name='Album'),
+  albumArtist?: string(name='AlbumArtist'),
+  artist?: string(name='Artist'),
+  audioStreams?: [
+    AudioStream
+  ](name='AudioStreams'),
+  bitrate?: long(name='Bitrate'),
+  composer?: string(name='Composer'),
+  duration?: double(name='Duration'),
+  formatLongName?: string(name='FormatLongName'),
+  formatName?: string(name='FormatName'),
+  language?: string(name='Language'),
+  latLong?: string(name='LatLong'),
+  performer?: string(name='Performer'),
+  produceTime?: string(name='ProduceTime'),
+  programCount?: long(name='ProgramCount'),
+  requestId?: string(name='RequestId'),
+  startTime?: double(name='StartTime'),
+  streamCount?: long(name='StreamCount'),
+  subtitles?: [
+    SubtitleStream
+  ](name='Subtitles'),
+  title?: string(name='Title'),
+  videoHeight?: long(name='VideoHeight'),
+  videoStartTime?: double(name='VideoStartTime'),
+  videoStreams?: [
+    VideoStream
+  ](name='VideoStreams'),
+  videoWidth?: long(name='VideoWidth'),
+}
+
+model GetMediaMetaResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetMediaMetaResponseBody(name='body'),
+}
+
+async function getMediaMetaWithOptions(request: GetMediaMetaRequest, runtime: Util.RuntimeOptions): GetMediaMetaResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.projectName)) {
+    query['ProjectName'] = request.projectName;
+  }
+  if (!Util.isUnset(request.sourceURI)) {
+    query['SourceURI'] = request.sourceURI;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetMediaMeta',
+    version = '2020-09-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getMediaMeta(request: GetMediaMetaRequest): GetMediaMetaResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getMediaMetaWithOptions(request, runtime);
+}
+
+model GetOSSBucketAttachmentRequest {
+  OSSBucket?: string(name='OSSBucket'),
+}
+
+model GetOSSBucketAttachmentResponseBody = {
+  projectName?: string(name='ProjectName'),
+  requestId?: string(name='RequestId', description='RequestId'),
+}
+
+model GetOSSBucketAttachmentResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetOSSBucketAttachmentResponseBody(name='body'),
+}
+
+async function getOSSBucketAttachmentWithOptions(request: GetOSSBucketAttachmentRequest, runtime: Util.RuntimeOptions): GetOSSBucketAttachmentResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.OSSBucket)) {
+    query['OSSBucket'] = request.OSSBucket;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetOSSBucketAttachment',
+    version = '2020-09-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getOSSBucketAttachment(request: GetOSSBucketAttachmentRequest): GetOSSBucketAttachmentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getOSSBucketAttachmentWithOptions(request, runtime);
+}
+
 model GetProjectRequest {
   projectName?: string(name='ProjectName', description='项目名称'),
   withStatistics?: boolean(name='WithStatistics', description='是否获取详细信息'),
@@ -2074,6 +2841,7 @@ model GetTaskResponseBody = {
   requestId?: string(name='RequestId', description='请求唯一Id'),
   startTime?: string(name='StartTime', description='任务开始时间'),
   status?: string(name='Status', description='任务运行状态'),
+  tags?: map[string]any(name='Tags'),
   taskId?: string(name='TaskId', description='任务唯一ID'),
   taskType?: string(name='TaskType', description='任务类型'),
   userData?: string(name='UserData', description='用户自定义信息'),
@@ -2120,6 +2888,7 @@ async function getTask(request: GetTaskRequest): GetTaskResponse {
 
 model GetWebofficeURLRequest {
   assumeRoleChain?: AssumeRoleChain(name='AssumeRoleChain', description='链式授权'),
+  cachePreview?: boolean(name='CachePreview', description='缓存预览标识'),
   externalUploaded?: boolean(name='ExternalUploaded', description='是否支持外部上传'),
   filename?: string(name='Filename', description='文件名，必须带文件名后缀，默认是 SourceUri 的最后一级'),
   hidecmb?: boolean(name='Hidecmb', description='隐藏工具栏，预览模式下使用'),
@@ -2138,6 +2907,7 @@ model GetWebofficeURLRequest {
 
 model GetWebofficeURLShrinkRequest {
   assumeRoleChainShrink?: string(name='AssumeRoleChain', description='链式授权'),
+  cachePreview?: boolean(name='CachePreview', description='缓存预览标识'),
   externalUploaded?: boolean(name='ExternalUploaded', description='是否支持外部上传'),
   filename?: string(name='Filename', description='文件名，必须带文件名后缀，默认是 SourceUri 的最后一级'),
   hidecmb?: boolean(name='Hidecmb', description='隐藏工具栏，预览模式下使用'),
@@ -2187,6 +2957,9 @@ async function getWebofficeURLWithOptions(tmpReq: GetWebofficeURLRequest, runtim
   var query = {};
   if (!Util.isUnset(request.assumeRoleChainShrink)) {
     query['AssumeRoleChain'] = request.assumeRoleChainShrink;
+  }
+  if (!Util.isUnset(request.cachePreview)) {
+    query['CachePreview'] = request.cachePreview;
   }
   if (!Util.isUnset(request.externalUploaded)) {
     query['ExternalUploaded'] = request.externalUploaded;
@@ -2493,8 +3266,21 @@ async function listProjects(request: ListProjectsRequest): ListProjectsResponse 
 model ListTasksRequest {
   maxResults?: long(name='MaxResults', description='MaxResults'),
   nextToken?: string(name='NextToken', description='NextToken'),
+  order?: string(name='Order'),
   projectName?: string(name='ProjectName', description='项目名称'),
-  taskType?: string(name='TaskType', description='TaskType'),
+  sort?: string(name='Sort'),
+  tagSelector?: string(name='TagSelector'),
+  taskTypes?: [ string ](name='TaskTypes'),
+}
+
+model ListTasksShrinkRequest {
+  maxResults?: long(name='MaxResults', description='MaxResults'),
+  nextToken?: string(name='NextToken', description='NextToken'),
+  order?: string(name='Order'),
+  projectName?: string(name='ProjectName', description='项目名称'),
+  sort?: string(name='Sort'),
+  tagSelector?: string(name='TagSelector'),
+  taskTypesShrink?: string(name='TaskTypes'),
 }
 
 model ListTasksResponseBody = {
@@ -2512,8 +3298,13 @@ model ListTasksResponse = {
   body: ListTasksResponseBody(name='body'),
 }
 
-async function listTasksWithOptions(request: ListTasksRequest, runtime: Util.RuntimeOptions): ListTasksResponse {
-  Util.validateModel(request);
+async function listTasksWithOptions(tmpReq: ListTasksRequest, runtime: Util.RuntimeOptions): ListTasksResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListTasksShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.taskTypes)) {
+    request.taskTypesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.taskTypes, 'TaskTypes', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.maxResults)) {
     query['MaxResults'] = request.maxResults;
@@ -2521,11 +3312,20 @@ async function listTasksWithOptions(request: ListTasksRequest, runtime: Util.Run
   if (!Util.isUnset(request.nextToken)) {
     query['NextToken'] = request.nextToken;
   }
+  if (!Util.isUnset(request.order)) {
+    query['Order'] = request.order;
+  }
   if (!Util.isUnset(request.projectName)) {
     query['ProjectName'] = request.projectName;
   }
-  if (!Util.isUnset(request.taskType)) {
-    query['TaskType'] = request.taskType;
+  if (!Util.isUnset(request.sort)) {
+    query['Sort'] = request.sort;
+  }
+  if (!Util.isUnset(request.tagSelector)) {
+    query['TagSelector'] = request.tagSelector;
+  }
+  if (!Util.isUnset(request.taskTypesShrink)) {
+    query['TaskTypes'] = request.taskTypesShrink;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -2696,7 +3496,9 @@ model QueryStoriesRequest {
   maxResults?: long(name='MaxResults'),
   nextToken?: string(name='NextToken'),
   objectId?: string(name='ObjectId'),
+  order?: string(name='Order'),
   projectName?: string(name='ProjectName'),
+  sort?: string(name='Sort'),
   storyEndTimeRange?: TimeRange(name='StoryEndTimeRange'),
   storyName?: string(name='StoryName'),
   storyStartTimeRange?: TimeRange(name='StoryStartTimeRange'),
@@ -2713,7 +3515,9 @@ model QueryStoriesShrinkRequest {
   maxResults?: long(name='MaxResults'),
   nextToken?: string(name='NextToken'),
   objectId?: string(name='ObjectId'),
+  order?: string(name='Order'),
   projectName?: string(name='ProjectName'),
+  sort?: string(name='Sort'),
   storyEndTimeRangeShrink?: string(name='StoryEndTimeRange'),
   storyName?: string(name='StoryName'),
   storyStartTimeRangeShrink?: string(name='StoryStartTimeRange'),
@@ -2773,8 +3577,14 @@ async function queryStoriesWithOptions(tmpReq: QueryStoriesRequest, runtime: Uti
   if (!Util.isUnset(request.objectId)) {
     query['ObjectId'] = request.objectId;
   }
+  if (!Util.isUnset(request.order)) {
+    query['Order'] = request.order;
+  }
   if (!Util.isUnset(request.projectName)) {
     query['ProjectName'] = request.projectName;
+  }
+  if (!Util.isUnset(request.sort)) {
+    query['Sort'] = request.sort;
   }
   if (!Util.isUnset(request.storyEndTimeRangeShrink)) {
     query['StoryEndTimeRange'] = request.storyEndTimeRangeShrink;
