@@ -897,6 +897,7 @@ async function enableScene(request: EnableSceneRequest): EnableSceneResponse {
 
 model GetKnowledgeRequest {
   knowledgeId?: long(name='KnowledgeId', description='知识id'),
+  needSolution?: boolean(name='NeedSolution'),
   operatorId?: string(name='OperatorId', description='操作人id'),
   operatorName?: string(name='OperatorName', description='操作人名称'),
   robotCode?: string(name='RobotCode', description='机器人code'),
@@ -905,6 +906,11 @@ model GetKnowledgeRequest {
 model GetKnowledgeResponseBody = {
   code?: string(name='Code', description='返回code'),
   knowledge?: {
+    category?: {
+      categoryId?: long(name='CategoryId'),
+      categoryName?: string(name='CategoryName'),
+      parentCategoryId?: long(name='ParentCategoryId'),
+    }(name='Category'),
     createTime?: string(name='CreateTime', description='创建时间'),
     createUserId?: string(name='CreateUserId', description='创建用户id'),
     knowledgeDescription?: string(name='KnowledgeDescription', description='场景描述'),
@@ -913,6 +919,12 @@ model GetKnowledgeResponseBody = {
     knowledgeTitle?: string(name='KnowledgeTitle', description='知识标题'),
     modifyTime?: string(name='ModifyTime', description='修改时间'),
     modifyUserId?: string(name='ModifyUserId', description='修改用户id'),
+    packages?: [ 
+      {
+        packageCode?: string(name='PackageCode'),
+        packageName?: string(name='PackageName'),
+      }
+    ](name='Packages'),
     sceneKey?: string(name='SceneKey', description='场景key'),
     similarQuestions?: [ 
       {
@@ -968,6 +980,9 @@ async function getKnowledgeWithOptions(request: GetKnowledgeRequest, runtime: Ut
   var body : map[string]any= {};
   if (!Util.isUnset(request.knowledgeId)) {
     body['KnowledgeId'] = request.knowledgeId;
+  }
+  if (!Util.isUnset(request.needSolution)) {
+    body['NeedSolution'] = request.needSolution;
   }
   if (!Util.isUnset(request.operatorId)) {
     body['OperatorId'] = request.operatorId;
@@ -1196,8 +1211,6 @@ async function getSolution(request: GetSolutionRequest): GetSolutionResponse {
 }
 
 model GetStsTokenRequest {
-  accessKey?: string(name='AccessKey'),
-  accessSecret?: string(name='AccessSecret'),
   tenantId?: long(name='TenantId'),
 }
 
@@ -3696,6 +3709,78 @@ async function uninstallPackageWithOptions(tmpReq: UninstallPackageRequest, runt
 async function uninstallPackage(request: UninstallPackageRequest): UninstallPackageResponse {
   var runtime = new Util.RuntimeOptions{};
   return uninstallPackageWithOptions(request, runtime);
+}
+
+model UpdateKnowledgeRequest {
+  knowledge?: {
+    knowledgeId?: long(name='KnowledgeId'),
+    similarQuestions?: [ 
+      {
+        action?: string(name='Action'),
+        similarQuestionEffectType?: string(name='SimilarQuestionEffectType'),
+        similarQuestionId?: long(name='SimilarQuestionId'),
+        similarQuestionTitle?: string(name='SimilarQuestionTitle'),
+      }
+    ](name='SimilarQuestions'),
+  }(name='Knowledge'),
+  operatorId?: string(name='OperatorId'),
+  operatorName?: string(name='OperatorName'),
+  robotCode?: string(name='RobotCode'),
+}
+
+model UpdateKnowledgeResponseBody = {
+  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success'),
+}
+
+model UpdateKnowledgeResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateKnowledgeResponseBody(name='body'),
+}
+
+async function updateKnowledgeWithOptions(request: UpdateKnowledgeRequest, runtime: Util.RuntimeOptions): UpdateKnowledgeResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  var bodyFlat : map[string]any= {};
+  if (!Util.isUnset(request.knowledge)) {
+    bodyFlat['Knowledge'] = request.knowledge;
+  }
+  if (!Util.isUnset(request.operatorId)) {
+    body['OperatorId'] = request.operatorId;
+  }
+  if (!Util.isUnset(request.operatorName)) {
+    body['OperatorName'] = request.operatorName;
+  }
+  if (!Util.isUnset(request.robotCode)) {
+    body['RobotCode'] = request.robotCode;
+  }
+  body = {
+    ...body,
+    ...OpenApiUtil.query(bodyFlat),
+  };
+
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateKnowledge',
+    version = '2021-02-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function updateKnowledge(request: UpdateKnowledgeRequest): UpdateKnowledgeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateKnowledgeWithOptions(request, runtime);
 }
 
 model UpdateRobotRequest {
