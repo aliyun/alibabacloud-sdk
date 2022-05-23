@@ -1,0 +1,87 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @signatureAlgorithm = 'v2';
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('btripopen', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model TakeAccessTokenRequest {
+  appKey?: string(name='app_key'),
+  appSecret?: string(name='app_secret'),
+}
+
+model TakeAccessTokenResponseBody = {
+  code?: string(name='code'),
+  data?: {
+    accessToken?: string(name='access_token'),
+    expire?: long(name='expire'),
+  }(name='data'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId', description='Id of the request'),
+  success?: string(name='success'),
+}
+
+model TakeAccessTokenResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: TakeAccessTokenResponseBody(name='body'),
+}
+
+async function takeAccessToken(request: TakeAccessTokenRequest): TakeAccessTokenResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return takeAccessTokenWithOptions(request, headers, runtime);
+}
+
+async function takeAccessTokenWithOptions(request: TakeAccessTokenRequest, headers: map[string]string, runtime: Util.RuntimeOptions): TakeAccessTokenResponse {
+  Util.validateModel(request);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.appKey)) {
+    query['app_key'] = request.appKey;
+  }
+  if (!Util.isUnset(request.appSecret)) {
+    query['app_secret'] = request.appSecret;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'TakeAccessToken',
+    version = '2022-05-17',
+    protocol = 'HTTPS',
+    pathname = `/btrip/open/access-token/take`,
+    method = 'GET',
+    authType = 'Anonymous',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
