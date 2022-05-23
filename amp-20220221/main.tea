@@ -1,0 +1,72 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('amp', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model QueryByIdRequest {
+  address?: string(name='address', description='fsdfs'),
+}
+
+model QueryByIdResponseBody = {
+  address?: string(name='Address'),
+  color?: string(name='Color', description='fsdfsa'),
+  name?: string(name='Name'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model QueryByIdResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: QueryByIdResponseBody(name='body'),
+}
+
+async function queryByIdWithOptions(request: QueryByIdRequest, runtime: Util.RuntimeOptions): QueryByIdResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryById',
+    version = '2022-02-21',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function queryById(request: QueryByIdRequest): QueryByIdResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryByIdWithOptions(request, runtime);
+}
+
