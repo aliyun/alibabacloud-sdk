@@ -119,6 +119,14 @@ model PaasFunctionPluginFieldDataDTO {
   type?: string(name='Type', description='Type'),
 }
 
+model PaasFunctionPluginParams {
+  body?: string(name='Body', description='Body'),
+  header?: map[string]string(name='Header', description='Header'),
+  method: string(name='Method', description='Method'),
+  query?: map[string]string(name='Query', description='Query'),
+  url: string(name='Url', description='Url'),
+}
+
 model PaasNodeDTO {
   code?: string(name='Code', description='Code'),
   id?: string(name='Id', description='Id'),
@@ -221,6 +229,15 @@ model TagMtopDTO {
   value?: string(name='Value', description='Value'),
 }
 
+model UpdateDialogFlowModuleDefinition {
+  edges?: [
+    PaasEdgeDTO
+  ](name='Edges', description='Edges'),
+  nodes?: [
+    PaasNodeDTO
+  ](name='Nodes', description='Nodes'),
+}
+
 model UsersayMtopDTO {
   data?: [
     SectionMtopDTO
@@ -230,6 +247,7 @@ model UsersayMtopDTO {
 }
 
 model ActivatePerspectiveRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   perspectiveId: string(name='PerspectiveId', position='Query'),
   regionId?: string(name='RegionId', position='Host'),
 }
@@ -249,6 +267,7 @@ async function activatePerspective(request: ActivatePerspectiveRequest): Activat
 }
 
 model AddSynonymRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   coreWordName: string(name='CoreWordName', position='Query'),
   synonym: string(name='Synonym', position='Query'),
 }
@@ -268,12 +287,13 @@ async function addSynonym(request: AddSynonymRequest): AddSynonymResponse {
 }
 
 model AppendEntityMemberRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   applyType: string(name='ApplyType', position='Query'),
   entityId: long(name='EntityId', position='Query'),
   member: {
     memberName: string(name='MemberName'),
     synonyms: [ string ](name='Synonyms'),
-  }(name='Member', position='Query'),
+  }(name='Member', shrink='json', position='Query'),
 }
 
 model AppendEntityMemberResponseBody = {
@@ -292,6 +312,7 @@ async function appendEntityMember(request: AppendEntityMemberRequest): AppendEnt
 }
 
 model AssociateRequest {
+  agentKey?: string(name='AgentKey', position='Query'),
   instanceId: string(name='InstanceId', position='Query'),
   perspective?: [ string ](name='Perspective', position='Query'),
   recommendNum?: int32(name='RecommendNum', position='Query'),
@@ -322,11 +343,11 @@ async function associate(request: AssociateRequest): AssociateResponse {
 }
 
 model ChatRequest {
+  agentKey?: string(name='AgentKey', position='Query'),
   instanceId: string(name='InstanceId', position='Query'),
   intentName?: string(name='IntentName', position='Query'),
   knowledgeId?: string(name='KnowledgeId', position='Query'),
   perspective?: [ string ](name='Perspective', position='Query'),
-  recommend?: boolean(name='Recommend', position='Query'),
   senderId?: string(name='SenderId', position='Query'),
   senderNick?: string(name='SenderNick', position='Query'),
   sessionId?: string(name='SessionId', position='Query'),
@@ -361,17 +382,15 @@ model ChatResponseBody = {
       recommends?: [ 
         {
           answerSource?: string(name='AnswerSource'),
-          category?: string(name='Category'),
-          content?: string(name='Content'),
           knowledgeId?: string(name='KnowledgeId'),
           score?: double(name='Score'),
-          summary?: string(name='Summary'),
           title?: string(name='Title'),
         }
       ](name='Recommends'),
       text?: {
         answerSource?: string(name='AnswerSource'),
         articleTitle?: string(name='ArticleTitle'),
+        commands?: map[string]any(name='Commands'),
         content?: string(name='Content'),
         contentType?: string(name='ContentType'),
         dialogName?: string(name='DialogName'),
@@ -393,7 +412,9 @@ model ChatResponseBody = {
         ](name='Slots'),
         userDefinedChatTitle?: string(name='UserDefinedChatTitle'),
       }(name='Text'),
+      title?: string(name='Title', description='在线场景，反问标题'),
       type?: string(name='Type'),
+      voiceTitle?: string(name='VoiceTitle', description='语音场景，澄清内容'),
     }
   ](name='Messages'),
   requestId?: string(name='RequestId'),
@@ -411,30 +432,8 @@ async function chat(request: ChatRequest): ChatResponse {
   return @handler.do('RPC', 'Chat', 'POST', '/', 'json', false, 'json', request);
 }
 
-model CreateBizDataRangeRequest {
-  dataType: string(name='DataType', position='Query'),
-  manageCode: string(name='ManageCode', position='Query'),
-  name: string(name='Name', position='Query'),
-  parentBizDataRangeId?: long(name='ParentBizDataRangeId', position='Query'),
-}
-
-model CreateBizDataRangeResponseBody = {
-  bizDataRangeId?: long(name='BizDataRangeId'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-}
-
-model CreateBizDataRangeResponse = {
-  headers: map[string]string(name='headers'),
-  body: CreateBizDataRangeResponseBody(name='body'),
-}
-
-async function createBizDataRange(request: CreateBizDataRangeRequest): CreateBizDataRangeResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'CreateBizDataRange', 'POST', '/', 'json', false, 'json', request);
-}
-
 model CreateBotRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   avatar?: string(name='Avatar', position='Query'),
   introduction?: string(name='Introduction', position='Query'),
   languageCode: string(name='LanguageCode', position='Query'),
@@ -459,6 +458,7 @@ async function createBot(request: CreateBotRequest): CreateBotResponse {
 }
 
 model CreateCategoryRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   bizCode?: string(name='BizCode', position='Query'),
   knowledgeType?: int32(name='KnowledgeType', position='Query'),
   name: string(name='Name', position='Query'),
@@ -481,28 +481,8 @@ async function createCategory(request: CreateCategoryRequest): CreateCategoryRes
   return @handler.do('RPC', 'CreateCategory', 'POST', '/', 'json', false, 'json', request);
 }
 
-model CreateClusterLoopRequest {
-  params: string(name='Params', position='Query'),
-  title: string(name='Title', position='Query'),
-}
-
-model CreateClusterLoopResponseBody = {
-  data?: long(name='Data'),
-  message?: string(name='Message'),
-  success?: boolean(name='Success'),
-}
-
-model CreateClusterLoopResponse = {
-  headers: map[string]string(name='headers'),
-  body: CreateClusterLoopResponseBody(name='body'),
-}
-
-async function createClusterLoop(request: CreateClusterLoopRequest): CreateClusterLoopResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'CreateClusterLoop', 'POST', '/', 'json', false, 'json', request);
-}
-
 model CreateCoreWordRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   coreWordName: string(name='CoreWordName', position='Query'),
 }
 
@@ -522,6 +502,7 @@ async function createCoreWord(request: CreateCoreWordRequest): CreateCoreWordRes
 }
 
 model CreateDialogRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   description?: string(name='Description', position='Query'),
   dialogName: string(name='DialogName', position='Query'),
   instanceId: string(name='InstanceId', position='Query'),
@@ -543,6 +524,7 @@ async function createDialog(request: CreateDialogRequest): CreateDialogResponse 
 }
 
 model CreateEntityRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   dialogId: long(name='DialogId', position='Query'),
   entityName: string(name='EntityName', position='Query'),
   entityType: string(name='EntityType', position='Query'),
@@ -551,7 +533,7 @@ model CreateEntityRequest {
       memberName?: string(name='MemberName'),
       synonyms?: [ string ](name='Synonyms'),
     }
-  ](name='Members', position='Query'),
+  ](name='Members', shrink='json', position='Query'),
   regex?: string(name='Regex', position='Query'),
 }
 
@@ -571,8 +553,9 @@ async function createEntity(request: CreateEntityRequest): CreateEntityResponse 
 }
 
 model CreateIntentRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   dialogId: long(name='DialogId', position='Query'),
-  intentDefinition: IntentCreateDTO(name='IntentDefinition', position='Query'),
+  intentDefinition: IntentCreateDTO(name='IntentDefinition', shrink='json', position='Query'),
 }
 
 model CreateIntentResponseBody = {
@@ -591,6 +574,7 @@ async function createIntent(request: CreateIntentRequest): CreateIntentResponse 
 }
 
 model CreateKnowledgeRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   knowledge: {
     categoryId: long(name='CategoryId'),
     endDate?: string(name='EndDate'),
@@ -599,6 +583,7 @@ model CreateKnowledgeRequest {
     outlines?: [ 
       {
         knowledgeId?: long(name='KnowledgeId'),
+        outlineId?: long(name='OutlineId'),
         title?: string(name='Title'),
       }
     ](name='Outlines'),
@@ -615,7 +600,7 @@ model CreateKnowledgeRequest {
       }
     ](name='Solutions'),
     startDate?: string(name='StartDate'),
-  }(name='Knowledge', position='Body'),
+  }(name='Knowledge', shrink='json', position='Body'),
 }
 
 model CreateKnowledgeResponseBody = {
@@ -634,6 +619,7 @@ async function createKnowledge(request: CreateKnowledgeRequest): CreateKnowledge
 }
 
 model CreatePerspectiveRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   name: string(name='Name', position='Query'),
   regionId?: string(name='RegionId', position='Host'),
 }
@@ -653,48 +639,8 @@ async function createPerspective(request: CreatePerspectiveRequest): CreatePersp
   return @handler.do('RPC', 'CreatePerspective', 'POST', '/', 'json', false, 'json', request);
 }
 
-model CreateSimilarityLoopRequest {
-  multiParams: string(name='MultiParams', position='Query'),
-  params: string(name='Params', position='Query'),
-  title: string(name='Title', position='Query'),
-}
-
-model CreateSimilarityLoopResponseBody = {
-  data?: long(name='Data'),
-  message?: string(name='Message'),
-  success?: boolean(name='Success'),
-}
-
-model CreateSimilarityLoopResponse = {
-  headers: map[string]string(name='headers'),
-  body: CreateSimilarityLoopResponseBody(name='body'),
-}
-
-async function createSimilarityLoop(request: CreateSimilarityLoopRequest): CreateSimilarityLoopResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'CreateSimilarityLoop', 'POST', '/', 'json', false, 'json', request);
-}
-
-model DeleteBizDataRangeRequest {
-  bizDataRangeId: long(name='BizDataRangeId', position='Query'),
-}
-
-model DeleteBizDataRangeResponseBody = {
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-}
-
-model DeleteBizDataRangeResponse = {
-  headers: map[string]string(name='headers'),
-  body: DeleteBizDataRangeResponseBody(name='body'),
-}
-
-async function deleteBizDataRange(request: DeleteBizDataRangeRequest): DeleteBizDataRangeResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'DeleteBizDataRange', 'POST', '/', 'json', false, 'json', request);
-}
-
 model DeleteBotRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   instanceId: string(name='InstanceId', position='Query'),
   regionId?: string(name='RegionId', position='Host'),
 }
@@ -714,6 +660,7 @@ async function deleteBot(request: DeleteBotRequest): DeleteBotResponse {
 }
 
 model DeleteCategoryRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   categoryId: long(name='CategoryId', position='Query'),
 }
 
@@ -733,6 +680,7 @@ async function deleteCategory(request: DeleteCategoryRequest): DeleteCategoryRes
 }
 
 model DeleteCoreWordRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   coreWordName: string(name='CoreWordName', position='Query'),
 }
 
@@ -752,6 +700,7 @@ async function deleteCoreWord(request: DeleteCoreWordRequest): DeleteCoreWordRes
 }
 
 model DeleteDialogRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   dialogId: long(name='DialogId', position='Query'),
 }
 
@@ -770,6 +719,7 @@ async function deleteDialog(request: DeleteDialogRequest): DeleteDialogResponse 
 }
 
 model DeleteEntityRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   entityId: long(name='EntityId', position='Query'),
 }
 
@@ -789,6 +739,7 @@ async function deleteEntity(request: DeleteEntityRequest): DeleteEntityResponse 
 }
 
 model DeleteIntentRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   intentId: long(name='IntentId', position='Query'),
 }
 
@@ -808,6 +759,7 @@ async function deleteIntent(request: DeleteIntentRequest): DeleteIntentResponse 
 }
 
 model DeleteKnowledgeRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   knowledgeId: long(name='KnowledgeId', position='Query'),
 }
 
@@ -825,30 +777,29 @@ async function deleteKnowledge(request: DeleteKnowledgeRequest): DeleteKnowledge
   return @handler.do('RPC', 'DeleteKnowledge', 'POST', '/', 'json', false, 'json', request);
 }
 
-model DescribeBizDataRangeRequest {
-  bizDataRangeId: long(name='BizDataRangeId', position='Query'),
+model DeletePerspectiveRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
+  perspectiveId: string(name='PerspectiveId', position='Query'),
+  regionId?: string(name='RegionId', position='Host'),
 }
 
-model DescribeBizDataRangeResponseBody = {
-  bizDataRangeId?: long(name='BizDataRangeId'),
-  dataType?: int32(name='DataType'),
-  manageCode?: string(name='ManageCode'),
-  name?: string(name='Name'),
-  parentBizDataRangeId?: long(name='ParentBizDataRangeId'),
+model DeletePerspectiveResponseBody = {
   requestId?: string(name='RequestId'),
+  result?: boolean(name='Result'),
 }
 
-model DescribeBizDataRangeResponse = {
+model DeletePerspectiveResponse = {
   headers: map[string]string(name='headers'),
-  body: DescribeBizDataRangeResponseBody(name='body'),
+  body: DeletePerspectiveResponseBody(name='body'),
 }
 
-async function describeBizDataRange(request: DescribeBizDataRangeRequest): DescribeBizDataRangeResponse {
+async function deletePerspective(request: DeletePerspectiveRequest): DeletePerspectiveResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'DescribeBizDataRange', 'POST', '/', 'json', false, 'json', request);
+  return @handler.do('RPC', 'DeletePerspective', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeBotRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   instanceId: string(name='InstanceId', position='Query'),
   regionId?: string(name='RegionId', position='Host'),
 }
@@ -883,6 +834,7 @@ async function describeBot(request: DescribeBotRequest): DescribeBotResponse {
 }
 
 model DescribeCategoryRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   categoryId: long(name='CategoryId', position='Query'),
 }
 
@@ -904,6 +856,7 @@ async function describeCategory(request: DescribeCategoryRequest): DescribeCateg
 }
 
 model DescribeCoreWordRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   coreWordName: string(name='CoreWordName', position='Query'),
 }
 
@@ -927,6 +880,7 @@ async function describeCoreWord(request: DescribeCoreWordRequest): DescribeCoreW
 }
 
 model DescribeDialogRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   dialogId: long(name='DialogId', position='Query'),
 }
 
@@ -957,6 +911,7 @@ async function describeDialog(request: DescribeDialogRequest): DescribeDialogRes
 }
 
 model DescribeDialogFlowRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   dialogId: long(name='DialogId', position='Query'),
 }
 
@@ -992,6 +947,7 @@ async function describeDialogFlow(request: DescribeDialogFlowRequest): DescribeD
 }
 
 model DescribeEntitiesRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   entityId: long(name='EntityId', position='Query'),
 }
 
@@ -1026,6 +982,7 @@ async function describeEntities(request: DescribeEntitiesRequest): DescribeEntit
 }
 
 model DescribeIntentRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   intentId: long(name='IntentId', position='Query'),
 }
 
@@ -1091,6 +1048,7 @@ async function describeIntent(request: DescribeIntentRequest): DescribeIntentRes
 }
 
 model DescribeKnowledgeRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   knowledgeId: long(name='KnowledgeId', position='Query'),
 }
 
@@ -1149,6 +1107,7 @@ async function describeKnowledge(request: DescribeKnowledgeRequest): DescribeKno
 }
 
 model DescribePerspectiveRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   perspectiveId: string(name='PerspectiveId', position='Query'),
   regionId?: string(name='RegionId', position='Host'),
 }
@@ -1177,6 +1136,7 @@ async function describePerspective(request: DescribePerspectiveRequest): Describ
 }
 
 model DisableDialogFlowRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   dialogId: long(name='DialogId', position='Query'),
 }
 
@@ -1195,6 +1155,7 @@ async function disableDialogFlow(request: DisableDialogFlowRequest): DisableDial
 }
 
 model DisableKnowledgeRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   knowledgeId: long(name='KnowledgeId', position='Query'),
 }
 
@@ -1213,6 +1174,7 @@ async function disableKnowledge(request: DisableKnowledgeRequest): DisableKnowle
 }
 
 model FeedbackRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   feedback: string(name='Feedback', position='Query'),
   instanceId?: string(name='InstanceId', position='Query'),
   messageId: string(name='MessageId', position='Query'),
@@ -1238,6 +1200,7 @@ async function feedback(request: FeedbackRequest): FeedbackResponse {
 }
 
 model GetAsyncResultRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   regionId?: string(name='RegionId', position='Host'),
   taskId: string(name='TaskId', minimum=0, maximum=100000000, position='Query'),
 }
@@ -1261,6 +1224,7 @@ async function getAsyncResult(request: GetAsyncResultRequest): GetAsyncResultRes
 }
 
 model GetBotChatDataRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   endTime: string(name='EndTime', position='Query'),
   robotInstanceId: string(name='RobotInstanceId', position='Query'),
   startTime: string(name='StartTime', position='Query'),
@@ -1283,6 +1247,7 @@ async function getBotChatData(request: GetBotChatDataRequest): GetBotChatDataRes
 }
 
 model GetBotDsStatDataRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   endTime: string(name='EndTime', position='Query'),
   robotInstanceId: string(name='RobotInstanceId', position='Query'),
   startTime: string(name='StartTime', position='Query'),
@@ -1305,6 +1270,7 @@ async function getBotDsStatData(request: GetBotDsStatDataRequest): GetBotDsStatD
 }
 
 model GetBotKnowledgeStatDataRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   endTime: string(name='EndTime', position='Query'),
   robotInstanceId: string(name='RobotInstanceId', position='Query'),
   startTime: string(name='StartTime', position='Query'),
@@ -1327,6 +1293,7 @@ async function getBotKnowledgeStatData(request: GetBotKnowledgeStatDataRequest):
 }
 
 model GetBotSessionDataRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   endTime: string(name='EndTime', position='Query'),
   robotInstanceId: string(name='RobotInstanceId', position='Query'),
   startTime: string(name='StartTime', position='Query'),
@@ -1349,6 +1316,7 @@ async function getBotSessionData(request: GetBotSessionDataRequest): GetBotSessi
 }
 
 model GetConversationListRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   endDate?: string(name='EndDate', position='Query'),
   instanceId: string(name='InstanceId', position='Query'),
   pageNumber?: string(name='PageNumber', position='Query'),
@@ -1377,6 +1345,7 @@ async function getConversationList(request: GetConversationListRequest): GetConv
 }
 
 model ListBotChatHistorysRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   endTime: string(name='EndTime', position='Query'),
   limit?: int32(name='Limit', position='Query'),
   robotInstanceId: string(name='RobotInstanceId', position='Query'),
@@ -1400,6 +1369,7 @@ async function listBotChatHistorys(request: ListBotChatHistorysRequest): ListBot
 }
 
 model ListBotColdDsDatasRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   endTime: string(name='EndTime', position='Query'),
   limit?: int32(name='Limit', position='Query'),
   robotInstanceId: string(name='RobotInstanceId', position='Query'),
@@ -1423,6 +1393,7 @@ async function listBotColdDsDatas(request: ListBotColdDsDatasRequest): ListBotCo
 }
 
 model ListBotColdKnowledgesRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   endTime: string(name='EndTime', position='Query'),
   limit?: int32(name='Limit', position='Query'),
   robotInstanceId: string(name='RobotInstanceId', position='Query'),
@@ -1446,6 +1417,7 @@ async function listBotColdKnowledges(request: ListBotColdKnowledgesRequest): Lis
 }
 
 model ListBotDsDetailsRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   endTime: string(name='EndTime', position='Query'),
   limit?: int32(name='Limit', position='Query'),
   robotInstanceId: string(name='RobotInstanceId', position='Query'),
@@ -1469,6 +1441,7 @@ async function listBotDsDetails(request: ListBotDsDetailsRequest): ListBotDsDeta
 }
 
 model ListBotHotDsDatasRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   endTime: string(name='EndTime', position='Query'),
   limit?: int32(name='Limit', position='Query'),
   robotInstanceId: string(name='RobotInstanceId', position='Query'),
@@ -1492,6 +1465,7 @@ async function listBotHotDsDatas(request: ListBotHotDsDatasRequest): ListBotHotD
 }
 
 model ListBotHotKnowledgesRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   endTime: string(name='EndTime', position='Query'),
   limit?: int32(name='Limit', position='Query'),
   robotInstanceId: string(name='RobotInstanceId', position='Query'),
@@ -1515,6 +1489,7 @@ async function listBotHotKnowledges(request: ListBotHotKnowledgesRequest): ListB
 }
 
 model ListBotKnowledgeDetailsRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   endTime: string(name='EndTime', position='Query'),
   limit?: string(name='Limit', position='Query'),
   robotInstanceId: string(name='RobotInstanceId', position='Query'),
@@ -1538,6 +1513,7 @@ async function listBotKnowledgeDetails(request: ListBotKnowledgeDetailsRequest):
 }
 
 model ListBotReceptionDetailDatasRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   endTime: string(name='EndTime', position='Query'),
   robotInstanceId: string(name='RobotInstanceId', position='Query'),
   startTime: string(name='StartTime', position='Query'),
@@ -1560,6 +1536,7 @@ async function listBotReceptionDetailDatas(request: ListBotReceptionDetailDatasR
 }
 
 model ListConversationLogsRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   sessionId?: string(name='SessionId', position='Query'),
 }
 
@@ -1580,6 +1557,7 @@ async function listConversationLogs(request: ListConversationLogsRequest): ListC
 }
 
 model MoveKnowledgeCategoryRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   categoryId: long(name='CategoryId', position='Query'),
   knowledgeId: long(name='KnowledgeId', position='Query'),
 }
@@ -1599,6 +1577,7 @@ async function moveKnowledgeCategory(request: MoveKnowledgeCategoryRequest): Mov
 }
 
 model PublishDialogFlowRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   dialogId: long(name='DialogId', position='Query'),
 }
 
@@ -1617,6 +1596,7 @@ async function publishDialogFlow(request: PublishDialogFlowRequest): PublishDial
 }
 
 model PublishKnowledgeRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   async?: boolean(name='Async', position='Query'),
   knowledgeId: long(name='KnowledgeId', position='Query'),
 }
@@ -1635,37 +1615,8 @@ async function publishKnowledge(request: PublishKnowledgeRequest): PublishKnowle
   return @handler.do('RPC', 'PublishKnowledge', 'POST', '/', 'json', false, 'json', request);
 }
 
-model QueryBizDataRangesRequest {
-  dataType?: string(name='DataType', position='Query'),
-  manageCode?: string(name='ManageCode', position='Query'),
-  name?: string(name='Name', position='Query'),
-  parentBizDataRangeId?: long(name='ParentBizDataRangeId', position='Query'),
-}
-
-model QueryBizDataRangesResponseBody = {
-  bizDataRanges?: [ 
-    {
-      bizDataRangeId?: long(name='BizDataRangeId'),
-      dataType?: int32(name='DataType'),
-      manageCode?: string(name='ManageCode'),
-      name?: string(name='Name'),
-      parentBizDataRangeId?: long(name='ParentBizDataRangeId'),
-    }
-  ](name='BizDataRanges'),
-  requestId?: string(name='RequestId'),
-}
-
-model QueryBizDataRangesResponse = {
-  headers: map[string]string(name='headers'),
-  body: QueryBizDataRangesResponseBody(name='body'),
-}
-
-async function queryBizDataRanges(request: QueryBizDataRangesRequest): QueryBizDataRangesResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'QueryBizDataRanges', 'POST', '/', 'json', false, 'json', request);
-}
-
 model QueryBotsRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   pageNumber?: int32(name='PageNumber', position='Query'),
   pageSize?: int32(name='PageSize', position='Query'),
   regionId?: string(name='RegionId', position='Host'),
@@ -1700,6 +1651,7 @@ async function queryBots(request: QueryBotsRequest): QueryBotsResponse {
 }
 
 model QueryCategoriesRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   knowledgeType?: long(name='KnowledgeType', position='Query'),
   parentCategoryId?: long(name='ParentCategoryId', position='Query'),
   showChildrens?: boolean(name='ShowChildrens', position='Query'),
@@ -1723,6 +1675,7 @@ async function queryCategories(request: QueryCategoriesRequest): QueryCategories
 }
 
 model QueryCoreWordsRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   coreWordName?: string(name='CoreWordName', position='Query'),
   pageNumber?: int32(name='PageNumber', position='Query'),
   pageSize?: int32(name='PageSize', position='Query'),
@@ -1756,6 +1709,7 @@ async function queryCoreWords(request: QueryCoreWordsRequest): QueryCoreWordsRes
 }
 
 model QueryDialogsRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   dialogName?: string(name='DialogName', position='Query'),
   instanceId: string(name='InstanceId', position='Query'),
   pageNumber?: int32(name='PageNumber', position='Query'),
@@ -1796,6 +1750,7 @@ async function queryDialogs(request: QueryDialogsRequest): QueryDialogsResponse 
 }
 
 model QueryEntitiesRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   dialogId: long(name='DialogId', position='Query'),
   entityName?: string(name='EntityName', position='Query'),
   pageNumber?: int32(name='PageNumber', position='Query'),
@@ -1840,7 +1795,9 @@ async function queryEntities(request: QueryEntitiesRequest): QueryEntitiesRespon
 }
 
 model QueryIntentsRequest {
-  dialogId: long(name='DialogId', position='Query'),
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
+  dialogId?: long(name='DialogId', position='Query'),
+  instanceId?: string(name='InstanceId', description='机器人实例 ID', position='Query'),
   intentName?: string(name='IntentName', position='Query'),
   pageNumber?: int32(name='PageNumber', position='Query'),
   pageSize?: int32(name='PageSize', position='Query'),
@@ -1913,6 +1870,7 @@ async function queryIntents(request: QueryIntentsRequest): QueryIntentsResponse 
 }
 
 model QueryKnowledgesRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   categoryId?: long(name='CategoryId', position='Query'),
   coreWordName?: string(name='CoreWordName', position='Query'),
   knowledgeTitle?: string(name='KnowledgeTitle', position='Query'),
@@ -1953,66 +1911,8 @@ async function queryKnowledges(request: QueryKnowledgesRequest): QueryKnowledges
   return @handler.do('RPC', 'QueryKnowledges', 'POST', '/', 'json', false, 'json', request);
 }
 
-model QueryLoopListRequest {
-}
-
-model QueryLoopListResponseBody = {
-  data?: string(name='Data'),
-  message?: string(name='Message'),
-  success?: boolean(name='Success'),
-}
-
-model QueryLoopListResponse = {
-  headers: map[string]string(name='headers'),
-  body: QueryLoopListResponseBody(name='body'),
-}
-
-async function queryLoopList(request: QueryLoopListRequest): QueryLoopListResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'QueryLoopList', 'POST', '/', 'json', false, 'json', request);
-}
-
-model QueryLoopResultRequest {
-  loopId: long(name='LoopId', position='Query'),
-}
-
-model QueryLoopResultResponseBody = {
-  data?: string(name='Data'),
-  message?: string(name='Message'),
-  success?: boolean(name='Success'),
-}
-
-model QueryLoopResultResponse = {
-  headers: map[string]string(name='headers'),
-  body: QueryLoopResultResponseBody(name='body'),
-}
-
-async function queryLoopResult(request: QueryLoopResultRequest): QueryLoopResultResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'QueryLoopResult', 'POST', '/', 'json', false, 'json', request);
-}
-
-model QueryLoopStatusRequest {
-  loopId: long(name='LoopId', position='Query'),
-}
-
-model QueryLoopStatusResponseBody = {
-  data?: string(name='Data'),
-  message?: string(name='Message'),
-  success?: boolean(name='Success'),
-}
-
-model QueryLoopStatusResponse = {
-  headers: map[string]string(name='headers'),
-  body: QueryLoopStatusResponseBody(name='body'),
-}
-
-async function queryLoopStatus(request: QueryLoopStatusRequest): QueryLoopStatusResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'QueryLoopStatus', 'POST', '/', 'json', false, 'json', request);
-}
-
 model QueryPerspectivesRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   regionId?: string(name='RegionId', position='Host'),
 }
 
@@ -2044,6 +1944,7 @@ async function queryPerspectives(request: QueryPerspectivesRequest): QueryPerspe
 }
 
 model QuerySystemEntitiesRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   entityName?: string(name='EntityName', position='Query'),
 }
 
@@ -2069,11 +1970,12 @@ async function querySystemEntities(request: QuerySystemEntitiesRequest): QuerySy
 }
 
 model RemoveEntityMemberRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   entityId: long(name='EntityId', position='Query'),
   member: {
     memberName?: string(name='MemberName'),
     synonyms?: [ string ](name='Synonyms'),
-  }(name='Member', position='Query'),
+  }(name='Member', shrink='json', position='Query'),
   removeType: string(name='RemoveType', position='Query'),
 }
 
@@ -2093,6 +1995,7 @@ async function removeEntityMember(request: RemoveEntityMemberRequest): RemoveEnt
 }
 
 model RemoveSynonymRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   coreWordName: string(name='CoreWordName', position='Query'),
   synonym: string(name='Synonym', position='Query'),
 }
@@ -2111,43 +2014,8 @@ async function removeSynonym(request: RemoveSynonymRequest): RemoveSynonymRespon
   return @handler.do('RPC', 'RemoveSynonym', 'POST', '/', 'json', false, 'json', request);
 }
 
-model SearchQaRequest {
-  pageNumber?: int32(name='PageNumber', position='Query'),
-  pageSize?: int32(name='PageSize', position='Query'),
-  userQuerys?: string(name='UserQuerys', position='Query'),
-}
-
-model SearchQaResponseBody = {
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  questionList?: [ 
-    {
-      categoryPath?: string(name='CategoryPath'),
-      createUserName?: string(name='CreateUserName'),
-      gmtCreate?: string(name='GmtCreate'),
-      gmtModified?: string(name='GmtModified'),
-      modifiedUserName?: string(name='ModifiedUserName'),
-      questionId?: long(name='QuestionId'),
-      questionType?: int32(name='QuestionType'),
-      status?: int32(name='Status'),
-      title?: string(name='Title'),
-    }
-  ](name='QuestionList'),
-  requestId?: string(name='RequestId'),
-  totalCount?: int32(name='TotalCount'),
-}
-
-model SearchQaResponse = {
-  headers: map[string]string(name='headers'),
-  body: SearchQaResponseBody(name='body'),
-}
-
-async function searchQa(request: SearchQaRequest): SearchQaResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'SearchQa', 'POST', '/', 'json', false, 'json', request);
-}
-
 model TestDialogFlowRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   dialogId: long(name='DialogId', position='Query'),
 }
 
@@ -2165,48 +2033,8 @@ async function testDialogFlow(request: TestDialogFlowRequest): TestDialogFlowRes
   return @handler.do('RPC', 'TestDialogFlow', 'POST', '/', 'json', false, 'json', request);
 }
 
-model TestGrayRequest {
-  name: string(name='Name', position='Query'),
-}
-
-model TestGrayResponseBody = {
-  requestId?: string(name='RequestId'),
-}
-
-model TestGrayResponse = {
-  headers: map[string]string(name='headers'),
-  body: TestGrayResponseBody(name='body'),
-}
-
-async function testGray(request: TestGrayRequest): TestGrayResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'TestGray', 'POST', '/', 'json', false, 'json', request);
-}
-
-model UpdateBizDataRangeRequest {
-  bizDataRangeId: long(name='BizDataRangeId', position='Query'),
-  dataType?: string(name='DataType', position='Query'),
-  manageCode?: string(name='ManageCode', position='Query'),
-  name?: string(name='Name', position='Query'),
-  parentBizDataRangeId?: long(name='ParentBizDataRangeId', position='Query'),
-}
-
-model UpdateBizDataRangeResponseBody = {
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-}
-
-model UpdateBizDataRangeResponse = {
-  headers: map[string]string(name='headers'),
-  body: UpdateBizDataRangeResponseBody(name='body'),
-}
-
-async function updateBizDataRange(request: UpdateBizDataRangeRequest): UpdateBizDataRangeResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'UpdateBizDataRange', 'POST', '/', 'json', false, 'json', request);
-}
-
 model UpdateCategoryRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   categoryId: long(name='CategoryId', position='Query'),
   name?: string(name='Name', position='Query'),
 }
@@ -2227,6 +2055,7 @@ async function updateCategory(request: UpdateCategoryRequest): UpdateCategoryRes
 }
 
 model UpdateCoreWordRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   coreWordCode: string(name='CoreWordCode', position='Query'),
   coreWordName: string(name='CoreWordName', position='Query'),
 }
@@ -2247,6 +2076,7 @@ async function updateCoreWord(request: UpdateCoreWordRequest): UpdateCoreWordRes
 }
 
 model UpdateDialogRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   description?: string(name='Description', position='Query'),
   dialogId: long(name='DialogId', position='Query'),
   dialogName: string(name='DialogName', position='Query'),
@@ -2267,11 +2097,12 @@ async function updateDialog(request: UpdateDialogRequest): UpdateDialogResponse 
 }
 
 model UpdateDialogFlowRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   dialogId: long(name='DialogId', position='Query'),
   moduleDefinition: {
     globalVars?: map[string]any(name='GlobalVars'),
     moduleDefinition?: PaasProcessData(name='ModuleDefinition'),
-  }(name='ModuleDefinition', position='Body'),
+  }(name='ModuleDefinition', shrink='json', position='Body'),
 }
 
 model UpdateDialogFlowResponseBody = {
@@ -2289,6 +2120,7 @@ async function updateDialogFlow(request: UpdateDialogFlowRequest): UpdateDialogF
 }
 
 model UpdateEntityRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   entityId: long(name='EntityId', position='Query'),
   entityName: string(name='EntityName', position='Query'),
   entityType: string(name='EntityType', position='Query'),
@@ -2297,7 +2129,7 @@ model UpdateEntityRequest {
       memberName?: string(name='MemberName'),
       synonyms?: [ string ](name='Synonyms'),
     }
-  ](name='Members', position='Body'),
+  ](name='Members', shrink='json', position='Body'),
   regex?: string(name='Regex', position='Query'),
 }
 
@@ -2317,7 +2149,8 @@ async function updateEntity(request: UpdateEntityRequest): UpdateEntityResponse 
 }
 
 model UpdateIntentRequest {
-  intentDefinition: IntentCreateDTO(name='IntentDefinition', position='Query'),
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
+  intentDefinition: IntentCreateDTO(name='IntentDefinition', shrink='json', position='Query'),
   intentId: long(name='IntentId', position='Query'),
 }
 
@@ -2337,6 +2170,7 @@ async function updateIntent(request: UpdateIntentRequest): UpdateIntentResponse 
 }
 
 model UpdateKnowledgeRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   knowledge: {
     categoryId?: long(name='CategoryId'),
     endDate?: string(name='EndDate'),
@@ -2368,7 +2202,7 @@ model UpdateKnowledgeRequest {
       }
     ](name='Solutions'),
     startDate?: string(name='StartDate'),
-  }(name='Knowledge', position='Body'),
+  }(name='Knowledge', shrink='json', position='Body'),
 }
 
 model UpdateKnowledgeResponseBody = {
@@ -2387,6 +2221,7 @@ async function updateKnowledge(request: UpdateKnowledgeRequest): UpdateKnowledge
 }
 
 model UpdatePerspectiveRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取', position='Query'),
   name: string(name='Name', position='Query'),
   perspectiveId: string(name='PerspectiveId', position='Query'),
   regionId?: string(name='RegionId', position='Host'),
