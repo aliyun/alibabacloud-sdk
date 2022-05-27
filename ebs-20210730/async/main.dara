@@ -190,63 +190,67 @@ async function describeDiskReplicaGroups(request: DescribeDiskReplicaGroupsReque
   return @handler.do('RPC', 'DescribeDiskReplicaGroups', 'POST', '/', 'json', false, 'json', request);
 }
 
-model DescribeDiskReplicaPairProgressRequest {
-  regionId: string(name='RegionId', position='Query'),
-  replicaPairId: string(name='ReplicaPairId', position='Query'),
-}
-
-model DescribeDiskReplicaPairProgressResponseBody = {
-  progress?: int32(name='Progress', description='同步进度'),
-  recoverPoint?: long(name='RecoverPoint', description='最近一次恢复点的时间戳。有条件返回，复制对start后，才会返回该字段。'),
-  requestId?: string(name='RequestId'),
-}
-
-model DescribeDiskReplicaPairProgressResponse = {
-  headers: map[string]string(name='headers'),
-  body: DescribeDiskReplicaPairProgressResponseBody(name='body'),
-}
-
-async function describeDiskReplicaPairProgress(request: DescribeDiskReplicaPairProgressRequest): DescribeDiskReplicaPairProgressResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'DescribeDiskReplicaPairProgress', 'POST', '/', 'json', false, 'json', request);
-}
-
 model DescribeDiskReplicaPairsRequest {
-  maxResults?: long(name='MaxResults', position='Query'),
-  nextToken?: string(name='NextToken', position='Query'),
-  pairIds?: string(name='PairIds', position='Query'),
+  maxResults?: long(name='MaxResults', description='分页查询时每页的最大条目数。取值范围：1~500
+
+默认值：10', position='Query'),
+  nextToken?: string(name='NextToken', description='查询凭证（Token）。取值为上一次调用该接口返回的NextToken参数值，初次调用接口时无需设置该参数。', position='Query'),
+  pairIds?: string(name='PairIds', description='异步复制关系ID列表。您可以指定一个或多个异步复制关系ID进行查询。格式为：pair-cn-dsa****,pair-cn-asd****。
+
+默认值为空，表示查询当前地域下所有的异步复制关系。', position='Query'),
   regionId: string(name='RegionId', position='Query'),
-  replicaGroupId?: string(name='ReplicaGroupId', position='Query'),
-  site?: string(name='Site', description='production或backup，表示数据从主或备站点获取，默认为production。', position='Query'),
+  replicaGroupId?: string(name='ReplicaGroupId', description='所属复制组id。', position='Query'),
+  site?: string(name='Site', description='production或backup，表示获取本地为主站点或备站点的复制对数据，默认为production。', position='Query'),
 }
 
 model DescribeDiskReplicaPairsResponseBody = {
   nextToken?: string(name='NextToken'),
   replicaPairs?: [ 
     {
-      bandwidth?: long(name='Bandwidth'),
-      chargeType?: string(name='ChargeType'),
-      createTime?: long(name='CreateTime', description='创建时间。1970年1月1日0点0分以来的毫秒数'),
+      bandwidth?: long(name='Bandwidth', description='异步复制时使用的带宽。单位为Kbps。'),
+      chargeType?: string(name='ChargeType', description='付费类型。PREPAY：预付费；POSTPAY：后付费。'),
+      createTime?: long(name='CreateTime', description='创建时间。1970年1月1日0点0分以来的秒数。'),
       description?: string(name='Description'),
       destinationDiskId?: string(name='DestinationDiskId'),
       destinationRegion?: string(name='DestinationRegion'),
-      destinationZoneId?: string(name='DestinationZoneId'),
-      lastRecoverPoint?: long(name='LastRecoverPoint'),
+      destinationZoneId?: string(name='DestinationZoneId', description='从盘所属的可用区。'),
+      expiredTime?: long(name='ExpiredTime'),
+      lastRecoverPoint?: long(name='LastRecoverPoint', description='最近一次异步复制操作完成的时间。该参数以时间戳的形式提供返回值。单位为秒。'),
       pairName?: string(name='PairName'),
-      primaryRegion?: string(name='PrimaryRegion', description='pair的初始源地域'),
-      primaryZone?: string(name='PrimaryZone', description='pair的初始源可用区'),
-      RPO?: long(name='RPO'),
-      replicaGroupId?: string(name='ReplicaGroupId'),
-      replicaGroupName?: string(name='ReplicaGroupName'),
+      primaryRegion?: string(name='PrimaryRegion', description='复制对的初始源地域。'),
+      primaryZone?: string(name='PrimaryZone', description='复制对的初始源可用区。'),
+      RPO?: long(name='RPO', description='复制对的RPO值。单位为秒。'),
+      replicaGroupId?: string(name='ReplicaGroupId', description='所属复制组id。'),
+      replicaGroupName?: string(name='ReplicaGroupName', description='所属复制组名称。'),
       replicaPairId?: string(name='ReplicaPairId'),
-      site?: string(name='Site', description='pair信息的后端站点来源，production或backup'),
+      site?: string(name='Site', description='复制对信息的后端站点来源，production或backup。'),
       sourceDiskId?: string(name='SourceDiskId'),
       sourceRegion?: string(name='SourceRegion'),
-      sourceZoneId?: string(name='SourceZoneId'),
-      standbyRegion?: string(name='StandbyRegion', description='pair的初始目的地域'),
-      standbyZone?: string(name='StandbyZone', description='pair的初始目的可用区'),
-      status?: string(name='Status'),
-      statusMessage?: string(name='StatusMessage'),
+      sourceZoneId?: string(name='SourceZoneId', description='主盘所属的可用区。'),
+      standbyRegion?: string(name='StandbyRegion', description='复制对的初始目的地域。'),
+      standbyZone?: string(name='StandbyZone', description='复制对的初始目的可用区。'),
+      status?: string(name='Status', description='异步复制关系的状态。可能值：
+
+- invalid：失效。该状态表示异步复制关系存在异常。
+- creating：创建中。
+- created：已创建。
+- create_failed：创建失败。
+- initial_syncing：初始同步中。异步复制在创建并启动后，主盘数据初次异步复制到从盘的过程中，将处于该状态。
+- syncing：同步中。主盘和从盘之间非第一次进行异步复制数据时，将处于该状态。
+- manual_syncing：单次同步中。单次同步，同步完成后恢复到stopped状态。如果是第一次单次同步，则同步中也显示为状态manual_syncing。
+- normal：正常。当异步复制的当前周期内数据复制完成时，将处于该状态。
+- stopping：停止中。
+- stopped：已停止。
+- stop_failed：停止失败。
+- failovering：故障切换中。
+- failovered：故障切换完成。
+- failover_failed：故障切换失败。
+- reprotecting：反向复制操作中。
+- reprotect_failed：反向复制失败。
+- deleting：删除中。
+- delete_failed：删除失败。
+- deleted：已删除。'),
+      statusMessage?: string(name='StatusMessage', description='复制对的状态提示信息。比如invalid时，可能值：DeviceRemoved：主盘或者从盘被删除。DeviceKeyChanged：主盘或从盘的DeviceKey映射发生变化。'),
     }
   ](name='ReplicaPairs'),
   requestId?: string(name='RequestId', description='Id of the request'),
