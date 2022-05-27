@@ -134,6 +134,7 @@ async function addTagsToResource(request: AddTagsToResourceRequest): AddTagsToRe
 }
 
 model AllocateInstancePublicConnectionRequest {
+  babelfishPort?: string(name='BabelfishPort', position='Query'),
   connectionStringPrefix: string(name='ConnectionStringPrefix', position='Query'),
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   generalGroupName?: string(name='GeneralGroupName', position='Query'),
@@ -612,6 +613,7 @@ async function createCloudMigrationTask(request: CreateCloudMigrationTaskRequest
 model CreateDBInstanceRequest {
   amount?: int32(name='Amount', position='Query'),
   autoRenew?: string(name='AutoRenew', position='Query'),
+  babelfishConfig?: string(name='BabelfishConfig', position='Query'),
   businessInfo?: string(name='BusinessInfo', position='Query'),
   category?: string(name='Category', position='Query'),
   clientToken?: string(name='ClientToken', position='Query'),
@@ -640,6 +642,10 @@ model CreateDBInstanceRequest {
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   roleARN?: string(name='RoleARN', position='Query'),
   securityIPList: string(name='SecurityIPList', position='Query'),
+  serverlessConfig?: {
+    maxCapacity?: double(name='MaxCapacity'),
+    minCapacity?: double(name='MinCapacity'),
+  }(name='ServerlessConfig', shrink='json', position='Query'),
   storageAutoScale?: string(name='StorageAutoScale', position='Query'),
   storageThreshold?: int32(name='StorageThreshold', position='Query'),
   storageUpperBound?: int32(name='StorageUpperBound', minimum=0, position='Query'),
@@ -934,28 +940,6 @@ model CreateMigrateTaskResponse = {
 async function createMigrateTask(request: CreateMigrateTaskRequest): CreateMigrateTaskResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateMigrateTask', 'POST', '/', 'json', false, 'json', request);
-}
-
-model CreateNotifyRequest {
-  idempotentId: string(name='IdempotentId', description='A short description of struct', position='Body'),
-  level: string(name='Level', description='A short description of struct', position='Body'),
-  notifyElement: string(name='NotifyElement', description='A short description of struct', position='Body'),
-  templateName: string(name='TemplateName', description='A short description of struct', position='Body'),
-  type: string(name='Type', description='A short description of struct', position='Body'),
-}
-
-model CreateNotifyResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-}
-
-model CreateNotifyResponse = {
-  headers: map[string]string(name='headers'),
-  body: CreateNotifyResponseBody(name='body'),
-}
-
-async function createNotify(request: CreateNotifyRequest): CreateNotifyResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'CreateNotify', 'POST', '/', 'json', true, 'form', request);
 }
 
 model CreateOnlineDatabaseTaskRequest {
@@ -1487,37 +1471,6 @@ model DescribeAvailableCrossRegionResponse = {
 async function describeAvailableCrossRegion(request: DescribeAvailableCrossRegionRequest): DescribeAvailableCrossRegionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeAvailableCrossRegion', 'POST', '/', 'json', false, 'json', request);
-}
-
-model DescribeAvailableDedicatedHostClassesRequest {
-  ownerId?: long(name='OwnerId', position='Query'),
-  regionId: string(name='RegionId', position='Query'),
-  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
-  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  storageType?: string(name='StorageType', position='Query'),
-  zoneId: string(name='ZoneId', position='Query'),
-}
-
-model DescribeAvailableDedicatedHostClassesResponseBody = {
-  hostClasses?: {
-    hostClasses?: [ 
-    {
-      description?: string(name='Description'),
-      hostClassName?: string(name='HostClassName'),
-    }
-  ](name='HostClasses')
-  }(name='HostClasses'),
-  requestId?: string(name='RequestId'),
-}
-
-model DescribeAvailableDedicatedHostClassesResponse = {
-  headers: map[string]string(name='headers'),
-  body: DescribeAvailableDedicatedHostClassesResponseBody(name='body'),
-}
-
-async function describeAvailableDedicatedHostClasses(request: DescribeAvailableDedicatedHostClassesRequest): DescribeAvailableDedicatedHostClassesResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'DescribeAvailableDedicatedHostClasses', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeAvailableMetricsRequest {
@@ -2216,6 +2169,10 @@ model DescribeDBInstanceAttributeResponseBody = {
       advancedFeatures?: string(name='AdvancedFeatures'),
       autoUpgradeMinorVersion?: string(name='AutoUpgradeMinorVersion'),
       availabilityValue?: string(name='AvailabilityValue'),
+      babelfishConfig?: {
+        babelfishEnabled?: string(name='BabelfishEnabled'),
+        migrationMode?: string(name='MigrationMode'),
+      }(name='BabelfishConfig'),
       category?: string(name='Category'),
       collation?: string(name='Collation'),
       connectionMode?: string(name='ConnectionMode'),
@@ -2538,6 +2495,7 @@ model DescribeDBInstanceNetInfoResponseBody = {
   DBInstanceNetInfos?: {
     DBInstanceNetInfo?: [ 
     {
+      babelfishPort?: string(name='BabelfishPort'),
       connectionString?: string(name='ConnectionString'),
       connectionStringType?: string(name='ConnectionStringType'),
       DBInstanceWeights?: {
@@ -5180,8 +5138,8 @@ model DescribeVSwitchesRequest {
   dedicatedHostGroupId?: string(name='DedicatedHostGroupId', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: long(name='PageNumber', position='Query'),
-  pageSize?: long(name='PageSize', position='Query'),
+  pageNumber?: int32(name='PageNumber', position='Query'),
+  pageSize?: int32(name='PageSize', position='Query'),
   regionId?: string(name='RegionId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
@@ -5191,21 +5149,16 @@ model DescribeVSwitchesRequest {
 }
 
 model DescribeVSwitchesResponseBody = {
-  pageNumber?: long(name='PageNumber'),
-  pageSize?: long(name='PageSize'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
   requestId?: string(name='RequestId'),
-  totalCount?: long(name='TotalCount'),
+  totalCount?: int32(name='TotalCount'),
   vSwitchs?: [ 
     {
-      aliUid?: string(name='AliUid'),
-      bid?: string(name='Bid'),
       cidrBlock?: string(name='CidrBlock'),
       description?: string(name='Description'),
-      gmtCreate?: string(name='GmtCreate'),
-      gmtModified?: string(name='GmtModified'),
       isDefault?: boolean(name='IsDefault'),
       izNo?: string(name='IzNo'),
-      regionNo?: string(name='RegionNo'),
       status?: string(name='Status'),
       vSwitchId?: string(name='VSwitchId'),
       vSwitchName?: string(name='VSwitchName'),
@@ -5831,6 +5784,7 @@ async function modifyDBInstanceConnectionMode(request: ModifyDBInstanceConnectio
 }
 
 model ModifyDBInstanceConnectionStringRequest {
+  babelfishPort?: string(name='BabelfishPort', position='Query'),
   connectionStringPrefix: string(name='ConnectionStringPrefix', position='Query'),
   currentConnectionString: string(name='CurrentConnectionString', position='Query'),
   DBInstanceId: string(name='DBInstanceId', position='Query'),
