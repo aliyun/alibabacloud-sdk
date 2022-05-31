@@ -30,7 +30,7 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 
 model CreateResourceRequest {
   body?: string(name='body'),
-  isAsync?: boolean(name='isAsync'),
+  resourceTypeVersion?: string(name='resourceTypeVersion'),
 }
 
 model CreateResourceResponseBody = {
@@ -57,8 +57,8 @@ async function createResourceWithOptions(provider: string, productCode: string, 
   productCode = OpenApiUtil.getEncodeParam(productCode);
   resourceTypeCode = OpenApiUtil.getEncodeParam(resourceTypeCode);
   var query : map[string]any= {};
-  if (!Util.isUnset(request.isAsync)) {
-    query['isAsync'] = request.isAsync;
+  if (!Util.isUnset(request.resourceTypeVersion)) {
+    query['resourceTypeVersion'] = request.resourceTypeVersion;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -81,8 +81,8 @@ async function createResourceWithOptions(provider: string, productCode: string, 
 }
 
 model DeleteResourceRequest {
-  isAsync?: boolean(name='isAsync'),
   regionId?: string(name='regionId'),
+  resourceTypeVersion?: string(name='resourceTypeVersion'),
 }
 
 model DeleteResourceResponseBody = {
@@ -109,11 +109,11 @@ async function deleteResourceWithOptions(provider: string, productCode: string, 
   resourceTypeCode = OpenApiUtil.getEncodeParam(resourceTypeCode);
   resourceId = OpenApiUtil.getEncodeParam(resourceId);
   var query : map[string]any= {};
-  if (!Util.isUnset(request.isAsync)) {
-    query['isAsync'] = request.isAsync;
-  }
   if (!Util.isUnset(request.regionId)) {
     query['regionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.resourceTypeVersion)) {
+    query['resourceTypeVersion'] = request.resourceTypeVersion;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -193,9 +193,17 @@ async function getResourceWithOptions(provider: string, productCode: string, res
 model GetTaskResponseBody = {
   requestId?: string(name='requestId', description='Id of the request'),
   task?: {
-    failedReason?: string(name='failedReason'),
+    createTime?: string(name='createTime'),
+    error?: {
+      code?: string(name='code'),
+      message?: string(name='message'),
+    }(name='error'),
+    productCode?: string(name='productCode'),
     resourceId?: string(name='resourceId'),
+    resourceTypeCode?: string(name='resourceTypeCode'),
+    retryAfter?: int32(name='retryAfter'),
     status?: string(name='status'),
+    taskAction?: string(name='taskAction'),
     taskId?: string(name='taskId'),
   }(name='task'),
 }
@@ -572,6 +580,89 @@ async function listResourcesWithOptions(provider: string, productCode: string, r
   return callApi(params, req, runtime);
 }
 
+model ListTasksRequest {
+  maxResults?: int32(name='maxResults', description='本次读取的最大数据记录数量'),
+  nextToken?: string(name='nextToken', description='标记当前开始读取的位置，置空表示从头开始'),
+  taskIds?: [ string ](name='taskIds', description='任务Id列表'),
+}
+
+model ListTasksShrinkRequest {
+  maxResults?: int32(name='maxResults', description='本次读取的最大数据记录数量'),
+  nextToken?: string(name='nextToken', description='标记当前开始读取的位置，置空表示从头开始'),
+  taskIdsShrink?: string(name='taskIds', description='任务Id列表'),
+}
+
+model ListTasksResponseBody = {
+  maxResults?: int32(name='maxResults', description='maxResults本次请求所返回的最大记录条数'),
+  nextToken?: string(name='nextToken', description='表示当前调用返回读取到的位置，空代表数据已经读取完毕'),
+  requestId?: string(name='requestId', description='Id of the request'),
+  tasks?: [ 
+    {
+      createTime?: string(name='createTime'),
+      error?: {
+        code?: string(name='code'),
+        message?: string(name='message'),
+      }(name='error'),
+      productCode?: string(name='productCode'),
+      resourceId?: string(name='resourceId'),
+      resourceTypeCode?: string(name='resourceTypeCode'),
+      retryAfter?: int32(name='retryAfter'),
+      status?: string(name='status'),
+      taskAction?: string(name='taskAction'),
+      taskId?: string(name='taskId'),
+    }
+  ](name='tasks'),
+  totalCount?: int32(name='totalCount', description='totalCount本次请求条件下的数据总量，此参数为可选参数，默认可不返回'),
+}
+
+model ListTasksResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListTasksResponseBody(name='body'),
+}
+
+async function listTasks(request: ListTasksRequest): ListTasksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listTasksWithOptions(request, headers, runtime);
+}
+
+async function listTasksWithOptions(tmpReq: ListTasksRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTasksResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListTasksShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.taskIds)) {
+    request.taskIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.taskIds, 'taskIds', 'json');
+  }
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.taskIdsShrink)) {
+    query['taskIds'] = request.taskIdsShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListTasks',
+    version = '2021-07-22',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/tasks`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
 model ReloadResourcesRequest {
   regionIds?: [ string ](name='regionIds'),
 }
@@ -632,7 +723,7 @@ async function reloadResourcesWithOptions(provider: string, productCode: string,
 
 model UpdateResourceRequest {
   body?: string(name='body'),
-  isAsync?: boolean(name='isAsync'),
+  resourceTypeVersion?: string(name='resourceTypeVersion'),
 }
 
 model UpdateResourceResponseBody = {
@@ -659,8 +750,8 @@ async function updateResourceWithOptions(provider: string, productCode: string, 
   resourceTypeCode = OpenApiUtil.getEncodeParam(resourceTypeCode);
   resourceId = OpenApiUtil.getEncodeParam(resourceId);
   var query : map[string]any= {};
-  if (!Util.isUnset(request.isAsync)) {
-    query['isAsync'] = request.isAsync;
+  if (!Util.isUnset(request.resourceTypeVersion)) {
+    query['resourceTypeVersion'] = request.resourceTypeVersion;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
