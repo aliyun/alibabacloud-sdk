@@ -11,6 +11,7 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
+  @signatureAlgorithm = 'v2';
   @endpointRule = 'regional';
   
   checkConfig(config);
@@ -79,6 +80,7 @@ model TrafficPolicy {
       parameterName?: string(name='ParameterName', description='使用根据header和参数路由时生效'),
     }(name='ConsistentHashLBConfig', description='一致性hash相关配置'),
     loadbalancerType?: string(name='LoadbalancerType', description='负载均衡类型，枚举类可为ROUND_ROBIN, LEAST_CONN,RANDOM, CONSISTENT_HASH'),
+    warmupDuration?: long(name='WarmupDuration', description='预热时间(单位/s)'),
   }(name='LoadBalancerSettings', description='负载均衡相关配置'),
   tlsSetting?: {
     caCertContent?: string(name='CaCertContent', description='ca证书内容'),
@@ -224,6 +226,9 @@ async function addBlackWhiteList(request: AddBlackWhiteListRequest): AddBlackWhi
 
 model AddGatewayRequest {
   acceptLanguage?: string(name='AcceptLanguage'),
+  enableHardwareAcceleration?: boolean(name='EnableHardwareAcceleration', description='是否开启硬件加速'),
+  enableSls?: boolean(name='EnableSls', description='是否开启SLS日志投递'),
+  enableXtrace?: boolean(name='EnableXtrace', description='是否开启xtrace'),
   enterpriseSecurityGroup?: boolean(name='EnterpriseSecurityGroup', description='是否企业安全组类型'),
   internetSlbSpec?: string(name='InternetSlbSpec', description='外网SLB规格'),
   name?: string(name='Name', description='网关名称'),
@@ -234,6 +239,7 @@ model AddGatewayRequest {
   vSwitchId?: string(name='VSwitchId', description='主交换机ID'),
   vSwitchId2?: string(name='VSwitchId2', description='备交换机ID'),
   vpc?: string(name='Vpc', description='专有网络ID'),
+  xtraceRatio?: string(name='XtraceRatio', description='xtrace采样率，取值[0,100]'),
 }
 
 model AddGatewayResponseBody = {
@@ -258,6 +264,15 @@ async function addGatewayWithOptions(request: AddGatewayRequest, runtime: Util.R
   var query = {};
   if (!Util.isUnset(request.acceptLanguage)) {
     query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.enableHardwareAcceleration)) {
+    query['EnableHardwareAcceleration'] = request.enableHardwareAcceleration;
+  }
+  if (!Util.isUnset(request.enableSls)) {
+    query['EnableSls'] = request.enableSls;
+  }
+  if (!Util.isUnset(request.enableXtrace)) {
+    query['EnableXtrace'] = request.enableXtrace;
   }
   if (!Util.isUnset(request.enterpriseSecurityGroup)) {
     query['EnterpriseSecurityGroup'] = request.enterpriseSecurityGroup;
@@ -288,6 +303,9 @@ async function addGatewayWithOptions(request: AddGatewayRequest, runtime: Util.R
   }
   if (!Util.isUnset(request.vpc)) {
     query['Vpc'] = request.vpc;
+  }
+  if (!Util.isUnset(request.xtraceRatio)) {
+    query['XtraceRatio'] = request.xtraceRatio;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -824,81 +842,6 @@ async function addSSLCert(request: AddSSLCertRequest): AddSSLCertResponse {
   return addSSLCertWithOptions(request, runtime);
 }
 
-model AddSeataServerRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  name?: string(name='Name', description='集群名称'),
-  primaryUser?: string(name='PrimaryUser'),
-  region?: string(name='Region', description='地域'),
-  replica?: int32(name='Replica', description='节点数量'),
-  vpc?: string(name='Vpc', description='专有网络ID'),
-  vswitch?: string(name='Vswitch'),
-  zoneId?: string(name='ZoneId'),
-}
-
-model AddSeataServerResponseBody = {
-  code?: int32(name='Code'),
-  data?: string(name='Data'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success'),
-}
-
-model AddSeataServerResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: AddSeataServerResponseBody(name='body'),
-}
-
-async function addSeataServerWithOptions(request: AddSeataServerRequest, runtime: Util.RuntimeOptions): AddSeataServerResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.acceptLanguage)) {
-    query['AcceptLanguage'] = request.acceptLanguage;
-  }
-  if (!Util.isUnset(request.name)) {
-    query['Name'] = request.name;
-  }
-  if (!Util.isUnset(request.primaryUser)) {
-    query['PrimaryUser'] = request.primaryUser;
-  }
-  if (!Util.isUnset(request.region)) {
-    query['Region'] = request.region;
-  }
-  if (!Util.isUnset(request.replica)) {
-    query['Replica'] = request.replica;
-  }
-  if (!Util.isUnset(request.vpc)) {
-    query['Vpc'] = request.vpc;
-  }
-  if (!Util.isUnset(request.vswitch)) {
-    query['Vswitch'] = request.vswitch;
-  }
-  if (!Util.isUnset(request.zoneId)) {
-    query['ZoneId'] = request.zoneId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'AddSeataServer',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function addSeataServer(request: AddSeataServerRequest): AddSeataServerResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return addSeataServerWithOptions(request, runtime);
-}
-
 model AddSecurityGroupRuleRequest {
   acceptLanguage?: string(name='AcceptLanguage'),
   description?: string(name='Description'),
@@ -1050,125 +993,6 @@ async function addServiceSourceWithOptions(tmpReq: AddServiceSourceRequest, runt
 async function addServiceSource(request: AddServiceSourceRequest): AddServiceSourceResponse {
   var runtime = new Util.RuntimeOptions{};
   return addServiceSourceWithOptions(request, runtime);
-}
-
-model AddTestRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  descSort?: boolean(name='DescSort'),
-  orderItem?: string(name='OrderItem'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-}
-
-model AddTestResponseBody = {
-  code?: int32(name='Code'),
-  data?: {
-    pageNumber?: int32(name='PageNumber'),
-    pageSize?: int32(name='PageSize'),
-    result?: [ 
-      {
-        ahasOn?: boolean(name='AhasOn'),
-        armsOn?: boolean(name='ArmsOn'),
-        chargeType?: string(name='ChargeType'),
-        currentVersion?: string(name='CurrentVersion'),
-        endDate?: string(name='EndDate'),
-        gatewayType?: string(name='GatewayType'),
-        gatewayUniqueId?: string(name='GatewayUniqueId'),
-        gmtCreate?: string(name='GmtCreate'),
-        gmtModified?: string(name='GmtModified'),
-        id?: long(name='Id'),
-        instanceId?: string(name='InstanceId'),
-        internetSlb?: [ 
-          {
-            gatewaySlbMode?: string(name='GatewaySlbMode'),
-            gatewaySlbStatus?: string(name='GatewaySlbStatus'),
-            internetNetworkFlow?: string(name='InternetNetworkFlow'),
-            slbId?: string(name='SlbId'),
-            slbIp?: string(name='SlbIp'),
-            slbPort?: string(name='SlbPort'),
-            slbSpec?: string(name='SlbSpec'),
-            statusDesc?: string(name='StatusDesc'),
-            type?: string(name='Type'),
-          }
-        ](name='InternetSlb'),
-        latestVersion?: string(name='LatestVersion'),
-        mustUpgrade?: boolean(name='MustUpgrade'),
-        name?: string(name='Name'),
-        primaryUser?: string(name='PrimaryUser'),
-        region?: string(name='Region'),
-        replica?: int32(name='Replica'),
-        slb?: [ 
-          {
-            gatewaySlbMode?: string(name='GatewaySlbMode'),
-            gatewaySlbStatus?: string(name='GatewaySlbStatus'),
-            slbId?: string(name='SlbId'),
-            slbIp?: string(name='SlbIp'),
-            slbPort?: string(name='SlbPort'),
-            slbSpec?: string(name='SlbSpec'),
-            statusDesc?: string(name='StatusDesc'),
-            type?: string(name='Type'),
-          }
-        ](name='Slb'),
-        spec?: string(name='Spec'),
-        status?: int32(name='Status'),
-        statusDesc?: string(name='StatusDesc'),
-        tag?: string(name='Tag'),
-        upgrade?: boolean(name='Upgrade'),
-        vswitch2?: string(name='Vswitch2'),
-      }
-    ](name='Result'),
-    totalSize?: long(name='TotalSize'),
-  }(name='Data'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success'),
-}
-
-model AddTestResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: AddTestResponseBody(name='body'),
-}
-
-async function addTestWithOptions(request: AddTestRequest, runtime: Util.RuntimeOptions): AddTestResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.acceptLanguage)) {
-    query['AcceptLanguage'] = request.acceptLanguage;
-  }
-  if (!Util.isUnset(request.descSort)) {
-    query['DescSort'] = request.descSort;
-  }
-  if (!Util.isUnset(request.orderItem)) {
-    query['OrderItem'] = request.orderItem;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    query['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query['PageSize'] = request.pageSize;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'AddTest',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function addTest(request: AddTestRequest): AddTestResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return addTestWithOptions(request, runtime);
 }
 
 model ApplyGatewayRouteRequest {
@@ -1667,6 +1491,94 @@ async function createEngineNamespace(request: CreateEngineNamespaceRequest): Cre
   return createEngineNamespaceWithOptions(request, runtime);
 }
 
+model CreateMseServiceApplicationRequest {
+  acceptLanguage?: string(name='AcceptLanguage'),
+  appName?: string(name='AppName'),
+  extraInfo?: string(name='ExtraInfo'),
+  language?: string(name='Language'),
+  region?: string(name='Region'),
+  sentinelEnable?: string(name='SentinelEnable'),
+  source?: string(name='Source'),
+  switchEnable?: string(name='SwitchEnable'),
+}
+
+model CreateMseServiceApplicationResponseBody = {
+  code?: int32(name='Code'),
+  data?: {
+    appId?: string(name='AppId'),
+    appName?: string(name='AppName'),
+    createTime?: long(name='CreateTime'),
+    extraInfo?: string(name='ExtraInfo'),
+    language?: string(name='Language'),
+    licenseKey?: string(name='LicenseKey'),
+    regionId?: string(name='RegionId'),
+    source?: string(name='Source'),
+    status?: int32(name='Status'),
+    updateTime?: long(name='UpdateTime'),
+    userId?: string(name='UserId'),
+    version?: string(name='Version'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: string(name='Success'),
+}
+
+model CreateMseServiceApplicationResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateMseServiceApplicationResponseBody(name='body'),
+}
+
+async function createMseServiceApplicationWithOptions(request: CreateMseServiceApplicationRequest, runtime: Util.RuntimeOptions): CreateMseServiceApplicationResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.appName)) {
+    query['AppName'] = request.appName;
+  }
+  if (!Util.isUnset(request.extraInfo)) {
+    query['ExtraInfo'] = request.extraInfo;
+  }
+  if (!Util.isUnset(request.language)) {
+    query['Language'] = request.language;
+  }
+  if (!Util.isUnset(request.region)) {
+    query['Region'] = request.region;
+  }
+  if (!Util.isUnset(request.sentinelEnable)) {
+    query['SentinelEnable'] = request.sentinelEnable;
+  }
+  if (!Util.isUnset(request.source)) {
+    query['Source'] = request.source;
+  }
+  if (!Util.isUnset(request.switchEnable)) {
+    query['SwitchEnable'] = request.switchEnable;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateMseServiceApplication',
+    version = '2019-05-31',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createMseServiceApplication(request: CreateMseServiceApplicationRequest): CreateMseServiceApplicationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createMseServiceApplicationWithOptions(request, runtime);
+}
+
 model CreateNacosConfigRequest {
   acceptLanguage?: string(name='AcceptLanguage'),
   appName?: string(name='AppName'),
@@ -2147,69 +2059,6 @@ async function createOrUpdateSwimmingLaneGroupWithOptions(request: CreateOrUpdat
 async function createOrUpdateSwimmingLaneGroup(request: CreateOrUpdateSwimmingLaneGroupRequest): CreateOrUpdateSwimmingLaneGroupResponse {
   var runtime = new Util.RuntimeOptions{};
   return createOrUpdateSwimmingLaneGroupWithOptions(request, runtime);
-}
-
-model CreateVGroupRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  name?: string(name='Name', description='集群名称'),
-  primaryUser?: string(name='PrimaryUser', description='用户ID'),
-  region?: string(name='Region', description='地域'),
-  seataServerUniqueId?: string(name='SeataServerUniqueId', description='实例ID'),
-}
-
-model CreateVGroupResponseBody = {
-  code?: int32(name='Code'),
-  data?: string(name='Data'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success'),
-}
-
-model CreateVGroupResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: CreateVGroupResponseBody(name='body'),
-}
-
-async function createVGroupWithOptions(request: CreateVGroupRequest, runtime: Util.RuntimeOptions): CreateVGroupResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.acceptLanguage)) {
-    query['AcceptLanguage'] = request.acceptLanguage;
-  }
-  if (!Util.isUnset(request.name)) {
-    query['Name'] = request.name;
-  }
-  if (!Util.isUnset(request.primaryUser)) {
-    query['PrimaryUser'] = request.primaryUser;
-  }
-  if (!Util.isUnset(request.region)) {
-    query['Region'] = request.region;
-  }
-  if (!Util.isUnset(request.seataServerUniqueId)) {
-    query['SeataServerUniqueId'] = request.seataServerUniqueId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'CreateVGroup',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function createVGroup(request: CreateVGroupRequest): CreateVGroupResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createVGroupWithOptions(request, runtime);
 }
 
 model CreateZnodeRequest {
@@ -3111,57 +2960,6 @@ async function deleteNacosService(request: DeleteNacosServiceRequest): DeleteNac
   return deleteNacosServiceWithOptions(request, runtime);
 }
 
-model DeleteSeataServerRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  seataServerUniqueId?: string(name='SeataServerUniqueId', description='集群名称'),
-}
-
-model DeleteSeataServerResponseBody = {
-  code?: int32(name='Code'),
-  data?: string(name='Data'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success'),
-}
-
-model DeleteSeataServerResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: DeleteSeataServerResponseBody(name='body'),
-}
-
-async function deleteSeataServerWithOptions(request: DeleteSeataServerRequest, runtime: Util.RuntimeOptions): DeleteSeataServerResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.acceptLanguage)) {
-    query['AcceptLanguage'] = request.acceptLanguage;
-  }
-  if (!Util.isUnset(request.seataServerUniqueId)) {
-    query['SeataServerUniqueId'] = request.seataServerUniqueId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'DeleteSeataServer',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function deleteSeataServer(request: DeleteSeataServerRequest): DeleteSeataServerResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteSeataServerWithOptions(request, runtime);
-}
-
 model DeleteSecurityGroupRuleRequest {
   acceptLanguage?: string(name='AcceptLanguage'),
   gatewayUniqueId?: string(name='GatewayUniqueId'),
@@ -3385,57 +3183,6 @@ async function deleteSwimmingLaneGroupWithOptions(request: DeleteSwimmingLaneGro
 async function deleteSwimmingLaneGroup(request: DeleteSwimmingLaneGroupRequest): DeleteSwimmingLaneGroupResponse {
   var runtime = new Util.RuntimeOptions{};
   return deleteSwimmingLaneGroupWithOptions(request, runtime);
-}
-
-model DeleteVGroupRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  name?: string(name='Name', description='集群名称'),
-}
-
-model DeleteVGroupResponseBody = {
-  code?: int32(name='Code'),
-  data?: string(name='Data'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success'),
-}
-
-model DeleteVGroupResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: DeleteVGroupResponseBody(name='body'),
-}
-
-async function deleteVGroupWithOptions(request: DeleteVGroupRequest, runtime: Util.RuntimeOptions): DeleteVGroupResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.acceptLanguage)) {
-    query['AcceptLanguage'] = request.acceptLanguage;
-  }
-  if (!Util.isUnset(request.name)) {
-    query['Name'] = request.name;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'DeleteVGroup',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function deleteVGroup(request: DeleteVGroupRequest): DeleteVGroupResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteVGroupWithOptions(request, runtime);
 }
 
 model DeleteZnodeRequest {
@@ -3813,68 +3560,6 @@ async function getBlackWhiteList(request: GetBlackWhiteListRequest): GetBlackWhi
   return getBlackWhiteListWithOptions(request, runtime);
 }
 
-model GetDashBoardUrlRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  instanceId?: string(name='InstanceId'),
-  regionId?: string(name='RegionId'),
-  requestPars?: string(name='RequestPars'),
-}
-
-model GetDashBoardUrlResponseBody = {
-  data?: {
-    message?: string(name='Message'),
-    urlMap?: map[string]any(name='UrlMap'),
-  }(name='Data'),
-  errorCode?: string(name='ErrorCode'),
-  httpCode?: string(name='HttpCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-}
-
-model GetDashBoardUrlResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetDashBoardUrlResponseBody(name='body'),
-}
-
-async function getDashBoardUrlWithOptions(request: GetDashBoardUrlRequest, runtime: Util.RuntimeOptions): GetDashBoardUrlResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.acceptLanguage)) {
-    query['AcceptLanguage'] = request.acceptLanguage;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.regionId)) {
-    query['RegionId'] = request.regionId;
-  }
-  if (!Util.isUnset(request.requestPars)) {
-    query['RequestPars'] = request.requestPars;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetDashBoardUrl',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function getDashBoardUrl(request: GetDashBoardUrlRequest): GetDashBoardUrlResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getDashBoardUrlWithOptions(request, runtime);
-}
-
 model GetEngineNamepaceRequest {
   acceptLanguage?: string(name='AcceptLanguage'),
   clusterId?: string(name='ClusterId'),
@@ -4155,6 +3840,7 @@ model GetGatewayRouteDetailRequest {
 model GetGatewayRouteDetailResponseBody = {
   code?: int32(name='Code'),
   data?: {
+    ahasStatus?: int32(name='AhasStatus'),
     cors?: {
       allowCredentials?: boolean(name='AllowCredentials'),
       allowHeaders?: string(name='AllowHeaders'),
@@ -4468,83 +4154,6 @@ async function getGovernanceKubernetesClusterWithOptions(request: GetGovernanceK
 async function getGovernanceKubernetesCluster(request: GetGovernanceKubernetesClusterRequest): GetGovernanceKubernetesClusterResponse {
   var runtime = new Util.RuntimeOptions{};
   return getGovernanceKubernetesClusterWithOptions(request, runtime);
-}
-
-model GetGovernanceKubernetesClusterListRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  clusterId?: string(name='ClusterId'),
-  clusterName?: string(name='ClusterName'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-}
-
-model GetGovernanceKubernetesClusterListResponseBody = {
-  code?: int32(name='Code'),
-  data?: {
-    pageNumber?: int32(name='PageNumber'),
-    pageSize?: int32(name='PageSize'),
-    result?: [ 
-      {
-        clusterId?: string(name='ClusterId'),
-        clusterName?: string(name='ClusterName'),
-        k8sVersion?: string(name='K8sVersion'),
-        namespaceInfos?: string(name='NamespaceInfos'),
-        pilotStartTime?: string(name='PilotStartTime'),
-        region?: string(name='Region'),
-      }
-    ](name='Result'),
-    totalSize?: int32(name='TotalSize'),
-  }(name='Data'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-}
-
-model GetGovernanceKubernetesClusterListResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetGovernanceKubernetesClusterListResponseBody(name='body'),
-}
-
-async function getGovernanceKubernetesClusterListWithOptions(request: GetGovernanceKubernetesClusterListRequest, runtime: Util.RuntimeOptions): GetGovernanceKubernetesClusterListResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.acceptLanguage)) {
-    query['AcceptLanguage'] = request.acceptLanguage;
-  }
-  if (!Util.isUnset(request.clusterId)) {
-    query['ClusterId'] = request.clusterId;
-  }
-  if (!Util.isUnset(request.clusterName)) {
-    query['ClusterName'] = request.clusterName;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    query['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query['PageSize'] = request.pageSize;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetGovernanceKubernetesClusterList',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function getGovernanceKubernetesClusterList(request: GetGovernanceKubernetesClusterListRequest): GetGovernanceKubernetesClusterListResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getGovernanceKubernetesClusterListWithOptions(request, runtime);
 }
 
 model GetImageRequest {
@@ -5733,73 +5342,6 @@ async function listClusterConnectionTypes(request: ListClusterConnectionTypesReq
   return listClusterConnectionTypesWithOptions(request, runtime);
 }
 
-model ListClusterDetailFeatureRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  instanceId?: string(name='InstanceId'),
-  regionId?: string(name='RegionId'),
-  requestPars?: string(name='RequestPars'),
-}
-
-model ListClusterDetailFeatureResponseBody = {
-  data?: [ 
-    {
-      extend?: map[string]any(name='Extend'),
-      featureId?: string(name='FeatureId'),
-      message?: string(name='Message'),
-      orderNum?: string(name='OrderNum'),
-      status?: string(name='Status'),
-    }
-  ](name='Data'),
-  errorCode?: string(name='ErrorCode'),
-  httpCode?: string(name='HttpCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-}
-
-model ListClusterDetailFeatureResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListClusterDetailFeatureResponseBody(name='body'),
-}
-
-async function listClusterDetailFeatureWithOptions(request: ListClusterDetailFeatureRequest, runtime: Util.RuntimeOptions): ListClusterDetailFeatureResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.acceptLanguage)) {
-    query['AcceptLanguage'] = request.acceptLanguage;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.regionId)) {
-    query['RegionId'] = request.regionId;
-  }
-  if (!Util.isUnset(request.requestPars)) {
-    query['RequestPars'] = request.requestPars;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListClusterDetailFeature',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function listClusterDetailFeature(request: ListClusterDetailFeatureRequest): ListClusterDetailFeatureResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listClusterDetailFeatureWithOptions(request, runtime);
-}
-
 model ListClusterTypesRequest {
   acceptLanguage?: string(name='AcceptLanguage'),
   connectType?: string(name='ConnectType', description='网络连接类型'),
@@ -6216,6 +5758,7 @@ model ListGatewayResponseBody = {
         endDate?: string(name='EndDate'),
         gatewayType?: string(name='GatewayType'),
         gatewayUniqueId?: string(name='GatewayUniqueId'),
+        gatewayVersion?: string(name='GatewayVersion'),
         gmtCreate?: string(name='GmtCreate'),
         gmtModified?: string(name='GmtModified'),
         id?: long(name='Id'),
@@ -6243,6 +5786,7 @@ model ListGatewayResponseBody = {
         primaryUser?: string(name='PrimaryUser'),
         region?: string(name='Region'),
         replica?: int32(name='Replica'),
+        rollBack?: boolean(name='RollBack'),
         slb?: [ 
           {
             gatewaySlbMode?: string(name='GatewaySlbMode'),
@@ -6739,86 +6283,6 @@ async function listGatewaySlbWithOptions(request: ListGatewaySlbRequest, runtime
 async function listGatewaySlb(request: ListGatewaySlbRequest): ListGatewaySlbResponse {
   var runtime = new Util.RuntimeOptions{};
   return listGatewaySlbWithOptions(request, runtime);
-}
-
-model ListInstancesRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  region?: string(name='Region'),
-  userId?: string(name='UserId'),
-}
-
-model ListInstancesResponseBody = {
-  code?: int32(name='Code'),
-  data?: [ 
-    {
-      appClusterId?: string(name='AppClusterId'),
-      appVersion?: string(name='AppVersion'),
-      dbPassword?: string(name='DbPassword'),
-      dbUrl?: string(name='DbUrl'),
-      dbUserName?: string(name='DbUserName'),
-      endDate?: long(name='EndDate'),
-      environmentId?: long(name='EnvironmentId'),
-      gmtCreate?: string(name='GmtCreate'),
-      gmtModified?: string(name='GmtModified'),
-      id?: long(name='Id'),
-      imageVersion?: string(name='ImageVersion'),
-      instanceId?: string(name='InstanceId'),
-      isCreatedRedis?: boolean(name='IsCreatedRedis'),
-      k8sResourceId?: long(name='K8sResourceId'),
-      name?: string(name='Name'),
-      nameServer?: string(name='NameServer'),
-      orderId?: string(name='OrderId'),
-      podCidr?: string(name='PodCidr'),
-      primaryUser?: string(name='PrimaryUser'),
-      region?: string(name='Region'),
-      replica?: long(name='Replica'),
-      seataServerUniqueId?: string(name='SeataServerUniqueId'),
-      securityGroup?: string(name='SecurityGroup'),
-      spec?: string(name='Spec'),
-      startDate?: string(name='StartDate'),
-      status?: long(name='Status'),
-      statusDesc?: string(name='StatusDesc'),
-      storeMode?: string(name='StoreMode'),
-      vpc?: string(name='Vpc'),
-      vswitch?: string(name='Vswitch'),
-      zoneId?: string(name='ZoneId'),
-    }
-  ](name='Data'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success'),
-}
-
-model ListInstancesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListInstancesResponseBody(name='body'),
-}
-
-async function listInstancesWithOptions(request: ListInstancesRequest, runtime: Util.RuntimeOptions): ListInstancesResponse {
-  Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListInstances',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'GET',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function listInstances(request: ListInstancesRequest): ListInstancesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listInstancesWithOptions(request, runtime);
 }
 
 model ListListenersByConfigRequest {
@@ -8193,33 +7657,33 @@ async function queryGatewayType(request: QueryGatewayTypeRequest): QueryGatewayT
 
 model QueryGovernanceKubernetesClusterRequest {
   acceptLanguage?: string(name='AcceptLanguage'),
-  clusterId?: string(name='ClusterId'),
-  clusterName?: string(name='ClusterName'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
+  clusterId?: string(name='ClusterId', description='Kubernetes集群Id'),
+  clusterName?: string(name='ClusterName', description='Kubernetes集群名'),
+  pageNumber?: int32(name='PageNumber', description='当前页码'),
+  pageSize?: int32(name='PageSize', description='每页元素数量'),
 }
 
 model QueryGovernanceKubernetesClusterResponseBody = {
-  code?: int32(name='Code'),
+  code?: int32(name='Code', description='后端状态码'),
   data?: {
-    pageNumber?: int32(name='PageNumber'),
-    pageSize?: int32(name='PageSize'),
+    pageNumber?: int32(name='PageNumber', description='当前页码'),
+    pageSize?: int32(name='PageSize', description='页大小'),
     result?: [ 
       {
-        clusterId?: string(name='ClusterId'),
-        clusterName?: string(name='ClusterName'),
-        k8sVersion?: string(name='K8sVersion'),
-        namespaceInfos?: string(name='NamespaceInfos'),
-        pilotStartTime?: string(name='PilotStartTime'),
-        region?: string(name='Region'),
+        clusterId?: string(name='ClusterId', description='Kubernetes集群Id'),
+        clusterName?: string(name='ClusterName', description='Kubernetes集群名'),
+        k8sVersion?: string(name='K8sVersion', description='Kubernetes集群版本'),
+        namespaceInfos?: string(name='NamespaceInfos', description='Kubernetes集群命名空间信息（json格式）'),
+        pilotStartTime?: string(name='PilotStartTime', description='pilot启动时间'),
+        region?: string(name='Region', description='Kubernetes集群所在的地域'),
       }
     ](name='Result'),
-    totalSize?: int32(name='TotalSize'),
+    totalSize?: int32(name='TotalSize', description='页码总数'),
   }(name='Data'),
   httpStatusCode?: int32(name='HttpStatusCode'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  success?: boolean(name='Success', description='是否成功'),
 }
 
 model QueryGovernanceKubernetesClusterResponse = {
@@ -8414,64 +7878,6 @@ async function querySwimmingLaneById(request: QuerySwimmingLaneByIdRequest): Que
   return querySwimmingLaneByIdWithOptions(request, runtime);
 }
 
-model QueryUserVpcRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  region?: string(name='Region'),
-  userId?: string(name='UserId'),
-}
-
-model QueryUserVpcResponseBody = {
-  code?: int32(name='Code'),
-  data?: [ 
-    {
-      vSwitchList?: [ 
-        {
-          vswitchId?: string(name='VswitchId'),
-          vswitchName?: string(name='VswitchName'),
-          zoneId?: string(name='ZoneId'),
-        }
-      ](name='VSwitchList'),
-      vpcId?: string(name='VpcId'),
-      vpcName?: string(name='VpcName'),
-    }
-  ](name='Data'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success'),
-}
-
-model QueryUserVpcResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: QueryUserVpcResponseBody(name='body'),
-}
-
-async function queryUserVpcWithOptions(request: QueryUserVpcRequest, runtime: Util.RuntimeOptions): QueryUserVpcResponse {
-  Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryUserVpc',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'GET',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function queryUserVpc(request: QueryUserVpcRequest): QueryUserVpcResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryUserVpcWithOptions(request, runtime);
-}
-
 model QueryZnodeDetailRequest {
   acceptLanguage?: string(name='AcceptLanguage'),
   clusterId?: string(name='ClusterId'),
@@ -8583,57 +7989,6 @@ async function restartClusterWithOptions(request: RestartClusterRequest, runtime
 async function restartCluster(request: RestartClusterRequest): RestartClusterResponse {
   var runtime = new Util.RuntimeOptions{};
   return restartClusterWithOptions(request, runtime);
-}
-
-model RestartSeataServerRequest {
-  acceptLanguage?: string(name='AcceptLanguage'),
-  seataServerUniqueId?: string(name='SeataServerUniqueId', description='集群名称'),
-}
-
-model RestartSeataServerResponseBody = {
-  code?: int32(name='Code'),
-  data?: string(name='Data'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success'),
-}
-
-model RestartSeataServerResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: RestartSeataServerResponseBody(name='body'),
-}
-
-async function restartSeataServerWithOptions(request: RestartSeataServerRequest, runtime: Util.RuntimeOptions): RestartSeataServerResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.acceptLanguage)) {
-    query['AcceptLanguage'] = request.acceptLanguage;
-  }
-  if (!Util.isUnset(request.seataServerUniqueId)) {
-    query['SeataServerUniqueId'] = request.seataServerUniqueId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'RestartSeataServer',
-    version = '2019-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function restartSeataServer(request: RestartSeataServerRequest): RestartSeataServerResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return restartSeataServerWithOptions(request, runtime);
 }
 
 model RetryClusterRequest {
