@@ -1,0 +1,158 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('kubenest', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model PageDO {
+  code?: int32(name='code', description='code'),
+  pageNo?: int32(name='pageNo', description='pageNo'),
+  records?: [  map[string]any ](name='records', description='records'),
+  requestId?: string(name='requestId', description='requestId'),
+  totalCount?: int32(name='totalCount', description='totalCount'),
+}
+
+model ResultDO {
+  code?: int32(name='code', description='code'),
+  data?: map[string]any(name='data', description='data'),
+  msg?: string(name='msg', description='msg'),
+  requestId?: string(name='requestId', description='requestId'),
+}
+
+model ListAppHeaders {
+  commonHeaders?: map[string]string,
+  xSProjectId?: string(name='x-s-projectId'),
+  xSnowUserData?: string(name='x-snow-user-data'),
+}
+
+model ListAppResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: PageDO  
+}
+
+async function listApp(): ListAppResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new ListAppHeaders{};
+  return listAppWithOptions(headers, runtime);
+}
+
+async function listAppWithOptions(headers: ListAppHeaders, runtime: Util.RuntimeOptions): ListAppResponse {
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xSProjectId)) {
+    realHeaders['x-s-projectId'] = Util.toJSONString(headers.xSProjectId);
+  }
+  if (!Util.isUnset(headers.xSnowUserData)) {
+    realHeaders['x-snow-user-data'] = Util.toJSONString(headers.xSnowUserData);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+  };
+  var params = new OpenApi.Params{
+    action = 'ListApp',
+    version = '2022-05-25',
+    protocol = 'HTTPS',
+    pathname = `/api/app`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model ListAppInfoHeaders {
+  commonHeaders?: map[string]string,
+  xSProjectId?: string(name='x-s-projectId'),
+  xSnowUserData?: string(name='x-snow-user-data'),
+}
+
+model ListAppInfoRequest {
+  labels?: string(name='labels'),
+}
+
+model ListAppInfoResponseBody = {
+  code?: int32(name='code'),
+  data?: map[string]any(name='data'),
+  msg?: string(name='msg'),
+  requestId?: string(name='requestId', description='Id of the request'),
+}
+
+model ListAppInfoResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListAppInfoResponseBody(name='body'),
+}
+
+async function listAppInfo(id: string, apiVersion: string, resourceType: string, request: ListAppInfoRequest): ListAppInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new ListAppInfoHeaders{};
+  return listAppInfoWithOptions(id, apiVersion, resourceType, request, headers, runtime);
+}
+
+async function listAppInfoWithOptions(id: string, apiVersion: string, resourceType: string, request: ListAppInfoRequest, headers: ListAppInfoHeaders, runtime: Util.RuntimeOptions): ListAppInfoResponse {
+  Util.validateModel(request);
+  id = OpenApiUtil.getEncodeParam(id);
+  apiVersion = OpenApiUtil.getEncodeParam(apiVersion);
+  resourceType = OpenApiUtil.getEncodeParam(resourceType);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.labels)) {
+    query['labels'] = request.labels;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xSProjectId)) {
+    realHeaders['x-s-projectId'] = Util.toJSONString(headers.xSProjectId);
+  }
+  if (!Util.isUnset(headers.xSnowUserData)) {
+    realHeaders['x-snow-user-data'] = Util.toJSONString(headers.xSnowUserData);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListAppInfo',
+    version = '2022-05-25',
+    protocol = 'HTTPS',
+    pathname = `/api/app-cluster/${id}/${apiVersion}/${resourceType}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
