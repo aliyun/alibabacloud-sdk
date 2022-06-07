@@ -1,0 +1,103 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = 'regional';
+  @endpointMap = {
+    ap-northeast-1 = 'green.ap-southeast-1.aliyuncs.com',
+    ap-south-1 = 'green.ap-southeast-1.aliyuncs.com',
+    ap-southeast-2 = 'green.ap-southeast-1.aliyuncs.com',
+    ap-southeast-3 = 'green.ap-southeast-1.aliyuncs.com',
+    ap-southeast-5 = 'green.ap-southeast-1.aliyuncs.com',
+    cn-chengdu = 'green.aliyuncs.com',
+    cn-hongkong = 'green.aliyuncs.com',
+    cn-huhehaote = 'green.aliyuncs.com',
+    cn-qingdao = 'green.aliyuncs.com',
+    cn-zhangjiakou = 'green.aliyuncs.com',
+    eu-central-1 = 'green.ap-southeast-1.aliyuncs.com',
+    eu-west-1 = 'green.ap-southeast-1.aliyuncs.com',
+    me-east-1 = 'green.ap-southeast-1.aliyuncs.com',
+    us-east-1 = 'green.ap-southeast-1.aliyuncs.com',
+    cn-hangzhou-finance = 'green.aliyuncs.com',
+    cn-shenzhen-finance-1 = 'green.aliyuncs.com',
+    cn-shanghai-finance-1 = 'green.aliyuncs.com',
+    cn-north-2-gov-1 = 'green.aliyuncs.com',
+  };
+
+  checkConfig(config);
+  @endpoint = getEndpoint('green', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model TextModerationRequest {
+  service?: string(name='Service'),
+  serviceParameters?: string(name='ServiceParameters'),
+}
+
+model TextModerationResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    labels?: string(name='labels'),
+    reason?: string(name='reason'),
+    suggestion?: string(name='suggestion'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model TextModerationResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: TextModerationResponseBody(name='body'),
+}
+
+async function textModerationWithOptions(request: TextModerationRequest, runtime: Util.RuntimeOptions): TextModerationResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.service)) {
+    body['Service'] = request.service;
+  }
+  if (!Util.isUnset(request.serviceParameters)) {
+    body['ServiceParameters'] = request.serviceParameters;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'TextModeration',
+    version = '2022-03-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function textModeration(request: TextModerationRequest): TextModerationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return textModerationWithOptions(request, runtime);
+}
+
