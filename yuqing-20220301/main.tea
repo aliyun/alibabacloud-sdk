@@ -28,6 +28,14 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model ConsoleBody {
+  appCode?: string(name='appCode', description='appCode'),
+  interfaceName?: string(name='interfaceName', description='interfaceName'),
+  paramJson?: string(name='paramJson', description='paramJson'),
+  requestId?: string(name='requestId', description='requestId'),
+  teamHashId?: string(name='teamHashId', description='teamHashId'),
+}
+
 model FieldCondition {
   fieldName?: string(name='fieldName', description='字段名称'),
   nestFieldPath?: string(name='nestFieldPath', description='复杂查询下，嵌套子条件字段jsonPath'),
@@ -225,6 +233,52 @@ async function closeProductWithOptions(request: CloseProductRequest, headers: ma
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model ConsoleApiProxyRequest {
+  body?: map[string]any(name='body', description='A short description of struct'),
+}
+
+model ConsoleApiProxyResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request'),
+  resultJson?: string(name='resultJson'),
+}
+
+model ConsoleApiProxyResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ConsoleApiProxyResponseBody(name='body'),
+}
+
+async function consoleApiProxy(request: ConsoleApiProxyRequest): ConsoleApiProxyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return consoleApiProxyWithOptions(request, headers, runtime);
+}
+
+async function consoleApiProxyWithOptions(request: ConsoleApiProxyRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ConsoleApiProxyResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.body)) {
+    body['body'] = request.body;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ConsoleApiProxy',
+    version = '2022-03-01',
+    protocol = 'HTTPS',
+    pathname = `/aliyun/openApi/`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
     bodyType = 'json',
   };
   return callApi(params, req, runtime);
