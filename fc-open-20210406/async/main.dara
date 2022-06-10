@@ -85,18 +85,20 @@ model Code {
 }
 
 model CustomContainerConfig {
-  accelerationType?: string(name='accelerationType', description='镜像加速类型，取值Default为开启加速，None为关闭加速，默认关闭'),
+  accelerationType?: string(name='accelerationType', description='镜像加速类型，取值Default为开启加速，None为关闭加速，默认开启'),
   args?: string(name='args', description='容器启动参数'),
   command?: string(name='command', description='容器启动命令，等同于 Docker ENTRYPOINT'),
   image?: string(name='image', description='容器镜像地址，实例值： registry-vpc.cn-hangzhou.aliyuncs.com/fc-demo/helloworld:v1beta1'),
+  instanceID?: string(name='instanceID', description='ACR企业版镜像仓库ID，使用ACR企业版镜像时须传入'),
 }
 
 model CustomContainerConfigInfo {
   accelerationInfo?: AccelerationInfo(name='accelerationInfo'),
-  accelerationType?: string(name='accelerationType', description='镜像加速类型，取值Default为开启加速，None为关闭加速，默认关闭'),
+  accelerationType?: string(name='accelerationType', description='镜像加速类型，取值Default为开启加速，None为关闭加速，默认开启'),
   args?: string(name='args', description='容器启动参数'),
   command?: string(name='command', description='容器启动命令，等同于 Docker ENTRYPOINT'),
   image?: string(name='image', description='容器镜像地址，实例值： registry-vpc.cn-hangzhou.aliyuncs.com/fc-demo/helloworld:v1beta1'),
+  instanceID?: string(name='instanceID', description='ACR企业版镜像仓库ID，使用ACR企业版镜像时须传入'),
 }
 
 model CustomDNS {
@@ -137,8 +139,8 @@ model ErrorInfo {
 }
 
 model HTTPTriggerConfig {
-  authType?: string(name='authType', description='authType'),
-  methods?: [ string ](name='methods', description='methods'),
+  authType?: string(name='authType', description='认证类型'),
+  methods?: [ string ](name='methods', description='允许的HTTP方法列表'),
 }
 
 model InstanceLifecycleConfig {
@@ -197,6 +199,12 @@ model LogTriggerConfig {
   jobConfig?: JobConfig(name='jobConfig'),
   logConfig?: JobLogConfig(name='logConfig'),
   sourceConfig?: SourceConfig(name='sourceConfig'),
+}
+
+model MeteringConfig {
+  logConfig?: LogConfig(name='logConfig', description='日志仓库'),
+  payerId?: string(name='payerId', description='支付用户'),
+  role?: string(name='role', description='权限'),
 }
 
 model MnsTopicTriggerConfig {
@@ -325,6 +333,7 @@ model StatefulAsyncInvocationEvent {
 
 model TLSConfig {
   cipherSuites: [ string ](name='cipherSuites', description='TLS加密套件列表'),
+  maxVersion?: string(name='maxVersion', description='TLS最大版本号'),
   minVersion: string(name='minVersion', description='TLS最小版本号'),
 }
 
@@ -345,9 +354,8 @@ model TimeTriggerConfig {
 }
 
 model TracingConfig {
-  jaegerConfig?: JaegerConfig(name='jaegerConfig'),
-  params?: map[string]string(name='params', description='链路追踪参数'),
-  type?: string(name='type', description='链路追踪类型'),
+  params: map[string]string(name='params', description='链路追踪参数。当协议类型为 Jaeger 时，参数为 map[string]string，其中 key 为 "endpoint"，value 为您的链路追踪内网接入点。例如 endpoint: http://tracing-analysis-dc-hz.aliyuncs.com/adapt_xxx/api/otlp/traces'),
+  type: string(name='type', description='链路追踪协议类型，目前只支持 Jaeger'),
 }
 
 model VPCConfig {
@@ -355,6 +363,10 @@ model VPCConfig {
   securityGroupId?: string(name='securityGroupId', description='安全组ID'),
   vSwitchIds?: [ string ](name='vSwitchIds', description='VSwitch ID列表'),
   vpcId?: string(name='vpcId', description='VPC ID'),
+}
+
+model VendorConfig {
+  meteringConfig?: MeteringConfig(name='meteringConfig'),
 }
 
 model CreateAliasRequest {
@@ -392,7 +404,7 @@ model CreateCustomDomainRequest {
   xFcDate?: string(name='X-Fc-Date', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   certConfig?: CertConfig(name='certConfig', position='Body'),
-  domainName?: string(name='domainName', position='Body'),
+  domainName: string(name='domainName', position='Body'),
   protocol?: string(name='protocol', position='Body'),
   routeConfig?: RouteConfig(name='routeConfig', position='Body'),
   tlsConfig?: TLSConfig(name='tlsConfig', position='Body'),
@@ -442,7 +454,7 @@ model CreateFunctionRequest {
   instanceType?: string(name='instanceType', position='Body'),
   layers?: [ string ](name='layers', description='层列表', position='Body'),
   memorySize?: int32(name='memorySize', description='function的内存规格，单位为MB，为64MB的倍数', position='Body'),
-  runtime?: string(name='runtime', description='function运行的语言环境，目前支持nodejs6, nodejs8, python2.7, python3, java8', position='Body'),
+  runtime: string(name='runtime', description='function运行的语言环境，目前支持nodejs6, nodejs8, python2.7, python3, java8', position='Body'),
   timeout?: int32(name='timeout', description='function运行的超时时间，单位为秒，最小1秒，默认3秒。function超过这个时间后会被终止执行', position='Body'),
 }
 
@@ -579,6 +591,8 @@ model CreateTriggerResponseBody = {
   triggerId?: string(name='triggerId'),
   triggerName?: string(name='triggerName', description='trigger名称'),
   triggerType?: string(name='triggerType', description='trigger类型，如 oss, log, tablestore, timer, http, cdn_events, mns_topic'),
+  urlInternet?: string(name='urlInternet', description='公网域名地址。在互联网可以通过HTTP协议或者HTTPS协议访问HTTP Trigger。'),
+  urlIntranet?: string(name='urlIntranet', description='私网域名地址。在VPC可以通过HTTP协议或者HTTPS协议访问HTTP Trigger。'),
 }
 
 model CreateTriggerResponse = {
@@ -596,7 +610,7 @@ model CreateVpcBindingRequest {
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
-  vpcId?: string(name='vpcId', position='Body'),
+  vpcId: string(name='vpcId', position='Body'),
 }
 
 model CreateVpcBindingResponse = {
@@ -685,7 +699,7 @@ model DeleteFunctionOnDemandConfigRequest {
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
-  qualifier?: string(name='qualifier', position='Query'),
+  qualifier: string(name='qualifier', description='服务别名或LATEST，不支持版本。', position='Query'),
 }
 
 model DeleteFunctionOnDemandConfigResponse = {
@@ -811,6 +825,7 @@ model GetAccountSettingsRequest {
 
 model GetAccountSettingsResponseBody = {
   availableAZs?: [ string ](name='availableAZs', description='可用区列表'),
+  defaultRole?: string(name='defaultRole', description='默认服务角色'),
 }
 
 model GetAccountSettingsResponse = {
@@ -984,7 +999,7 @@ model GetFunctionOnDemandConfigRequest {
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
-  qualifier?: string(name='qualifier', position='Query'),
+  qualifier: string(name='qualifier', position='Query'),
 }
 
 model GetFunctionOnDemandConfigResponseBody = {
@@ -1152,6 +1167,8 @@ model GetTriggerResponseBody = {
   triggerId?: string(name='triggerId'),
   triggerName?: string(name='triggerName', description='trigger名称'),
   triggerType?: string(name='triggerType', description='trigger类型，如 oss, log, tablestore, timer, http, cdn_events, mns_topic'),
+  urlInternet?: string(name='urlInternet', description='公网域名地址。在互联网可以通过HTTP协议或者HTTPS协议访问HTTP Trigger。'),
+  urlIntranet?: string(name='urlIntranet', description='私网域名地址。在VPC可以通过HTTP协议或者HTTPS协议访问HTTP Trigger。'),
 }
 
 model GetTriggerResponse = {
@@ -1378,6 +1395,42 @@ async function listFunctions(request: ListFunctionsRequest): ListFunctionsRespon
   return @handler.do('RESTFUL', 'ListFunctions', 'GET', '/2021-04-06/services/{serviceName}/functions', 'json', false, 'json', request);
 }
 
+model ListInstancesRequest {
+  serviceName: string(name='serviceName', description='服务的名称', position='Path'),
+  functionName: string(name='functionName', description='函数的名称', position='Path'),
+  xFcAccountId: string(name='X-Fc-Account-Id', position='Header'),
+  instanceIds?: [ string ](name='instanceIds', description='实例ID', position='Query'),
+  limit?: int32(name='limit', description='限定此次返回资源的数量，取值范围[0,1000]。
+
+返回结果可以小于指定的数量，但不能多于指定的数量。', position='Query'),
+  qualifier?: string(name='qualifier', description='服务的版本或别名。默认是LATEST。
+
+此处的qualifier同InvokeFunction的qualifier含义一致，即调用ListInstances时指定qualifier=test查询出来的实例，就是调用InvokeFunction时qualifier=test链路上的实例。', position='Query'),
+}
+
+model ListInstancesResponseBody = {
+  instances?: [ 
+    {
+      instanceId?: string(name='instanceId', description='实例ID。
+
+'),
+      versionId?: string(name='versionId', description='实例所属的服务版本。如果是LATEST别名下的函数实例，则返回版本号为0。
+
+'),
+    }
+  ](name='instances'),
+}
+
+model ListInstancesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListInstancesResponseBody(name='body'),
+}
+
+async function listInstances(request: ListInstancesRequest): ListInstancesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListInstances', 'GET', '/2021-04-06/services/{serviceName}/functions/{functionName}/instances', 'json', false, 'json', request);
+}
+
 model ListLayerVersionsRequest {
   layerName: string(name='layerName', description='层名称', position='Path'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
@@ -1501,7 +1554,7 @@ model ListReservedCapacitiesRequest {
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
-  limit?: string(name='limit', position='Query'),
+  limit?: string(name='limit', description='一次返回的数量，取值范围[1, 100]', position='Query'),
   nextToken?: string(name='nextToken', position='Query'),
 }
 
@@ -1621,8 +1674,8 @@ async function listStatefulAsyncInvocationFunctions(request: ListStatefulAsyncIn
 }
 
 model ListStatefulAsyncInvocationsRequest {
-  serviceName?: string(name='serviceName', position='Path'),
-  functionName?: string(name='functionName', position='Path'),
+  serviceName: string(name='serviceName', position='Path'),
+  functionName: string(name='functionName', position='Path'),
   accountID?: string(name='AccountID', position='Host'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
   xFcCodeChecksum?: string(name='X-Fc-Code-Checksum', position='Header'),
@@ -1690,7 +1743,7 @@ model ListTriggersRequest {
   xFcDate?: string(name='X-Fc-Date', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   limit?: int32(name='limit', description='限定此次返回资源的数量。如果不设定，默认返回20，最大不能超过100。返回结果可能小于指定的数量，但不会多于指定的数量', position='Query'),
-  nextToken?: int32(name='nextToken', description='用来返回更多结果。第一次查询不需要提供这个参数，后续查询的token从返回结果中获取', position='Query'),
+  nextToken?: string(name='nextToken', description='用来返回更多结果。第一次查询不需要提供这个参数，后续查询的token从返回结果中获取', position='Query'),
   prefix?: string(name='prefix', description='限定返回的资源名称必须以prefix作为前缀', position='Query'),
   startKey?: string(name='startKey', description='设定结果从startKey之后（包括startKey）按字母排序的第一个开始返回', position='Query'),
 }
@@ -1710,6 +1763,8 @@ model ListTriggersResponseBody = {
       triggerId?: string(name='triggerId'),
       triggerName?: string(name='triggerName', description='trigger名称'),
       triggerType?: string(name='triggerType', description='trigger类型，如 oss, log, tablestore, timer, http, cdn_events, mns_topic'),
+      urlInternet?: string(name='urlInternet', description='公网域名地址。在互联网可以通过HTTP协议或者HTTPS协议访问HTTP Trigger。'),
+      urlIntranet?: string(name='urlIntranet', description='私网域名地址。在VPC可以通过HTTP协议或者HTTPS协议访问HTTP Trigger。'),
     }
   ](name='triggers', description='Trigger列表'),
 }
@@ -1747,7 +1802,7 @@ async function listVpcBindings(request: ListVpcBindingsRequest): ListVpcBindings
 
 model PublishServiceVersionRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
-  ifMatch?: string(name='If-Match', position='Header'),
+  ifMatch?: string(name='If-Match', description='服务的ETag，可通过GetService接口获得。若发布版本时服务的ETag与传入的不一致，则发布版本会失败。', position='Header'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
@@ -1813,8 +1868,8 @@ model PutFunctionOnDemandConfigRequest {
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
-  maximumInstanceCount?: long(name='maximumInstanceCount', position='Body'),
-  qualifier?: string(name='qualifier', position='Query'),
+  maximumInstanceCount: long(name='maximumInstanceCount', position='Body'),
+  qualifier: string(name='qualifier', position='Query'),
 }
 
 model PutFunctionOnDemandConfigResponseBody = {
@@ -1878,7 +1933,7 @@ model RegisterEventSourceRequest {
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
-  sourceArn?: string(name='sourceArn', description='事件源资源标识符', position='Body'),
+  sourceArn: string(name='sourceArn', description='事件源资源标识符', position='Body'),
   qualifier?: string(name='qualifier', description='别名或版本', position='Query'),
 }
 
@@ -1920,8 +1975,8 @@ model TagResourceRequest {
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
   xFcDate?: string(name='X-Fc-Date', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
-  resourceArn?: string(name='resourceArn', position='Body'),
-  tags?: map[string]string(name='tags', position='Body'),
+  resourceArn: string(name='resourceArn', position='Body'),
+  tags: map[string]string(name='tags', position='Body'),
 }
 
 model TagResourceResponse = {
@@ -1948,7 +2003,7 @@ model UntagResourceResponse = {
 
 async function untagResource(request: UntagResourceRequest): UntagResourceResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'UntagResource', 'DELETE', '/2021-04-06/tag', 'none', false, 'json', request);
+  return @handler.do('RESTFUL', 'UntagResource', 'PUT', '/2021-04-06/tag', 'none', false, 'json', request);
 }
 
 model UpdateAliasRequest {
@@ -2141,6 +2196,8 @@ model UpdateTriggerResponseBody = {
   triggerId?: string(name='triggerId'),
   triggerName?: string(name='triggerName', description='trigger名称'),
   triggerType?: string(name='triggerType', description='trigger类型，如 oss, log, tablestore, timer, http, cdn_events, mns_topic'),
+  urlInternet?: string(name='urlInternet', description='公网域名地址。在互联网可以通过HTTP协议或者HTTPS协议访问HTTP Trigger。'),
+  urlIntranet?: string(name='urlIntranet', description='私网域名地址。在VPC可以通过HTTP协议或者HTTPS协议访问HTTP Trigger。'),
 }
 
 model UpdateTriggerResponse = {
