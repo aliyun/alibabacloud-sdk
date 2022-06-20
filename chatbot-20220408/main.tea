@@ -301,13 +301,6 @@ model ChatResponseBody = {
     {
       answerSource?: string(name='AnswerSource', description='当AnswerType为Recommend时，此字段表示推荐的答案来源'),
       answerType?: string(name='AnswerType', description='本条消息的类型'),
-      cardList?: [ 
-        {
-          answerSource?: string(name='AnswerSource', description='区分答案类型：cardAnswer'),
-          msgType?: string(name='MsgType', description='消息类型：card'),
-          platform?: string(name='Platform', description='平台类型：beebot'),
-        }
-      ](name='CardList', description='当AnswerType为CardAnswer时，此字段包含机器人返回的Card的列表'),
       knowledge?: {
         answerSource?: string(name='AnswerSource', description='区分答案类型。
 KnowledgeBase:知识库条；'),
@@ -670,6 +663,14 @@ model CreateDSEntityValueRequest {
   synonyms?: [ string ](name='Synonyms'),
 }
 
+model CreateDSEntityValueShrinkRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取'),
+  content?: string(name='Content'),
+  entityId?: long(name='EntityId', description='实体ID，修改实体成员时可为空'),
+  instanceId?: string(name='InstanceId', description='机器人ID'),
+  synonymsShrink?: string(name='Synonyms'),
+}
+
 model CreateDSEntityValueResponseBody = {
   entityValueId?: long(name='EntityValueId'),
   requestId?: string(name='RequestId'),
@@ -681,8 +682,13 @@ model CreateDSEntityValueResponse = {
   body: CreateDSEntityValueResponseBody(name='body'),
 }
 
-async function createDSEntityValueWithOptions(request: CreateDSEntityValueRequest, runtime: Util.RuntimeOptions): CreateDSEntityValueResponse {
-  Util.validateModel(request);
+async function createDSEntityValueWithOptions(tmpReq: CreateDSEntityValueRequest, runtime: Util.RuntimeOptions): CreateDSEntityValueResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateDSEntityValueShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.synonyms)) {
+    request.synonymsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.synonyms, 'Synonyms', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.agentKey)) {
     query['AgentKey'] = request.agentKey;
@@ -696,11 +702,13 @@ async function createDSEntityValueWithOptions(request: CreateDSEntityValueReques
   if (!Util.isUnset(request.instanceId)) {
     query['InstanceId'] = request.instanceId;
   }
-  if (!Util.isUnset(request.synonyms)) {
-    query['Synonyms'] = request.synonyms;
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.synonymsShrink)) {
+    body['Synonyms'] = request.synonymsShrink;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
     action = 'CreateDSEntityValue',
@@ -2947,74 +2955,6 @@ async function listDSEntityValue(request: ListDSEntityValueRequest): ListDSEntit
   return listDSEntityValueWithOptions(request, runtime);
 }
 
-model ListDsMenusRequest {
-  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取'),
-  instanceId?: string(name='InstanceId', description='机器人ID'),
-  robotEnv?: int32(name='RobotEnv', description='1-正式环境，2-测试环境（默认）'),
-  source?: int32(name='Source', description='业务来源标识：
-1-集团内部aliyun域名；2-外部使用4service域名（默认）'),
-  tags?: string(name='Tags', description='功能标识，为空表示所有；支持的tag有：Dialog / Intent / Entity / Var / TaskCenter；传入多个时通过英文逗号分隔'),
-}
-
-model ListDsMenusResponseBody = {
-  ext?: string(name='Ext'),
-  menus?: [ 
-    {
-      tag?: string(name='Tag'),
-      title?: string(name='Title'),
-      titleEn?: string(name='TitleEn'),
-      url?: string(name='Url'),
-    }
-  ](name='Menus'),
-  requestId?: string(name='RequestId'),
-}
-
-model ListDsMenusResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListDsMenusResponseBody(name='body'),
-}
-
-async function listDsMenusWithOptions(request: ListDsMenusRequest, runtime: Util.RuntimeOptions): ListDsMenusResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.agentKey)) {
-    query['AgentKey'] = request.agentKey;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.robotEnv)) {
-    query['RobotEnv'] = request.robotEnv;
-  }
-  if (!Util.isUnset(request.source)) {
-    query['Source'] = request.source;
-  }
-  if (!Util.isUnset(request.tags)) {
-    query['Tags'] = request.tags;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListDsMenus',
-    version = '2022-04-08',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function listDsMenus(request: ListDsMenusRequest): ListDsMenusResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listDsMenusWithOptions(request, runtime);
-}
-
 model ListInstanceRequest {
   agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取'),
   name?: string(name='Name', description='按机器人名称模糊搜索'),
@@ -3091,6 +3031,8 @@ model ListIntentRequest {
   agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取'),
   instanceId?: string(name='InstanceId', description='机器人ID'),
   intentName?: string(name='IntentName', description='意图名称'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
 }
 
 model ListIntentResponseBody = {
@@ -3140,6 +3082,12 @@ async function listIntentWithOptions(request: ListIntentRequest, runtime: Util.R
   }
   if (!Util.isUnset(request.intentName)) {
     query['IntentName'] = request.intentName;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -3907,6 +3855,15 @@ model UpdateDSEntityValueRequest {
   synonyms?: [ string ](name='Synonyms', description='实体同义词'),
 }
 
+model UpdateDSEntityValueShrinkRequest {
+  agentKey?: string(name='AgentKey', description='业务空间key,不设置则访问默认业务空间，key值在主账号业务管理页面获取'),
+  content?: string(name='Content', description='实体类型为synonyms时，表示实体归一化值；当实体类型为regex时，表示正则表达式文本'),
+  entityId?: long(name='EntityId', description='实体ID，修改实体成员时可为空'),
+  entityValueId?: long(name='EntityValueId', description='实体成员ID，创建实体成员时为空'),
+  instanceId?: string(name='InstanceId', description='机器人ID'),
+  synonymsShrink?: string(name='Synonyms', description='实体同义词'),
+}
+
 model UpdateDSEntityValueResponseBody = {
   entityValueId?: long(name='EntityValueId'),
   requestId?: string(name='RequestId'),
@@ -3918,8 +3875,13 @@ model UpdateDSEntityValueResponse = {
   body: UpdateDSEntityValueResponseBody(name='body'),
 }
 
-async function updateDSEntityValueWithOptions(request: UpdateDSEntityValueRequest, runtime: Util.RuntimeOptions): UpdateDSEntityValueResponse {
-  Util.validateModel(request);
+async function updateDSEntityValueWithOptions(tmpReq: UpdateDSEntityValueRequest, runtime: Util.RuntimeOptions): UpdateDSEntityValueResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateDSEntityValueShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.synonyms)) {
+    request.synonymsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.synonyms, 'Synonyms', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.agentKey)) {
     query['AgentKey'] = request.agentKey;
@@ -3936,11 +3898,13 @@ async function updateDSEntityValueWithOptions(request: UpdateDSEntityValueReques
   if (!Util.isUnset(request.instanceId)) {
     query['InstanceId'] = request.instanceId;
   }
-  if (!Util.isUnset(request.synonyms)) {
-    query['Synonyms'] = request.synonyms;
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.synonymsShrink)) {
+    body['Synonyms'] = request.synonymsShrink;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
     action = 'UpdateDSEntityValue',
