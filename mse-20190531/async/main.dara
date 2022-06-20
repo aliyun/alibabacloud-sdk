@@ -81,6 +81,7 @@ model TrafficPolicy {
       parameterName?: string(name='ParameterName', description='使用根据header和参数路由时生效'),
     }(name='ConsistentHashLBConfig', description='一致性hash相关配置'),
     loadbalancerType?: string(name='LoadbalancerType', description='负载均衡类型，枚举类可为ROUND_ROBIN, LEAST_CONN,RANDOM, CONSISTENT_HASH'),
+    warmupDuration?: long(name='WarmupDuration', description='预热时间(单位/s)'),
   }(name='LoadBalancerSettings', description='负载均衡相关配置'),
   tlsSetting?: {
     caCertContent?: string(name='CaCertContent', description='ca证书内容'),
@@ -148,6 +149,9 @@ async function addBlackWhiteList(request: AddBlackWhiteListRequest): AddBlackWhi
 
 model AddGatewayRequest {
   acceptLanguage?: string(name='AcceptLanguage', position='Query'),
+  enableHardwareAcceleration?: boolean(name='EnableHardwareAcceleration', description='是否开启硬件加速', position='Query'),
+  enableSls?: boolean(name='EnableSls', description='是否开启SLS日志投递', position='Query'),
+  enableXtrace?: boolean(name='EnableXtrace', description='是否开启xtrace', position='Query'),
   enterpriseSecurityGroup?: boolean(name='EnterpriseSecurityGroup', description='是否企业安全组类型', position='Query'),
   internetSlbSpec?: string(name='InternetSlbSpec', description='外网SLB规格', position='Query'),
   name?: string(name='Name', description='网关名称', position='Query'),
@@ -158,6 +162,7 @@ model AddGatewayRequest {
   vSwitchId: string(name='VSwitchId', description='主交换机ID', position='Query'),
   vSwitchId2?: string(name='VSwitchId2', description='备交换机ID', position='Query'),
   vpc: string(name='Vpc', description='专有网络ID', position='Query'),
+  xtraceRatio?: string(name='XtraceRatio', description='xtrace采样率，取值[0,100]', position='Query'),
 }
 
 model AddGatewayResponseBody = {
@@ -696,6 +701,49 @@ model CreateEngineNamespaceResponse = {
 async function createEngineNamespace(request: CreateEngineNamespaceRequest): CreateEngineNamespaceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateEngineNamespace', 'POST', '/', 'json', false, 'json', request);
+}
+
+model CreateMseServiceApplicationRequest {
+  acceptLanguage?: string(name='AcceptLanguage', position='Query'),
+  appName: string(name='AppName', position='Query'),
+  extraInfo?: string(name='ExtraInfo', position='Query'),
+  language?: string(name='Language', position='Query'),
+  region: string(name='Region', position='Query'),
+  sentinelEnable?: string(name='SentinelEnable', position='Query'),
+  source?: string(name='Source', position='Query'),
+  switchEnable?: string(name='SwitchEnable', position='Query'),
+}
+
+model CreateMseServiceApplicationResponseBody = {
+  code?: int32(name='Code'),
+  data?: {
+    appId?: string(name='AppId'),
+    appName?: string(name='AppName'),
+    createTime?: long(name='CreateTime'),
+    extraInfo?: string(name='ExtraInfo'),
+    language?: string(name='Language'),
+    licenseKey?: string(name='LicenseKey'),
+    regionId?: string(name='RegionId'),
+    source?: string(name='Source'),
+    status?: int32(name='Status'),
+    updateTime?: long(name='UpdateTime'),
+    userId?: string(name='UserId'),
+    version?: string(name='Version'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: string(name='Success'),
+}
+
+model CreateMseServiceApplicationResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateMseServiceApplicationResponseBody(name='body'),
+}
+
+async function createMseServiceApplication(request: CreateMseServiceApplicationRequest): CreateMseServiceApplicationResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateMseServiceApplication', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateNacosConfigRequest {
@@ -1529,6 +1577,56 @@ async function getAppMessageQueueRoute(request: GetAppMessageQueueRouteRequest):
   return @handler.do('RPC', 'GetAppMessageQueueRoute', 'POST', '/', 'json', false, 'json', request);
 }
 
+model GetApplicationListRequest {
+  acceptLanguage?: string(name='AcceptLanguage', position='Query'),
+  appId?: string(name='AppId', position='Query'),
+  appName?: string(name='AppName', position='Query'),
+  language?: string(name='Language', position='Query'),
+  pageNumber: int32(name='PageNumber', position='Query'),
+  pageSize: int32(name='PageSize', position='Query'),
+  region: string(name='Region', position='Query'),
+  sentinelEnable?: boolean(name='SentinelEnable', position='Query'),
+  source?: string(name='Source', position='Query'),
+  switchEnable?: boolean(name='SwitchEnable', position='Query'),
+}
+
+model GetApplicationListResponseBody = {
+  code?: int32(name='Code'),
+  data?: {
+    pageNumber?: int32(name='PageNumber'),
+    pageSize?: int32(name='PageSize'),
+    result?: [ 
+      {
+        appId?: string(name='AppId'),
+        appName?: string(name='AppName'),
+        extraInfo?: string(name='ExtraInfo'),
+        instancesNumber?: int32(name='InstancesNumber'),
+        language?: string(name='Language'),
+        licenseKey?: string(name='LicenseKey'),
+        regionId?: string(name='RegionId'),
+        source?: string(name='Source'),
+        status?: long(name='Status'),
+        userId?: string(name='UserId'),
+      }
+    ](name='Result'),
+    totalSize?: int32(name='TotalSize'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model GetApplicationListResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetApplicationListResponseBody(name='body'),
+}
+
+async function getApplicationList(request: GetApplicationListRequest): GetApplicationListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetApplicationList', 'POST', '/', 'json', false, 'json', request);
+}
+
 model GetBlackWhiteListRequest {
   acceptLanguage?: string(name='AcceptLanguage', position='Query'),
   gatewayUniqueId?: string(name='GatewayUniqueId', position='Query'),
@@ -1626,6 +1724,7 @@ model GetGatewayResponseBody = {
     securityGroup?: string(name='SecurityGroup'),
     spec?: string(name='Spec'),
     status?: int32(name='Status'),
+    statusDesc?: string(name='StatusDesc'),
     vpc?: string(name='Vpc'),
     vswitch?: string(name='Vswitch'),
     vswitch2?: string(name='Vswitch2'),
@@ -1728,6 +1827,7 @@ model GetGatewayRouteDetailRequest {
 model GetGatewayRouteDetailResponseBody = {
   code?: int32(name='Code'),
   data?: {
+    ahasStatus?: int32(name='AhasStatus'),
     cors?: {
       allowCredentials?: boolean(name='AllowCredentials'),
       allowHeaders?: string(name='AllowHeaders'),
@@ -1953,47 +2053,6 @@ async function getGovernanceKubernetesCluster(request: GetGovernanceKubernetesCl
   return @handler.do('RPC', 'GetGovernanceKubernetesCluster', 'POST', '/', 'json', false, 'json', request);
 }
 
-model GetGovernanceKubernetesClusterListRequest {
-  acceptLanguage?: string(name='AcceptLanguage', position='Query'),
-  clusterId?: string(name='ClusterId', position='Query'),
-  clusterName?: string(name='ClusterName', position='Query'),
-  pageNumber: int32(name='PageNumber', position='Query'),
-  pageSize: int32(name='PageSize', position='Query'),
-}
-
-model GetGovernanceKubernetesClusterListResponseBody = {
-  code?: int32(name='Code'),
-  data?: {
-    pageNumber?: int32(name='PageNumber'),
-    pageSize?: int32(name='PageSize'),
-    result?: [ 
-      {
-        clusterId?: string(name='ClusterId'),
-        clusterName?: string(name='ClusterName'),
-        k8sVersion?: string(name='K8sVersion'),
-        namespaceInfos?: string(name='NamespaceInfos'),
-        pilotStartTime?: string(name='PilotStartTime'),
-        region?: string(name='Region'),
-      }
-    ](name='Result'),
-    totalSize?: int32(name='TotalSize'),
-  }(name='Data'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-}
-
-model GetGovernanceKubernetesClusterListResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetGovernanceKubernetesClusterListResponseBody(name='body'),
-}
-
-async function getGovernanceKubernetesClusterList(request: GetGovernanceKubernetesClusterListRequest): GetGovernanceKubernetesClusterListResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetGovernanceKubernetesClusterList', 'POST', '/', 'json', false, 'json', request);
-}
-
 model GetImageRequest {
   acceptLanguage?: string(name='AcceptLanguage', position='Query'),
   versionCode: string(name='VersionCode', description='集群版本', position='Query'),
@@ -2133,7 +2192,7 @@ model GetMseSourceResponse = {
 
 async function getMseSource(request: GetMseSourceRequest): GetMseSourceResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetMseSource', 'GET', '/', 'json', false, 'json', request);
+  return @handler.do('RPC', 'GetMseSource', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetNacosConfigRequest {
@@ -2590,7 +2649,7 @@ model ListApplicationsWithTagRulesResponseBody = {
           {
             carryData?: boolean(name='CarryData'),
             enable?: boolean(name='Enable'),
-            gmtModified?: long(name='GmtModified'),
+            gmtModified?: string(name='GmtModified'),
             id?: long(name='Id'),
             instanceNum?: int32(name='InstanceNum'),
             name?: string(name='Name'),
@@ -2741,6 +2800,7 @@ model ListClustersResponseBody = {
       internetDomain?: string(name='InternetDomain'),
       intranetAddress?: string(name='IntranetAddress'),
       intranetDomain?: string(name='IntranetDomain'),
+      mseVersion?: string(name='MseVersion'),
       versionCode?: string(name='VersionCode'),
     }
   ](name='Data'),
@@ -2909,12 +2969,14 @@ model ListGatewayResponseBody = {
     result?: [ 
       {
         ahasOn?: boolean(name='AhasOn'),
+        appVersion?: string(name='AppVersion'),
         armsOn?: boolean(name='ArmsOn'),
         chargeType?: string(name='ChargeType'),
         currentVersion?: string(name='CurrentVersion'),
         endDate?: string(name='EndDate'),
         gatewayType?: string(name='GatewayType'),
         gatewayUniqueId?: string(name='GatewayUniqueId'),
+        gatewayVersion?: string(name='GatewayVersion'),
         gmtCreate?: string(name='GmtCreate'),
         gmtModified?: string(name='GmtModified'),
         id?: long(name='Id'),
@@ -2942,6 +3004,7 @@ model ListGatewayResponseBody = {
         primaryUser?: string(name='PrimaryUser'),
         region?: string(name='Region'),
         replica?: int32(name='Replica'),
+        rollBack?: boolean(name='RollBack'),
         slb?: [ 
           {
             gatewaySlbMode?: string(name='GatewaySlbMode'),
@@ -2957,6 +3020,7 @@ model ListGatewayResponseBody = {
         spec?: string(name='Spec'),
         status?: int32(name='Status'),
         statusDesc?: string(name='StatusDesc'),
+        supportWasm?: boolean(name='SupportWasm'),
         tag?: string(name='Tag'),
         upgrade?: boolean(name='Upgrade'),
         vswitch2?: string(name='Vswitch2'),
@@ -3248,6 +3312,7 @@ model ListListenersByConfigResponseBody = {
     {
       ip?: string(name='Ip'),
       md5?: string(name='Md5'),
+      status?: string(name='Status'),
     }
   ](name='Listeners'),
   message?: string(name='Message'),
@@ -3492,7 +3557,7 @@ model ListSecurityGroupRuleResponse = {
 
 async function listSecurityGroupRule(request: ListSecurityGroupRuleRequest): ListSecurityGroupRuleResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListSecurityGroupRule', 'GET', '/', 'json', false, 'json', request);
+  return @handler.do('RPC', 'ListSecurityGroupRule', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListServiceSourceRequest {
@@ -3750,6 +3815,7 @@ async function queryBusinessLocations(request: QueryBusinessLocationsRequest): Q
 
 model QueryClusterDetailRequest {
   acceptLanguage?: string(name='AcceptLanguage', position='Query'),
+  aclSwitch?: boolean(name='AclSwitch', position='Query'),
   instanceId?: string(name='InstanceId', position='Query'),
   orderId?: string(name='OrderId', position='Query'),
 }
@@ -3784,6 +3850,7 @@ model QueryClusterDetailResponseBody = {
         podName?: string(name='PodName'),
         role?: string(name='Role'),
         singleTunnelVip?: string(name='SingleTunnelVip'),
+        zone?: string(name='Zone'),
       }
     ](name='InstanceModels'),
     internetAddress?: string(name='InternetAddress'),
@@ -3795,6 +3862,7 @@ model QueryClusterDetailResponseBody = {
     memoryCapacity?: long(name='MemoryCapacity'),
     mseVersion?: string(name='MseVersion'),
     netType?: string(name='NetType'),
+    orderClusterVersion?: string(name='OrderClusterVersion'),
     payInfo?: string(name='PayInfo'),
     pubNetworkFlow?: string(name='PubNetworkFlow'),
     regionId?: string(name='RegionId'),
@@ -3980,33 +4048,33 @@ async function queryGatewayType(request: QueryGatewayTypeRequest): QueryGatewayT
 
 model QueryGovernanceKubernetesClusterRequest {
   acceptLanguage?: string(name='AcceptLanguage', position='Query'),
-  clusterId?: string(name='ClusterId', position='Query'),
-  clusterName?: string(name='ClusterName', position='Query'),
-  pageNumber: int32(name='PageNumber', position='Query'),
-  pageSize: int32(name='PageSize', position='Query'),
+  clusterId?: string(name='ClusterId', description='Kubernetes集群Id', position='Query'),
+  clusterName?: string(name='ClusterName', description='Kubernetes集群名', position='Query'),
+  pageNumber: int32(name='PageNumber', description='当前页码', position='Query'),
+  pageSize: int32(name='PageSize', description='每页元素数量', minimum=5, maximum=100, position='Query'),
 }
 
 model QueryGovernanceKubernetesClusterResponseBody = {
-  code?: int32(name='Code'),
+  code?: int32(name='Code', description='后端状态码'),
   data?: {
-    pageNumber?: int32(name='PageNumber'),
-    pageSize?: int32(name='PageSize'),
+    pageNumber?: int32(name='PageNumber', description='当前页码'),
+    pageSize?: int32(name='PageSize', description='页大小'),
     result?: [ 
       {
-        clusterId?: string(name='ClusterId'),
-        clusterName?: string(name='ClusterName'),
-        k8sVersion?: string(name='K8sVersion'),
-        namespaceInfos?: string(name='NamespaceInfos'),
-        pilotStartTime?: string(name='PilotStartTime'),
-        region?: string(name='Region'),
+        clusterId?: string(name='ClusterId', description='Kubernetes集群Id'),
+        clusterName?: string(name='ClusterName', description='Kubernetes集群名'),
+        k8sVersion?: string(name='K8sVersion', description='Kubernetes集群版本'),
+        namespaceInfos?: string(name='NamespaceInfos', description='Kubernetes集群命名空间信息（json格式）'),
+        pilotStartTime?: string(name='PilotStartTime', description='pilot启动时间'),
+        region?: string(name='Region', description='Kubernetes集群所在的地域'),
       }
     ](name='Result'),
-    totalSize?: int32(name='TotalSize'),
+    totalSize?: int32(name='TotalSize', description='页码总数'),
   }(name='Data'),
   httpStatusCode?: int32(name='HttpStatusCode'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  success?: boolean(name='Success', description='是否成功'),
 }
 
 model QueryGovernanceKubernetesClusterResponse = {
@@ -4218,7 +4286,7 @@ model SelectGatewaySlbResponse = {
 
 async function selectGatewaySlb(request: SelectGatewaySlbRequest): SelectGatewaySlbResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'SelectGatewaySlb', 'GET', '/', 'json', false, 'json', request);
+  return @handler.do('RPC', 'SelectGatewaySlb', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateAclRequest {
@@ -4296,6 +4364,33 @@ model UpdateClusterResponse = {
 async function updateCluster(request: UpdateClusterRequest): UpdateClusterResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UpdateCluster', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UpdateClusterSpecRequest {
+  acceptLanguage?: string(name='AcceptLanguage', position='Query'),
+  clusterId: string(name='ClusterId', description='网关名称', position='Query'),
+  clusterSpecification: string(name='ClusterSpecification', position='Query'),
+  instanceCount: int32(name='InstanceCount', description='节点数量', position='Query'),
+  instanceId: string(name='InstanceId', description='节点规格', position='Query'),
+}
+
+model UpdateClusterSpecResponseBody = {
+  code?: int32(name='Code'),
+  data?: string(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success'),
+}
+
+model UpdateClusterSpecResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateClusterSpecResponseBody(name='body'),
+}
+
+async function updateClusterSpec(request: UpdateClusterSpecRequest): UpdateClusterSpecResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateClusterSpec', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateConfigRequest {
@@ -4860,6 +4955,32 @@ async function updateGatewayServiceVersion(request: UpdateGatewayServiceVersionR
   return @handler.do('RPC', 'UpdateGatewayServiceVersion', 'POST', '/', 'json', false, 'json', request);
 }
 
+model UpdateGatewaySpecRequest {
+  acceptLanguage?: string(name='AcceptLanguage', position='Query'),
+  gatewayUniqueId: string(name='GatewayUniqueId', description='网关名称', position='Query'),
+  replica: int32(name='Replica', description='节点数量', position='Query'),
+  spec: string(name='Spec', description='节点规格', position='Query'),
+}
+
+model UpdateGatewaySpecResponseBody = {
+  code?: int32(name='Code'),
+  data?: string(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success'),
+}
+
+model UpdateGatewaySpecResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateGatewaySpecResponseBody(name='body'),
+}
+
+async function updateGatewaySpec(request: UpdateGatewaySpecRequest): UpdateGatewaySpecResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateGatewaySpec', 'POST', '/', 'json', false, 'json', request);
+}
+
 model UpdateImageRequest {
   acceptLanguage?: string(name='AcceptLanguage', position='Query'),
   clusterId: string(name='ClusterId', description='目标集群的id', position='Query'),
@@ -5062,6 +5183,41 @@ model UpdateSSLCertResponse = {
 async function updateSSLCert(request: UpdateSSLCertRequest): UpdateSSLCertResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UpdateSSLCert', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UpdateServiceSourceRequest {
+  acceptLanguage?: string(name='AcceptLanguage', position='Query'),
+  address?: string(name='Address', position='Query'),
+  gatewayId?: long(name='GatewayId', position='Query'),
+  gatewayUniqueId?: string(name='GatewayUniqueId', position='Query'),
+  id?: long(name='Id', position='Query'),
+  ingressOptionsRequest?: {
+    enableIngress?: boolean(name='EnableIngress'),
+    ingressClass?: string(name='IngressClass'),
+    watchNamespace?: string(name='WatchNamespace'),
+  }(name='IngressOptionsRequest', shrink='json', position='Query'),
+  name?: string(name='Name', position='Query'),
+  source?: string(name='Source', position='Query'),
+  type?: string(name='Type', position='Query'),
+}
+
+model UpdateServiceSourceResponseBody = {
+  code?: int32(name='Code'),
+  data?: long(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success'),
+}
+
+model UpdateServiceSourceResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateServiceSourceResponseBody(name='body'),
+}
+
+async function updateServiceSource(request: UpdateServiceSourceRequest): UpdateServiceSourceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateServiceSource', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateZnodeRequest {
