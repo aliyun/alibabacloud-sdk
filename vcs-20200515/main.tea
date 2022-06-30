@@ -1701,6 +1701,7 @@ model CreateAIInstanceRequest {
   algorithmId?: string(name='AlgorithmId', description='算子Id'),
   algorithmName?: string(name='AlgorithmName', description='算法名称'),
   computeType?: string(name='ComputeType', description='计算类型'),
+  containerType?: string(name='ContainerType', description='实例类型'),
   dataSource?: string(name='DataSource', description='数据来源'),
   dataSourceTimes?: [ 
     {
@@ -1709,6 +1710,7 @@ model CreateAIInstanceRequest {
     }
   ](name='DataSourceTimes', description='数据源时间段'),
   dataType?: string(name='DataType', description='数据类型'),
+  fps?: long(name='Fps', description='多少秒抽取1帧，取值范围[0, 3600]。 0表示不抽帧。'),
   instanceName?: string(name='InstanceName', description='实例名称'),
   instanceType?: string(name='InstanceType', description='实例类型'),
   projectId?: string(name='ProjectId', description='所属项目Id'),
@@ -1727,9 +1729,11 @@ model CreateAIInstanceShrinkRequest {
   algorithmId?: string(name='AlgorithmId', description='算子Id'),
   algorithmName?: string(name='AlgorithmName', description='算法名称'),
   computeType?: string(name='ComputeType', description='计算类型'),
+  containerType?: string(name='ContainerType', description='实例类型'),
   dataSource?: string(name='DataSource', description='数据来源'),
   dataSourceTimesShrink?: string(name='DataSourceTimes', description='数据源时间段'),
   dataType?: string(name='DataType', description='数据类型'),
+  fps?: long(name='Fps', description='多少秒抽取1帧，取值范围[0, 3600]。 0表示不抽帧。'),
   instanceName?: string(name='InstanceName', description='实例名称'),
   instanceType?: string(name='InstanceType', description='实例类型'),
   projectId?: string(name='ProjectId', description='所属项目Id'),
@@ -1743,7 +1747,8 @@ model CreateAIInstanceResponseBody = {
   code?: string(name='Code', description='返回code码'),
   data?: {
     acuUsed?: long(name='AcuUsed', description='当前实例ACU使用量'),
-    instanceId?: string(name='InstanceId', description='实例Id'),
+    instanceId?: double(name='InstanceId'),
+    storage?: string(name='Storage'),
   }(name='Data', description='返回数据'),
   message?: string(name='Message', description='错误信息'),
   requestId?: string(name='RequestId', description='请求id'),
@@ -1778,6 +1783,9 @@ async function createAIInstanceWithOptions(tmpReq: CreateAIInstanceRequest, runt
   if (!Util.isUnset(request.computeType)) {
     body['ComputeType'] = request.computeType;
   }
+  if (!Util.isUnset(request.containerType)) {
+    body['ContainerType'] = request.containerType;
+  }
   if (!Util.isUnset(request.dataSource)) {
     body['DataSource'] = request.dataSource;
   }
@@ -1786,6 +1794,9 @@ async function createAIInstanceWithOptions(tmpReq: CreateAIInstanceRequest, runt
   }
   if (!Util.isUnset(request.dataType)) {
     body['DataType'] = request.dataType;
+  }
+  if (!Util.isUnset(request.fps)) {
+    body['Fps'] = request.fps;
   }
   if (!Util.isUnset(request.instanceName)) {
     body['InstanceName'] = request.instanceName;
@@ -4580,10 +4591,12 @@ model DescribeAIInstanceResponseBody = {
         algorithmName?: string(name='AlgorithmName', description='算子名称'),
         cameraNumber?: long(name='CameraNumber', description='实例中计算的摄像机数量。 仅当DataSource是Camera时返回。'),
         computeType?: string(name='ComputeType', description='计算类型'),
+        containerType?: string(name='ContainerType'),
         createDateTime?: string(name='CreateDateTime', description='实例创建时间'),
         dataSource?: string(name='DataSource', description='数据来源'),
         dataSourceTimes?: string(name='DataSourceTimes', description='数据源时间段'),
         dataType?: string(name='DataType', description='数据类型'),
+        fps?: long(name='Fps', description='多少秒抽取1帧，取值范围[0, 3600]。 0表示不抽帧。'),
         instanceId?: string(name='InstanceId', description='实例ID'),
         instanceName?: string(name='InstanceName', description='实例名称'),
         instanceType?: string(name='InstanceType'),
@@ -11281,13 +11294,16 @@ model SearchTargetResponseBody = {
     pageSize?: long(name='PageSize'),
     records?: [ 
       {
+        dataDetail?: string(name='DataDetail'),
         deviceId?: string(name='DeviceId'),
         leftTopX?: long(name='LeftTopX'),
         leftTopY?: long(name='LeftTopY'),
         rightBottomX?: long(name='RightBottomX'),
         rightBottomY?: long(name='RightBottomY'),
+        sourceImageFullUrl?: string(name='SourceImageFullUrl'),
         sourceImageUrl?: string(name='SourceImageUrl'),
         targetAttributes?: string(name='TargetAttributes'),
+        targetImageFullUrl?: string(name='TargetImageFullUrl'),
         targetImageSimilarity?: double(name='TargetImageSimilarity'),
         targetImageUrl?: string(name='TargetImageUrl'),
         targetType?: string(name='TargetType'),
@@ -11825,6 +11841,134 @@ async function testCrossWithOptions(request: TestCrossRequest, runtime: Util.Run
 async function testCross(request: TestCrossRequest): TestCrossResponse {
   var runtime = new Util.RuntimeOptions{};
   return testCrossWithOptions(request, runtime);
+}
+
+model TryCreateAIInstanceRequest {
+  algorithmId?: string(name='AlgorithmId', description='算子Id'),
+  cameraNumber?: long(name='CameraNumber'),
+  computeType?: string(name='ComputeType', description='计算类型'),
+  dataSource?: string(name='DataSource', description='数据来源'),
+  dataSourceTimes?: [ 
+    {
+      endTime?: string(name='EndTime', description='视频结束时间'),
+      startTime?: string(name='StartTime', description='视频开始时间'),
+    }
+  ](name='DataSourceTimes', description='数据源时间段'),
+  dataType?: string(name='DataType', description='数据类型'),
+  fps?: long(name='Fps', description='多少秒抽取1帧，取值范围[0, 3600]。 0表示不抽帧。'),
+  instanceType?: string(name='InstanceType', description='实例类型'),
+  scheduleCycleDates?: [ long ](name='ScheduleCycleDates', description='ScheduleType为EVERY_WEEK、EVERY_MONTH时必填'),
+  scheduleTimes?: [ 
+    {
+      endTime?: string(name='EndTime', description='结束执行时间'),
+      startTime?: string(name='StartTime', description='开始执行时间'),
+    }
+  ](name='ScheduleTimes', description='执行时间段，支持多段，指定多段时不能重合交错。'),
+  scheduleType?: string(name='ScheduleType', description='调度类型'),
+  spf?: long(name='Spf', description='多少秒抽取1帧，取值范围[0, 3600]。 0表示不抽帧。'),
+}
+
+model TryCreateAIInstanceShrinkRequest {
+  algorithmId?: string(name='AlgorithmId', description='算子Id'),
+  cameraNumber?: long(name='CameraNumber'),
+  computeType?: string(name='ComputeType', description='计算类型'),
+  dataSource?: string(name='DataSource', description='数据来源'),
+  dataSourceTimesShrink?: string(name='DataSourceTimes', description='数据源时间段'),
+  dataType?: string(name='DataType', description='数据类型'),
+  fps?: long(name='Fps', description='多少秒抽取1帧，取值范围[0, 3600]。 0表示不抽帧。'),
+  instanceType?: string(name='InstanceType', description='实例类型'),
+  scheduleCycleDatesShrink?: string(name='ScheduleCycleDates', description='ScheduleType为EVERY_WEEK、EVERY_MONTH时必填'),
+  scheduleTimesShrink?: string(name='ScheduleTimes', description='执行时间段，支持多段，指定多段时不能重合交错。'),
+  scheduleType?: string(name='ScheduleType', description='调度类型'),
+  spf?: long(name='Spf', description='多少秒抽取1帧，取值范围[0, 3600]。 0表示不抽帧。'),
+}
+
+model TryCreateAIInstanceResponseBody = {
+  code?: string(name='Code', description='返回code码'),
+  data?: {
+    acuUsed?: long(name='AcuUsed', description='当前实例ACU使用量'),
+    storage?: string(name='Storage'),
+  }(name='Data', description='返回数据'),
+  message?: string(name='Message', description='错误信息'),
+  requestId?: string(name='RequestId', description='请求id'),
+}
+
+model TryCreateAIInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: TryCreateAIInstanceResponseBody(name='body'),
+}
+
+async function tryCreateAIInstanceWithOptions(tmpReq: TryCreateAIInstanceRequest, runtime: Util.RuntimeOptions): TryCreateAIInstanceResponse {
+  Util.validateModel(tmpReq);
+  var request = new TryCreateAIInstanceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.dataSourceTimes)) {
+    request.dataSourceTimesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.dataSourceTimes, 'DataSourceTimes', 'json');
+  }
+  if (!Util.isUnset(tmpReq.scheduleCycleDates)) {
+    request.scheduleCycleDatesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.scheduleCycleDates, 'ScheduleCycleDates', 'json');
+  }
+  if (!Util.isUnset(tmpReq.scheduleTimes)) {
+    request.scheduleTimesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.scheduleTimes, 'ScheduleTimes', 'json');
+  }
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.algorithmId)) {
+    body['AlgorithmId'] = request.algorithmId;
+  }
+  if (!Util.isUnset(request.cameraNumber)) {
+    body['CameraNumber'] = request.cameraNumber;
+  }
+  if (!Util.isUnset(request.computeType)) {
+    body['ComputeType'] = request.computeType;
+  }
+  if (!Util.isUnset(request.dataSource)) {
+    body['DataSource'] = request.dataSource;
+  }
+  if (!Util.isUnset(request.dataSourceTimesShrink)) {
+    body['DataSourceTimes'] = request.dataSourceTimesShrink;
+  }
+  if (!Util.isUnset(request.dataType)) {
+    body['DataType'] = request.dataType;
+  }
+  if (!Util.isUnset(request.fps)) {
+    body['Fps'] = request.fps;
+  }
+  if (!Util.isUnset(request.instanceType)) {
+    body['InstanceType'] = request.instanceType;
+  }
+  if (!Util.isUnset(request.scheduleCycleDatesShrink)) {
+    body['ScheduleCycleDates'] = request.scheduleCycleDatesShrink;
+  }
+  if (!Util.isUnset(request.scheduleTimesShrink)) {
+    body['ScheduleTimes'] = request.scheduleTimesShrink;
+  }
+  if (!Util.isUnset(request.scheduleType)) {
+    body['ScheduleType'] = request.scheduleType;
+  }
+  if (!Util.isUnset(request.spf)) {
+    body['Spf'] = request.spf;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'TryCreateAIInstance',
+    version = '2020-05-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function tryCreateAIInstance(request: TryCreateAIInstanceRequest): TryCreateAIInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return tryCreateAIInstanceWithOptions(request, runtime);
 }
 
 model UnbindCorpGroupRequest {
