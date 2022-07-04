@@ -41,7 +41,6 @@ model AddServersToServerGroupRequest {
       serverIp?: string(name='ServerIp', description='服务器ip'),
       serverType?: string(name='ServerType', description='服务器类型'),
       weight?: int32(name='Weight', description='后端权重'),
-      zoneId?: string(name='ZoneId', description='服务器对应的zoneId'),
     }
   ](name='Servers'),
 }
@@ -302,24 +301,19 @@ async function createListener(request: CreateListenerRequest): CreateListenerRes
 model CreateLoadBalancerRequest {
   addressIpVersion?: string(name='AddressIpVersion'),
   addressType?: string(name='AddressType'),
-  billingConfig?: {
-    autoPay?: boolean(name='AutoPay'),
-    internetChargeType?: string(name='InternetChargeType', description='PayByTraffic, PayByBandwidth, PayByLcu, PayBy95, PayByOld95, PayBy96'),
-    payType?: string(name='PayType', description='PrePay, PostPay'),
-    period?: int32(name='Period'),
-    pricingCycle?: string(name='PricingCycle', description='Month, Year, Day'),
-    specification?: string(name='Specification'),
-  }(name='BillingConfig'),
+  bandwidthPackageId?: string(name='BandwidthPackageId'),
   bizFlag?: string(name='BizFlag'),
   clientToken?: string(name='ClientToken'),
-  commonBandwidthPackageId?: string(name='CommonBandwidthPackageId'),
   crossZoneEnabled?: boolean(name='CrossZoneEnabled'),
   dryRun?: boolean(name='DryRun'),
+  loadBalancerBillingConfig?: {
+    payType?: string(name='PayType', description='PrePay, PostPay'),
+  }(name='LoadBalancerBillingConfig'),
   loadBalancerName?: string(name='LoadBalancerName'),
   loadBalancerType?: string(name='LoadBalancerType'),
   regionId?: string(name='RegionId'),
   resourceGroupId?: string(name='ResourceGroupId'),
-  securityGroups?: [ string ](name='SecurityGroups'),
+  securityGroupIds?: [ string ](name='SecurityGroupIds'),
   trafficAffinityEnabled?: boolean(name='TrafficAffinityEnabled'),
   vpcId?: string(name='VpcId'),
   zoneMappings?: [ 
@@ -359,9 +353,8 @@ async function createLoadBalancerWithOptions(request: CreateLoadBalancerRequest,
   if (!Util.isUnset(request.addressType)) {
     body['AddressType'] = request.addressType;
   }
-  var bodyFlat : map[string]any= {};
-  if (!Util.isUnset(request.billingConfig)) {
-    bodyFlat['BillingConfig'] = request.billingConfig;
+  if (!Util.isUnset(request.bandwidthPackageId)) {
+    body['BandwidthPackageId'] = request.bandwidthPackageId;
   }
   if (!Util.isUnset(request.bizFlag)) {
     body['BizFlag'] = request.bizFlag;
@@ -369,14 +362,15 @@ async function createLoadBalancerWithOptions(request: CreateLoadBalancerRequest,
   if (!Util.isUnset(request.clientToken)) {
     body['ClientToken'] = request.clientToken;
   }
-  if (!Util.isUnset(request.commonBandwidthPackageId)) {
-    body['CommonBandwidthPackageId'] = request.commonBandwidthPackageId;
-  }
   if (!Util.isUnset(request.crossZoneEnabled)) {
     body['CrossZoneEnabled'] = request.crossZoneEnabled;
   }
   if (!Util.isUnset(request.dryRun)) {
     body['DryRun'] = request.dryRun;
+  }
+  var bodyFlat : map[string]any= {};
+  if (!Util.isUnset(request.loadBalancerBillingConfig)) {
+    bodyFlat['LoadBalancerBillingConfig'] = request.loadBalancerBillingConfig;
   }
   if (!Util.isUnset(request.loadBalancerName)) {
     body['LoadBalancerName'] = request.loadBalancerName;
@@ -390,8 +384,8 @@ async function createLoadBalancerWithOptions(request: CreateLoadBalancerRequest,
   if (!Util.isUnset(request.resourceGroupId)) {
     body['ResourceGroupId'] = request.resourceGroupId;
   }
-  if (!Util.isUnset(request.securityGroups)) {
-    body['SecurityGroups'] = request.securityGroups;
+  if (!Util.isUnset(request.securityGroupIds)) {
+    body['SecurityGroupIds'] = request.securityGroupIds;
   }
   if (!Util.isUnset(request.trafficAffinityEnabled)) {
     body['TrafficAffinityEnabled'] = request.trafficAffinityEnabled;
@@ -1278,6 +1272,7 @@ model GetListenerAttributeResponseBody = {
   cps?: int32(name='Cps'),
   dynamicCode?: string(name='DynamicCode'),
   dynamicMessage?: string(name='DynamicMessage'),
+  endPort?: string(name='EndPort', description='anyPort监听结束端口'),
   httpStatusCode?: int32(name='HttpStatusCode'),
   idleTimeout?: int32(name='IdleTimeout', description='空闲超时时间'),
   listenerDescription?: string(name='ListenerDescription', description='监听描述'),
@@ -1293,6 +1288,7 @@ model GetListenerAttributeResponseBody = {
   secSensorEnabled?: string(name='SecSensorEnabled'),
   securityPolicyId?: string(name='SecurityPolicyId', description='Tclssl监听的安全策略'),
   serverGroupId?: string(name='ServerGroupId', description='servergroupId'),
+  startPort?: string(name='StartPort', description='anyPort监听起始端口'),
   success?: boolean(name='Success'),
 }
 
@@ -1455,9 +1451,9 @@ model GetLoadBalancerAttributeRequest {
 model GetLoadBalancerAttributeResponseBody = {
   addressIpVersion?: string(name='AddressIpVersion'),
   addressType?: string(name='AddressType'),
+  bandwidthPackageId?: string(name='BandwidthPackageId'),
   capacityUnitCount?: long(name='CapacityUnitCount'),
   code?: string(name='Code'),
-  commonBandwidthPackageId?: string(name='CommonBandwidthPackageId'),
   cps?: int32(name='Cps'),
   createTime?: string(name='CreateTime'),
   crossZoneEnable?: boolean(name='CrossZoneEnable'),
@@ -1489,10 +1485,15 @@ model GetLoadBalancerAttributeResponseBody = {
   vpcId?: string(name='VpcId'),
   zoneMappings?: [ 
     {
-      allocationId?: string(name='AllocationId', description='公网ipId'),
-      eniId?: string(name='EniId'),
-      privateIPv4Address?: string(name='PrivateIPv4Address', description='私网ip'),
-      publicIPv4Address?: string(name='PublicIPv4Address', description='公网ip地址：仅Get的时候有值'),
+      loadBalancerAddresses?: [ 
+        {
+          allocationId?: string(name='AllocationId', description='公网ipId'),
+          eniId?: string(name='EniId'),
+          ipv6Address?: string(name='Ipv6Address'),
+          privateIPv4Address?: string(name='PrivateIPv4Address', description='私网ip'),
+          publicIPv4Address?: string(name='PublicIPv4Address', description='公网ip地址：仅Get的时候有值'),
+        }
+      ](name='LoadBalancerAddresses'),
       vSwitchId?: string(name='VSwitchId'),
       zoneId?: string(name='ZoneId'),
     }
@@ -1636,6 +1637,7 @@ model ListListenersResponseBody = {
       caCertificateIds?: [ string ](name='CaCertificateIds', description='ca 证书列表'),
       caEnabled?: boolean(name='CaEnabled'),
       certificateIds?: [ string ](name='CertificateIds', description='server证书列表'),
+      endPort?: string(name='EndPort', description='anyPort监听结束端口'),
       idleTimeout?: int32(name='IdleTimeout', description='空闲超时时间'),
       listenerDescription?: string(name='ListenerDescription', description='监听描述'),
       listenerId?: string(name='ListenerId', description='自己生成后赋值'),
@@ -1648,6 +1650,7 @@ model ListListenersResponseBody = {
       secSensorEnabled?: string(name='SecSensorEnabled'),
       securityPolicyId?: string(name='SecurityPolicyId', description='Tclssl监听的安全策略'),
       serverGroupId?: string(name='ServerGroupId', description='servergroupId'),
+      startPort?: string(name='StartPort', description='anyPort监听起始端口'),
     }
   ](name='Listeners'),
   maxResults?: int32(name='MaxResults'),
@@ -1741,8 +1744,8 @@ model ListLoadBalancersResponseBody = {
       addressIpVersion?: string(name='AddressIpVersion'),
       addressType?: string(name='AddressType'),
       aliUid?: long(name='AliUid', description='用户uid'),
+      bandwidthPackageId?: string(name='BandwidthPackageId'),
       capacityUnitCount?: long(name='CapacityUnitCount'),
-      commonBandwidthPackageId?: string(name='CommonBandwidthPackageId'),
       createTime?: string(name='CreateTime'),
       crossZoneEnabled?: boolean(name='CrossZoneEnabled'),
       DNSName?: string(name='DNSName'),
@@ -1773,10 +1776,15 @@ model ListLoadBalancersResponseBody = {
       vpcId?: string(name='VpcId'),
       zoneMappings?: [ 
         {
-          allocationId?: string(name='AllocationId', description='公网ipId'),
-          eniId?: string(name='EniId'),
-          privateIPv4Address?: string(name='PrivateIPv4Address', description='私网ip'),
-          publicIPv4Address?: string(name='PublicIPv4Address', description='公网ip地址：仅Get的时候有值'),
+          loadBalancerAddresses?: [ 
+            {
+              allocationId?: string(name='AllocationId', description='公网ipId'),
+              eniId?: string(name='EniId'),
+              ipv6Address?: string(name='Ipv6Address'),
+              privateIPv4Address?: string(name='PrivateIPv4Address', description='私网ip'),
+              publicIPv4Address?: string(name='PublicIPv4Address', description='公网ip地址：仅Get的时候有值'),
+            }
+          ](name='LoadBalancerAddresses'),
           vSwitchId?: string(name='VSwitchId'),
           zoneId?: string(name='ZoneId'),
         }
@@ -2922,7 +2930,7 @@ model UpdateLoadBalancerAttributeRequest {
   loadBalancerId?: string(name='LoadBalancerId'),
   loadBalancerName?: string(name='LoadBalancerName'),
   regionId?: string(name='RegionId'),
-  securityGroups?: [ string ](name='SecurityGroups'),
+  securityGroupIds?: [ string ](name='SecurityGroupIds'),
   trafficAffinityEnabled?: boolean(name='TrafficAffinityEnabled'),
 }
 
@@ -2967,8 +2975,8 @@ async function updateLoadBalancerAttributeWithOptions(request: UpdateLoadBalance
   if (!Util.isUnset(request.regionId)) {
     body['RegionId'] = request.regionId;
   }
-  if (!Util.isUnset(request.securityGroups)) {
-    body['SecurityGroups'] = request.securityGroups;
+  if (!Util.isUnset(request.securityGroupIds)) {
+    body['SecurityGroupIds'] = request.securityGroupIds;
   }
   if (!Util.isUnset(request.trafficAffinityEnabled)) {
     body['TrafficAffinityEnabled'] = request.trafficAffinityEnabled;
