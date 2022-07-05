@@ -693,6 +693,185 @@ async function deleteProjectWithOptions(project: string, headers: map[string]str
   return execute(params, req, runtime);
 }
 
+model GetContextLogsRequest {
+  backLines?: long(name='back_lines', description='指定起始日志往前（上文）的日志条数，取值范围为(0,100]。'),
+  forwardLines?: long(name='forward_lines', description='指定起始日志往后（下文）的日志条数，取值范围为(0,100]。'),
+  packId?: string(name='pack_id', description='起始日志所属的LogGroup的唯一身份标识。'),
+  packMeta?: string(name='pack_meta', description='起始日志在对应LogGroup内的唯一上下文结构标识。'),
+  type?: string(name='type', description='Logstore中数据的类型。该接口中该参数固定为context_log。'),
+}
+
+model GetContextLogsResponseBody = {
+  backLines?: long(name='back_lines', description='向前查询到的日志条数。'),
+  forwardLines?: long(name='forward_lines', description='向后查询到的日志条数。'),
+  logs?: [  map[string]any ](name='logs', description='获取到的日志，按上下文顺序排列。当根据指定起始日志查询不到上下文日志时，此参数为空。'),
+  progress?: string(name='progress', description='查询的结果是否完整。
+Complete：查询已经完成，返回结果为完整结果。
+Incomplete：查询已经完成，返回结果为不完整结果，需要重复请求以获得完整结果。'),
+  totalLines?: long(name='total_lines', description='返回的总日志条数，包含请求参数中所指定的起始日志。'),
+}
+
+model GetContextLogsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetContextLogsResponseBody(name='body'),
+}
+
+async function getContextLogs(project: string, logstore: string, request: GetContextLogsRequest): GetContextLogsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getContextLogsWithOptions(project, logstore, request, headers, runtime);
+}
+
+async function getContextLogsWithOptions(project: string, logstore: string, request: GetContextLogsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetContextLogsResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  logstore = OpenApiUtil.getEncodeParam(logstore);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.backLines)) {
+    query['back_lines'] = request.backLines;
+  }
+  if (!Util.isUnset(request.forwardLines)) {
+    query['forward_lines'] = request.forwardLines;
+  }
+  if (!Util.isUnset(request.packId)) {
+    query['pack_id'] = request.packId;
+  }
+  if (!Util.isUnset(request.packMeta)) {
+    query['pack_meta'] = request.packMeta;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetContextLogs',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/logstores/${logstore}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+model GetCursorRequest {
+  from?: string(name='from', description='时间点（Unix时间戳）或者字符串begin、end。'),
+  type?: string(name='type', description='这里固定为 cursor。'),
+}
+
+model GetCursorResponseBody = {
+  cursor?: string(name='cursor', description='游标位置。'),
+}
+
+model GetCursorResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetCursorResponseBody(name='body'),
+}
+
+async function getCursor(project: string, logstore: string, shardId: string, request: GetCursorRequest): GetCursorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getCursorWithOptions(project, logstore, shardId, request, headers, runtime);
+}
+
+async function getCursorWithOptions(project: string, logstore: string, shardId: string, request: GetCursorRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetCursorResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  logstore = OpenApiUtil.getEncodeParam(logstore);
+  shardId = OpenApiUtil.getEncodeParam(shardId);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.from)) {
+    query['from'] = request.from;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetCursor',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/logstores/${logstore}/shards/${shardId}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+model GetCursorTimeRequest {
+  cursor?: string(name='cursor', description='游标。'),
+  type?: string(name='type', description='固定为 cursor_time 。'),
+}
+
+model GetCursorTimeResponseBody = {
+  cursorTime?: string(name='cursor_time', description='Cursor的服务端时间。Unix时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。'),
+}
+
+model GetCursorTimeResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetCursorTimeResponseBody(name='body'),
+}
+
+async function getCursorTime(project: string, logstore: string, shardId: string, request: GetCursorTimeRequest): GetCursorTimeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getCursorTimeWithOptions(project, logstore, shardId, request, headers, runtime);
+}
+
+async function getCursorTimeWithOptions(project: string, logstore: string, shardId: string, request: GetCursorTimeRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetCursorTimeResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  logstore = OpenApiUtil.getEncodeParam(logstore);
+  shardId = OpenApiUtil.getEncodeParam(shardId);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.cursor)) {
+    query['cursor'] = request.cursor;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetCursorTime',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/logstores/${logstore}/shards/${shardId}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
 model GetHistogramsRequest {
   from?: long(name='from', description='查询开始时间点。UNIX时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。
 
@@ -856,6 +1035,105 @@ async function getLogStoreWithOptions(project: string, logstore: string, headers
     style = 'ROA',
     reqBodyType = 'json',
     bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+model GetLogsRequest {
+  from?: long(name='from', description='查询开始时间点。该时间是指写入日志数据时指定的日志时间。
+
+请求参数from和to定义的时间区间遵循左闭右开原则，即该时间区间包括区间开始时间点，但不包括区间结束时间点。如果from和to的值相同，则为无效区间，函数直接返回错误。
+Unix时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。'),
+  line?: long(name='line', description='仅当query参数为查询语句时，该参数有效，表示请求返回的最大日志条数。最小值为0，最大值为100，默认值为100。'),
+  offset?: long(name='offset', description='仅当query参数为查询语句时，该参数有效，表示查询开始行。默认值为0。'),
+  powerSql?: boolean(name='powerSql', description='用于指定返回结果是否按日志时间戳降序返回日志，精确到分钟级别。
+
+true：按照日志时间戳降序返回日志。
+false（默认值）：按照日志时间戳升序返回日志。
+注意
+当query参数为查询语句时，参数reverse有效，用于指定返回日志排序方式。
+当query参数为查询和分析语句时，参数reverse无效，由SQL分析语句中order by语法指定排序方式。如果order by为asc（默认），则为升序；如果order by为desc，则为降序。'),
+  query?: string(name='query', description='查询语句或者分析语句。更多信息，请参见查询概述和分析概述。
+
+在query参数的分析语句中加上set session parallel_sql=true;，表示使用SQL独享版。例如* | set session parallel_sql=true; select count(*) as pv 。
+
+说明 当query参数中有分析语句（SQL语句）时，该接口的line参数和offset参数无效，建议设置为0，需通过SQL语句的LIMIT语法实现翻页。更多信息，请参见分页显示查询分析结果。'),
+  reverse?: boolean(name='reverse', description='用于指定返回结果是否按日志时间戳降序返回日志，精确到分钟级别。
+
+true：按照日志时间戳降序返回日志。
+false（默认值）：按照日志时间戳升序返回日志。
+注意
+当query参数为查询语句时，参数reverse有效，用于指定返回日志排序方式。
+当query参数为查询和分析语句时，参数reverse无效，由SQL分析语句中order by语法指定排序方式。如果order by为asc（默认），则为升序；如果order by为desc，则为降序。'),
+  to?: long(name='to', description='查询结束时间点。该时间是指写入日志数据时指定的日志时间。
+
+请求参数from和to定义的时间区间遵循左闭右开原则，即该时间区间包括区间开始时间点，但不包括区间结束时间点。如果from和to的值相同，则为无效区间，函数直接返回错误。
+Unix时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。'),
+  topic?: string(name='topic', description='status: 401 | SELECT remote_addr,COUNT(*) as pv GROUP by remote_addr ORDER by pv desc limit 5'),
+  type?: string(name='type', description='查询Logstore数据的类型。在该接口中固定取值为log。'),
+}
+
+model GetLogsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: [  map[string]any ](name='body'),
+}
+
+async function getLogs(project: string, logstore: string, request: GetLogsRequest): GetLogsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getLogsWithOptions(project, logstore, request, headers, runtime);
+}
+
+async function getLogsWithOptions(project: string, logstore: string, request: GetLogsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetLogsResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  logstore = OpenApiUtil.getEncodeParam(logstore);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.from)) {
+    query['from'] = request.from;
+  }
+  if (!Util.isUnset(request.line)) {
+    query['line'] = request.line;
+  }
+  if (!Util.isUnset(request.offset)) {
+    query['offset'] = request.offset;
+  }
+  if (!Util.isUnset(request.powerSql)) {
+    query['powerSql'] = request.powerSql;
+  }
+  if (!Util.isUnset(request.query)) {
+    query['query'] = request.query;
+  }
+  if (!Util.isUnset(request.reverse)) {
+    query['reverse'] = request.reverse;
+  }
+  if (!Util.isUnset(request.to)) {
+    query['to'] = request.to;
+  }
+  if (!Util.isUnset(request.topic)) {
+    query['topic'] = request.topic;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetLogs',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/logstores/${logstore}/index`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'array',
   };
   return execute(params, req, runtime);
 }
@@ -1185,6 +1463,146 @@ async function listSavedSearchWithOptions(project: string, request: ListSavedSea
     style = 'ROA',
     reqBodyType = 'json',
     bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+model ListShardsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: [
+    Shard
+  ](name='body'),
+}
+
+async function listShards(project: string, logstore: string): ListShardsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listShardsWithOptions(project, logstore, headers, runtime);
+}
+
+async function listShardsWithOptions(project: string, logstore: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListShardsResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  logstore = OpenApiUtil.getEncodeParam(logstore);
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ListShards',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/logstores/${logstore}/shards`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'array',
+  };
+  return execute(params, req, runtime);
+}
+
+model MergeShardsRequest {
+  action?: string(name='action', description='固定为 merge。'),
+}
+
+model MergeShardsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: [
+    Shard
+  ](name='body'),
+}
+
+async function mergeShards(project: string, logstore: string, shardID: string, request: MergeShardsRequest): MergeShardsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return mergeShardsWithOptions(project, logstore, shardID, request, headers, runtime);
+}
+
+async function mergeShardsWithOptions(project: string, logstore: string, shardID: string, request: MergeShardsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): MergeShardsResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  logstore = OpenApiUtil.getEncodeParam(logstore);
+  shardID = OpenApiUtil.getEncodeParam(shardID);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.action)) {
+    query['action'] = request.action;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'MergeShards',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/logstores/${logstore}/shards/${shardID}`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'array',
+  };
+  return execute(params, req, runtime);
+}
+
+model SplitShardRequest {
+  action?: string(name='action', description='这里固定为 split。'),
+  key?: string(name='key', description='分裂的位置。'),
+  shardCount?: int32(name='shardCount', description='要分裂成的 shard 数量，默认为 2。'),
+}
+
+model SplitShardResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: [
+    Shard
+  ](name='body'),
+}
+
+async function splitShard(project: string, logstore: string, shardID: string, request: SplitShardRequest): SplitShardResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return splitShardWithOptions(project, logstore, shardID, request, headers, runtime);
+}
+
+async function splitShardWithOptions(project: string, logstore: string, shardID: string, request: SplitShardRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SplitShardResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  logstore = OpenApiUtil.getEncodeParam(logstore);
+  shardID = OpenApiUtil.getEncodeParam(shardID);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.action)) {
+    query['action'] = request.action;
+  }
+  if (!Util.isUnset(request.key)) {
+    query['key'] = request.key;
+  }
+  if (!Util.isUnset(request.shardCount)) {
+    query['shardCount'] = request.shardCount;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'SplitShard',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/logstores/${logstore}/shards/${shardID}`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'array',
   };
   return execute(params, req, runtime);
 }
