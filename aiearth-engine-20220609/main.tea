@@ -1,0 +1,201 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('aiearth-engine', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model DownloadDataRequest {
+  bandNo?: string(name='BandNo'),
+  dataId?: string(name='DataId', description='需要下载数据的DataId'),
+}
+
+model DownloadDataResponseBody = {
+  dataId?: string(name='DataId'),
+  downloadUrl?: string(name='DownloadUrl'),
+  finished?: boolean(name='Finished'),
+  requestId?: string(name='RequestId'),
+  status?: string(name='Status'),
+}
+
+model DownloadDataResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DownloadDataResponseBody(name='body'),
+}
+
+async function downloadDataWithOptions(request: DownloadDataRequest, runtime: Util.RuntimeOptions): DownloadDataResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.bandNo)) {
+    body['BandNo'] = request.bandNo;
+  }
+  if (!Util.isUnset(request.dataId)) {
+    body['DataId'] = request.dataId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DownloadData',
+    version = '2022-06-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function downloadData(request: DownloadDataRequest): DownloadDataResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return downloadDataWithOptions(request, runtime);
+}
+
+model ListDatasRequest {
+  cloudageMax?: int32(name='CloudageMax', description='云量上限'),
+  cloudageMin?: int32(name='CloudageMin', description='云量下限'),
+  dateEnd?: string(name='DateEnd', description='结束日期，例如"2020-06-01"'),
+  dateStart?: string(name='DateStart', description='开始日期，例如"2020-01-01"'),
+  pageNumber?: int32(name='PageNumber', description='页码'),
+  pageSize?: int32(name='PageSize', description='每页数量'),
+  regionWkt?: string(name='RegionWkt', description='区域选择，wkt格式'),
+  sourceTypeList?: [ string ](name='SourceTypeList', description='星源，可多选，枚举值如下：    sentinel1,
+    sentinel2,
+    landsat5,
+    landsat7,
+    landsat8,
+    landsat9'),
+}
+
+model ListDatasShrinkRequest {
+  cloudageMax?: int32(name='CloudageMax', description='云量上限'),
+  cloudageMin?: int32(name='CloudageMin', description='云量下限'),
+  dateEnd?: string(name='DateEnd', description='结束日期，例如"2020-06-01"'),
+  dateStart?: string(name='DateStart', description='开始日期，例如"2020-01-01"'),
+  pageNumber?: int32(name='PageNumber', description='页码'),
+  pageSize?: int32(name='PageSize', description='每页数量'),
+  regionWkt?: string(name='RegionWkt', description='区域选择，wkt格式'),
+  sourceTypeListShrink?: string(name='SourceTypeList', description='星源，可多选，枚举值如下：    sentinel1,
+    sentinel2,
+    landsat5,
+    landsat7,
+    landsat8,
+    landsat9'),
+}
+
+model ListDatasResponseBody = {
+  list?: [ 
+    {
+      dataId?: string(name='DataId'),
+      raster?: {
+        acquisitionDateEnd?: string(name='AcquisitionDateEnd'),
+        acquisitionDateStart?: string(name='AcquisitionDateStart'),
+        bands?: [ 
+          {
+            bandNo?: string(name='BandNo'),
+            height?: int32(name='Height'),
+            resolution?: double(name='Resolution'),
+            width?: int32(name='Width'),
+          }
+        ](name='Bands'),
+        bbox?: [ double ](name='Bbox'),
+        cloudCoverage?: int32(name='CloudCoverage'),
+        name?: string(name='Name'),
+        sourceType?: string(name='SourceType'),
+        stacId?: string(name='StacId'),
+      }(name='Raster'),
+    }
+  ](name='List'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  totalCount?: long(name='TotalCount'),
+}
+
+model ListDatasResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListDatasResponseBody(name='body'),
+}
+
+async function listDatasWithOptions(tmpReq: ListDatasRequest, runtime: Util.RuntimeOptions): ListDatasResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListDatasShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.sourceTypeList)) {
+    request.sourceTypeListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sourceTypeList, 'SourceTypeList', 'json');
+  }
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.cloudageMax)) {
+    body['CloudageMax'] = request.cloudageMax;
+  }
+  if (!Util.isUnset(request.cloudageMin)) {
+    body['CloudageMin'] = request.cloudageMin;
+  }
+  if (!Util.isUnset(request.dateEnd)) {
+    body['DateEnd'] = request.dateEnd;
+  }
+  if (!Util.isUnset(request.dateStart)) {
+    body['DateStart'] = request.dateStart;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    body['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.regionWkt)) {
+    body['RegionWkt'] = request.regionWkt;
+  }
+  if (!Util.isUnset(request.sourceTypeListShrink)) {
+    body['SourceTypeList'] = request.sourceTypeListShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListDatas',
+    version = '2022-06-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listDatas(request: ListDatasRequest): ListDatasResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listDatasWithOptions(request, runtime);
+}
+
