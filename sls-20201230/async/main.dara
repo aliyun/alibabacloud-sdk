@@ -780,6 +780,39 @@ async function listShards(request: ListShardsRequest): ListShardsResponse {
   return @handler.do('RESTFUL', 'ListShards', 'GET', '/logstores/{logstore}/shards', 'json', false, 'json', request);
 }
 
+model ListTagResourcesRequest {
+  resourceId?: [ string ](name='resourceId', description='查询的资源的 id 列表。resource id 与 tags 应至少存在一个。', shrink='json', position='Query'),
+  resourceType: string(name='resourceType', description='资源类型。目前取值范围：project。', position='Query'),
+  tags?: [ 
+    {
+      key?: string(name='key', description='精确过滤的标签的键。'),
+      value?: string(name='value', description='精确过滤的标签的值。'),
+    }
+  ](name='tags', description='精确查找时过滤的标签键值对。resource id 与 tags 应至少存在一个。', shrink='json', position='Query'),
+}
+
+model ListTagResourcesResponseBody = {
+  nextToken?: string(name='nextToken', description='下一个查询开始Token。'),
+  tagResources?: [ 
+    {
+      resourceId?: string(name='resourceId', description='资源 id。'),
+      resourceType?: string(name='resourceType', description='资源类型。'),
+      tagKey?: string(name='tagKey', description='标签的键。'),
+      tagValue?: string(name='tagValue', description='标签的值。'),
+    }
+  ](name='tagResources', description='返回的标签列表。'),
+}
+
+model ListTagResourcesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListTagResourcesResponseBody(name='body'),
+}
+
+async function listTagResources(request: ListTagResourcesRequest): ListTagResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListTagResources', 'GET', '/tags', 'json', false, 'json', request);
+}
+
 model MergeShardsRequest {
   logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
   shardID: int32(name='shardID', description='必须是readwrite状态的 shard，且其下一个相邻的 shard 也必须是 readwrite。', position='Path'),
@@ -818,6 +851,42 @@ model SplitShardResponse = {
 async function splitShard(request: SplitShardRequest): SplitShardResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'SplitShard', 'POST', '/logstores/{logstore}/shards/{shardID}', 'json', false, 'json', request);
+}
+
+model TagResourcesRequest {
+  resourceId: [ string ](name='resourceId', description='资源的 id 列表，可以一次为多个同类型资源打上相同的标签。', position='Body'),
+  resourceType: string(name='resourceType', description='资源的类型。目前取值范围：project。', position='Body'),
+  tags: [ 
+    {
+      key: string(name='key', description='标签的 key。'),
+      value: string(name='value', description='标签的 value。'),
+    }
+  ](name='tags', description='标签列表。', position='Body'),
+}
+
+model TagResourcesResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function tagResources(request: TagResourcesRequest): TagResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'TagResources', 'POST', '/tag', 'none', false, 'json', request);
+}
+
+model UnTagResourcesRequest {
+  all?: boolean(name='all', description='是否删除所有标签，默认为 false，表示仅删除 tags 列表中的标签项。值为 true 时删除资源上绑定的所有标签。', position='Body'),
+  resourceId?: [ string ](name='resourceId', description='资源的 id 列表，可以一次为多个同类型资源删除相同的标签。当 all 为 false 时生效。', position='Body'),
+  resourceType: string(name='resourceType', description='资源的类型。目前取值范围 ： project。', position='Body'),
+  tags?: [ string ](name='tags', description='标签 key 列表。当 all 为 false 时，仅删除列表中的标签。', position='Body'),
+}
+
+model UnTagResourcesResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function unTagResources(request: UnTagResourcesRequest): UnTagResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UnTagResources', 'POST', '/untag', 'none', false, 'json', request);
 }
 
 model UpdateConsumerGroupRequest {

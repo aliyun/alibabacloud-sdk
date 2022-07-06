@@ -1503,6 +1503,86 @@ async function listShardsWithOptions(project: string, logstore: string, headers:
   return execute(params, req, runtime);
 }
 
+model ListTagResourcesRequest {
+  resourceId?: [ string ](name='resourceId', description='查询的资源的 id 列表。resource id 与 tags 应至少存在一个。'),
+  resourceType?: string(name='resourceType', description='资源类型。目前取值范围：project。'),
+  tags?: [ 
+    {
+      key?: string(name='key', description='精确过滤的标签的键。'),
+      value?: string(name='value', description='精确过滤的标签的值。'),
+    }
+  ](name='tags', description='精确查找时过滤的标签键值对。resource id 与 tags 应至少存在一个。'),
+}
+
+model ListTagResourcesShrinkRequest {
+  resourceIdShrink?: string(name='resourceId', description='查询的资源的 id 列表。resource id 与 tags 应至少存在一个。'),
+  resourceType?: string(name='resourceType', description='资源类型。目前取值范围：project。'),
+  tagsShrink?: string(name='tags', description='精确查找时过滤的标签键值对。resource id 与 tags 应至少存在一个。'),
+}
+
+model ListTagResourcesResponseBody = {
+  nextToken?: string(name='nextToken', description='下一个查询开始Token。'),
+  tagResources?: [ 
+    {
+      resourceId?: string(name='resourceId', description='资源 id。'),
+      resourceType?: string(name='resourceType', description='资源类型。'),
+      tagKey?: string(name='tagKey', description='标签的键。'),
+      tagValue?: string(name='tagValue', description='标签的值。'),
+    }
+  ](name='tagResources', description='返回的标签列表。'),
+}
+
+model ListTagResourcesResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListTagResourcesResponseBody(name='body'),
+}
+
+async function listTagResources(request: ListTagResourcesRequest): ListTagResourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listTagResourcesWithOptions(request, headers, runtime);
+}
+
+async function listTagResourcesWithOptions(tmpReq: ListTagResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTagResourcesResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListTagResourcesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.resourceId)) {
+    request.resourceIdShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.resourceId, 'resourceId', 'json');
+  }
+  if (!Util.isUnset(tmpReq.tags)) {
+    request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'tags', 'json');
+  }
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.resourceIdShrink)) {
+    query['resourceId'] = request.resourceIdShrink;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query['resourceType'] = request.resourceType;
+  }
+  if (!Util.isUnset(request.tagsShrink)) {
+    query['tags'] = request.tagsShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListTagResources',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/tags`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
 model MergeShardsRequest {
   action?: string(name='action', description='固定为 merge。'),
 }
@@ -1603,6 +1683,111 @@ async function splitShardWithOptions(project: string, logstore: string, shardID:
     style = 'ROA',
     reqBodyType = 'json',
     bodyType = 'array',
+  };
+  return execute(params, req, runtime);
+}
+
+model TagResourcesRequest {
+  resourceId?: [ string ](name='resourceId', description='资源的 id 列表，可以一次为多个同类型资源打上相同的标签。'),
+  resourceType?: string(name='resourceType', description='资源的类型。目前取值范围：project。'),
+  tags?: [ 
+    {
+      key?: string(name='key', description='标签的 key。'),
+      value?: string(name='value', description='标签的 value。'),
+    }
+  ](name='tags', description='标签列表。'),
+}
+
+model TagResourcesResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function tagResources(request: TagResourcesRequest): TagResourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return tagResourcesWithOptions(request, headers, runtime);
+}
+
+async function tagResourcesWithOptions(request: TagResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): TagResourcesResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.resourceId)) {
+    body['resourceId'] = request.resourceId;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    body['resourceType'] = request.resourceType;
+  }
+  if (!Util.isUnset(request.tags)) {
+    body['tags'] = request.tags;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'TagResources',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/tag`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+model UnTagResourcesRequest {
+  all?: boolean(name='all', description='是否删除所有标签，默认为 false，表示仅删除 tags 列表中的标签项。值为 true 时删除资源上绑定的所有标签。'),
+  resourceId?: [ string ](name='resourceId', description='资源的 id 列表，可以一次为多个同类型资源删除相同的标签。当 all 为 false 时生效。'),
+  resourceType?: string(name='resourceType', description='资源的类型。目前取值范围 ： project。'),
+  tags?: [ string ](name='tags', description='标签 key 列表。当 all 为 false 时，仅删除列表中的标签。'),
+}
+
+model UnTagResourcesResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function unTagResources(request: UnTagResourcesRequest): UnTagResourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return unTagResourcesWithOptions(request, headers, runtime);
+}
+
+async function unTagResourcesWithOptions(request: UnTagResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UnTagResourcesResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.all)) {
+    body['all'] = request.all;
+  }
+  if (!Util.isUnset(request.resourceId)) {
+    body['resourceId'] = request.resourceId;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    body['resourceType'] = request.resourceType;
+  }
+  if (!Util.isUnset(request.tags)) {
+    body['tags'] = request.tags;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UnTagResources',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/untag`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
   };
   return execute(params, req, runtime);
 }
