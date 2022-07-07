@@ -49,41 +49,14 @@ model EncryptUserCmkConf {
 model LogtailConfig {
   configName?: string(name='configName', description='configName'),
   createTime?: long(name='createTime', description='创建时间'),
-  inputDetail?: {
-    adjustTimezone?: boolean(name='adjustTimezone', description='adjustTimezone'),
-    delayAlarmBytes?: long(name='delayAlarmBytes', description='delayAlarmBytes'),
-    enableTag?: boolean(name='enableTag', description='enableTag'),
-    filePattern?: string(name='filePattern', description='filePattern'),
-    filterKey?: [ string ](name='filterKey', description='filterKey'),
-    filterRegex?: [ string ](name='filterRegex', description='filterRegex'),
-    localStorage?: boolean(name='localStorage', description='localStorage'),
-    logBeginRegex?: string(name='logBeginRegex', description='logBeginRegex'),
-    logPath?: string(name='logPath', description='logPath'),
-    logTimezone?: string(name='logTimezone', description='logTimezone'),
-    logType?: string(name='logType', description='logType'),
-    maxSendRate?: int32(name='maxSendRate', description='maxSendRate'),
-    mergeType?: string(name='mergeType', description='mergeType'),
-    priority?: int32(name='priority', description='priority'),
-    sendRateExpire?: int32(name='sendRateExpire', description='sendRateExpire'),
-    sensitiveKeys?: [ 
-      {
-        all?: boolean(name='all', description='all'),
-        key?: string(name='key', description='key'),
-        regexBegin?: string(name='regex_begin', description='regex_begin'),
-        regexContent?: string(name='regex_content', description='regex_content'),
-        type?: string(name='type', description='type'),
-      }
-    ](name='sensitive_keys', description='sensitive_keys'),
-    shardHashKey?: [ string ](name='shardHashKey', description='shardHashKey'),
-    timeFormat?: string(name='timeFormat', description='timeFormat'),
-    topicFormat?: string(name='topicFormat', description='topicFormat'),
-  }(name='inputDetail', description='inputDetail'),
+  inputDetail?: map[string]any(name='inputDetail', description='inputDetail'),
   inputType?: string(name='inputType', description='inputType'),
   lastModifyTime?: long(name='lastModifyTime', description='修改时间'),
   logSample?: string(name='logSample', description='日志样例'),
   outputDetail?: {
     endpoint?: string(name='endpoint', description='endpoint'),
-    logstore?: string(name='logstore', description='logstore'),
+    logstoreName?: string(name='logstoreName', description='logstoreName'),
+    region?: string(name='region', description='地域'),
   }(name='outputDetail', description='outputDetail'),
   outputType?: string(name='outputType', description='outputType'),
 }
@@ -253,6 +226,40 @@ model Shard {
   status?: string(name='status', description='shard 的读写状态，readwrite 或者 readonly。'),
 }
 
+model ApplyConfigToMachineGroupResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function applyConfigToMachineGroup(project: string, machineGroup: string, configName: string): ApplyConfigToMachineGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return applyConfigToMachineGroupWithOptions(project, machineGroup, configName, headers, runtime);
+}
+
+async function applyConfigToMachineGroupWithOptions(project: string, machineGroup: string, configName: string, headers: map[string]string, runtime: Util.RuntimeOptions): ApplyConfigToMachineGroupResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  machineGroup = OpenApiUtil.getEncodeParam(machineGroup);
+  configName = OpenApiUtil.getEncodeParam(configName);
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ApplyConfigToMachineGroup',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/machinegroups/${machineGroup}/configs/${configName}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
 model CreateConsumerGroupRequest {
   consumerGroup?: string(name='consumerGroup'),
   order?: boolean(name='order'),
@@ -296,6 +303,49 @@ async function createConsumerGroupWithOptions(project: string, logstore: string,
     version = '2020-12-30',
     protocol = 'HTTPS',
     pathname = `/logstores/${logstore}/consumergroups`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+model CreateDomainRequest {
+  domainName?: string(name='domainName'),
+}
+
+model CreateDomainResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function createDomain(project: string, request: CreateDomainRequest): CreateDomainResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createDomainWithOptions(project, request, headers, runtime);
+}
+
+async function createDomainWithOptions(project: string, request: CreateDomainRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateDomainResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.domainName)) {
+    body['domainName'] = request.domainName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateDomain',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/domains`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
@@ -458,6 +508,120 @@ async function createLogStoreWithOptions(project: string, request: CreateLogStor
   return execute(params, req, runtime);
 }
 
+model CreateLoggingRequest {
+  loggingDetails?: [ 
+    {
+      logstore?: string(name='logstore', description='该种类服务日志要保存到的 logstore 名称。'),
+      type?: string(name='type', description='服务日志的种类。可选 "consumergroup_log"、 "logtail_alarm"、"operation_log"、"logtail_profile"、"metering"、"logtail_status"、"scheduled_sql_alert"、 "etl_alert" 等。'),
+    }
+  ](name='loggingDetails', description='服务日志配置列表。'),
+  loggingProject?: string(name='loggingProject', description='服务日志要保存到的 project 名称。'),
+}
+
+model CreateLoggingResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function createLogging(project: string, request: CreateLoggingRequest): CreateLoggingResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createLoggingWithOptions(project, request, headers, runtime);
+}
+
+async function createLoggingWithOptions(project: string, request: CreateLoggingRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateLoggingResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.loggingDetails)) {
+    body['loggingDetails'] = request.loggingDetails;
+  }
+  if (!Util.isUnset(request.loggingProject)) {
+    body['loggingProject'] = request.loggingProject;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateLogging',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/logging`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+model CreateMachineGroupRequest {
+  groupAttribute?: {
+    externalName?: string(name='externalName', description='机器组所依赖的外部管理系统标识。'),
+    groupTopic?: string(name='groupTopic', description='机器组的日志主题。'),
+  }(name='groupAttribute', description='机器组属性。'),
+  groupName?: string(name='groupName', description='机器组名称。'),
+  groupType?: string(name='groupType', description='机器组类型，可选值，默认为空。'),
+  machineIdentifyType?: string(name='machineIdentifyType', description='机器组标识种类，支持 ip 、userdefined 两种。'),
+  machineList?: [ string ](name='machineList', description='机器列表。'),
+}
+
+model CreateMachineGroupResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function createMachineGroup(project: string, request: CreateMachineGroupRequest): CreateMachineGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createMachineGroupWithOptions(project, request, headers, runtime);
+}
+
+async function createMachineGroupWithOptions(project: string, request: CreateMachineGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateMachineGroupResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.groupAttribute)) {
+    body['groupAttribute'] = request.groupAttribute;
+  }
+  if (!Util.isUnset(request.groupName)) {
+    body['groupName'] = request.groupName;
+  }
+  if (!Util.isUnset(request.groupType)) {
+    body['groupType'] = request.groupType;
+  }
+  if (!Util.isUnset(request.machineIdentifyType)) {
+    body['machineIdentifyType'] = request.machineIdentifyType;
+  }
+  if (!Util.isUnset(request.machineList)) {
+    body['machineList'] = request.machineList;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateMachineGroup',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/machinegroups`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
 model CreateProjectRequest {
   description?: string(name='description'),
   projectName?: string(name='projectName'),
@@ -595,6 +759,39 @@ async function deleteConsumerGroupWithOptions(project: string, logstore: string,
   return execute(params, req, runtime);
 }
 
+model DeleteDomainResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function deleteDomain(project: string, domainName: string): DeleteDomainResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteDomainWithOptions(project, domainName, headers, runtime);
+}
+
+async function deleteDomainWithOptions(project: string, domainName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteDomainResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  domainName = OpenApiUtil.getEncodeParam(domainName);
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteDomain',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/domains/${domainName}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
 model DeleteIndexResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
@@ -661,6 +858,71 @@ async function deleteLogStoreWithOptions(project: string, logstore: string, head
   return execute(params, req, runtime);
 }
 
+model DeleteLoggingResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function deleteLogging(project: string): DeleteLoggingResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteLoggingWithOptions(project, headers, runtime);
+}
+
+async function deleteLoggingWithOptions(project: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteLoggingResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteLogging',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/logging`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+model DeleteMachineGroupResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function deleteMachineGroup(project: string, machineGroup: string): DeleteMachineGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteMachineGroupWithOptions(project, machineGroup, headers, runtime);
+}
+
+async function deleteMachineGroupWithOptions(project: string, machineGroup: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteMachineGroupResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  machineGroup = OpenApiUtil.getEncodeParam(machineGroup);
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteMachineGroup',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/machinegroups/${machineGroup}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
 model DeleteProjectResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
@@ -689,6 +951,100 @@ async function deleteProjectWithOptions(project: string, headers: map[string]str
     style = 'ROA',
     reqBodyType = 'json',
     bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+model GetAppliedConfigsResponseBody = {
+  configs?: [ string ](name='configs', description='Logtail配置名称列表。'),
+  count?: int32(name='count', description='Logtail配置数量。'),
+}
+
+model GetAppliedConfigsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetAppliedConfigsResponseBody(name='body'),
+}
+
+async function getAppliedConfigs(project: string, machineGroup: string): GetAppliedConfigsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getAppliedConfigsWithOptions(project, machineGroup, headers, runtime);
+}
+
+async function getAppliedConfigsWithOptions(project: string, machineGroup: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetAppliedConfigsResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  machineGroup = OpenApiUtil.getEncodeParam(machineGroup);
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAppliedConfigs',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/machinegroups/${machineGroup}/configs`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+model GetCheckPointRequest {
+  shard?: int32(name='shard', description='Shard ID。
+如果指定的Shard不存在，则返回空列表。
+如果不指定Shard，则返回所有Shard的checkpoint。'),
+}
+
+model GetCheckPointResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: [ 
+    {
+      shard?: int32(name='shard', description='shard id。'),
+      checkpoint?: string(name='checkpoint', description='checkpoint 值。'),
+      updateTime?: long(name='updateTime', description='checkpoint最后的更新时间。Unix时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。'),
+      consumer?: string(name='consumer', description='消费者。'),
+    }
+  ](name='body'),
+}
+
+async function getCheckPoint(project: string, logstore: string, consumerGroup: string, request: GetCheckPointRequest): GetCheckPointResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getCheckPointWithOptions(project, logstore, consumerGroup, request, headers, runtime);
+}
+
+async function getCheckPointWithOptions(project: string, logstore: string, consumerGroup: string, request: GetCheckPointRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetCheckPointResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  logstore = OpenApiUtil.getEncodeParam(logstore);
+  consumerGroup = OpenApiUtil.getEncodeParam(consumerGroup);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.shard)) {
+    query['shard'] = request.shard;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetCheckPoint',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/logstores/${logstore}/consumergroups/${consumerGroup}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'array',
   };
   return execute(params, req, runtime);
 }
@@ -1039,6 +1395,39 @@ async function getLogStoreWithOptions(project: string, logstore: string, headers
   return execute(params, req, runtime);
 }
 
+model GetLoggingResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: Logging  
+}
+
+async function getLogging(project: string): GetLoggingResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getLoggingWithOptions(project, headers, runtime);
+}
+
+async function getLoggingWithOptions(project: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetLoggingResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetLogging',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/logging`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
 model GetLogsRequest {
   from?: long(name='from', description='查询开始时间点。该时间是指写入日志数据时指定的日志时间。
 
@@ -1134,6 +1523,40 @@ async function getLogsWithOptions(project: string, logstore: string, request: Ge
     style = 'ROA',
     reqBodyType = 'json',
     bodyType = 'array',
+  };
+  return execute(params, req, runtime);
+}
+
+model GetMachineGroupResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: MachineGroup  
+}
+
+async function getMachineGroup(project: string, machineGroup: string): GetMachineGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getMachineGroupWithOptions(project, machineGroup, headers, runtime);
+}
+
+async function getMachineGroupWithOptions(project: string, machineGroup: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetMachineGroupResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  machineGroup = OpenApiUtil.getEncodeParam(machineGroup);
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetMachineGroup',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/machinegroups/${machineGroup}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
   };
   return execute(params, req, runtime);
 }
@@ -1293,6 +1716,64 @@ async function listConsumerGroupWithOptions(project: string, logstore: string, h
   return execute(params, req, runtime);
 }
 
+model ListDomainsRequest {
+  domainName?: string(name='domainName', description='用于搜索匹配的自定义域名'),
+  offset?: int32(name='offset'),
+  size?: int32(name='size'),
+}
+
+model ListDomainsResponseBody = {
+  count?: long(name='count'),
+  domains?: [ string ](name='domains'),
+  total?: long(name='total'),
+}
+
+model ListDomainsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListDomainsResponseBody(name='body'),
+}
+
+async function listDomains(project: string, request: ListDomainsRequest): ListDomainsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listDomainsWithOptions(project, request, headers, runtime);
+}
+
+async function listDomainsWithOptions(project: string, request: ListDomainsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListDomainsResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.domainName)) {
+    query['domainName'] = request.domainName;
+  }
+  if (!Util.isUnset(request.offset)) {
+    query['offset'] = request.offset;
+  }
+  if (!Util.isUnset(request.size)) {
+    query['size'] = request.size;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListDomains',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/domains`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
 model ListLogStoresRequest {
   logstoreName?: string(name='logstoreName'),
   offset?: int32(name='offset'),
@@ -1345,6 +1826,121 @@ async function listLogStoresWithOptions(project: string, request: ListLogStoresR
     version = '2020-12-30',
     protocol = 'HTTPS',
     pathname = `/logstores`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+model ListMachineGroupRequest {
+  groupName?: string(name='groupName', description='可将 groupName 作为 pattern 匹配名称，只会返回匹配的机器组。例如 test 可以匹配机器组 test-group。'),
+  offset?: int32(name='offset', description='分页请求的起始位置。默认为0。'),
+  size?: int32(name='size', description='分页查询时，设置的每页行数。最大值为500。'),
+}
+
+model ListMachineGroupResponseBody = {
+  count?: int32(name='count', description='当前页返回的机器组数量。'),
+  machinegroups?: [ string ](name='machinegroups', description='机器组名称列表。'),
+  total?: int32(name='total', description='机器组总数量。'),
+}
+
+model ListMachineGroupResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListMachineGroupResponseBody(name='body'),
+}
+
+async function listMachineGroup(project: string, request: ListMachineGroupRequest): ListMachineGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listMachineGroupWithOptions(project, request, headers, runtime);
+}
+
+async function listMachineGroupWithOptions(project: string, request: ListMachineGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListMachineGroupResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.groupName)) {
+    query['groupName'] = request.groupName;
+  }
+  if (!Util.isUnset(request.offset)) {
+    query['offset'] = request.offset;
+  }
+  if (!Util.isUnset(request.size)) {
+    query['size'] = request.size;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListMachineGroup',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/machinegroups`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+model ListMachinesRequest {
+  offset?: int32(name='offset', description='查询开始行。默认值为0。'),
+  size?: int32(name='size', description='分页查询时，设置的每页行数。默认值为100，最大值为500。'),
+}
+
+model ListMachinesResponseBody = {
+  count?: int32(name='count', description='当前页返回的机器数目。'),
+  machines?: [
+    Machine
+  ](name='machines', description='返回的机器信息列表。'),
+  total?: int32(name='total', description='机器总数。'),
+}
+
+model ListMachinesResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListMachinesResponseBody(name='body'),
+}
+
+async function listMachines(project: string, machineGroup: string, request: ListMachinesRequest): ListMachinesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listMachinesWithOptions(project, machineGroup, request, headers, runtime);
+}
+
+async function listMachinesWithOptions(project: string, machineGroup: string, request: ListMachinesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListMachinesResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  machineGroup = OpenApiUtil.getEncodeParam(machineGroup);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.offset)) {
+    query['offset'] = request.offset;
+  }
+  if (!Util.isUnset(request.size)) {
+    query['size'] = request.size;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListMachines',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/machinegroups/${machineGroup}/machines`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1631,6 +2227,40 @@ async function mergeShardsWithOptions(project: string, logstore: string, shardID
   return execute(params, req, runtime);
 }
 
+model RemoveConfigFromMachineGroupResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function removeConfigFromMachineGroup(project: string, machineGroup: string, configName: string): RemoveConfigFromMachineGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return removeConfigFromMachineGroupWithOptions(project, machineGroup, configName, headers, runtime);
+}
+
+async function removeConfigFromMachineGroupWithOptions(project: string, machineGroup: string, configName: string, headers: map[string]string, runtime: Util.RuntimeOptions): RemoveConfigFromMachineGroupResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  machineGroup = OpenApiUtil.getEncodeParam(machineGroup);
+  configName = OpenApiUtil.getEncodeParam(configName);
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'RemoveConfigFromMachineGroup',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/machinegroups/${machineGroup}/configs/${configName}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
 model SplitShardRequest {
   action?: string(name='action', description='这里固定为 split。'),
   key?: string(name='key', description='分裂的位置。'),
@@ -1783,6 +2413,70 @@ async function unTagResourcesWithOptions(request: UnTagResourcesRequest, headers
     version = '2020-12-30',
     protocol = 'HTTPS',
     pathname = `/untag`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+model UpdateCheckPointRequest {
+  checkpoint?: string(name='checkpoint', description='checkpoint值。'),
+  shard?: int32(name='shard', description='shard 的 id。'),
+  consumer?: string(name='consumer', description='消费者。'),
+  forceSuccess?: boolean(name='forceSuccess', description='当不指定消费者时，必须指定forceSuccess为true才能更新checkpoint。'),
+  type?: string(name='type', description='固定为 checkpoint。'),
+}
+
+model UpdateCheckPointResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function updateCheckPoint(project: string, logstore: string, consumerGroup: string, request: UpdateCheckPointRequest): UpdateCheckPointResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateCheckPointWithOptions(project, logstore, consumerGroup, request, headers, runtime);
+}
+
+async function updateCheckPointWithOptions(project: string, logstore: string, consumerGroup: string, request: UpdateCheckPointRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateCheckPointResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  logstore = OpenApiUtil.getEncodeParam(logstore);
+  consumerGroup = OpenApiUtil.getEncodeParam(consumerGroup);
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.consumer)) {
+    query['consumer'] = request.consumer;
+  }
+  if (!Util.isUnset(request.forceSuccess)) {
+    query['forceSuccess'] = request.forceSuccess;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.checkpoint)) {
+    body['checkpoint'] = request.checkpoint;
+  }
+  if (!Util.isUnset(request.shard)) {
+    body['shard'] = request.shard;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateCheckPoint',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/logstores/${logstore}/consumergroups/${consumerGroup}`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
@@ -1986,6 +2680,121 @@ async function updateLogStoreWithOptions(project: string, logstore: string, requ
     version = '2020-12-30',
     protocol = 'HTTPS',
     pathname = `/logstores/${logstore}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+model UpdateLoggingRequest {
+  loggingDetails?: [ 
+    {
+      logstore?: string(name='logstore', description='该种类服务日志要保存到的 logstore 名称。'),
+      type?: string(name='type', description='服务日志的种类。可选 "consumergroup_log"、 "logtail_alarm"、"operation_log"、"logtail_profile"、"metering"、"logtail_status"、"scheduled_sql_alert"、 "etl_alert" 等。'),
+    }
+  ](name='loggingDetails', description='服务日志配置列表。'),
+  loggingProject?: string(name='loggingProject', description='服务日志要保存到的 project 名称。'),
+}
+
+model UpdateLoggingResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function updateLogging(project: string, request: UpdateLoggingRequest): UpdateLoggingResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateLoggingWithOptions(project, request, headers, runtime);
+}
+
+async function updateLoggingWithOptions(project: string, request: UpdateLoggingRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateLoggingResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.loggingDetails)) {
+    body['loggingDetails'] = request.loggingDetails;
+  }
+  if (!Util.isUnset(request.loggingProject)) {
+    body['loggingProject'] = request.loggingProject;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateLogging',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/logging`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+model UpdateMachineGroupRequest {
+  groupAttribute?: {
+    externalName?: string(name='externalName', description='机器组所依赖的外部管理系统标识。'),
+    groupTopic?: string(name='groupTopic', description='机器组的日志主题。'),
+  }(name='groupAttribute', description='机器组属性。'),
+  groupName?: string(name='groupName', description='机器组名称。'),
+  groupType?: string(name='groupType', description='机器组类型，可选值，默认为空。'),
+  machineIdentifyType?: string(name='machineIdentifyType', description='机器组标识种类，支持 ip 、userdefined 两种。'),
+  machineList?: [ string ](name='machineList', description='机器列表。'),
+}
+
+model UpdateMachineGroupResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function updateMachineGroup(project: string, machineGroup: string, request: UpdateMachineGroupRequest): UpdateMachineGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateMachineGroupWithOptions(project, machineGroup, request, headers, runtime);
+}
+
+async function updateMachineGroupWithOptions(project: string, machineGroup: string, request: UpdateMachineGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateMachineGroupResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  machineGroup = OpenApiUtil.getEncodeParam(machineGroup);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.groupAttribute)) {
+    body['groupAttribute'] = request.groupAttribute;
+  }
+  if (!Util.isUnset(request.groupName)) {
+    body['groupName'] = request.groupName;
+  }
+  if (!Util.isUnset(request.groupType)) {
+    body['groupType'] = request.groupType;
+  }
+  if (!Util.isUnset(request.machineIdentifyType)) {
+    body['machineIdentifyType'] = request.machineIdentifyType;
+  }
+  if (!Util.isUnset(request.machineList)) {
+    body['machineList'] = request.machineList;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateMachineGroup',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/machinegroups/${machineGroup}`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',

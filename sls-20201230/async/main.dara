@@ -59,41 +59,14 @@ model EncryptUserCmkConf {
 model LogtailConfig {
   configName: string(name='configName', description='configName'),
   createTime?: long(name='createTime', description='创建时间'),
-  inputDetail: {
-    adjustTimezone?: boolean(name='adjustTimezone', description='adjustTimezone'),
-    delayAlarmBytes?: long(name='delayAlarmBytes', description='delayAlarmBytes'),
-    enableTag: boolean(name='enableTag', description='enableTag'),
-    filePattern?: string(name='filePattern', description='filePattern'),
-    filterKey?: [ string ](name='filterKey', description='filterKey'),
-    filterRegex?: [ string ](name='filterRegex', description='filterRegex'),
-    localStorage: boolean(name='localStorage', description='localStorage'),
-    logBeginRegex?: string(name='logBeginRegex', description='logBeginRegex'),
-    logPath?: string(name='logPath', description='logPath'),
-    logTimezone?: string(name='logTimezone', description='logTimezone'),
-    logType?: string(name='logType', description='logType'),
-    maxSendRate?: int32(name='maxSendRate', description='maxSendRate'),
-    mergeType?: string(name='mergeType', description='mergeType'),
-    priority?: int32(name='priority', description='priority'),
-    sendRateExpire?: int32(name='sendRateExpire', description='sendRateExpire'),
-    sensitiveKeys?: [ 
-      {
-        all: boolean(name='all', description='all'),
-        key: string(name='key', description='key'),
-        regexBegin: string(name='regex_begin', description='regex_begin'),
-        regexContent: string(name='regex_content', description='regex_content'),
-        type: string(name='type', description='type'),
-      }
-    ](name='sensitive_keys', description='sensitive_keys'),
-    shardHashKey?: [ string ](name='shardHashKey', description='shardHashKey'),
-    timeFormat?: string(name='timeFormat', description='timeFormat'),
-    topicFormat?: string(name='topicFormat', description='topicFormat'),
-  }(name='inputDetail', description='inputDetail'),
+  inputDetail: map[string]any(name='inputDetail', description='inputDetail'),
   inputType: string(name='inputType', description='inputType'),
   lastModifyTime?: long(name='lastModifyTime', description='修改时间'),
   logSample?: string(name='logSample', description='日志样例'),
   outputDetail: {
     endpoint: string(name='endpoint', description='endpoint'),
-    logstore: string(name='logstore', description='logstore'),
+    logstoreName: string(name='logstoreName', description='logstoreName'),
+    region?: string(name='region', description='地域'),
   }(name='outputDetail', description='outputDetail'),
   outputType: string(name='outputType', description='outputType'),
 }
@@ -263,6 +236,21 @@ model Shard {
   status?: string(name='status', description='shard 的读写状态，readwrite 或者 readonly。'),
 }
 
+model ApplyConfigToMachineGroupRequest {
+  machineGroup: string(name='machineGroup', description='机器组名称。', position='Path'),
+  configName: string(name='configName', description='logtail 配置名称。', position='Path'),
+  project: string(name='project', description='project 名称。', position='Host'),
+}
+
+model ApplyConfigToMachineGroupResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function applyConfigToMachineGroup(request: ApplyConfigToMachineGroupRequest): ApplyConfigToMachineGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ApplyConfigToMachineGroup', 'PUT', '/machinegroups/{machineGroup}/configs/{configName}', 'none', false, 'json', request);
+}
+
 model CreateConsumerGroupRequest {
   logstore: string(name='logstore', position='Path'),
   consumerGroup: string(name='consumerGroup', position='Body'),
@@ -278,6 +266,20 @@ model CreateConsumerGroupResponse = {
 async function createConsumerGroup(request: CreateConsumerGroupRequest): CreateConsumerGroupResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateConsumerGroup', 'POST', '/logstores/{logstore}/consumergroups', 'none', false, 'json', request);
+}
+
+model CreateDomainRequest {
+  domainName: string(name='domainName', position='Body'),
+  project: string(name='project', description='A short description of struct', position='Host'),
+}
+
+model CreateDomainResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function createDomain(request: CreateDomainRequest): CreateDomainResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateDomain', 'POST', '/domains', 'none', false, 'json', request);
 }
 
 model CreateIndexRequest {
@@ -330,6 +332,47 @@ async function createLogStore(request: CreateLogStoreRequest): CreateLogStoreRes
   return @handler.do('RESTFUL', 'CreateLogStore', 'POST', '/logstores', 'none', false, 'json', request);
 }
 
+model CreateLoggingRequest {
+  loggingDetails: [ 
+    {
+      logstore: string(name='logstore', description='该种类服务日志要保存到的 logstore 名称。'),
+      type: string(name='type', description='服务日志的种类。可选 "consumergroup_log"、 "logtail_alarm"、"operation_log"、"logtail_profile"、"metering"、"logtail_status"、"scheduled_sql_alert"、 "etl_alert" 等。'),
+    }
+  ](name='loggingDetails', description='服务日志配置列表。', position='Body'),
+  loggingProject: string(name='loggingProject', description='服务日志要保存到的 project 名称。', position='Body'),
+  project: string(name='project', description='Project 名称。', position='Host'),
+}
+
+model CreateLoggingResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function createLogging(request: CreateLoggingRequest): CreateLoggingResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateLogging', 'POST', '/logging', 'none', false, 'json', request);
+}
+
+model CreateMachineGroupRequest {
+  groupAttribute?: {
+    externalName?: string(name='externalName', description='机器组所依赖的外部管理系统标识。'),
+    groupTopic?: string(name='groupTopic', description='机器组的日志主题。'),
+  }(name='groupAttribute', description='机器组属性。', position='Body'),
+  groupName: string(name='groupName', description='机器组名称。', position='Body'),
+  groupType?: string(name='groupType', description='机器组类型，可选值，默认为空。', position='Body'),
+  machineIdentifyType: string(name='machineIdentifyType', description='机器组标识种类，支持 ip 、userdefined 两种。', position='Body'),
+  machineList: [ string ](name='machineList', description='机器列表。', position='Body'),
+  project: string(name='project', description='project 名称。', position='Host'),
+}
+
+model CreateMachineGroupResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function createMachineGroup(request: CreateMachineGroupRequest): CreateMachineGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateMachineGroup', 'POST', '/machinegroups', 'none', false, 'json', request);
+}
+
 model CreateProjectRequest {
   description: string(name='description', position='Body'),
   projectName: string(name='projectName', position='Body'),
@@ -377,6 +420,20 @@ async function deleteConsumerGroup(request: DeleteConsumerGroupRequest): DeleteC
   return @handler.do('RESTFUL', 'DeleteConsumerGroup', 'DELETE', '/logstores/{logstore}/consumergroups/{consumerGroup}', 'none', false, 'json', request);
 }
 
+model DeleteDomainRequest {
+  domainName: string(name='domainName', description='要删除的域名', position='Path'),
+  project: string(name='project', description='A short description of struct', position='Host'),
+}
+
+model DeleteDomainResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function deleteDomain(request: DeleteDomainRequest): DeleteDomainResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteDomain', 'DELETE', '/domains/{domainName}', 'none', false, 'json', request);
+}
+
 model DeleteIndexRequest {
   logstore: string(name='logstore', description='A short description of struct', position='Path'),
   project: string(name='project', position='Host'),
@@ -405,6 +462,33 @@ async function deleteLogStore(request: DeleteLogStoreRequest): DeleteLogStoreRes
   return @handler.do('RESTFUL', 'DeleteLogStore', 'DELETE', '/logstores/{logstore}', 'none', false, 'json', request);
 }
 
+model DeleteLoggingRequest {
+  project: string(name='project', description='Project 名称。', position='Host'),
+}
+
+model DeleteLoggingResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function deleteLogging(request: DeleteLoggingRequest): DeleteLoggingResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteLogging', 'DELETE', '/logging', 'none', false, 'json', request);
+}
+
+model DeleteMachineGroupRequest {
+  machineGroup: string(name='machineGroup', description='机器组名称。', position='Path'),
+  project: string(name='project', description='project 名称。', position='Host'),
+}
+
+model DeleteMachineGroupResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function deleteMachineGroup(request: DeleteMachineGroupRequest): DeleteMachineGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteMachineGroup', 'DELETE', '/machinegroups/{machineGroup}', 'none', false, 'json', request);
+}
+
 model DeleteProjectRequest {
   project: string(name='project', description='projetc 名称。', position='Host'),
 }
@@ -416,6 +500,52 @@ model DeleteProjectResponse = {
 async function deleteProject(request: DeleteProjectRequest): DeleteProjectResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteProject', 'DELETE', '/', 'none', false, 'json', request);
+}
+
+model GetAppliedConfigsRequest {
+  machineGroup: string(name='machineGroup', description='机器组名称。', position='Path'),
+  project: string(name='project', description='project 名称。', position='Host'),
+}
+
+model GetAppliedConfigsResponseBody = {
+  configs?: [ string ](name='configs', description='Logtail配置名称列表。'),
+  count?: int32(name='count', description='Logtail配置数量。'),
+}
+
+model GetAppliedConfigsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetAppliedConfigsResponseBody(name='body'),
+}
+
+async function getAppliedConfigs(request: GetAppliedConfigsRequest): GetAppliedConfigsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetAppliedConfigs', 'GET', '/machinegroups/{machineGroup}/configs', 'json', false, 'json', request);
+}
+
+model GetCheckPointRequest {
+  logstore: string(name='logstore', description='logstore 名称。', position='Path'),
+  consumerGroup: string(name='consumerGroup', description='消费组名称。', position='Path'),
+  project: string(name='project', description='project 名称。', position='Host'),
+  shard?: int32(name='shard', description='Shard ID。
+如果指定的Shard不存在，则返回空列表。
+如果不指定Shard，则返回所有Shard的checkpoint。', position='Query'),
+}
+
+model GetCheckPointResponse = {
+  headers: map[string]string(name='headers'),
+  body: [ 
+    {
+      shard?: int32(name='shard', description='shard id。'),
+      checkpoint?: string(name='checkpoint', description='checkpoint 值。'),
+      updateTime?: long(name='updateTime', description='checkpoint最后的更新时间。Unix时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。'),
+      consumer?: string(name='consumer', description='消费者。'),
+    }
+  ](name='body'),
+}
+
+async function getCheckPoint(request: GetCheckPointRequest): GetCheckPointResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetCheckPoint', 'GET', '/logstores/{logstore}/consumergroups/{consumerGroup}', 'json', false, 'json', request);
 }
 
 model GetContextLogsRequest {
@@ -580,6 +710,20 @@ async function getLogStore(request: GetLogStoreRequest): GetLogStoreResponse {
   return @handler.do('RESTFUL', 'GetLogStore', 'GET', '/logstores/{logstore}', 'json', false, 'json', request);
 }
 
+model GetLoggingRequest {
+  project: string(name='project', description='Project 名称。', position='Host'),
+}
+
+model GetLoggingResponse = {
+  headers: map[string]string(name='headers'),
+  body: Logging  
+}
+
+async function getLogging(request: GetLoggingRequest): GetLoggingResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetLogging', 'GET', '/logging', 'json', false, 'json', request);
+}
+
 model GetLogsRequest {
   logstore: string(name='logstore', description='logstore 名称。', position='Path'),
   from: long(name='from', description='查询开始时间点。该时间是指写入日志数据时指定的日志时间。
@@ -624,6 +768,21 @@ model GetLogsResponse = {
 async function getLogs(request: GetLogsRequest): GetLogsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetLogs', 'GET', '/logstores/{logstore}/index', 'json', false, 'json', request);
+}
+
+model GetMachineGroupRequest {
+  machineGroup: string(name='machineGroup', description='机器组名称。', position='Path'),
+  project: string(name='project', description='project 名称。', position='Host'),
+}
+
+model GetMachineGroupResponse = {
+  headers: map[string]string(name='headers'),
+  body: MachineGroup  
+}
+
+async function getMachineGroup(request: GetMachineGroupRequest): GetMachineGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetMachineGroup', 'GET', '/machinegroups/{machineGroup}', 'json', false, 'json', request);
 }
 
 model GetProjectRequest {
@@ -692,6 +851,29 @@ async function listConsumerGroup(request: ListConsumerGroupRequest): ListConsume
   return @handler.do('RESTFUL', 'ListConsumerGroup', 'GET', '/logstores/{logstore}/consumergroups', 'json', false, 'json', request);
 }
 
+model ListDomainsRequest {
+  domainName?: string(name='domainName', description='用于搜索匹配的自定义域名', position='Query'),
+  offset?: int32(name='offset', position='Query'),
+  project: string(name='project', description='Project name', position='Host'),
+  size?: int32(name='size', position='Query'),
+}
+
+model ListDomainsResponseBody = {
+  count?: long(name='count'),
+  domains?: [ string ](name='domains'),
+  total?: long(name='total'),
+}
+
+model ListDomainsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListDomainsResponseBody(name='body'),
+}
+
+async function listDomains(request: ListDomainsRequest): ListDomainsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListDomains', 'GET', '/domains', 'json', false, 'json', request);
+}
+
 model ListLogStoresRequest {
   logstoreName?: string(name='logstoreName', position='Query'),
   offset?: int32(name='offset', position='Query'),
@@ -713,6 +895,54 @@ model ListLogStoresResponse = {
 async function listLogStores(request: ListLogStoresRequest): ListLogStoresResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListLogStores', 'GET', '/logstores', 'json', false, 'json', request);
+}
+
+model ListMachineGroupRequest {
+  groupName?: string(name='groupName', description='可将 groupName 作为 pattern 匹配名称，只会返回匹配的机器组。例如 test 可以匹配机器组 test-group。', position='Query'),
+  offset?: int32(name='offset', description='分页请求的起始位置。默认为0。', position='Query'),
+  project: string(name='project', description='project 名称。', position='Host'),
+  size?: int32(name='size', description='分页查询时，设置的每页行数。最大值为500。', position='Query'),
+}
+
+model ListMachineGroupResponseBody = {
+  count?: int32(name='count', description='当前页返回的机器组数量。'),
+  machinegroups?: [ string ](name='machinegroups', description='机器组名称列表。'),
+  total?: int32(name='total', description='机器组总数量。'),
+}
+
+model ListMachineGroupResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListMachineGroupResponseBody(name='body'),
+}
+
+async function listMachineGroup(request: ListMachineGroupRequest): ListMachineGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListMachineGroup', 'GET', '/machinegroups', 'json', false, 'json', request);
+}
+
+model ListMachinesRequest {
+  machineGroup: string(name='machineGroup', description='机器组名称。', position='Path'),
+  offset?: int32(name='offset', description='查询开始行。默认值为0。', position='Query'),
+  project: string(name='project', description='project 名称。', position='Host'),
+  size?: int32(name='size', description='分页查询时，设置的每页行数。默认值为100，最大值为500。', position='Query'),
+}
+
+model ListMachinesResponseBody = {
+  count?: int32(name='count', description='当前页返回的机器数目。'),
+  machines?: [
+    Machine
+  ](name='machines', description='返回的机器信息列表。'),
+  total?: int32(name='total', description='机器总数。'),
+}
+
+model ListMachinesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListMachinesResponseBody(name='body'),
+}
+
+async function listMachines(request: ListMachinesRequest): ListMachinesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListMachines', 'GET', '/machinegroups/{machineGroup}/machines', 'json', false, 'json', request);
 }
 
 model ListProjectRequest {
@@ -832,6 +1062,21 @@ async function mergeShards(request: MergeShardsRequest): MergeShardsResponse {
   return @handler.do('RESTFUL', 'MergeShards', 'POST', '/logstores/{logstore}/shards/{shardID}', 'json', false, 'json', request);
 }
 
+model RemoveConfigFromMachineGroupRequest {
+  machineGroup: string(name='machineGroup', description='机器组名称。', position='Path'),
+  configName: string(name='configName', description='logtail 配置名称。', position='Path'),
+  project: string(name='project', description='project 名称。', position='Host'),
+}
+
+model RemoveConfigFromMachineGroupResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function removeConfigFromMachineGroup(request: RemoveConfigFromMachineGroupRequest): RemoveConfigFromMachineGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'RemoveConfigFromMachineGroup', 'DELETE', '/machinegroups/{machineGroup}/configs/{configName}', 'none', false, 'json', request);
+}
+
 model SplitShardRequest {
   logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
   shardID: int32(name='shardID', description='必须是一个 readwrite 状态的 shard 的 id。', position='Path'),
@@ -887,6 +1132,26 @@ model UnTagResourcesResponse = {
 async function unTagResources(request: UnTagResourcesRequest): UnTagResourcesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UnTagResources', 'POST', '/untag', 'none', false, 'json', request);
+}
+
+model UpdateCheckPointRequest {
+  logstore: string(name='logstore', description='logstore 名称。', position='Path'),
+  consumerGroup: string(name='consumerGroup', description='消费组名称。', position='Path'),
+  checkpoint: string(name='checkpoint', description='checkpoint值。', position='Body'),
+  shard: int32(name='shard', description='shard 的 id。', position='Body'),
+  consumer?: string(name='consumer', description='消费者。', position='Query'),
+  forceSuccess?: boolean(name='forceSuccess', description='当不指定消费者时，必须指定forceSuccess为true才能更新checkpoint。', position='Query'),
+  project: string(name='project', description='project 名称。', position='Host'),
+  type: string(name='type', description='固定为 checkpoint。', position='Query'),
+}
+
+model UpdateCheckPointResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function updateCheckPoint(request: UpdateCheckPointRequest): UpdateCheckPointResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateCheckPoint', 'POST', '/logstores/{logstore}/consumergroups/{consumerGroup}', 'none', false, 'json', request);
 }
 
 model UpdateConsumerGroupRequest {
@@ -955,6 +1220,48 @@ model UpdateLogStoreResponse = {
 async function updateLogStore(request: UpdateLogStoreRequest): UpdateLogStoreResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateLogStore', 'PUT', '/logstores/{logstore}', 'none', false, 'json', request);
+}
+
+model UpdateLoggingRequest {
+  loggingDetails: [ 
+    {
+      logstore: string(name='logstore', description='该种类服务日志要保存到的 logstore 名称。'),
+      type: string(name='type', description='服务日志的种类。可选 "consumergroup_log"、 "logtail_alarm"、"operation_log"、"logtail_profile"、"metering"、"logtail_status"、"scheduled_sql_alert"、 "etl_alert" 等。'),
+    }
+  ](name='loggingDetails', description='服务日志配置列表。', position='Body'),
+  loggingProject: string(name='loggingProject', description='服务日志要保存到的 project 名称。', position='Body'),
+  project: string(name='project', description='Project 名称。', position='Host'),
+}
+
+model UpdateLoggingResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function updateLogging(request: UpdateLoggingRequest): UpdateLoggingResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateLogging', 'PUT', '/logging', 'none', false, 'json', request);
+}
+
+model UpdateMachineGroupRequest {
+  machineGroup: string(name='machineGroup', description='机器组名称。', position='Path'),
+  groupAttribute?: {
+    externalName?: string(name='externalName', description='机器组所依赖的外部管理系统标识。'),
+    groupTopic?: string(name='groupTopic', description='机器组的日志主题。'),
+  }(name='groupAttribute', description='机器组属性。', position='Body'),
+  groupName: string(name='groupName', description='机器组名称。', position='Body'),
+  groupType?: string(name='groupType', description='机器组类型，可选值，默认为空。', position='Body'),
+  machineIdentifyType: string(name='machineIdentifyType', description='机器组标识种类，支持 ip 、userdefined 两种。', position='Body'),
+  machineList: [ string ](name='machineList', description='机器列表。', position='Body'),
+  project: string(name='project', description='project 名称。', position='Host'),
+}
+
+model UpdateMachineGroupResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function updateMachineGroup(request: UpdateMachineGroupRequest): UpdateMachineGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateMachineGroup', 'PUT', '/machinegroups/{machineGroup}', 'none', false, 'json', request);
 }
 
 model UpdateProjectRequest {
