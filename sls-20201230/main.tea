@@ -16,22 +16,12 @@ init(config: OpenApi.Config){
   @client = new GatewayClient();
   @spi = @client;
   @endpointRule = 'central';
-  @endpointMap = {
-    ap-southeast-1 = 'sls.ap-southeast-1.aliyuncs.com',
-    cn-hangzhou = 'sls.cn-hangzhou.aliyuncs.com',
-    cn-hongkong = 'sls.cn-hongkong.aliyuncs.com',
-    cn-huhehaote = 'sls.cn-huhehaote.aliyuncs.com',
-    cn-shanghai = 'sls.cn-shanghai.aliyuncs.com',
-    cn-shenzhen = 'sls.cn-shenzhen.aliyuncs.com',
-    cn-zhangjiakou = 'sls.cn-zhangjiakou.aliyuncs.com',
-    eu-central-1 = 'sls.eu-central-1.aliyuncs.com',
-  };
-}
+  }
 
 model ConsumerGroup {
-  name?: string(name='name', description='consumerGroup'),
-  order?: boolean(name='order', description='order'),
-  timeout?: int32(name='timeout', description='timeout'),
+  name?: string(name='name', description='消费者名称。'),
+  order?: boolean(name='order', description='是否有序消费'),
+  timeout?: int32(name='timeout', description='消费超时时长，单位为妙'),
 }
 
 model EncryptConf {
@@ -47,18 +37,18 @@ model EncryptUserCmkConf {
 }
 
 model LogtailConfig {
-  configName?: string(name='configName', description='configName'),
-  createTime?: long(name='createTime', description='创建时间'),
-  inputDetail?: map[string]any(name='inputDetail', description='inputDetail'),
-  inputType?: string(name='inputType', description='inputType'),
-  lastModifyTime?: long(name='lastModifyTime', description='修改时间'),
-  logSample?: string(name='logSample', description='日志样例'),
+  configName?: string(name='configName', description='logtail 配置的名称。'),
+  createTime?: long(name='createTime', description='创建时间，unix 时间戳。'),
+  inputDetail?: map[string]any(name='inputDetail', description='logtail 输入的详细配置。'),
+  inputType?: string(name='inputType', description='logtail 读取日志的输入类型。'),
+  lastModifyTime?: long(name='lastModifyTime', description='最后一次修改时间，unix 时间戳。'),
+  logSample?: string(name='logSample', description='日志样例，可以用于自动生成正则捕获字段。'),
   outputDetail?: {
-    endpoint?: string(name='endpoint', description='endpoint'),
-    logstoreName?: string(name='logstoreName', description='logstoreName'),
-    region?: string(name='region', description='地域'),
-  }(name='outputDetail', description='outputDetail'),
-  outputType?: string(name='outputType', description='outputType'),
+    endpoint?: string(name='endpoint', description='日志项目的 endpoint。'),
+    logstoreName?: string(name='logstoreName', description='输出的目标 logstore 名称。'),
+    region?: string(name='region', description='地域。'),
+  }(name='outputDetail', description='logtail 输出的详细配置。'),
+  outputType?: string(name='outputType', description='logtail 输出的目标类型。这里固定选择 LogService。'),
 }
 
 model SavedSearch {
@@ -70,7 +60,7 @@ model SavedSearch {
 }
 
 model Chart {
-  action?: map[string]string(name='action', description='action'),
+  action?: map[string]any(name='action', description='action'),
   display?: {
     height?: long(name='height', description='高度'),
     width?: long(name='width', description='宽度'),
@@ -86,18 +76,18 @@ model Chart {
     start?: string(name='start', description='开始时间'),
     topic?: string(name='topic', description='topic'),
   }(name='search', description='查询配置'),
-  title?: string(name='title', description='图表标题'),
-  type?: string(name='type', description='图标类型'),
+  title?: string(name='title', description='图表标题。支持大小写英文字母、数字、下划线_、连字符-，连字符与下划线不能作为名称开头与结尾，长度必须在[2,64] 之间。'),
+  type?: string(name='type', description='图表的类型。'),
 }
 
 model Dashboard {
-  attribute?: map[string]string(name='attribute', description='属性值'),
+  attribute?: map[string]string(name='attribute', description='属性值，可用于修改仪表盘的布局等属性，例如 "type": "free" 自由布局， "type":"grid" 网格布局。'),
   charts?: [
     Chart
-  ](name='charts', description='包含的图表'),
-  dashboardName?: string(name='dashboardName', description='内部名称'),
-  description?: string(name='description', description='描述信息'),
-  displayName?: string(name='displayName', description='展示名称'),
+  ](name='charts', description='仪表盘内包含的图表。'),
+  dashboardName?: string(name='dashboardName', description='仪表盘ID。同一个Project下，仪表盘ID唯一，不可重复。'),
+  description?: string(name='description', description='描述信息。'),
+  displayName?: string(name='displayName', description='仪表盘的展示名称。'),
 }
 
 model EtlJob {
@@ -107,12 +97,12 @@ model EtlJob {
     accountId?: string(name='accountId', description='账户 id'),
     endpoint?: string(name='endpoint', description='endpoint'),
     functionName?: string(name='functionName', description='函数名'),
-    functionProvider?: string(name='functionProvider', description='函数 provider'),
+    functionProvider?: string(name='functionProvider', description='函数 provider，可选值为 FunctionCompute 、CloudProdLogDispatch。当值为 FunctionCompute 时，endpoint、accountid 、regionName 、serviceName 、functionName 必选。'),
     regionName?: string(name='regionName', description='地域'),
     roleArn?: string(name='roleArn', description='角色授权'),
     serviceName?: string(name='serviceName', description='服务名'),
   }(name='functionConfig', description='运行函数配置'),
-  functionParameter?: map[string]string(name='functionParameter', description='参数列表'),
+  functionParameter?: map[string]any(name='functionParameter', description='参数列表'),
   logConfig?: {
     endpoint?: string(name='endpoint', description='endpoint'),
     logstoreName?: string(name='logstoreName', description='logstore 名称'),
@@ -122,11 +112,11 @@ model EtlJob {
     logstoreName?: string(name='logstoreName', description='logstore 名称'),
   }(name='sourceConfig', description='配置数据来源'),
   triggerConfig?: {
-    maxRetryTime?: int32(name='maxRetryTime', description='最大重试次数'),
+    maxRetryTime?: int32(name='maxRetryTime', description='最大重试次数，必须在[0,100] 之间'),
     roleArn?: string(name='roleArn', description='角色授权配置'),
-    startingPosition?: string(name='startingPosition', description='开始位置'),
+    startingPosition?: string(name='startingPosition', description='开始位置，可选 latest、at-unixtime， 默认 latest。'),
     startingUnixtime?: long(name='startingUnixtime', description='开始时间'),
-    triggerInterval?: int32(name='triggerInterval', description='触发间隔'),
+    triggerInterval?: int32(name='triggerInterval', description='触发间隔，单位为秒，必须在 [3,600] 之间'),
   }(name='triggerConfig', description='触发器配置'),
 }
 
@@ -135,23 +125,13 @@ model EtlMeta {
   etlMetaKey?: string(name='etlMetaKey', description='key'),
   etlMetaName?: string(name='etlMetaName', description='名字'),
   etlMetaTag?: string(name='etlMetaTag', description='tag'),
-  etlMetaValue?: map[string]string(name='etlMetaValue', description='value'),
+  etlMetaValue?: string(name='etlMetaValue', description='value'),
 }
 
 model ExternalStore {
-  externalStoreName?: string(name='externalStoreName', description='名称'),
-  parameter?: {
-    db?: string(name='db', description='meta'),
-    host?: string(name='host', description='192.168.XX.XX'),
-    instanceId?: string(name='instance-id', description='RDS MySQL实例ID。'),
-    password?: string(name='password', description='sfdsfldsfksfls****'),
-    port?: string(name='port', description='3306'),
-    region?: string(name='region', description='cn-qingdao'),
-    table?: string(name='table', description='join_meta'),
-    username?: string(name='username', description='root'),
-    vpcId?: string(name='vpc-id', description='RDS MySQL实例所属的VPC ID。'),
-  }(name='parameter', description='参数'),
-  storeType?: string(name='storeType', description='类型'),
+  externalStoreName?: string(name='externalStoreName', description='外部存储的名称。'),
+  parameter?: map[string]any(name='parameter', description='参数'),
+  storeType?: string(name='storeType', description='类型。可选 rds-vpc 或者 oss'),
 }
 
 model Logging {
@@ -180,10 +160,10 @@ model Logstore {
 }
 
 model Machine {
-  ip?: string(name='ip', description='ip 地址'),
-  lastHeartbeatTime?: long(name='lastHeartbeatTime', description='上次心跳时间'),
-  machineUniqueid?: string(name='machine-uniqueid', description='机器的唯一标识'),
-  userdefinedId?: string(name='userdefined-id', description='用户自定义标识'),
+  ip?: string(name='ip', description='机器 ip 地址。'),
+  lastHeartbeatTime?: long(name='lastHeartbeatTime', description='最后一次心跳时间。Unix时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。'),
+  machineUniqueid?: string(name='machine-uniqueid', description='机器的唯一标识。'),
+  userdefinedId?: string(name='userdefined-id', description='机器的用户自定义标识。'),
 }
 
 model MachineGroup {
@@ -192,20 +172,9 @@ model MachineGroup {
     groupTopic?: string(name='groupTopic', description='机器组的日志主题。'),
   }(name='groupAttribute', description='机器组属性。'),
   groupName?: string(name='groupName', description='机器组名称。'),
-  groupType?: string(name='groupType', description='机器组种类。'),
+  groupType?: string(name='groupType', description='机器组种类。目前固定为空字符串。'),
   machineIdentifyType?: string(name='machineIdentifyType', description='机器组标识种类，支持 IP 标识或者用户自定义标识，即 ip 、userdefined。'),
   machineList?: [ string ](name='machineList', description='机器组标识列表。'),
-}
-
-model OssExternalStore {
-  externalStoreName?: string(name='externalStoreName', description='名称'),
-  parameter?: {
-    accessKey?: string(name='accessKey', description='您的AccessKey Secret。'),
-    accessid?: string(name='accessid', description='您的AccessKey ID。'),
-    bucket?: string(name='bucket', description='oss 桶名称。'),
-    endpoint?: string(name='endpoint', description='oss 的 endpoint 访问网址。'),
-  }(name='parameter', description='参数'),
-  storeType?: string(name='storeType', description='类型。这里固定为 oss'),
 }
 
 model Project {
@@ -251,6 +220,168 @@ async function applyConfigToMachineGroupWithOptions(project: string, machineGrou
     version = '2020-12-30',
     protocol = 'HTTPS',
     pathname = `/machinegroups/${machineGroup}/configs/${configName}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+model BatchCreateEtlMetaRequest {
+  etlMetaList?: [ 
+    {
+      enable?: boolean(name='enable', description='是否启用'),
+      etlMetaKey?: string(name='etlMetaKey', description='key。由 ascii 可打印字符组成，包括数字、英文大小写字母、下划线、连字符、英文标点符号等组成，长度在[1,255]之间。'),
+      etlMetaName?: string(name='etlMetaName', description='名字。由数字、大小写字母、下划线_、连字符-组成，长度需要在[2,64]之间。'),
+      etlMetaTag?: string(name='etlMetaTag', description='key。由 ascii 可打印字符组成，包括数字、英文大小写字母、下划线、连字符、英文标点符号等组成，长度在[1,128]之间。'),
+      etlMetaValue?: map[string]any(name='etlMetaValue'),
+    }
+  ](name='etlMetaList'),
+}
+
+model BatchCreateEtlMetaResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function batchCreateEtlMeta(project: string, request: BatchCreateEtlMetaRequest): BatchCreateEtlMetaResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return batchCreateEtlMetaWithOptions(project, request, headers, runtime);
+}
+
+async function batchCreateEtlMetaWithOptions(project: string, request: BatchCreateEtlMetaRequest, headers: map[string]string, runtime: Util.RuntimeOptions): BatchCreateEtlMetaResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.etlMetaList)) {
+    body['etlMetaList'] = request.etlMetaList;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'BatchCreateEtlMeta',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/etlmetas`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+model BatchModifyEtlMetaStatusRequest {
+  etlMetaKeyList?: [ string ](name='etlMetaKeyList', description='当 range 的值为 "list" 时有效，匹配list中的 metaKey'),
+  etlMetaName?: string(name='etlMetaName'),
+  etlMetaTag?: string(name='etlMetaTag', description='匹配的 tag，当 tag 为 "__all_etl_meta_tag_match__" 时表示全部匹配。'),
+  range?: string(name='range', description='操作作用的范围，可选 all 代表匹配全部，list 按名单列表匹配 key 两种模式。'),
+  type?: string(name='type', description='操作类型，支持启用、禁用、删除三种，即 batch_enable、batch_disable、batch_delete。'),
+}
+
+model BatchModifyEtlMetaStatusResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function batchModifyEtlMetaStatus(project: string, request: BatchModifyEtlMetaStatusRequest): BatchModifyEtlMetaStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return batchModifyEtlMetaStatusWithOptions(project, request, headers, runtime);
+}
+
+async function batchModifyEtlMetaStatusWithOptions(project: string, request: BatchModifyEtlMetaStatusRequest, headers: map[string]string, runtime: Util.RuntimeOptions): BatchModifyEtlMetaStatusResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.etlMetaKeyList)) {
+    body['etlMetaKeyList'] = request.etlMetaKeyList;
+  }
+  if (!Util.isUnset(request.etlMetaName)) {
+    body['etlMetaName'] = request.etlMetaName;
+  }
+  if (!Util.isUnset(request.etlMetaTag)) {
+    body['etlMetaTag'] = request.etlMetaTag;
+  }
+  if (!Util.isUnset(request.range)) {
+    body['range'] = request.range;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'BatchModifyEtlMetaStatus',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/etlmetas`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+model BatchUpdateEtlMetaRequest {
+  etlMetaList?: {
+    enable?: boolean(name='enable', description='是否启用。etlMetaTag、etlMetaValue、enable 至少需要存在一个。'),
+    etlMetaKey?: string(name='etlMetaKey', description='key。由 ascii 可打印字符组成，包括数字、英文大小写字母、下划线、连字符、英文标点符号等组成，长度在[1,255]之间。'),
+    etlMetaName?: string(name='etlMetaName', description='名字。由数字、大小写字母、下划线_、连字符-组成，长度需要在[2,64]之间。'),
+    etlMetaTag?: string(name='etlMetaTag', description='key。由 ascii 可打印字符组成，包括数字、英文大小写字母、下划线、连字符、英文标点符号等组成，长度在[1,128]之间。'),
+    etlMetaValue?: map[string]any(name='etlMetaValue'),
+  }(name='etlMetaList'),
+}
+
+model BatchUpdateEtlMetaResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function batchUpdateEtlMeta(project: string, request: BatchUpdateEtlMetaRequest): BatchUpdateEtlMetaResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return batchUpdateEtlMetaWithOptions(project, request, headers, runtime);
+}
+
+async function batchUpdateEtlMetaWithOptions(project: string, request: BatchUpdateEtlMetaRequest, headers: map[string]string, runtime: Util.RuntimeOptions): BatchUpdateEtlMetaResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.etlMetaList)) {
+    body['etlMetaList'] = request.etlMetaList;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'BatchUpdateEtlMeta',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/etlmetas`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -346,6 +477,65 @@ async function createDomainWithOptions(project: string, request: CreateDomainReq
     version = '2020-12-30',
     protocol = 'HTTPS',
     pathname = `/domains`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+model CreateEtlMetaRequest {
+  enable?: boolean(name='enable', description='是否启用'),
+  etlMetaKey?: string(name='etlMetaKey', description='key。由 ascii 可打印字符组成，包括数字、英文大小写字母、下划线、连字符、英文标点符号等组成，长度在[1,255]之间。'),
+  etlMetaName?: string(name='etlMetaName', description='名字。由数字、大小写字母、下划线_、连字符-组成，长度需要在[2,64]之间。'),
+  etlMetaTag?: string(name='etlMetaTag', description='key。由 ascii 可打印字符组成，包括数字、英文大小写字母、下划线、连字符、英文标点符号等组成，长度在[1,128]之间。'),
+  etlMetaValue?: map[string]any(name='etlMetaValue'),
+}
+
+model CreateEtlMetaResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function createEtlMeta(project: string, request: CreateEtlMetaRequest): CreateEtlMetaResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createEtlMetaWithOptions(project, request, headers, runtime);
+}
+
+async function createEtlMetaWithOptions(project: string, request: CreateEtlMetaRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateEtlMetaResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.enable)) {
+    body['enable'] = request.enable;
+  }
+  if (!Util.isUnset(request.etlMetaKey)) {
+    body['etlMetaKey'] = request.etlMetaKey;
+  }
+  if (!Util.isUnset(request.etlMetaName)) {
+    body['etlMetaName'] = request.etlMetaName;
+  }
+  if (!Util.isUnset(request.etlMetaTag)) {
+    body['etlMetaTag'] = request.etlMetaTag;
+  }
+  if (!Util.isUnset(request.etlMetaValue)) {
+    body['etlMetaValue'] = request.etlMetaValue;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateEtlMeta',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/etlmetas`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
@@ -792,6 +982,57 @@ async function deleteDomainWithOptions(project: string, domainName: string, head
   return execute(params, req, runtime);
 }
 
+model DeleteEtlMetaRequest {
+  etlMetaKey?: string(name='etlMetaKey', description='key。由 ascii 可打印字符组成，包括数字、英文大小写字母、下划线、连字符、英文标点符号等组成，长度在[1,255]之间。'),
+  etlMetaName?: string(name='etlMetaName', description='名字。由数字、大小写字母、下划线_、连字符-组成，长度需要在[2,64]之间。'),
+  etlMetaTag?: string(name='etlMetaTag', description='此处固定为 "__all_etl_meta_tag_match__"'),
+}
+
+model DeleteEtlMetaResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function deleteEtlMeta(project: string, request: DeleteEtlMetaRequest): DeleteEtlMetaResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteEtlMetaWithOptions(project, request, headers, runtime);
+}
+
+async function deleteEtlMetaWithOptions(project: string, request: DeleteEtlMetaRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteEtlMetaResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.etlMetaKey)) {
+    query['etlMetaKey'] = request.etlMetaKey;
+  }
+  if (!Util.isUnset(request.etlMetaName)) {
+    query['etlMetaName'] = request.etlMetaName;
+  }
+  if (!Util.isUnset(request.etlMetaTag)) {
+    query['etlMetaTag'] = request.etlMetaTag;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteEtlMeta',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/etlmetas`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
 model DeleteIndexResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
@@ -946,6 +1187,39 @@ async function deleteProjectWithOptions(project: string, headers: map[string]str
     version = '2020-12-30',
     protocol = 'HTTPS',
     pathname = `/`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+model DeleteSavedSearchResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function deleteSavedSearch(project: string, savedsearchName: string): DeleteSavedSearchResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteSavedSearchWithOptions(project, savedsearchName, headers, runtime);
+}
+
+async function deleteSavedSearchWithOptions(project: string, savedsearchName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteSavedSearchResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  savedsearchName = OpenApiUtil.getEncodeParam(savedsearchName);
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteSavedSearch',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/savedsearches/${savedsearchName}`,
     method = 'DELETE',
     authType = 'AK',
     style = 'ROA',
@@ -1219,6 +1493,65 @@ async function getCursorTimeWithOptions(project: string, logstore: string, shard
     version = '2020-12-30',
     protocol = 'HTTPS',
     pathname = `/logstores/${logstore}/shards/${shardId}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+model GetEtlMetaRequest {
+  elMetaName?: string(name='elMetaName'),
+  etlMetaKey?: string(name='etlMetaKey'),
+  etlMetaTag?: string(name='etlMetaTag', description='此处固定为 "__all_etl_meta_tag_match__"。'),
+}
+
+model GetEtlMetaResponseBody = {
+  etlMetaList?: [
+    EtlMeta
+  ](name='etlMetaList'),
+  total?: int32(name='total'),
+}
+
+model GetEtlMetaResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetEtlMetaResponseBody(name='body'),
+}
+
+async function getEtlMeta(project: string, request: GetEtlMetaRequest): GetEtlMetaResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getEtlMetaWithOptions(project, request, headers, runtime);
+}
+
+async function getEtlMetaWithOptions(project: string, request: GetEtlMetaRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetEtlMetaResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.elMetaName)) {
+    query['elMetaName'] = request.elMetaName;
+  }
+  if (!Util.isUnset(request.etlMetaKey)) {
+    query['etlMetaKey'] = request.etlMetaKey;
+  }
+  if (!Util.isUnset(request.etlMetaTag)) {
+    query['etlMetaTag'] = request.etlMetaTag;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetEtlMeta',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/etlmetas`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1774,10 +2107,131 @@ async function listDomainsWithOptions(project: string, request: ListDomainsReque
   return execute(params, req, runtime);
 }
 
+model ListEtlMetaRequest {
+  etlMetaKey?: string(name='etlMetaKey'),
+  etlMetaName?: string(name='etlMetaName'),
+  etlMetaTag?: string(name='etlMetaTag'),
+  offset?: int32(name='offset', description='默认值 0。'),
+  size?: int32(name='size', description='默认值 200.'),
+}
+
+model ListEtlMetaResponseBody = {
+  etlMetaList?: [
+    EtlMeta
+  ](name='etlMetaList'),
+  total?: int32(name='total'),
+}
+
+model ListEtlMetaResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListEtlMetaResponseBody(name='body'),
+}
+
+async function listEtlMeta(project: string, request: ListEtlMetaRequest): ListEtlMetaResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listEtlMetaWithOptions(project, request, headers, runtime);
+}
+
+async function listEtlMetaWithOptions(project: string, request: ListEtlMetaRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListEtlMetaResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.etlMetaKey)) {
+    query['etlMetaKey'] = request.etlMetaKey;
+  }
+  if (!Util.isUnset(request.etlMetaName)) {
+    query['etlMetaName'] = request.etlMetaName;
+  }
+  if (!Util.isUnset(request.etlMetaTag)) {
+    query['etlMetaTag'] = request.etlMetaTag;
+  }
+  if (!Util.isUnset(request.offset)) {
+    query['offset'] = request.offset;
+  }
+  if (!Util.isUnset(request.size)) {
+    query['size'] = request.size;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListEtlMeta',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/etlmetas`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+model ListEtlMetaNameRequest {
+  offset?: int32(name='offset', description='默认值为 0。'),
+  size?: int32(name='size', description='默认值 200。'),
+}
+
+model ListEtlMetaNameResponseBody = {
+  count?: int32(name='count'),
+  etlMetaNameList?: [ string ](name='etlMetaNameList'),
+  total?: int32(name='total'),
+}
+
+model ListEtlMetaNameResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListEtlMetaNameResponseBody(name='body'),
+}
+
+async function listEtlMetaName(project: string, request: ListEtlMetaNameRequest): ListEtlMetaNameResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listEtlMetaNameWithOptions(project, request, headers, runtime);
+}
+
+async function listEtlMetaNameWithOptions(project: string, request: ListEtlMetaNameRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListEtlMetaNameResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var query : map[string]any= {};
+  if (!Util.isUnset(request.offset)) {
+    query['offset'] = request.offset;
+  }
+  if (!Util.isUnset(request.size)) {
+    query['size'] = request.size;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListEtlMetaName',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/etlmetanames`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
 model ListLogStoresRequest {
   logstoreName?: string(name='logstoreName'),
   offset?: int32(name='offset'),
-  size?: int32(name='size'),
+  size?: int32(name='size', description='默认值为 500。'),
   telemetryType?: string(name='telemetryType'),
 }
 
@@ -1838,7 +2292,7 @@ async function listLogStoresWithOptions(project: string, request: ListLogStoresR
 model ListMachineGroupRequest {
   groupName?: string(name='groupName', description='可将 groupName 作为 pattern 匹配名称，只会返回匹配的机器组。例如 test 可以匹配机器组 test-group。'),
   offset?: int32(name='offset', description='分页请求的起始位置。默认为0。'),
-  size?: int32(name='size', description='分页查询时，设置的每页行数。最大值为500。'),
+  size?: int32(name='size', description='分页查询时，设置的每页行数。默认值为2000。'),
 }
 
 model ListMachineGroupResponseBody = {
@@ -1895,7 +2349,7 @@ async function listMachineGroupWithOptions(project: string, request: ListMachine
 
 model ListMachinesRequest {
   offset?: int32(name='offset', description='查询开始行。默认值为0。'),
-  size?: int32(name='size', description='分页查询时，设置的每页行数。默认值为100，最大值为500。'),
+  size?: int32(name='size', description='分页查询时，设置的每页行数。默认值为2000。'),
 }
 
 model ListMachinesResponseBody = {
@@ -1953,7 +2407,7 @@ async function listMachinesWithOptions(project: string, machineGroup: string, re
 model ListProjectRequest {
   offset?: int32(name='offset'),
   projectName?: string(name='projectName'),
-  size?: int32(name='size'),
+  size?: int32(name='size', description='默认值为 500。'),
 }
 
 model ListProjectResponseBody = {
@@ -2009,7 +2463,7 @@ async function listProjectWithOptions(request: ListProjectRequest, headers: map[
 
 model ListSavedSearchRequest {
   offset?: int32(name='offset'),
-  size?: int32(name='size'),
+  size?: int32(name='size', description='默认值为 500。'),
 }
 
 model ListSavedSearchResponseBody = {
@@ -2535,6 +2989,65 @@ async function updateConsumerGroupWithOptions(project: string, logstore: string,
   return execute(params, req, runtime);
 }
 
+model UpdateEtlMetaRequest {
+  enable?: boolean(name='enable', description='是否启用。etlMetaTag、etlMetaValue、enable 至少需要存在一个。'),
+  etlMetaKey?: string(name='etlMetaKey', description='key。由 ascii 可打印字符组成，包括数字、英文大小写字母、下划线、连字符、英文标点符号等组成，长度在[1,255]之间。'),
+  etlMetaName?: string(name='etlMetaName', description='名字。由数字、大小写字母、下划线_、连字符-组成，长度需要在[2,64]之间。'),
+  etlMetaTag?: string(name='etlMetaTag', description='key。由 ascii 可打印字符组成，包括数字、英文大小写字母、下划线、连字符、英文标点符号等组成，长度在[1,128]之间。'),
+  etlMetaValue?: map[string]any(name='etlMetaValue'),
+}
+
+model UpdateEtlMetaResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function updateEtlMeta(project: string, request: UpdateEtlMetaRequest): UpdateEtlMetaResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateEtlMetaWithOptions(project, request, headers, runtime);
+}
+
+async function updateEtlMetaWithOptions(project: string, request: UpdateEtlMetaRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateEtlMetaResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.enable)) {
+    body['enable'] = request.enable;
+  }
+  if (!Util.isUnset(request.etlMetaKey)) {
+    body['etlMetaKey'] = request.etlMetaKey;
+  }
+  if (!Util.isUnset(request.etlMetaName)) {
+    body['etlMetaName'] = request.etlMetaName;
+  }
+  if (!Util.isUnset(request.etlMetaTag)) {
+    body['etlMetaTag'] = request.etlMetaTag;
+  }
+  if (!Util.isUnset(request.etlMetaValue)) {
+    body['etlMetaValue'] = request.etlMetaValue;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateEtlMeta',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/etlmetas`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
 model UpdateIndexRequest {
   keys?: map[string]KeysValue(name='keys', description='字段索引配置，key为字段名称，value为字段索引配置。'),
   line?: {
@@ -2757,17 +3270,17 @@ model UpdateMachineGroupResponse = {
   statusCode: int32(name='statusCode'),
 }
 
-async function updateMachineGroup(project: string, machineGroup: string, request: UpdateMachineGroupRequest): UpdateMachineGroupResponse {
+async function updateMachineGroup(project: string, groupName: string, request: UpdateMachineGroupRequest): UpdateMachineGroupResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return updateMachineGroupWithOptions(project, machineGroup, request, headers, runtime);
+  return updateMachineGroupWithOptions(project, groupName, request, headers, runtime);
 }
 
-async function updateMachineGroupWithOptions(project: string, machineGroup: string, request: UpdateMachineGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateMachineGroupResponse {
+async function updateMachineGroupWithOptions(project: string, groupName: string, request: UpdateMachineGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateMachineGroupResponse {
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  machineGroup = OpenApiUtil.getEncodeParam(machineGroup);
+  groupName = OpenApiUtil.getEncodeParam(groupName);
   var body : map[string]any= {};
   if (!Util.isUnset(request.groupAttribute)) {
     body['groupAttribute'] = request.groupAttribute;
@@ -2794,7 +3307,7 @@ async function updateMachineGroupWithOptions(project: string, machineGroup: stri
     action = 'UpdateMachineGroup',
     version = '2020-12-30',
     protocol = 'HTTPS',
-    pathname = `/machinegroups/${machineGroup}`,
+    pathname = `/machinegroups/${groupName}`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
