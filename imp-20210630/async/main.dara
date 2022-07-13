@@ -30,9 +30,52 @@ function close(): void {
   @handler.close();
 }
 
+model AppsDomain {
+  domain?: string(name='Domain', description='域名'),
+}
+
+model AppsInteractiveVideoSettings {
+  domain?: AppsDomain(name='Domain'),
+  severity?: AppsSecurity(name='Severity'),
+  transcoding?: AppsTranscoding(name='Transcoding'),
+  type?: AppsInteractiveVideoType(name='Type'),
+}
+
+enum AppsInteractiveVideoType: string {
+  VIDEO(value='Video', description='VIDEO'),
+  AUDIO(value='Audio', description='AUDIO'),
+  IMAGE(value='Image', description='IMAGE'),
+}
+
+model AppsSecurity {
+  playUrlTtl?: int32(name='PlayUrlTtl'),
+}
+
+model AppsSettings {
+  appId?: string(name='AppId', description='AppId'),
+  cloudUid?: string(name='CloudUid', description='云帐号Id'),
+  customer?: CommonCustomer(name='Customer', description='客户非敏感信息'),
+  interactiveVideoSettings?: AppsInteractiveVideoSettings(name='InteractiveVideoSettings', description='互动视频配置'),
+}
+
+model AppsTranscoding {
+  flowId?: string(name='FlowId'),
+  type?: string(name='Type'),
+}
+
+model AssetsAuditAssetRequest {
+  appId?: string(name='AppId', description='AppId'),
+  auditStatus?: CommonAuditStatus(name='AuditStatus', description='审核状态'),
+  id?: string(name='Id', description='AssetId'),
+}
+
 model AssetsAuditAssetResponse {
   requestId?: string(name='RequestId', description='请求ID'),
   status?: RpcStatus(name='Status', description='响应状态'),
+}
+
+model AssetsCreateAssetRequest {
+  asset?: CommonSimpleAsset(name='Asset', description='Asset请求Item'),
 }
 
 model AssetsCreateAssetResponse {
@@ -41,10 +84,18 @@ model AssetsCreateAssetResponse {
   status?: RpcStatus(name='Status', description='响应状态'),
 }
 
+model AssetsDeleteAssetRequest {
+  asset?: CommonAsset(name='Asset', description='Asset'),
+}
+
 model AssetsDeleteAssetResponse {
   asset?: CommonAsset(name='Asset', description='资产信息'),
   requestId?: string(name='RequestId', description='请求ID'),
   status?: RpcStatus(name='Status', description='响应状态'),
+}
+
+model AssetsGetAssetRequest {
+  id?: string(name='Id', description='AssetId'),
 }
 
 model AssetsGetAssetResponse {
@@ -70,6 +121,10 @@ model AssetsListAssetsResponse {
   nextToken?: string(name='NextToken', description='分页Token'),
   requestId?: string(name='RequestId', description='请求ID'),
   status?: RpcStatus(name='Status', description='响应状态'),
+}
+
+model AssetsUpdateAssetRequest {
+  asset?: CommonAsset(name='Asset', description='Asset'),
 }
 
 model AssetsUpdateAssetResponse {
@@ -133,6 +188,10 @@ enum CommonAuditStatus: string {
   PUBLICH(value='Publich', description='PUBLICH'),
 }
 
+model CommonCustomer {
+  cloudUid?: string(name='CloudUid', description='云帐号Id'),
+}
+
 model CommonMediaResource {
   format?: string(name='Format', description='media format'),
   id?: string(name='Id', description='media id'),
@@ -140,6 +199,39 @@ model CommonMediaResource {
   sha1?: string(name='Sha1', description='media sha1'),
   size?: long(name='Size', description='media size'),
   url?: string(name='Url', description='resource url'),
+}
+
+model CommonSTS {
+  accessKeyId?: string(name='AccessKeyId', description='AccessKey ID 标识用户'),
+  accessKeySecret?: string(name='AccessKeySecret', description='AccessKey Secret 验证用户的密钥'),
+  securityToken?: string(name='SecurityToken', description='临时token'),
+}
+
+model CommonSimpleAsset {
+  address?: CommonAddress(name='Address', description='行政区域地址'),
+  appId?: string(name='AppId', description='应用ID'),
+  auditStatus?: CommonAuditStatus(name='AuditStatus', description='审核状态'),
+  author?: string(name='Author', description='作者'),
+  description?: string(name='Description', description='资产描述'),
+  extends?: map[string]any(name='Extends', description='扩展字段'),
+  id?: string(name='Id', description='资产ID'),
+  image?: CommonMediaResource(name='Image', description='图像资源'),
+  labels?: map[string]any(name='Labels', description='定义Label， eg:type:advertise 支持广告类型的label'),
+  location?: TypeLatLng(name='Location', description='经纬度地理位置'),
+  source?: CommonAssetSource(name='Source', description='资产来源'),
+  status?: CommonAssetStatus(name='Status', description='资产状态'),
+  synopsis?: string(name='Synopsis', description='概要'),
+  tags?: [ string ](name='Tags', description='标签'),
+  title?: string(name='Title', description='标题'),
+  video?: CommonMediaResource(name='Video', description='视频资源'),
+}
+
+model CommonStorage {
+  bucket?: string(name='Bucket', description='OSS bucket'),
+  object?: string(name='Object', description='OSS object path'),
+  region?: string(name='Region', description='阿里云Region，比如 cn-shanghai'),
+  signUrl?: string(name='SignUrl', description='OSS的签名URL'),
+  sts?: CommonSTS(name='Sts', description='Security Token Service'),
 }
 
 model RpcStatus {
@@ -151,6 +243,26 @@ model RpcStatus {
 model TypeLatLng {
   latitude?: double(name='Latitude', description='The latitude in degrees. It must be in the range [-90.0, +90.0].'),
   longitude?: double(name='Longitude', description='The longitude in degrees. It must be in the range [-180.0, +180.0].'),
+}
+
+model V1MediaSecurityStorageRequest {
+  appId?: string(name='AppId'),
+  appSettings?: AppsSettings(name='AppSettings'),
+  assetId?: string(name='AssetId'),
+  customer?: CommonCustomer(name='Customer'),
+  image?: CommonMediaResource(name='Image'),
+  imageStorage?: CommonStorage(name='ImageStorage'),
+  video?: CommonMediaResource(name='Video'),
+  videoStorage?: CommonStorage(name='VideoStorage'),
+}
+
+model V1MediaSecurityStorageResponse {
+  assetId?: string(name='AssetId'),
+  image?: CommonMediaResource(name='Image'),
+  imageStorage?: CommonStorage(name='ImageStorage'),
+  mediaId?: string(name='MediaId'),
+  video?: CommonMediaResource(name='Video'),
+  videoStorage?: CommonStorage(name='VideoStorage'),
 }
 
 model BanAllCommentRequest {
@@ -328,6 +440,32 @@ async function createLive(request: CreateLiveRequest): CreateLiveResponse {
   return @handler.do('RPC', 'CreateLive', 'POST', '/', 'json', true, 'form', request);
 }
 
+model CreateLiveRecordSliceFileRequest {
+  appId: string(name='AppId', description='应用唯一标识，由6位小写字母、数字组成。', position='Body'),
+  endTime: long(name='EndTime', description='片段结束时间，时间戳。', position='Body'),
+  fileName: string(name='FileName', description='自定义文件名称。', position='Body'),
+  liveId: string(name='LiveId', description='直播ID。', position='Body'),
+  regionId?: string(name='RegionId', position='Host'),
+  startTime: long(name='StartTime', description='片段开始时间，时间戳。', position='Body'),
+}
+
+model CreateLiveRecordSliceFileResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  result?: {
+    sliceRecordUrl?: string(name='SliceRecordUrl', description='片段录制文件的地址。'),
+  }(name='Result', description='创建场景化直播返回的结果。'),
+}
+
+model CreateLiveRecordSliceFileResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateLiveRecordSliceFileResponseBody(name='body'),
+}
+
+async function createLiveRecordSliceFile(request: CreateLiveRecordSliceFileRequest): CreateLiveRecordSliceFileResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateLiveRecordSliceFile', 'POST', '/', 'json', true, 'form', request);
+}
+
 model CreateLiveRoomRequest {
   anchorId: string(name='AnchorId', description='主播id，仅支持英文和数字，最大长度36位。', position='Body'),
   anchorNick?: string(name='AnchorNick', description='主播昵称。', position='Body'),
@@ -458,6 +596,7 @@ async function deleteClass(request: DeleteClassRequest): DeleteClassResponse {
 model DeleteCommentRequest {
   appId: string(name='AppId', description='应用唯一标识，可以包含小写字母、数字，长度为6个字符。', position='Body'),
   commentIdList: [ string ](name='CommentIdList', description='需要删除的弹幕id列表', position='Body'),
+  creatorId?: string(name='CreatorId', description='弹幕的创建者ID。', position='Body'),
   regionId?: string(name='RegionId', position='Host'),
   roomId: string(name='RoomId', description='直播间唯一标识，在调用CreateRoom返回。', position='Body'),
   userId: string(name='UserId', description='删除的操作人ID。', position='Body'),
@@ -478,6 +617,32 @@ model DeleteCommentResponse = {
 async function deleteComment(request: DeleteCommentRequest): DeleteCommentResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteComment', 'POST', '/', 'json', true, 'form', request);
+}
+
+model DeleteCommentByCreatorIdRequest {
+  appId: string(name='AppId', description='应用唯一标识，可以包含小写字母、数字，长度为6个字符。', position='Body'),
+  commentIdList?: [ string ](name='CommentIdList', description='需要删除的弹幕id列表', position='Body'),
+  creatorId: string(name='CreatorId', description='弹幕的创建者ID。', position='Body'),
+  regionId?: string(name='RegionId', position='Host'),
+  roomId: string(name='RoomId', description='直播间唯一标识，在调用CreateRoom返回。', position='Body'),
+  userId: string(name='UserId', description='删除的操作人ID。', position='Body'),
+}
+
+model DeleteCommentByCreatorIdResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID。'),
+  result?: {
+    deleteResult?: boolean(name='DeleteResult', description='删除的结果'),
+  }(name='Result', description='调用删除直播间弹幕的返回结果。'),
+}
+
+model DeleteCommentByCreatorIdResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteCommentByCreatorIdResponseBody(name='body'),
+}
+
+async function deleteCommentByCreatorId(request: DeleteCommentByCreatorIdRequest): DeleteCommentByCreatorIdResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteCommentByCreatorId', 'POST', '/', 'json', true, 'form', request);
 }
 
 model DeleteConferenceRequest {
@@ -540,6 +705,29 @@ model DeleteLiveRoomResponse = {
 async function deleteLiveRoom(request: DeleteLiveRoomRequest): DeleteLiveRoomResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteLiveRoom', 'POST', '/', 'json', true, 'form', request);
+}
+
+model DeleteRecordFileInfoRequest {
+  appId: string(name='AppId', position='Query'),
+  maxResults?: int32(name='MaxResults', description='本次读取的最大数据记录数量', position='Query'),
+  nextToken: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始', position='Query'),
+}
+
+model DeleteRecordFileInfoResponseBody = {
+  maxResults?: int32(name='MaxResults', description='MaxResults本次请求所返回的最大记录条数'),
+  nextToken: string(name='NextToken', description='表示当前调用返回读取到的位置，空代表数据已经读取完毕'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  totalCount?: int32(name='TotalCount', description='TotalCount本次请求条件下的数据总量，此参数为可选参数，默认可不返回'),
+}
+
+model DeleteRecordFileInfoResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteRecordFileInfoResponseBody(name='body'),
+}
+
+async function deleteRecordFileInfo(request: DeleteRecordFileInfoRequest): DeleteRecordFileInfoResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteRecordFileInfo', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteRoomRequest {
@@ -955,6 +1143,34 @@ async function getLiveRoomUserStatistics(request: GetLiveRoomUserStatisticsReque
   return @handler.do('RPC', 'GetLiveRoomUserStatistics', 'POST', '/', 'json', true, 'form', request);
 }
 
+model GetRecordFileInfoRequest {
+  appId: string(name='AppId', position='Query'),
+  maxResults?: int32(name='MaxResults', position='Query'),
+  nextToken?: string(name='NextToken', position='Query'),
+}
+
+model GetRecordFileInfoResponseBody = {
+  downloadUrl?: string(name='DownloadUrl'),
+  maxResults?: int32(name='MaxResults'),
+  nextToken?: string(name='NextToken'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  result?: {
+    eTag?: string(name='ETag'),
+    expireTime?: string(name='ExpireTime'),
+    fileName?: string(name='FileName'),
+  }(name='Result'),
+}
+
+model GetRecordFileInfoResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetRecordFileInfoResponseBody(name='body'),
+}
+
+async function getRecordFileInfo(request: GetRecordFileInfoRequest): GetRecordFileInfoResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetRecordFileInfo', 'POST', '/', 'json', false, 'json', request);
+}
+
 model GetRoomRequest {
   appId: string(name='AppId', description='应用唯一标识，由6位小写字母、数字组成。', position='Body'),
   regionId?: string(name='RegionId', position='Host'),
@@ -1095,6 +1311,7 @@ async function listClasses(request: ListClassesRequest): ListClassesResponse {
 
 model ListCommentsRequest {
   appId: string(name='AppId', description='用户的应用ID，在控制台创建应用时生成。包含小写字母、数字，长度为6个字符。', position='Body'),
+  creatorId?: string(name='CreatorId', description='弹幕创建者ID。', position='Body'),
   pageNum: int32(name='PageNum', description='查询弹幕消息列表的分页页数。应该从1开始，每次分页拉取时递增。', position='Body'),
   pageSize: int32(name='PageSize', description='查询弹幕消息列表的分页大小。最小不得小于1，最大不得超过100。如果超过100，会被截断为前100条。', position='Body'),
   regionId?: string(name='RegionId', position='Host'),
@@ -1166,6 +1383,33 @@ async function listConferenceUsers(request: ListConferenceUsersRequest): ListCon
   return @handler.do('RPC', 'ListConferenceUsers', 'POST', '/', 'json', true, 'form', request);
 }
 
+model ListLiveFilesRequest {
+  appId: string(name='AppId', position='Query'),
+  liveId?: string(name='LiveId', position='Query'),
+  maxResults?: int32(name='MaxResults', description='本次读取的最大数据记录数量', position='Query'),
+  nextToken: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始', position='Query'),
+  pageNumber?: long(name='PageNumber', position='Query'),
+  pageSize?: long(name='PageSize', position='Query'),
+}
+
+model ListLiveFilesResponseBody = {
+  fileName?: string(name='FileName'),
+  maxResults?: int32(name='MaxResults', description='MaxResults本次请求所返回的最大记录条数'),
+  nextToken: string(name='NextToken', description='表示当前调用返回读取到的位置，空代表数据已经读取完毕'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  totalCount?: int32(name='TotalCount', description='TotalCount本次请求条件下的数据总量，此参数为可选参数，默认可不返回'),
+}
+
+model ListLiveFilesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListLiveFilesResponseBody(name='body'),
+}
+
+async function listLiveFiles(request: ListLiveFilesRequest): ListLiveFilesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListLiveFiles', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListLiveRoomsRequest {
   appId: string(name='AppId', description='应用唯一标识，由6位小写字母、数字组成。', position='Body'),
   pageNumber?: int32(name='PageNumber', description='查询页码，从1开始，传空默认查询第1页。', position='Body'),
@@ -1185,12 +1429,15 @@ model ListLiveRoomsResponseBody = {
         appId?: string(name='AppId', description='应用ID。'),
         chatId?: string(name='ChatId', description='聊天ID。'),
         coverUrl?: string(name='CoverUrl', description='封面。'),
+        createTime?: long(name='CreateTime', description='直播的创建时间。单位为ms。'),
+        endTime?: long(name='EndTime', description='直播的结束时间。单位为ms。'),
         extension?: map[string]string(name='Extension', description='直播拓展字段。'),
         liveId?: string(name='LiveId', description='直播ID。'),
         notice?: string(name='Notice', description='公告。'),
         onlineCount?: long(name='OnlineCount', description='在线用户数。'),
         pv?: long(name='Pv', description='访问用户人次。'),
         roomId?: string(name='RoomId', description='房间ID。'),
+        startTime?: long(name='StartTime', description='直播的开始时间。单位为ms。'),
         status?: int32(name='Status', description='直播状态，0-在播 1-下播。'),
         title?: string(name='Title', description='标题。'),
         uv?: long(name='Uv', description='访问用户数。'),
