@@ -1,0 +1,58 @@
+/**
+ *
+ */
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
+
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'btripOpen';
+  @version = '2022-05-20';
+  @endpointRule = '';
+  @endpointMap = {
+  };
+}
+
+function close(): void {
+  @handler.close();
+}
+
+model AccessTokenRequest {
+  appKey: string(name='app_key', description='应用的appKey', position='Query'),
+  appSecret: string(name='app_secret', description='应用的appSecret', position='Query'),
+}
+
+model AccessTokenResponseBody = {
+  code?: string(name='code', description='错误码'),
+  data?: {
+    expire?: long(name='expire', description='过期时间，单位ms'),
+    token?: string(name='token', description='令牌'),
+  }(name='data'),
+  message?: string(name='message', description='错误信息'),
+  requestId?: string(name='requestId'),
+  traceId?: string(name='traceId'),
+}
+
+model AccessTokenResponse = {
+  headers: map[string]string(name='headers'),
+  body: AccessTokenResponseBody(name='body'),
+}
+
+async function accessToken(request: AccessTokenRequest): AccessTokenResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'AccessToken', 'GET', '/btrip-open-auth/v1/access-token/action/take', 'json', false, 'json', request);
+}
+
