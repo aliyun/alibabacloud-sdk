@@ -28,6 +28,53 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model CancelReserveTaskRequest {
+  clientToken?: string(name='ClientToken', description='客户端幂等性 token'),
+  taskId?: string(name='TaskId', description='创建容量预定任务时返回的 taskId'),
+}
+
+model CancelReserveTaskResponseBody = {
+  requestId?: string(name='RequestId', description='pop的requestId'),
+  taskId?: string(name='TaskId'),
+}
+
+model CancelReserveTaskResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CancelReserveTaskResponseBody(name='body'),
+}
+
+async function cancelReserveTaskWithOptions(request: CancelReserveTaskRequest, runtime: Util.RuntimeOptions): CancelReserveTaskResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.clientToken)) {
+    body['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.taskId)) {
+    body['TaskId'] = request.taskId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CancelReserveTask',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function cancelReserveTask(request: CancelReserveTaskRequest): CancelReserveTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return cancelReserveTaskWithOptions(request, runtime);
+}
+
 model CreateAdaptationRequest {
   adaptTarget?: {
     bitRate?: int32(name='BitRate'),
@@ -143,55 +190,13 @@ model CreateAppSessionRequest {
   clientIp?: string(name='ClientIp', description='客户端ip'),
   customSessionId?: string(name='CustomSessionId', description='自定义会话id'),
   customUserId?: string(name='CustomUserId', description='自定义用户id'),
-  datasetId?: string(name='DatasetId'),
   enablePostpaid?: boolean(name='EnablePostpaid'),
-  resultStore?: {
-    need?: boolean(name='Need'),
-    storeInfo?: [ 
-      {
-        key?: string(name='Key'),
-        value?: string(name='Value'),
-      }
-    ](name='StoreInfo'),
-    type?: string(name='Type'),
-  }(name='ResultStore'),
   startParameters?: [ 
     {
       key?: string(name='Key', description='key'),
       value?: string(name='Value'),
     }
   ](name='StartParameters', description='启动参数'),
-  startParametersV2?: [ 
-    {
-      key?: string(name='Key'),
-      value?: any(name='Value'),
-    }
-  ](name='StartParametersV2'),
-  systemInfo?: [ 
-    {
-      key?: string(name='Key'),
-      value?: string(name='Value'),
-    }
-  ](name='SystemInfo', description='系统信息：如端侧机型等信息'),
-  timeout?: long(name='Timeout'),
-}
-
-model CreateAppSessionShrinkRequest {
-  appId?: string(name='AppId', description='应用ID'),
-  appVersion?: string(name='AppVersion', description='应用版本'),
-  clientIp?: string(name='ClientIp', description='客户端ip'),
-  customSessionId?: string(name='CustomSessionId', description='自定义会话id'),
-  customUserId?: string(name='CustomUserId', description='自定义用户id'),
-  datasetId?: string(name='DatasetId'),
-  enablePostpaid?: boolean(name='EnablePostpaid'),
-  resultStoreShrink?: string(name='ResultStore'),
-  startParameters?: [ 
-    {
-      key?: string(name='Key', description='key'),
-      value?: string(name='Value'),
-    }
-  ](name='StartParameters', description='启动参数'),
-  startParametersV2Shrink?: string(name='StartParametersV2'),
   systemInfo?: [ 
     {
       key?: string(name='Key'),
@@ -215,16 +220,8 @@ model CreateAppSessionResponse = {
   body: CreateAppSessionResponseBody(name='body'),
 }
 
-async function createAppSessionWithOptions(tmpReq: CreateAppSessionRequest, runtime: Util.RuntimeOptions): CreateAppSessionResponse {
-  Util.validateModel(tmpReq);
-  var request = new CreateAppSessionShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.resultStore)) {
-    request.resultStoreShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.resultStore, 'ResultStore', 'json');
-  }
-  if (!Util.isUnset(tmpReq.startParametersV2)) {
-    request.startParametersV2Shrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.startParametersV2, 'StartParametersV2', 'json');
-  }
+async function createAppSessionWithOptions(request: CreateAppSessionRequest, runtime: Util.RuntimeOptions): CreateAppSessionResponse {
+  Util.validateModel(request);
   var query = {};
   if (!Util.isUnset(request.appId)) {
     query['AppId'] = request.appId;
@@ -241,20 +238,11 @@ async function createAppSessionWithOptions(tmpReq: CreateAppSessionRequest, runt
   if (!Util.isUnset(request.customUserId)) {
     query['CustomUserId'] = request.customUserId;
   }
-  if (!Util.isUnset(request.datasetId)) {
-    query['DatasetId'] = request.datasetId;
-  }
   if (!Util.isUnset(request.enablePostpaid)) {
     query['EnablePostpaid'] = request.enablePostpaid;
   }
-  if (!Util.isUnset(request.resultStoreShrink)) {
-    query['ResultStore'] = request.resultStoreShrink;
-  }
   if (!Util.isUnset(request.startParameters)) {
     query['StartParameters'] = request.startParameters;
-  }
-  if (!Util.isUnset(request.startParametersV2Shrink)) {
-    query['StartParametersV2'] = request.startParametersV2Shrink;
   }
   if (!Util.isUnset(request.systemInfo)) {
     query['SystemInfo'] = request.systemInfo;
@@ -282,6 +270,232 @@ async function createAppSessionWithOptions(tmpReq: CreateAppSessionRequest, runt
 async function createAppSession(request: CreateAppSessionRequest): CreateAppSessionResponse {
   var runtime = new Util.RuntimeOptions{};
   return createAppSessionWithOptions(request, runtime);
+}
+
+model CreateAppSessionBatchSyncRequest {
+  appInfos?: [ 
+    {
+      appId?: string(name='AppId'),
+      appVersion?: string(name='AppVersion'),
+      clientIp?: string(name='ClientIp'),
+      customUserId?: string(name='CustomUserId'),
+      customerSessionId?: string(name='CustomerSessionId'),
+      districtId?: string(name='DistrictId'),
+      projectId?: string(name='ProjectId'),
+      startParameters?: [ 
+        {
+          key?: string(name='Key'),
+          value?: string(name='Value'),
+        }
+      ](name='StartParameters'),
+      systemInfo?: [ 
+        {
+          key?: string(name='Key'),
+          value?: string(name='Value'),
+        }
+      ](name='SystemInfo'),
+      tags?: [ 
+        {
+          key?: string(name='Key'),
+          value?: string(name='Value'),
+        }
+      ](name='Tags'),
+    }
+  ](name='AppInfos'),
+  batchId?: string(name='BatchId'),
+}
+
+model CreateAppSessionBatchSyncShrinkRequest {
+  appInfosShrink?: string(name='AppInfos'),
+  batchId?: string(name='BatchId'),
+}
+
+model CreateAppSessionBatchSyncResponseBody = {
+  batchId?: string(name='BatchId', description='自定义会话id'),
+  failedList?: [ 
+    {
+      appId?: string(name='AppId'),
+      customSessionId?: string(name='CustomSessionId'),
+      failedInfo?: {
+        errorCode?: string(name='ErrorCode'),
+        errorMessage?: string(name='ErrorMessage'),
+      }(name='FailedInfo'),
+    }
+  ](name='FailedList'),
+  requestId?: string(name='RequestId', description='请求id'),
+  resultList?: [ 
+    {
+      appId?: string(name='AppId', description='应用id'),
+      appVersion?: string(name='AppVersion', description='应用版本'),
+      bizInfo?: {
+        biz?: map[string]any(name='Biz'),
+        endpoints?: [ 
+          {
+            accessHost?: string(name='AccessHost'),
+            accessPort?: string(name='AccessPort'),
+            districtId?: string(name='DistrictId'),
+            isp?: string(name='Isp'),
+            name?: string(name='Name'),
+            type?: string(name='Type'),
+          }
+        ](name='Endpoints'),
+      }(name='BizInfo'),
+      customSessionId?: string(name='CustomSessionId', description='自定义会话id'),
+      platformSessionId?: string(name='PlatformSessionId', description='平台会话id'),
+    }
+  ](name='ResultList'),
+}
+
+model CreateAppSessionBatchSyncResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateAppSessionBatchSyncResponseBody(name='body'),
+}
+
+async function createAppSessionBatchSyncWithOptions(tmpReq: CreateAppSessionBatchSyncRequest, runtime: Util.RuntimeOptions): CreateAppSessionBatchSyncResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateAppSessionBatchSyncShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.appInfos)) {
+    request.appInfosShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.appInfos, 'AppInfos', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.appInfosShrink)) {
+    query['AppInfos'] = request.appInfosShrink;
+  }
+  if (!Util.isUnset(request.batchId)) {
+    query['BatchId'] = request.batchId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateAppSessionBatchSync',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createAppSessionBatchSync(request: CreateAppSessionBatchSyncRequest): CreateAppSessionBatchSyncResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createAppSessionBatchSyncWithOptions(request, runtime);
+}
+
+model CreateAppSessionSyncRequest {
+  appId?: string(name='AppId', description='应用ID'),
+  appVersion?: string(name='AppVersion', description='应用版本'),
+  clientIp?: string(name='ClientIp', description='客户端ip'),
+  customSessionId?: string(name='CustomSessionId', description='自定义会话id'),
+  customUserId?: string(name='CustomUserId', description='自定义用户id'),
+  districtId?: string(name='DistrictId'),
+  projectId?: string(name='ProjectId'),
+  startParameters?: [ 
+    {
+      key?: string(name='Key', description='key'),
+      value?: string(name='Value', description='value'),
+    }
+  ](name='StartParameters', description='启动参数'),
+  systemInfo?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='SystemInfo', description='系统信息：如端侧机型等信息'),
+  tags?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tags'),
+}
+
+model CreateAppSessionSyncResponseBody = {
+  appId?: string(name='AppId', description='应用id'),
+  appVersion?: string(name='AppVersion', description='应用版本'),
+  bizInfo?: {
+    biz?: map[string]any(name='Biz'),
+    endpoints?: [ 
+      {
+        accessHost?: string(name='AccessHost'),
+        accessPort?: string(name='AccessPort'),
+        districtId?: string(name='DistrictId'),
+        isp?: string(name='Isp'),
+        name?: string(name='Name'),
+        type?: string(name='Type'),
+      }
+    ](name='Endpoints'),
+  }(name='BizInfo'),
+  customSessionId?: string(name='CustomSessionId', description='自定义会话id'),
+  platformSessionId?: string(name='PlatformSessionId', description='平台会话id'),
+  requestId?: string(name='RequestId', description='请求id'),
+}
+
+model CreateAppSessionSyncResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateAppSessionSyncResponseBody(name='body'),
+}
+
+async function createAppSessionSyncWithOptions(request: CreateAppSessionSyncRequest, runtime: Util.RuntimeOptions): CreateAppSessionSyncResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.appVersion)) {
+    query['AppVersion'] = request.appVersion;
+  }
+  if (!Util.isUnset(request.clientIp)) {
+    query['ClientIp'] = request.clientIp;
+  }
+  if (!Util.isUnset(request.customSessionId)) {
+    query['CustomSessionId'] = request.customSessionId;
+  }
+  if (!Util.isUnset(request.customUserId)) {
+    query['CustomUserId'] = request.customUserId;
+  }
+  if (!Util.isUnset(request.districtId)) {
+    query['DistrictId'] = request.districtId;
+  }
+  if (!Util.isUnset(request.projectId)) {
+    query['ProjectId'] = request.projectId;
+  }
+  if (!Util.isUnset(request.startParameters)) {
+    query['StartParameters'] = request.startParameters;
+  }
+  if (!Util.isUnset(request.systemInfo)) {
+    query['SystemInfo'] = request.systemInfo;
+  }
+  if (!Util.isUnset(request.tags)) {
+    query['Tags'] = request.tags;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateAppSessionSync',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createAppSessionSync(request: CreateAppSessionSyncRequest): CreateAppSessionSyncResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createAppSessionSyncWithOptions(request, runtime);
 }
 
 model CreateAppVersionRequest {
@@ -331,56 +545,57 @@ async function createAppVersion(request: CreateAppVersionRequest): CreateAppVers
   return createAppVersionWithOptions(request, runtime);
 }
 
-model CreateDatasetDeployTaskRequest {
-  clientToken?: string(name='ClientToken'),
-  customParam?: string(name='CustomParam'),
-  needUnzip?: boolean(name='NeedUnzip'),
-  ossBucket?: string(name='OssBucket'),
-  ossFilePath?: string(name='OssFilePath'),
-  ossRegionId?: string(name='OssRegionId'),
-  sourceType?: string(name='SourceType'),
+model CreateCapacityReservationRequest {
+  appId?: string(name='AppId', description='应用ID'),
+  appVersion?: string(name='AppVersion', description='应用版本ID，如果不填，采用控制台设置的默认版本'),
+  clientToken?: string(name='ClientToken', description='客户端 token，保持幂等性。'),
+  districtId?: string(name='DistrictId', description='大区 id'),
+  expectResourceReadyTime?: string(name='ExpectResourceReadyTime', description='预期资源ready可服务时间 时间格式 yyyy-mm-dd HH:MM:SS 比如'),
+  expectSessionCapacity?: int32(name='ExpectSessionCapacity', description='预期创建出的容器能支持的 session 数量。GCS 内部会根据适配自动计算出所需要的资源量，以及多种机型的配比。'),
+  projectId?: string(name='ProjectId', description='项目ID'),
 }
 
-model CreateDatasetDeployTaskResponseBody = {
-  requestId?: string(name='RequestId', description='请求id'),
-  taskId?: string(name='TaskId', description='应用版本'),
+model CreateCapacityReservationResponseBody = {
+  currMaxAllocatableSessionCapacity?: int32(name='CurrMaxAllocatableSessionCapacity', description='当前最大可分配的 session 库存，注意两次调用之间，该库存值可能有变动'),
+  requestId?: string(name='RequestId', description='pop的requestId'),
+  taskId?: string(name='TaskId', description='容器创建任务 id'),
 }
 
-model CreateDatasetDeployTaskResponse = {
+model CreateCapacityReservationResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
-  body: CreateDatasetDeployTaskResponseBody(name='body'),
+  body: CreateCapacityReservationResponseBody(name='body'),
 }
 
-async function createDatasetDeployTaskWithOptions(request: CreateDatasetDeployTaskRequest, runtime: Util.RuntimeOptions): CreateDatasetDeployTaskResponse {
+async function createCapacityReservationWithOptions(request: CreateCapacityReservationRequest, runtime: Util.RuntimeOptions): CreateCapacityReservationResponse {
   Util.validateModel(request);
-  var query = {};
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.appId)) {
+    body['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.appVersion)) {
+    body['AppVersion'] = request.appVersion;
+  }
   if (!Util.isUnset(request.clientToken)) {
-    query['ClientToken'] = request.clientToken;
+    body['ClientToken'] = request.clientToken;
   }
-  if (!Util.isUnset(request.customParam)) {
-    query['CustomParam'] = request.customParam;
+  if (!Util.isUnset(request.districtId)) {
+    body['DistrictId'] = request.districtId;
   }
-  if (!Util.isUnset(request.needUnzip)) {
-    query['NeedUnzip'] = request.needUnzip;
+  if (!Util.isUnset(request.expectResourceReadyTime)) {
+    body['ExpectResourceReadyTime'] = request.expectResourceReadyTime;
   }
-  if (!Util.isUnset(request.ossBucket)) {
-    query['OssBucket'] = request.ossBucket;
+  if (!Util.isUnset(request.expectSessionCapacity)) {
+    body['ExpectSessionCapacity'] = request.expectSessionCapacity;
   }
-  if (!Util.isUnset(request.ossFilePath)) {
-    query['OssFilePath'] = request.ossFilePath;
-  }
-  if (!Util.isUnset(request.ossRegionId)) {
-    query['OssRegionId'] = request.ossRegionId;
-  }
-  if (!Util.isUnset(request.sourceType)) {
-    query['SourceType'] = request.sourceType;
+  if (!Util.isUnset(request.projectId)) {
+    body['ProjectId'] = request.projectId;
   }
   var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
-    action = 'CreateDatasetDeployTask',
+    action = 'CreateCapacityReservation',
     version = '2021-11-11',
     protocol = 'HTTPS',
     pathname = '/',
@@ -393,9 +608,102 @@ async function createDatasetDeployTaskWithOptions(request: CreateDatasetDeployTa
   return callApi(params, req, runtime);
 }
 
-async function createDatasetDeployTask(request: CreateDatasetDeployTaskRequest): CreateDatasetDeployTaskResponse {
+async function createCapacityReservation(request: CreateCapacityReservationRequest): CreateCapacityReservationResponse {
   var runtime = new Util.RuntimeOptions{};
-  return createDatasetDeployTaskWithOptions(request, runtime);
+  return createCapacityReservationWithOptions(request, runtime);
+}
+
+model CreateProjectRequest {
+  boundAppIdList?: [ string ](name='BoundAppIdList'),
+  operatorId?: string(name='OperatorId', description='请求操作人Id'),
+  operatorType?: string(name='OperatorType', description='请求操作人类型'),
+  projectMemo?: string(name='ProjectMemo'),
+  projectName?: string(name='ProjectName', description='project name'),
+  projectQuotaLimit?: {
+    districtLimitMap?: map[string]ProjectQuotaLimitDistrictLimitMapValue(name='DistrictLimitMap', description='key - districtId'),
+    limitType?: string(name='LimitType', description='限制类型 ：目前默认 - ReserveContainer'),
+  }(name='ProjectQuotaLimit', description='key : districtId'),
+}
+
+model CreateProjectShrinkRequest {
+  boundAppIdListShrink?: string(name='BoundAppIdList'),
+  operatorId?: string(name='OperatorId', description='请求操作人Id'),
+  operatorType?: string(name='OperatorType', description='请求操作人类型'),
+  projectMemo?: string(name='ProjectMemo'),
+  projectName?: string(name='ProjectName', description='project name'),
+  projectQuotaLimitShrink?: string(name='ProjectQuotaLimit', description='key : districtId'),
+}
+
+model CreateProjectResponseBody = {
+  code?: string(name='Code', description='业务处理结果Code'),
+  data?: {
+    code?: string(name='Code', description='业务处理结果Code'),
+    data?: map[string]any(name='Data', description='业务对象'),
+    message?: string(name='Message', description='业务处理消息摘要'),
+    projectId?: string(name='ProjectId'),
+    requestId?: string(name='RequestId', description='操作请求ID'),
+    success?: boolean(name='Success', description='业务处理是否成功'),
+  }(name='Data', description='业务对象'),
+  message?: string(name='Message', description='业务处理消息摘要'),
+  requestId?: string(name='RequestId', description='操作请求ID'),
+  success?: boolean(name='Success', description='业务处理是否成功'),
+}
+
+model CreateProjectResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateProjectResponseBody(name='body'),
+}
+
+async function createProjectWithOptions(tmpReq: CreateProjectRequest, runtime: Util.RuntimeOptions): CreateProjectResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateProjectShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.boundAppIdList)) {
+    request.boundAppIdListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.boundAppIdList, 'BoundAppIdList', 'json');
+  }
+  if (!Util.isUnset(tmpReq.projectQuotaLimit)) {
+    request.projectQuotaLimitShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.projectQuotaLimit, 'ProjectQuotaLimit', 'json');
+  }
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.boundAppIdListShrink)) {
+    body['BoundAppIdList'] = request.boundAppIdListShrink;
+  }
+  if (!Util.isUnset(request.operatorId)) {
+    body['OperatorId'] = request.operatorId;
+  }
+  if (!Util.isUnset(request.operatorType)) {
+    body['OperatorType'] = request.operatorType;
+  }
+  if (!Util.isUnset(request.projectMemo)) {
+    body['ProjectMemo'] = request.projectMemo;
+  }
+  if (!Util.isUnset(request.projectName)) {
+    body['ProjectName'] = request.projectName;
+  }
+  if (!Util.isUnset(request.projectQuotaLimitShrink)) {
+    body['ProjectQuotaLimit'] = request.projectQuotaLimitShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateProject',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createProject(request: CreateProjectRequest): CreateProjectResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createProjectWithOptions(request, runtime);
 }
 
 model DeleteAppRequest {
@@ -482,6 +790,62 @@ async function deleteAppVersionWithOptions(request: DeleteAppVersionRequest, run
 async function deleteAppVersion(request: DeleteAppVersionRequest): DeleteAppVersionResponse {
   var runtime = new Util.RuntimeOptions{};
   return deleteAppVersionWithOptions(request, runtime);
+}
+
+model DeleteProjectRequest {
+  operatorId?: string(name='OperatorId', description='请求操作人Id'),
+  operatorType?: string(name='OperatorType', description='请求操作人类型'),
+  projectId?: string(name='ProjectId', description='project Id'),
+}
+
+model DeleteProjectResponseBody = {
+  code?: string(name='Code', description='业务处理结果Code'),
+  data?: {
+    success?: boolean(name='Success'),
+  }(name='Data', description='业务对象'),
+  message?: string(name='Message', description='业务处理消息摘要'),
+  requestId?: string(name='RequestId', description='操作请求ID'),
+  success?: boolean(name='Success', description='业务处理是否成功'),
+}
+
+model DeleteProjectResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DeleteProjectResponseBody(name='body'),
+}
+
+async function deleteProjectWithOptions(request: DeleteProjectRequest, runtime: Util.RuntimeOptions): DeleteProjectResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.operatorId)) {
+    body['OperatorId'] = request.operatorId;
+  }
+  if (!Util.isUnset(request.operatorType)) {
+    body['OperatorType'] = request.operatorType;
+  }
+  if (!Util.isUnset(request.projectId)) {
+    body['ProjectId'] = request.projectId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteProject',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deleteProject(request: DeleteProjectRequest): DeleteProjectResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteProjectWithOptions(request, runtime);
 }
 
 model GetAdaptationRequest {
@@ -590,6 +954,48 @@ async function getApp(request: GetAppRequest): GetAppResponse {
   return getAppWithOptions(request, runtime);
 }
 
+model GetAppCcuRequest {
+  appId?: string(name='AppId', description='自定义会话id'),
+  appVersion?: string(name='AppVersion'),
+  projectId?: string(name='ProjectId', description='平台会话id'),
+}
+
+model GetAppCcuResponseBody = {
+  requestId?: string(name='RequestId', description='请求id'),
+  timestamp?: string(name='Timestamp', description='自定义会话id'),
+}
+
+model GetAppCcuResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetAppCcuResponseBody(name='body'),
+}
+
+async function getAppCcuWithOptions(request: GetAppCcuRequest, runtime: Util.RuntimeOptions): GetAppCcuResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAppCcu',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getAppCcu(request: GetAppCcuRequest): GetAppCcuResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAppCcuWithOptions(request, runtime);
+}
+
 model GetAppSessionRequest {
   customSessionId?: string(name='CustomSessionId', description='自定义会话id'),
   platformSessionId?: string(name='PlatformSessionId', description='平台会话id'),
@@ -598,6 +1004,10 @@ model GetAppSessionRequest {
 model GetAppSessionResponseBody = {
   appId?: string(name='AppId', description='应用id'),
   appVersion?: string(name='AppVersion', description='应用版本'),
+  bizInfo?: {
+    startTime?: string(name='StartTime'),
+    stopTime?: string(name='StopTime'),
+  }(name='BizInfo'),
   customSessionId?: string(name='CustomSessionId', description='自定义会话id'),
   platformSessionId?: string(name='PlatformSessionId', description='平台会话id'),
   requestId?: string(name='RequestId', description='请求id'),
@@ -695,34 +1105,62 @@ async function getAppVersion(request: GetAppVersionRequest): GetAppVersionRespon
   return getAppVersionWithOptions(request, runtime);
 }
 
-model GetDatasetRequest {
-  datasetId?: string(name='DatasetId'),
+model GetCapacityRequest {
+  appId?: string(name='AppId', description='按照 appId 来匹配'),
+  appVersion?: string(name='AppVersion', description='按照 app 版本来匹配'),
+  districtId?: string(name='DistrictId', description='大区 id'),
+  pageNum?: int32(name='PageNum', description='第几页，默认从 1 开始'),
+  pageSize?: int32(name='PageSize', description='一页大小，默认 20，最大 100'),
+  projectId?: string(name='ProjectId', description='项目 id'),
 }
 
-model GetDatasetResponseBody = {
-  customParam?: string(name='CustomParam', description='应用id'),
-  datasetId?: string(name='DatasetId', description='自定义会话id'),
-  datasetSize?: long(name='DatasetSize'),
-  requestId?: string(name='RequestId', description='请求id'),
+model GetCapacityResponseBody = {
+  capacities?: [ 
+    {
+      appId?: string(name='AppId', description='创建容器时指定的 appId'),
+      appVersion?: string(name='AppVersion', description='创建容器时指定的版本'),
+      districtId?: string(name='DistrictId', description='该容器所属大区 id'),
+      sessionCapacity?: int32(name='SessionCapacity', description='可支撑 session 数量'),
+    }
+  ](name='Capacities', description='回满足匹配的'),
+  pageNum?: int32(name='PageNum', description='第几页'),
+  pageSize?: int32(name='PageSize', description='每页大小'),
+  requestId?: string(name='RequestId', description='pop的requestId'),
+  total?: int32(name='Total', description='满足匹配条件的总量'),
 }
 
-model GetDatasetResponse = {
+model GetCapacityResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
-  body: GetDatasetResponseBody(name='body'),
+  body: GetCapacityResponseBody(name='body'),
 }
 
-async function getDatasetWithOptions(request: GetDatasetRequest, runtime: Util.RuntimeOptions): GetDatasetResponse {
+async function getCapacityWithOptions(request: GetCapacityRequest, runtime: Util.RuntimeOptions): GetCapacityResponse {
   Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.datasetId)) {
-    query['DatasetId'] = request.datasetId;
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.appId)) {
+    body['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.appVersion)) {
+    body['AppVersion'] = request.appVersion;
+  }
+  if (!Util.isUnset(request.districtId)) {
+    body['DistrictId'] = request.districtId;
+  }
+  if (!Util.isUnset(request.pageNum)) {
+    body['PageNum'] = request.pageNum;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.projectId)) {
+    body['ProjectId'] = request.projectId;
   }
   var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
-    action = 'GetDataset',
+    action = 'GetCapacity',
     version = '2021-11-11',
     protocol = 'HTTPS',
     pathname = '/',
@@ -735,9 +1173,228 @@ async function getDatasetWithOptions(request: GetDatasetRequest, runtime: Util.R
   return callApi(params, req, runtime);
 }
 
-async function getDataset(request: GetDatasetRequest): GetDatasetResponse {
+async function getCapacity(request: GetCapacityRequest): GetCapacityResponse {
   var runtime = new Util.RuntimeOptions{};
-  return getDatasetWithOptions(request, runtime);
+  return getCapacityWithOptions(request, runtime);
+}
+
+model GetProjectRequest {
+  operatorId?: string(name='OperatorId', description='请求操作人Id'),
+  operatorType?: string(name='OperatorType', description='请求操作人类型'),
+  projectId?: string(name='ProjectId', description='project id'),
+}
+
+model GetProjectResponseBody = {
+  code?: string(name='Code', description='业务处理结果Code'),
+  data?: {
+    boundAppNums?: long(name='BoundAppNums', description='项目关联的应用数量'),
+    gmtCreate?: string(name='GmtCreate'),
+    gmtModified?: string(name='GmtModified'),
+    projectId?: string(name='ProjectId'),
+    projectMemo?: string(name='ProjectMemo'),
+    projectName?: string(name='ProjectName'),
+    projectQuotaLimit?: {
+      districtLimitMap?: map[string]DataProjectQuotaLimitDistrictLimitMapValue(name='DistrictLimitMap', description='key - districtId'),
+      limitType?: string(name='LimitType', description='限制类型 ：目前默认 - ReserveContainer'),
+    }(name='ProjectQuotaLimit', description='key : districtId'),
+  }(name='Data', description='业务对象'),
+  message?: string(name='Message', description='业务处理消息摘要'),
+  requestId?: string(name='RequestId', description='操作请求ID'),
+  success?: boolean(name='Success', description='业务处理是否成功'),
+}
+
+model GetProjectResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetProjectResponseBody(name='body'),
+}
+
+async function getProjectWithOptions(request: GetProjectRequest, runtime: Util.RuntimeOptions): GetProjectResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.operatorId)) {
+    body['OperatorId'] = request.operatorId;
+  }
+  if (!Util.isUnset(request.operatorType)) {
+    body['OperatorType'] = request.operatorType;
+  }
+  if (!Util.isUnset(request.projectId)) {
+    body['ProjectId'] = request.projectId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetProject',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getProject(request: GetProjectRequest): GetProjectResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getProjectWithOptions(request, runtime);
+}
+
+model GetReserveTaskDetailRequest {
+  taskId?: string(name='TaskId', description='创建容量预定任务时返回的 taskId'),
+}
+
+model GetReserveTaskDetailResponseBody = {
+  appId?: string(name='AppId', description='容量预定时的 appId'),
+  appVersion?: string(name='AppVersion', description='容量预定时的 appVersion'),
+  currCompletedSessionCapacity?: int32(name='CurrCompletedSessionCapacity', description='当前任务已经生产完成的会话路数'),
+  districtId?: string(name='DistrictId', description='容量预定时指定的大区id'),
+  expectResourceReadyTime?: string(name='ExpectResourceReadyTime', description='容量预定，期望生效时间'),
+  expectSessionCapacity?: int32(name='ExpectSessionCapacity', description='容量预定期望的会话路数'),
+  projectId?: string(name='ProjectId', description='容量预定时的 projectId'),
+  requestId?: string(name='RequestId', description='pop的requestId'),
+  taskId?: string(name='TaskId', description='容器创建任务 id'),
+  taskStatus?: string(name='TaskStatus', description='任务状态'),
+}
+
+model GetReserveTaskDetailResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetReserveTaskDetailResponseBody(name='body'),
+}
+
+async function getReserveTaskDetailWithOptions(request: GetReserveTaskDetailRequest, runtime: Util.RuntimeOptions): GetReserveTaskDetailResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.taskId)) {
+    body['TaskId'] = request.taskId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetReserveTaskDetail',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getReserveTaskDetail(request: GetReserveTaskDetailRequest): GetReserveTaskDetailResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getReserveTaskDetailWithOptions(request, runtime);
+}
+
+model GetResourcePublicIPsRequest {
+  pageNum?: int32(name='PageNum', description='第几页，默认从 1 开始'),
+  pageSize?: int32(name='PageSize', description='一页大小，默认 20，最大 100'),
+  projectId?: string(name='ProjectId', description='项目 id'),
+}
+
+model GetResourcePublicIPsResponseBody = {
+  ipList?: [ 
+    {
+      ip?: string(name='Ip', description='ip'),
+      projectId?: string(name='ProjectId', description='项目 id'),
+    }
+  ](name='IpList', description='ip 列表'),
+  pageNum?: int32(name='PageNum', description='第几页'),
+  pageSize?: int32(name='PageSize', description='每页大小'),
+  requestId?: string(name='RequestId', description='pop的requestId'),
+  total?: int32(name='Total', description='满足匹配条件的总量'),
+}
+
+model GetResourcePublicIPsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetResourcePublicIPsResponseBody(name='body'),
+}
+
+async function getResourcePublicIPsWithOptions(request: GetResourcePublicIPsRequest, runtime: Util.RuntimeOptions): GetResourcePublicIPsResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.pageNum)) {
+    body['PageNum'] = request.pageNum;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.projectId)) {
+    body['ProjectId'] = request.projectId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetResourcePublicIPs',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getResourcePublicIPs(request: GetResourcePublicIPsRequest): GetResourcePublicIPsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getResourcePublicIPsWithOptions(request, runtime);
+}
+
+model GetTenantResponseBody = {
+  code?: string(name='Code', description='业务处理结果Code'),
+  data?: {
+    chargeMode?: string(name='ChargeMode', description='计收模式'),
+    contactsMobile?: string(name='ContactsMobile', description='联系人电话'),
+    contactsName?: string(name='ContactsName', description='联系人'),
+    industryCategory?: string(name='IndustryCategory', description='租户所属行业(Code)'),
+    scenceDesc?: string(name='ScenceDesc', description='业务场景描述'),
+    status?: string(name='Status', description='租户状态'),
+    tenantId?: string(name='TenantId', description='租户ID(AlipayUserId)'),
+    tenantName?: string(name='TenantName', description='租户名称'),
+  }(name='Data', description='业务对象'),
+  message?: string(name='Message', description='业务处理消息摘要'),
+  requestId?: string(name='RequestId', description='操作请求ID'),
+  success?: boolean(name='Success', description='业务处理是否成功'),
+}
+
+model GetTenantResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetTenantResponseBody(name='body'),
+}
+
+async function getTenantWithOptions(runtime: Util.RuntimeOptions): GetTenantResponse {
+  var req = new OpenApi.OpenApiRequest{};
+  var params = new OpenApi.Params{
+    action = 'GetTenant',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getTenant(): GetTenantResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getTenantWithOptions(runtime);
 }
 
 model ListAppRequest {
@@ -815,6 +1472,10 @@ model ListAppSessionsResponseBody = {
     {
       appId?: string(name='AppId', description='应用id'),
       appVersion?: string(name='AppVersion', description='应用版本'),
+      bizInfo?: {
+        startTime?: string(name='StartTime'),
+        stopTime?: string(name='StopTime'),
+      }(name='BizInfo'),
       customSessionId?: string(name='CustomSessionId', description='自定义会话id'),
       platformSessionId?: string(name='PlatformSessionId', description='平台会话id'),
       status?: string(name='Status', description='状态'),
@@ -1033,9 +1694,378 @@ async function modifyAppVersion(request: ModifyAppVersionRequest): ModifyAppVers
   return modifyAppVersionWithOptions(request, runtime);
 }
 
+model ModifyProjectRequest {
+  boundAppIdList?: [ string ](name='BoundAppIdList'),
+  operatorId?: string(name='OperatorId', description='请求操作人Id'),
+  operatorType?: string(name='OperatorType', description='请求操作人类型'),
+  projectId?: string(name='ProjectId', description='project Id'),
+  projectMemo?: string(name='ProjectMemo'),
+  projectName?: string(name='ProjectName', description='project name'),
+  projectQuotaLimit?: {
+    districtLimitMap?: map[string]ProjectQuotaLimitDistrictLimitMapValue(name='DistrictLimitMap', description='key - districtId'),
+    limitType?: string(name='LimitType', description='限制类型 ：目前默认 - ReserveContainer'),
+  }(name='ProjectQuotaLimit', description='key : districtId'),
+}
+
+model ModifyProjectShrinkRequest {
+  boundAppIdListShrink?: string(name='BoundAppIdList'),
+  operatorId?: string(name='OperatorId', description='请求操作人Id'),
+  operatorType?: string(name='OperatorType', description='请求操作人类型'),
+  projectId?: string(name='ProjectId', description='project Id'),
+  projectMemo?: string(name='ProjectMemo'),
+  projectName?: string(name='ProjectName', description='project name'),
+  projectQuotaLimitShrink?: string(name='ProjectQuotaLimit', description='key : districtId'),
+}
+
+model ModifyProjectResponseBody = {
+  code?: string(name='Code', description='业务处理结果Code'),
+  data?: {
+    success?: boolean(name='Success'),
+  }(name='Data', description='业务对象'),
+  message?: string(name='Message', description='业务处理消息摘要'),
+  requestId?: string(name='RequestId', description='操作请求ID'),
+  success?: boolean(name='Success', description='业务处理是否成功'),
+}
+
+model ModifyProjectResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ModifyProjectResponseBody(name='body'),
+}
+
+async function modifyProjectWithOptions(tmpReq: ModifyProjectRequest, runtime: Util.RuntimeOptions): ModifyProjectResponse {
+  Util.validateModel(tmpReq);
+  var request = new ModifyProjectShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.boundAppIdList)) {
+    request.boundAppIdListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.boundAppIdList, 'BoundAppIdList', 'json');
+  }
+  if (!Util.isUnset(tmpReq.projectQuotaLimit)) {
+    request.projectQuotaLimitShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.projectQuotaLimit, 'ProjectQuotaLimit', 'json');
+  }
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.boundAppIdListShrink)) {
+    body['BoundAppIdList'] = request.boundAppIdListShrink;
+  }
+  if (!Util.isUnset(request.operatorId)) {
+    body['OperatorId'] = request.operatorId;
+  }
+  if (!Util.isUnset(request.operatorType)) {
+    body['OperatorType'] = request.operatorType;
+  }
+  if (!Util.isUnset(request.projectId)) {
+    body['ProjectId'] = request.projectId;
+  }
+  if (!Util.isUnset(request.projectMemo)) {
+    body['ProjectMemo'] = request.projectMemo;
+  }
+  if (!Util.isUnset(request.projectName)) {
+    body['ProjectName'] = request.projectName;
+  }
+  if (!Util.isUnset(request.projectQuotaLimitShrink)) {
+    body['ProjectQuotaLimit'] = request.projectQuotaLimitShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModifyProject',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function modifyProject(request: ModifyProjectRequest): ModifyProjectResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return modifyProjectWithOptions(request, runtime);
+}
+
+model PageQueryProjectRequest {
+  keySearch?: string(name='KeySearch', description='projectId or projectName like'),
+  operatorId?: string(name='OperatorId', description='请求操作人Id'),
+  operatorType?: string(name='OperatorType', description='请求操作人类型'),
+  pageNumber?: int32(name='PageNumber', description='当前页码，默认1'),
+  pageSize?: int32(name='PageSize', description='每页项数，默认20,最大100'),
+}
+
+model PageQueryProjectResponseBody = {
+  code?: string(name='Code', description='业务处理结果Code'),
+  data?: {
+    pageNumber?: long(name='PageNumber', description='当前页码，默认1'),
+    pageSize?: long(name='PageSize', description='每页项数，默认20,最大100'),
+    pages?: long(name='Pages', description='总页数'),
+    records?: [ 
+      {
+        boundAppNums?: long(name='BoundAppNums', description='项目关联的应用数量'),
+        gmtCreate?: string(name='GmtCreate'),
+        gmtModified?: string(name='GmtModified'),
+        projectId?: string(name='ProjectId'),
+        projectMemo?: string(name='ProjectMemo'),
+        projectName?: string(name='ProjectName'),
+        projectQuotaLimit?: {
+          districtLimitMap?: map[string]DataRecordsProjectQuotaLimitDistrictLimitMapValue(name='DistrictLimitMap', description='key - districtId'),
+          limitType?: string(name='LimitType', description='限制类型 ：目前默认 - ReserveContainer'),
+        }(name='ProjectQuotaLimit', description='key : districtId'),
+      }
+    ](name='Records', description='结果集'),
+    totalCount?: long(name='TotalCount', description='总共项数'),
+  }(name='Data', description='业务对象'),
+  message?: string(name='Message', description='业务处理消息摘要'),
+  requestId?: string(name='RequestId', description='操作请求ID'),
+  success?: boolean(name='Success', description='业务处理是否成功'),
+}
+
+model PageQueryProjectResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: PageQueryProjectResponseBody(name='body'),
+}
+
+async function pageQueryProjectWithOptions(request: PageQueryProjectRequest, runtime: Util.RuntimeOptions): PageQueryProjectResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.keySearch)) {
+    body['KeySearch'] = request.keySearch;
+  }
+  if (!Util.isUnset(request.operatorId)) {
+    body['OperatorId'] = request.operatorId;
+  }
+  if (!Util.isUnset(request.operatorType)) {
+    body['OperatorType'] = request.operatorType;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    body['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'PageQueryProject',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function pageQueryProject(request: PageQueryProjectRequest): PageQueryProjectResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return pageQueryProjectWithOptions(request, runtime);
+}
+
+model PageQueryProjectAppsRequest {
+  appId?: string(name='AppId'),
+  operatorId?: string(name='OperatorId', description='请求操作人Id'),
+  operatorType?: string(name='OperatorType', description='请求操作人类型'),
+  pageNumber?: int32(name='PageNumber', description='当前页码，默认1'),
+  pageSize?: int32(name='PageSize', description='每页项数，默认20,最大100'),
+  projectId?: string(name='ProjectId', description='projectId'),
+}
+
+model PageQueryProjectAppsResponseBody = {
+  code?: string(name='Code', description='业务处理结果Code'),
+  data?: {
+    pageNumber?: long(name='PageNumber', description='当前页码，默认1'),
+    pageSize?: long(name='PageSize', description='每页项数，默认20,最大100'),
+    pages?: long(name='Pages', description='总页数'),
+    records?: [ 
+      {
+        appId?: string(name='AppId'),
+        appName?: string(name='AppName'),
+        gmtCreate?: string(name='GmtCreate'),
+        projectId?: string(name='ProjectId'),
+      }
+    ](name='Records', description='结果集'),
+    totalCount?: long(name='TotalCount', description='总共项数'),
+  }(name='Data', description='业务对象'),
+  message?: string(name='Message', description='业务处理消息摘要'),
+  requestId?: string(name='RequestId', description='操作请求ID'),
+  success?: boolean(name='Success', description='业务处理是否成功'),
+}
+
+model PageQueryProjectAppsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: PageQueryProjectAppsResponseBody(name='body'),
+}
+
+async function pageQueryProjectAppsWithOptions(request: PageQueryProjectAppsRequest, runtime: Util.RuntimeOptions): PageQueryProjectAppsResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.appId)) {
+    body['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.operatorId)) {
+    body['OperatorId'] = request.operatorId;
+  }
+  if (!Util.isUnset(request.operatorType)) {
+    body['OperatorType'] = request.operatorType;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    body['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.projectId)) {
+    body['ProjectId'] = request.projectId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'PageQueryProjectApps',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function pageQueryProjectApps(request: PageQueryProjectAppsRequest): PageQueryProjectAppsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return pageQueryProjectAppsWithOptions(request, runtime);
+}
+
+model RefreshDistrictMetaResponseBody = {
+  code?: string(name='Code', description='业务处理结果Code'),
+  data?: {
+    code?: string(name='Code', description='业务处理结果Code'),
+    data?: map[string]any(name='Data', description='业务对象'),
+    message?: string(name='Message', description='业务处理消息摘要'),
+    projectQuotaLimit?: {
+      districtLimitMap?: map[string]DataProjectQuotaLimitDistrictLimitMapValue(name='DistrictLimitMap', description='key - districtId'),
+      limitType?: string(name='LimitType', description='限制类型 ：目前默认 - ReserveContainer'),
+    }(name='ProjectQuotaLimit'),
+    requestId?: string(name='RequestId', description='操作请求ID'),
+    success?: boolean(name='Success', description='业务处理是否成功'),
+  }(name='Data', description='业务对象'),
+  message?: string(name='Message', description='业务处理消息摘要'),
+  requestId?: string(name='RequestId', description='操作请求ID'),
+  success?: boolean(name='Success', description='业务处理是否成功'),
+}
+
+model RefreshDistrictMetaResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: RefreshDistrictMetaResponseBody(name='body'),
+}
+
+async function refreshDistrictMetaWithOptions(runtime: Util.RuntimeOptions): RefreshDistrictMetaResponse {
+  var req = new OpenApi.OpenApiRequest{};
+  var params = new OpenApi.Params{
+    action = 'RefreshDistrictMeta',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function refreshDistrictMeta(): RefreshDistrictMetaResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return refreshDistrictMetaWithOptions(runtime);
+}
+
+model ReleaseCapacityRequest {
+  appId?: string(name='AppId', description='app id'),
+  appVersion?: string(name='AppVersion'),
+  districtId?: string(name='DistrictId', description='大区 id'),
+  expectReleaseSessionCapacity?: int32(name='ExpectReleaseSessionCapacity', description='期望释放的会话路数'),
+  projectId?: string(name='ProjectId', description='项目 id'),
+}
+
+model ReleaseCapacityResponseBody = {
+  requestId?: string(name='RequestId', description='pop的requestId'),
+  taskId?: string(name='TaskId', description='容器异步释放任务 id'),
+}
+
+model ReleaseCapacityResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ReleaseCapacityResponseBody(name='body'),
+}
+
+async function releaseCapacityWithOptions(request: ReleaseCapacityRequest, runtime: Util.RuntimeOptions): ReleaseCapacityResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.appId)) {
+    body['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.appVersion)) {
+    body['AppVersion'] = request.appVersion;
+  }
+  if (!Util.isUnset(request.districtId)) {
+    body['DistrictId'] = request.districtId;
+  }
+  if (!Util.isUnset(request.expectReleaseSessionCapacity)) {
+    body['ExpectReleaseSessionCapacity'] = request.expectReleaseSessionCapacity;
+  }
+  if (!Util.isUnset(request.projectId)) {
+    body['ProjectId'] = request.projectId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ReleaseCapacity',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function releaseCapacity(request: ReleaseCapacityRequest): ReleaseCapacityResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return releaseCapacityWithOptions(request, runtime);
+}
+
 model StopAppSessionRequest {
   customSessionId?: string(name='CustomSessionId', description='自定义会话id'),
   platformSessionId?: string(name='PlatformSessionId', description='自定义用户id'),
+  stopParam?: [ 
+    {
+      key?: string(name='Key'),
+      value?: any(name='Value'),
+    }
+  ](name='StopParam'),
+}
+
+model StopAppSessionShrinkRequest {
+  customSessionId?: string(name='CustomSessionId', description='自定义会话id'),
+  platformSessionId?: string(name='PlatformSessionId', description='自定义用户id'),
+  stopParamShrink?: string(name='StopParam'),
 }
 
 model StopAppSessionResponseBody = {
@@ -1052,14 +2082,22 @@ model StopAppSessionResponse = {
   body: StopAppSessionResponseBody(name='body'),
 }
 
-async function stopAppSessionWithOptions(request: StopAppSessionRequest, runtime: Util.RuntimeOptions): StopAppSessionResponse {
-  Util.validateModel(request);
+async function stopAppSessionWithOptions(tmpReq: StopAppSessionRequest, runtime: Util.RuntimeOptions): StopAppSessionResponse {
+  Util.validateModel(tmpReq);
+  var request = new StopAppSessionShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.stopParam)) {
+    request.stopParamShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.stopParam, 'StopParam', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.customSessionId)) {
     query['CustomSessionId'] = request.customSessionId;
   }
   if (!Util.isUnset(request.platformSessionId)) {
     query['PlatformSessionId'] = request.platformSessionId;
+  }
+  if (!Util.isUnset(request.stopParamShrink)) {
+    query['StopParam'] = request.stopParamShrink;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1081,5 +2119,166 @@ async function stopAppSessionWithOptions(request: StopAppSessionRequest, runtime
 async function stopAppSession(request: StopAppSessionRequest): StopAppSessionResponse {
   var runtime = new Util.RuntimeOptions{};
   return stopAppSessionWithOptions(request, runtime);
+}
+
+model StopAppSessionBatchRequest {
+  appId?: string(name='AppId'),
+  appVersion?: string(name='AppVersion'),
+  batchId?: string(name='BatchId', description='自定义用户id'),
+  projectId?: string(name='ProjectId', description='自定义会话id'),
+  stopParam?: [ 
+    {
+      key?: string(name='Key'),
+      value?: any(name='Value'),
+    }
+  ](name='StopParam'),
+  tags?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tags'),
+}
+
+model StopAppSessionBatchShrinkRequest {
+  appId?: string(name='AppId'),
+  appVersion?: string(name='AppVersion'),
+  batchId?: string(name='BatchId', description='自定义用户id'),
+  projectId?: string(name='ProjectId', description='自定义会话id'),
+  stopParamShrink?: string(name='StopParam'),
+  tags?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tags'),
+}
+
+model StopAppSessionBatchResponseBody = {
+  appId?: string(name='AppId', description='应用id'),
+  batchId?: string(name='BatchId', description='自定义会话id'),
+  projectId?: string(name='ProjectId', description='平台会话id'),
+  requestId?: string(name='RequestId', description='请求id'),
+}
+
+model StopAppSessionBatchResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: StopAppSessionBatchResponseBody(name='body'),
+}
+
+async function stopAppSessionBatchWithOptions(tmpReq: StopAppSessionBatchRequest, runtime: Util.RuntimeOptions): StopAppSessionBatchResponse {
+  Util.validateModel(tmpReq);
+  var request = new StopAppSessionBatchShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.stopParam)) {
+    request.stopParamShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.stopParam, 'StopParam', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.appVersion)) {
+    query['AppVersion'] = request.appVersion;
+  }
+  if (!Util.isUnset(request.batchId)) {
+    query['BatchId'] = request.batchId;
+  }
+  if (!Util.isUnset(request.projectId)) {
+    query['ProjectId'] = request.projectId;
+  }
+  if (!Util.isUnset(request.stopParamShrink)) {
+    query['StopParam'] = request.stopParamShrink;
+  }
+  if (!Util.isUnset(request.tags)) {
+    query['Tags'] = request.tags;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'StopAppSessionBatch',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function stopAppSessionBatch(request: StopAppSessionBatchRequest): StopAppSessionBatchResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return stopAppSessionBatchWithOptions(request, runtime);
+}
+
+model VersionCheckSameNameServiceRequest {
+  appId?: string(name='AppId'),
+  appVersionName?: string(name='AppVersionName'),
+}
+
+model VersionCheckSameNameServiceResponseBody = {
+  code?: string(name='Code'),
+  data?: string(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+}
+
+model VersionCheckSameNameServiceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: VersionCheckSameNameServiceResponseBody(name='body'),
+}
+
+async function versionCheckSameNameServiceWithOptions(request: VersionCheckSameNameServiceRequest, runtime: Util.RuntimeOptions): VersionCheckSameNameServiceResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.appId)) {
+    body['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.appVersionName)) {
+    body['AppVersionName'] = request.appVersionName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'VersionCheckSameNameService',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function versionCheckSameNameService(request: VersionCheckSameNameServiceRequest): VersionCheckSameNameServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return versionCheckSameNameServiceWithOptions(request, runtime);
+}
+
+model ProjectQuotaLimitDistrictLimitMapValue = {
+  districtId?: string(name='DistrictId', description='大区ID'),
+  districtName?: string(name='DistrictName', description='大区名称'),
+  maxLimit?: long(name='MaxLimit', description='上限'),
+}
+
+model DataProjectQuotaLimitDistrictLimitMapValue = {
+  districtId?: string(name='DistrictId', description='大区ID'),
+  districtName?: string(name='DistrictName', description='大区名称'),
+  maxLimit?: long(name='MaxLimit', description='上限'),
+}
+
+model DataRecordsProjectQuotaLimitDistrictLimitMapValue = {
+  districtId?: string(name='DistrictId', description='大区ID'),
+  districtName?: string(name='DistrictName', description='大区名称'),
+  maxLimit?: long(name='MaxLimit', description='上限'),
 }
 
