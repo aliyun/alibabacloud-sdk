@@ -1,0 +1,109 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('msccommonquery', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model ListMessagesRequest {
+  channelType?: string(name='ChannelType'),
+  endTimestamp?: long(name='EndTimestamp'),
+  locale?: string(name='Locale'),
+  pageNo?: int32(name='PageNo'),
+  pageSize?: int32(name='PageSize'),
+  startTimestamp?: long(name='StartTimestamp'),
+}
+
+model ListMessagesResponseBody = {
+  code?: string(name='Code'),
+  data?: [ 
+    {
+      channelType?: string(name='ChannelType'),
+      content?: string(name='Content'),
+      messageId?: string(name='MessageId'),
+      receiver?: string(name='Receiver'),
+      status?: string(name='Status'),
+      timestamp?: long(name='Timestamp'),
+      title?: string(name='Title'),
+    }
+  ](name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success'),
+  total?: int32(name='Total'),
+}
+
+model ListMessagesResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListMessagesResponseBody(name='body'),
+}
+
+async function listMessagesWithOptions(request: ListMessagesRequest, runtime: Util.RuntimeOptions): ListMessagesResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.locale)) {
+    query['Locale'] = request.locale;
+  }
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.channelType)) {
+    body['ChannelType'] = request.channelType;
+  }
+  if (!Util.isUnset(request.endTimestamp)) {
+    body['EndTimestamp'] = request.endTimestamp;
+  }
+  if (!Util.isUnset(request.pageNo)) {
+    body['PageNo'] = request.pageNo;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.startTimestamp)) {
+    body['StartTimestamp'] = request.startTimestamp;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListMessages',
+    version = '2021-04-07',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listMessages(request: ListMessagesRequest): ListMessagesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listMessagesWithOptions(request, runtime);
+}
+
