@@ -8,8 +8,10 @@ import EndpointUtil;
 
 extends OpenApi;
 
+
 init(config: OpenApi.Config){
   super(config);
+  @signatureAlgorithm = 'v2';
   @endpointRule = '';
   
   checkConfig(config);
@@ -20,12 +22,13 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   if (!Util.empty(endpoint)) {
     return endpoint;
   }
-
+  
   if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+
 model AliyunAccounts {
   aliyunUid?: string(name='AliyunUid', description='Aliyun账号的UID'),
   employeeId?: string(name='EmployeeId', description='弹内用户的工号'),
@@ -55,6 +58,7 @@ model ContainerSpec {
   ](name='Env', description='环境变量'),
   image?: string(name='Image', description='容器镜像地址'),
   name?: string(name='Name', description='容器名称'),
+  resources?: ResourceRequirements(name='Resources', description='容器资源'),
   workingDir?: string(name='WorkingDir', description='容器内工作目录'),
 }
 
@@ -73,11 +77,59 @@ model DataSourceItem {
   userId?: string(name='UserId', description='创建人Id'),
 }
 
+model DebuggerConfig {
+  content?: string(name='Content', description='配置项细节，json结构'),
+  debuggerConfigId?: string(name='DebuggerConfigId', description='系统生成的debug config唯一ID'),
+  description?: string(name='Description', description='配置项描述'),
+  displayName?: string(name='DisplayName', description='模板配置项名称'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='创建时间（UTC）'),
+  gmtModifyTime?: string(name='GmtModifyTime', description='修改时间（UTC）'),
+}
+
+model DebuggerJob {
+  debuggerJobId?: string(name='DebuggerJobId', description='debugger分析作业ID'),
+  displayName?: string(name='DisplayName', description='作业显示名'),
+  duration?: string(name='Duration', description='作业运行的时长（单位秒）'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='创建时间（UTC）'),
+  gmtFailedTime?: string(name='GmtFailedTime', description='失败时间（UTC）'),
+  gmtFinishTime?: string(name='GmtFinishTime', description='任务完成时间（UTC）'),
+  gmtRunningTime?: string(name='GmtRunningTime', description='运行开始时间（UTC）'),
+  gmtStoppedTime?: string(name='GmtStoppedTime', description='结束时间（UTC）'),
+  gmtSubmittedTime?: string(name='GmtSubmittedTime', description='提交时间（UTC）'),
+  gmtSucceedTime?: string(name='GmtSucceedTime', description='成功结束时间（UTC）'),
+  status?: string(name='Status', description='作业运行状态'),
+  userId?: string(name='UserId', description='用户ID'),
+  workspaceId?: string(name='WorkspaceId', description='作业所属的运行工作空间'),
+  workspaceName?: string(name='WorkspaceName', description='作业所属的运行工作空间名称'),
+}
+
+model DebuggerJobIssue {
+  debuggerJobIssue?: string(name='DebuggerJobIssue', description='规则报告的具体json描述'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='创建时间（UTC）'),
+  jobDebuggerIssueId?: string(name='JobDebuggerIssueId', description='event的全局唯一ID'),
+  jobId?: string(name='JobId', description='作业ID'),
+  reasonCode?: string(name='ReasonCode', description='规则触发原因的编码'),
+  reasonMessage?: string(name='ReasonMessage', description='规则触发的原因'),
+  ruleName?: string(name='RuleName', description='规则名称'),
+}
+
+model DebuggerResult {
+  debuggerConfigContent?: string(name='DebuggerConfigContent', description='配置项细节，json结构'),
+  debuggerJobIssues?: string(name='DebuggerJobIssues', description='规则报告细节信息'),
+  debuggerJobStatus?: string(name='DebuggerJobStatus', description='debugger job运行状态描述'),
+  debuggerReportURL?: string(name='DebuggerReportURL', description='报告文件下载地址'),
+  jobDisplayName?: string(name='JobDisplayName', description='作业显示名'),
+  jobId?: string(name='JobId', description='作业ID'),
+  jobUserId?: string(name='JobUserId', description='用户ID'),
+}
+
 model EcsSpec {
+  acceleratorType?: string(name='AcceleratorType', description='加速器类型'),
   cpu?: int32(name='Cpu', description='cpu数量'),
   gpu?: int32(name='Gpu', description='gpu数量'),
   gpuType?: string(name='GpuType', description='gpu类型'),
   instanceType?: string(name='InstanceType', description='规格类型'),
+  isAvailable?: boolean(name='IsAvailable', description='是否有库存'),
   memory?: int32(name='Memory', description='Memory数量'),
 }
 
@@ -106,11 +158,19 @@ model GPUDetail {
 
 model ImageItem {
   acceleratorType?: string(name='AcceleratorType', description='加速器类型'),
+  authorId?: string(name='AuthorId', description='镜像作者'),
   framework?: string(name='Framework', description='镜像包含的框架类型'),
   imageProviderType?: string(name='ImageProviderType', description='镜像类型'),
   imageTag?: string(name='ImageTag', description='镜像Tag'),
   imageUrl?: string(name='ImageUrl', description='镜像地址'),
   imageUrlVpc?: string(name='ImageUrlVpc', description='镜像vpc地址'),
+}
+
+model JobDebuggerConfig {
+  debuggerConfigContent?: string(name='DebuggerConfigContent', description='debugger配置信息'),
+  debuggerConfigId?: string(name='DebuggerConfigId', description='debugger配置项ID'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='debugger配置创建的时间'),
+  jobId?: string(name='JobId', description='作业ID'),
 }
 
 model JobElasticSpec {
@@ -135,6 +195,7 @@ model JobItem {
   ](name='DataSources', description='数据源配置列表'),
   displayName?: string(name='DisplayName', description='作业显示名称'),
   duration?: long(name='Duration', description='作业运行时长，单位：秒'),
+  enabledDebugger?: boolean(name='EnabledDebugger', description='是否开启了debugger分析'),
   envs?: map[string]string(name='Envs', description='环境变量配置'),
   gmtCreateTime?: string(name='GmtCreateTime', description='作业创建时间（UTC）'),
   gmtFinishTime?: string(name='GmtFinishTime', description='作业结束时间（UTC）'),
@@ -146,6 +207,8 @@ model JobItem {
   reasonCode?: string(name='ReasonCode', description='状态详情码'),
   reasonMessage?: string(name='ReasonMessage', description='状态详情'),
   resourceId?: string(name='ResourceId', description='作业运行所在的资源组ID'),
+  resourceLevel?: string(name='ResourceLevel', description='作业运行时的资源级别'),
+  resourceName?: string(name='ResourceName', description='作业运行的资源名称'),
   settings?: JobSettings(name='Settings', description='作业额外参数'),
   status?: string(name='Status', description='作业状态'),
   thirdpartyLibDir?: string(name='ThirdpartyLibDir', description='三方库(requirements.txt)文件路径'),
@@ -159,6 +222,10 @@ model JobItem {
 model JobSettings {
   businessUserId?: string(name='BusinessUserId', description='作业关联用户ID'),
   caller?: string(name='Caller', description='调用方'),
+  enableErrorMonitoringInAIMaster?: boolean(name='EnableErrorMonitoringInAIMaster', description='允许打开作业容错监控'),
+  enableRDMA?: boolean(name='EnableRDMA', description='允许作业使用RDMA'),
+  enableTideResource?: boolean(name='EnableTideResource', description='允许作业使用潮汐资源'),
+  errorMonitoringArgs?: string(name='ErrorMonitoringArgs', description='用户指定容错监控的配置参数，比如指定是否启动基于log hang的检测'),
   pipelineId?: string(name='PipelineId', description='工作流ID'),
   tags?: map[string]string(name='Tags', description='自定义标签'),
 }
@@ -170,6 +237,7 @@ model JobSpec {
   podCount?: long(name='PodCount', description='实例数量'),
   resourceConfig?: ResourceConfig(name='ResourceConfig', description='资源配置'),
   type?: string(name='Type', description='类型'),
+  useSpotInstance?: boolean(name='UseSpotInstance', description='是否使用竞价实例'),
 }
 
 model Member {
@@ -199,12 +267,16 @@ model PodMetric {
 model Quota {
   clusterId?: string(name='ClusterId', description='集群id'),
   clusterName?: string(name='ClusterName', description='集群名称'),
+  enableTideResource?: boolean(name='EnableTideResource', description='是否允许使用潮汐资源'),
   isExclusiveQuota?: boolean(name='IsExclusiveQuota', description='是否是独占Quota组'),
   quotaId?: string(name='QuotaId', description='资源配额id'),
   quotaName?: string(name='QuotaName', description='资源配额名称'),
   quotaType?: string(name='QuotaType', description='资源配额类型'),
+  resourceLevel?: string(name='ResourceLevel', description='资源组允许使用的潮汐资源级别'),
   totalQuota?: QuotaDetail(name='TotalQuota', description='资源总量'),
+  totalTideQuota?: QuotaDetail(name='TotalTideQuota', description='潮汐资源总量'),
   usedQuota?: QuotaDetail(name='UsedQuota', description='资源用量'),
+  usedTideQuota?: QuotaDetail(name='UsedTideQuota', description='潮汐资源用量'),
 }
 
 model QuotaDetail {
@@ -226,10 +298,34 @@ model ResourceConfig {
   sharedMemory?: string(name='SharedMemory', description='共享内存容量'),
 }
 
+model ResourceRequirements {
+  limits?: map[string]string(name='Limits', description='资源限制'),
+  requests?: map[string]string(name='Requests', description='资源需求'),
+}
+
 model Resources {
   CPU?: string(name='CPU', description='CPU核心数'),
   GPU?: string(name='GPU', description='GPU卡数'),
   memory?: string(name='Memory', description='内存大小'),
+}
+
+model SmartCache {
+  cacheWorkerNum?: long(name='CacheWorkerNum', description='cache worker的数量单位是个'),
+  cacheWorkerSize?: long(name='CacheWorkerSize', description='每个cache worker的cache大小单位是GB'),
+  description?: string(name='Description', description='SmartCache 描述'),
+  displayName?: string(name='DisplayName', description='SmartCache 名称'),
+  duration?: string(name='Duration', description='已运行时长'),
+  endpoint?: string(name='Endpoint', description='OSS Endpoint'),
+  fileSystemId?: string(name='FileSystemId', description='阿里云的NAS文件系统ID'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='创建时间（UTC）'),
+  gmtModifyTime?: string(name='GmtModifyTime', description='修改时间（UTC）'),
+  mountPath?: string(name='MountPath', description='数据源本地挂载目录'),
+  options?: string(name='Options', description='可选的超参数'),
+  path?: string(name='Path', description='OSS数据源路径'),
+  smartCacheId?: string(name='SmartCacheId', description='SmartCacheId'),
+  status?: string(name='Status', description='运行状态'),
+  type?: string(name='Type', description='挂载的数据类型'),
+  userId?: string(name='UserId', description='创建者Id'),
 }
 
 model Tensorboard {
@@ -267,40 +363,6 @@ model Workspace {
   workspaceName?: string(name='WorkspaceName', description='工作空间名称'),
 }
 
-model BatchGetJobsStatisticsRequest {
-  workspaceIds?: string(name='WorkspaceIds', description='工作空间id列表'),
-}
-
-model BatchGetJobsStatisticsResponseBody = {
-  requestId?: string(name='RequestId', description='请求ID'),
-  statistics?: map[string]any(name='Statistics', description='每一个工作空间id下面的Job按照状态的分类统计信息'),
-}
-
-model BatchGetJobsStatisticsResponse = {
-  headers: map[string]string(name='headers'),
-  body: BatchGetJobsStatisticsResponseBody(name='body'),
-}
-
-async function batchGetJobsStatistics(request: BatchGetJobsStatisticsRequest): BatchGetJobsStatisticsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return batchGetJobsStatisticsWithOptions(request, headers, runtime);
-}
-
-async function batchGetJobsStatisticsWithOptions(request: BatchGetJobsStatisticsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): BatchGetJobsStatisticsResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.workspaceIds)) {
-    query.WorkspaceIds = request.workspaceIds;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  return doROARequest('BatchGetJobsStatistics', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/batch/statistics/jobs`, 'json', req, runtime);
-}
-
 model CreateCodeSourceRequest {
   codeBranch?: string(name='CodeBranch', description='代码分支'),
   codeRepo?: string(name='CodeRepo', description='代码仓库地址'),
@@ -318,6 +380,7 @@ model CreateCodeSourceResponseBody = {
 
 model CreateCodeSourceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateCodeSourceResponseBody(name='body'),
 }
 
@@ -331,32 +394,43 @@ async function createCodeSourceWithOptions(request: CreateCodeSourceRequest, hea
   Util.validateModel(request);
   var body : map[string]any= {};
   if (!Util.isUnset(request.codeBranch)) {
-    body.CodeBranch = request.codeBranch;
+    body['CodeBranch'] = request.codeBranch;
   }
   if (!Util.isUnset(request.codeRepo)) {
-    body.CodeRepo = request.codeRepo;
+    body['CodeRepo'] = request.codeRepo;
   }
   if (!Util.isUnset(request.codeRepoAccessToken)) {
-    body.CodeRepoAccessToken = request.codeRepoAccessToken;
+    body['CodeRepoAccessToken'] = request.codeRepoAccessToken;
   }
   if (!Util.isUnset(request.codeRepoUserName)) {
-    body.CodeRepoUserName = request.codeRepoUserName;
+    body['CodeRepoUserName'] = request.codeRepoUserName;
   }
   if (!Util.isUnset(request.description)) {
-    body.Description = request.description;
+    body['Description'] = request.description;
   }
   if (!Util.isUnset(request.displayName)) {
-    body.DisplayName = request.displayName;
+    body['DisplayName'] = request.displayName;
   }
   if (!Util.isUnset(request.mountPath)) {
-    body.MountPath = request.mountPath;
+    body['MountPath'] = request.mountPath;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('CreateCodeSource', '2020-12-03', 'HTTPS', 'POST', 'AK', `/api/v1/codesources`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateCodeSource',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/codesources`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model CreateDataSourceRequest {
@@ -377,6 +451,7 @@ model CreateDataSourceResponseBody = {
 
 model CreateDataSourceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateDataSourceResponseBody(name='body'),
 }
 
@@ -390,35 +465,46 @@ async function createDataSourceWithOptions(request: CreateDataSourceRequest, hea
   Util.validateModel(request);
   var body : map[string]any= {};
   if (!Util.isUnset(request.dataSourceType)) {
-    body.DataSourceType = request.dataSourceType;
+    body['DataSourceType'] = request.dataSourceType;
   }
   if (!Util.isUnset(request.description)) {
-    body.Description = request.description;
+    body['Description'] = request.description;
   }
   if (!Util.isUnset(request.displayName)) {
-    body.DisplayName = request.displayName;
+    body['DisplayName'] = request.displayName;
   }
   if (!Util.isUnset(request.endpoint)) {
-    body.Endpoint = request.endpoint;
+    body['Endpoint'] = request.endpoint;
   }
   if (!Util.isUnset(request.fileSystemId)) {
-    body.FileSystemId = request.fileSystemId;
+    body['FileSystemId'] = request.fileSystemId;
   }
   if (!Util.isUnset(request.mountPath)) {
-    body.MountPath = request.mountPath;
+    body['MountPath'] = request.mountPath;
   }
   if (!Util.isUnset(request.options)) {
-    body.Options = request.options;
+    body['Options'] = request.options;
   }
   if (!Util.isUnset(request.path)) {
-    body.Path = request.path;
+    body['Path'] = request.path;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('CreateDataSource', '2020-12-03', 'HTTPS', 'POST', 'AK', `/api/v1/datasources`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateDataSource',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/datasources`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model CreateJobRequest {
@@ -434,6 +520,7 @@ model CreateJobRequest {
       mountPath?: string(name='MountPath', description='本地挂载路径'),
     }
   ](name='DataSources', description='数据源配置列表'),
+  debuggerConfigContent?: string(name='DebuggerConfigContent', description='debugger参数'),
   displayName?: string(name='DisplayName', description='作业显示名称'),
   elasticSpec?: JobElasticSpec(name='ElasticSpec'),
   envs?: map[string]string(name='Envs', description='环境变量配置'),
@@ -442,6 +529,7 @@ model CreateJobRequest {
     JobSpec
   ](name='JobSpecs', description='作业规格配置'),
   jobType?: string(name='JobType', description='作业类型'),
+  options?: string(name='Options'),
   priority?: int32(name='Priority', description='作业优先级'),
   resourceId?: string(name='ResourceId', description='资源组编号'),
   settings?: JobSettings(name='Settings'),
@@ -464,6 +552,7 @@ model CreateJobResponseBody = {
 
 model CreateJobResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateJobResponseBody(name='body'),
 }
 
@@ -477,71 +566,94 @@ async function createJobWithOptions(request: CreateJobRequest, headers: map[stri
   Util.validateModel(request);
   var body : map[string]any= {};
   if (!Util.isUnset(request.codeSource)) {
-    body.CodeSource = request.codeSource;
+    body['CodeSource'] = request.codeSource;
   }
   if (!Util.isUnset(request.dataSources)) {
-    body.DataSources = request.dataSources;
+    body['DataSources'] = request.dataSources;
+  }
+  if (!Util.isUnset(request.debuggerConfigContent)) {
+    body['DebuggerConfigContent'] = request.debuggerConfigContent;
   }
   if (!Util.isUnset(request.displayName)) {
-    body.DisplayName = request.displayName;
+    body['DisplayName'] = request.displayName;
   }
   if (!Util.isUnset(request.elasticSpec)) {
-    body.ElasticSpec = request.elasticSpec;
+    body['ElasticSpec'] = request.elasticSpec;
   }
   if (!Util.isUnset(request.envs)) {
-    body.Envs = request.envs;
+    body['Envs'] = request.envs;
   }
   if (!Util.isUnset(request.jobMaxRunningTimeMinutes)) {
-    body.JobMaxRunningTimeMinutes = request.jobMaxRunningTimeMinutes;
+    body['JobMaxRunningTimeMinutes'] = request.jobMaxRunningTimeMinutes;
   }
   if (!Util.isUnset(request.jobSpecs)) {
-    body.JobSpecs = request.jobSpecs;
+    body['JobSpecs'] = request.jobSpecs;
   }
   if (!Util.isUnset(request.jobType)) {
-    body.JobType = request.jobType;
+    body['JobType'] = request.jobType;
+  }
+  if (!Util.isUnset(request.options)) {
+    body['Options'] = request.options;
   }
   if (!Util.isUnset(request.priority)) {
-    body.Priority = request.priority;
+    body['Priority'] = request.priority;
   }
   if (!Util.isUnset(request.resourceId)) {
-    body.ResourceId = request.resourceId;
+    body['ResourceId'] = request.resourceId;
   }
   if (!Util.isUnset(request.settings)) {
-    body.Settings = request.settings;
+    body['Settings'] = request.settings;
   }
   if (!Util.isUnset(request.thirdpartyLibDir)) {
-    body.ThirdpartyLibDir = request.thirdpartyLibDir;
+    body['ThirdpartyLibDir'] = request.thirdpartyLibDir;
   }
   if (!Util.isUnset(request.thirdpartyLibs)) {
-    body.ThirdpartyLibs = request.thirdpartyLibs;
+    body['ThirdpartyLibs'] = request.thirdpartyLibs;
   }
   if (!Util.isUnset(request.userCommand)) {
-    body.UserCommand = request.userCommand;
+    body['UserCommand'] = request.userCommand;
   }
   if (!Util.isUnset(request.userVpc)) {
-    body.UserVpc = request.userVpc;
+    body['UserVpc'] = request.userVpc;
   }
   if (!Util.isUnset(request.workspaceId)) {
-    body.WorkspaceId = request.workspaceId;
+    body['WorkspaceId'] = request.workspaceId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('CreateJob', '2020-12-03', 'HTTPS', 'POST', 'AK', `/api/v1/jobs`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateJob',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/jobs`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model CreateTensorboardRequest {
-  workspaceId?: string(name='WorkspaceId', description='工作空间ID'),
   dataSourceId?: string(name='DataSourceId', description='DataSource Id'),
+  dataSourceType?: string(name='DataSourceType'),
   dataSources?: [
     DataSourceItem
   ](name='DataSources'),
   displayName?: string(name='DisplayName', description='Tensorboard名称'),
   jobId?: string(name='JobId', description='任务Id'),
   maxRunningTimeMinutes?: long(name='MaxRunningTimeMinutes', description='最长运行时长'),
+  options?: string(name='Options'),
+  sourceId?: string(name='SourceId'),
+  sourceType?: string(name='SourceType'),
   summaryPath?: string(name='SummaryPath', description='Summary 目录'),
+  summaryRelativePath?: string(name='SummaryRelativePath'),
+  uri?: string(name='Uri'),
+  workspaceId?: string(name='WorkspaceId'),
 }
 
 model CreateTensorboardResponseBody = {
@@ -553,6 +665,7 @@ model CreateTensorboardResponseBody = {
 
 model CreateTensorboardResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateTensorboardResponseBody(name='body'),
 }
 
@@ -564,37 +677,63 @@ async function createTensorboard(request: CreateTensorboardRequest): CreateTenso
 
 async function createTensorboardWithOptions(request: CreateTensorboardRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateTensorboardResponse {
   Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.workspaceId)) {
-    query.WorkspaceId = request.workspaceId;
-  }
-
   var body : map[string]any= {};
   if (!Util.isUnset(request.dataSourceId)) {
-    body.DataSourceId = request.dataSourceId;
+    body['DataSourceId'] = request.dataSourceId;
+  }
+  if (!Util.isUnset(request.dataSourceType)) {
+    body['DataSourceType'] = request.dataSourceType;
   }
   if (!Util.isUnset(request.dataSources)) {
-    body.DataSources = request.dataSources;
+    body['DataSources'] = request.dataSources;
   }
   if (!Util.isUnset(request.displayName)) {
-    body.DisplayName = request.displayName;
+    body['DisplayName'] = request.displayName;
   }
   if (!Util.isUnset(request.jobId)) {
-    body.JobId = request.jobId;
+    body['JobId'] = request.jobId;
   }
   if (!Util.isUnset(request.maxRunningTimeMinutes)) {
-    body.MaxRunningTimeMinutes = request.maxRunningTimeMinutes;
+    body['MaxRunningTimeMinutes'] = request.maxRunningTimeMinutes;
+  }
+  if (!Util.isUnset(request.options)) {
+    body['Options'] = request.options;
+  }
+  if (!Util.isUnset(request.sourceId)) {
+    body['SourceId'] = request.sourceId;
+  }
+  if (!Util.isUnset(request.sourceType)) {
+    body['SourceType'] = request.sourceType;
   }
   if (!Util.isUnset(request.summaryPath)) {
-    body.SummaryPath = request.summaryPath;
+    body['SummaryPath'] = request.summaryPath;
+  }
+  if (!Util.isUnset(request.summaryRelativePath)) {
+    body['SummaryRelativePath'] = request.summaryRelativePath;
+  }
+  if (!Util.isUnset(request.uri)) {
+    body['Uri'] = request.uri;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    body['WorkspaceId'] = request.workspaceId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
-    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
-  return doROARequest('CreateTensorboard', '2020-12-03', 'HTTPS', 'POST', 'AK', `/api/v1/tensorboards`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateTensorboard',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/tensorboards`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model DeleteCodeSourceResponseBody = {
@@ -604,6 +743,7 @@ model DeleteCodeSourceResponseBody = {
 
 model DeleteCodeSourceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteCodeSourceResponseBody(name='body'),
 }
 
@@ -618,7 +758,18 @@ async function deleteCodeSourceWithOptions(CodeSourceId: string, headers: map[st
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
-  return doROARequest('DeleteCodeSource', '2020-12-03', 'HTTPS', 'DELETE', 'AK', `/api/v1/codesources/${CodeSourceId}`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'DeleteCodeSource',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/codesources/${CodeSourceId}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model DeleteDataSourceResponseBody = {
@@ -628,6 +779,7 @@ model DeleteDataSourceResponseBody = {
 
 model DeleteDataSourceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteDataSourceResponseBody(name='body'),
 }
 
@@ -642,7 +794,18 @@ async function deleteDataSourceWithOptions(DataSourceId: string, headers: map[st
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
-  return doROARequest('DeleteDataSource', '2020-12-03', 'HTTPS', 'DELETE', 'AK', `/api/v1/datasources/${DataSourceId}`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'DeleteDataSource',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/datasources/${DataSourceId}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model DeleteJobResponseBody = {
@@ -652,6 +815,7 @@ model DeleteJobResponseBody = {
 
 model DeleteJobResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteJobResponseBody(name='body'),
 }
 
@@ -666,7 +830,64 @@ async function deleteJobWithOptions(JobId: string, headers: map[string]string, r
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
-  return doROARequest('DeleteJob', '2020-12-03', 'HTTPS', 'DELETE', 'AK', `/api/v1/jobs/${JobId}`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'DeleteJob',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/jobs/${JobId}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model DeleteJobsRequest {
+  jobIds?: [ string ](name='JobIds', description='作业ID列表'),
+}
+
+model DeleteJobsResponseBody = {
+  jobIds?: [ string ](name='JobIds'),
+  requestId?: string(name='RequestId', description='请求ID'),
+}
+
+model DeleteJobsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DeleteJobsResponseBody(name='body'),
+}
+
+async function deleteJobs(request: DeleteJobsRequest): DeleteJobsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteJobsWithOptions(request, headers, runtime);
+}
+
+async function deleteJobsWithOptions(request: DeleteJobsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteJobsResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.jobIds)) {
+    body['JobIds'] = request.jobIds;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteJobs',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/batch/jobs/delete`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model DeleteTensorboardRequest {
@@ -680,6 +901,7 @@ model DeleteTensorboardResponseBody = {
 
 model DeleteTensorboardResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteTensorboardResponseBody(name='body'),
 }
 
@@ -694,39 +916,25 @@ async function deleteTensorboardWithOptions(TensorboardId: string, request: Dele
   TensorboardId = OpenApiUtil.getEncodeParam(TensorboardId);
   var query : map[string]any= {};
   if (!Util.isUnset(request.workspaceId)) {
-    query.WorkspaceId = request.workspaceId;
+    query['WorkspaceId'] = request.workspaceId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('DeleteTensorboard', '2020-12-03', 'HTTPS', 'DELETE', 'AK', `/api/v1/tensorboards/${TensorboardId}`, 'json', req, runtime);
-}
-
-model GetAuthorizationResponseBody = {
-  authorizationFailedCode?: string(name='AuthorizationFailedCode', description='授权失败码'),
-  authorizationFailedMessage?: string(name='AuthorizationFailedMessage', description='授权失败消息'),
-  authorized?: boolean(name='Authorized', description='是否授权'),
-  requestId?: string(name='RequestId', description='请求ID'),
-}
-
-model GetAuthorizationResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetAuthorizationResponseBody(name='body'),
-}
-
-async function getAuthorization(): GetAuthorizationResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getAuthorizationWithOptions(headers, runtime);
-}
-
-async function getAuthorizationWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): GetAuthorizationResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
+  var params = new OpenApi.Params{
+    action = 'DeleteTensorboard',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/tensorboards/${TensorboardId}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
   };
-  return doROARequest('GetAuthorization', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/authorization`, 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
 model GetCodeSourceResponseBody = {
@@ -747,6 +955,7 @@ model GetCodeSourceResponseBody = {
 
 model GetCodeSourceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: GetCodeSourceResponseBody(name='body'),
 }
 
@@ -761,7 +970,18 @@ async function getCodeSourceWithOptions(CodeSourceId: string, headers: map[strin
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
-  return doROARequest('GetCodeSource', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/codesources/${CodeSourceId}`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetCodeSource',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/codesources/${CodeSourceId}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model GetDataSourceResponseBody = {
@@ -782,6 +1002,7 @@ model GetDataSourceResponseBody = {
 
 model GetDataSourceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: GetDataSourceResponseBody(name='body'),
 }
 
@@ -796,7 +1017,18 @@ async function getDataSourceWithOptions(DataSourceId: string, headers: map[strin
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
-  return doROARequest('GetDataSource', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/datasources/${DataSourceId}`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetDataSource',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/datasources/${DataSourceId}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model GetJobResponseBody = {
@@ -816,6 +1048,7 @@ model GetJobResponseBody = {
   displayName?: string(name='DisplayName', description='作业显示名称'),
   duration?: long(name='Duration', description='作业运行时长（s）'),
   elasticSpec?: JobElasticSpec(name='ElasticSpec', description='弹性任务参数'),
+  enabledDebugger?: boolean(name='EnabledDebugger', description='是否开启debugger任务'),
   envs?: map[string]string(name='Envs', description='环境变量配置'),
   gmtCreateTime?: string(name='GmtCreateTime', description='作业创建时间（UTC）'),
   gmtFailedTime?: string(name='GmtFailedTime'),
@@ -834,8 +1067,21 @@ model GetJobResponseBody = {
       gmtCreateTime?: string(name='GmtCreateTime', description='Pod创建时间（UTC）'),
       gmtFinishTime?: string(name='GmtFinishTime', description='Pod结束时间（UTC）'),
       gmtStartTime?: string(name='GmtStartTime', description='Pod启动时间（UTC）'),
+      historyPods?: [ 
+        {
+          gmtCreateTime?: string(name='GmtCreateTime', description='Pod创建时间（UTC）'),
+          gmtFinishTime?: string(name='GmtFinishTime', description='Pod结束时间（UTC）'),
+          gmtStartTime?: string(name='GmtStartTime', description='Pod启动时间（UTC）'),
+          ip?: string(name='Ip', description='Pod Ip'),
+          podId?: string(name='PodId', description='Pod Id'),
+          podUid?: string(name='PodUid', description='Pod UId'),
+          status?: string(name='Status', description='Pod状态'),
+          type?: string(name='Type', description='Pod类型'),
+        }
+      ](name='HistoryPods', description='历史Pods'),
       ip?: string(name='Ip', description='Pod Ip'),
       podId?: string(name='PodId', description='Pod Id'),
+      podUid?: string(name='PodUid', description='Pod UId'),
       status?: string(name='Status', description='Pod状态'),
       type?: string(name='Type', description='Pod类型'),
     }
@@ -844,6 +1090,7 @@ model GetJobResponseBody = {
   reasonMessage?: string(name='ReasonMessage', description='状态详情'),
   requestId?: string(name='RequestId', description='请求Id'),
   resourceId?: string(name='ResourceId', description='作业运行所在的资源组ID'),
+  resourceLevel?: string(name='ResourceLevel', description='作业运行时使用的资源级别'),
   settings?: JobSettings(name='Settings', description='作业额外参数配置'),
   status?: string(name='Status', description='作业状态'),
   thirdpartyLibDir?: string(name='ThirdpartyLibDir', description='三方库(requirements.txt)文件路径'),
@@ -856,6 +1103,7 @@ model GetJobResponseBody = {
 
 model GetJobResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: GetJobResponseBody(name='body'),
 }
 
@@ -870,7 +1118,18 @@ async function getJobWithOptions(JobId: string, headers: map[string]string, runt
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
-  return doROARequest('GetJob', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/jobs/${JobId}`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetJob',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/jobs/${JobId}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model GetJobEventsRequest {
@@ -887,6 +1146,7 @@ model GetJobEventsResponseBody = {
 
 model GetJobEventsResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: GetJobEventsResponseBody(name='body'),
 }
 
@@ -901,20 +1161,31 @@ async function getJobEventsWithOptions(JobId: string, request: GetJobEventsReque
   JobId = OpenApiUtil.getEncodeParam(JobId);
   var query : map[string]any= {};
   if (!Util.isUnset(request.endTime)) {
-    query.EndTime = request.endTime;
+    query['EndTime'] = request.endTime;
   }
   if (!Util.isUnset(request.maxEventsNum)) {
-    query.MaxEventsNum = request.maxEventsNum;
+    query['MaxEventsNum'] = request.maxEventsNum;
   }
   if (!Util.isUnset(request.startTime)) {
-    query.StartTime = request.startTime;
+    query['StartTime'] = request.startTime;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('GetJobEvents', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/jobs/${JobId}/events`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetJobEvents',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/jobs/${JobId}/events`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model GetJobMetricsRequest {
@@ -935,6 +1206,7 @@ model GetJobMetricsResponseBody = {
 
 model GetJobMetricsResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: GetJobMetricsResponseBody(name='body'),
 }
 
@@ -949,65 +1221,43 @@ async function getJobMetricsWithOptions(JobId: string, request: GetJobMetricsReq
   JobId = OpenApiUtil.getEncodeParam(JobId);
   var query : map[string]any= {};
   if (!Util.isUnset(request.endTime)) {
-    query.EndTime = request.endTime;
+    query['EndTime'] = request.endTime;
   }
   if (!Util.isUnset(request.metricType)) {
-    query.MetricType = request.metricType;
+    query['MetricType'] = request.metricType;
   }
   if (!Util.isUnset(request.startTime)) {
-    query.StartTime = request.startTime;
+    query['StartTime'] = request.startTime;
   }
   if (!Util.isUnset(request.timeStep)) {
-    query.TimeStep = request.timeStep;
+    query['TimeStep'] = request.timeStep;
   }
   if (!Util.isUnset(request.token)) {
-    query.Token = request.token;
+    query['Token'] = request.token;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('GetJobMetrics', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/jobs/${JobId}/metrics`, 'json', req, runtime);
-}
-
-model GetJobsStatisticsRequest {
-  workspaceId?: string(name='WorkspaceId', description='工作空间id'),
-}
-
-model GetJobsStatisticsResponseBody = {
-  requestId?: string(name='RequestId', description='请求ID'),
-  statistics?: map[string]any(name='Statistics', description='当前的Workspace ID下面的JOB统计数据'),
-}
-
-model GetJobsStatisticsResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetJobsStatisticsResponseBody(name='body'),
-}
-
-async function getJobsStatistics(request: GetJobsStatisticsRequest): GetJobsStatisticsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getJobsStatisticsWithOptions(request, headers, runtime);
-}
-
-async function getJobsStatisticsWithOptions(request: GetJobsStatisticsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetJobsStatisticsResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.workspaceId)) {
-    query.WorkspaceId = request.workspaceId;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
+  var params = new OpenApi.Params{
+    action = 'GetJobMetrics',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/jobs/${JobId}/metrics`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
   };
-  return doROARequest('GetJobsStatistics', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/statistics/jobs`, 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
 model GetPodEventsRequest {
   endTime?: string(name='EndTime', description='截止时间'),
   maxEventsNum?: int32(name='MaxEventsNum', description='返回的事件最大数量'),
+  podUid?: string(name='PodUid', description='运行实例UID'),
   startTime?: string(name='StartTime', description='起始时间'),
 }
 
@@ -1015,11 +1265,13 @@ model GetPodEventsResponseBody = {
   events?: [ string ](name='Events', description='事件列表'),
   jobId?: string(name='JobId', description='作业ID'),
   podId?: string(name='PodId', description='运行示例ID'),
+  podUid?: string(name='PodUid'),
   requestId?: string(name='RequestId', description='请求ID'),
 }
 
 model GetPodEventsResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: GetPodEventsResponseBody(name='body'),
 }
 
@@ -1035,26 +1287,41 @@ async function getPodEventsWithOptions(JobId: string, PodId: string, request: Ge
   PodId = OpenApiUtil.getEncodeParam(PodId);
   var query : map[string]any= {};
   if (!Util.isUnset(request.endTime)) {
-    query.EndTime = request.endTime;
+    query['EndTime'] = request.endTime;
   }
   if (!Util.isUnset(request.maxEventsNum)) {
-    query.MaxEventsNum = request.maxEventsNum;
+    query['MaxEventsNum'] = request.maxEventsNum;
+  }
+  if (!Util.isUnset(request.podUid)) {
+    query['PodUid'] = request.podUid;
   }
   if (!Util.isUnset(request.startTime)) {
-    query.StartTime = request.startTime;
+    query['StartTime'] = request.startTime;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('GetPodEvents', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/jobs/${JobId}/pods/${PodId}/events`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetPodEvents',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/jobs/${JobId}/pods/${PodId}/events`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model GetPodLogsRequest {
   downloadToFile?: boolean(name='DownloadToFile', description='是否下载日志文件，默认：false。'),
   endTime?: string(name='EndTime', description='查询的截止时间，默认值：当前。'),
   maxLines?: int32(name='MaxLines', description='返回的日志的最大行数，默认值：2000。'),
+  podUid?: string(name='PodUid'),
   startTime?: string(name='StartTime', description='查询的起始时间，默认值：7天前。'),
 }
 
@@ -1062,11 +1329,13 @@ model GetPodLogsResponseBody = {
   jobId?: string(name='JobId', description='作业ID'),
   logs?: [ string ](name='Logs', description='日志列表'),
   podId?: string(name='PodId', description='实例ID'),
+  podUid?: string(name='PodUid', description='实例UID'),
   requestId?: string(name='RequestId', description='请求ID'),
 }
 
 model GetPodLogsResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: GetPodLogsResponseBody(name='body'),
 }
 
@@ -1082,76 +1351,37 @@ async function getPodLogsWithOptions(JobId: string, PodId: string, request: GetP
   PodId = OpenApiUtil.getEncodeParam(PodId);
   var query : map[string]any= {};
   if (!Util.isUnset(request.downloadToFile)) {
-    query.DownloadToFile = request.downloadToFile;
+    query['DownloadToFile'] = request.downloadToFile;
   }
   if (!Util.isUnset(request.endTime)) {
-    query.EndTime = request.endTime;
+    query['EndTime'] = request.endTime;
   }
   if (!Util.isUnset(request.maxLines)) {
-    query.MaxLines = request.maxLines;
+    query['MaxLines'] = request.maxLines;
+  }
+  if (!Util.isUnset(request.podUid)) {
+    query['PodUid'] = request.podUid;
   }
   if (!Util.isUnset(request.startTime)) {
-    query.StartTime = request.startTime;
+    query['StartTime'] = request.startTime;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('GetPodLogs', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/jobs/${JobId}/pods/${PodId}/logs`, 'json', req, runtime);
-}
-
-model GetSecurityGroupResponseBody = {
-  requestId?: string(name='RequestId', description='请求id'),
-  securityGroupId?: string(name='SecurityGroupId', description='安全组id'),
-  securityGroupName?: string(name='SecurityGroupName', description='安全组名称'),
-  vpcId?: string(name='VpcId', description='所属vpc的id'),
-}
-
-model GetSecurityGroupResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetSecurityGroupResponseBody(name='body'),
-}
-
-async function getSecurityGroup(SecurityGroupId: string): GetSecurityGroupResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getSecurityGroupWithOptions(SecurityGroupId, headers, runtime);
-}
-
-async function getSecurityGroupWithOptions(SecurityGroupId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetSecurityGroupResponse {
-  SecurityGroupId = OpenApiUtil.getEncodeParam(SecurityGroupId);
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
+  var params = new OpenApi.Params{
+    action = 'GetPodLogs',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/jobs/${JobId}/pods/${PodId}/logs`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
   };
-  return doROARequest('GetSecurityGroup', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/securitygroups/${SecurityGroupId}`, 'json', req, runtime);
-}
-
-model GetSwitchResponseBody = {
-  cidrBlock?: string(name='CidrBlock', description='网段'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  vSwitchId?: string(name='VSwitchId', description='交换机的id'),
-  vSwitchName?: string(name='VSwitchName', description='交换机的名称'),
-  vpcId?: string(name='VpcId', description='所属VPC的id'),
-}
-
-model GetSwitchResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetSwitchResponseBody(name='body'),
-}
-
-async function getSwitch(SwitchId: string): GetSwitchResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getSwitchWithOptions(SwitchId, headers, runtime);
-}
-
-async function getSwitchWithOptions(SwitchId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetSwitchResponse {
-  SwitchId = OpenApiUtil.getEncodeParam(SwitchId);
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  return doROARequest('GetSwitch', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/switches/${SwitchId}`, 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
 model GetTensorboardRequest {
@@ -1161,6 +1391,7 @@ model GetTensorboardRequest {
 
 model GetTensorboardResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: Tensorboard  
 }
 
@@ -1175,239 +1406,28 @@ async function getTensorboardWithOptions(TensorboardId: string, request: GetTens
   TensorboardId = OpenApiUtil.getEncodeParam(TensorboardId);
   var query : map[string]any= {};
   if (!Util.isUnset(request.jodId)) {
-    query.JodId = request.jodId;
+    query['JodId'] = request.jodId;
   }
   if (!Util.isUnset(request.workspaceId)) {
-    query.WorkspaceId = request.workspaceId;
+    query['WorkspaceId'] = request.workspaceId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('GetTensorboard', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/tensorboards/${TensorboardId}`, 'json', req, runtime);
-}
-
-model GetTokenRequest {
-  expireTime?: long(name='ExpireTime', description='ExpireTime'),
-  targetId?: string(name='TargetId', description='TargetId'),
-  targetType?: string(name='TargetType', description='TargetType'),
-}
-
-model GetTokenResponseBody = {
-  requestId?: string(name='RequestId', description='RequestId'),
-  token?: string(name='Token', description='Token'),
-}
-
-model GetTokenResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetTokenResponseBody(name='body'),
-}
-
-async function getToken(request: GetTokenRequest): GetTokenResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getTokenWithOptions(request, headers, runtime);
-}
-
-async function getTokenWithOptions(request: GetTokenRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetTokenResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.expireTime)) {
-    query.ExpireTime = request.expireTime;
-  }
-  if (!Util.isUnset(request.targetId)) {
-    query.TargetId = request.targetId;
-  }
-  if (!Util.isUnset(request.targetType)) {
-    query.TargetType = request.targetType;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
+  var params = new OpenApi.Params{
+    action = 'GetTensorboard',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/tensorboards/${TensorboardId}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
   };
-  return doROARequest('GetToken', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/tokens`, 'json', req, runtime);
-}
-
-model GetUserAuthorizationResponseBody = {
-  isPassed?: boolean(name='IsPassed', description='是否通过鉴权'),
-  requestId?: int32(name='RequestId', description='请求ID'),
-}
-
-model GetUserAuthorizationResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetUserAuthorizationResponseBody(name='body'),
-}
-
-async function getUserAuthorization(UserId: string): GetUserAuthorizationResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getUserAuthorizationWithOptions(UserId, headers, runtime);
-}
-
-async function getUserAuthorizationWithOptions(UserId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetUserAuthorizationResponse {
-  UserId = OpenApiUtil.getEncodeParam(UserId);
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  return doROARequest('GetUserAuthorization', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/users/${UserId}/authorization`, 'json', req, runtime);
-}
-
-model GetVpcResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  vpcId?: int32(name='VpcId', description='Vpc的ID'),
-  vpcName?: string(name='VpcName', description='Vpc名称'),
-}
-
-model GetVpcResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetVpcResponseBody(name='body'),
-}
-
-async function getVpc(VpcId: string): GetVpcResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getVpcWithOptions(VpcId, headers, runtime);
-}
-
-async function getVpcWithOptions(VpcId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetVpcResponse {
-  VpcId = OpenApiUtil.getEncodeParam(VpcId);
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  return doROARequest('GetVpc', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/vpcs/${VpcId}`, 'json', req, runtime);
-}
-
-model GetWorkspaceResponseBody = {
-  isWorkspaceAdmin?: boolean(name='IsWorkspaceAdmin', description='是否是当前工作空间的管理员'),
-  requestId?: string(name='RequestId', description='请求ID'),
-  workspace?: Workspace(name='Workspace', description='工作空间'),
-}
-
-model GetWorkspaceResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetWorkspaceResponseBody(name='body'),
-}
-
-async function getWorkspace(WorkspaceId: string): GetWorkspaceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getWorkspaceWithOptions(WorkspaceId, headers, runtime);
-}
-
-async function getWorkspaceWithOptions(WorkspaceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetWorkspaceResponse {
-  WorkspaceId = OpenApiUtil.getEncodeParam(WorkspaceId);
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  return doROARequest('GetWorkspace', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/workspaces/${WorkspaceId}`, 'json', req, runtime);
-}
-
-model JobDispatchQueryRequest {
-  algoName?: string(name='AlgoName', description='PAI-Xflow名称'),
-  projectName?: string(name='ProjectName', description='PAI-project名称'),
-  properties?: map[string]string(name='Properties', description='properties of pai command'),
-  settings?: map[string]string(name='Settings', description='odps settings'),
-}
-
-model JobDispatchQueryShrinkRequest {
-  algoName?: string(name='AlgoName', description='PAI-Xflow名称'),
-  projectName?: string(name='ProjectName', description='PAI-project名称'),
-  propertiesShrink?: string(name='Properties', description='properties of pai command'),
-  settingsShrink?: string(name='Settings', description='odps settings'),
-}
-
-model JobDispatchQueryResponseBody = {
-  jobId?: string(name='JobId', description='作业Id'),
-  requestId?: string(name='RequestId', description='请求Id'),
-}
-
-model JobDispatchQueryResponse = {
-  headers: map[string]string(name='headers'),
-  body: JobDispatchQueryResponseBody(name='body'),
-}
-
-async function jobDispatchQuery(request: JobDispatchQueryRequest): JobDispatchQueryResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return jobDispatchQueryWithOptions(request, headers, runtime);
-}
-
-async function jobDispatchQueryWithOptions(tmpReq: JobDispatchQueryRequest, headers: map[string]string, runtime: Util.RuntimeOptions): JobDispatchQueryResponse {
-  Util.validateModel(tmpReq);
-  var request = new JobDispatchQueryShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.properties)) {
-    request.propertiesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.properties, 'Properties', 'json');
-  }
-  if (!Util.isUnset(tmpReq.settings)) {
-    request.settingsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.settings, 'Settings', 'json');
-  }
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.algoName)) {
-    query.AlgoName = request.algoName;
-  }
-  if (!Util.isUnset(request.projectName)) {
-    query.ProjectName = request.projectName;
-  }
-  if (!Util.isUnset(request.propertiesShrink)) {
-    query.Properties = request.propertiesShrink;
-  }
-  if (!Util.isUnset(request.settingsShrink)) {
-    query.Settings = request.settingsShrink;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  return doROARequest('JobDispatchQuery', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/jobdispatch`, 'json', req, runtime);
-}
-
-model JobDispatchSubmitRequest {
-  algoName?: string(name='AlgoName', description='PAI-Xflow名称'),
-  projectName?: string(name='ProjectName', description='PAI-project名称'),
-  properties?: map[string]string(name='Properties', description='properties of pai command'),
-  settings?: map[string]string(name='Settings', description='odps settings'),
-}
-
-model JobDispatchSubmitResponseBody = {
-  jobUrl?: string(name='JobUrl', description='作业Url'),
-}
-
-model JobDispatchSubmitResponse = {
-  headers: map[string]string(name='headers'),
-  body: JobDispatchSubmitResponseBody(name='body'),
-}
-
-async function jobDispatchSubmit(request: JobDispatchSubmitRequest): JobDispatchSubmitResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return jobDispatchSubmitWithOptions(request, headers, runtime);
-}
-
-async function jobDispatchSubmitWithOptions(request: JobDispatchSubmitRequest, headers: map[string]string, runtime: Util.RuntimeOptions): JobDispatchSubmitResponse {
-  Util.validateModel(request);
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.algoName)) {
-    body.AlgoName = request.algoName;
-  }
-  if (!Util.isUnset(request.projectName)) {
-    body.ProjectName = request.projectName;
-  }
-  if (!Util.isUnset(request.properties)) {
-    body.Properties = request.properties;
-  }
-  if (!Util.isUnset(request.settings)) {
-    body.Settings = request.settings;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = OpenApiUtil.parseToMap(body),
-  };
-  return doROARequest('JobDispatchSubmit', '2020-12-03', 'HTTPS', 'POST', 'AK', `/api/v1/jobdispatch`, 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
 model ListCodeSourcesRequest {
@@ -1415,7 +1435,7 @@ model ListCodeSourcesRequest {
   order?: string(name='Order', description='排序顺序, 枚举值 desc 或者 asc'),
   pageNumber?: int32(name='PageNumber', description='取第几页的数据'),
   pageSize?: int32(name='PageSize', description='分页大小'),
-  sortBy?: string(name='SortBy', description='用于排序的字段名，可选字段名：\'DisplayName\' \'GmtCreateTime\' \'GmtModifyTime\''),
+  sortBy?: string(name='SortBy', description='用于排序的字段名，可选字段名：DisplayName、GmtCreateTime、 GmtModifyTime'),
 }
 
 model ListCodeSourcesResponseBody = {
@@ -1428,6 +1448,7 @@ model ListCodeSourcesResponseBody = {
 
 model ListCodeSourcesResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ListCodeSourcesResponseBody(name='body'),
 }
 
@@ -1441,26 +1462,37 @@ async function listCodeSourcesWithOptions(request: ListCodeSourcesRequest, heade
   Util.validateModel(request);
   var query : map[string]any= {};
   if (!Util.isUnset(request.displayName)) {
-    query.DisplayName = request.displayName;
+    query['DisplayName'] = request.displayName;
   }
   if (!Util.isUnset(request.order)) {
-    query.Order = request.order;
+    query['Order'] = request.order;
   }
   if (!Util.isUnset(request.pageNumber)) {
-    query.PageNumber = request.pageNumber;
+    query['PageNumber'] = request.pageNumber;
   }
   if (!Util.isUnset(request.pageSize)) {
-    query.PageSize = request.pageSize;
+    query['PageSize'] = request.pageSize;
   }
   if (!Util.isUnset(request.sortBy)) {
-    query.SortBy = request.sortBy;
+    query['SortBy'] = request.sortBy;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('ListCodeSources', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/codesources`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListCodeSources',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/codesources`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model ListDataSourcesRequest {
@@ -1482,6 +1514,7 @@ model ListDataSourcesResponseBody = {
 
 model ListDataSourcesResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ListDataSourcesResponseBody(name='body'),
 }
 
@@ -1495,32 +1528,44 @@ async function listDataSourcesWithOptions(request: ListDataSourcesRequest, heade
   Util.validateModel(request);
   var query : map[string]any= {};
   if (!Util.isUnset(request.dataSourceType)) {
-    query.DataSourceType = request.dataSourceType;
+    query['DataSourceType'] = request.dataSourceType;
   }
   if (!Util.isUnset(request.displayName)) {
-    query.DisplayName = request.displayName;
+    query['DisplayName'] = request.displayName;
   }
   if (!Util.isUnset(request.order)) {
-    query.Order = request.order;
+    query['Order'] = request.order;
   }
   if (!Util.isUnset(request.pageNumber)) {
-    query.PageNumber = request.pageNumber;
+    query['PageNumber'] = request.pageNumber;
   }
   if (!Util.isUnset(request.pageSize)) {
-    query.PageSize = request.pageSize;
+    query['PageSize'] = request.pageSize;
   }
   if (!Util.isUnset(request.sortBy)) {
-    query.SortBy = request.sortBy;
+    query['SortBy'] = request.sortBy;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('ListDataSources', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/datasources`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListDataSources',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/datasources`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model ListEcsSpecsRequest {
+  acceleratorType?: string(name='AcceleratorType', description='按加速器类型过滤'),
   order?: string(name='Order', description='排序顺序'),
   pageNumber?: int32(name='PageNumber', description='查询第几页数据'),
   pageSize?: int32(name='PageSize', description='设置查询的分页大写'),
@@ -1537,6 +1582,7 @@ model ListEcsSpecsResponseBody = {
 
 model ListEcsSpecsResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ListEcsSpecsResponseBody(name='body'),
 }
 
@@ -1549,24 +1595,38 @@ async function listEcsSpecs(request: ListEcsSpecsRequest): ListEcsSpecsResponse 
 async function listEcsSpecsWithOptions(request: ListEcsSpecsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListEcsSpecsResponse {
   Util.validateModel(request);
   var query : map[string]any= {};
+  if (!Util.isUnset(request.acceleratorType)) {
+    query['AcceleratorType'] = request.acceleratorType;
+  }
   if (!Util.isUnset(request.order)) {
-    query.Order = request.order;
+    query['Order'] = request.order;
   }
   if (!Util.isUnset(request.pageNumber)) {
-    query.PageNumber = request.pageNumber;
+    query['PageNumber'] = request.pageNumber;
   }
   if (!Util.isUnset(request.pageSize)) {
-    query.PageSize = request.pageSize;
+    query['PageSize'] = request.pageSize;
   }
   if (!Util.isUnset(request.sortBy)) {
-    query.SortBy = request.sortBy;
+    query['SortBy'] = request.sortBy;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('ListEcsSpecs', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/ecsspecs`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListEcsSpecs',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/ecsspecs`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model ListImagesRequest {
@@ -1575,6 +1635,7 @@ model ListImagesRequest {
   imageProviderType?: string(name='ImageProviderType', description='镜像类型'),
   order?: string(name='Order', description='排序顺序'),
   sortBy?: string(name='SortBy', description='按返回字段排序'),
+  workspaceId?: string(name='WorkspaceId', description='工作空间ID'),
 }
 
 model ListImagesResponseBody = {
@@ -1587,6 +1648,7 @@ model ListImagesResponseBody = {
 
 model ListImagesResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ListImagesResponseBody(name='body'),
 }
 
@@ -1600,26 +1662,40 @@ async function listImagesWithOptions(request: ListImagesRequest, headers: map[st
   Util.validateModel(request);
   var query : map[string]any= {};
   if (!Util.isUnset(request.acceleratorType)) {
-    query.AcceleratorType = request.acceleratorType;
+    query['AcceleratorType'] = request.acceleratorType;
   }
   if (!Util.isUnset(request.framework)) {
-    query.Framework = request.framework;
+    query['Framework'] = request.framework;
   }
   if (!Util.isUnset(request.imageProviderType)) {
-    query.ImageProviderType = request.imageProviderType;
+    query['ImageProviderType'] = request.imageProviderType;
   }
   if (!Util.isUnset(request.order)) {
-    query.Order = request.order;
+    query['Order'] = request.order;
   }
   if (!Util.isUnset(request.sortBy)) {
-    query.SortBy = request.sortBy;
+    query['SortBy'] = request.sortBy;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('ListImages', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/images`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListImages',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/images`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model ListJobsRequest {
@@ -1627,6 +1703,7 @@ model ListJobsRequest {
   caller?: string(name='Caller', description='调用方'),
   displayName?: string(name='DisplayName', description='作业显示名称，支持模糊查询'),
   endTime?: string(name='EndTime', description='截止时间'),
+  fromAllWorkspaces?: boolean(name='FromAllWorkspaces'),
   jobType?: string(name='JobType', description='作业类型'),
   order?: string(name='Order', description='排序顺序'),
   pageNumber?: int32(name='PageNumber', description='当前页'),
@@ -1646,6 +1723,7 @@ model ListJobsShrinkRequest {
   caller?: string(name='Caller', description='调用方'),
   displayName?: string(name='DisplayName', description='作业显示名称，支持模糊查询'),
   endTime?: string(name='EndTime', description='截止时间'),
+  fromAllWorkspaces?: boolean(name='FromAllWorkspaces'),
   jobType?: string(name='JobType', description='作业类型'),
   order?: string(name='Order', description='排序顺序'),
   pageNumber?: int32(name='PageNumber', description='当前页'),
@@ -1670,6 +1748,7 @@ model ListJobsResponseBody = {
 
 model ListJobsResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ListJobsResponseBody(name='body'),
 }
 
@@ -1688,160 +1767,73 @@ async function listJobsWithOptions(tmpReq: ListJobsRequest, headers: map[string]
   }
   var query : map[string]any= {};
   if (!Util.isUnset(request.businessUserId)) {
-    query.BusinessUserId = request.businessUserId;
+    query['BusinessUserId'] = request.businessUserId;
   }
   if (!Util.isUnset(request.caller)) {
-    query.Caller = request.caller;
+    query['Caller'] = request.caller;
   }
   if (!Util.isUnset(request.displayName)) {
-    query.DisplayName = request.displayName;
+    query['DisplayName'] = request.displayName;
   }
   if (!Util.isUnset(request.endTime)) {
-    query.EndTime = request.endTime;
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.fromAllWorkspaces)) {
+    query['FromAllWorkspaces'] = request.fromAllWorkspaces;
   }
   if (!Util.isUnset(request.jobType)) {
-    query.JobType = request.jobType;
+    query['JobType'] = request.jobType;
   }
   if (!Util.isUnset(request.order)) {
-    query.Order = request.order;
+    query['Order'] = request.order;
   }
   if (!Util.isUnset(request.pageNumber)) {
-    query.PageNumber = request.pageNumber;
+    query['PageNumber'] = request.pageNumber;
   }
   if (!Util.isUnset(request.pageSize)) {
-    query.PageSize = request.pageSize;
+    query['PageSize'] = request.pageSize;
   }
   if (!Util.isUnset(request.pipelineId)) {
-    query.PipelineId = request.pipelineId;
+    query['PipelineId'] = request.pipelineId;
   }
   if (!Util.isUnset(request.resourceId)) {
-    query.ResourceId = request.resourceId;
+    query['ResourceId'] = request.resourceId;
   }
   if (!Util.isUnset(request.showOwn)) {
-    query.ShowOwn = request.showOwn;
+    query['ShowOwn'] = request.showOwn;
   }
   if (!Util.isUnset(request.sortBy)) {
-    query.SortBy = request.sortBy;
+    query['SortBy'] = request.sortBy;
   }
   if (!Util.isUnset(request.startTime)) {
-    query.StartTime = request.startTime;
+    query['StartTime'] = request.startTime;
   }
   if (!Util.isUnset(request.status)) {
-    query.Status = request.status;
+    query['Status'] = request.status;
   }
   if (!Util.isUnset(request.tagsShrink)) {
-    query.Tags = request.tagsShrink;
+    query['Tags'] = request.tagsShrink;
   }
   if (!Util.isUnset(request.workspaceId)) {
-    query.WorkspaceId = request.workspaceId;
+    query['WorkspaceId'] = request.workspaceId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('ListJobs', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/jobs`, 'json', req, runtime);
-}
-
-model ListSecurityGroupsRequest {
-  pageNumber?: int32(name='PageNumber', description='取第几页的数据'),
-  pageSize?: int32(name='PageSize', description='分页大小'),
-  vpcId?: string(name='VpcId', description='所属Vpc'),
-}
-
-model ListSecurityGroupsResponseBody = {
-  requestId?: string(name='RequestId', description='请求Id'),
-  securityGroups?: [ 
-    {
-      description?: string(name='Description', description='描述'),
-      securityGroupId?: string(name='SecurityGroupId', description='安全组Id'),
-      securityGroupName?: string(name='SecurityGroupName', description='安全组名称'),
-      vpcId?: string(name='VpcId', description='所属VPC ID'),
-    }
-  ](name='SecurityGroups', description='代码源配置列表'),
-  totalCount?: long(name='TotalCount', description='符合过滤条件的代码源配置的总数量'),
-}
-
-model ListSecurityGroupsResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListSecurityGroupsResponseBody(name='body'),
-}
-
-async function listSecurityGroups(request: ListSecurityGroupsRequest): ListSecurityGroupsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listSecurityGroupsWithOptions(request, headers, runtime);
-}
-
-async function listSecurityGroupsWithOptions(request: ListSecurityGroupsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListSecurityGroupsResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.pageNumber)) {
-    query.PageNumber = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query.PageSize = request.pageSize;
-  }
-  if (!Util.isUnset(request.vpcId)) {
-    query.VpcId = request.vpcId;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
+  var params = new OpenApi.Params{
+    action = 'ListJobs',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/jobs`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
   };
-  return doROARequest('ListSecurityGroups', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/securitygroups`, 'json', req, runtime);
-}
-
-model ListSwitchesRequest {
-  pageNumber?: int32(name='PageNumber', description='取第几页的数据'),
-  pageSize?: int32(name='PageSize', description='分页大小'),
-  vpcId?: string(name='VpcId', description='所属VPC id'),
-}
-
-model ListSwitchesResponseBody = {
-  requestId?: string(name='RequestId', description='请求Id'),
-  switches?: [ 
-    {
-      cidrBlock?: string(name='CidrBlock', description='网段'),
-      description?: string(name='Description', description='描述'),
-      vSwitchId?: string(name='VSwitchId', description='交换机id'),
-      vSwitchName?: string(name='VSwitchName', description='交换机名称'),
-      vpcId?: string(name='VpcId', description='所属VPCid'),
-    }
-  ](name='Switches', description='代码源配置列表'),
-  totalCount?: long(name='TotalCount', description='符合过滤条件的代码源配置的总数量'),
-}
-
-model ListSwitchesResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListSwitchesResponseBody(name='body'),
-}
-
-async function listSwitches(request: ListSwitchesRequest): ListSwitchesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listSwitchesWithOptions(request, headers, runtime);
-}
-
-async function listSwitchesWithOptions(request: ListSwitchesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListSwitchesResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.pageNumber)) {
-    query.PageNumber = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query.PageSize = request.pageSize;
-  }
-  if (!Util.isUnset(request.vpcId)) {
-    query.VpcId = request.vpcId;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  return doROARequest('ListSwitches', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/switches`, 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
 model ListTensorboardsRequest {
@@ -1852,6 +1844,8 @@ model ListTensorboardsRequest {
   pageNumber?: int32(name='PageNumber', description='当前页'),
   pageSize?: int32(name='PageSize', description='每页返回的作业数'),
   sortBy?: string(name='SortBy', description='按返回字段排序'),
+  sourceId?: string(name='SourceId'),
+  sourceType?: string(name='SourceType'),
   startTime?: string(name='StartTime', description='起始时间'),
   status?: string(name='Status', description='根据状态过滤'),
   tensorboardId?: string(name='TensorboardId', description='TensorboardId'),
@@ -1869,6 +1863,7 @@ model ListTensorboardsResponseBody = {
 
 model ListTensorboardsResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ListTensorboardsResponseBody(name='body'),
 }
 
@@ -1882,144 +1877,64 @@ async function listTensorboardsWithOptions(request: ListTensorboardsRequest, hea
   Util.validateModel(request);
   var query : map[string]any= {};
   if (!Util.isUnset(request.displayName)) {
-    query.DisplayName = request.displayName;
+    query['DisplayName'] = request.displayName;
   }
   if (!Util.isUnset(request.endTime)) {
-    query.EndTime = request.endTime;
+    query['EndTime'] = request.endTime;
   }
   if (!Util.isUnset(request.jobId)) {
-    query.JobId = request.jobId;
+    query['JobId'] = request.jobId;
   }
   if (!Util.isUnset(request.order)) {
-    query.Order = request.order;
+    query['Order'] = request.order;
   }
   if (!Util.isUnset(request.pageNumber)) {
-    query.PageNumber = request.pageNumber;
+    query['PageNumber'] = request.pageNumber;
   }
   if (!Util.isUnset(request.pageSize)) {
-    query.PageSize = request.pageSize;
+    query['PageSize'] = request.pageSize;
   }
   if (!Util.isUnset(request.sortBy)) {
-    query.SortBy = request.sortBy;
+    query['SortBy'] = request.sortBy;
+  }
+  if (!Util.isUnset(request.sourceId)) {
+    query['SourceId'] = request.sourceId;
+  }
+  if (!Util.isUnset(request.sourceType)) {
+    query['SourceType'] = request.sourceType;
   }
   if (!Util.isUnset(request.startTime)) {
-    query.StartTime = request.startTime;
+    query['StartTime'] = request.startTime;
   }
   if (!Util.isUnset(request.status)) {
-    query.Status = request.status;
+    query['Status'] = request.status;
   }
   if (!Util.isUnset(request.tensorboardId)) {
-    query.TensorboardId = request.tensorboardId;
+    query['TensorboardId'] = request.tensorboardId;
   }
   if (!Util.isUnset(request.verbose)) {
-    query.Verbose = request.verbose;
+    query['Verbose'] = request.verbose;
   }
   if (!Util.isUnset(request.workspaceId)) {
-    query.WorkspaceId = request.workspaceId;
+    query['WorkspaceId'] = request.workspaceId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('ListTensorboards', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/tensorboards`, 'json', req, runtime);
-}
-
-model ListVpcsRequest {
-  pageNumber?: int32(name='PageNumber', description='取第几页的数据'),
-  pageSize?: int32(name='PageSize', description='分页大小'),
-}
-
-model ListVpcsResponseBody = {
-  requestId?: string(name='RequestId', description='请求Id'),
-  totalCount?: long(name='TotalCount', description='符合过滤条件的代码源配置的总数量'),
-  vpcs?: [ 
-    {
-      vpcId?: string(name='VpcId', description='vpc的id'),
-      vpcName?: string(name='VpcName', description='VPC的名称。'),
-    }
-  ](name='Vpcs', description='代码源配置列表'),
-}
-
-model ListVpcsResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListVpcsResponseBody(name='body'),
-}
-
-async function listVpcs(request: ListVpcsRequest): ListVpcsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listVpcsWithOptions(request, headers, runtime);
-}
-
-async function listVpcsWithOptions(request: ListVpcsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListVpcsResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.pageNumber)) {
-    query.PageNumber = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query.PageSize = request.pageSize;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
+  var params = new OpenApi.Params{
+    action = 'ListTensorboards',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/tensorboards`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
   };
-  return doROARequest('ListVpcs', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/vpcs`, 'json', req, runtime);
-}
-
-model ListWorkspacesRequest {
-  needDetail?: boolean(name='NeedDetail', description='是否返回详情(Quotas, Members)'),
-  order?: string(name='Order', description='排列顺序: desc 或者 asc'),
-  pageNumber?: int32(name='PageNumber', description='查询第几页数据,最小值为1'),
-  pageSize?: int32(name='PageSize', description='设置查询的分页大小,最小值为1'),
-  sortBy?: string(name='SortBy', description='返回结果的排序字段名，枚举值'),
-}
-
-model ListWorkspacesResponseBody = {
-  requestId?: string(name='RequestId', description='请求id'),
-  totalCount?: long(name='TotalCount', description='结果数'),
-  workspaces?: [
-    Workspace
-  ](name='Workspaces', description='工作空间列表'),
-}
-
-model ListWorkspacesResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListWorkspacesResponseBody(name='body'),
-}
-
-async function listWorkspaces(request: ListWorkspacesRequest): ListWorkspacesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listWorkspacesWithOptions(request, headers, runtime);
-}
-
-async function listWorkspacesWithOptions(request: ListWorkspacesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListWorkspacesResponse {
-  Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.needDetail)) {
-    query.NeedDetail = request.needDetail;
-  }
-  if (!Util.isUnset(request.order)) {
-    query.Order = request.order;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    query.PageNumber = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query.PageSize = request.pageSize;
-  }
-  if (!Util.isUnset(request.sortBy)) {
-    query.SortBy = request.sortBy;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  return doROARequest('ListWorkspaces', '2020-12-03', 'HTTPS', 'GET', 'AK', `/api/v1/workspaces`, 'json', req, runtime);
+  return callApi(params, req, runtime);
 }
 
 model StartTensorboardRequest {
@@ -2033,6 +1948,7 @@ model StartTensorboardResponseBody = {
 
 model StartTensorboardResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: StartTensorboardResponseBody(name='body'),
 }
 
@@ -2047,14 +1963,25 @@ async function startTensorboardWithOptions(TensorboardId: string, request: Start
   TensorboardId = OpenApiUtil.getEncodeParam(TensorboardId);
   var query : map[string]any= {};
   if (!Util.isUnset(request.workspaceId)) {
-    query.WorkspaceId = request.workspaceId;
+    query['WorkspaceId'] = request.workspaceId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('StartTensorboard', '2020-12-03', 'HTTPS', 'PUT', 'AK', `/api/v1/tensorboards/${TensorboardId}/start`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'StartTensorboard',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/tensorboards/${TensorboardId}/start`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model StopJobResponseBody = {
@@ -2064,6 +1991,7 @@ model StopJobResponseBody = {
 
 model StopJobResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: StopJobResponseBody(name='body'),
 }
 
@@ -2078,7 +2006,64 @@ async function stopJobWithOptions(JobId: string, headers: map[string]string, run
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
-  return doROARequest('StopJob', '2020-12-03', 'HTTPS', 'POST', 'AK', `/api/v1/jobs/${JobId}/stop`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'StopJob',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/jobs/${JobId}/stop`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model StopJobsRequest {
+  jobIds?: [ string ](name='JobIds', description='作业ID列表'),
+}
+
+model StopJobsResponseBody = {
+  jobIds?: [ string ](name='JobIds', description='作业ID列表'),
+  requestId?: string(name='RequestId', description='请求ID'),
+}
+
+model StopJobsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: StopJobsResponseBody(name='body'),
+}
+
+async function stopJobs(request: StopJobsRequest): StopJobsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return stopJobsWithOptions(request, headers, runtime);
+}
+
+async function stopJobsWithOptions(request: StopJobsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): StopJobsResponse {
+  Util.validateModel(request);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.jobIds)) {
+    body['JobIds'] = request.jobIds;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'StopJobs',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/batch/jobs/stop`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model StopTensorboardRequest {
@@ -2092,6 +2077,7 @@ model StopTensorboardResponseBody = {
 
 model StopTensorboardResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: StopTensorboardResponseBody(name='body'),
 }
 
@@ -2106,14 +2092,72 @@ async function stopTensorboardWithOptions(TensorboardId: string, request: StopTe
   TensorboardId = OpenApiUtil.getEncodeParam(TensorboardId);
   var query : map[string]any= {};
   if (!Util.isUnset(request.workspaceId)) {
-    query.WorkspaceId = request.workspaceId;
+    query['WorkspaceId'] = request.workspaceId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('StopTensorboard', '2020-12-03', 'HTTPS', 'PUT', 'AK', `/api/v1/tensorboards/${TensorboardId}/stop`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'StopTensorboard',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/tensorboards/${TensorboardId}/stop`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model UpdateJobRequest {
+  priority?: int32(name='Priority', description='设置优先级'),
+}
+
+model UpdateJobResponseBody = {
+  jobId?: string(name='JobId', description='作业ID'),
+  requestId?: string(name='RequestId', description='请求ID'),
+}
+
+model UpdateJobResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateJobResponseBody(name='body'),
+}
+
+async function updateJob(JobId: string, request: UpdateJobRequest): UpdateJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateJobWithOptions(JobId, request, headers, runtime);
+}
+
+async function updateJobWithOptions(JobId: string, request: UpdateJobRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateJobResponse {
+  Util.validateModel(request);
+  JobId = OpenApiUtil.getEncodeParam(JobId);
+  var body : map[string]any= {};
+  if (!Util.isUnset(request.priority)) {
+    body['Priority'] = request.priority;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateJob',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/jobs/${JobId}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model UpdateTensorboardRequest {
@@ -2128,6 +2172,7 @@ model UpdateTensorboardResponseBody = {
 
 model UpdateTensorboardResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: UpdateTensorboardResponseBody(name='body'),
 }
 
@@ -2142,16 +2187,27 @@ async function updateTensorboardWithOptions(TensorboardId: string, request: Upda
   TensorboardId = OpenApiUtil.getEncodeParam(TensorboardId);
   var query : map[string]any= {};
   if (!Util.isUnset(request.maxRunningTimeMinutes)) {
-    query.MaxRunningTimeMinutes = request.maxRunningTimeMinutes;
+    query['MaxRunningTimeMinutes'] = request.maxRunningTimeMinutes;
   }
   if (!Util.isUnset(request.workspaceId)) {
-    query.WorkspaceId = request.workspaceId;
+    query['WorkspaceId'] = request.workspaceId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
   };
-  return doROARequest('UpdateTensorboard', '2020-12-03', 'HTTPS', 'PUT', 'AK', `/api/v1/tensorboards/${TensorboardId}`, 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UpdateTensorboard',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/tensorboards/${TensorboardId}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
