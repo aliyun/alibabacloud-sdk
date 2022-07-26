@@ -3,10 +3,11 @@
  */
 import Util;
 import OpenApi;
-
+import OpenApiUtil;
 import EndpointUtil;
 
 extends OpenApi;
+
 
 init(config: OpenApi.Config){
   super(config);
@@ -20,165 +21,204 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   if (!Util.empty(endpoint)) {
     return endpoint;
   }
-
+  
   if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-model ScanTextRequest {
-  tasks?: [ 
-    {
-      content?: string(name='Content'),
-    }
-  ](name='Tasks'),
-  labels?: [ 
-    {
-      label?: string(name='Label'),
-    }
-  ](name='Labels'),
-}
-
-model ScanTextResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    elements?: [ 
-      {
-        taskId?: string(name='TaskId'),
-        results?: [ 
-          {
-            suggestion?: string(name='Suggestion'),
-            label?: string(name='Label'),
-            rate?: float(name='Rate'),
-            details?: [ 
-              {
-                label?: string(name='Label'),
-                contexts?: [ 
-                  {
-                    context?: string(name='Context'),
-                  }
-                ](name='Contexts'),
-              }
-            ](name='Details'),
-          }
-        ](name='Results'),
-      }
-    ](name='Elements'),
-  }(name='Data'),
-}
-
-model ScanTextResponse = {
-  headers: map[string]string(name='headers'),
-  body: ScanTextResponseBody(name='body'),
-}
-
-async function scanTextWithOptions(request: ScanTextRequest, runtime: Util.RuntimeOptions): ScanTextResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('ScanText', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function scanText(request: ScanTextRequest): ScanTextResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return scanTextWithOptions(request, runtime);
-}
 
 model ScanImageRequest {
+  scene?: [ string ](name='Scene'),
   task?: [ 
     {
-      imageTimeMillisecond?: long(name='ImageTimeMillisecond'),
-      interval?: int32(name='Interval'),
-      imageURL?: string(name='ImageURL'),
-      maxFrames?: int32(name='MaxFrames'),
       dataId?: string(name='DataId'),
+      imageTimeMillisecond?: long(name='ImageTimeMillisecond'),
+      imageURL?: string(name='ImageURL'),
+      interval?: int32(name='Interval'),
+      maxFrames?: int32(name='MaxFrames'),
     }
   ](name='Task'),
-  scene?: [ string ](name='Scene'),
 }
 
 model ScanImageResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     results?: [ 
       {
-        imageURL?: string(name='ImageURL'),
         dataId?: string(name='DataId'),
+        imageURL?: string(name='ImageURL'),
         subResults?: [ 
           {
-            sfaceDataList?: [ 
+            frames?: [ 
               {
-                width?: float(name='Width'),
-                faces?: [ 
-                  {
-                    name?: string(name='Name'),
-                    id?: string(name='Id'),
-                    rate?: float(name='Rate'),
-                  }
-                ](name='Faces'),
-                height?: float(name='Height'),
-                y?: float(name='Y'),
-                x?: float(name='X'),
+                rate?: float(name='Rate'),
+                URL?: string(name='URL'),
               }
-            ](name='SfaceDataList'),
+            ](name='Frames'),
             hintWordsInfoList?: [ 
               {
                 context?: string(name='Context'),
               }
             ](name='HintWordsInfoList'),
-            suggestion?: string(name='Suggestion'),
-            programCodeDataList?: [ 
-              {
-                width?: float(name='Width'),
-                height?: float(name='Height'),
-                y?: float(name='Y'),
-                x?: float(name='X'),
-              }
-            ](name='ProgramCodeDataList'),
-            OCRDataList?: [ string ](name='OCRDataList'),
-            frames?: [ 
-              {
-                URL?: string(name='URL'),
-                rate?: float(name='Rate'),
-              }
-            ](name='Frames'),
+            label?: string(name='Label'),
             logoDataList?: [ 
               {
+                height?: float(name='Height'),
+                name?: string(name='Name'),
                 type?: string(name='Type'),
                 width?: float(name='Width'),
-                height?: float(name='Height'),
-                y?: float(name='Y'),
-                name?: string(name='Name'),
                 x?: float(name='X'),
+                y?: float(name='Y'),
               }
             ](name='LogoDataList'),
-            label?: string(name='Label'),
-            scene?: string(name='Scene'),
+            OCRDataList?: [ string ](name='OCRDataList'),
+            programCodeDataList?: [ 
+              {
+                height?: float(name='Height'),
+                width?: float(name='Width'),
+                x?: float(name='X'),
+                y?: float(name='Y'),
+              }
+            ](name='ProgramCodeDataList'),
             rate?: float(name='Rate'),
+            scene?: string(name='Scene'),
+            sfaceDataList?: [ 
+              {
+                faces?: [ 
+                  {
+                    id?: string(name='Id'),
+                    name?: string(name='Name'),
+                    rate?: float(name='Rate'),
+                  }
+                ](name='Faces'),
+                height?: float(name='Height'),
+                width?: float(name='Width'),
+                x?: float(name='X'),
+                y?: float(name='Y'),
+              }
+            ](name='SfaceDataList'),
+            suggestion?: string(name='Suggestion'),
           }
         ](name='SubResults'),
         taskId?: string(name='TaskId'),
       }
     ](name='Results'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model ScanImageResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ScanImageResponseBody(name='body'),
 }
 
 async function scanImageWithOptions(request: ScanImageRequest, runtime: Util.RuntimeOptions): ScanImageResponse {
   Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.scene)) {
+    body['Scene'] = request.scene;
+  }
+  if (!Util.isUnset(request.task)) {
+    body['Task'] = request.task;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('ScanImage', '2019-12-30', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ScanImage',
+    version = '2019-12-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function scanImage(request: ScanImageRequest): ScanImageResponse {
   var runtime = new Util.RuntimeOptions{};
   return scanImageWithOptions(request, runtime);
+}
+
+model ScanTextRequest {
+  labels?: [ 
+    {
+      label?: string(name='Label'),
+    }
+  ](name='Labels'),
+  tasks?: [ 
+    {
+      content?: string(name='Content'),
+    }
+  ](name='Tasks'),
+}
+
+model ScanTextResponseBody = {
+  data?: {
+    elements?: [ 
+      {
+        results?: [ 
+          {
+            details?: [ 
+              {
+                contexts?: [ 
+                  {
+                    context?: string(name='Context'),
+                  }
+                ](name='Contexts'),
+                label?: string(name='Label'),
+              }
+            ](name='Details'),
+            label?: string(name='Label'),
+            rate?: float(name='Rate'),
+            suggestion?: string(name='Suggestion'),
+          }
+        ](name='Results'),
+        taskId?: string(name='TaskId'),
+      }
+    ](name='Elements'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model ScanTextResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ScanTextResponseBody(name='body'),
+}
+
+async function scanTextWithOptions(request: ScanTextRequest, runtime: Util.RuntimeOptions): ScanTextResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.labels)) {
+    body['Labels'] = request.labels;
+  }
+  if (!Util.isUnset(request.tasks)) {
+    body['Tasks'] = request.tasks;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ScanText',
+    version = '2019-12-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function scanText(request: ScanTextRequest): ScanTextResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return scanTextWithOptions(request, runtime);
 }
 
