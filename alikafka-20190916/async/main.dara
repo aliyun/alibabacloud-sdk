@@ -65,6 +65,30 @@ function close(): void {
   @handler.close();
 }
 
+model ChangeResourceGroupRequest {
+  newResourceGroupId: string(name='NewResourceGroupId', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+  resourceId: string(name='ResourceId', position='Query'),
+}
+
+model ChangeResourceGroupResponseBody = {
+  code?: int32(name='Code'),
+  message?: string(name='Message'),
+  newResourceGroupId?: string(name='NewResourceGroupId'),
+  requestId?: string(name='RequestId'),
+  success?: long(name='Success'),
+}
+
+model ChangeResourceGroupResponse = {
+  headers: map[string]string(name='headers'),
+  body: ChangeResourceGroupResponseBody(name='body'),
+}
+
+async function changeResourceGroup(request: ChangeResourceGroupRequest): ChangeResourceGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ChangeResourceGroup', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ConvertPostPayOrderRequest {
   duration?: int32(name='Duration', position='Query'),
   instanceId: string(name='InstanceId', position='Query'),
@@ -148,6 +172,7 @@ model CreatePostPayOrderRequest {
   ioMax?: int32(name='IoMax', position='Query'),
   ioMaxSpec?: string(name='IoMaxSpec', position='Query'),
   regionId: string(name='RegionId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   specType?: string(name='SpecType', position='Query'),
   topicQuota: int32(name='TopicQuota', position='Query'),
 }
@@ -178,6 +203,7 @@ model CreatePrePayOrderRequest {
   ioMax?: int32(name='IoMax', position='Query'),
   ioMaxSpec?: string(name='IoMaxSpec', position='Query'),
   regionId: string(name='RegionId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   specType?: string(name='SpecType', position='Query'),
   topicQuota: int32(name='TopicQuota', position='Query'),
 }
@@ -227,7 +253,7 @@ async function createSaslUser(request: CreateSaslUserRequest): CreateSaslUserRes
 
 model CreateTopicRequest {
   compactTopic?: boolean(name='CompactTopic', position='Query'),
-  config?: map[string]any(name='Config', position='Query'),
+  config?: map[string]any(name='Config', shrink='json', position='Query'),
   instanceId: string(name='InstanceId', position='Query'),
   localTopic?: boolean(name='LocalTopic', position='Query'),
   minInsyncReplicas?: long(name='MinInsyncReplicas', minimum=1, maximum=3, position='Query'),
@@ -468,6 +494,28 @@ async function describeSaslUsers(request: DescribeSaslUsersRequest): DescribeSas
   return @handler.do('RPC', 'DescribeSaslUsers', 'POST', '/', 'json', false, 'json', request);
 }
 
+model GetAllInstanceIdListRequest {
+  regionId?: string(name='RegionId', position='Query'),
+}
+
+model GetAllInstanceIdListResponseBody = {
+  code?: int32(name='Code'),
+  instanceIds?: map[string]any(name='InstanceIds'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model GetAllInstanceIdListResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetAllInstanceIdListResponseBody(name='body'),
+}
+
+async function getAllInstanceIdList(request: GetAllInstanceIdListRequest): GetAllInstanceIdListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetAllInstanceIdList', 'POST', '/', 'json', false, 'json', request);
+}
+
 model GetAllowedIpListRequest {
   instanceId: string(name='InstanceId', position='Query'),
   regionId: string(name='RegionId', position='Query'),
@@ -506,6 +554,7 @@ async function getAllowedIpList(request: GetAllowedIpListRequest): GetAllowedIpL
 }
 
 model GetConsumerListRequest {
+  consumerId?: string(name='ConsumerId', position='Query'),
   instanceId: string(name='InstanceId', position='Query'),
   regionId: string(name='RegionId', position='Query'),
 }
@@ -595,6 +644,7 @@ model GetInstanceListRequest {
   instanceId?: [ string ](name='InstanceId', position='Query'),
   orderId?: string(name='OrderId', position='Query'),
   regionId: string(name='RegionId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   tag?: [ 
     {
       key?: string(name='Key'),
@@ -623,6 +673,7 @@ model GetInstanceListResponseBody = {
       name?: string(name='Name'),
       paidType?: int32(name='PaidType'),
       regionId?: string(name='RegionId'),
+      resourceGroupId?: string(name='ResourceGroupId'),
       saslDomainEndpoint?: string(name='SaslDomainEndpoint'),
       securityGroup?: string(name='SecurityGroup'),
       serviceStatus?: int32(name='ServiceStatus'),
@@ -660,57 +711,6 @@ model GetInstanceListResponse = {
 async function getInstanceList(request: GetInstanceListRequest): GetInstanceListResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetInstanceList', 'POST', '/', 'json', false, 'json', request);
-}
-
-model GetMetaProductListRequest {
-  listNormal?: string(name='ListNormal', position='Query'),
-  regionId: string(name='RegionId', position='Query'),
-}
-
-model GetMetaProductListResponseBody = {
-  code?: int32(name='Code'),
-  message?: string(name='Message'),
-  metaData?: {
-    names?: map[string]any(name='Names'),
-    productsNormal?: {
-      specVO?: [ 
-      {
-        deployType?: string(name='DeployType'),
-        diskSize?: string(name='DiskSize'),
-        diskType?: string(name='DiskType'),
-        ioMax?: long(name='IoMax'),
-        regionId?: string(name='RegionId'),
-        specType?: string(name='SpecType'),
-        topicQuota?: string(name='TopicQuota'),
-      }
-    ](name='SpecVO')
-    }(name='ProductsNormal'),
-    productsProfessional?: {
-      specVO?: [ 
-      {
-        deployType?: string(name='DeployType'),
-        diskSize?: string(name='DiskSize'),
-        diskType?: string(name='DiskType'),
-        ioMax?: int32(name='IoMax'),
-        regionId?: string(name='RegionId'),
-        specType?: string(name='SpecType'),
-        topicQuota?: string(name='TopicQuota'),
-      }
-    ](name='SpecVO')
-    }(name='ProductsProfessional'),
-  }(name='MetaData'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-}
-
-model GetMetaProductListResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetMetaProductListResponseBody(name='body'),
-}
-
-async function getMetaProductList(request: GetMetaProductListRequest): GetMetaProductListResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetMetaProductList', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetTopicListRequest {
@@ -940,13 +940,17 @@ model StartInstanceRequest {
   deployModule?: string(name='DeployModule', position='Query'),
   instanceId: string(name='InstanceId', position='Query'),
   isEipInner?: boolean(name='IsEipInner', position='Query'),
+  isForceSelectedZones?: boolean(name='IsForceSelectedZones', position='Query'),
   isSetUserAndPassword?: boolean(name='IsSetUserAndPassword', position='Query'),
   KMSKeyId?: string(name='KMSKeyId', position='Query'),
   name?: string(name='Name', position='Query'),
+  notifier?: string(name='Notifier', position='Query'),
   password?: string(name='Password', position='Query'),
   regionId: string(name='RegionId', position='Query'),
   securityGroup?: string(name='SecurityGroup', position='Query'),
+  selectedZones?: string(name='SelectedZones', position='Query'),
   serviceVersion?: string(name='ServiceVersion', position='Query'),
+  userPhoneNum?: string(name='UserPhoneNum', position='Query'),
   username?: string(name='Username', position='Query'),
   vSwitchId: string(name='VSwitchId', position='Query'),
   vpcId: string(name='VpcId', position='Query'),
@@ -971,6 +975,7 @@ async function startInstance(request: StartInstanceRequest): StartInstanceRespon
 }
 
 model TagResourcesRequest {
+  instanceId?: string(name='InstanceId', position='Query'),
   regionId: string(name='RegionId', position='Query'),
   resourceId: [ string ](name='ResourceId', position='Query'),
   resourceType: string(name='ResourceType', position='Query'),
