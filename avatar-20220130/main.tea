@@ -28,6 +28,87 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model QueryRunningInstanceRequest {
+  app?: {
+    appId?: string(name='AppId'),
+  }(name='App'),
+  tenantId?: long(name='TenantId'),
+}
+
+model QueryRunningInstanceShrinkRequest {
+  appShrink?: string(name='App'),
+  tenantId?: long(name='TenantId'),
+}
+
+model QueryRunningInstanceResponseBody = {
+  code?: string(name='Code'),
+  data?: [ 
+    {
+      channel?: {
+        appId?: string(name='AppId'),
+        channelId?: string(name='ChannelId'),
+        expiredTime?: string(name='ExpiredTime'),
+        gslb?: [ string ](name='Gslb'),
+        nonce?: string(name='Nonce'),
+        token?: string(name='Token'),
+        type?: string(name='Type'),
+        userId?: string(name='UserId'),
+        userInfoInChannel?: string(name='UserInfoInChannel'),
+      }(name='Channel'),
+      sessionId?: string(name='SessionId'),
+      user?: {
+        userId?: string(name='UserId'),
+        userName?: string(name='UserName'),
+      }(name='User'),
+    }
+  ](name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model QueryRunningInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: QueryRunningInstanceResponseBody(name='body'),
+}
+
+async function queryRunningInstanceWithOptions(tmpReq: QueryRunningInstanceRequest, runtime: Util.RuntimeOptions): QueryRunningInstanceResponse {
+  Util.validateModel(tmpReq);
+  var request = new QueryRunningInstanceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.app)) {
+    request.appShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.app, 'App', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.appShrink)) {
+    query['App'] = request.appShrink;
+  }
+  if (!Util.isUnset(request.tenantId)) {
+    query['TenantId'] = request.tenantId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryRunningInstance',
+    version = '2022-01-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function queryRunningInstance(request: QueryRunningInstanceRequest): QueryRunningInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryRunningInstanceWithOptions(request, runtime);
+}
+
 model SendMessageRequest {
   sessionId?: string(name='SessionId'),
   tenantId?: long(name='TenantId'),
@@ -46,7 +127,7 @@ model SendMessageShrinkRequest {
 }
 
 model SendMessageResponseBody = {
-  code?: string(name='Code', description='Id of the request'),
+  code?: string(name='Code'),
   data?: {
     requestId?: string(name='RequestId'),
     sessionId?: string(name='SessionId'),
@@ -192,7 +273,7 @@ model StopInstanceRequest {
 }
 
 model StopInstanceResponseBody = {
-  code?: string(name='Code', description='Id of the request'),
+  code?: string(name='Code'),
   data?: {
     requestId?: string(name='RequestId'),
     sessionId?: string(name='SessionId'),
