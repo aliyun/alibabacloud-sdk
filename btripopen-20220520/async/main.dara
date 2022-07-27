@@ -1170,27 +1170,27 @@ async function entityAdd(request: EntityAddRequest): EntityAddResponse {
 }
 
 model EntityDeleteRequest {
-  delAll: boolean(name='del_all', description='是否全部删除', position='Query'),
+  delAll?: boolean(name='del_all', description='是否全部删除', position='Query'),
   entityDOList?: [ 
     {
       corpId?: string(name='corp_id'),
-      entityId: string(name='entity_id'),
-      entityType: string(name='entity_type'),
+      entityId?: string(name='entity_id'),
+      entityType?: string(name='entity_type'),
       name?: string(name='name'),
       userNum?: int32(name='user_num'),
     }
   ](name='entity_d_o_list', description='删除的成员信息列表,delAll为true时可不填', shrink='json', position='Body'),
-  thirdpartId: string(name='thirdpart_id', description='第三方成本中心id', position='Query'),
+  thirdpartId?: string(name='thirdpart_id', description='第三方成本中心id', position='Query'),
   userId?: string(name='user_id', description='无userId时传缺省值superAdmin', position='Body'),
 }
 
 model EntityDeleteResponseBody = {
-  requestId?: string(name='RequestId'),
   module?: {
     removeNum?: int32(name='remove_num'),
     selectedUserNum?: int32(name='selected_user_num'),
   }(name='module', description='返回值，服务端返回，没有结果或发生异常都返回空'),
   morePage?: boolean(name='more_page', description='分页标识，由服务端设置，分页时是否有下一页更多数据。'),
+  requestId?: string(name='requestId'),
   resultCode?: int32(name='result_code', description='结果代码'),
   resultMsg?: string(name='result_msg', description='备注，结果的备注，如对结果的说明'),
   success?: boolean(name='success', description='成功标识，由服务端设置，发生异常时为false。结果为null设置为false。'),
@@ -1204,7 +1204,7 @@ model EntityDeleteResponse = {
 
 async function entityDelete(request: EntityDeleteRequest): EntityDeleteResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'EntityDelete', 'DELETE', '/costcenter/v1/delete-entity', 'json', true, 'form', request);
+  return @handler.do('RESTFUL', 'EntityDelete', 'POST', '/costcenter/v1/entity/action/delete', 'json', true, 'form', request);
 }
 
 model EntitySetRequest {
@@ -2123,7 +2123,7 @@ model IsvUserSaveResponseBody = {
   resultCode?: int32(name='result_code'),
   resultMsg?: string(name='result_msg'),
   success?: boolean(name='success'),
-  traceid?: string(name='traceid'),
+  traceId?: string(name='traceId'),
 }
 
 model IsvUserSaveResponse = {
@@ -2621,5 +2621,44 @@ model TrainOrderQueryResponse = {
 async function trainOrderQuery(request: TrainOrderQueryRequest): TrainOrderQueryResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'TrainOrderQuery', 'GET', '/train/v1/order', 'json', false, 'json', request);
+}
+
+model UserQueryRequest {
+  modifiedTimeGreaterOrEqualThan?: string(name='modified_time_greater_or_equal_than', position='Query'),
+  thirdPartCorpId: string(name='third_part_corp_id', description='第三方企业ID，isv_api_authority.corp_id', position='Query'),
+  thirdPartJobNo?: string(name='third_part_job_no', description='第三方员工工号，user.job_no', position='Query'),
+  topAppKeyOwnerId?: string(name='top_app_key_owner_id', description='TOP系统参数：appkey拥有者淘宝用户id', position='Query'),
+  topAuthorizedHavanaId?: string(name='top_authorized_havana_id', description='TOP系统参数：授权(淘宝)用户id(Havana id)', position='Query'),
+  topAuthorizedUserNick?: string(name='top_authorized_user_nick', description='TOP系统参数：授权(淘宝)用户nick', position='Query'),
+}
+
+model UserQueryResponseBody = {
+  requestId?: string(name='RequestId'),
+  module?: {
+    hasMore?: boolean(name='has_more', description='是否还有更多数据项'),
+    items?: [ 
+      {
+        employeeNick?: string(name='employee_nick', description='员工昵称，user.user_nick'),
+        thirdPartEmployeeId?: string(name='third_part_employee_id', description='第三方员工ID，user.user_id'),
+        thirdPartJobNo?: string(name='third_part_job_no', description='第三方员工工号，user.job_no'),
+      }
+    ](name='items'),
+    pageToken?: string(name='page_token', description='连续翻页的分页标记，当has_more为true时，会同时返回新的page_token，否则不返回page_token'),
+    total?: long(name='total', description='本次请求条件下的数据项总量'),
+  }(name='module'),
+  resultCode?: int32(name='result_code'),
+  resultMsg?: string(name='result_msg'),
+  success?: boolean(name='success'),
+  traceId?: string(name='traceId'),
+}
+
+model UserQueryResponse = {
+  headers: map[string]string(name='headers'),
+  body: UserQueryResponseBody(name='body'),
+}
+
+async function userQuery(request: UserQueryRequest): UserQueryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UserQuery', 'GET', '/user/v1/user', 'json', false, 'json', request);
 }
 
