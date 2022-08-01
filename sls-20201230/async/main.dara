@@ -73,21 +73,8 @@ model SavedSearch {
 
 model Chart {
   action: map[string]any(name='action', description='action'),
-  display: {
-    height: long(name='height', description='高度'),
-    width: long(name='width', description='宽度'),
-    xAxis?: [ string ](name='xAxis', description='x 轴'),
-    xPos: long(name='xPos', description='x 坐标'),
-    yAxis?: [ string ](name='yAxis', description='y 轴'),
-    yPos: long(name='yPos', description='y 坐标'),
-  }(name='display', description='图表的显示配置'),
-  search: {
-    end: string(name='end', description='结束时间'),
-    logstore: string(name='logstore', description='logstore 名称'),
-    query: string(name='query', description='查询语句'),
-    start: string(name='start', description='开始时间'),
-    topic: string(name='topic', description='topic'),
-  }(name='search', description='查询配置'),
+  display: map[string]any(name='display', description='图表的显示配置'),
+  search: map[string]any(name='search', description='查询配置'),
   title: string(name='title', description='图表标题。支持大小写英文字母、数字、下划线_、连字符-，连字符与下划线不能作为名称开头与结尾，长度必须在[2,64] 之间。'),
   type: string(name='type', description='图表的类型。'),
 }
@@ -422,6 +409,116 @@ async function createMachineGroup(request: CreateMachineGroupRequest): CreateMac
   return @handler.do('RESTFUL', 'CreateMachineGroup', 'POST', '/machinegroups', 'none', false, 'json', request);
 }
 
+model CreateOdpsShipperRequest {
+  logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
+  shipperName: string(name='shipperName', description='日志投递名称。', position='Body'),
+  targetConfiguration: {
+    bufferInterval?: int32(name='bufferInterval', description='导入时间间隔，秒，只支持 1800 、3600两种。'),
+    enable?: boolean(name='enable', description='是否启用该配置，默认为 true。'),
+    fields: [ string ](name='fields', description='要投递的普通列，至少要有一个元素。'),
+    odpsEndpoint: string(name='odpsEndpoint', description='odpsEndpoint'),
+    odpsProject: string(name='odpsProject', description='要投递区域的 odps 项目名称'),
+    odpsTable: string(name='odpsTable', description='odps表名'),
+    partitionColumn: [ string ](name='partitionColumn', description='要投递的分区列，至少要有一个元素。'),
+    partitionTimeFormat: string(name='partitionTimeFormat', description='时间分区格式'),
+  }(name='targetConfiguration', position='Body'),
+  targetType: string(name='targetType', description='投递目标的类型，这里固定为 odps。', position='Body'),
+  project: string(name='project', description='Project 名称。', position='Host'),
+}
+
+model CreateOdpsShipperResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function createOdpsShipper(request: CreateOdpsShipperRequest): CreateOdpsShipperResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateOdpsShipper', 'POST', '/logstores/{logstore}/shipper', 'none', false, 'json', request);
+}
+
+model CreateOssExternalStoreRequest {
+  externalStoreName: string(name='externalStoreName', description='外部存储的名称。', position='Body'),
+  parameter: {
+    accessid: string(name='accessid', description='您的AccessKey ID。'),
+    accesskey: string(name='accesskey', description='您的AccessKey Secret。'),
+    bucket: string(name='bucket', description='oss 桶名称。'),
+    columns: [ 
+      {
+        name: string(name='name'),
+        type: string(name='type'),
+      }
+    ](name='columns'),
+    endpoint: string(name='endpoint', description='oss 的 endpoint 访问网址。'),
+    objects: [ string ](name='objects'),
+  }(name='parameter', description='外部存储的参数。', position='Body'),
+  storeType: string(name='storeType', description='外部存储的类型。这里固定为 oss', position='Body'),
+  project: string(name='project', description='A short description of struct', position='Host'),
+}
+
+model CreateOssExternalStoreResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function createOssExternalStore(request: CreateOssExternalStoreRequest): CreateOssExternalStoreResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateOssExternalStore', 'POST', '/externalstores', 'none', false, 'json', request);
+}
+
+model CreateOssShipperRequest {
+  logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
+  shipperName: string(name='shipperName', description='日志投递名称。', position='Body'),
+  targetConfiguration: {
+    bufferInterval?: int32(name='bufferInterval', description='导出间隔，秒，默认值为 300，可取值在 [300,900]之间。'),
+    bufferSize?: int32(name='bufferSize', description='自动控制投递任务创建间隔并设置OSS的一个Object大小（以未压缩计算）上限，单位：MB，默认 128 MB。支持[5,256] 之间的值。'),
+    compressType?: string(name='compressType', description='压缩类型，支持 snappy 与 none，默认值为 none。'),
+    enable?: boolean(name='enable', description='默认为 true，是否启用该配置。'),
+    ossBucket: string(name='ossBucket', description='oss 桶名称'),
+    ossPrefix: string(name='ossPrefix', description='oss 前缀，与 bucket 、pathFormat 一同组成投递的文件路径。示例值: test-prefix、test/prefix。
+格式要求：可使用 / 分隔各部分，每个部分都必须满足以下条件：
+1. 由大小写字母、数字、下划线_、连字符- 、点号.组成
+2. 长度不超过 253 字符
+3. 必须以大小写字母或者数字开头'),
+    pathFormat?: string(name='pathFormat', description='路径格式，默认为 %Y/%m/%d/%H/%M ，不能以 / 开头。任务投递文件到 oss 时会被使用日期时间格式化，例如%Y/%m/%d/%H/%M会被格式化为 2022/01/01/00/59 ，与bucket、ossPrefix 共同组成投递的目标文件路径。'),
+    roleArn: string(name='roleArn', description='RAM角色'),
+    storage: {
+      detail: map[string]any(name='detail', description='parquet 格式（必填项columns）：
+{ 
+"columns": [
+   {"name" : "test-col", "type": "text"}
+ ]
+}
+
+csv 格式（必填项columns）：
+{ 
+"columns": ["test-col"], 
+"delimiter": ",", 
+"quote": "",
+"escape": "",
+"nullIdentifier": "",
+"header": false,
+"lineFeed": "n"
+ }
+
+json 格式
+{
+"enableTag": false
+}'),
+      format: string(name='format', description='支持 json、csv、parquet 三种'),
+    }(name='storage', description='存储格式配置。'),
+    timeZone?: string(name='timeZone', description='时区，默认取值为空字符串。可取值的格式为 +8 、-6 等。'),
+  }(name='targetConfiguration', position='Body'),
+  targetType: string(name='targetType', description='投递目标的类型，这里固定为 odps。', position='Body'),
+  project: string(name='project', description='Project 名称。', position='Host'),
+}
+
+model CreateOssShipperResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function createOssShipper(request: CreateOssShipperRequest): CreateOssShipperResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateOssShipper', 'POST', '/logstores/{logstore}/shipper', 'none', false, 'json', request);
+}
+
 model CreateProjectRequest {
   description: string(name='description', position='Body'),
   projectName: string(name='projectName', position='Body'),
@@ -434,6 +531,32 @@ model CreateProjectResponse = {
 async function createProject(request: CreateProjectRequest): CreateProjectResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateProject', 'POST', '/', 'none', false, 'json', request);
+}
+
+model CreateRdsExternalStoreRequest {
+  externalStoreName: string(name='externalStoreName', description='名称', position='Body'),
+  parameter: {
+    db: string(name='db', description='RDS MySQL实例的数据库名称。'),
+    host?: string(name='host', description='RDS MySQL实例的内网地址或外网地址。'),
+    instanceId?: string(name='instance-id', description='RDS MySQL实例ID。'),
+    password: string(name='password', description='RDS MySQL实例中账号对应的密码。'),
+    port: string(name='port', description='RDS MySQL实例的内网或者外网端口。'),
+    region: string(name='region', description='RDS MySQL实例所在地域，目前仅支持cn-qingdao、cn-beijing、cn-hangzhou。'),
+    table: string(name='table', description='RDS MySQL实例的数据库表名称。'),
+    username: string(name='username', description='RDS MySQL实例中的账号名称。'),
+    vpcId?: string(name='vpc-id', description='RDS MySQL实例所属的VPC ID。'),
+  }(name='parameter', description='参数', position='Body'),
+  storeType: string(name='storeType', description='类型，这里固定为 rds-vpc', position='Body'),
+  project: string(name='project', description='A short description of struct', position='Host'),
+}
+
+model CreateRdsExternalStoreResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function createRdsExternalStore(request: CreateRdsExternalStoreRequest): CreateRdsExternalStoreResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateRdsExternalStore', 'POST', '/externalstores', 'none', false, 'json', request);
 }
 
 model CreateSavedSearchRequest {
@@ -498,6 +621,20 @@ model DeleteEtlMetaResponse = {
 async function deleteEtlMeta(request: DeleteEtlMetaRequest): DeleteEtlMetaResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteEtlMeta', 'DELETE', '/etlmetas', 'none', false, 'json', request);
+}
+
+model DeleteExternalStoreRequest {
+  externalStoreName: string(name='externalStoreName', position='Path'),
+  project: string(name='project', description='A short description of struct', position='Host'),
+}
+
+model DeleteExternalStoreResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function deleteExternalStore(request: DeleteExternalStoreRequest): DeleteExternalStoreResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteExternalStore', 'DELETE', '/externalstores/{externalStoreName}', 'none', false, 'json', request);
 }
 
 model DeleteIndexRequest {
@@ -582,6 +719,21 @@ async function deleteSavedSearch(request: DeleteSavedSearchRequest): DeleteSaved
   return @handler.do('RESTFUL', 'DeleteSavedSearch', 'DELETE', '/savedsearches/{savedsearchName}', 'none', false, 'json', request);
 }
 
+model DeleteShipperRequest {
+  logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
+  shipperName: string(name='shipperName', description='投递任务的名称。', position='Path'),
+  project: string(name='project', description='Project 名称。', position='Host'),
+}
+
+model DeleteShipperResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function deleteShipper(request: DeleteShipperRequest): DeleteShipperResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteShipper', 'DELETE', '/logstores/{logstore}/shipper/{shipperName}', 'none', false, 'json', request);
+}
+
 model GetAppliedConfigsRequest {
   machineGroup: string(name='machineGroup', description='机器组名称。', position='Path'),
   project: string(name='project', description='project 名称。', position='Host'),
@@ -600,6 +752,26 @@ model GetAppliedConfigsResponse = {
 async function getAppliedConfigs(request: GetAppliedConfigsRequest): GetAppliedConfigsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetAppliedConfigs', 'GET', '/machinegroups/{machineGroup}/configs', 'json', false, 'json', request);
+}
+
+model GetAppliedMachineGroupsRequest {
+  configName: string(name='configName', description='logtail 配置名称。', position='Path'),
+  project: string(name='project', description='project 名称。', position='Host'),
+}
+
+model GetAppliedMachineGroupsResponseBody = {
+  count?: int32(name='count', description='返回的机器组数量。'),
+  machinegroups?: [ string ](name='machinegroups', description='返回的机器组名称列表。'),
+}
+
+model GetAppliedMachineGroupsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetAppliedMachineGroupsResponseBody(name='body'),
+}
+
+async function getAppliedMachineGroups(request: GetAppliedMachineGroupsRequest): GetAppliedMachineGroupsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetAppliedMachineGroups', 'GET', '/configs/{configName}/machinegroups', 'json', false, 'json', request);
 }
 
 model GetCheckPointRequest {
@@ -724,6 +896,21 @@ model GetEtlMetaResponse = {
 async function getEtlMeta(request: GetEtlMetaRequest): GetEtlMetaResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetEtlMeta', 'GET', '/etlmetas', 'json', false, 'json', request);
+}
+
+model GetExternalStoreRequest {
+  externalStoreName: string(name='externalStoreName', description='A short description of struct', position='Path'),
+  project: string(name='project', position='Host'),
+}
+
+model GetExternalStoreResponse = {
+  headers: map[string]string(name='headers'),
+  body: ExternalStore  
+}
+
+async function getExternalStore(request: GetExternalStoreRequest): GetExternalStoreResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetExternalStore', 'GET', '/externalstores/{externalStoreName}', 'json', false, 'json', request);
 }
 
 model GetHistogramsRequest {
@@ -938,6 +1125,71 @@ async function getSavedSearch(request: GetSavedSearchRequest): GetSavedSearchRes
   return @handler.do('RESTFUL', 'GetSavedSearch', 'GET', '/savedsearches/{savedsearchName}', 'json', false, 'json', request);
 }
 
+model GetShipperConfigRequest {
+  logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
+  shipperName: string(name='shipperName', description='投递任务名称。', position='Path'),
+  project: string(name='project', description='Project 名称。', position='Host'),
+}
+
+model GetShipperConfigResponseBody = {
+  createTime?: long(name='createTime', description='投递任务创建时间。Unix时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。'),
+  lastModifyTime?: long(name='lastModifyTime', description='投递任务最后修改时间。Unix时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。'),
+  shipperName?: string(name='shipperName', description='日志投递名称。'),
+  targetConfiguration?: map[string]any(name='targetConfiguration', description='投递任务具体配置。'),
+  targetType?: string(name='targetType', description='投递任务类型，支持 oss、odps。'),
+}
+
+model GetShipperConfigResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetShipperConfigResponseBody(name='body'),
+}
+
+async function getShipperConfig(request: GetShipperConfigRequest): GetShipperConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetShipperConfig', 'GET', '/logstores/{logstore}/shipper/{shipperName}', 'json', false, 'json', request);
+}
+
+model GetShipperStatusRequest {
+  logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
+  shipperName: string(name='shipperName', description='日志投递名称。', position='Path'),
+  from: long(name='from', description='日志投递任务创建开始时间。Unix时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。', position='Query'),
+  offset?: int32(name='offset', description='查询开始行，默认值为0。', position='Query'),
+  project: string(name='project', description='Project 名称。', position='Host'),
+  size?: int32(name='size', description='分页查询时，设置的每页行数。默认值为100，最大值为500。', position='Query'),
+  status?: string(name='status', description='默认为空，表示返回所有状态的任务，支持success、fail和running状态。', position='Query'),
+  to: long(name='to', description='日志投递任务创建结束时间。Unix时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。', position='Query'),
+}
+
+model GetShipperStatusResponseBody = {
+  count?: long(name='count', description='当前页返回的任务个数。'),
+  statistics?: {
+    fail?: long(name='fail', description='运行失败的任务数量。'),
+    running?: long(name='running', description='正在运行的任务数量。'),
+    success?: long(name='success', description='成功完成的任务数量。'),
+  }(name='statistics', description='任务汇总状态统计。'),
+  tasks?: {
+    id?: string(name='id', description='任务 id。'),
+    taskCode?: string(name='taskCode', description='任务错误码。'),
+    taskCreateTime?: long(name='taskCreateTime', description='投递任务创建时间。Unix时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。'),
+    taskDataLines?: int32(name='taskDataLines'),
+    taskFinishTime?: long(name='taskFinishTime', description='投递任务结束时间。Unix时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。'),
+    taskLastDataReceiveTime?: long(name='taskLastDataReceiveTime', description='投递任务中的最近一条日志到达服务端时间（非日志时间，是服务端接收时间）。Unix时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。'),
+    taskMessage?: string(name='taskMessage', description='投递任务失败时的具体错误信息。'),
+    taskStatus?: string(name='taskStatus', description='任务当前状态，可以是 running、success、fail 三种状态之一。'),
+  }(name='tasks'),
+  total?: long(name='total', description='任务总数。'),
+}
+
+model GetShipperStatusResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetShipperStatusResponseBody(name='body'),
+}
+
+async function getShipperStatus(request: GetShipperStatusRequest): GetShipperStatusResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetShipperStatus', 'GET', '/logstores/{logstore}/shipper/{shipperName}/tasks', 'json', false, 'json', request);
+}
+
 model ListConsumerGroupRequest {
   logstore: string(name='logstore', description='Logstore name', position='Path'),
   project: string(name='project', description='Project name', position='Host'),
@@ -1024,6 +1276,31 @@ model ListEtlMetaNameResponse = {
 async function listEtlMetaName(request: ListEtlMetaNameRequest): ListEtlMetaNameResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListEtlMetaName', 'GET', '/etlmetanames', 'json', false, 'json', request);
+}
+
+model ListExternalStoreRequest {
+  externalStoreName?: string(name='externalStoreName', description='可选使用名字 pattern 匹配', position='Query'),
+  offset?: int32(name='offset', position='Query'),
+  project: string(name='project', description='A short description of struct', position='Host'),
+  sizs?: int32(name='sizs', description='默认值为 500.', position='Query'),
+}
+
+model ListExternalStoreResponseBody = {
+  count?: int32(name='count'),
+  externalstores?: [
+    ExternalStore
+  ](name='externalstores'),
+  total?: int32(name='total'),
+}
+
+model ListExternalStoreResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListExternalStoreResponseBody(name='body'),
+}
+
+async function listExternalStore(request: ListExternalStoreRequest): ListExternalStoreResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListExternalStore', 'GET', '/externalstores', 'json', false, 'json', request);
 }
 
 model ListLogStoresRequest {
@@ -1162,12 +1439,33 @@ async function listShards(request: ListShardsRequest): ListShardsResponse {
   return @handler.do('RESTFUL', 'ListShards', 'GET', '/logstores/{logstore}/shards', 'json', false, 'json', request);
 }
 
+model ListShipperRequest {
+  logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
+  project: string(name='project', description='Project 名称。', position='Host'),
+}
+
+model ListShipperResponseBody = {
+  count?: long(name='count', description='返回的投递任务数量。'),
+  shipper?: [ string ](name='shipper', description='投递任务名称列表。'),
+  total?: long(name='total', description='投递任务的总数量。'),
+}
+
+model ListShipperResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListShipperResponseBody(name='body'),
+}
+
+async function listShipper(request: ListShipperRequest): ListShipperResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListShipper', 'GET', '/logstores/{logstore}/shipper', 'json', false, 'json', request);
+}
+
 model ListTagResourcesRequest {
   resourceId?: [ string ](name='resourceId', description='查询的资源的 id 列表。resource id 与 tags 应至少存在一个。', shrink='json', position='Query'),
   resourceType: string(name='resourceType', description='资源类型。目前取值范围：project。', position='Query'),
   tags?: [ 
     {
-      key?: string(name='key', description='精确过滤的标签的键。'),
+      key: string(name='key', description='精确过滤的标签的键。'),
       value?: string(name='value', description='精确过滤的标签的值。'),
     }
   ](name='tags', description='精确查找时过滤的标签键值对。resource id 与 tags 应至少存在一个。', shrink='json', position='Query'),
@@ -1433,6 +1731,116 @@ async function updateMachineGroup(request: UpdateMachineGroupRequest): UpdateMac
   return @handler.do('RESTFUL', 'UpdateMachineGroup', 'PUT', '/machinegroups/{groupName}', 'none', false, 'json', request);
 }
 
+model UpdateOdpsShipperRequest {
+  logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
+  shipperName: string(name='shipperName', description='投递任务名称。', position='Path,Body'),
+  project: string(name='project', description='Project 名称。', position='Host'),
+  targetConfiguration: {
+    bufferInterval?: int32(name='bufferInterval', description='导入时间间隔，秒，只支持 1800 、3600两种。'),
+    enable?: boolean(name='enable', description='是否启用该配置，默认为 true。'),
+    fields: [ string ](name='fields', description='要投递的普通列，至少要有一个元素。'),
+    odpsEndpoint: string(name='odpsEndpoint', description='odpsEndpoint'),
+    odpsProject: string(name='odpsProject', description='要投递区域的 odps 项目名称'),
+    odpsTable: string(name='odpsTable', description='odps表名'),
+    partitionColumn: [ string ](name='partitionColumn', description='要投递的分区列，至少要有一个元素。'),
+    partitionTimeFormat: string(name='partitionTimeFormat', description='时间分区格式'),
+  }(name='targetConfiguration', position='Body'),
+  targetType: string(name='targetType', description='投递目标的类型，这里固定为 odps。', position='Body'),
+}
+
+model UpdateOdpsShipperResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function updateOdpsShipper(request: UpdateOdpsShipperRequest): UpdateOdpsShipperResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateOdpsShipper', 'PUT', '/logstores/{logstore}/shipper/{shipperName}', 'none', false, 'json', request);
+}
+
+model UpdateOssExternalStoreRequest {
+  externalStoreName: string(name='externalStoreName', description='外部存储的名称。', position='Path,Body'),
+  parameter: {
+    accessid: string(name='accessid', description='您的AccessKey ID。'),
+    accesskey: string(name='accesskey', description='您的AccessKey Secret。'),
+    bucket: string(name='bucket', description='oss 桶名称。'),
+    columns: [ 
+      {
+        name: string(name='name'),
+        type: string(name='type'),
+      }
+    ](name='columns'),
+    endpoint: string(name='endpoint', description='oss 的 endpoint 访问网址。'),
+    objects: [ string ](name='objects'),
+  }(name='parameter', description='外部存储的参数。', position='Body'),
+  storeType: string(name='storeType', description='外部存储的类型。这里固定为 oss', position='Body'),
+  project: string(name='project', description='project 名称。', position='Host'),
+}
+
+model UpdateOssExternalStoreResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function updateOssExternalStore(request: UpdateOssExternalStoreRequest): UpdateOssExternalStoreResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateOssExternalStore', 'PUT', '/externalstores/{externalStoreName}', 'none', false, 'json', request);
+}
+
+model UpdateOssShipperRequest {
+  logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
+  shipperName: string(name='shipperName', description='投递任务名称。', position='Path,Body'),
+  targetConfiguration: {
+    bufferInterval?: int32(name='bufferInterval', description='导出间隔，秒，默认值为 300，可取值在 [300,900]之间。'),
+    bufferSize?: int32(name='bufferSize', description='自动控制投递任务创建间隔并设置OSS的一个Object大小（以未压缩计算）上限，单位：MB，默认 128 MB。支持[5,256] 之间的值。'),
+    compressType?: string(name='compressType', description='压缩类型，支持 snappy 与 none，默认值为 none。'),
+    enable?: boolean(name='enable', description='默认为 true，是否启用该配置。'),
+    ossBucket: string(name='ossBucket', description='oss 桶名称'),
+    ossPrefix: string(name='ossPrefix', description='oss 前缀，与 bucket 、pathFormat 一同组成投递的文件路径。示例值: test-prefix、test/prefix。
+格式要求：可使用 / 分隔各部分，每个部分都必须满足以下条件：
+1. 由大小写字母、数字、下划线_、连字符- 、点号.组成
+2. 长度不超过 253 字符
+3. 必须以大小写字母或者数字开头'),
+    pathFormat?: string(name='pathFormat', description='路径格式，默认为 %Y/%m/%d/%H/%M ，不能以 / 开头。任务投递文件到 oss 时会被使用日期时间格式化，例如%Y/%m/%d/%H/%M会被格式化为 2022/01/01/00/59 ，与bucket、ossPrefix 共同组成投递的目标文件路径。'),
+    roleArn: string(name='roleArn', description='RAM角色'),
+    storage: {
+      detail: map[string]any(name='detail', description='parquet 格式（必填项columns）：
+{ 
+"columns": [
+   {"name" : "test-col", "type": "text"}
+ ]
+}
+
+csv 格式（必填项columns）：
+{ 
+"columns": ["test-col"], 
+"delimiter": ",", 
+"quote": "",
+"escape": "",
+"nullIdentifier": "",
+"header": false,
+"lineFeed": "n"
+ }
+
+json 格式
+{
+"enableTag": false
+}'),
+      format: string(name='format', description='支持 json、csv、parquet 三种'),
+    }(name='storage', description='存储格式配置。'),
+    timeZone?: string(name='timeZone', description='时区，默认取值为空字符串。可取值的格式为 +8 、-6 等。'),
+  }(name='targetConfiguration', position='Body'),
+  targetType: string(name='targetType', description='投递目标的类型，这里固定为 odps。', position='Body'),
+  project: string(name='project', description='Project 名称。', position='Host'),
+}
+
+model UpdateOssShipperResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function updateOssShipper(request: UpdateOssShipperRequest): UpdateOssShipperResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateOssShipper', 'PUT', '/logstores/{logstore}/shipper/{shipperName}', 'none', false, 'json', request);
+}
+
 model UpdateProjectRequest {
   description: string(name='description', description='Project description', position='Body'),
   project: string(name='project', description='Project name', position='Host'),
@@ -1445,6 +1853,32 @@ model UpdateProjectResponse = {
 async function updateProject(request: UpdateProjectRequest): UpdateProjectResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateProject', 'PUT', '/', 'none', false, 'json', request);
+}
+
+model UpdateRdsExternalStoreRequest {
+  externalStoreName: string(name='externalStoreName', description='外部存储名称。', position='Path,Body'),
+  parameter: {
+    db: string(name='db', description='RDS MySQL实例的数据库名称。'),
+    host?: string(name='host', description='RDS MySQL实例的内网地址或外网地址。'),
+    instanceId?: string(name='instance-id', description='RDS MySQL实例ID。'),
+    password: string(name='password', description='RDS MySQL实例中账号对应的密码。'),
+    port: string(name='port', description='RDS MySQL实例的内网或者外网端口。'),
+    region: string(name='region', description='RDS MySQL实例所在地域，目前仅支持cn-qingdao、cn-beijing、cn-hangzhou。'),
+    table: string(name='table', description='RDS MySQL实例的数据库表名称。'),
+    username: string(name='username', description='RDS MySQL实例中的账号名称。'),
+    vpcId?: string(name='vpc-id', description='RDS MySQL实例所属的VPC ID。'),
+  }(name='parameter', description='参数', position='Body'),
+  storeType: string(name='storeType', description='类型，这里固定为 rds-vpc', position='Body'),
+  project: string(name='project', description='project 名称。', position='Host'),
+}
+
+model UpdateRdsExternalStoreResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function updateRdsExternalStore(request: UpdateRdsExternalStoreRequest): UpdateRdsExternalStoreResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateRdsExternalStore', 'PUT', '/externalstores/{externalStoreName}', 'none', false, 'json', request);
 }
 
 model UpdateSavedSearchRequest {
