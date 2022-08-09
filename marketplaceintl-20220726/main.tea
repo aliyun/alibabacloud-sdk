@@ -2,6 +2,11 @@
  *
  */
 import Util;
+import OSS;
+import RPC;
+import OpenPlatform;
+import OSSUtil;
+import FileForm;
 import OpenApi;
 import OpenApiUtil;
 import EndpointUtil;
@@ -1093,5 +1098,153 @@ async function submitImageCommodityReviewWithOptions(request: SubmitImageCommodi
 async function submitImageCommodityReview(request: SubmitImageCommodityReviewRequest): SubmitImageCommodityReviewResponse {
   var runtime = new Util.RuntimeOptions{};
   return submitImageCommodityReviewWithOptions(request, runtime);
+}
+
+model UploadFileRequest {
+  encryptData?: string(name='EncryptData'),
+  fileUrl?: string(name='FileUrl'),
+  requestId?: string(name='RequestId'),
+  type?: string(name='Type'),
+  uid?: string(name='Uid'),
+}
+
+model UploadFileAdvanceRequest {
+  fileUrlObject: readable(name='FileUrlObject'),
+  encryptData?: string(name='EncryptData'),
+  requestId?: string(name='RequestId'),
+  type?: string(name='Type'),
+  uid?: string(name='Uid'),
+}
+
+model UploadFileResponseBody = {
+  code?: int32(name='Code'),
+  data?: {
+    trackId?: string(name='TrackId'),
+    url?: string(name='Url'),
+  }(name='Data'),
+  errorCode?: string(name='ErrorCode'),
+  msg?: string(name='Msg'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model UploadFileResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UploadFileResponseBody(name='body'),
+}
+
+async function uploadFileWithOptions(request: UploadFileRequest, runtime: Util.RuntimeOptions): UploadFileResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.encryptData)) {
+    body['EncryptData'] = request.encryptData;
+  }
+  if (!Util.isUnset(request.fileUrl)) {
+    body['FileUrl'] = request.fileUrl;
+  }
+  if (!Util.isUnset(request.requestId)) {
+    body['RequestId'] = request.requestId;
+  }
+  if (!Util.isUnset(request.type)) {
+    body['Type'] = request.type;
+  }
+  if (!Util.isUnset(request.uid)) {
+    body['Uid'] = request.uid;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UploadFile',
+    version = '2022-07-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function uploadFile(request: UploadFileRequest): UploadFileResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return uploadFileWithOptions(request, runtime);
+}
+
+async function uploadFileAdvance(request: UploadFileAdvanceRequest, runtime: Util.RuntimeOptions): UploadFileResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'marketplaceIntl',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var uploadFileReq = new UploadFileRequest{};
+  OpenApiUtil.convert(request, uploadFileReq);
+
+  if(!Util.isUnset(request.fileUrlObject)){
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.objectKey,
+      content = request.fileUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    uploadFileReq.fileUrl =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  }
+  var uploadFileResp = uploadFileWithOptions(uploadFileReq, runtime);
+  return uploadFileResp;
 }
 
