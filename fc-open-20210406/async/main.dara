@@ -183,6 +183,7 @@ model JobLogConfig {
 model Layer {
   acl?: int32(name='acl', description='层访问类型'),
   arn?: string(name='arn', description='arn'),
+  arnV2?: string(name='arnV2', description='arnV2'),
   code?: LayerCode(name='code', description='层代码'),
   codeChecksum?: string(name='codeChecksum', description='层Checksum'),
   codeSize?: long(name='codeSize', description='层代码大小'),
@@ -190,6 +191,7 @@ model Layer {
   createTime?: string(name='createTime', description='层创建时间'),
   description?: string(name='description', description='层描述'),
   layerName?: string(name='layerName', description='层名称'),
+  license?: string(name='license', description='许可协议'),
   version?: int32(name='version', description='层版本'),
 }
 
@@ -283,6 +285,13 @@ model PathConfig {
   serviceName?: string(name='serviceName', description='该路径/方法对应的服务名称'),
 }
 
+model PolicyItem {
+  key: bytes(name='key', description='key指定控制流量灰度的参数名。例如key为"x-test-uid"，则请求"x-test-uid" 的值将决定请求是否被路由到灰度版本上。'),
+  operator: bytes(name='operator', description='运算符。 参数名key对应请求中的实际值，与设定的value值做运算符比较。取值：   ● >, <, >=, <=, = 和 != ，大小比较规则遵循字典序； ● in ：字符串包含关系； ●  percent: 百分比值（取值范围 (0,100] 的整数) 表示指定 key 的 value 值分布的特定百分比路由至灰度实例 。比如一条 { type=Header, key=uid, value=20, operator=percent } 的规则，表示取 http header 中 uid 的值分布的 20% 打到灰度实例。'),
+  type: bytes(name='type', description='参数类型。可以取HTTP请求中的有关值。'),
+  value: bytes(name='value', description='value指定控制流量灰度的参数值。参数名key对应请求中的实际值，与该值做运算符比较，决定请求是否被路由到灰度版本上。'),
+}
+
 model PreFreeze {
   handler?: string(name='handler', description='preFreeze handler name'),
   timeout?: int32(name='timeout', description='handler timeout'),
@@ -309,6 +318,11 @@ model RouteConfig {
   routes?: [
     PathConfig
   ](name='routes', description='routes'),
+}
+
+model RoutePolicy {
+  condition: bytes(name='condition', description='条件模式：灰度规则项的逻辑运算。 枚举值： AND:  全部灰度规则项满足则命中。 OR: 任意一个灰度规则项满足则命中。'),
+  policyItems: PolicyItem(name='policyItems', description='灰度规则项数组'),
 }
 
 model ScheduledActions {
@@ -418,6 +432,11 @@ model CreateAliasRequest {
   additionalVersionWeight?: map[string]float(name='additionalVersionWeight', description='额外版本权重', position='Body'),
   aliasName: string(name='aliasName', description='别名名称', position='Body'),
   description?: string(name='description', description='别名描述', position='Body'),
+  resolvePolicy?: string(name='resolvePolicy', description='灰度方式：随机灰度或者规则灰度，默认值为随机灰度
+枚举值：
+Random
+Content', position='Body'),
+  routePolicy?: RoutePolicy(name='routePolicy', description='灰度规则：满足灰度规则条件的流量，会被路由至灰度实例', position='Body'),
   versionId: string(name='versionId', description='版本ID', position='Body'),
 }
 
@@ -594,7 +613,6 @@ model CreateServiceResponseBody = {
   serviceId?: string(name='serviceId', description='服务ID'),
   serviceName?: string(name='serviceName', description='服务名称'),
   tracingConfig?: TracingConfig(name='tracingConfig'),
-  vendorConfig?: VendorConfig(name='vendorConfig'),
   vpcConfig?: VPCConfig(name='vpcConfig'),
 }
 
@@ -896,6 +914,11 @@ model GetAliasResponseBody = {
   createdTime?: string(name='createdTime', description='创建时间'),
   description?: string(name='description', description='别名描述'),
   lastModifiedTime?: string(name='lastModifiedTime', description='上次更新时间'),
+  resolvePolicy?: string(name='resolvePolicy', description='灰度方式：随机灰度或者规则灰度，默认值为随机灰度
+枚举值：
+Random
+Content'),
+  routePolicy?: RoutePolicy(name='routePolicy', description='灰度规则：满足灰度规则条件的流量，会被路由至灰度实例'),
   versionId?: string(name='versionId', description='版本ID'),
 }
 
@@ -1268,6 +1291,11 @@ model ListAliasesResponseBody = {
       createdTime?: string(name='createdTime', description='创建时间'),
       description?: string(name='description', description='别名描述'),
       lastModifiedTime?: string(name='lastModifiedTime', description='上次更新时间'),
+      resolvePolicy?: string(name='resolvePolicy', description='灰度方式：随机灰度或者规则灰度，默认值为随机灰度
+枚举值：
+Random
+Content'),
+      routePolicy?: RoutePolicy(name='routePolicy', description='灰度规则：满足灰度规则条件的流量，会被路由至灰度实例'),
       versionId?: string(name='versionId', description='版本ID'),
     }
   ](name='aliases', description='别名列表'),
@@ -1445,8 +1473,6 @@ model ListInstancesRequest {
   serviceName: string(name='serviceName', description='服务的名称', position='Path'),
   functionName: string(name='functionName', description='函数的名称', position='Path'),
   xFcAccountId: string(name='X-Fc-Account-Id', position='Header'),
-  xFcDate?: string(name='X-Fc-Date', position='Header'),
-  xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   instanceIds?: [ string ](name='instanceIds', description='实例ID', position='Query'),
   limit?: int32(name='limit', description='限定此次返回资源的数量，取值范围[0,1000]。
 
@@ -1511,7 +1537,9 @@ model ListLayersRequest {
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   limit?: int32(name='limit', description='最大返回条目数', position='Query'),
   nextToken?: string(name='nextToken', description='下一个层名称', position='Query'),
+  official?: boolean(name='official', position='Query'),
   prefix?: string(name='prefix', description='层名称前缀', position='Query'),
+  public?: boolean(name='public', position='Query'),
   startKey?: string(name='startKey', description='起始层名称', position='Query'),
 }
 
@@ -1935,6 +1963,24 @@ async function putFunctionOnDemandConfig(request: PutFunctionOnDemandConfigReque
   return @handler.do('RESTFUL', 'PutFunctionOnDemandConfig', 'PUT', '/2021-04-06/services/{serviceName}/functions/{functionName}/on-demand-config', 'json', false, 'json', request);
 }
 
+model PutLayerACLRequest {
+  layerName: string(name='layerName', position='Path'),
+  xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
+  xFcDate?: string(name='X-Fc-Date', position='Header'),
+  xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
+  public?: boolean(name='public', position='Query'),
+}
+
+model PutLayerACLResponse = {
+  headers: map[string]string(name='headers'),
+  body: string(name='body'),
+}
+
+async function putLayerACL(request: PutLayerACLRequest): PutLayerACLResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'PutLayerACL', 'PUT', '/2021-04-06/layers/{layerName}/acl', 'string', false, 'json', request);
+}
+
 model PutProvisionConfigRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
   functionName: string(name='functionName', description='函数名称', position='Path'),
@@ -2063,6 +2109,11 @@ model UpdateAliasRequest {
   xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
   additionalVersionWeight?: map[string]float(name='additionalVersionWeight', description='额外版本权重', position='Body'),
   description?: string(name='description', description='别名描述', position='Body'),
+  resolvePolicy?: string(name='resolvePolicy', description='灰度方式：随机灰度或者规则灰度，默认值为随机灰度
+枚举值：
+Random
+Content', position='Body'),
+  routePolicy?: RoutePolicy(name='routePolicy', description='灰度规则：满足灰度规则条件的流量，会被路由至灰度实例', position='Body'),
   versionId?: string(name='versionId', description='版本ID', position='Body'),
 }
 
@@ -2207,7 +2258,6 @@ model UpdateServiceResponseBody = {
   serviceId?: string(name='serviceId', description='服务ID'),
   serviceName?: string(name='serviceName', description='服务名称'),
   tracingConfig?: TracingConfig(name='tracingConfig'),
-  vendorConfig?: VendorConfig(name='vendorConfig'),
   vpcConfig?: VPCConfig(name='vpcConfig'),
 }
 
