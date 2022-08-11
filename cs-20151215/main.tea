@@ -2589,6 +2589,59 @@ async function describeClusterResourcesWithOptions(ClusterId: string, headers: m
   return callApi(params, req, runtime);
 }
 
+model DescribeClusterTasksResponseBody = {
+  pageInfo?: {
+    pageNumber?: long(name='page_number'),
+    pageSize?: long(name='page_size'),
+    totalCount?: long(name='total_count'),
+  }(name='page_info'),
+  requestId?: string(name='requestId'),
+  tasks?: [ 
+    {
+      created?: string(name='created'),
+      error?: {
+        code?: string(name='code'),
+        message?: string(name='message'),
+      }(name='error'),
+      state?: string(name='state'),
+      taskId?: string(name='task_id'),
+      taskType?: string(name='task_type'),
+      updated?: string(name='updated'),
+    }
+  ](name='tasks'),
+}
+
+model DescribeClusterTasksResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DescribeClusterTasksResponseBody(name='body'),
+}
+
+async function describeClusterTasks(clusterId: string): DescribeClusterTasksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeClusterTasksWithOptions(clusterId, headers, runtime);
+}
+
+async function describeClusterTasksWithOptions(clusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeClusterTasksResponse {
+  clusterId = OpenApiUtil.getEncodeParam(clusterId);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeClusterTasks',
+    version = '2015-12-15',
+    protocol = 'HTTPS',
+    pathname = `/clusters/${clusterId}/tasks`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
 model DescribeClusterUserKubeconfigRequest {
   privateIpAddress?: boolean(name='PrivateIpAddress'),
   temporaryDurationMinutes?: long(name='TemporaryDurationMinutes'),
@@ -4334,21 +4387,43 @@ async function listTagResourcesWithOptions(tmpReq: ListTagResourcesRequest, head
   return callApi(params, req, runtime);
 }
 
+model MigrateClusterRequest {
+  ossBucketEndpoint?: string(name='oss_bucket_endpoint'),
+  ossBucketName?: string(name='oss_bucket_name'),
+}
+
+model MigrateClusterResponseBody = {
+  clusterId?: string(name='cluster_id'),
+  requestId?: string(name='request_id'),
+  taskId?: string(name='task_id'),
+}
+
 model MigrateClusterResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
+  body: MigrateClusterResponseBody(name='body'),
 }
 
-async function migrateCluster(clusterId: string): MigrateClusterResponse {
+async function migrateCluster(clusterId: string, request: MigrateClusterRequest): MigrateClusterResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return migrateClusterWithOptions(clusterId, headers, runtime);
+  return migrateClusterWithOptions(clusterId, request, headers, runtime);
 }
 
-async function migrateClusterWithOptions(clusterId: string, headers: map[string]string, runtime: Util.RuntimeOptions): MigrateClusterResponse {
+async function migrateClusterWithOptions(clusterId: string, request: MigrateClusterRequest, headers: map[string]string, runtime: Util.RuntimeOptions): MigrateClusterResponse {
+  Util.validateModel(request);
   clusterId = OpenApiUtil.getEncodeParam(clusterId);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.ossBucketEndpoint)) {
+    body['oss_bucket_endpoint'] = request.ossBucketEndpoint;
+  }
+  if (!Util.isUnset(request.ossBucketName)) {
+    body['oss_bucket_name'] = request.ossBucketName;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
     action = 'MigrateCluster',
@@ -4359,7 +4434,7 @@ async function migrateClusterWithOptions(clusterId: string, headers: map[string]
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
-    bodyType = 'none',
+    bodyType = 'json',
   };
   return callApi(params, req, runtime);
 }
@@ -4586,6 +4661,9 @@ model ModifyClusterNodePoolRequest {
       serializeImagePulls?: boolean(name='serializeImagePulls'),
       systemReserved?: map[string]any(name='systemReserved'),
     }(name='kubelet_configuration'),
+    rolloutPolicy?: {
+      maxUnavailable?: long(name='max_unavailable'),
+    }(name='rollout_policy'),
   }(name='node_config'),
   nodepoolInfo?: {
     name?: string(name='name'),
