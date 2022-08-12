@@ -125,7 +125,7 @@ model ApplyAddRequest {
       costCenterId?: long(name='cost_center_id'),
       depCity: string(name='dep_city'),
       depCityCode?: string(name='dep_city_code'),
-      depDate: string(name='dep_date'),
+      depDate?: string(name='dep_date'),
       invoiceId?: long(name='invoice_id'),
       itineraryId: string(name='itinerary_id'),
       needHotel?: boolean(name='need_hotel'),
@@ -138,6 +138,32 @@ model ApplyAddRequest {
       tripWay: int32(name='trip_way'),
     }
   ](name='itinerary_list', shrink='json', position='Body'),
+  itineraryRule?: int32(name='itinerary_rule', description='申请单城市规则：
+0出发&目的地一对一，按列表传行程 
+1多选N个地点，城市集行程
+不传默认为0
+会根据此字段传入的值，校验行程传参是否正确
+当申请单城市规则为0，itinerary_list行程列表必填
+当申请单城市规则为1，itinerary_set_list行程列表必填', position='Body'),
+  itinerarySetList?: [ 
+    {
+      arrDate?: string(name='arr_date', description='到达日期'),
+      cityCodeSet?: string(name='city_code_set', description='离抵城市code，多个城市请用中文“，”隔开
+当允许预订的类目为0/2/3/5时，仅传行政区划citycode允许通过
+当允许预订的类目为1/4时，仅传城市三字码允许通过'),
+      citySet?: string(name='city_set', description='离抵城市名称，多个城市请用中文“，”隔开'),
+      costCenterId?: long(name='cost_center_id', description='商旅成本中心id，和第三方成本中心id二者选择其一即可'),
+      depDate?: string(name='dep_date', description='出发日期'),
+      invoiceId?: long(name='invoice_id', description='商旅发票id，和第三方发票Id二者选择其一即可'),
+      itineraryId?: string(name='itinerary_id', description='行程id
+'),
+      projectCode?: string(name='project_code', description='项目编号'),
+      projectTitle?: string(name='project_title', description='项目名称'),
+      thirdPartInvoiceId?: string(name='third_part_invoice_id', description='第三方发票id，和商旅发票id二者选择其一即可'),
+      thirdpartCostCenterId?: string(name='thirdpart_cost_center_id', description='第三方成本中心id，和商旅成本中心id二者选择其一即可'),
+      transport?: int32(name='transport'),
+    }
+  ](name='itinerary_set_list', description='城市集行程', shrink='json', position='Body'),
   limitTraveler?: int32(name='limit_traveler', description='是否限制审批单的出行人', position='Body'),
   status?: int32(name='status', position='Body'),
   thirdpartApplyId: string(name='thirdpart_apply_id', position='Body'),
@@ -598,7 +624,6 @@ async function carApplyModify(request: CarApplyModifyRequest): CarApplyModifyRes
 }
 
 model CarApplyQueryRequest {
-  corpId: string(name='corp_id', position='Query'),
   createdEndAt?: string(name='created_end_at', position='Query'),
   createdStartAt?: string(name='created_start_at', position='Query'),
   pageNumber?: int32(name='page_number', position='Query'),
@@ -874,7 +899,6 @@ async function carOrderListQuery(request: CarOrderListQueryRequest): CarOrderLis
 model CommonApplyQueryRequest {
   applyId: long(name='apply_id', position='Query'),
   bizCategory: int32(name='biz_category', description='业务类型', position='Query'),
-  corpId: string(name='corp_id', position='Query'),
   userId?: string(name='user_id', description='无userId时传缺省值superAdmin', position='Query'),
 }
 
@@ -1016,7 +1040,6 @@ async function costCenterModify(request: CostCenterModifyRequest): CostCenterMod
 }
 
 model CostCenterQueryRequest {
-  corpId: string(name='corp_id', position='Query'),
   needOrgEntity?: boolean(name='need_org_entity', description='是否需要展示成员信息，当成本中心为部分人员适用的时候有返回', position='Body'),
   thirdpartId?: string(name='thirdpart_id', description='第三方成本中心id', position='Body'),
   title?: string(name='title', description='成本中心名称', position='Body'),
@@ -1065,7 +1088,6 @@ async function costCenterQuery(request: CostCenterQueryRequest): CostCenterQuery
 
 model CostCenterSaveRequest {
   alipayNo?: string(name='alipay_no', description='绑定支付宝账号', position='Body'),
-  corpId: string(name='corp_id', position='Body'),
   number?: string(name='number', description='第三方成本中心编号', position='Body'),
   scope: long(name='scope', description='适用范围:1全员，2部分人员', position='Body'),
   thirdpartId: string(name='thirdpart_id', description='第三方成本中心id', position='Body'),
@@ -1231,7 +1253,6 @@ async function entitySet(request: EntitySetRequest): EntitySetResponse {
 model ExceedApplySyncRequest {
   applyId: long(name='apply_id', position='Query'),
   bizCategory?: int32(name='biz_category', position='Query'),
-  corpId: string(name='corp_id', position='Query'),
   remark?: string(name='remark', position='Query'),
   status: int32(name='status', position='Query'),
   thirdpartyFlowId?: string(name='thirdparty_flow_id', position='Query'),
@@ -1366,7 +1387,6 @@ async function flightBillSettlementQuery(request: FlightBillSettlementQueryReque
 
 model FlightExceedApplyQueryRequest {
   applyId: long(name='apply_id', position='Query'),
-  corpId: string(name='corp_id', position='Query'),
 }
 
 model FlightExceedApplyQueryResponseBody = {
@@ -1766,7 +1786,6 @@ async function hotelBillSettlementQuery(request: HotelBillSettlementQueryRequest
 
 model HotelExceedApplyQueryRequest {
   applyId: long(name='apply_id', position='Query'),
-  corpId: string(name='corp_id', position='Query'),
   userId?: string(name='user_id', description='无userId时传缺省值superAdmin', position='Query'),
 }
 
@@ -2131,7 +2150,6 @@ async function monthBillGet(request: MonthBillGetRequest): MonthBillGetResponse 
 
 model ProjectAddRequest {
   code: string(name='code', description='项目代码', position='Body'),
-  corpId: string(name='corp_id', position='Body'),
   projectName: string(name='project_name', description='项目名称', position='Body'),
   thirdPartCostCenterId?: string(name='third_part_cost_center_id', description='第三方成本中心id', position='Body'),
   thirdPartId: string(name='third_part_id', description='第三方项目id', position='Body'),
@@ -2183,7 +2201,6 @@ async function projectDelete(request: ProjectDeleteRequest): ProjectDeleteRespon
 
 model ProjectModifyRequest {
   code?: string(name='code', description='项目代码', position='Body'),
-  corpId: string(name='corp_id', position='Body'),
   projectName: string(name='project_name', description='项目名称', position='Body'),
   thirdPartCostCenterId?: string(name='third_part_cost_center_id', description='第三方成本中心id', position='Body'),
   thirdPartId: string(name='third_part_id', description='第三方项目id', position='Body'),
@@ -2296,7 +2313,6 @@ async function trainBillSettlementQuery(request: TrainBillSettlementQueryRequest
 
 model TrainExceedApplyQueryRequest {
   applyId: long(name='apply_id', position='Query'),
-  corpId: string(name='corp_id', position='Query'),
   userId?: string(name='user_id', description='无userId时传缺省值superAdmin', position='Query'),
 }
 
@@ -2589,7 +2605,6 @@ async function trainOrderQuery(request: TrainOrderQueryRequest): TrainOrderQuery
 
 model UserQueryRequest {
   modifiedTimeGreaterOrEqualThan?: string(name='modified_time_greater_or_equal_than', position='Query'),
-  thirdPartCorpId: string(name='third_part_corp_id', description='第三方企业ID，isv_api_authority.corp_id', position='Query'),
   thirdPartJobNo?: string(name='third_part_job_no', description='第三方员工工号，user.job_no', position='Query'),
 }
 
