@@ -1906,7 +1906,36 @@ model DescribeTaskInfoRequest {
 model DescribeTaskInfoResponseBody = {
   clusterId?: string(name='cluster_id', description='集群ID。'),
   created?: string(name='created', description='任务创建时间。'),
+  currentStage?: string(name='current_stage', description='任务当前运行阶段。'),
+  error?: {
+    code?: string(name='code', description='错误码。'),
+    message?: string(name='message', description='错误消息。'),
+  }(name='error', description='任务错误信息。'),
+  events?: [ 
+    {
+      action?: string(name='action', description='事件动作。'),
+      level?: string(name='level', description='事件等级。'),
+      message?: string(name='message', description='事件消息。'),
+      reason?: string(name='reason', description='事件原因。'),
+      source?: string(name='source', description='事件来源。'),
+      timestamp?: string(name='timestamp', description='事件生成时间。'),
+    }
+  ](name='events', description='任务产生的事件。'),
+  parameters?: map[string]any(name='parameters', description='任务参数。'),
+  stages?: [ 
+    {
+      endTime?: string(name='end_time', description='任务阶段结束时间。'),
+      message?: string(name='message', description='任务阶段信息。'),
+      outputs?: map[string]any(name='outputs', description='任务阶段输出。'),
+      startTime?: string(name='start_time', description='任务阶段开始时间。'),
+      state?: string(name='state', description='任务阶段状态。'),
+    }
+  ](name='stages', description='任务阶段。'),
   state?: string(name='state', description='任务当前状态。'),
+  target?: {
+    id?: string(name='id', description='任务执行对象ID。'),
+    type?: string(name='type', description='任务执行对象类型。'),
+  }(name='target', description='任务执行对象。'),
   taskId?: string(name='task_id', description='任务ID。'),
   taskResult?: [ 
     {
@@ -2392,26 +2421,6 @@ model ModifyClusterNodePoolRequest {
       surgePercentage?: long(name='surge_percentage', description='额外节点比例， 和surge 二选一。'),
     }(name='upgrade_config', description='自动升级配置。'),
   }(name='management', description='托管版节点池配置。', position='Body'),
-  nodeConfig?: {
-    kubeletConfiguration?: {
-      cpuManagerPolicy?: string(name='cpuManagerPolicy', description='CPU管理器策略。'),
-      eventBurst?: long(name='eventBurst', description='事件记录的个数的突发峰值上限。'),
-      eventRecordQPS?: long(name='eventRecordQPS', description='每秒可生成的事件数量。'),
-      evictionHard?: map[string]any(name='evictionHard', description='触发Pod驱逐操作的一组硬性门限。'),
-      evictionSoft?: map[string]any(name='evictionSoft', description='设置一组驱逐阈值。'),
-      evictionSoftGracePeriod?: map[string]any(name='evictionSoftGracePeriod', description='设置一组驱逐宽限期。'),
-      kubeAPIBurst?: long(name='kubeAPIBurst', description='每秒发送到apiserver的突发请求数量上限。'),
-      kubeAPIQPS?: long(name='kubeAPIQPS', description='与apiserver通信的每秒查询个数。'),
-      kubeReserved?: map[string]any(name='kubeReserved', description='kubernetes系统预留的资源配置。'),
-      registryBurst?: long(name='registryBurst', description='突发性镜像拉取的个数上限。'),
-      registryPullQPS?: long(name='registryPullQPS', description='镜像仓库的qps上限。'),
-      serializeImagePulls?: boolean(name='serializeImagePulls', description='逐一拉取镜像。'),
-      systemReserved?: map[string]any(name='systemReserved', description='系统预留的资源配置。'),
-    }(name='kubelet_configuration', description='kubelet参数配置。'),
-    rolloutPolicy?: {
-      maxUnavailable?: long(name='max_unavailable', description='最大不可用节点数。'),
-    }(name='rollout_policy', description='轮转配置。'),
-  }(name='node_config', description='节点配置。', position='Body'),
   nodepoolInfo?: {
     name?: string(name='name', description='节点池名称。'),
     resourceGroupId?: string(name='resource_group_id', description='资源组ID。'),
@@ -2491,6 +2500,45 @@ model ModifyClusterTagsResponse = {
 async function modifyClusterTags(request: ModifyClusterTagsRequest): ModifyClusterTagsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ModifyClusterTags', 'POST', '/clusters/{ClusterId}/tags', 'none', false, 'json', request);
+}
+
+model ModifyNodePoolNodeConfigRequest {
+  clusterId: string(name='ClusterId', description='集群ID。', position='Path'),
+  nodepoolId: string(name='NodepoolId', description='节点池ID。', position='Path'),
+  kubeletConfig?: {
+    cpuManagerPolicy?: string(name='cpuManagerPolicy', description='CPU管理器策略。'),
+    eventBurst?: long(name='eventBurst', description='事件记录的个数的突发峰值上限。'),
+    eventRecordQPS?: long(name='eventRecordQPS', description='每秒可生成的事件数量。'),
+    evictionHard?: map[string]any(name='evictionHard', description='触发Pod驱逐操作的一组硬性门限。'),
+    evictionSoft?: map[string]any(name='evictionSoft', description='设置一组驱逐阈值。'),
+    evictionSoftGracePeriod?: map[string]any(name='evictionSoftGracePeriod', description='设置一组驱逐宽限期。'),
+    kubeAPIBurst?: long(name='kubeAPIBurst', description='每秒发送到API Server的突发请求数量上限。'),
+    kubeAPIQPS?: long(name='kubeAPIQPS', description='与API Server通信的每秒查询个数。'),
+    kubeReserved?: map[string]any(name='kubeReserved', description='kubernetes系统预留的资源配置。'),
+    registryBurst?: long(name='registryBurst', description='突发性镜像拉取的个数上限。'),
+    registryPullQPS?: long(name='registryPullQPS', description='镜像仓库的QPS上限。'),
+    serializeImagePulls?: boolean(name='serializeImagePulls', description='是否逐一拉取镜像。'),
+    systemReserved?: map[string]any(name='systemReserved', description='系统预留的资源配置。'),
+  }(name='kubelet_config', description='Kubelet参数配置。', position='Body'),
+  rollingPolicy?: {
+    maxParallelism?: long(name='max_parallelism', description='最大不可用节点数。'),
+  }(name='rolling_policy', description='轮转配置。', position='Body'),
+}
+
+model ModifyNodePoolNodeConfigResponseBody = {
+  nodepoolId?: string(name='nodepool_id', description='节点池ID。'),
+  requestId?: string(name='request_id', description='请求ID。'),
+  taskId?: string(name='task_id', description='任务ID。'),
+}
+
+model ModifyNodePoolNodeConfigResponse = {
+  headers: map[string]string(name='headers'),
+  body: ModifyNodePoolNodeConfigResponseBody(name='body'),
+}
+
+async function modifyNodePoolNodeConfig(request: ModifyNodePoolNodeConfigRequest): ModifyNodePoolNodeConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModifyNodePoolNodeConfig', 'PUT', '/clusters/{ClusterId}/nodepools/{NodepoolId}/node_config', 'json', false, 'json', request);
 }
 
 model ModifyPolicyInstanceRequest {
