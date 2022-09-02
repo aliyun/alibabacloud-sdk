@@ -109,6 +109,15 @@ model CustomDNS {
   searches?: [ string ](name='searches'),
 }
 
+model CustomHealthCheckConfig {
+  failureThreshold?: int32(name='failureThreshold'),
+  httpGetUrl?: string(name='httpGetUrl'),
+  initialDelaySeconds?: int32(name='initialDelaySeconds'),
+  periodSeconds?: int32(name='periodSeconds'),
+  successThreshold?: int32(name='successThreshold'),
+  timeoutSeconds?: int32(name='timeoutSeconds'),
+}
+
 model CustomRuntimeConfig {
   args?: [ string ](name='args'),
   command?: [ string ](name='command'),
@@ -242,6 +251,17 @@ model NASConfig {
     }
   ](name='mountPoints'),
   userId?: int32(name='userId'),
+}
+
+model OSSMountConfig {
+  mountPoints?: [ 
+    {
+      bucketName?: string(name='bucketName'),
+      endpoint?: string(name='endpoint'),
+      mountDir?: string(name='mountDir'),
+      readOnly?: boolean(name='readOnly'),
+    }
+  ](name='mountPoints'),
 }
 
 model OSSTriggerConfig {
@@ -422,6 +442,105 @@ model VPCConfig {
 
 model VendorConfig {
   meteringConfig?: MeteringConfig(name='meteringConfig'),
+}
+
+model ClaimGPUInstanceHeaders {
+  commonHeaders?: map[string]string,
+  xFcAccountId?: string(name='X-Fc-Account-Id'),
+  xFcDate?: string(name='X-Fc-Date'),
+  xFcTraceId?: string(name='X-Fc-Trace-Id'),
+}
+
+model ClaimGPUInstanceRequest {
+  diskPerformanceLevel?: string(name='diskPerformanceLevel'),
+  diskSizeGigabytes?: string(name='diskSizeGigabytes'),
+  imageId?: string(name='imageId'),
+  instanceType?: string(name='instanceType'),
+  internetBandwidthOut?: string(name='internetBandwidthOut'),
+  password?: string(name='password'),
+  sourceCidrIp?: string(name='sourceCidrIp'),
+  tcpPortRange?: [ string ](name='tcpPortRange'),
+  udpPortRange?: [ string ](name='udpPortRange'),
+}
+
+model ClaimGPUInstanceResponseBody = {
+  createdTime?: string(name='createdTime'),
+  instanceId?: string(name='instanceId'),
+  publicIp?: string(name='publicIp'),
+}
+
+model ClaimGPUInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ClaimGPUInstanceResponseBody(name='body'),
+}
+
+async function claimGPUInstance(request: ClaimGPUInstanceRequest): ClaimGPUInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new ClaimGPUInstanceHeaders{};
+  return claimGPUInstanceWithOptions(request, headers, runtime);
+}
+
+async function claimGPUInstanceWithOptions(request: ClaimGPUInstanceRequest, headers: ClaimGPUInstanceHeaders, runtime: Util.RuntimeOptions): ClaimGPUInstanceResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.diskPerformanceLevel)) {
+    body['diskPerformanceLevel'] = request.diskPerformanceLevel;
+  }
+  if (!Util.isUnset(request.diskSizeGigabytes)) {
+    body['diskSizeGigabytes'] = request.diskSizeGigabytes;
+  }
+  if (!Util.isUnset(request.imageId)) {
+    body['imageId'] = request.imageId;
+  }
+  if (!Util.isUnset(request.instanceType)) {
+    body['instanceType'] = request.instanceType;
+  }
+  if (!Util.isUnset(request.internetBandwidthOut)) {
+    body['internetBandwidthOut'] = request.internetBandwidthOut;
+  }
+  if (!Util.isUnset(request.password)) {
+    body['password'] = request.password;
+  }
+  if (!Util.isUnset(request.sourceCidrIp)) {
+    body['sourceCidrIp'] = request.sourceCidrIp;
+  }
+  if (!Util.isUnset(request.tcpPortRange)) {
+    body['tcpPortRange'] = request.tcpPortRange;
+  }
+  if (!Util.isUnset(request.udpPortRange)) {
+    body['udpPortRange'] = request.udpPortRange;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xFcAccountId)) {
+    realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
+  }
+  if (!Util.isUnset(headers.xFcDate)) {
+    realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
+  }
+  if (!Util.isUnset(headers.xFcTraceId)) {
+    realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ClaimGPUInstance',
+    version = '2021-04-06',
+    protocol = 'HTTPS',
+    pathname = `/2021-04-06/gpuInstances`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 model CreateAliasHeaders {
@@ -617,6 +736,7 @@ model CreateFunctionRequest {
   code?: Code(name='code'),
   customContainerConfig?: CustomContainerConfig(name='customContainerConfig'),
   customDNS?: CustomDNS(name='customDNS'),
+  customHealthCheckConfig?: CustomHealthCheckConfig(name='customHealthCheckConfig'),
   customRuntimeConfig?: CustomRuntimeConfig(name='customRuntimeConfig'),
   description?: string(name='description'),
   environmentVariables?: map[string]string(name='environmentVariables'),
@@ -641,6 +761,7 @@ model CreateFunctionResponseBody = {
   createdTime?: string(name='createdTime'),
   customContainerConfig?: CustomContainerConfig(name='customContainerConfig'),
   customDNS?: CustomDNS(name='customDNS'),
+  customHealthCheckConfig?: CustomHealthCheckConfig(name='customHealthCheckConfig'),
   customRuntimeConfig?: CustomRuntimeConfig(name='customRuntimeConfig'),
   description?: string(name='description'),
   environmentVariables?: map[string]string(name='environmentVariables'),
@@ -687,6 +808,9 @@ async function createFunctionWithOptions(serviceName: string, request: CreateFun
   }
   if (!Util.isUnset(request.customDNS)) {
     body['customDNS'] = request.customDNS;
+  }
+  if (!Util.isUnset(request.customHealthCheckConfig)) {
+    body['customHealthCheckConfig'] = request.customHealthCheckConfig;
   }
   if (!Util.isUnset(request.customRuntimeConfig)) {
     body['customRuntimeConfig'] = request.customRuntimeConfig;
@@ -863,6 +987,7 @@ model CreateServiceRequest {
   internetAccess?: boolean(name='internetAccess'),
   logConfig?: LogConfig(name='logConfig'),
   nasConfig?: NASConfig(name='nasConfig'),
+  ossMountConfig?: OSSMountConfig(name='ossMountConfig'),
   role?: string(name='role'),
   serviceName?: string(name='serviceName'),
   tracingConfig?: TracingConfig(name='tracingConfig'),
@@ -876,6 +1001,7 @@ model CreateServiceResponseBody = {
   lastModifiedTime?: string(name='lastModifiedTime'),
   logConfig?: LogConfig(name='logConfig'),
   nasConfig?: NASConfig(name='nasConfig'),
+  ossMountConfig?: OSSMountConfig(name='ossMountConfig'),
   role?: string(name='role'),
   serviceId?: string(name='serviceId'),
   serviceName?: string(name='serviceName'),
@@ -909,6 +1035,9 @@ async function createServiceWithOptions(request: CreateServiceRequest, headers: 
   }
   if (!Util.isUnset(request.nasConfig)) {
     body['nasConfig'] = request.nasConfig;
+  }
+  if (!Util.isUnset(request.ossMountConfig)) {
+    body['ossMountConfig'] = request.ossMountConfig;
   }
   if (!Util.isUnset(request.role)) {
     body['role'] = request.role;
@@ -1931,6 +2060,7 @@ model GetFunctionResponseBody = {
   createdTime?: string(name='createdTime'),
   customContainerConfig?: CustomContainerConfigInfo(name='customContainerConfig'),
   customDNS?: CustomDNS(name='customDNS'),
+  customHealthCheckConfig?: CustomHealthCheckConfig(name='customHealthCheckConfig'),
   customRuntimeConfig?: CustomRuntimeConfig(name='customRuntimeConfig'),
   description?: string(name='description'),
   environmentVariables?: map[string]string(name='environmentVariables'),
@@ -2426,6 +2556,7 @@ model GetServiceResponseBody = {
   lastModifiedTime?: string(name='lastModifiedTime'),
   logConfig?: LogConfig(name='logConfig'),
   nasConfig?: NASConfig(name='nasConfig'),
+  ossMountConfig?: OSSMountConfig(name='ossMountConfig'),
   role?: string(name='role'),
   serviceId?: string(name='serviceId'),
   serviceName?: string(name='serviceName'),
@@ -3082,6 +3213,7 @@ model ListFunctionsResponseBody = {
       codeSize?: long(name='codeSize'),
       createdTime?: string(name='createdTime'),
       customContainerConfig?: CustomContainerConfig(name='customContainerConfig'),
+      customHealthCheckConfig?: CustomHealthCheckConfig(name='customHealthCheckConfig'),
       description?: string(name='description'),
       environmentVariables?: map[string]string(name='environmentVariables'),
       functionId?: string(name='functionId'),
@@ -3754,6 +3886,7 @@ model ListServicesResponseBody = {
       lastModifiedTime?: string(name='lastModifiedTime'),
       logConfig?: LogConfig(name='logConfig'),
       nasConfig?: NASConfig(name='nasConfig'),
+      ossMountConfig?: OSSMountConfig(name='ossMountConfig'),
       role?: string(name='role'),
       serviceId?: string(name='serviceId'),
       serviceName?: string(name='serviceName'),
@@ -4713,6 +4846,56 @@ async function registerEventSourceWithOptions(serviceName: string, functionName:
   return callApi(params, req, runtime);
 }
 
+model ReleaseGPUInstanceHeaders {
+  commonHeaders?: map[string]string,
+  xFcAccountId?: string(name='X-Fc-Account-Id'),
+  xFcDate?: string(name='X-Fc-Date'),
+  xFcTraceId?: string(name='X-Fc-Trace-Id'),
+}
+
+model ReleaseGPUInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function releaseGPUInstance(instanceId: string): ReleaseGPUInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new ReleaseGPUInstanceHeaders{};
+  return releaseGPUInstanceWithOptions(instanceId, headers, runtime);
+}
+
+async function releaseGPUInstanceWithOptions(instanceId: string, headers: ReleaseGPUInstanceHeaders, runtime: Util.RuntimeOptions): ReleaseGPUInstanceResponse {
+  instanceId = OpenApiUtil.getEncodeParam(instanceId);
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xFcAccountId)) {
+    realHeaders['X-Fc-Account-Id'] = Util.toJSONString(headers.xFcAccountId);
+  }
+  if (!Util.isUnset(headers.xFcDate)) {
+    realHeaders['X-Fc-Date'] = Util.toJSONString(headers.xFcDate);
+  }
+  if (!Util.isUnset(headers.xFcTraceId)) {
+    realHeaders['X-Fc-Trace-Id'] = Util.toJSONString(headers.xFcTraceId);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+  };
+  var params = new OpenApi.Params{
+    action = 'ReleaseGPUInstance',
+    version = '2021-04-06',
+    protocol = 'HTTPS',
+    pathname = `/2021-04-06/gpuInstances/${instanceId}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return callApi(params, req, runtime);
+}
+
 model StopStatefulAsyncInvocationHeaders {
   commonHeaders?: map[string]string,
   xFcAccountId?: string(name='X-Fc-Account-Id'),
@@ -5101,6 +5284,7 @@ model UpdateFunctionRequest {
   code?: Code(name='code'),
   customContainerConfig?: CustomContainerConfig(name='customContainerConfig'),
   customDNS?: CustomDNS(name='customDNS'),
+  customHealthCheckConfig?: CustomHealthCheckConfig(name='customHealthCheckConfig'),
   customRuntimeConfig?: CustomRuntimeConfig(name='customRuntimeConfig'),
   description?: string(name='description'),
   environmentVariables?: map[string]string(name='environmentVariables'),
@@ -5123,6 +5307,7 @@ model UpdateFunctionResponseBody = {
   createdTime?: string(name='createdTime'),
   customContainerConfig?: CustomContainerConfig(name='customContainerConfig'),
   customDNS?: CustomDNS(name='customDNS'),
+  customHealthCheckConfig?: CustomHealthCheckConfig(name='customHealthCheckConfig'),
   customRuntimeConfig?: CustomRuntimeConfig(name='customRuntimeConfig'),
   description?: string(name='description'),
   environmentVariables?: map[string]string(name='environmentVariables'),
@@ -5172,6 +5357,9 @@ async function updateFunctionWithOptions(serviceName: string, functionName: stri
   }
   if (!Util.isUnset(request.customDNS)) {
     body['customDNS'] = request.customDNS;
+  }
+  if (!Util.isUnset(request.customHealthCheckConfig)) {
+    body['customHealthCheckConfig'] = request.customHealthCheckConfig;
   }
   if (!Util.isUnset(request.customRuntimeConfig)) {
     body['customRuntimeConfig'] = request.customRuntimeConfig;
@@ -5263,6 +5451,7 @@ model UpdateServiceRequest {
   internetAccess?: boolean(name='internetAccess'),
   logConfig?: LogConfig(name='logConfig'),
   nasConfig?: NASConfig(name='nasConfig'),
+  ossMountConfig?: OSSMountConfig(name='ossMountConfig'),
   role?: string(name='role'),
   tracingConfig?: TracingConfig(name='tracingConfig'),
   vpcConfig?: VPCConfig(name='vpcConfig'),
@@ -5275,6 +5464,7 @@ model UpdateServiceResponseBody = {
   lastModifiedTime?: string(name='lastModifiedTime'),
   logConfig?: LogConfig(name='logConfig'),
   nasConfig?: NASConfig(name='nasConfig'),
+  ossMountConfig?: OSSMountConfig(name='ossMountConfig'),
   role?: string(name='role'),
   serviceId?: string(name='serviceId'),
   serviceName?: string(name='serviceName'),
@@ -5309,6 +5499,9 @@ async function updateServiceWithOptions(serviceName: string, request: UpdateServ
   }
   if (!Util.isUnset(request.nasConfig)) {
     body['nasConfig'] = request.nasConfig;
+  }
+  if (!Util.isUnset(request.ossMountConfig)) {
+    body['ossMountConfig'] = request.ossMountConfig;
   }
   if (!Util.isUnset(request.role)) {
     body['role'] = request.role;

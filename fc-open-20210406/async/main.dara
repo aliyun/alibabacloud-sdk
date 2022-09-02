@@ -109,6 +109,15 @@ model CustomDNS {
   searches?: [ string ](name='searches', description='DNS 搜索域的列表'),
 }
 
+model CustomHealthCheckConfig {
+  failureThreshold?: int32(name='failureThreshold', description='健康检查失败次数阈值，达到该值后系统认为检查失败'),
+  httpGetUrl: string(name='httpGetUrl', description='容器自定义健康检查URL地址'),
+  initialDelaySeconds?: int32(name='initialDelaySeconds', description='容器启动到发起健康检查的延迟'),
+  periodSeconds?: int32(name='periodSeconds', description='健康检查周期'),
+  successThreshold?: int32(name='successThreshold', description='健康检查成功次数阈值，达到该值后系统认为检查成功'),
+  timeoutSeconds?: int32(name='timeoutSeconds', description='健康检查超时时间'),
+}
+
 model CustomRuntimeConfig {
   args?: [ string ](name='args', description='启动入口命令接收的参数'),
   command?: [ string ](name='command', description='启动入口命令'),
@@ -244,6 +253,17 @@ model NASConfig {
   userId?: int32(name='userId', description='userID'),
 }
 
+model OSSMountConfig {
+  mountPoints?: [ 
+    {
+      bucketName?: string(name='bucketName', description='挂载的OSS bucket'),
+      endpoint?: string(name='endpoint', description='OSS访问地址'),
+      mountDir?: string(name='mountDir', description='挂载目录'),
+      readOnly?: boolean(name='readOnly', description='是否只读'),
+    }
+  ](name='mountPoints', description='OSS挂载点配置'),
+}
+
 model OSSTriggerConfig {
   events?: [ string ](name='events', description='events'),
   filter?: OSSTriggerFilter(name='filter'),
@@ -286,10 +306,10 @@ model PathConfig {
 }
 
 model PolicyItem {
-  key: bytes(name='key', description='key指定控制流量灰度的参数名。例如key为"x-test-uid"，则请求"x-test-uid" 的值将决定请求是否被路由到灰度版本上。'),
-  operator: bytes(name='operator', description='运算符。 参数名key对应请求中的实际值，与设定的value值做运算符比较。取值：   ● >, <, >=, <=, = 和 != ，大小比较规则遵循字典序； ● in ：字符串包含关系； ●  percent: 百分比值（取值范围 (0,100] 的整数) 表示指定 key 的 value 值分布的特定百分比路由至灰度实例 。比如一条 { type=Header, key=uid, value=20, operator=percent } 的规则，表示取 http header 中 uid 的值分布的 20% 打到灰度实例。'),
+  key: bytes(name='key', description='key指定控制流量灰度的字段名。 例如key为"x-test-uid"，则请求中"x-test-uid" 字段的值将决定请求是否被路由到灰度版本上'),
+  operator: bytes(name='operator', description='operator指定运算符。  将请求中由参数key指定的字段的实际值和参数 value 指定的值，按指定的运算符进行比较。  取值：    ● >, <, >=, <=, = 和 != ，大小比较规则遵循字典序；  ● in ：字符串包含关系；  ●  percent: 百分比值（取值范围 (0,100] 的整数)  表示根据请求中指定字段key对应的实际值分布，按百分比灰度。其中字段由参数key指定，百分比值由参数 value 指定 。 例如一条 { type=Header, key=uid, value=20, operator=percent } 的规则，表示根据请求 header 中字段 uid 的值的分布，其中 20% 的请求路由到灰度版本上。'),
   type: bytes(name='type', description='参数类型。可以取HTTP请求中的有关值。'),
-  value: bytes(name='value', description='value指定控制流量灰度的参数值。参数名key对应请求中的实际值，与该值做运算符比较，决定请求是否被路由到灰度版本上。'),
+  value: bytes(name='value', description='value指定控制流量灰度的字段值。 请求中由参数key指定的字段实际值会和参数value字段值，按指定的运算符进行比较，决定请求是否被路由到灰度版本上'),
 }
 
 model PreFreeze {
@@ -424,6 +444,37 @@ model VendorConfig {
   meteringConfig?: MeteringConfig(name='meteringConfig'),
 }
 
+model ClaimGPUInstanceRequest {
+  xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
+  xFcDate?: string(name='X-Fc-Date', position='Header'),
+  xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
+  diskPerformanceLevel?: string(name='diskPerformanceLevel', description='GPU渲染实例磁盘性能级别', position='Body'),
+  diskSizeGigabytes?: string(name='diskSizeGigabytes', description='GPU渲染实例系统盘空间', position='Body'),
+  imageId: string(name='imageId', description='GPU渲染实例镜像ID', position='Body'),
+  instanceType: string(name='instanceType', description='GPU渲染实例规格', position='Body'),
+  internetBandwidthOut?: string(name='internetBandwidthOut', description='GPU渲染实例公网出向带宽', position='Body'),
+  password?: string(name='password', description='GPU渲染实例密码', position='Body'),
+  sourceCidrIp: string(name='sourceCidrIp', description='GPU渲染实例源端IPv4 CIDR地址块', position='Body'),
+  tcpPortRange?: [ string ](name='tcpPortRange', description='GPU渲染实例安全组开放的TCP协议端口范围', position='Body'),
+  udpPortRange?: [ string ](name='udpPortRange', description='GPU渲染实例安全组开放的UDP协议端口范围', position='Body'),
+}
+
+model ClaimGPUInstanceResponseBody = {
+  createdTime?: string(name='createdTime'),
+  instanceId?: string(name='instanceId'),
+  publicIp?: string(name='publicIp', description='Id of the request'),
+}
+
+model ClaimGPUInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  body: ClaimGPUInstanceResponseBody(name='body'),
+}
+
+async function claimGPUInstance(request: ClaimGPUInstanceRequest): ClaimGPUInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ClaimGPUInstance', 'POST', '/2021-04-06/gpuInstances', 'json', false, 'json', request);
+}
+
 model CreateAliasRequest {
   serviceName: string(name='serviceName', description='服务名称', position='Path'),
   xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
@@ -502,6 +553,7 @@ model CreateFunctionRequest {
   code?: Code(name='code', position='Body'),
   customContainerConfig?: CustomContainerConfig(name='customContainerConfig', position='Body'),
   customDNS?: CustomDNS(name='customDNS', description='函数自定义DNS配置', position='Body'),
+  customHealthCheckConfig?: CustomHealthCheckConfig(name='customHealthCheckConfig', description='函数自定义健康检查配置，仅适用于Custom runtime/container', position='Body'),
   customRuntimeConfig?: CustomRuntimeConfig(name='customRuntimeConfig', description='Custom Runtime函数详细配置', position='Body'),
   description?: string(name='description', description='函数描述', position='Body'),
   environmentVariables?: map[string]string(name='environmentVariables', position='Body'),
@@ -526,6 +578,7 @@ model CreateFunctionResponseBody = {
   createdTime?: string(name='createdTime', description='function创建时间'),
   customContainerConfig?: CustomContainerConfig(name='customContainerConfig'),
   customDNS?: CustomDNS(name='customDNS', description='函数自定义DNS配置'),
+  customHealthCheckConfig?: CustomHealthCheckConfig(name='customHealthCheckConfig', description='函数自定义健康检查配置，仅适用于Custom runtime/container'),
   customRuntimeConfig?: CustomRuntimeConfig(name='customRuntimeConfig', description='Custom Runtime函数详细配置'),
   description?: string(name='description', description='函数描述'),
   environmentVariables?: map[string]string(name='environmentVariables'),
@@ -596,6 +649,7 @@ model CreateServiceRequest {
   internetAccess?: boolean(name='internetAccess', description='公网访问设置', position='Body'),
   logConfig?: LogConfig(name='logConfig', position='Body'),
   nasConfig?: NASConfig(name='nasConfig', position='Body'),
+  ossMountConfig?: OSSMountConfig(name='ossMountConfig', description='OSS挂载配置', position='Body'),
   role?: string(name='role', description='服务角色', position='Body'),
   serviceName: string(name='serviceName', description='服务名称', position='Body'),
   tracingConfig?: TracingConfig(name='tracingConfig', position='Body'),
@@ -609,6 +663,7 @@ model CreateServiceResponseBody = {
   lastModifiedTime?: string(name='lastModifiedTime', description='上次更新时间'),
   logConfig?: LogConfig(name='logConfig'),
   nasConfig?: NASConfig(name='nasConfig'),
+  ossMountConfig?: OSSMountConfig(name='ossMountConfig', description='OSS挂载配置'),
   role?: string(name='role', description='服务角色'),
   serviceId?: string(name='serviceId', description='服务ID'),
   serviceName?: string(name='serviceName', description='服务名称'),
@@ -977,6 +1032,7 @@ model GetFunctionResponseBody = {
   createdTime?: string(name='createdTime', description='function创建时间'),
   customContainerConfig?: CustomContainerConfigInfo(name='customContainerConfig'),
   customDNS?: CustomDNS(name='customDNS', description='函数自定义DNS配置'),
+  customHealthCheckConfig?: CustomHealthCheckConfig(name='customHealthCheckConfig', description='函数自定义健康检查配置，仅适用于Custom runtime/container'),
   customRuntimeConfig?: CustomRuntimeConfig(name='customRuntimeConfig', description='Custom Runtime函数详细配置'),
   description?: string(name='description', description='函数描述'),
   environmentVariables?: map[string]string(name='environmentVariables', description='为函数设置的环境变量，可以在函数中获取环境变量的值'),
@@ -1173,6 +1229,7 @@ model GetServiceResponseBody = {
   lastModifiedTime?: string(name='lastModifiedTime', description='上次更新时间'),
   logConfig?: LogConfig(name='logConfig'),
   nasConfig?: NASConfig(name='nasConfig'),
+  ossMountConfig?: OSSMountConfig(name='ossMountConfig', description='OSS挂载配置'),
   role?: string(name='role', description='服务角色'),
   serviceId?: string(name='serviceId', description='服务ID'),
   serviceName?: string(name='serviceName', description='服务名称'),
@@ -1438,6 +1495,7 @@ model ListFunctionsResponseBody = {
       codeSize?: long(name='codeSize', description='系统返回的function的code包大小，单位为byte Example : 1024'),
       createdTime?: string(name='createdTime', description='function创建时间'),
       customContainerConfig?: CustomContainerConfig(name='customContainerConfig'),
+      customHealthCheckConfig?: CustomHealthCheckConfig(name='customHealthCheckConfig'),
       description?: string(name='description', description='函数描述'),
       environmentVariables?: map[string]string(name='environmentVariables', description='为函数设置的环境变量，可以在函数中获取环境变量的值'),
       functionId?: string(name='functionId', description='系统为每个function生成的唯一ID'),
@@ -1705,6 +1763,7 @@ model ListServicesResponseBody = {
       lastModifiedTime?: string(name='lastModifiedTime', description='上次更新时间'),
       logConfig?: LogConfig(name='logConfig'),
       nasConfig?: NASConfig(name='nasConfig'),
+      ossMountConfig?: OSSMountConfig(name='ossMountConfig', description='OSS挂载配置'),
       role?: string(name='role', description='服务角色'),
       serviceId?: string(name='serviceId', description='服务ID'),
       serviceName?: string(name='serviceName', description='服务信息'),
@@ -2046,6 +2105,22 @@ async function registerEventSource(request: RegisterEventSourceRequest): Registe
   return @handler.do('RESTFUL', 'RegisterEventSource', 'POST', '/2021-04-06/services/{serviceName}/functions/{functionName}/event-sources', 'json', false, 'json', request);
 }
 
+model ReleaseGPUInstanceRequest {
+  instanceId: string(name='instanceId', position='Path'),
+  xFcAccountId?: string(name='X-Fc-Account-Id', position='Header'),
+  xFcDate?: string(name='X-Fc-Date', position='Header'),
+  xFcTraceId?: string(name='X-Fc-Trace-Id', position='Header'),
+}
+
+model ReleaseGPUInstanceResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function releaseGPUInstance(request: ReleaseGPUInstanceRequest): ReleaseGPUInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ReleaseGPUInstance', 'DELETE', '/2021-04-06/gpuInstances/{instanceId}', 'none', false, 'json', request);
+}
+
 model StopStatefulAsyncInvocationRequest {
   serviceName?: string(name='serviceName', position='Path'),
   functionName?: string(name='functionName', position='Path'),
@@ -2182,6 +2257,7 @@ model UpdateFunctionRequest {
   code?: Code(name='code', position='Body'),
   customContainerConfig?: CustomContainerConfig(name='customContainerConfig', position='Body'),
   customDNS?: CustomDNS(name='customDNS', description='函数自定义DNS配置', position='Body'),
+  customHealthCheckConfig?: CustomHealthCheckConfig(name='customHealthCheckConfig', description='函数自定义健康检查配置，仅适用于Custom runtime/container', position='Body'),
   customRuntimeConfig?: CustomRuntimeConfig(name='customRuntimeConfig', description='Custom Runtime函数详细配置', position='Body'),
   description?: string(name='description', description='函数描述', position='Body'),
   environmentVariables?: map[string]string(name='environmentVariables', description='为函数设置的环境变量，可以在函数中获取环境变量的值', position='Body'),
@@ -2204,6 +2280,7 @@ model UpdateFunctionResponseBody = {
   createdTime?: string(name='createdTime', description='function创建时间'),
   customContainerConfig?: CustomContainerConfig(name='customContainerConfig'),
   customDNS?: CustomDNS(name='customDNS', description='函数自定义DNS配置'),
+  customHealthCheckConfig?: CustomHealthCheckConfig(name='customHealthCheckConfig', description='函数自定义健康检查配置，仅适用于Custom runtime/container'),
   customRuntimeConfig?: CustomRuntimeConfig(name='customRuntimeConfig', description='Custom Runtime函数详细配置'),
   description?: string(name='description', description='函数描述'),
   environmentVariables?: map[string]string(name='environmentVariables', description='为函数设置的环境变量，可以在函数中获取环境变量的值'),
@@ -2242,6 +2319,7 @@ model UpdateServiceRequest {
   internetAccess?: boolean(name='internetAccess', description='公网访问设置', position='Body'),
   logConfig?: LogConfig(name='logConfig', position='Body'),
   nasConfig?: NASConfig(name='nasConfig', position='Body'),
+  ossMountConfig?: OSSMountConfig(name='ossMountConfig', description='OSS挂载配置', position='Body'),
   role?: string(name='role', description='服务角色', position='Body'),
   tracingConfig?: TracingConfig(name='tracingConfig', position='Body'),
   vpcConfig?: VPCConfig(name='vpcConfig', position='Body'),
@@ -2254,6 +2332,7 @@ model UpdateServiceResponseBody = {
   lastModifiedTime?: string(name='lastModifiedTime', description='上次更新时间'),
   logConfig?: LogConfig(name='logConfig'),
   nasConfig?: NASConfig(name='nasConfig'),
+  ossMountConfig?: OSSMountConfig(name='ossMountConfig', description='OSS挂载配置'),
   role?: string(name='role', description='服务角色'),
   serviceId?: string(name='serviceId', description='服务ID'),
   serviceName?: string(name='serviceName', description='服务名称'),
