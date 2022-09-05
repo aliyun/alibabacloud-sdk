@@ -6,6 +6,7 @@ import TeaAsyncHandler;
 import TeaRequest;
 import AsyncRequestBody;
 import RequestBody;
+import AsyncResponseHandler;
 import ClientConfiguration;
 import ClientExecutionParams;
 extends BaseClientBuilder;
@@ -59,45 +60,30 @@ init(configuration: ClientConfiguration){
     rus-west-1-pop = 'sts.aliyuncs.com',
   };
 }
+
+function close(): void {
+  @handler.close();
+}
+
 model AssumeRoleRequest {
-  roleArn?: string(name='RoleArn', description='The RAM role ARN to assume.
-
-This role is a RAM role whose trusted entity is an Alibaba cloud account. For more information, see [create a RAM role with a trusted entity as an Alibaba Cloud account](~~ 93691 ~~) or [CreateRole](~~ 28710 ~~).
-
-Format: "acs:ram ::< account_id>:role/<role_name>".
-
-> You can view the role ARN through the RAM console or API. The details are as follows:
-> - RAM console: For more information, see [view the ARN of a RAM role](~~ 39744 ~~).
-> - API: For more information, see [ListRoles](~~ 28713 ~~) or [GetRole](~~ 28711 ~~).', position='Query'),
-  policy?: string(name='Policy', description='An additional policy added for STS Token to further restrict STS Token permissions. The details are as follows:
--If this policy is specified, the final policy STS Token the intersection of the RAM role policy and the policy.
--If this policy is not specified, the final policy is STS Token to take the policy of the RAM role.
-
-The description must be 1 to 1024 characters in length.', position='Query'),
-  roleSessionName?: string(name='RoleSessionName', description='The name of the role session.
-
-This parameter is a custom parameter. The user who calls this API, such as the username. In the operation audit log, even operations performed by the same RAM role can be distinguished by different "RoleSessionName" to implement user-level access audit.
-
-The description must be 2 to 64 characters in length and can contain letters, digits, periods (.), at(@), hyphens (-), and underscores (_).', position='Query'),
-  durationSeconds?: long(name='DurationSeconds', description='The expiration time. Unit: seconds.
-
-The minimum validity period is 900 seconds, and the maximum validity period is the "MaxSessionDuration" time for the role to be assumed. The default value is 3600 seconds.
-> You can set the maximum session time "MaxSessionDuration" by using the CreateRole or UpdateRole ". For more information, see [CreateRole](~~ 28710 ~~) or [UpdateRole](~~ 28712 ~~).', position='Query'),
+  durationSeconds?: long(name='DurationSeconds', position='Query'),
+  policy?: string(name='Policy', position='Query'),
+  roleArn: string(name='RoleArn', position='Query'),
+  roleSessionName: string(name='RoleSessionName', position='Query'),
 }
 
 model AssumeRoleResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.'),
   assumedRoleUser?: {
-    assumedRoleId?: string(name='AssumedRoleId', description='The ID of the temporary identity.'),
-    arn?: string(name='Arn', description='The ARN of the temporary identity.'),
-  }(name='AssumedRoleUser', description='The temporary identity of the role.'),
+    arn?: string(name='Arn'),
+    assumedRoleId?: string(name='AssumedRoleId'),
+  }(name='AssumedRoleUser'),
   credentials?: {
-    securityToken?: string(name='SecurityToken', description='The security token.'),
-    expiration?: string(name='Expiration', description='The expiration time of the authorization.'),
-    accessKeySecret?: string(name='AccessKeySecret', description='The accesskey pair.'),
-    accessKeyId?: string(name='AccessKeyId', description='The accesskey ID.'),
-  }(name='Credentials', description='The access credential.
-'),
+    accessKeyId?: string(name='AccessKeyId'),
+    accessKeySecret?: string(name='AccessKeySecret'),
+    expiration?: string(name='Expiration'),
+    securityToken?: string(name='SecurityToken'),
+  }(name='Credentials'),
+  requestId?: string(name='RequestId'),
 }
 
 model AssumeRoleResponse = {
@@ -105,92 +91,37 @@ model AssumeRoleResponse = {
   body: AssumeRoleResponseBody(name='body'),
 }
 
-/**
- * ### Prerequisites
-Make sure that the RAM user who calls this API has been granted the STS administrative permission (AliyunSTSAssumeRoleAccess). Otherwise, an error is reported. The error message is as follows:
-
-"You are not authorized to do this action. You should be authorized by RAM ."
-
-The causes and solutions are as follows:
-
--The RAM user is not authorized to assume a role by STS. Add a system policy (AliyunSTSAssumeRoleAccess) or a custom policy to the RAM user. For more information, see [authorize a RAM user](~~ 116146 ~~) and [specify which RAM role a RAM user can play](~~ 39744 ~~).
--The RAM role trust policy does not include the RAM user you are using, that is, the RAM role does not allow the RAM user to assume: please add a trust policy for the RAM role to allow the RAM user to assume. For more information, see [Modify the trust policy for a RAM role](~~ 116819 ~~).
-
-
-### QPS limit
-This API can be called up to 6,000 times per minute, and an Alibaba Cloud account, RAM users and RAM roles under this account share the same 6,000 times. If the number of requests exceeds 6,000, an error is returned. The error message is as follows:
-
-"Request was denied due to user flow control ."
-
-
- */
 async function assumeRole(request: AssumeRoleRequest): AssumeRoleResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'AssumeRole', 'POST', '/', 'json', false, 'none', request);
+  return @handler.do('RPC', 'AssumeRole', 'POST', '/', 'json', false, 'json', request);
 }
 
 model AssumeRoleWithOIDCRequest {
-  roleArn?: string(name='RoleArn', description='The RAM role ARN to be assumed.
-
-You can view the role ARN through the RAM console or API. The details are as follows:
-
--RAM console: For more information, see [how to view the ARN of a RAM role](~~ 39744 ~~).
--API: For more information, see [ListRoles](~~ 28713 ~~) or [GetRole](~~ 28711 ~~).', position='Query'),
-  OIDCToken?: string(name='OIDCToken', description='The OIDC Token (OIDC Token) issued by an external IdP.
-
-The description must be 4 to 20000 characters in length.
-
-> enter the original OIDC Token. No Base64 decoding is required.', position='Query'),
-  OIDCProviderArn?: string(name='OIDCProviderArn', description='The ARN of the OIDC identity provider.
-
-You can view the ARN of the OIDC identity provider through the RAM console or API. The details are as follows:
-
--RAM console: For more information, see [view OIDC identity provider information](~~ 327123 ~~).
--API: For more information, see [GetOIDCProvider](~~ 327126 ~~) or [ListOIDCProviders](~~ 327127 ~~).', position='Query'),
-  durationSeconds?: long(name='DurationSeconds', description='The expiration time of the session. Unit: seconds.
-
-Default value: 3600. Minimum value: 900. Maximum value: the time set by "MaxSessionDuration.
-
-> For more information about how to set the maximum session time of a role, see [CreateRole](~~ 28710 ~~) or [UpdateRole](~~ 28712 ~~).', position='Query'),
-  roleSessionName?: string(name='RoleSessionName', description='The name of the role session.
-
-This parameter is a custom parameter. The user who calls this API, such as the username. In Operation audit logs, even operations performed by the same RAM role can be distinguished by different RoleSessionName to implement user-level access audit.
-
-The name must contain letters, digits, periods (.), at(@), hyphens (-), and underscores (_).
-
-The description must be 2 to 64 characters in length.', position='Query'),
-  policy?: string(name='Policy', description='An additional policy added for STS Token to further restrict STS Token permissions. The details are as follows:
-
--If this policy is specified, the final permission STS Token the intersection of the RAM role policy and this policy.
--If this policy is not specified, the final permission of the STS Token is the permission of the RAM role.
-
-The description must be 1 to 1024 characters in length.', position='Query'),
+  durationSeconds?: long(name='DurationSeconds', description='Session过期时间，单位为秒。', position='Query'),
+  OIDCProviderArn?: string(name='OIDCProviderArn', description='OIDC Provider的ARN', position='Query'),
+  OIDCToken?: string(name='OIDCToken', description='OIDC的ID Token，需输入原始Token，无需Base64解码', position='Query'),
+  policy?: string(name='Policy', description='权限策略。 生成STS Token时可以指定一个额外的权限策略，以进一步限制STS Token的权限。若不指定则返回的Token拥有指定角色的所有权限。', position='Query'),
+  roleArn?: string(name='RoleArn', description='需要扮演的角色的ARN', position='Query'),
+  roleSessionName?: string(name='RoleSessionName', description='用户自定义参数。此参数用来区分不同的令牌，可用于用户级别的访问审计。', position='Query'),
 }
 
 model AssumeRoleWithOIDCResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.'),
-  OIDCTokenInfo?: {
-    subject?: string(name='Subject', description='oidc main body.
-
-The value of the sub" field in the corresponding OIDC Token.
-'),
-    issuer?: string(name='Issuer', description='The URL of the OIDC issuer.
-
-The value of the "iss" field in the corresponding OIDC Token.'),
-    clientIds?: string(name='ClientIds', description='OIDC audience. Separate multiple IDs with commas (,).
-
-The value of the "aud" field in the corresponding OIDC Token.'),
-  }(name='OIDCTokenInfo', description='The information about the parsed OIDC Token.'),
   assumedRoleUser?: {
-    assumedRoleId?: string(name='AssumedRoleId', description='The ID of the temporary identity.'),
-    arn?: string(name='Arn', description='The ARN of the temporary identity.'),
-  }(name='AssumedRoleUser', description='The temporary role-playing identity.'),
+    arn?: string(name='Arn'),
+    assumedRoleId?: string(name='AssumedRoleId'),
+  }(name='AssumedRoleUser'),
   credentials?: {
-    securityToken?: string(name='SecurityToken', description='The security token.'),
-    expiration?: string(name='Expiration', description='The expiration time.'),
-    accessKeySecret?: string(name='AccessKeySecret', description='The accesskey pair.'),
-    accessKeyId?: string(name='AccessKeyId', description='The accesskey ID.'),
-  }(name='Credentials', description='The temporary access credential (STS Token).'),
+    accessKeyId?: string(name='AccessKeyId'),
+    accessKeySecret?: string(name='AccessKeySecret'),
+    expiration?: string(name='Expiration'),
+    securityToken?: string(name='SecurityToken'),
+  }(name='Credentials'),
+  OIDCTokenInfo?: {
+    clientIds?: string(name='ClientIds'),
+    issuer?: string(name='Issuer'),
+    subject?: string(name='Subject'),
+  }(name='OIDCTokenInfo'),
+  requestId?: string(name='RequestId'),
 }
 
 model AssumeRoleWithOIDCResponse = {
@@ -198,69 +129,37 @@ model AssumeRoleWithOIDCResponse = {
   body: AssumeRoleWithOIDCResponseBody(name='body'),
 }
 
-/**
- * ### Prerequisites
--Make sure that the OIDC Token (OIDC Token) has been obtained from an external identity provider (IdP).
--Make sure that you have created an OIDC identity provider in RAM. For more information, see [create an OIDC identity provider](~~ 327123 ~~) or [CreateOIDCProvider](~~ 327135 ~~).
--Make sure that you have created a RAM role with the trusted entity as the OIDC identity provider in RAM. For more information, see [create a RAM role with a trusted entity as an identity provider](~~ 116805 ~~) or [CreateRole](~~ 28710 ~~).
- */
 async function assumeRoleWithOIDC(request: AssumeRoleWithOIDCRequest): AssumeRoleWithOIDCResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'AssumeRoleWithOIDC', 'POST', '/', 'json', false, 'none', request);
+  return @handler.do('RPC', 'AssumeRoleWithOIDC', 'POST', '/', 'json', false, 'json', request);
 }
 
 model AssumeRoleWithSAMLRequest {
-  durationSeconds?: long(name='DurationSeconds', description='The expiration time. Unit: seconds.
-
-The minimum validity period is 900 seconds, and the maximum validity period is set to "MaxSessionDuration". The default value is 3600 seconds.
-
-> You can set the maximum session time of the role "MaxSessionDuration" by using the CreateRole or UpdateRole API ". For more information, see [CreateRole](~~ 28710 ~~) or [UpdateRole](~~ 28712 ~~).', position='Query'),
-  policy?: string(name='Policy', description='An additional policy added for STS Token to further restrict STS Token permissions. The details are as follows:
--If this policy is specified, the final permission STS Token the intersection of the RAM role policy and this policy.
--If this policy is not specified, the final permission of the STS Token is the permission of the RAM role.
-
-The description must be 1 to 1024 characters in length.', position='Query'),
-  SAMLProviderArn?: string(name='SAMLProviderArn', description='The ARN Of The SAML identity provider created in RAM.
-
-Format: "acs:ram ::< account_id>:saml-provider/<saml_provider_id>".
-
-> You can view the ARN of the identity provider through the RAM console or API. The details are as follows:
-> - RAM console: For more information, see [view SAML identity provider information](~~ 116795 ~~).
-> - API: For more information, see [GetSAMLProvider](~~ 186833 ~~) or [ListSAMLProviders](~~ 186851 ~~).', position='Query'),
-  SAMLAssertion?: string(name='SAMLAssertion', description='The base64-encoded SAML assertion.
-
-The description must be 4 to 100000 characters in length.
-
-> you need to obtain the complete SAML response from the IdP. It cannot be a separate SAML assertion field.', position='Query'),
-  roleArn?: string(name='RoleArn', description='The ARN of the RAM role to assume.
-
-This role is a RAM role whose trusted entity is the SAML identity provider. For more information, see [create a RAM role with a trusted entity as an identity provider](~~~) or [CreateRole](~~ 28710 ~~).
-
-Format: "acs:ram ::< account_id>:role/<role_name>".
-
-> You can view the role ARN through the RAM console or API. The details are as follows:
-> - RAM console: For more information, see [how to view the ARN of a RAM role?] (~~ 39744 ~~).
-> - API: For more information, see [ListRoles](~~ 28713 ~~) or [GetRole](~~ 28711 ~~).', position='Query'),
+  durationSeconds?: long(name='DurationSeconds', position='Query'),
+  policy?: string(name='Policy', position='Query'),
+  roleArn?: string(name='RoleArn', position='Query'),
+  SAMLAssertion?: string(name='SAMLAssertion', position='Query'),
+  SAMLProviderArn?: string(name='SAMLProviderArn', position='Query'),
 }
 
 model AssumeRoleWithSAMLResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.'),
-  SAMLAssertionInfo?: {
-    subjectType?: string(name='SubjectType', description='The format of "NameID" in The SAML assertion. If the prefix is "urn:oasis:names:tc:SAML:2.0:nameid-format:", the prefix is removed. For example, "persistent/transient ".'),
-    subject?: string(name='Subject', description='The value of the Subject-NameID field in the SAML assertion.'),
-    issuer?: string(name='Issuer', description='The value of the "Issuer" field in the SAML assertion.'),
-    recipient?: string(name='Recipient', description='The value of the Subject-SubjectConfirmation-SubjectConfirmationData attribute in the SAML assertion.'),
-  }(name='SAMLAssertionInfo', description='Part of the information in the SAML assertion.'),
   assumedRoleUser?: {
-    assumedRoleId?: string(name='AssumedRoleId', description='The ID of the temporary identity.'),
-    arn?: string(name='Arn', description='The ARN of the temporary identity.'),
-  }(name='AssumedRoleUser', description='The temporary role-playing identity.'),
+    arn?: string(name='Arn'),
+    assumedRoleId?: string(name='AssumedRoleId'),
+  }(name='AssumedRoleUser'),
   credentials?: {
-    securityToken?: string(name='SecurityToken', description='The security token.'),
-    expiration?: string(name='Expiration', description='The expiration time.'),
-    accessKeySecret?: string(name='AccessKeySecret', description='The accesskey pair.'),
-    accessKeyId?: string(name='AccessKeyId', description='The accesskey ID.'),
-  }(name='Credentials', description='The access credential.'),
+    accessKeyId?: string(name='AccessKeyId'),
+    accessKeySecret?: string(name='AccessKeySecret'),
+    expiration?: string(name='Expiration'),
+    securityToken?: string(name='SecurityToken'),
+  }(name='Credentials'),
+  requestId?: string(name='RequestId'),
+  SAMLAssertionInfo?: {
+    issuer?: string(name='Issuer'),
+    recipient?: string(name='Recipient'),
+    subject?: string(name='Subject'),
+    subjectType?: string(name='SubjectType'),
+  }(name='SAMLAssertionInfo'),
 }
 
 model AssumeRoleWithSAMLResponse = {
@@ -268,37 +167,22 @@ model AssumeRoleWithSAMLResponse = {
   body: AssumeRoleWithSAMLResponseBody(name='body'),
 }
 
-/**
- * ### Prerequisites
--Make sure that the SAML response is obtained from an external identity provider (IdP).
--Make sure that you have created a SAML identity provider in RAM. For more information, see [create a SAML identity provider](~~ 116083 ~~) or [CreateSAMLProvider](~~ 186846 ~~).
--Make sure that you have created a RAM role with the trusted entity as the SAML identity provider in RAM. For more information, see [create a RAM role with a trusted entity as an identity provider](~~ 116805 ~~) or [CreateRole](~~ 28710 ~~).
- */
 async function assumeRoleWithSAML(request: AssumeRoleWithSAMLRequest): AssumeRoleWithSAMLResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'AssumeRoleWithSAML', 'POST', '/', 'json', false, 'none', request);
+  return @handler.do('RPC', 'AssumeRoleWithSAML', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetCallerIdentityRequest {
 }
 
 model GetCallerIdentityResponseBody = {
-  identityType?: string(name='IdentityType', description='The ID type. Valid values:
-
--Account: Alibaba Cloud Account (primary Account).
--RAMUser:RAM user.
--AssumedRoleUser:RAM role.'),
-  accountId?: string(name='AccountId', description='The ID of the Alibaba Cloud account to which the caller belongs.'),
-  requestId?: string(name='RequestId', description='The ID of the request.'),
-  principalId?: string(name='PrincipalId', description='The ID.'),
-  userId?: string(name='UserId', description='The user ID. The details are as follows:
--If the caller is an Alibaba Cloud account, the Alibaba Cloud account ID is returned.
--If the caller is a RAM user, the RAM user ID is returned.
-> This parameter is returned only when the current caller is an Alibaba Cloud account or a RAM user.'),
-  arn?: string(name='Arn', description='The ARN of the current caller.'),
-  roleId?: string(name='RoleId', description='The ID of the RAM role.
-
-> This parameter is returned only when the current caller is a RAM role.'),
+  accountId?: string(name='AccountId'),
+  arn?: string(name='Arn'),
+  identityType?: string(name='IdentityType'),
+  principalId?: string(name='PrincipalId'),
+  requestId?: string(name='RequestId'),
+  roleId?: string(name='RoleId'),
+  userId?: string(name='UserId'),
 }
 
 model GetCallerIdentityResponse = {
@@ -308,6 +192,6 @@ model GetCallerIdentityResponse = {
 
 async function getCallerIdentity(request: GetCallerIdentityRequest): GetCallerIdentityResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetCallerIdentity', 'POST', '/', 'json', false, 'none', request);
+  return @handler.do('RPC', 'GetCallerIdentity', 'POST', '/', 'json', false, 'json', request);
 }
 
