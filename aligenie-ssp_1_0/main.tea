@@ -28,6 +28,13 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model LoginStateInfo {
+  sceneCode?: string(name='SceneCode'),
+  thirdUserIdentifier?: string(name='ThirdUserIdentifier'),
+  thirdUserType?: string(name='ThirdUserType'),
+  userId?: string(name='UserId'),
+}
+
 model AddAndRemoveFavoriteContentHeaders {
   commonHeaders?: map[string]string,
   xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
@@ -1752,8 +1759,6 @@ model GetAlarmResponseBody = {
     status?: int32(name='Status'),
     triggerDateDesc?: string(name='TriggerDateDesc'),
     triggerTimeDesc?: string(name='TriggerTimeDesc'),
-    userId?: long(name='UserId'),
-    uuid?: string(name='Uuid'),
     volume?: int32(name='Volume'),
   }(name='Result'),
 }
@@ -1992,6 +1997,75 @@ async function getAlbumDetailByIdWithOptions(request: GetAlbumDetailByIdRequest,
     protocol = 'HTTPS',
     pathname = `/v1.0/ssp/getAlbumDetailById`,
     method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model GetAligenieUserInfoHeaders {
+  commonHeaders?: map[string]string,
+  xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
+  authorization?: string(name='Authorization'),
+}
+
+model GetAligenieUserInfoRequest {
+  loginStateAccessToken?: string(name='LoginStateAccessToken'),
+}
+
+model GetAligenieUserInfoResponseBody = {
+  code?: int32(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  result?: {
+    aligenieNickname?: string(name='AligenieNickname'),
+    avatar?: string(name='Avatar'),
+    deletable?: boolean(name='Deletable'),
+  }(name='Result'),
+  success?: boolean(name='Success'),
+}
+
+model GetAligenieUserInfoResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetAligenieUserInfoResponseBody(name='body'),
+}
+
+async function getAligenieUserInfo(request: GetAligenieUserInfoRequest): GetAligenieUserInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new GetAligenieUserInfoHeaders{};
+  return getAligenieUserInfoWithOptions(request, headers, runtime);
+}
+
+async function getAligenieUserInfoWithOptions(request: GetAligenieUserInfoRequest, headers: GetAligenieUserInfoHeaders, runtime: Util.RuntimeOptions): GetAligenieUserInfoResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.loginStateAccessToken)) {
+    query['LoginStateAccessToken'] = request.loginStateAccessToken;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xAcsAligenieAccessToken)) {
+    realHeaders['x-acs-aligenie-access-token'] = Util.toJSONString(headers.xAcsAligenieAccessToken);
+  }
+  if (!Util.isUnset(headers.authorization)) {
+    realHeaders['Authorization'] = Util.toJSONString(headers.authorization);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAligenieUserInfo',
+    version = 'ssp_1.0',
+    protocol = 'HTTPS',
+    pathname = `/v1.0/ssp/getAligenieUserInfo`,
+    method = 'GET',
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
@@ -3585,8 +3659,6 @@ model ListAlarmsResponseBody = {
         status?: int32(name='Status'),
         triggerDateDesc?: string(name='TriggerDateDesc'),
         triggerTimeDesc?: string(name='TriggerTimeDesc'),
-        userId?: long(name='UserId'),
-        uuid?: string(name='Uuid'),
         volume?: int32(name='Volume'),
       }
     ](name='Model'),
@@ -6111,6 +6183,100 @@ async function readMessageWithOptions(tmpReq: ReadMessageRequest, headers: ReadM
   return callApi(params, req, runtime);
 }
 
+model ScanCodeBindHeaders {
+  commonHeaders?: map[string]string,
+  xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
+  authorization?: string(name='Authorization'),
+}
+
+model ScanCodeBindRequest {
+  bindReq?: {
+    clientId?: string(name='ClientId'),
+    code?: string(name='Code'),
+    extInfo?: string(name='ExtInfo'),
+  }(name='BindReq'),
+  userInfo?: {
+    encodeKey?: string(name='EncodeKey'),
+    encodeType?: string(name='EncodeType'),
+    id?: string(name='Id'),
+    idType?: string(name='IdType'),
+    organizationId?: string(name='OrganizationId'),
+  }(name='UserInfo'),
+}
+
+model ScanCodeBindShrinkRequest {
+  bindReqShrink?: string(name='BindReq'),
+  userInfoShrink?: string(name='UserInfo'),
+}
+
+model ScanCodeBindResponseBody = {
+  code?: int32(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  result?: {
+    bizGroup?: string(name='bizGroup'),
+    bizType?: string(name='bizType'),
+  }(name='Result'),
+}
+
+model ScanCodeBindResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ScanCodeBindResponseBody(name='body'),
+}
+
+async function scanCodeBind(request: ScanCodeBindRequest): ScanCodeBindResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new ScanCodeBindHeaders{};
+  return scanCodeBindWithOptions(request, headers, runtime);
+}
+
+async function scanCodeBindWithOptions(tmpReq: ScanCodeBindRequest, headers: ScanCodeBindHeaders, runtime: Util.RuntimeOptions): ScanCodeBindResponse {
+  Util.validateModel(tmpReq);
+  var request = new ScanCodeBindShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.bindReq)) {
+    request.bindReqShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.bindReq, 'BindReq', 'json');
+  }
+  if (!Util.isUnset(tmpReq.userInfo)) {
+    request.userInfoShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.userInfo, 'UserInfo', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.bindReqShrink)) {
+    body['BindReq'] = request.bindReqShrink;
+  }
+  if (!Util.isUnset(request.userInfoShrink)) {
+    body['UserInfo'] = request.userInfoShrink;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xAcsAligenieAccessToken)) {
+    realHeaders['x-acs-aligenie-access-token'] = Util.toJSONString(headers.xAcsAligenieAccessToken);
+  }
+  if (!Util.isUnset(headers.authorization)) {
+    realHeaders['Authorization'] = Util.toJSONString(headers.authorization);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ScanCodeBind',
+    version = 'ssp_1.0',
+    protocol = 'HTTPS',
+    pathname = `/v1.0/ssp/scanCode`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
 model ScgSearchHeaders {
   commonHeaders?: map[string]string,
   xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
@@ -6558,6 +6724,70 @@ async function setDeviceSettingWithOptions(tmpReq: SetDeviceSettingRequest, head
     version = 'ssp_1.0',
     protocol = 'HTTPS',
     pathname = `/v1.0/ssp/setDeviceSetting`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model UnbindAligenieUserHeaders {
+  commonHeaders?: map[string]string,
+  xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
+  authorization?: string(name='Authorization'),
+}
+
+model UnbindAligenieUserRequest {
+  loginStateAccessToken?: string(name='LoginStateAccessToken'),
+}
+
+model UnbindAligenieUserResponseBody = {
+  code?: int32(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model UnbindAligenieUserResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UnbindAligenieUserResponseBody(name='body'),
+}
+
+async function unbindAligenieUser(request: UnbindAligenieUserRequest): UnbindAligenieUserResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new UnbindAligenieUserHeaders{};
+  return unbindAligenieUserWithOptions(request, headers, runtime);
+}
+
+async function unbindAligenieUserWithOptions(request: UnbindAligenieUserRequest, headers: UnbindAligenieUserHeaders, runtime: Util.RuntimeOptions): UnbindAligenieUserResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.loginStateAccessToken)) {
+    body['LoginStateAccessToken'] = request.loginStateAccessToken;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xAcsAligenieAccessToken)) {
+    realHeaders['x-acs-aligenie-access-token'] = Util.toJSONString(headers.xAcsAligenieAccessToken);
+  }
+  if (!Util.isUnset(headers.authorization)) {
+    realHeaders['Authorization'] = Util.toJSONString(headers.authorization);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UnbindAligenieUser',
+    version = 'ssp_1.0',
+    protocol = 'HTTPS',
+    pathname = `/v1.0/ssp/unbindAligenieUser`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
