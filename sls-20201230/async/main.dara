@@ -48,6 +48,13 @@ model EncryptUserCmkConf {
   regionId: string(name='region_id', description='region_id'),
 }
 
+model Histogram {
+  count?: long(name='count', description='count'),
+  from?: int32(name='from', description='开始'),
+  progress?: string(name='progress', description='progress'),
+  to?: int32(name='to', description='结束'),
+}
+
 model LogtailConfig {
   configName: string(name='configName', description='logtail 配置的名称。'),
   createTime?: long(name='createTime', description='创建时间，unix 时间戳。'),
@@ -133,6 +140,23 @@ model ExternalStore {
   storeType: string(name='storeType', description='类型。可选 rds-vpc 或者 oss'),
 }
 
+model Index {
+  keys?: map[string]IndexKeysValue(name='keys', description='字段索引'),
+  lastModifyTime?: long(name='lastModifyTime', description='上次修改时间'),
+  line?: {
+    caseSensitive?: boolean(name='caseSensitive', description='大小写敏感'),
+    chn?: boolean(name='chn', description='包含中文'),
+    excludeKeys?: [ string ](name='exclude_keys', description='排除的字段列表，不能与include_keys同时指定。'),
+    includeKeys?: [ string ](name='include_keys', description='包含的字段列表，不能与exclude_keys同时指定。'),
+    token: [ string ](name='token', description='分词符'),
+  }(name='line', description='全文索引'),
+  logReduce?: boolean(name='log_reduce', description='是否开启日志聚类'),
+  logReduceBlackList?: [ string ](name='log_reduce_black_list', description='日志聚类的聚类字段过滤黑名单，仅当日志聚类开启时有效'),
+  logReduceWhiteList?: [ string ](name='log_reduce_white_list', description='日志聚类的聚类字段过滤白名单，仅当日志聚类开启时有效'),
+  maxTextLen?: int32(name='max_text_len', description='统计字段最大长度'),
+  ttl: int32(name='ttl', description='ttl'),
+}
+
 model Logging {
   loggingDetails: [ 
     {
@@ -153,6 +177,7 @@ model Logstore {
   lastModifyTime?: int32(name='lastModifyTime', description='最后修改时间。'),
   logstoreName: string(name='logstoreName', description='logstore 的名称。'),
   maxSplitShard?: int32(name='maxSplitShard', description='最大 shard 数量。'),
+  mode?: string(name='mode', description='[ standard | query ]'),
   shardCount: int32(name='shardCount', description='shard 数量。'),
   telemetryType?: string(name='telemetryType', description='telemetryType'),
   ttl: int32(name='ttl', description='数据保存的天数。'),
@@ -195,9 +220,9 @@ model Shard {
 }
 
 model ApplyConfigToMachineGroupRequest {
+  project: string(name='project', description='project 名称。', position='Host'),
   machineGroup: string(name='machineGroup', description='机器组名称。', position='Path'),
   configName: string(name='configName', description='logtail 配置名称。', position='Path'),
-  project: string(name='project', description='project 名称。', position='Host'),
 }
 
 model ApplyConfigToMachineGroupResponse = {
@@ -210,6 +235,7 @@ async function applyConfigToMachineGroup(request: ApplyConfigToMachineGroupReque
 }
 
 model BatchCreateEtlMetaRequest {
+  project: string(name='project', description='project 名称', position='Host'),
   etlMetaList: [ 
     {
       enable?: boolean(name='enable', description='是否启用'),
@@ -219,7 +245,6 @@ model BatchCreateEtlMetaRequest {
       etlMetaValue?: map[string]any(name='etlMetaValue'),
     }
   ](name='etlMetaList', position='Body'),
-  project: string(name='project', description='project 名称', position='Host'),
 }
 
 model BatchCreateEtlMetaResponse = {
@@ -232,11 +257,11 @@ async function batchCreateEtlMeta(request: BatchCreateEtlMetaRequest): BatchCrea
 }
 
 model BatchModifyEtlMetaStatusRequest {
+  project: string(name='project', description='project 名称', position='Host'),
   etlMetaKeyList?: [ string ](name='etlMetaKeyList', description='当 range 的值为 "list" 时有效，匹配list中的 metaKey', position='Body'),
   etlMetaName: string(name='etlMetaName', position='Body'),
   etlMetaTag?: string(name='etlMetaTag', description='匹配的 tag，当 tag 为 "__all_etl_meta_tag_match__" 时表示全部匹配。', position='Body'),
   range: string(name='range', description='操作作用的范围，可选 all 代表匹配全部，list 按名单列表匹配 key 两种模式。', position='Body'),
-  project: string(name='project', description='project 名称', position='Host'),
   type: string(name='type', description='操作类型，支持启用、禁用、删除三种，即 batch_enable、batch_disable、batch_delete。', position='Query'),
 }
 
@@ -250,6 +275,7 @@ async function batchModifyEtlMetaStatus(request: BatchModifyEtlMetaStatusRequest
 }
 
 model BatchUpdateEtlMetaRequest {
+  project: string(name='project', description='project 名称', position='Host'),
   etlMetaList?: {
     enable?: boolean(name='enable', description='是否启用。etlMetaTag、etlMetaValue、enable 至少需要存在一个。'),
     etlMetaKey: string(name='etlMetaKey', description='key。由 ascii 可打印字符组成，包括数字、英文大小写字母、下划线、连字符、英文标点符号等组成，长度在[1,255]之间。'),
@@ -257,7 +283,6 @@ model BatchUpdateEtlMetaRequest {
     etlMetaTag?: string(name='etlMetaTag', description='key。由 ascii 可打印字符组成，包括数字、英文大小写字母、下划线、连字符、英文标点符号等组成，长度在[1,128]之间。'),
     etlMetaValue?: map[string]any(name='etlMetaValue'),
   }(name='etlMetaList', position='Body'),
-  project: string(name='project', description='project 名称', position='Host'),
 }
 
 model BatchUpdateEtlMetaResponse = {
@@ -271,10 +296,10 @@ async function batchUpdateEtlMeta(request: BatchUpdateEtlMetaRequest): BatchUpda
 
 model CreateConsumerGroupRequest {
   logstore: string(name='logstore', position='Path'),
+  project: string(name='project', position='Host'),
   consumerGroup: string(name='consumerGroup', position='Body'),
   order: boolean(name='order', position='Body'),
   timeout: int32(name='timeout', position='Body'),
-  project: string(name='project', position='Host'),
 }
 
 model CreateConsumerGroupResponse = {
@@ -287,8 +312,8 @@ async function createConsumerGroup(request: CreateConsumerGroupRequest): CreateC
 }
 
 model CreateDomainRequest {
-  domainName: string(name='domainName', position='Body'),
   project: string(name='project', description='A short description of struct', position='Host'),
+  domainName: string(name='domainName', position='Body'),
 }
 
 model CreateDomainResponse = {
@@ -300,13 +325,53 @@ async function createDomain(request: CreateDomainRequest): CreateDomainResponse 
   return @handler.do('RESTFUL', 'CreateDomain', 'POST', '/domains', 'none', false, 'json', request);
 }
 
+model CreateEtlJobRequest {
+  project: string(name='project', description='A short description of struct', position='Host'),
+  enable: boolean(name='enable', description='是否启用', position='Body'),
+  etlJobName: string(name='etlJobName', description='任务名称，长度在 [2.64] 之间，由数字、大小写字母、下划线_、连字符- 组成，且必须以数字或者大小写字母作为开头与结尾。 ', position='Body'),
+  functionConfig: {
+    accountId?: string(name='accountId', description='账户 id'),
+    endpoint?: string(name='endpoint', description='endpoint'),
+    functionName?: string(name='functionName', description='函数名'),
+    functionProvider: string(name='functionProvider', description='函数 provider，可选值为 FunctionCompute 、CloudProdLogDispatch。当值为 FunctionCompute 时，endpoint、accountid 、regionName 、serviceName 、functionName 必选。'),
+    regionName?: string(name='regionName', description='地域'),
+    roleArn?: string(name='roleArn', description='角色授权'),
+    serviceName?: string(name='serviceName', description='服务名'),
+  }(name='functionConfig', description='运行函数配置', position='Body'),
+  functionParameter: map[string]any(name='functionParameter', description='函数的运行参数', position='Body'),
+  logConfig: {
+    endpoint: string(name='endpoint', description='endpoint'),
+    logstoreName: string(name='logstoreName', description='logstore 名称'),
+    projectName: string(name='projectName', description='project 名称'),
+  }(name='logConfig', description='日志配置', position='Body'),
+  sourceConfig: {
+    logstoreName: string(name='logstoreName', description='logstore 名称'),
+  }(name='sourceConfig', description='配置数据来源', position='Body'),
+  triggerConfig: {
+    maxRetryTime: int32(name='maxRetryTime', description='最大重试次数，必须在[0, 100] 之间'),
+    roleArn: string(name='roleArn', description='角色授权配置'),
+    startingPosition?: string(name='startingPosition', description='开始位置，可选择 latest 与 at-unixtime , 默认为 latest。当为 at-unixtime 时，使用 startingUnixtime 的值作为起始位置。'),
+    startingUnixtime?: long(name='startingUnixtime', description='开始时间看，unix 时间戳，不能大于当前时间，不能小于 1000000000。'),
+    triggerInterval: int32(name='triggerInterval', description='触发间隔，单位为秒，必须在 [3,600] 之间'),
+  }(name='triggerConfig', description='触发器配置', position='Body'),
+}
+
+model CreateEtlJobResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function createEtlJob(request: CreateEtlJobRequest): CreateEtlJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateEtlJob', 'POST', '/etljobs', 'none', false, 'json', request);
+}
+
 model CreateEtlMetaRequest {
+  project: string(name='project', description='A short description of struct', position='Host'),
   enable?: boolean(name='enable', description='是否启用', position='Body'),
   etlMetaKey: string(name='etlMetaKey', description='key。由 ascii 可打印字符组成，包括数字、英文大小写字母、下划线、连字符、英文标点符号等组成，长度在[1,255]之间。', position='Body'),
   etlMetaName: string(name='etlMetaName', description='名字。由数字、大小写字母、下划线_、连字符-组成，长度需要在[2,64]之间。', position='Body'),
   etlMetaTag: string(name='etlMetaTag', description='key。由 ascii 可打印字符组成，包括数字、英文大小写字母、下划线、连字符、英文标点符号等组成，长度在[1,128]之间。', position='Body'),
   etlMetaValue?: map[string]any(name='etlMetaValue', position='Body'),
-  project: string(name='project', description='A short description of struct', position='Host'),
 }
 
 model CreateEtlMetaResponse = {
@@ -320,6 +385,7 @@ async function createEtlMeta(request: CreateEtlMetaRequest): CreateEtlMetaRespon
 
 model CreateIndexRequest {
   logstore: string(name='logstore', position='Path'),
+  project: string(name='project', position='Host'),
   keys?: map[string]KeysValue(name='keys', position='Body'),
   line?: {
     caseSensitive?: boolean(name='caseSensitive', description='大小写敏感'),
@@ -333,7 +399,6 @@ model CreateIndexRequest {
   logReduceWhiteList?: [ string ](name='log_reduce_white_list', description='日志聚类的聚类字段白名单', position='Body'),
   maxTextLen?: int32(name='max_text_len', description='统计字段的最大长度', position='Body'),
   ttl?: int32(name='ttl', description='保存时间，单位为天', position='Body'),
-  project: string(name='project', position='Host'),
 }
 
 model CreateIndexResponse = {
@@ -346,6 +411,7 @@ async function createIndex(request: CreateIndexRequest): CreateIndexResponse {
 }
 
 model CreateLogStoreRequest {
+  project: string(name='project', position='Host'),
   appendMeta?: boolean(name='appendMeta', position='Body'),
   autoSplit?: boolean(name='autoSplit', position='Body'),
   enableTracking?: boolean(name='enable_tracking', position='Body'),
@@ -353,10 +419,10 @@ model CreateLogStoreRequest {
   hotTtl?: int32(name='hot_ttl', position='Body'),
   logstoreName: string(name='logstoreName', position='Body'),
   maxSplitShard?: int32(name='maxSplitShard', position='Body'),
+  mode?: string(name='mode', position='Body'),
   shardCount: int32(name='shardCount', position='Body'),
   telemetryType?: string(name='telemetryType', position='Body'),
   ttl: int32(name='ttl', position='Body'),
-  project: string(name='project', position='Host'),
 }
 
 model CreateLogStoreResponse = {
@@ -369,6 +435,7 @@ async function createLogStore(request: CreateLogStoreRequest): CreateLogStoreRes
 }
 
 model CreateLoggingRequest {
+  project: string(name='project', description='Project 名称。', position='Host'),
   loggingDetails: [ 
     {
       logstore: string(name='logstore', description='该种类服务日志要保存到的 logstore 名称。'),
@@ -376,7 +443,6 @@ model CreateLoggingRequest {
     }
   ](name='loggingDetails', description='服务日志配置列表。', position='Body'),
   loggingProject: string(name='loggingProject', description='服务日志要保存到的 project 名称。', position='Body'),
-  project: string(name='project', description='Project 名称。', position='Host'),
 }
 
 model CreateLoggingResponse = {
@@ -389,6 +455,7 @@ async function createLogging(request: CreateLoggingRequest): CreateLoggingRespon
 }
 
 model CreateMachineGroupRequest {
+  project: string(name='project', description='project 名称。', position='Host'),
   groupAttribute?: {
     externalName?: string(name='externalName', description='机器组所依赖的外部管理系统标识。'),
     groupTopic?: string(name='groupTopic', description='机器组的日志主题。'),
@@ -397,7 +464,6 @@ model CreateMachineGroupRequest {
   groupType?: string(name='groupType', description='机器组类型，可选值，默认为空。', position='Body'),
   machineIdentifyType: string(name='machineIdentifyType', description='机器组标识种类，支持 ip 、userdefined 两种。', position='Body'),
   machineList: [ string ](name='machineList', description='机器列表。', position='Body'),
-  project: string(name='project', description='project 名称。', position='Host'),
 }
 
 model CreateMachineGroupResponse = {
@@ -410,6 +476,7 @@ async function createMachineGroup(request: CreateMachineGroupRequest): CreateMac
 }
 
 model CreateOdpsShipperRequest {
+  project: string(name='project', description='Project 名称。', position='Host'),
   logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
   shipperName: string(name='shipperName', description='日志投递名称。', position='Body'),
   targetConfiguration: {
@@ -423,7 +490,6 @@ model CreateOdpsShipperRequest {
     partitionTimeFormat: string(name='partitionTimeFormat', description='时间分区格式'),
   }(name='targetConfiguration', position='Body'),
   targetType: string(name='targetType', description='投递目标的类型，这里固定为 odps。', position='Body'),
-  project: string(name='project', description='Project 名称。', position='Host'),
 }
 
 model CreateOdpsShipperResponse = {
@@ -436,6 +502,7 @@ async function createOdpsShipper(request: CreateOdpsShipperRequest): CreateOdpsS
 }
 
 model CreateOssExternalStoreRequest {
+  project: string(name='project', description='A short description of struct', position='Host'),
   externalStoreName: string(name='externalStoreName', description='外部存储的名称。', position='Body'),
   parameter: {
     accessid: string(name='accessid', description='您的AccessKey ID。'),
@@ -451,7 +518,6 @@ model CreateOssExternalStoreRequest {
     objects: [ string ](name='objects'),
   }(name='parameter', description='外部存储的参数。', position='Body'),
   storeType: string(name='storeType', description='外部存储的类型。这里固定为 oss', position='Body'),
-  project: string(name='project', description='A short description of struct', position='Host'),
 }
 
 model CreateOssExternalStoreResponse = {
@@ -464,6 +530,7 @@ async function createOssExternalStore(request: CreateOssExternalStoreRequest): C
 }
 
 model CreateOssShipperRequest {
+  project: string(name='project', description='Project 名称。', position='Host'),
   logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
   shipperName: string(name='shipperName', description='日志投递名称。', position='Body'),
   targetConfiguration: {
@@ -507,7 +574,6 @@ json 格式
     timeZone?: string(name='timeZone', description='时区，默认取值为空字符串。可取值的格式为 +8 、-6 等。'),
   }(name='targetConfiguration', position='Body'),
   targetType: string(name='targetType', description='投递目标的类型，这里固定为 odps。', position='Body'),
-  project: string(name='project', description='Project 名称。', position='Host'),
 }
 
 model CreateOssShipperResponse = {
@@ -534,6 +600,7 @@ async function createProject(request: CreateProjectRequest): CreateProjectRespon
 }
 
 model CreateRdsExternalStoreRequest {
+  project: string(name='project', description='A short description of struct', position='Host'),
   externalStoreName: string(name='externalStoreName', description='名称', position='Body'),
   parameter: {
     db: string(name='db', description='RDS MySQL实例的数据库名称。'),
@@ -547,7 +614,6 @@ model CreateRdsExternalStoreRequest {
     vpcId?: string(name='vpc-id', description='RDS MySQL实例所属的VPC ID。'),
   }(name='parameter', description='参数', position='Body'),
   storeType: string(name='storeType', description='类型，这里固定为 rds-vpc', position='Body'),
-  project: string(name='project', description='A short description of struct', position='Host'),
 }
 
 model CreateRdsExternalStoreResponse = {
@@ -560,12 +626,12 @@ async function createRdsExternalStore(request: CreateRdsExternalStoreRequest): C
 }
 
 model CreateSavedSearchRequest {
+  project: string(name='project', position='Host'),
   displayName: string(name='displayName', position='Body'),
   logstore: string(name='logstore', position='Body'),
   savedsearchName: string(name='savedsearchName', position='Body'),
   searchQuery: string(name='searchQuery', position='Body'),
   topic?: string(name='topic', position='Body'),
-  project: string(name='project', position='Host'),
 }
 
 model CreateSavedSearchResponse = {
@@ -578,9 +644,9 @@ async function createSavedSearch(request: CreateSavedSearchRequest): CreateSaved
 }
 
 model DeleteConsumerGroupRequest {
+  project: string(name='project', description='Project name', position='Host'),
   logstore: string(name='logstore', description='Logstore name', position='Path'),
   consumerGroup: string(name='consumerGroup', description='Consumer group', position='Path'),
-  project: string(name='project', description='Project name', position='Host'),
 }
 
 model DeleteConsumerGroupResponse = {
@@ -593,8 +659,8 @@ async function deleteConsumerGroup(request: DeleteConsumerGroupRequest): DeleteC
 }
 
 model DeleteDomainRequest {
-  domainName: string(name='domainName', description='要删除的域名', position='Path'),
   project: string(name='project', description='A short description of struct', position='Host'),
+  domainName: string(name='domainName', description='要删除的域名', position='Path'),
 }
 
 model DeleteDomainResponse = {
@@ -606,12 +672,26 @@ async function deleteDomain(request: DeleteDomainRequest): DeleteDomainResponse 
   return @handler.do('RESTFUL', 'DeleteDomain', 'DELETE', '/domains/{domainName}', 'none', false, 'json', request);
 }
 
+model DeleteEtlJobRequest {
+  project: string(name='project', description='A short description of struct', position='Host'),
+  etlJobName: string(name='etlJobName', position='Path'),
+}
+
+model DeleteEtlJobResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function deleteEtlJob(request: DeleteEtlJobRequest): DeleteEtlJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteEtlJob', 'DELETE', '/etljobs/{etlJobName}', 'none', false, 'json', request);
+}
+
 model DeleteEtlMetaRequest {
+  project: string(name='project', description='A short description of struct', position='Host'),
   etlMetaKey: string(name='etlMetaKey', description='key。由 ascii 可打印字符组成，包括数字、英文大小写字母、下划线、连字符、英文标点符号等组成，长度在[1,255]之间。', position='Query'),
   etlMetaName: string(name='etlMetaName', description='名字。由数字、大小写字母、下划线_、连字符-组成，长度需要在[2,64]之间。
 ', position='Query'),
   etlMetaTag: string(name='etlMetaTag', description='此处固定为 "__all_etl_meta_tag_match__"', position='Query'),
-  project: string(name='project', description='A short description of struct', position='Host'),
 }
 
 model DeleteEtlMetaResponse = {
@@ -624,8 +704,8 @@ async function deleteEtlMeta(request: DeleteEtlMetaRequest): DeleteEtlMetaRespon
 }
 
 model DeleteExternalStoreRequest {
-  externalStoreName: string(name='externalStoreName', position='Path'),
   project: string(name='project', description='A short description of struct', position='Host'),
+  externalStoreName: string(name='externalStoreName', position='Path'),
 }
 
 model DeleteExternalStoreResponse = {
@@ -652,8 +732,8 @@ async function deleteIndex(request: DeleteIndexRequest): DeleteIndexResponse {
 }
 
 model DeleteLogStoreRequest {
-  logstore: string(name='logstore', description='logstore 名称', position='Path'),
   project: string(name='project', description='project 名称', position='Host'),
+  logstore: string(name='logstore', description='logstore 名称', position='Path'),
 }
 
 model DeleteLogStoreResponse = {
@@ -679,8 +759,8 @@ async function deleteLogging(request: DeleteLoggingRequest): DeleteLoggingRespon
 }
 
 model DeleteMachineGroupRequest {
-  machineGroup: string(name='machineGroup', description='机器组名称。', position='Path'),
   project: string(name='project', description='project 名称。', position='Host'),
+  machineGroup: string(name='machineGroup', description='机器组名称。', position='Path'),
 }
 
 model DeleteMachineGroupResponse = {
@@ -706,8 +786,8 @@ async function deleteProject(request: DeleteProjectRequest): DeleteProjectRespon
 }
 
 model DeleteSavedSearchRequest {
-  savedsearchName: string(name='savedsearchName', position='Path'),
   project: string(name='project', description='A short description of struct', position='Host'),
+  savedsearchName: string(name='savedsearchName', position='Path'),
 }
 
 model DeleteSavedSearchResponse = {
@@ -720,9 +800,9 @@ async function deleteSavedSearch(request: DeleteSavedSearchRequest): DeleteSaved
 }
 
 model DeleteShipperRequest {
+  project: string(name='project', description='Project 名称。', position='Host'),
   logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
   shipperName: string(name='shipperName', description='投递任务的名称。', position='Path'),
-  project: string(name='project', description='Project 名称。', position='Host'),
 }
 
 model DeleteShipperResponse = {
@@ -735,8 +815,8 @@ async function deleteShipper(request: DeleteShipperRequest): DeleteShipperRespon
 }
 
 model GetAppliedConfigsRequest {
-  machineGroup: string(name='machineGroup', description='机器组名称。', position='Path'),
   project: string(name='project', description='project 名称。', position='Host'),
+  machineGroup: string(name='machineGroup', description='机器组名称。', position='Path'),
 }
 
 model GetAppliedConfigsResponseBody = {
@@ -755,8 +835,8 @@ async function getAppliedConfigs(request: GetAppliedConfigsRequest): GetAppliedC
 }
 
 model GetAppliedMachineGroupsRequest {
-  configName: string(name='configName', description='logtail 配置名称。', position='Path'),
   project: string(name='project', description='project 名称。', position='Host'),
+  configName: string(name='configName', description='logtail 配置名称。', position='Path'),
 }
 
 model GetAppliedMachineGroupsResponseBody = {
@@ -775,9 +855,9 @@ async function getAppliedMachineGroups(request: GetAppliedMachineGroupsRequest):
 }
 
 model GetCheckPointRequest {
+  project: string(name='project', description='project 名称。', position='Host'),
   logstore: string(name='logstore', description='logstore 名称。', position='Path'),
   consumerGroup: string(name='consumerGroup', description='消费组名称。', position='Path'),
-  project: string(name='project', description='project 名称。', position='Host'),
   shard?: int32(name='shard', description='Shard ID。
 如果指定的Shard不存在，则返回空列表。
 如果不指定Shard，则返回所有Shard的checkpoint。', position='Query'),
@@ -801,12 +881,12 @@ async function getCheckPoint(request: GetCheckPointRequest): GetCheckPointRespon
 }
 
 model GetContextLogsRequest {
+  project: string(name='project', description='project 名称。', position='Host'),
   logstore: string(name='logstore', description='logstore 名称。', position='Path'),
   backLines: long(name='back_lines', description='指定起始日志往前（上文）的日志条数，取值范围为(0,100]。', position='Query'),
   forwardLines: long(name='forward_lines', description='指定起始日志往后（下文）的日志条数，取值范围为(0,100]。', position='Query'),
   packId: string(name='pack_id', description='起始日志所属的LogGroup的唯一身份标识。', position='Query'),
   packMeta: string(name='pack_meta', description='起始日志在对应LogGroup内的唯一上下文结构标识。', position='Query'),
-  project: string(name='project', description='project 名称。', position='Host'),
   type: string(name='type', description='Logstore中数据的类型。该接口中该参数固定为context_log。', position='Query'),
 }
 
@@ -831,10 +911,10 @@ async function getContextLogs(request: GetContextLogsRequest): GetContextLogsRes
 }
 
 model GetCursorRequest {
+  project: string(name='project', description='project 名称。', position='Host'),
   logstore: string(name='logstore', description='logstore 名称。', position='Path'),
   shardId: int32(name='shardId', description='shard id。', position='Path'),
   from: string(name='from', description='时间点（Unix时间戳）或者字符串begin、end。', position='Query'),
-  project: string(name='project', description='project 名称。', position='Host'),
   type: string(name='type', description='这里固定为 cursor。', position='Query'),
 }
 
@@ -853,10 +933,10 @@ async function getCursor(request: GetCursorRequest): GetCursorResponse {
 }
 
 model GetCursorTimeRequest {
+  project: string(name='project', description='project 名称。', position='Host'),
   logstore: string(name='logstore', description='logstore 名称。', position='Path'),
   shardId: int32(name='shardId', description='shard id。', position='Path'),
   cursor: string(name='cursor', description='游标。', position='Query'),
-  project: string(name='project', description='project 名称。', position='Host'),
   type: string(name='type', description='固定为 cursor_time 。', position='Query'),
 }
 
@@ -874,11 +954,26 @@ async function getCursorTime(request: GetCursorTimeRequest): GetCursorTimeRespon
   return @handler.do('RESTFUL', 'GetCursorTime', 'GET', '/logstores/{logstore}/shards/{shardId}', 'json', false, 'json', request);
 }
 
-model GetEtlMetaRequest {
-  elMetaName: string(name='elMetaName', position='Query'),
-  etlMetaKey: string(name='etlMetaKey', position='Query'),
-  etlMetaTag: string(name='etlMetaTag', description='此处固定为 "__all_etl_meta_tag_match__"。', position='Query'),
+model GetEtlJobRequest {
   project: string(name='project', description='A short description of struct', position='Host'),
+  etlJobName: string(name='etlJobName', position='Path'),
+}
+
+model GetEtlJobResponse = {
+  headers: map[string]string(name='headers'),
+  body: EtlJob  
+}
+
+async function getEtlJob(request: GetEtlJobRequest): GetEtlJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetEtlJob', 'GET', '/etljobs/{etlJobName}', 'json', false, 'json', request);
+}
+
+model GetEtlMetaRequest {
+  project: string(name='project', description='A short description of struct', position='Host'),
+  etlMetaKey: string(name='etlMetaKey', position='Query'),
+  etlMetaName: string(name='etlMetaName', position='Query'),
+  etlMetaTag: string(name='etlMetaTag', description='此处固定为 "__all_etl_meta_tag_match__"。', position='Query'),
 }
 
 model GetEtlMetaResponseBody = {
@@ -899,8 +994,8 @@ async function getEtlMeta(request: GetEtlMetaRequest): GetEtlMetaResponse {
 }
 
 model GetExternalStoreRequest {
-  externalStoreName: string(name='externalStoreName', description='A short description of struct', position='Path'),
   project: string(name='project', position='Host'),
+  externalStoreName: string(name='externalStoreName', description='A short description of struct', position='Path'),
 }
 
 model GetExternalStoreResponse = {
@@ -914,17 +1009,16 @@ async function getExternalStore(request: GetExternalStoreRequest): GetExternalSt
 }
 
 model GetHistogramsRequest {
+  project: string(name='project', description='project 名称。', position='Host'),
   logstore: string(name='logstore', description='logstore 名称。', position='Path'),
   from: long(name='from', description='查询开始时间点。UNIX时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。
 
 时间区间遵循“左闭右开”原则，即该时间区间包括区间开始时间点，但不包括区间结束时间点。如果from和to的值相同，则为无效区间，函数直接返回错误。', position='Query'),
-  project: string(name='project', description='project 名称。', position='Host'),
   query?: string(name='query', description='查询语句。仅支持查询语句，不支持分析语句。关于查询语句的详细语法，请参见查询语法。', position='Query'),
   to: long(name='to', description='查询结束时间点。UNIX时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。
 
 时间区间遵循“左闭右开”原则，即该时间区间包括区间开始时间点，但不包括区间结束时间点。如果from和to的值相同，则为无效区间，函数直接返回错误。', position='Query'),
   topic?: string(name='topic', description='日志主题。', position='Query'),
-  type: string(name='type', description='Logstore中数据的类型。该接口中固定取值为histogram。', position='Query'),
 }
 
 model GetHistogramsResponse = {
@@ -949,12 +1043,12 @@ Incomplete：查询已经完成，返回结果为不完整结果，需要重复�
 
 async function getHistograms(request: GetHistogramsRequest): GetHistogramsResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'GetHistograms', 'GET', '/logstores/{logstore}/index', 'json', false, 'json', request);
+  return @handler.do('RESTFUL', 'GetHistograms', 'GET', '/logstores/{logstore}/index?type=histogram', 'json', false, 'json', request);
 }
 
 model GetIndexRequest {
-  logstore: string(name='logstore', description='logstore 名称。', position='Path'),
   project: string(name='project', description='project 名称。', position='Host'),
+  logstore: string(name='logstore', description='logstore 名称。', position='Path'),
 }
 
 model GetIndexResponseBody = {
@@ -1016,6 +1110,7 @@ async function getLogging(request: GetLoggingRequest): GetLoggingResponse {
 }
 
 model GetLogsRequest {
+  project: string(name='project', description='project 名称。', position='Host'),
   logstore: string(name='logstore', description='logstore 名称。', position='Path'),
   from: long(name='from', description='查询开始时间点。该时间是指写入日志数据时指定的日志时间。
 
@@ -1030,8 +1125,7 @@ false（默认值）：按照日志时间戳升序返回日志。
 注意
 当query参数为查询语句时，参数reverse有效，用于指定返回日志排序方式。
 当query参数为查询和分析语句时，参数reverse无效，由SQL分析语句中order by语法指定排序方式。如果order by为asc（默认），则为升序；如果order by为desc，则为降序。', position='Query'),
-  project: string(name='project', description='project 名称。', position='Host'),
-  query: string(name='query', description='查询语句或者分析语句。更多信息，请参见查询概述和分析概述。
+  query?: string(name='query', description='查询语句或者分析语句。更多信息，请参见查询概述和分析概述。
 
 在query参数的分析语句中加上set session parallel_sql=true;，表示使用SQL独享版。例如* | set session parallel_sql=true; select count(*) as pv 。
 
@@ -1048,7 +1142,6 @@ false（默认值）：按照日志时间戳升序返回日志。
 请求参数from和to定义的时间区间遵循左闭右开原则，即该时间区间包括区间开始时间点，但不包括区间结束时间点。如果from和to的值相同，则为无效区间，函数直接返回错误。
 Unix时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。', position='Query'),
   topic?: string(name='topic', description='status: 401 | SELECT remote_addr,COUNT(*) as pv GROUP by remote_addr ORDER by pv desc limit 5', position='Query'),
-  type: string(name='type', description='查询Logstore数据的类型。在该接口中固定取值为log。', position='Query'),
 }
 
 model GetLogsResponse = {
@@ -1058,12 +1151,12 @@ model GetLogsResponse = {
 
 async function getLogs(request: GetLogsRequest): GetLogsResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'GetLogs', 'GET', '/logstores/{logstore}/index', 'json', false, 'json', request);
+  return @handler.do('RESTFUL', 'GetLogs', 'GET', '/logstores/{logstore}?type=log', 'json', false, 'json', request);
 }
 
 model GetMachineGroupRequest {
-  machineGroup: string(name='machineGroup', description='机器组名称。', position='Path'),
   project: string(name='project', description='project 名称。', position='Host'),
+  machineGroup: string(name='machineGroup', description='机器组名称。', position='Path'),
 }
 
 model GetMachineGroupResponse = {
@@ -1091,12 +1184,12 @@ async function getProject(request: GetProjectRequest): GetProjectResponse {
 }
 
 model GetProjectLogsRequest {
+  project: string(name='project', description='project 名称。', position='Host'),
   powerSql?: boolean(name='powerSql', description='是否使用SQL独享版。更多信息，请参见开启SQL独享版。
 
 true：使用SQL独享版。
 false（默认值）：使用SQL普通版。
 除通过powerSql参数配置SQL独享版外，您还可以使用query参数。', position='Query'),
-  project: string(name='project', description='project 名称。', position='Host'),
   query: string(name='query', description='标准SQL语句。例如日志库名称为nginx-moni，查询时间区间在2022-03-01 10:41:40到2022-03-01 10:56:40之间的访问数量。', position='Query'),
 }
 
@@ -1111,8 +1204,8 @@ async function getProjectLogs(request: GetProjectLogsRequest): GetProjectLogsRes
 }
 
 model GetSavedSearchRequest {
-  savedsearchName: string(name='savedsearchName', position='Path'),
   project: string(name='project', description='A short description of struct', position='Host'),
+  savedsearchName: string(name='savedsearchName', position='Path'),
 }
 
 model GetSavedSearchResponse = {
@@ -1126,9 +1219,9 @@ async function getSavedSearch(request: GetSavedSearchRequest): GetSavedSearchRes
 }
 
 model GetShipperConfigRequest {
+  project: string(name='project', description='Project 名称。', position='Host'),
   logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
   shipperName: string(name='shipperName', description='投递任务名称。', position='Path'),
-  project: string(name='project', description='Project 名称。', position='Host'),
 }
 
 model GetShipperConfigResponseBody = {
@@ -1150,11 +1243,11 @@ async function getShipperConfig(request: GetShipperConfigRequest): GetShipperCon
 }
 
 model GetShipperStatusRequest {
+  project: string(name='project', description='Project 名称。', position='Host'),
   logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
   shipperName: string(name='shipperName', description='日志投递名称。', position='Path'),
   from: long(name='from', description='日志投递任务创建开始时间。Unix时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。', position='Query'),
   offset?: int32(name='offset', description='查询开始行，默认值为0。', position='Query'),
-  project: string(name='project', description='Project 名称。', position='Host'),
   size?: int32(name='size', description='分页查询时，设置的每页行数。默认值为100，最大值为500。', position='Query'),
   status?: string(name='status', description='默认为空，表示返回所有状态的任务，支持success、fail和running状态。', position='Query'),
   to: long(name='to', description='日志投递任务创建结束时间。Unix时间戳格式，表示从1970-1-1 00:00:00 UTC计算起的秒数。', position='Query'),
@@ -1191,8 +1284,8 @@ async function getShipperStatus(request: GetShipperStatusRequest): GetShipperSta
 }
 
 model ListConsumerGroupRequest {
-  logstore: string(name='logstore', description='Logstore name', position='Path'),
   project: string(name='project', description='Project name', position='Host'),
+  logstore: string(name='logstore', description='Logstore name', position='Path'),
 }
 
 model ListConsumerGroupResponse = {
@@ -1208,9 +1301,9 @@ async function listConsumerGroup(request: ListConsumerGroupRequest): ListConsume
 }
 
 model ListDomainsRequest {
+  project: string(name='project', description='Project name', position='Host'),
   domainName?: string(name='domainName', description='用于搜索匹配的自定义域名', position='Query'),
   offset?: int32(name='offset', position='Query'),
-  project: string(name='project', description='Project name', position='Host'),
   size?: int32(name='size', position='Query'),
 }
 
@@ -1230,12 +1323,34 @@ async function listDomains(request: ListDomainsRequest): ListDomainsResponse {
   return @handler.do('RESTFUL', 'ListDomains', 'GET', '/domains', 'json', false, 'json', request);
 }
 
+model ListEtlJobRequest {
+  project: string(name='project', description='A short description of struct', position='Host'),
+  offset?: int32(name='offset', position='Query'),
+  size?: int32(name='size', description='默认值为 100。', position='Query'),
+}
+
+model ListEtlJobResponseBody = {
+  count?: int32(name='count'),
+  etlJobNameList?: [ string ](name='etlJobNameList'),
+  total?: int32(name='total'),
+}
+
+model ListEtlJobResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListEtlJobResponseBody(name='body'),
+}
+
+async function listEtlJob(request: ListEtlJobRequest): ListEtlJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListEtlJob', 'GET', '/etljobs', 'json', false, 'json', request);
+}
+
 model ListEtlMetaRequest {
+  project: string(name='project', description='A short description of struct', position='Host'),
   etlMetaKey: string(name='etlMetaKey', position='Query'),
   etlMetaName: string(name='etlMetaName', position='Query'),
   etlMetaTag: string(name='etlMetaTag', position='Query'),
   offset?: int32(name='offset', description='默认值 0。', position='Query'),
-  project: string(name='project', description='A short description of struct', position='Host'),
   size?: int32(name='size', description='默认值 200.', position='Query'),
 }
 
@@ -1257,8 +1372,8 @@ async function listEtlMeta(request: ListEtlMetaRequest): ListEtlMetaResponse {
 }
 
 model ListEtlMetaNameRequest {
-  offset?: int32(name='offset', description='默认值为 0。', position='Query'),
   project: string(name='project', description='A short description of struct', position='Host'),
+  offset?: int32(name='offset', description='默认值为 0。', position='Query'),
   size?: int32(name='size', description='默认值 200。', position='Query'),
 }
 
@@ -1279,9 +1394,9 @@ async function listEtlMetaName(request: ListEtlMetaNameRequest): ListEtlMetaName
 }
 
 model ListExternalStoreRequest {
+  project: string(name='project', description='A short description of struct', position='Host'),
   externalStoreName?: string(name='externalStoreName', description='可选使用名字 pattern 匹配', position='Query'),
   offset?: int32(name='offset', position='Query'),
-  project: string(name='project', description='A short description of struct', position='Host'),
   sizs?: int32(name='sizs', description='默认值为 500.', position='Query'),
 }
 
@@ -1304,9 +1419,10 @@ async function listExternalStore(request: ListExternalStoreRequest): ListExterna
 }
 
 model ListLogStoresRequest {
-  logstoreName?: string(name='logstoreName', position='Query'),
-  offset?: int32(name='offset', position='Query'),
   project: string(name='project', position='Host'),
+  logstoreName?: string(name='logstoreName', position='Query'),
+  mode?: string(name='mode', position='Query'),
+  offset?: int32(name='offset', position='Query'),
   size?: int32(name='size', description='默认值为 500。', position='Query'),
   telemetryType?: string(name='telemetryType', position='Query'),
 }
@@ -1327,9 +1443,9 @@ async function listLogStores(request: ListLogStoresRequest): ListLogStoresRespon
 }
 
 model ListMachineGroupRequest {
+  project: string(name='project', description='project 名称。', position='Host'),
   groupName?: string(name='groupName', description='可将 groupName 作为 pattern 匹配名称，只会返回匹配的机器组。例如 test 可以匹配机器组 test-group。', position='Query'),
   offset?: int32(name='offset', description='分页请求的起始位置。默认为0。', position='Query'),
-  project: string(name='project', description='project 名称。', position='Host'),
   size?: int32(name='size', description='分页查询时，设置的每页行数。默认值为2000。', position='Query'),
 }
 
@@ -1350,9 +1466,9 @@ async function listMachineGroup(request: ListMachineGroupRequest): ListMachineGr
 }
 
 model ListMachinesRequest {
+  project: string(name='project', description='project 名称。', position='Host'),
   machineGroup: string(name='machineGroup', description='机器组名称。', position='Path'),
   offset?: int32(name='offset', description='查询开始行。默认值为0。', position='Query'),
-  project: string(name='project', description='project 名称。', position='Host'),
   size?: int32(name='size', description='分页查询时，设置的每页行数。默认值为2000。', position='Query'),
 }
 
@@ -1399,8 +1515,8 @@ async function listProject(request: ListProjectRequest): ListProjectResponse {
 }
 
 model ListSavedSearchRequest {
-  offset?: int32(name='offset', position='Query'),
   project: string(name='project', description='A short description of struct', position='Host'),
+  offset?: int32(name='offset', position='Query'),
   size?: int32(name='size', description='默认值为 500。', position='Query'),
 }
 
@@ -1423,8 +1539,8 @@ async function listSavedSearch(request: ListSavedSearchRequest): ListSavedSearch
 }
 
 model ListShardsRequest {
-  logstore: string(name='logstore', description='logstore 名称。', position='Path'),
   project: string(name='project', description='A short description of struct', position='Host'),
+  logstore: string(name='logstore', description='logstore 名称。', position='Path'),
 }
 
 model ListShardsResponse = {
@@ -1440,8 +1556,8 @@ async function listShards(request: ListShardsRequest): ListShardsResponse {
 }
 
 model ListShipperRequest {
-  logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
   project: string(name='project', description='Project 名称。', position='Host'),
+  logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
 }
 
 model ListShipperResponseBody = {
@@ -1494,10 +1610,10 @@ async function listTagResources(request: ListTagResourcesRequest): ListTagResour
 }
 
 model MergeShardsRequest {
+  project: string(name='project', description='Project 名称。', position='Host'),
   logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
   shardID: int32(name='shardID', description='必须是readwrite状态的 shard，且其下一个相邻的 shard 也必须是 readwrite。', position='Path'),
   action: string(name='action', description='固定为 merge。', position='Query'),
-  project: string(name='project', description='Project 名称。', position='Host'),
 }
 
 model MergeShardsResponse = {
@@ -1513,9 +1629,9 @@ async function mergeShards(request: MergeShardsRequest): MergeShardsResponse {
 }
 
 model RemoveConfigFromMachineGroupRequest {
+  project: string(name='project', description='project 名称。', position='Host'),
   machineGroup: string(name='machineGroup', description='机器组名称。', position='Path'),
   configName: string(name='configName', description='logtail 配置名称。', position='Path'),
-  project: string(name='project', description='project 名称。', position='Host'),
 }
 
 model RemoveConfigFromMachineGroupResponse = {
@@ -1528,11 +1644,11 @@ async function removeConfigFromMachineGroup(request: RemoveConfigFromMachineGrou
 }
 
 model SplitShardRequest {
+  project: string(name='project', description='Project 名称。', position='Host'),
   logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
   shardID: int32(name='shardID', description='必须是一个 readwrite 状态的 shard 的 id。', position='Path'),
   action: string(name='action', description='这里固定为 split。', position='Query'),
   key?: string(name='key', description='分裂的位置。', position='Query'),
-  project: string(name='project', description='Project 名称。', position='Host'),
   shardCount?: int32(name='shardCount', description='要分裂成的 shard 数量，默认为 2。', position='Query'),
 }
 
@@ -1585,13 +1701,13 @@ async function unTagResources(request: UnTagResourcesRequest): UnTagResourcesRes
 }
 
 model UpdateCheckPointRequest {
+  project: string(name='project', description='project 名称。', position='Host'),
   logstore: string(name='logstore', description='logstore 名称。', position='Path'),
   consumerGroup: string(name='consumerGroup', description='消费组名称。', position='Path'),
   checkpoint: string(name='checkpoint', description='checkpoint值。', position='Body'),
   shard: int32(name='shard', description='shard 的 id。', position='Body'),
   consumer?: string(name='consumer', description='消费者。', position='Query'),
   forceSuccess?: boolean(name='forceSuccess', description='当不指定消费者时，必须指定forceSuccess为true才能更新checkpoint。', position='Query'),
-  project: string(name='project', description='project 名称。', position='Host'),
   type: string(name='type', description='固定为 checkpoint。', position='Query'),
 }
 
@@ -1605,11 +1721,11 @@ async function updateCheckPoint(request: UpdateCheckPointRequest): UpdateCheckPo
 }
 
 model UpdateConsumerGroupRequest {
+  project: string(name='project', position='Host'),
   logstore: string(name='logstore', position='Path'),
   consumerGroup: string(name='consumerGroup', position='Path'),
   order?: boolean(name='order', position='Body'),
   timeout?: int32(name='timeout', position='Body'),
-  project: string(name='project', position='Host'),
 }
 
 model UpdateConsumerGroupResponse = {
@@ -1621,13 +1737,53 @@ async function updateConsumerGroup(request: UpdateConsumerGroupRequest): UpdateC
   return @handler.do('RESTFUL', 'UpdateConsumerGroup', 'PUT', '/logstores/{logstore}/consumergroups/{consumerGroup}', 'none', false, 'json', request);
 }
 
+model UpdateEtlJobRequest {
+  project: string(name='project', description='A short description of struct', position='Host'),
+  etlJobName: string(name='etlJobName', position='Path,Body'),
+  enable: boolean(name='enable', description='是否启用', position='Body'),
+  functionConfig: {
+    accountId?: string(name='accountId', description='账户 id'),
+    endpoint?: string(name='endpoint', description='endpoint'),
+    functionName?: string(name='functionName', description='函数名'),
+    functionProvider: string(name='functionProvider', description='函数 provider，可选值为 FunctionCompute 、CloudProdLogDispatch。当值为 FunctionCompute 时，endpoint、accountid 、regionName 、serviceName 、functionName 必选。'),
+    regionName?: string(name='regionName', description='地域'),
+    roleArn?: string(name='roleArn', description='角色授权'),
+    serviceName?: string(name='serviceName', description='服务名'),
+  }(name='functionConfig', description='运行函数配置', position='Body'),
+  functionParameter: map[string]any(name='functionParameter', description='函数的运行参数', position='Body'),
+  logConfig: {
+    endpoint: string(name='endpoint', description='endpoint'),
+    logstoreName: string(name='logstoreName', description='logstore 名称'),
+    projectName: string(name='projectName', description='project 名称'),
+  }(name='logConfig', description='日志配置', position='Body'),
+  sourceConfig: {
+    logstoreName: string(name='logstoreName', description='logstore 名称'),
+  }(name='sourceConfig', description='配置数据来源', position='Body'),
+  triggerConfig: {
+    maxRetryTime: int32(name='maxRetryTime', description='最大重试次数，必须在[0, 100] 之间'),
+    roleArn: string(name='roleArn', description='角色授权配置'),
+    startingPosition?: string(name='startingPosition', description='开始位置，可选择 latest 与 at-unixtime , 默认为 latest。当为 at-unixtime 时，使用 startingUnixtime 的值作为起始位置。'),
+    startingUnixtime?: long(name='startingUnixtime', description='开始时间看，unix 时间戳，不能大于当前时间，不能小于 1000000000。'),
+    triggerInterval: int32(name='triggerInterval', description='触发间隔，单位为秒，必须在 [3,600] 之间'),
+  }(name='triggerConfig', description='触发器配置', position='Body'),
+}
+
+model UpdateEtlJobResponse = {
+  headers: map[string]string(name='headers'),
+}
+
+async function updateEtlJob(request: UpdateEtlJobRequest): UpdateEtlJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateEtlJob', 'PUT', '/etljobs/{etlJobName}', 'none', false, 'json', request);
+}
+
 model UpdateEtlMetaRequest {
+  project: string(name='project', description='A short description of struct', position='Host'),
   enable?: boolean(name='enable', description='是否启用。etlMetaTag、etlMetaValue、enable 至少需要存在一个。', position='Body'),
   etlMetaKey: string(name='etlMetaKey', description='key。由 ascii 可打印字符组成，包括数字、英文大小写字母、下划线、连字符、英文标点符号等组成，长度在[1,255]之间。', position='Body'),
   etlMetaName: string(name='etlMetaName', description='名字。由数字、大小写字母、下划线_、连字符-组成，长度需要在[2,64]之间。', position='Body'),
   etlMetaTag?: string(name='etlMetaTag', description='key。由 ascii 可打印字符组成，包括数字、英文大小写字母、下划线、连字符、英文标点符号等组成，长度在[1,128]之间。', position='Body'),
   etlMetaValue?: map[string]any(name='etlMetaValue', position='Body'),
-  project: string(name='project', description='A short description of struct', position='Host'),
 }
 
 model UpdateEtlMetaResponse = {
@@ -1640,6 +1796,7 @@ async function updateEtlMeta(request: UpdateEtlMetaRequest): UpdateEtlMetaRespon
 }
 
 model UpdateIndexRequest {
+  project: string(name='project', description='project 名称。', position='Host'),
   logstore: string(name='logstore', description='logstore 名称。', position='Path'),
   keys?: map[string]KeysValue(name='keys', description='字段索引配置，key为字段名称，value为字段索引配置。', position='Body'),
   line?: {
@@ -1654,7 +1811,6 @@ model UpdateIndexRequest {
   logReduceWhiteList?: [ string ](name='log_reduce_white_list', description='日志聚类的聚类字段白名单', position='Body'),
   maxTextLen?: int32(name='max_text_len', description='统计字段的最大长度', position='Body'),
   ttl: int32(name='ttl', description='保存时间，单位为天', position='Body'),
-  project: string(name='project', description='project 名称。', position='Host'),
 }
 
 model UpdateIndexResponse = {
@@ -1667,6 +1823,7 @@ async function updateIndex(request: UpdateIndexRequest): UpdateIndexResponse {
 }
 
 model UpdateLogStoreRequest {
+  project: string(name='project', position='Host'),
   logstore: string(name='logstore', position='Path'),
   appendMeta?: boolean(name='appendMeta', position='Body'),
   autoSplit?: boolean(name='autoSplit', position='Body'),
@@ -1675,10 +1832,10 @@ model UpdateLogStoreRequest {
   hotTtl?: int32(name='hot_ttl', position='Body'),
   logstoreName: string(name='logstoreName', position='Body'),
   maxSplitShard?: int32(name='maxSplitShard', position='Body'),
+  mode?: string(name='mode', position='Body'),
   shardCount: int32(name='shardCount', position='Body'),
   telemetryType?: string(name='telemetryType', position='Body'),
   ttl: int32(name='ttl', position='Body'),
-  project: string(name='project', position='Host'),
 }
 
 model UpdateLogStoreResponse = {
@@ -1691,6 +1848,7 @@ async function updateLogStore(request: UpdateLogStoreRequest): UpdateLogStoreRes
 }
 
 model UpdateLoggingRequest {
+  project: string(name='project', description='Project 名称。', position='Host'),
   loggingDetails: [ 
     {
       logstore: string(name='logstore', description='该种类服务日志要保存到的 logstore 名称。'),
@@ -1698,7 +1856,6 @@ model UpdateLoggingRequest {
     }
   ](name='loggingDetails', description='服务日志配置列表。', position='Body'),
   loggingProject: string(name='loggingProject', description='服务日志要保存到的 project 名称。', position='Body'),
-  project: string(name='project', description='Project 名称。', position='Host'),
 }
 
 model UpdateLoggingResponse = {
@@ -1711,6 +1868,7 @@ async function updateLogging(request: UpdateLoggingRequest): UpdateLoggingRespon
 }
 
 model UpdateMachineGroupRequest {
+  project: string(name='project', description='project 名称。', position='Host'),
   groupName: string(name='groupName', description='机器组名称。', position='Path,Body'),
   groupAttribute?: {
     externalName?: string(name='externalName', description='机器组所依赖的外部管理系统标识。'),
@@ -1719,7 +1877,6 @@ model UpdateMachineGroupRequest {
   groupType?: string(name='groupType', description='机器组类型，可选值，默认为空。', position='Body'),
   machineIdentifyType: string(name='machineIdentifyType', description='机器组标识种类，支持 ip 、userdefined 两种。', position='Body'),
   machineList: [ string ](name='machineList', description='机器列表。', position='Body'),
-  project: string(name='project', description='project 名称。', position='Host'),
 }
 
 model UpdateMachineGroupResponse = {
@@ -1732,9 +1889,9 @@ async function updateMachineGroup(request: UpdateMachineGroupRequest): UpdateMac
 }
 
 model UpdateOdpsShipperRequest {
+  project: string(name='project', description='Project 名称。', position='Host'),
   logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
   shipperName: string(name='shipperName', description='投递任务名称。', position='Path,Body'),
-  project: string(name='project', description='Project 名称。', position='Host'),
   targetConfiguration: {
     bufferInterval?: int32(name='bufferInterval', description='导入时间间隔，秒，只支持 1800 、3600两种。'),
     enable?: boolean(name='enable', description='是否启用该配置，默认为 true。'),
@@ -1758,6 +1915,7 @@ async function updateOdpsShipper(request: UpdateOdpsShipperRequest): UpdateOdpsS
 }
 
 model UpdateOssExternalStoreRequest {
+  project: string(name='project', description='project 名称。', position='Host'),
   externalStoreName: string(name='externalStoreName', description='外部存储的名称。', position='Path,Body'),
   parameter: {
     accessid: string(name='accessid', description='您的AccessKey ID。'),
@@ -1773,7 +1931,6 @@ model UpdateOssExternalStoreRequest {
     objects: [ string ](name='objects'),
   }(name='parameter', description='外部存储的参数。', position='Body'),
   storeType: string(name='storeType', description='外部存储的类型。这里固定为 oss', position='Body'),
-  project: string(name='project', description='project 名称。', position='Host'),
 }
 
 model UpdateOssExternalStoreResponse = {
@@ -1786,6 +1943,7 @@ async function updateOssExternalStore(request: UpdateOssExternalStoreRequest): U
 }
 
 model UpdateOssShipperRequest {
+  project: string(name='project', description='Project 名称。', position='Host'),
   logstore: string(name='logstore', description='Logstore 名称。', position='Path'),
   shipperName: string(name='shipperName', description='投递任务名称。', position='Path,Body'),
   targetConfiguration: {
@@ -1829,7 +1987,6 @@ json 格式
     timeZone?: string(name='timeZone', description='时区，默认取值为空字符串。可取值的格式为 +8 、-6 等。'),
   }(name='targetConfiguration', position='Body'),
   targetType: string(name='targetType', description='投递目标的类型，这里固定为 odps。', position='Body'),
-  project: string(name='project', description='Project 名称。', position='Host'),
 }
 
 model UpdateOssShipperResponse = {
@@ -1842,8 +1999,8 @@ async function updateOssShipper(request: UpdateOssShipperRequest): UpdateOssShip
 }
 
 model UpdateProjectRequest {
-  description: string(name='description', description='Project description', position='Body'),
   project: string(name='project', description='Project name', position='Host'),
+  description: string(name='description', description='Project description', position='Body'),
 }
 
 model UpdateProjectResponse = {
@@ -1856,6 +2013,7 @@ async function updateProject(request: UpdateProjectRequest): UpdateProjectRespon
 }
 
 model UpdateRdsExternalStoreRequest {
+  project: string(name='project', description='project 名称。', position='Host'),
   externalStoreName: string(name='externalStoreName', description='外部存储名称。', position='Path,Body'),
   parameter: {
     db: string(name='db', description='RDS MySQL实例的数据库名称。'),
@@ -1869,7 +2027,6 @@ model UpdateRdsExternalStoreRequest {
     vpcId?: string(name='vpc-id', description='RDS MySQL实例所属的VPC ID。'),
   }(name='parameter', description='参数', position='Body'),
   storeType: string(name='storeType', description='类型，这里固定为 rds-vpc', position='Body'),
-  project: string(name='project', description='project 名称。', position='Host'),
 }
 
 model UpdateRdsExternalStoreResponse = {
@@ -1882,12 +2039,12 @@ async function updateRdsExternalStore(request: UpdateRdsExternalStoreRequest): U
 }
 
 model UpdateSavedSearchRequest {
+  project: string(name='project', description='Project 名称。', position='Host'),
   savedsearchName: string(name='savedsearchName', position='Path,Body'),
   displayName: string(name='displayName', position='Body'),
   logstore: string(name='logstore', position='Body'),
   searchQuery: string(name='searchQuery', position='Body'),
   topic?: string(name='topic', position='Body'),
-  project: string(name='project', description='Project 名称。', position='Host'),
 }
 
 model UpdateSavedSearchResponse = {
@@ -1897,6 +2054,15 @@ model UpdateSavedSearchResponse = {
 async function updateSavedSearch(request: UpdateSavedSearchRequest): UpdateSavedSearchResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateSavedSearch', 'PUT', '/savedsearches/{savedsearchName}', 'none', false, 'json', request);
+}
+
+model IndexKeysValue = {
+  chn?: boolean(name='chn', description='是否包含中文'),
+  caseSensitive?: boolean(name='caseSensitive', description='大小写敏感'),
+  token?: [ string ](name='token', description='分词符'),
+  alias?: string(name='alias', description='别名'),
+  type: string(name='type', description='字段类型'),
+  docValue?: boolean(name='doc_value', description='开启统计'),
 }
 
 model KeysValue = {

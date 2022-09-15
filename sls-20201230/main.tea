@@ -36,6 +36,13 @@ model EncryptUserCmkConf {
   regionId?: string(name='region_id'),
 }
 
+model Histogram {
+  count?: long(name='count'),
+  from?: int32(name='from'),
+  progress?: string(name='progress'),
+  to?: int32(name='to'),
+}
+
 model LogtailConfig {
   configName?: string(name='configName'),
   createTime?: long(name='createTime'),
@@ -121,6 +128,23 @@ model ExternalStore {
   storeType?: string(name='storeType'),
 }
 
+model Index {
+  keys?: map[string]IndexKeysValue(name='keys'),
+  lastModifyTime?: long(name='lastModifyTime'),
+  line?: {
+    caseSensitive?: boolean(name='caseSensitive'),
+    chn?: boolean(name='chn'),
+    excludeKeys?: [ string ](name='exclude_keys'),
+    includeKeys?: [ string ](name='include_keys'),
+    token?: [ string ](name='token'),
+  }(name='line'),
+  logReduce?: boolean(name='log_reduce'),
+  logReduceBlackList?: [ string ](name='log_reduce_black_list'),
+  logReduceWhiteList?: [ string ](name='log_reduce_white_list'),
+  maxTextLen?: int32(name='max_text_len'),
+  ttl?: int32(name='ttl'),
+}
+
 model Logging {
   loggingDetails?: [ 
     {
@@ -141,6 +165,7 @@ model Logstore {
   lastModifyTime?: int32(name='lastModifyTime'),
   logstoreName?: string(name='logstoreName'),
   maxSplitShard?: int32(name='maxSplitShard'),
+  mode?: string(name='mode'),
   shardCount?: int32(name='shardCount'),
   telemetryType?: string(name='telemetryType'),
   ttl?: int32(name='ttl'),
@@ -182,6 +207,24 @@ model Shard {
   status?: string(name='status'),
 }
 
+model IndexKeysValue = {
+  chn?: boolean(name='chn'),
+  caseSensitive?: boolean(name='caseSensitive'),
+  token?: [ string ](name='token'),
+  alias?: string(name='alias'),
+  type?: string(name='type'),
+  docValue?: boolean(name='doc_value'),
+}
+
+model KeysValue = {
+  caseSensitive?: boolean(name='caseSensitive'),
+  chn?: boolean(name='chn'),
+  type?: string(name='type'),
+  alias?: string(name='alias'),
+  token?: [ string ](name='token'),
+  docValue?: boolean(name='doc_value'),
+}
+
 model ApplyConfigToMachineGroupResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
@@ -196,8 +239,6 @@ async function applyConfigToMachineGroup(project: string, machineGroup: string, 
 async function applyConfigToMachineGroupWithOptions(project: string, machineGroup: string, configName: string, headers: map[string]string, runtime: Util.RuntimeOptions): ApplyConfigToMachineGroupResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  machineGroup = OpenApiUtil.getEncodeParam(machineGroup);
-  configName = OpenApiUtil.getEncodeParam(configName);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -399,7 +440,6 @@ async function createConsumerGroupWithOptions(project: string, logstore: string,
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
   var body : map[string]any = {};
   if (!Util.isUnset(request.consumerGroup)) {
     body['consumerGroup'] = request.consumerGroup;
@@ -464,6 +504,93 @@ async function createDomainWithOptions(project: string, request: CreateDomainReq
     version = '2020-12-30',
     protocol = 'HTTPS',
     pathname = `/domains`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+model CreateEtlJobRequest {
+  enable?: boolean(name='enable'),
+  etlJobName?: string(name='etlJobName'),
+  functionConfig?: {
+    accountId?: string(name='accountId'),
+    endpoint?: string(name='endpoint'),
+    functionName?: string(name='functionName'),
+    functionProvider?: string(name='functionProvider'),
+    regionName?: string(name='regionName'),
+    roleArn?: string(name='roleArn'),
+    serviceName?: string(name='serviceName'),
+  }(name='functionConfig'),
+  functionParameter?: map[string]any(name='functionParameter'),
+  logConfig?: {
+    endpoint?: string(name='endpoint'),
+    logstoreName?: string(name='logstoreName'),
+    projectName?: string(name='projectName'),
+  }(name='logConfig'),
+  sourceConfig?: {
+    logstoreName?: string(name='logstoreName'),
+  }(name='sourceConfig'),
+  triggerConfig?: {
+    maxRetryTime?: int32(name='maxRetryTime'),
+    roleArn?: string(name='roleArn'),
+    startingPosition?: string(name='startingPosition'),
+    startingUnixtime?: long(name='startingUnixtime'),
+    triggerInterval?: int32(name='triggerInterval'),
+  }(name='triggerConfig'),
+}
+
+model CreateEtlJobResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function createEtlJob(project: string, request: CreateEtlJobRequest): CreateEtlJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createEtlJobWithOptions(project, request, headers, runtime);
+}
+
+async function createEtlJobWithOptions(project: string, request: CreateEtlJobRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateEtlJobResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.enable)) {
+    body['enable'] = request.enable;
+  }
+  if (!Util.isUnset(request.etlJobName)) {
+    body['etlJobName'] = request.etlJobName;
+  }
+  if (!Util.isUnset(request.functionConfig)) {
+    body['functionConfig'] = request.functionConfig;
+  }
+  if (!Util.isUnset(request.functionParameter)) {
+    body['functionParameter'] = request.functionParameter;
+  }
+  if (!Util.isUnset(request.logConfig)) {
+    body['logConfig'] = request.logConfig;
+  }
+  if (!Util.isUnset(request.sourceConfig)) {
+    body['sourceConfig'] = request.sourceConfig;
+  }
+  if (!Util.isUnset(request.triggerConfig)) {
+    body['triggerConfig'] = request.triggerConfig;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateEtlJob',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/etljobs`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
@@ -563,7 +690,6 @@ async function createIndexWithOptions(project: string, logstore: string, request
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
   var body : map[string]any = {};
   if (!Util.isUnset(request.keys)) {
     body['keys'] = request.keys;
@@ -614,6 +740,7 @@ model CreateLogStoreRequest {
   hotTtl?: int32(name='hot_ttl'),
   logstoreName?: string(name='logstoreName'),
   maxSplitShard?: int32(name='maxSplitShard'),
+  mode?: string(name='mode'),
   shardCount?: int32(name='shardCount'),
   telemetryType?: string(name='telemetryType'),
   ttl?: int32(name='ttl'),
@@ -655,6 +782,9 @@ async function createLogStoreWithOptions(project: string, request: CreateLogStor
   }
   if (!Util.isUnset(request.maxSplitShard)) {
     body['maxSplitShard'] = request.maxSplitShard;
+  }
+  if (!Util.isUnset(request.mode)) {
+    body['mode'] = request.mode;
   }
   if (!Util.isUnset(request.shardCount)) {
     body['shardCount'] = request.shardCount;
@@ -829,7 +959,6 @@ async function createOdpsShipperWithOptions(project: string, logstore: string, r
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
   var body : map[string]any = {};
   if (!Util.isUnset(request.shipperName)) {
     body['shipperName'] = request.shipperName;
@@ -958,7 +1087,6 @@ async function createOssShipperWithOptions(project: string, logstore: string, re
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
   var body : map[string]any = {};
   if (!Util.isUnset(request.shipperName)) {
     body['shipperName'] = request.shipperName;
@@ -1167,8 +1295,6 @@ async function deleteConsumerGroup(project: string, logstore: string, consumerGr
 async function deleteConsumerGroupWithOptions(project: string, logstore: string, consumerGroup: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteConsumerGroupResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
-  consumerGroup = OpenApiUtil.getEncodeParam(consumerGroup);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -1201,7 +1327,6 @@ async function deleteDomain(project: string, domainName: string): DeleteDomainRe
 async function deleteDomainWithOptions(project: string, domainName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteDomainResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  domainName = OpenApiUtil.getEncodeParam(domainName);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -1211,6 +1336,38 @@ async function deleteDomainWithOptions(project: string, domainName: string, head
     version = '2020-12-30',
     protocol = 'HTTPS',
     pathname = `/domains/${domainName}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+model DeleteEtlJobResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function deleteEtlJob(project: string, etlJobName: string): DeleteEtlJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteEtlJobWithOptions(project, etlJobName, headers, runtime);
+}
+
+async function deleteEtlJobWithOptions(project: string, etlJobName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteEtlJobResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteEtlJob',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/etljobs/${etlJobName}`,
     method = 'DELETE',
     authType = 'AK',
     style = 'ROA',
@@ -1285,7 +1442,6 @@ async function deleteExternalStore(project: string, externalStoreName: string): 
 async function deleteExternalStoreWithOptions(project: string, externalStoreName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteExternalStoreResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  externalStoreName = OpenApiUtil.getEncodeParam(externalStoreName);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -1318,7 +1474,6 @@ async function deleteIndex(project: string, logstore: string): DeleteIndexRespon
 async function deleteIndexWithOptions(project: string, logstore: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteIndexResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -1351,7 +1506,6 @@ async function deleteLogStore(project: string, logstore: string): DeleteLogStore
 async function deleteLogStoreWithOptions(project: string, logstore: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteLogStoreResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -1416,7 +1570,6 @@ async function deleteMachineGroup(project: string, machineGroup: string): Delete
 async function deleteMachineGroupWithOptions(project: string, machineGroup: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteMachineGroupResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  machineGroup = OpenApiUtil.getEncodeParam(machineGroup);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -1481,7 +1634,6 @@ async function deleteSavedSearch(project: string, savedsearchName: string): Dele
 async function deleteSavedSearchWithOptions(project: string, savedsearchName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteSavedSearchResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  savedsearchName = OpenApiUtil.getEncodeParam(savedsearchName);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -1514,8 +1666,6 @@ async function deleteShipper(project: string, logstore: string, shipperName: str
 async function deleteShipperWithOptions(project: string, logstore: string, shipperName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteShipperResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
-  shipperName = OpenApiUtil.getEncodeParam(shipperName);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -1554,7 +1704,6 @@ async function getAppliedConfigs(project: string, machineGroup: string): GetAppl
 async function getAppliedConfigsWithOptions(project: string, machineGroup: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetAppliedConfigsResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  machineGroup = OpenApiUtil.getEncodeParam(machineGroup);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -1593,7 +1742,6 @@ async function getAppliedMachineGroups(project: string, configName: string): Get
 async function getAppliedMachineGroupsWithOptions(project: string, configName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetAppliedMachineGroupsResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  configName = OpenApiUtil.getEncodeParam(configName);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -1639,8 +1787,6 @@ async function getCheckPointWithOptions(project: string, logstore: string, consu
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
-  consumerGroup = OpenApiUtil.getEncodeParam(consumerGroup);
   var query : map[string]any = {};
   if (!Util.isUnset(request.shard)) {
     query['shard'] = request.shard;
@@ -1697,7 +1843,6 @@ async function getContextLogsWithOptions(project: string, logstore: string, requ
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
   var query : map[string]any = {};
   if (!Util.isUnset(request.backLines)) {
     query['back_lines'] = request.backLines;
@@ -1759,8 +1904,6 @@ async function getCursorWithOptions(project: string, logstore: string, shardId: 
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
-  shardId = OpenApiUtil.getEncodeParam(shardId);
   var query : map[string]any = {};
   if (!Util.isUnset(request.from)) {
     query['from'] = request.from;
@@ -1813,8 +1956,6 @@ async function getCursorTimeWithOptions(project: string, logstore: string, shard
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
-  shardId = OpenApiUtil.getEncodeParam(shardId);
   var query : map[string]any = {};
   if (!Util.isUnset(request.cursor)) {
     query['cursor'] = request.cursor;
@@ -1842,9 +1983,42 @@ async function getCursorTimeWithOptions(project: string, logstore: string, shard
   return execute(params, req, runtime);
 }
 
+model GetEtlJobResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: EtlJob  
+}
+
+async function getEtlJob(project: string, etlJobName: string): GetEtlJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getEtlJobWithOptions(project, etlJobName, headers, runtime);
+}
+
+async function getEtlJobWithOptions(project: string, etlJobName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetEtlJobResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetEtlJob',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/etljobs/${etlJobName}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
 model GetEtlMetaRequest {
-  elMetaName?: string(name='elMetaName'),
   etlMetaKey?: string(name='etlMetaKey'),
+  etlMetaName?: string(name='etlMetaName'),
   etlMetaTag?: string(name='etlMetaTag'),
 }
 
@@ -1872,11 +2046,11 @@ async function getEtlMetaWithOptions(project: string, request: GetEtlMetaRequest
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
   var query : map[string]any = {};
-  if (!Util.isUnset(request.elMetaName)) {
-    query['elMetaName'] = request.elMetaName;
-  }
   if (!Util.isUnset(request.etlMetaKey)) {
     query['etlMetaKey'] = request.etlMetaKey;
+  }
+  if (!Util.isUnset(request.etlMetaName)) {
+    query['etlMetaName'] = request.etlMetaName;
   }
   if (!Util.isUnset(request.etlMetaTag)) {
     query['etlMetaTag'] = request.etlMetaTag;
@@ -1916,7 +2090,6 @@ async function getExternalStore(project: string, externalStoreName: string): Get
 async function getExternalStoreWithOptions(project: string, externalStoreName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetExternalStoreResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  externalStoreName = OpenApiUtil.getEncodeParam(externalStoreName);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -1940,7 +2113,6 @@ model GetHistogramsRequest {
   query?: string(name='query'),
   to?: long(name='to'),
   topic?: string(name='topic'),
-  type?: string(name='type'),
 }
 
 model GetHistogramsResponse = {
@@ -1966,7 +2138,6 @@ async function getHistogramsWithOptions(project: string, logstore: string, reque
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
   var query : map[string]any = {};
   if (!Util.isUnset(request.from)) {
     query['from'] = request.from;
@@ -1980,9 +2151,6 @@ async function getHistogramsWithOptions(project: string, logstore: string, reque
   if (!Util.isUnset(request.topic)) {
     query['topic'] = request.topic;
   }
-  if (!Util.isUnset(request.type)) {
-    query['type'] = request.type;
-  }
 
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
@@ -1993,7 +2161,7 @@ async function getHistogramsWithOptions(project: string, logstore: string, reque
     action = 'GetHistograms',
     version = '2020-12-30',
     protocol = 'HTTPS',
-    pathname = `/logstores/${logstore}/index`,
+    pathname = `/logstores/${logstore}/index?type=histogram`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -2037,7 +2205,6 @@ async function getIndex(project: string, logstore: string): GetIndexResponse {
 async function getIndexWithOptions(project: string, logstore: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetIndexResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -2071,7 +2238,6 @@ async function getLogStore(project: string, logstore: string): GetLogStoreRespon
 async function getLogStoreWithOptions(project: string, logstore: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetLogStoreResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -2132,7 +2298,6 @@ model GetLogsRequest {
   reverse?: boolean(name='reverse'),
   to?: long(name='to'),
   topic?: string(name='topic'),
-  type?: string(name='type'),
 }
 
 model GetLogsResponse = {
@@ -2151,7 +2316,6 @@ async function getLogsWithOptions(project: string, logstore: string, request: Ge
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
   var query : map[string]any = {};
   if (!Util.isUnset(request.from)) {
     query['from'] = request.from;
@@ -2177,9 +2341,6 @@ async function getLogsWithOptions(project: string, logstore: string, request: Ge
   if (!Util.isUnset(request.topic)) {
     query['topic'] = request.topic;
   }
-  if (!Util.isUnset(request.type)) {
-    query['type'] = request.type;
-  }
 
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
@@ -2190,7 +2351,7 @@ async function getLogsWithOptions(project: string, logstore: string, request: Ge
     action = 'GetLogs',
     version = '2020-12-30',
     protocol = 'HTTPS',
-    pathname = `/logstores/${logstore}/index`,
+    pathname = `/logstores/${logstore}?type=log`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -2215,7 +2376,6 @@ async function getMachineGroup(project: string, machineGroup: string): GetMachin
 async function getMachineGroupWithOptions(project: string, machineGroup: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetMachineGroupResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  machineGroup = OpenApiUtil.getEncodeParam(machineGroup);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -2330,7 +2490,6 @@ async function getSavedSearch(project: string, savedsearchName: string): GetSave
 async function getSavedSearchWithOptions(project: string, savedsearchName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetSavedSearchResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  savedsearchName = OpenApiUtil.getEncodeParam(savedsearchName);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -2372,8 +2531,6 @@ async function getShipperConfig(project: string, logstore: string, shipperName: 
 async function getShipperConfigWithOptions(project: string, logstore: string, shipperName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetShipperConfigResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
-  shipperName = OpenApiUtil.getEncodeParam(shipperName);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -2436,8 +2593,6 @@ async function getShipperStatusWithOptions(project: string, logstore: string, sh
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
-  shipperName = OpenApiUtil.getEncodeParam(shipperName);
   var query : map[string]any = {};
   if (!Util.isUnset(request.from)) {
     query['from'] = request.from;
@@ -2491,7 +2646,6 @@ async function listConsumerGroup(project: string, logstore: string): ListConsume
 async function listConsumerGroupWithOptions(project: string, logstore: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListConsumerGroupResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -2559,6 +2713,60 @@ async function listDomainsWithOptions(project: string, request: ListDomainsReque
     version = '2020-12-30',
     protocol = 'HTTPS',
     pathname = `/domains`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+model ListEtlJobRequest {
+  offset?: int32(name='offset'),
+  size?: int32(name='size'),
+}
+
+model ListEtlJobResponseBody = {
+  count?: int32(name='count'),
+  etlJobNameList?: [ string ](name='etlJobNameList'),
+  total?: int32(name='total'),
+}
+
+model ListEtlJobResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListEtlJobResponseBody(name='body'),
+}
+
+async function listEtlJob(project: string, request: ListEtlJobRequest): ListEtlJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listEtlJobWithOptions(project, request, headers, runtime);
+}
+
+async function listEtlJobWithOptions(project: string, request: ListEtlJobRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListEtlJobResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.offset)) {
+    query['offset'] = request.offset;
+  }
+  if (!Util.isUnset(request.size)) {
+    query['size'] = request.size;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListEtlJob',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/etljobs`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -2751,6 +2959,7 @@ async function listExternalStoreWithOptions(project: string, request: ListExtern
 
 model ListLogStoresRequest {
   logstoreName?: string(name='logstoreName'),
+  mode?: string(name='mode'),
   offset?: int32(name='offset'),
   size?: int32(name='size'),
   telemetryType?: string(name='telemetryType'),
@@ -2780,6 +2989,9 @@ async function listLogStoresWithOptions(project: string, request: ListLogStoresR
   var query : map[string]any = {};
   if (!Util.isUnset(request.logstoreName)) {
     query['logstoreName'] = request.logstoreName;
+  }
+  if (!Util.isUnset(request.mode)) {
+    query['mode'] = request.mode;
   }
   if (!Util.isUnset(request.offset)) {
     query['offset'] = request.offset;
@@ -2897,7 +3109,6 @@ async function listMachinesWithOptions(project: string, machineGroup: string, re
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  machineGroup = OpenApiUtil.getEncodeParam(machineGroup);
   var query : map[string]any = {};
   if (!Util.isUnset(request.offset)) {
     query['offset'] = request.offset;
@@ -3055,7 +3266,6 @@ async function listShards(project: string, logstore: string): ListShardsResponse
 async function listShardsWithOptions(project: string, logstore: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListShardsResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -3095,7 +3305,6 @@ async function listShipper(project: string, logstore: string): ListShipperRespon
 async function listShipperWithOptions(project: string, logstore: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListShipperResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -3216,8 +3425,6 @@ async function mergeShardsWithOptions(project: string, logstore: string, shardID
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
-  shardID = OpenApiUtil.getEncodeParam(shardID);
   var query : map[string]any = {};
   if (!Util.isUnset(request.action)) {
     query['action'] = request.action;
@@ -3256,8 +3463,6 @@ async function removeConfigFromMachineGroup(project: string, machineGroup: strin
 async function removeConfigFromMachineGroupWithOptions(project: string, machineGroup: string, configName: string, headers: map[string]string, runtime: Util.RuntimeOptions): RemoveConfigFromMachineGroupResponse {
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  machineGroup = OpenApiUtil.getEncodeParam(machineGroup);
-  configName = OpenApiUtil.getEncodeParam(configName);
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
@@ -3300,8 +3505,6 @@ async function splitShardWithOptions(project: string, logstore: string, shardID:
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
-  shardID = OpenApiUtil.getEncodeParam(shardID);
   var query : map[string]any = {};
   if (!Util.isUnset(request.action)) {
     query['action'] = request.action;
@@ -3460,8 +3663,6 @@ async function updateCheckPointWithOptions(project: string, logstore: string, co
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
-  consumerGroup = OpenApiUtil.getEncodeParam(consumerGroup);
   var query : map[string]any = {};
   if (!Util.isUnset(request.consumer)) {
     query['consumer'] = request.consumer;
@@ -3521,8 +3722,6 @@ async function updateConsumerGroupWithOptions(project: string, logstore: string,
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
-  consumerGroup = OpenApiUtil.getEncodeParam(consumerGroup);
   var body : map[string]any = {};
   if (!Util.isUnset(request.order)) {
     body['order'] = request.order;
@@ -3541,6 +3740,93 @@ async function updateConsumerGroupWithOptions(project: string, logstore: string,
     version = '2020-12-30',
     protocol = 'HTTPS',
     pathname = `/logstores/${logstore}/consumergroups/${consumerGroup}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+model UpdateEtlJobRequest {
+  enable?: boolean(name='enable'),
+  etlJobName?: string(name='etlJobName'),
+  functionConfig?: {
+    accountId?: string(name='accountId'),
+    endpoint?: string(name='endpoint'),
+    functionName?: string(name='functionName'),
+    functionProvider?: string(name='functionProvider'),
+    regionName?: string(name='regionName'),
+    roleArn?: string(name='roleArn'),
+    serviceName?: string(name='serviceName'),
+  }(name='functionConfig'),
+  functionParameter?: map[string]any(name='functionParameter'),
+  logConfig?: {
+    endpoint?: string(name='endpoint'),
+    logstoreName?: string(name='logstoreName'),
+    projectName?: string(name='projectName'),
+  }(name='logConfig'),
+  sourceConfig?: {
+    logstoreName?: string(name='logstoreName'),
+  }(name='sourceConfig'),
+  triggerConfig?: {
+    maxRetryTime?: int32(name='maxRetryTime'),
+    roleArn?: string(name='roleArn'),
+    startingPosition?: string(name='startingPosition'),
+    startingUnixtime?: long(name='startingUnixtime'),
+    triggerInterval?: int32(name='triggerInterval'),
+  }(name='triggerConfig'),
+}
+
+model UpdateEtlJobResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function updateEtlJob(project: string, etlJobName: string, request: UpdateEtlJobRequest): UpdateEtlJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateEtlJobWithOptions(project, etlJobName, request, headers, runtime);
+}
+
+async function updateEtlJobWithOptions(project: string, etlJobName: string, request: UpdateEtlJobRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateEtlJobResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.enable)) {
+    body['enable'] = request.enable;
+  }
+  if (!Util.isUnset(request.etlJobName)) {
+    body['etlJobName'] = request.etlJobName;
+  }
+  if (!Util.isUnset(request.functionConfig)) {
+    body['functionConfig'] = request.functionConfig;
+  }
+  if (!Util.isUnset(request.functionParameter)) {
+    body['functionParameter'] = request.functionParameter;
+  }
+  if (!Util.isUnset(request.logConfig)) {
+    body['logConfig'] = request.logConfig;
+  }
+  if (!Util.isUnset(request.sourceConfig)) {
+    body['sourceConfig'] = request.sourceConfig;
+  }
+  if (!Util.isUnset(request.triggerConfig)) {
+    body['triggerConfig'] = request.triggerConfig;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateEtlJob',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/etljobs/${etlJobName}`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -3640,7 +3926,6 @@ async function updateIndexWithOptions(project: string, logstore: string, request
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
   var body : map[string]any = {};
   if (!Util.isUnset(request.keys)) {
     body['keys'] = request.keys;
@@ -3691,6 +3976,7 @@ model UpdateLogStoreRequest {
   hotTtl?: int32(name='hot_ttl'),
   logstoreName?: string(name='logstoreName'),
   maxSplitShard?: int32(name='maxSplitShard'),
+  mode?: string(name='mode'),
   shardCount?: int32(name='shardCount'),
   telemetryType?: string(name='telemetryType'),
   ttl?: int32(name='ttl'),
@@ -3711,7 +3997,6 @@ async function updateLogStoreWithOptions(project: string, logstore: string, requ
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
   var body : map[string]any = {};
   if (!Util.isUnset(request.appendMeta)) {
     body['appendMeta'] = request.appendMeta;
@@ -3733,6 +4018,9 @@ async function updateLogStoreWithOptions(project: string, logstore: string, requ
   }
   if (!Util.isUnset(request.maxSplitShard)) {
     body['maxSplitShard'] = request.maxSplitShard;
+  }
+  if (!Util.isUnset(request.mode)) {
+    body['mode'] = request.mode;
   }
   if (!Util.isUnset(request.shardCount)) {
     body['shardCount'] = request.shardCount;
@@ -3841,7 +4129,6 @@ async function updateMachineGroupWithOptions(project: string, groupName: string,
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  groupName = OpenApiUtil.getEncodeParam(groupName);
   var body : map[string]any = {};
   if (!Util.isUnset(request.groupAttribute)) {
     body['groupAttribute'] = request.groupAttribute;
@@ -3908,8 +4195,6 @@ async function updateOdpsShipperWithOptions(project: string, logstore: string, s
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
-  shipperName = OpenApiUtil.getEncodeParam(shipperName);
   var body : map[string]any = {};
   if (!Util.isUnset(request.shipperName)) {
     body['shipperName'] = request.shipperName;
@@ -3973,7 +4258,6 @@ async function updateOssExternalStoreWithOptions(project: string, externalStoreN
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  externalStoreName = OpenApiUtil.getEncodeParam(externalStoreName);
   var body : map[string]any = {};
   if (!Util.isUnset(request.externalStoreName)) {
     body['externalStoreName'] = request.externalStoreName;
@@ -4039,8 +4323,6 @@ async function updateOssShipperWithOptions(project: string, logstore: string, sh
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  logstore = OpenApiUtil.getEncodeParam(logstore);
-  shipperName = OpenApiUtil.getEncodeParam(shipperName);
   var body : map[string]any = {};
   if (!Util.isUnset(request.shipperName)) {
     body['shipperName'] = request.shipperName;
@@ -4145,7 +4427,6 @@ async function updateRdsExternalStoreWithOptions(project: string, externalStoreN
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  externalStoreName = OpenApiUtil.getEncodeParam(externalStoreName);
   var body : map[string]any = {};
   if (!Util.isUnset(request.externalStoreName)) {
     body['externalStoreName'] = request.externalStoreName;
@@ -4199,7 +4480,6 @@ async function updateSavedSearchWithOptions(project: string, savedsearchName: st
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  savedsearchName = OpenApiUtil.getEncodeParam(savedsearchName);
   var body : map[string]any = {};
   if (!Util.isUnset(request.displayName)) {
     body['displayName'] = request.displayName;
@@ -4234,14 +4514,5 @@ async function updateSavedSearchWithOptions(project: string, savedsearchName: st
     bodyType = 'none',
   };
   return execute(params, req, runtime);
-}
-
-model KeysValue = {
-  caseSensitive?: boolean(name='caseSensitive'),
-  chn?: boolean(name='chn'),
-  type?: string(name='type'),
-  alias?: string(name='alias'),
-  token?: [ string ](name='token'),
-  docValue?: boolean(name='doc_value'),
 }
 
