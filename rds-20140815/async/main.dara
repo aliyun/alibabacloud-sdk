@@ -201,7 +201,6 @@ model CalculateDBInstanceWeightResponseBody = {
       DBInstanceId?: string(name='DBInstanceId'),
       DBInstanceType?: string(name='DBInstanceType'),
       readonlyInstanceSQLDelayedTime?: string(name='ReadonlyInstanceSQLDelayedTime'),
-      role?: string(name='Role'),
       weight?: string(name='Weight'),
     }
   ](name='DBInstanceWeight')
@@ -270,6 +269,7 @@ model CheckCloudResourceAuthorizedRequest {
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   regionId?: string(name='RegionId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   securityToken?: string(name='SecurityToken', position='Query'),
@@ -294,9 +294,6 @@ async function checkCloudResourceAuthorized(request: CheckCloudResourceAuthorize
 
 model CheckCreateDdrDBInstanceRequest {
   backupSetId?: string(name='BackupSetId', position='Query'),
-  binlogName?: string(name='BinlogName', position='Query'),
-  binlogPosition?: string(name='BinlogPosition', position='Query'),
-  binlogRole?: string(name='BinlogRole', position='Query'),
   DBInstanceClass: string(name='DBInstanceClass', position='Query'),
   DBInstanceStorage: int32(name='DBInstanceStorage', position='Query'),
   engine: string(name='Engine', position='Query'),
@@ -372,6 +369,30 @@ async function checkInstanceExist(request: CheckInstanceExistRequest): CheckInst
   return @handler.do('RPC', 'CheckInstanceExist', 'POST', '/', 'json', false, 'json', request);
 }
 
+model CheckServiceLinkedRoleRequest {
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  serviceLinkedRole: string(name='ServiceLinkedRole', position='Query'),
+}
+
+model CheckServiceLinkedRoleResponseBody = {
+  hasServiceLinkedRole?: string(name='HasServiceLinkedRole'),
+  requestId?: string(name='RequestId'),
+}
+
+model CheckServiceLinkedRoleResponse = {
+  headers: map[string]string(name='headers'),
+  body: CheckServiceLinkedRoleResponseBody(name='body'),
+}
+
+async function checkServiceLinkedRole(request: CheckServiceLinkedRoleRequest): CheckServiceLinkedRoleResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CheckServiceLinkedRole', 'POST', '/', 'json', false, 'json', request);
+}
+
 model CloneDBInstanceRequest {
   backupId?: string(name='BackupId', position='Query'),
   backupType?: string(name='BackupType', position='Query'),
@@ -391,6 +412,12 @@ model CloneDBInstanceRequest {
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   restoreTable?: string(name='RestoreTable', position='Query'),
   restoreTime?: string(name='RestoreTime', position='Query'),
+  serverlessConfig?: {
+    autoPause?: boolean(name='AutoPause'),
+    maxCapacity?: double(name='MaxCapacity'),
+    minCapacity?: double(name='MinCapacity'),
+    switchForce?: boolean(name='SwitchForce'),
+  }(name='ServerlessConfig', shrink='json', position='Query'),
   tableMeta?: string(name='TableMeta', position='Query'),
   usedTime?: int32(name='UsedTime', position='Query'),
   VPCId?: string(name='VPCId', position='Query'),
@@ -467,6 +494,7 @@ model CopyDatabaseRequest {
 model CopyDatabaseResponseBody = {
   DBName?: string(name='DBName'),
   DBStatus?: string(name='DBStatus'),
+  requestId?: string(name='RequestId'),
   taskId?: string(name='TaskId'),
 }
 
@@ -536,6 +564,7 @@ model CreateBackupRequest {
   backupType?: string(name='BackupType', position='Query'),
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   DBName?: string(name='DBName', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
 
@@ -618,6 +647,7 @@ model CreateDBInstanceRequest {
   category?: string(name='Category', position='Query'),
   clientToken?: string(name='ClientToken', position='Query'),
   connectionMode?: string(name='ConnectionMode', position='Query'),
+  connectionString?: string(name='ConnectionString', position='Query'),
   createStrategy?: string(name='CreateStrategy', position='Query'),
   DBInstanceClass: string(name='DBInstanceClass', position='Query'),
   DBInstanceDescription?: string(name='DBInstanceDescription', position='Query'),
@@ -643,8 +673,10 @@ model CreateDBInstanceRequest {
   roleARN?: string(name='RoleARN', position='Query'),
   securityIPList: string(name='SecurityIPList', position='Query'),
   serverlessConfig?: {
+    autoPause?: boolean(name='AutoPause'),
     maxCapacity?: double(name='MaxCapacity'),
     minCapacity?: double(name='MinCapacity'),
+    switchForce?: boolean(name='SwitchForce'),
   }(name='ServerlessConfig', shrink='json', position='Query'),
   storageAutoScale?: string(name='StorageAutoScale', position='Query'),
   storageThreshold?: int32(name='StorageThreshold', position='Query'),
@@ -697,8 +729,10 @@ model CreateDBProxyEndpointAddressRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   DBProxyConnectStringNetType: string(name='DBProxyConnectStringNetType', position='Query'),
   DBProxyEndpointId: string(name='DBProxyEndpointId', position='Query'),
+  DBProxyEngineType?: string(name='DBProxyEngineType', position='Query'),
   DBProxyNewConnectStringPort?: string(name='DBProxyNewConnectStringPort', position='Query'),
   regionId?: string(name='RegionId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   VPCId?: string(name='VPCId', position='Query'),
   vSwitchId?: string(name='VSwitchId', position='Query'),
 }
@@ -724,6 +758,7 @@ model CreateDatabaseRequest {
   DBName: string(name='DBName', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
@@ -744,9 +779,6 @@ async function createDatabase(request: CreateDatabaseRequest): CreateDatabaseRes
 
 model CreateDdrInstanceRequest {
   backupSetId?: string(name='BackupSetId', position='Query'),
-  binlogName?: string(name='BinlogName', position='Query'),
-  binlogPosition?: string(name='BinlogPosition', position='Query'),
-  binlogRole?: string(name='BinlogRole', position='Query'),
   clientToken?: string(name='ClientToken', position='Query'),
   connectionMode?: string(name='ConnectionMode', position='Query'),
   DBInstanceClass: string(name='DBInstanceClass', position='Query'),
@@ -824,6 +856,13 @@ model CreateGADInstanceRequest {
   centralRegionId: string(name='CentralRegionId', position='Query'),
   DBList: string(name='DBList', position='Query'),
   description?: string(name='Description', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
+  tag?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tag', position='Query'),
   unitNode: [ 
     {
       DBInstanceDescription?: string(name='DBInstanceDescription'),
@@ -1046,6 +1085,39 @@ async function createReadOnlyDBInstance(request: CreateReadOnlyDBInstanceRequest
   return @handler.do('RPC', 'CreateReadOnlyDBInstance', 'POST', '/', 'json', false, 'json', request);
 }
 
+model CreateSecretRequest {
+  clientToken?: string(name='ClientToken', position='Query'),
+  dbInstanceId: string(name='DbInstanceId', position='Query'),
+  dbNames?: string(name='DbNames', position='Query'),
+  description?: string(name='Description', position='Query'),
+  engine: string(name='Engine', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  password: string(name='Password', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+  resourceGroupId: string(name='ResourceGroupId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  secretName?: string(name='SecretName', position='Query'),
+  username: string(name='Username', position='Query'),
+}
+
+model CreateSecretResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  secretArn?: string(name='SecretArn'),
+  secretName?: string(name='SecretName'),
+  success?: boolean(name='Success'),
+}
+
+model CreateSecretResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateSecretResponseBody(name='body'),
+}
+
+async function createSecret(request: CreateSecretRequest): CreateSecretResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateSecret', 'POST', '/', 'json', false, 'json', request);
+}
+
 model CreateServiceLinkedRoleRequest {
   ownerId?: long(name='OwnerId', position='Query'),
   regionId: string(name='RegionId', position='Query'),
@@ -1073,6 +1145,7 @@ model CreateTempDBInstanceRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   restoreTime?: string(name='RestoreTime', position='Query'),
@@ -1091,6 +1164,29 @@ model CreateTempDBInstanceResponse = {
 async function createTempDBInstance(request: CreateTempDBInstanceRequest): CreateTempDBInstanceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateTempDBInstance', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DeleteADSettingRequest {
+  clientToken?: string(name='ClientToken', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+}
+
+model DeleteADSettingResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model DeleteADSettingResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteADSettingResponseBody(name='body'),
+}
+
+async function deleteADSetting(request: DeleteADSettingRequest): DeleteADSettingResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteADSetting', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteAccountRequest {
@@ -1195,6 +1291,7 @@ model DeleteDBProxyEndpointAddressRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   DBProxyConnectStringNetType: string(name='DBProxyConnectStringNetType', position='Query'),
   DBProxyEndpointId: string(name='DBProxyEndpointId', position='Query'),
+  DBProxyEngineType?: string(name='DBProxyEngineType', position='Query'),
   regionId?: string(name='RegionId', position='Query'),
 }
 
@@ -1274,6 +1371,35 @@ async function deleteParameterGroup(request: DeleteParameterGroupRequest): Delet
   return @handler.do('RPC', 'DeleteParameterGroup', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DeleteSecretRequest {
+  clientToken?: string(name='ClientToken', position='Query'),
+  dbInstanceId?: string(name='DbInstanceId', position='Query'),
+  engine: string(name='Engine', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  secretArn?: string(name='SecretArn', position='Query'),
+  secretName?: string(name='SecretName', position='Query'),
+}
+
+model DeleteSecretResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+  secretArn?: string(name='SecretArn'),
+  secretName?: string(name='SecretName'),
+  success?: boolean(name='Success'),
+}
+
+model DeleteSecretResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteSecretResponseBody(name='body'),
+}
+
+async function deleteSecret(request: DeleteSecretRequest): DeleteSecretResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteSecret', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DeleteUserBackupFileRequest {
   backupId: string(name='BackupId', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
@@ -1338,6 +1464,34 @@ model DescibeImportsFromDatabaseResponse = {
 async function descibeImportsFromDatabase(request: DescibeImportsFromDatabaseRequest): DescibeImportsFromDatabaseResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescibeImportsFromDatabase', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeADInfoRequest {
+  clientToken?: string(name='ClientToken', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+}
+
+model DescribeADInfoResponseBody = {
+  ADDNS?: string(name='ADDNS'),
+  ADServerIpAddress?: string(name='ADServerIpAddress'),
+  ADStatus?: string(name='ADStatus'),
+  abnormalReason?: string(name='AbnormalReason'),
+  requestId?: string(name='RequestId'),
+  userName?: string(name='UserName'),
+}
+
+model DescribeADInfoResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeADInfoResponseBody(name='body'),
+}
+
+async function describeADInfo(request: DescribeADInfoRequest): DescribeADInfoResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeADInfo', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeAccountsRequest {
@@ -1411,6 +1565,29 @@ async function describeActionEventPolicy(request: DescribeActionEventPolicyReque
   return @handler.do('RPC', 'DescribeActionEventPolicy', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeAnalyticdbByPrimaryDBInstanceRequest {
+  DBInstanceId: string(name='DBInstanceId', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+}
+
+model DescribeAnalyticdbByPrimaryDBInstanceResponseBody = {
+  analyticDBCount?: int32(name='AnalyticDBCount'),
+  requestId?: string(name='RequestId'),
+}
+
+model DescribeAnalyticdbByPrimaryDBInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeAnalyticdbByPrimaryDBInstanceResponseBody(name='body'),
+}
+
+async function describeAnalyticdbByPrimaryDBInstance(request: DescribeAnalyticdbByPrimaryDBInstanceRequest): DescribeAnalyticdbByPrimaryDBInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeAnalyticdbByPrimaryDBInstance', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DescribeAvailableClassesRequest {
   category: string(name='Category', position='Query'),
   commodityCode?: string(name='CommodityCode', position='Query'),
@@ -1475,10 +1652,12 @@ async function describeAvailableCrossRegion(request: DescribeAvailableCrossRegio
 
 model DescribeAvailableMetricsRequest {
   DBInstanceName: string(name='DBInstanceName', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
 
 model DescribeAvailableMetricsResponseBody = {
+  DBInstanceName?: string(name='DBInstanceName'),
   items?: [ 
     {
       description?: string(name='Description'),
@@ -1508,8 +1687,10 @@ async function describeAvailableMetrics(request: DescribeAvailableMetricsRequest
 
 model DescribeAvailableRecoveryTimeRequest {
   crossBackupId: int32(name='CrossBackupId', position='Query'),
+  DBInstanceId?: string(name='DBInstanceId', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   regionId?: string(name='RegionId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
@@ -1629,6 +1810,7 @@ model DescribeBackupPolicyResponseBody = {
   category?: string(name='Category'),
   compressType?: string(name='CompressType'),
   enableBackupLog?: string(name='EnableBackupLog'),
+  enableIncrementDataBackup?: boolean(name='EnableIncrementDataBackup'),
   highSpaceUsageProtection?: string(name='HighSpaceUsageProtection'),
   localLogRetentionHours?: int32(name='LocalLogRetentionHours'),
   localLogRetentionSpace?: string(name='LocalLogRetentionSpace'),
@@ -1698,10 +1880,12 @@ model DescribeBackupsRequest {
   backupId?: string(name='BackupId', position='Query'),
   backupMode?: string(name='BackupMode', position='Query'),
   backupStatus?: string(name='BackupStatus', position='Query'),
+  backupType?: string(name='BackupType', position='Query'),
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   endTime?: string(name='EndTime', position='Query'),
   pageNumber?: int32(name='PageNumber', minimum=1, maximum=2147483647, position='Query'),
   pageSize?: int32(name='PageSize', minimum=30, maximum=1000, position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   startTime?: string(name='StartTime', position='Query'),
 }
@@ -1738,6 +1922,7 @@ model DescribeBackupsResponseBody = {
       hostInstanceID?: string(name='HostInstanceID'),
       isAvail?: int32(name='IsAvail'),
       metaStatus?: string(name='MetaStatus'),
+      resourceGroupId?: string(name='ResourceGroupId'),
       storageClass?: string(name='StorageClass'),
       storeStatus?: string(name='StoreStatus'),
     }
@@ -1962,6 +2147,7 @@ model DescribeCrossBackupMetaListRequest {
   pageSize?: string(name='PageSize', position='Query'),
   pattern?: string(name='Pattern', position='Query'),
   region?: string(name='Region', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
@@ -2053,6 +2239,7 @@ model DescribeCrossRegionBackupsRequest {
   pageNumber?: int32(name='PageNumber', position='Query'),
   pageSize?: int32(name='PageSize', position='Query'),
   regionId: string(name='RegionId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   startTime?: string(name='StartTime', position='Query'),
@@ -2207,6 +2394,7 @@ model DescribeDBInstanceAttributeResponseBody = {
       IPType?: string(name='IPType'),
       incrementSourceDBInstanceId?: string(name='IncrementSourceDBInstanceId'),
       instanceNetworkType?: string(name='InstanceNetworkType'),
+      instructionSetArch?: string(name='InstructionSetArch'),
       latestKernelVersion?: string(name='LatestKernelVersion'),
       lockMode?: string(name='LockMode'),
       lockReason?: string(name='LockReason'),
@@ -2232,8 +2420,10 @@ model DescribeDBInstanceAttributeResponseBody = {
       securityIPList?: string(name='SecurityIPList'),
       securityIPMode?: string(name='SecurityIPMode'),
       serverlessConfig?: {
+        autoPause?: boolean(name='AutoPause'),
         scaleMax?: double(name='ScaleMax'),
         scaleMin?: double(name='ScaleMin'),
+        switchForce?: boolean(name='SwitchForce'),
       }(name='ServerlessConfig'),
       slaveZones?: {
         slaveZone?: [ 
@@ -2251,6 +2441,7 @@ model DescribeDBInstanceAttributeResponseBody = {
       vpcCloudInstanceId?: string(name='VpcCloudInstanceId'),
       vpcId?: string(name='VpcId'),
       zoneId?: string(name='ZoneId'),
+      kindCode?: string(name='kindCode'),
     }
   ](name='DBInstanceAttribute')
   }(name='Items'),
@@ -2267,10 +2458,56 @@ async function describeDBInstanceAttribute(request: DescribeDBInstanceAttributeR
   return @handler.do('RPC', 'DescribeDBInstanceAttribute', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeDBInstanceByTagsRequest {
+  clientToken?: string(name='ClientToken', position='Query'),
+  DBInstanceId?: string(name='DBInstanceId', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  pageNumber?: int32(name='PageNumber', minimum=0, maximum=2147483647, position='Query'),
+  pageSize?: int32(name='PageSize', minimum=1, maximum=100, position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  proxyId?: string(name='proxyId', position='Query'),
+}
+
+model DescribeDBInstanceByTagsResponseBody = {
+  items?: {
+    DBInstanceTag?: [ 
+    {
+      DBInstanceId?: string(name='DBInstanceId'),
+      tags?: {
+        tag?: [ 
+        {
+          tagKey?: string(name='TagKey'),
+          tagValue?: string(name='TagValue'),
+        }
+      ](name='Tag')
+      }(name='Tags'),
+    }
+  ](name='DBInstanceTag')
+  }(name='Items'),
+  pageNumber?: int32(name='PageNumber'),
+  pageRecordCount?: int32(name='PageRecordCount'),
+  requestId?: string(name='RequestId'),
+  totalRecordCount?: int32(name='TotalRecordCount'),
+}
+
+model DescribeDBInstanceByTagsResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeDBInstanceByTagsResponseBody(name='body'),
+}
+
+async function describeDBInstanceByTags(request: DescribeDBInstanceByTagsRequest): DescribeDBInstanceByTagsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeDBInstanceByTags', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DescribeDBInstanceDetailRequest {
   clientToken?: string(name='ClientToken', position='Query'),
   DBInstanceId?: string(name='DBInstanceId', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
@@ -2424,10 +2661,12 @@ async function describeDBInstanceIpHostname(request: DescribeDBInstanceIpHostnam
 
 model DescribeDBInstanceMetricsRequest {
   DBInstanceName: string(name='DBInstanceName', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
 
 model DescribeDBInstanceMetricsResponseBody = {
+  DBInstanceName?: string(name='DBInstanceName'),
   items?: [ 
     {
       description?: string(name='Description'),
@@ -2544,6 +2783,68 @@ async function describeDBInstanceNetInfo(request: DescribeDBInstanceNetInfoReque
   return @handler.do('RPC', 'DescribeDBInstanceNetInfo', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeDBInstanceNetInfoForChannelRequest {
+  clientToken?: string(name='ClientToken', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', position='Query'),
+  DBInstanceNetRWSplitType?: string(name='DBInstanceNetRWSplitType', position='Query'),
+  flag?: string(name='Flag', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+}
+
+model DescribeDBInstanceNetInfoForChannelResponseBody = {
+  DBInstanceNetInfos?: {
+    DBInstanceNetInfo?: [ 
+    {
+      availability?: string(name='Availability'),
+      connectionString?: string(name='ConnectionString'),
+      connectionStringType?: string(name='ConnectionStringType'),
+      DBInstanceWeights?: {
+        DBInstanceWeight?: [ 
+        {
+          availability?: string(name='Availability'),
+          DBInstanceId?: string(name='DBInstanceId'),
+          DBInstanceType?: string(name='DBInstanceType'),
+          weight?: string(name='Weight'),
+        }
+      ](name='DBInstanceWeight')
+      }(name='DBInstanceWeights'),
+      distributionType?: string(name='DistributionType'),
+      IPAddress?: string(name='IPAddress'),
+      IPType?: string(name='IPType'),
+      maxDelayTime?: string(name='MaxDelayTime'),
+      port?: string(name='Port'),
+      securityIPGroups?: {
+        securityIPGroup?: [ 
+        {
+          securityIPGroupName?: string(name='SecurityIPGroupName'),
+          securityIPs?: string(name='SecurityIPs'),
+        }
+      ](name='securityIPGroup')
+      }(name='SecurityIPGroups'),
+      upgradeable?: string(name='Upgradeable'),
+      VPCId?: string(name='VPCId'),
+      vSwitchId?: string(name='VSwitchId'),
+      expiredTime?: string(name='expiredTime'),
+    }
+  ](name='DBInstanceNetInfo')
+  }(name='DBInstanceNetInfos'),
+  instanceNetworkType?: string(name='InstanceNetworkType'),
+  requestId?: string(name='RequestId'),
+}
+
+model DescribeDBInstanceNetInfoForChannelResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeDBInstanceNetInfoForChannelResponseBody(name='body'),
+}
+
+async function describeDBInstanceNetInfoForChannel(request: DescribeDBInstanceNetInfoForChannelRequest): DescribeDBInstanceNetInfoForChannelResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeDBInstanceNetInfoForChannel', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DescribeDBInstancePerformanceRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   endTime: string(name='EndTime', position='Query'),
@@ -2585,6 +2886,35 @@ model DescribeDBInstancePerformanceResponse = {
 async function describeDBInstancePerformance(request: DescribeDBInstancePerformanceRequest): DescribeDBInstancePerformanceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeDBInstancePerformance', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeDBInstancePromoteActivityRequest {
+  aliUid: string(name='AliUid', position='Query'),
+  dbInstanceName: string(name='DbInstanceName', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+}
+
+model DescribeDBInstancePromoteActivityResponseBody = {
+  aliUid?: string(name='AliUid'),
+  bid?: string(name='Bid'),
+  DBInstanceId?: string(name='DBInstanceId'),
+  DBInstanceName?: string(name='DBInstanceName'),
+  DBType?: string(name='DBType'),
+  isActivity?: string(name='IsActivity'),
+  requestId?: string(name='RequestId'),
+}
+
+model DescribeDBInstancePromoteActivityResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeDBInstancePromoteActivityResponseBody(name='body'),
+}
+
+async function describeDBInstancePromoteActivity(request: DescribeDBInstancePromoteActivityRequest): DescribeDBInstancePromoteActivityResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeDBInstancePromoteActivity', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeDBInstanceProxyConfigurationRequest {
@@ -2797,6 +3127,7 @@ model DescribeDBInstancesAsCsvRequest {
   DBInstanceId?: string(name='DBInstanceId', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   regionId: string(name='RegionId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
@@ -2919,6 +3250,7 @@ model DescribeDBInstancesByPerformanceRequest {
   pageNumber?: int32(name='PageNumber', minimum=0, maximum=2147483647, position='Query'),
   pageSize?: int32(name='PageSize', minimum=1, maximum=100, position='Query'),
   regionId?: string(name='RegionId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   sortKey?: string(name='SortKey', position='Query'),
@@ -2975,6 +3307,7 @@ model DescribeDBInstancesForCloneRequest {
   pageSize?: int32(name='PageSize', minimum=1, maximum=100, position='Query'),
   payType?: string(name='PayType', position='Query'),
   regionId: string(name='RegionId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   searchKey?: string(name='SearchKey', position='Query'),
@@ -3044,10 +3377,56 @@ async function describeDBInstancesForClone(request: DescribeDBInstancesForCloneR
   return @handler.do('RPC', 'DescribeDBInstancesForClone', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeDBMiniEngineVersionsRequest {
+  DBInstanceId?: string(name='DBInstanceId', position='Query'),
+  dedicatedHostGroupId?: string(name='DedicatedHostGroupId', position='Query'),
+  engine?: string(name='Engine', position='Query'),
+  engineVersion?: string(name='EngineVersion', position='Query'),
+  minorVersionTag?: string(name='MinorVersionTag', position='Query'),
+  nodeType?: string(name='NodeType', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  storageType?: string(name='StorageType', position='Query'),
+}
+
+model DescribeDBMiniEngineVersionsResponseBody = {
+  DBInstanceId?: string(name='DBInstanceId'),
+  maxRecordsPerPage?: int32(name='MaxRecordsPerPage'),
+  minorVersionItems?: [ 
+    {
+      communityMinorVersion?: string(name='CommunityMinorVersion'),
+      engine?: string(name='Engine'),
+      engineVersion?: string(name='EngineVersion'),
+      isHotfixVersion?: boolean(name='IsHotfixVersion'),
+      minorVersion?: string(name='MinorVersion'),
+      nodeType?: string(name='NodeType'),
+      releaseNote?: string(name='ReleaseNote'),
+      releaseType?: string(name='ReleaseType'),
+      statusDesc?: string(name='StatusDesc'),
+      tag?: string(name='Tag'),
+    }
+  ](name='MinorVersionItems'),
+  pageNumbers?: int32(name='PageNumbers'),
+  requestId?: string(name='RequestId'),
+  totalCount?: int32(name='TotalCount'),
+}
+
+model DescribeDBMiniEngineVersionsResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeDBMiniEngineVersionsResponseBody(name='body'),
+}
+
+async function describeDBMiniEngineVersions(request: DescribeDBMiniEngineVersionsRequest): DescribeDBMiniEngineVersionsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeDBMiniEngineVersions', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DescribeDBProxyRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
+  DBProxyEngineType?: string(name='DBProxyEngineType', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   regionId?: string(name='RegionId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
@@ -3066,6 +3445,7 @@ model DescribeDBProxyResponseBody = {
     }
   ](name='DBProxyConnectStringItems')
   }(name='DBProxyConnectStringItems'),
+  DBProxyEngineType?: string(name='DBProxyEngineType'),
   DBProxyInstanceCurrentMinorVersion?: string(name='DBProxyInstanceCurrentMinorVersion'),
   DBProxyInstanceLatestMinorVersion?: string(name='DBProxyInstanceLatestMinorVersion'),
   DBProxyInstanceName?: string(name='DBProxyInstanceName'),
@@ -3085,6 +3465,7 @@ model DescribeDBProxyResponseBody = {
   ](name='DbProxyEndpointItems')
   }(name='DbProxyEndpointItems'),
   requestId?: string(name='RequestId'),
+  resourceGroupId?: string(name='ResourceGroupId'),
 }
 
 model DescribeDBProxyResponse = {
@@ -3101,6 +3482,7 @@ model DescribeDBProxyEndpointRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   DBProxyConnectString?: string(name='DBProxyConnectString', position='Query'),
   DBProxyEndpointId?: string(name='DBProxyEndpointId', position='Query'),
+  DBProxyEngineType?: string(name='DBProxyEngineType', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   regionId?: string(name='RegionId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -3112,6 +3494,7 @@ model DescribeDBProxyEndpointResponseBody = {
   DBProxyConnectStringNetType?: string(name='DBProxyConnectStringNetType'),
   DBProxyConnectStringPort?: string(name='DBProxyConnectStringPort'),
   DBProxyEndpointId?: string(name='DBProxyEndpointId'),
+  DBProxyEngineType?: string(name='DBProxyEngineType'),
   DBProxyFeatures?: string(name='DBProxyFeatures'),
   dbProxyEndpointAliases?: string(name='DbProxyEndpointAliases'),
   dbProxyEndpointReadWriteMode?: string(name='DbProxyEndpointReadWriteMode'),
@@ -3142,6 +3525,7 @@ async function describeDBProxyEndpoint(request: DescribeDBProxyEndpointRequest):
 
 model DescribeDBProxyPerformanceRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
+  DBProxyEngineType?: string(name='DBProxyEngineType', position='Query'),
   DBProxyInstanceType?: string(name='DBProxyInstanceType', position='Query'),
   endTime: string(name='EndTime', position='Query'),
   metricsName: string(name='MetricsName', position='Query'),
@@ -3154,6 +3538,7 @@ model DescribeDBProxyPerformanceRequest {
 
 model DescribeDBProxyPerformanceResponseBody = {
   DBInstanceId?: string(name='DBInstanceId'),
+  DBProxyEngineType?: string(name='DBProxyEngineType'),
   endTime?: string(name='EndTime'),
   performanceKeys?: {
     performanceKey?: [ 
@@ -3190,6 +3575,7 @@ model DescribeDTCSecurityIpHostsForSQLServerRequest {
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   regionId: string(name='RegionId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   securityToken?: string(name='SecurityToken', position='Query'),
@@ -3227,6 +3613,7 @@ model DescribeDatabasesRequest {
   ownerId?: long(name='OwnerId', position='Query'),
   pageNumber?: int32(name='PageNumber', minimum=0, maximum=2147483647, position='Query'),
   pageSize?: int32(name='PageSize', minimum=0, maximum=2147483647, position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
@@ -3250,6 +3637,10 @@ model DescribeDatabasesResponseBody = {
       DBName?: string(name='DBName'),
       DBStatus?: string(name='DBStatus'),
       engine?: string(name='Engine'),
+      pageNumber?: int32(name='PageNumber'),
+      pageSize?: int32(name='PageSize'),
+      resourceGroupId?: string(name='ResourceGroupId'),
+      totalCount?: int32(name='TotalCount'),
     }
   ](name='Database')
   }(name='Databases'),
@@ -3396,6 +3787,7 @@ model DescribeDetachedBackupsRequest {
   pageNumber?: int32(name='PageNumber', minimum=1, maximum=2147483647, position='Query'),
   pageSize?: int32(name='PageSize', minimum=30, maximum=100, position='Query'),
   region: string(name='Region', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   startTime?: string(name='StartTime', position='Query'),
 }
@@ -3442,9 +3834,11 @@ async function describeDetachedBackups(request: DescribeDetachedBackupsRequest):
 
 model DescribeDiagnosticReportListRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
 }
 
 model DescribeDiagnosticReportListResponseBody = {
+  DBInstanceId?: string(name='DBInstanceId'),
   reportList?: [ 
     {
       diagnosticTime?: string(name='DiagnosticTime'),
@@ -3553,6 +3947,7 @@ async function describeEvents(request: DescribeEventsRequest): DescribeEventsRes
 model DescribeGadInstancesRequest {
   gadInstanceName?: string(name='GadInstanceName', position='Query'),
   regionId?: string(name='RegionId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
 }
 
 model DescribeGadInstancesResponseBody = {
@@ -3567,6 +3962,7 @@ model DescribeGadInstancesResponseBody = {
           engine?: string(name='Engine'),
           engineVersion?: string(name='EngineVersion'),
           regionId?: string(name='RegionId'),
+          resourceGroupId?: string(name='ResourceGroupId'),
           role?: string(name='Role'),
           status?: string(name='Status'),
         }
@@ -3635,6 +4031,96 @@ model DescribeHASwitchConfigResponse = {
 async function describeHASwitchConfig(request: DescribeHASwitchConfigRequest): DescribeHASwitchConfigResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeHASwitchConfig', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeHistoryTasksRequest {
+  fromExecTime?: int32(name='FromExecTime', position='Query'),
+  fromStartTime: string(name='FromStartTime', position='Query'),
+  instanceId?: string(name='InstanceId', position='Query'),
+  instanceType?: string(name='InstanceType', position='Query'),
+  pageNumber?: int32(name='PageNumber', minimum=1, maximum=2147483647, position='Query'),
+  pageSize?: int32(name='PageSize', minimum=10, maximum=100, position='Query'),
+  regionId?: string(name='RegionId', position='Query'),
+  securityToken?: string(name='SecurityToken', position='Query'),
+  status?: string(name='Status', position='Query'),
+  taskId?: string(name='TaskId', position='Query'),
+  taskType?: string(name='TaskType', position='Query'),
+  toExecTime?: int32(name='ToExecTime', position='Query'),
+  toStartTime: string(name='ToStartTime', position='Query'),
+}
+
+model DescribeHistoryTasksResponseBody = {
+  items?: [ 
+    {
+      actionInfo?: string(name='ActionInfo'),
+      callerSource?: string(name='CallerSource'),
+      callerUid?: string(name='CallerUid'),
+      currentStepName?: string(name='CurrentStepName'),
+      dbType?: string(name='DbType'),
+      endTime?: string(name='EndTime'),
+      instanceId?: string(name='InstanceId'),
+      instanceName?: string(name='InstanceName'),
+      instanceType?: string(name='InstanceType'),
+      product?: string(name='Product'),
+      progress?: float(name='Progress'),
+      reasonCode?: string(name='ReasonCode'),
+      regionId?: string(name='RegionId'),
+      remainTime?: int32(name='RemainTime'),
+      startTime?: string(name='StartTime'),
+      status?: int32(name='Status'),
+      taskDetail?: string(name='TaskDetail'),
+      taskId?: string(name='TaskId'),
+      taskType?: string(name='TaskType'),
+      uid?: string(name='Uid'),
+    }
+  ](name='Items'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  totalCount?: int32(name='TotalCount'),
+}
+
+model DescribeHistoryTasksResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeHistoryTasksResponseBody(name='body'),
+}
+
+async function describeHistoryTasks(request: DescribeHistoryTasksRequest): DescribeHistoryTasksResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeHistoryTasks', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeHistoryTasksStatRequest {
+  fromExecTime?: int32(name='FromExecTime', position='Query'),
+  fromStartTime?: string(name='FromStartTime', position='Query'),
+  instanceId?: string(name='InstanceId', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+  securityToken?: string(name='SecurityToken', position='Query'),
+  status?: string(name='Status', position='Query'),
+  taskId?: string(name='TaskId', position='Query'),
+  taskType?: string(name='TaskType', position='Query'),
+  toExecTime?: int32(name='ToExecTime', position='Query'),
+  toStartTime?: string(name='ToStartTime', position='Query'),
+}
+
+model DescribeHistoryTasksStatResponseBody = {
+  items?: [ 
+    {
+      status?: string(name='Status'),
+      totalCount?: int32(name='TotalCount'),
+    }
+  ](name='Items'),
+  requestId?: string(name='RequestId'),
+}
+
+model DescribeHistoryTasksStatResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeHistoryTasksStatResponseBody(name='body'),
+}
+
+async function describeHistoryTasksStat(request: DescribeHistoryTasksStatRequest): DescribeHistoryTasksStatResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeHistoryTasksStat', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeInstanceAutoRenewalAttributeRequest {
@@ -3745,6 +4231,7 @@ model DescribeLocalAvailableRecoveryTimeRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   region?: string(name='Region', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
@@ -3817,6 +4304,7 @@ model DescribeMetaListRequest {
   pageIndex?: int32(name='PageIndex', position='Query'),
   pageSize?: int32(name='PageSize', position='Query'),
   pattern?: string(name='Pattern', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   restoreTime?: string(name='RestoreTime', position='Query'),
@@ -3855,6 +4343,7 @@ model DescribeMigrateTaskByIdRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   migrateTaskId: string(name='MigrateTaskId', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
@@ -3888,6 +4377,7 @@ model DescribeMigrateTasksRequest {
   ownerId?: long(name='OwnerId', position='Query'),
   pageNumber?: int32(name='PageNumber', minimum=1, maximum=2147483647, position='Query'),
   pageSize?: int32(name='PageSize', minimum=30, maximum=100, position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   startTime: string(name='StartTime', position='Query'),
@@ -3931,6 +4421,7 @@ model DescribeModifyPGHbaConfigLogRequest {
   endTime?: string(name='EndTime', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   startTime?: string(name='StartTime', position='Query'),
@@ -4036,6 +4527,7 @@ model DescribeOssDownloadsRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   migrateTaskId: string(name='MigrateTaskId', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
@@ -4075,11 +4567,13 @@ model DescribePGHbaConfigRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
 
 model DescribePGHbaConfigResponseBody = {
+  DBInstanceId?: string(name='DBInstanceId'),
   defaultHbaItems?: {
     hbaItem?: [ 
     {
@@ -4173,6 +4667,7 @@ async function describeParameterGroup(request: DescribeParameterGroupRequest): D
 model DescribeParameterGroupsRequest {
   ownerId?: long(name='OwnerId', position='Query'),
   regionId: string(name='RegionId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
@@ -4404,6 +4899,7 @@ model DescribeReadDBInstanceDelayRequest {
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   readInstanceId: string(name='ReadInstanceId', position='Query'),
+  regionId?: string(name='RegionId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   securityToken?: string(name='SecurityToken', position='Query'),
@@ -4451,6 +4947,35 @@ model DescribeReadDBInstanceDelayResponse = {
 async function describeReadDBInstanceDelay(request: DescribeReadDBInstanceDelayRequest): DescribeReadDBInstanceDelayResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeReadDBInstanceDelay', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeRegionInfosRequest {
+  clientToken?: string(name='ClientToken', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId?: string(name='RegionId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+}
+
+model DescribeRegionInfosResponseBody = {
+  regions?: {
+    RDSRegion?: [ 
+    {
+      regionId?: string(name='RegionId'),
+    }
+  ](name='RDSRegion')
+  }(name='Regions'),
+  requestId?: string(name='RequestId'),
+}
+
+model DescribeRegionInfosResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeRegionInfosResponseBody(name='body'),
+}
+
+async function describeRegionInfos(request: DescribeRegionInfosRequest): DescribeRegionInfosResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeRegionInfos', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeRegionsRequest {
@@ -4551,6 +5076,7 @@ model DescribeResourceUsageRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
@@ -4610,10 +5136,10 @@ async function describeSQLCollectorPolicy(request: DescribeSQLCollectorPolicyReq
 }
 
 model DescribeSQLCollectorRetentionRequest {
+  regionId?: string(name='RegionId', position='Host'),
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId?: string(name='RegionId', position='Host'),
   resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
@@ -4777,6 +5303,46 @@ async function describeSQLLogReportList(request: DescribeSQLLogReportListRequest
   return @handler.do('RPC', 'DescribeSQLLogReportList', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeSecretsRequest {
+  acceptLanguage?: string(name='AcceptLanguage', position='Query'),
+  clientToken?: string(name='ClientToken', position='Query'),
+  dbInstanceId?: string(name='DbInstanceId', position='Query'),
+  engine: string(name='Engine', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  pageNumber: long(name='PageNumber', position='Query'),
+  pageSize: long(name='PageSize', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+}
+
+model DescribeSecretsResponseBody = {
+  pageNumber?: long(name='PageNumber'),
+  pageSize?: long(name='PageSize'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  secrets?: [ 
+    {
+      accountId?: string(name='AccountId'),
+      description?: string(name='Description'),
+      regionId?: string(name='RegionId'),
+      secretArn?: string(name='SecretArn'),
+      secretName?: string(name='SecretName'),
+      username?: string(name='Username'),
+    }
+  ](name='Secrets'),
+}
+
+model DescribeSecretsResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeSecretsResponseBody(name='body'),
+}
+
+async function describeSecrets(request: DescribeSecretsRequest): DescribeSecretsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeSecrets', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DescribeSecurityGroupConfigurationRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
@@ -4823,7 +5389,6 @@ model DescribeSlowLogRecordsRequest {
 }
 
 model DescribeSlowLogRecordsResponseBody = {
-  CPUTime?: long(name='CPUTime'),
   DBInstanceId?: string(name='DBInstanceId'),
   engine?: string(name='Engine'),
   items?: {
@@ -4844,23 +5409,17 @@ model DescribeSlowLogRecordsResponseBody = {
       queryTimes?: long(name='QueryTimes'),
       returnRowCounts?: long(name='ReturnRowCounts'),
       rowsAffectedCount?: long(name='RowsAffectedCount'),
+      SQLHash?: string(name='SQLHash'),
       SQLText?: string(name='SQLText'),
       userName?: string(name='UserName'),
       writeIOCount?: long(name='WriteIOCount'),
     }
   ](name='SQLSlowRecord')
   }(name='Items'),
-  lastRowsAffectedCount?: long(name='LastRowsAffectedCount'),
-  logicalIORead?: long(name='LogicalIORead'),
   pageNumber?: int32(name='PageNumber'),
   pageRecordCount?: int32(name='PageRecordCount'),
-  physicalIORead?: long(name='PhysicalIORead'),
   requestId?: string(name='RequestId'),
-  rowsAffectedCount?: long(name='RowsAffectedCount'),
-  SQLHash?: string(name='SQLHash'),
   totalRecordCount?: int32(name='TotalRecordCount'),
-  userName?: string(name='UserName'),
-  writesIOCount?: long(name='WritesIOCount'),
 }
 
 model DescribeSlowLogRecordsResponse = {
@@ -5141,6 +5700,7 @@ model DescribeVSwitchesRequest {
   pageNumber?: int32(name='PageNumber', position='Query'),
   pageSize?: int32(name='PageSize', position='Query'),
   regionId?: string(name='RegionId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   securityToken?: string(name='SecurityToken', position='Query'),
@@ -5219,7 +5779,49 @@ async function detachGadInstanceMember(request: DetachGadInstanceMemberRequest):
   return @handler.do('RPC', 'DetachGadInstanceMember', 'POST', '/', 'json', false, 'json', request);
 }
 
+model GetDBInstanceTopologyRequest {
+  DBInstanceId: string(name='DBInstanceId', position='Query'),
+}
+
+model GetDBInstanceTopologyResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    connections?: [ 
+      {
+        connectionString?: string(name='ConnectionString'),
+        DBInstanceName?: string(name='DBInstanceName'),
+        netType?: string(name='NetType'),
+        zoneId?: string(name='ZoneId'),
+      }
+    ](name='Connections'),
+    DBInstanceName?: string(name='DBInstanceName'),
+    nodes?: [ 
+      {
+        DBInstanceName?: string(name='DBInstanceName'),
+        dedicatedHostGroupId?: string(name='DedicatedHostGroupId'),
+        dedicatedHostId?: string(name='DedicatedHostId'),
+        nodeId?: string(name='NodeId'),
+        role?: string(name='Role'),
+        zoneId?: string(name='ZoneId'),
+      }
+    ](name='Nodes'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+}
+
+model GetDBInstanceTopologyResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetDBInstanceTopologyResponseBody(name='body'),
+}
+
+async function getDBInstanceTopology(request: GetDBInstanceTopologyRequest): GetDBInstanceTopologyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetDBInstanceTopology', 'POST', '/', 'json', false, 'json', request);
+}
+
 model GetDbProxyInstanceSslRequest {
+  DBProxyEngineType?: string(name='DBProxyEngineType', position='Query'),
   dbInstanceId: string(name='DbInstanceId', position='Query'),
   regionId?: string(name='RegionId', position='Query'),
 }
@@ -5367,6 +5969,8 @@ model ListClassesResponseBody = {
       classCode?: string(name='ClassCode'),
       classGroup?: string(name='ClassGroup'),
       cpu?: string(name='Cpu'),
+      encryptedMemory?: string(name='EncryptedMemory'),
+      instructionSetArch?: string(name='InstructionSetArch'),
       maxConnections?: string(name='MaxConnections'),
       maxIOMBPS?: string(name='MaxIOMBPS'),
       maxIOPS?: string(name='MaxIOPS'),
@@ -5500,6 +6104,28 @@ async function lockAccount(request: LockAccountRequest): LockAccountResponse {
   return @handler.do('RPC', 'LockAccount', 'POST', '/', 'json', false, 'json', request);
 }
 
+model MigrateConnectionToOtherZoneRequest {
+  connectionString: string(name='ConnectionString', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', position='Query'),
+  zoneId: string(name='ZoneId', position='Query'),
+}
+
+model MigrateConnectionToOtherZoneResponseBody = {
+  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+}
+
+model MigrateConnectionToOtherZoneResponse = {
+  headers: map[string]string(name='headers'),
+  body: MigrateConnectionToOtherZoneResponseBody(name='body'),
+}
+
+async function migrateConnectionToOtherZone(request: MigrateConnectionToOtherZoneRequest): MigrateConnectionToOtherZoneResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'MigrateConnectionToOtherZone', 'POST', '/', 'json', false, 'json', request);
+}
+
 model MigrateDBInstanceRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   dedicatedHostGroupId: string(name='DedicatedHostGroupId', position='Query'),
@@ -5589,6 +6215,33 @@ async function migrateToOtherZone(request: MigrateToOtherZoneRequest): MigrateTo
   return @handler.do('RPC', 'MigrateToOtherZone', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ModifyADInfoRequest {
+  ADAccountName?: string(name='ADAccountName', position='Query'),
+  ADDNS?: string(name='ADDNS', position='Query'),
+  ADPassword?: string(name='ADPassword', position='Query'),
+  ADServerIpAddress?: string(name='ADServerIpAddress', position='Query'),
+  clientToken?: string(name='ClientToken', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+}
+
+model ModifyADInfoResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model ModifyADInfoResponse = {
+  headers: map[string]string(name='headers'),
+  body: ModifyADInfoResponseBody(name='body'),
+}
+
+async function modifyADInfo(request: ModifyADInfoRequest): ModifyADInfoResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ModifyADInfo', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ModifyAccountDescriptionRequest {
   accountDescription: string(name='AccountDescription', position='Query'),
   accountName: string(name='AccountName', position='Query'),
@@ -5650,6 +6303,7 @@ model ModifyBackupPolicyRequest {
   compressType?: string(name='CompressType', position='Query'),
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   enableBackupLog?: string(name='EnableBackupLog', position='Query'),
+  enableIncrementDataBackup?: boolean(name='EnableIncrementDataBackup', position='Query'),
   highSpaceUsageProtection?: string(name='HighSpaceUsageProtection', position='Query'),
   localLogRetentionHours?: string(name='LocalLogRetentionHours', position='Query'),
   localLogRetentionSpace?: string(name='LocalLogRetentionSpace', position='Query'),
@@ -5808,6 +6462,31 @@ model ModifyDBInstanceConnectionStringResponse = {
 async function modifyDBInstanceConnectionString(request: ModifyDBInstanceConnectionStringRequest): ModifyDBInstanceConnectionStringResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ModifyDBInstanceConnectionString', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ModifyDBInstanceDelayedReplicationTimeRequest {
+  DBInstanceId: string(name='DBInstanceId', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  readSQLReplicationTime: string(name='ReadSQLReplicationTime', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+}
+
+model ModifyDBInstanceDelayedReplicationTimeResponseBody = {
+  DBInstanceId?: string(name='DBInstanceId'),
+  readSQLReplicationTime?: string(name='ReadSQLReplicationTime'),
+  requestId?: string(name='RequestId'),
+  taskId?: string(name='TaskId'),
+}
+
+model ModifyDBInstanceDelayedReplicationTimeResponse = {
+  headers: map[string]string(name='headers'),
+  body: ModifyDBInstanceDelayedReplicationTimeResponseBody(name='body'),
+}
+
+async function modifyDBInstanceDelayedReplicationTime(request: ModifyDBInstanceDelayedReplicationTimeRequest): ModifyDBInstanceDelayedReplicationTimeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ModifyDBInstanceDelayedReplicationTime', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ModifyDBInstanceDeletionProtectionRequest {
@@ -6103,8 +6782,10 @@ model ModifyDBInstanceSpecRequest {
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   serverlessConfiguration?: {
+    autoPause?: boolean(name='AutoPause'),
     maxCapacity?: double(name='MaxCapacity'),
     minCapacity?: double(name='MinCapacity'),
+    switchForce?: boolean(name='SwitchForce'),
   }(name='ServerlessConfiguration', shrink='json', position='Query'),
   sourceBiz?: string(name='SourceBiz', position='Query'),
   switchTime?: string(name='SwitchTime', position='Query'),
@@ -6160,10 +6841,12 @@ async function modifyDBInstanceTDE(request: ModifyDBInstanceTDERequest): ModifyD
 model ModifyDBProxyRequest {
   configDBProxyService: string(name='ConfigDBProxyService', position='Query'),
   DBInstanceId: string(name='DBInstanceId', position='Query'),
+  DBProxyEngineType?: string(name='DBProxyEngineType', position='Query'),
   DBProxyInstanceNum?: string(name='DBProxyInstanceNum', position='Query'),
   instanceNetworkType?: string(name='InstanceNetworkType', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   regionId?: string(name='RegionId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   VPCId?: string(name='VPCId', position='Query'),
@@ -6188,6 +6871,7 @@ model ModifyDBProxyEndpointRequest {
   configDBProxyFeatures?: string(name='ConfigDBProxyFeatures', position='Query'),
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   DBProxyEndpointId?: string(name='DBProxyEndpointId', position='Query'),
+  DBProxyEngineType?: string(name='DBProxyEngineType', position='Query'),
   dbEndpointAliases?: string(name='DbEndpointAliases', position='Query'),
   dbEndpointOperator?: string(name='DbEndpointOperator', position='Query'),
   dbEndpointReadWriteMode?: string(name='DbEndpointReadWriteMode', position='Query'),
@@ -6219,6 +6903,7 @@ model ModifyDBProxyEndpointAddressRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   DBProxyConnectStringNetType?: string(name='DBProxyConnectStringNetType', position='Query'),
   DBProxyEndpointId: string(name='DBProxyEndpointId', position='Query'),
+  DBProxyEngineType?: string(name='DBProxyEngineType', position='Query'),
   DBProxyNewConnectString?: string(name='DBProxyNewConnectString', position='Query'),
   DBProxyNewConnectStringPort?: string(name='DBProxyNewConnectStringPort', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
@@ -6242,6 +6927,7 @@ async function modifyDBProxyEndpointAddress(request: ModifyDBProxyEndpointAddres
 
 model ModifyDBProxyInstanceRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
+  DBProxyEngineType?: string(name='DBProxyEngineType', position='Query'),
   DBProxyInstanceNum: string(name='DBProxyInstanceNum', position='Query'),
   DBProxyInstanceType: string(name='DBProxyInstanceType', position='Query'),
   effectiveSpecificTime?: string(name='EffectiveSpecificTime', position='Query'),
@@ -6321,6 +7007,7 @@ async function modifyDasInstanceConfig(request: ModifyDasInstanceConfigRequest):
 }
 
 model ModifyDbProxyInstanceSslRequest {
+  DBProxyEngineType?: string(name='DBProxyEngineType', position='Query'),
   dbInstanceId: string(name='DbInstanceId', position='Query'),
   dbProxyConnectString: string(name='DbProxyConnectString', position='Query'),
   dbProxyEndpointId: string(name='DbProxyEndpointId', position='Query'),
@@ -6643,11 +7330,11 @@ async function modifySQLCollectorPolicy(request: ModifySQLCollectorPolicyRequest
 }
 
 model ModifySQLCollectorRetentionRequest {
+  regionId?: string(name='RegionId', position='Host'),
   configValue: string(name='ConfigValue', position='Query'),
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId?: string(name='RegionId', position='Host'),
   resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
@@ -6820,6 +7507,30 @@ async function rebuildDBInstance(request: RebuildDBInstanceRequest): RebuildDBIn
   return @handler.do('RPC', 'RebuildDBInstance', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ReceiveDBInstanceRequest {
+  DBInstanceId: string(name='DBInstanceId', position='Query'),
+  guardDBInstanceId: string(name='GuardDBInstanceId', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+}
+
+model ReceiveDBInstanceResponseBody = {
+  guardDBInstanceId?: string(name='GuardDBInstanceId'),
+  requestId?: string(name='RequestId'),
+}
+
+model ReceiveDBInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  body: ReceiveDBInstanceResponseBody(name='body'),
+}
+
+async function receiveDBInstance(request: ReceiveDBInstanceRequest): ReceiveDBInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ReceiveDBInstance', 'POST', '/', 'json', false, 'json', request);
+}
+
 model RecoveryDBInstanceRequest {
   backupId?: string(name='BackupId', position='Query'),
   DBInstanceClass?: string(name='DBInstanceClass', position='Query'),
@@ -6958,6 +7669,7 @@ async function removeTagsFromResource(request: RemoveTagsFromResourceRequest): R
 
 model RenewInstanceRequest {
   autoPay?: string(name='AutoPay', position='Query'),
+  autoRenew?: string(name='AutoRenew', position='Query'),
   clientToken?: string(name='ClientToken', position='Query'),
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
@@ -6979,6 +7691,28 @@ model RenewInstanceResponse = {
 async function renewInstance(request: RenewInstanceRequest): RenewInstanceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'RenewInstance', 'POST', '/', 'json', false, 'json', request);
+}
+
+model RequestServiceOfCloudDBARequest {
+  DBInstanceId: string(name='DBInstanceId', position='Query'),
+  serviceRequestParam: string(name='ServiceRequestParam', position='Query'),
+  serviceRequestType: string(name='ServiceRequestType', position='Query'),
+}
+
+model RequestServiceOfCloudDBAResponseBody = {
+  attrData?: string(name='AttrData'),
+  listData?: string(name='ListData'),
+  requestId?: string(name='RequestId'),
+}
+
+model RequestServiceOfCloudDBAResponse = {
+  headers: map[string]string(name='headers'),
+  body: RequestServiceOfCloudDBAResponseBody(name='body'),
+}
+
+async function requestServiceOfCloudDBA(request: RequestServiceOfCloudDBARequest): RequestServiceOfCloudDBAResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'RequestServiceOfCloudDBA', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ResetAccountRequest {
@@ -7058,6 +7792,7 @@ model RestoreDdrTableRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   regionId?: string(name='RegionId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   restoreTime?: string(name='RestoreTime', position='Query'),
@@ -7068,6 +7803,7 @@ model RestoreDdrTableRequest {
 }
 
 model RestoreDdrTableResponseBody = {
+  DBInstanceId?: string(name='DBInstanceId'),
   requestId?: string(name='RequestId'),
 }
 
@@ -7285,6 +8021,29 @@ model SwitchDBInstanceVpcResponse = {
 async function switchDBInstanceVpc(request: SwitchDBInstanceVpcRequest): SwitchDBInstanceVpcResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'SwitchDBInstanceVpc', 'POST', '/', 'json', false, 'json', request);
+}
+
+model SwitchGuardToMasterInstanceRequest {
+  DBInstanceId: string(name='DBInstanceId', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+}
+
+model SwitchGuardToMasterInstanceResponseBody = {
+  DBInstanceId?: string(name='DBInstanceId'),
+  requestId?: string(name='RequestId'),
+}
+
+model SwitchGuardToMasterInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  body: SwitchGuardToMasterInstanceResponseBody(name='body'),
+}
+
+async function switchGuardToMasterInstance(request: SwitchGuardToMasterInstanceRequest): SwitchGuardToMasterInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SwitchGuardToMasterInstance', 'POST', '/', 'json', false, 'json', request);
 }
 
 model TagResourcesRequest {
@@ -7560,6 +8319,7 @@ async function upgradeDBInstanceMajorVersionPrecheck(request: UpgradeDBInstanceM
 
 model UpgradeDBProxyInstanceKernelVersionRequest {
   DBInstanceId: string(name='DBInstanceId', position='Query'),
+  DBProxyEngineType?: string(name='DBProxyEngineType', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
