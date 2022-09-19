@@ -35,7 +35,6 @@ model CreateDedicatedHostRequest {
   clientToken: string(name='ClientToken', position='Query'),
   dedicatedHostGroupId: string(name='DedicatedHostGroupId', position='Query'),
   hostClass: string(name='HostClass', position='Query'),
-  hostName?: string(name='HostName', position='Query'),
   hostStorage?: string(name='HostStorage', position='Query'),
   hostStorageType?: string(name='HostStorageType', position='Query'),
   imageCategory?: string(name='ImageCategory', position='Query'),
@@ -43,7 +42,7 @@ model CreateDedicatedHostRequest {
   ownerId?: long(name='OwnerId', position='Query'),
   payType: string(name='PayType', position='Query'),
   period?: string(name='Period', position='Query'),
-  regionId?: string(name='RegionId', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   usedTime?: string(name='UsedTime', position='Query'),
@@ -132,28 +131,55 @@ async function createDedicatedHostGroup(request: CreateDedicatedHostGroupRequest
   return @handler.do('RPC', 'CreateDedicatedHostGroup', 'POST', '/', 'json', false, 'json', request);
 }
 
-model DeleteDHGInstanceVpcNetRequest {
-  connectionString: string(name='ConnectionString', position='Query'),
-  DBInstanceId: string(name='DBInstanceId', position='Query'),
+model CreateMyBaseRequest {
+  autoRenew?: string(name='AutoRenew', position='Query'),
+  clientToken: string(name='ClientToken', position='Query'),
+  dedicatedHostGroupDescription?: string(name='DedicatedHostGroupDescription', description='集群名称，未传则为空', position='Query'),
+  dedicatedHostGroupId?: string(name='DedicatedHostGroupId', position='Query'),
+  ECSClassList: [ 
+    {
+      instanceType: string(name='instanceType'),
+      nodeCount: int32(name='nodeCount'),
+      sysDiskCapacity: int32(name='sysDiskCapacity', minimum=40),
+      sysDiskType: string(name='sysDiskType'),
+    }
+  ](name='ECSClassList', shrink='json', position='Query'),
+  engine: string(name='Engine', description='引擎类型', position='Query'),
+  osPassword?: string(name='OsPassword', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
+  payType: string(name='PayType', position='Query'),
+  period?: string(name='Period', position='Query'),
+  periodType?: string(name='PeriodType', position='Query'),
   regionId: string(name='RegionId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  securityGroupId: string(name='SecurityGroupId', description='安全组ID', position='Query'),
+  vSwitchId: string(name='VSwitchId', position='Query'),
+  vpcId: string(name='VpcId', position='Query'),
+  zoneId: string(name='ZoneId', position='Query'),
 }
 
-model DeleteDHGInstanceVpcNetResponseBody = {
+model CreateMyBaseResponseBody = {
+  orderList?: {
+    orderList?: [ 
+    {
+      createTimestamp?: long(name='CreateTimestamp'),
+      ECSInstanceIds?: string(name='ECSInstanceIds'),
+      orderId?: string(name='OrderId'),
+    }
+  ](name='OrderList')
+  }(name='OrderList'),
   requestId?: string(name='RequestId'),
-  taskId?: string(name='TaskId'),
 }
 
-model DeleteDHGInstanceVpcNetResponse = {
+model CreateMyBaseResponse = {
   headers: map[string]string(name='headers'),
-  body: DeleteDHGInstanceVpcNetResponseBody(name='body'),
+  body: CreateMyBaseResponseBody(name='body'),
 }
 
-async function deleteDHGInstanceVpcNet(request: DeleteDHGInstanceVpcNetRequest): DeleteDHGInstanceVpcNetResponse {
+async function createMyBase(request: CreateMyBaseRequest): CreateMyBaseResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'DeleteDHGInstanceVpcNet', 'POST', '/', 'json', false, 'json', request);
+  return @handler.do('RPC', 'CreateMyBase', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteDedicatedHostAccountRequest {
@@ -314,6 +340,7 @@ model DescribeDedicatedHostGroupsResponseBody = {
     {
       allocationPolicy?: string(name='AllocationPolicy'),
       bastionInstanceId?: string(name='BastionInstanceId'),
+      category?: string(name='Category'),
       cpuAllocateRation?: float(name='CpuAllocateRation'),
       cpuAllocatedAmount?: float(name='CpuAllocatedAmount'),
       cpuAllocationRatio?: int32(name='CpuAllocationRatio'),
@@ -385,15 +412,18 @@ model DescribeDedicatedHostsResponseBody = {
       allocationStatus?: string(name='AllocationStatus'),
       bastionInstanceId?: string(name='BastionInstanceId'),
       CPUAllocationRatio?: string(name='CPUAllocationRatio'),
+      category?: string(name='Category'),
+      chargeType?: string(name='ChargeType'),
       cpuUsed?: string(name='CpuUsed'),
       createdTime?: string(name='CreatedTime'),
       dedicatedHostGroupId?: string(name='DedicatedHostGroupId'),
       dedicatedHostId?: string(name='DedicatedHostId'),
-      deployType?: string(name='DeployType'),
       diskAllocationRatio?: string(name='DiskAllocationRatio'),
+      diskInfo?: string(name='DiskInfo'),
       distributionSymbol?: string(name='DistributionSymbol'),
       distributionTag?: string(name='DistributionTag'),
       ecsClassCode?: string(name='EcsClassCode'),
+      ecsId?: string(name='EcsId'),
       endTime?: string(name='EndTime'),
       engine?: string(name='Engine'),
       hostCPU?: string(name='HostCPU'),
@@ -408,6 +438,7 @@ model DescribeDedicatedHostsResponseBody = {
       instanceNumber?: string(name='InstanceNumber'),
       memAllocationRatio?: string(name='MemAllocationRatio'),
       memoryUsed?: string(name='MemoryUsed'),
+      mssqlSupportVersion?: string(name='MssqlSupportVersion'),
       openPermission?: string(name='OpenPermission'),
       storageUsed?: string(name='StorageUsed'),
       VPCId?: string(name='VPCId'),
@@ -434,9 +465,11 @@ async function describeDedicatedHosts(request: DescribeDedicatedHostsRequest): D
 }
 
 model DescribeHostEcsLevelInfoRequest {
+  commodityCode?: string(name='CommodityCode', position='Query'),
   dbType: string(name='DbType', position='Query'),
   imageCategory?: string(name='ImageCategory', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
+  payType?: string(name='PayType', position='Query'),
   regionId: string(name='RegionId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
@@ -540,6 +573,99 @@ model DescribeHostWebShellResponse = {
 async function describeHostWebShell(request: DescribeHostWebShellRequest): DescribeHostWebShellResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeHostWebShell', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeMyBaseHostOverViewRequest {
+  ownerId?: long(name='OwnerId', position='Query'),
+  region?: string(name='Region', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+}
+
+model DescribeMyBaseHostOverViewResponseBody = {
+  regions?: {
+    regionModel?: [ 
+    {
+      engineCount?: string(name='EngineCount'),
+      hostGroupCount?: int32(name='HostGroupCount'),
+      region?: string(name='Region'),
+      totalCount?: int32(name='TotalCount'),
+      typeModels?: {
+        typeModel?: [ 
+        {
+          count?: int32(name='Count'),
+          hostDateType?: string(name='HostDateType'),
+          hostEngineCount?: string(name='HostEngineCount'),
+        }
+      ](name='TypeModel')
+      }(name='TypeModels'),
+    }
+  ](name='RegionModel')
+  }(name='Regions'),
+  requestId?: string(name='RequestId'),
+}
+
+model DescribeMyBaseHostOverViewResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeMyBaseHostOverViewResponseBody(name='body'),
+}
+
+async function describeMyBaseHostOverView(request: DescribeMyBaseHostOverViewRequest): DescribeMyBaseHostOverViewResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeMyBaseHostOverView', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeMyBaseInstanceOverViewRequest {
+  ownerId?: long(name='OwnerId', position='Query'),
+  region?: string(name='Region', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+}
+
+model DescribeMyBaseInstanceOverViewResponseBody = {
+  regions?: {
+    regionModel?: [ 
+    {
+      engineCount?: string(name='EngineCount'),
+      region?: string(name='Region'),
+      totalCount?: int32(name='TotalCount'),
+      typeModels?: {
+        typeModel?: [ 
+        {
+          count?: int32(name='Count'),
+          instanceDateType?: string(name='InstanceDateType'),
+          instanceEngineCount?: string(name='InstanceEngineCount'),
+          instanceModels?: {
+            instanceModel?: [ 
+            {
+              createdTime?: string(name='CreatedTime'),
+              DBInstanceId?: string(name='DBInstanceId'),
+              DBInstanceStatus?: string(name='DBInstanceStatus'),
+              expireTime?: string(name='ExpireTime'),
+              payType?: string(name='PayType'),
+              zoneId?: string(name='ZoneId'),
+            }
+          ](name='InstanceModel')
+          }(name='InstanceModels'),
+        }
+      ](name='TypeModel')
+      }(name='TypeModels'),
+    }
+  ](name='RegionModel')
+  }(name='Regions'),
+  requestId?: string(name='RequestId'),
+}
+
+model DescribeMyBaseInstanceOverViewResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeMyBaseInstanceOverViewResponseBody(name='body'),
+}
+
+async function describeMyBaseInstanceOverView(request: DescribeMyBaseInstanceOverViewRequest): DescribeMyBaseInstanceOverViewResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeMyBaseInstanceOverView', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeRegionsRequest {
@@ -919,5 +1045,96 @@ model UntagResourcesResponse = {
 async function untagResources(request: UntagResourcesRequest): UntagResourcesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UntagResources', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListRequest {
+  aliUid?: long(name='AliUid', position='Query'),
+  bid: string(name='Bid', position='Query'),
+  keys?: [ string ](name='Keys', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+  resourceIds?: [ string ](name='ResourceIds', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  resourceType: string(name='ResourceType', position='Query'),
+  values?: [ string ](name='Values', position='Query'),
+}
+
+model ListResponseBody = {
+  requestId?: string(name='RequestId'),
+  tagResources?: [ 
+    {
+      resourceId?: string(name='ResourceId'),
+      resourceType?: string(name='ResourceType'),
+      tagKey?: string(name='TagKey'),
+      tagValue?: string(name='TagValue'),
+    }
+  ](name='TagResources'),
+}
+
+model ListResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListResponseBody(name='body'),
+}
+
+async function list(request: ListRequest): ListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'list', 'POST', '/', 'json', false, 'json', request);
+}
+
+model TagRequest {
+  aliUid?: long(name='AliUid', position='Query'),
+  bid: string(name='Bid', position='Query'),
+  keys: [ string ](name='Keys', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+  resourceIds: [ string ](name='ResourceIds', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  resourceType: string(name='ResourceType', position='Query'),
+  values: [ string ](name='Values', position='Query'),
+}
+
+model TagResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model TagResponse = {
+  headers: map[string]string(name='headers'),
+  body: TagResponseBody(name='body'),
+}
+
+async function tag(request: TagRequest): TagResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'tag', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UntagRequest {
+  aliUid?: long(name='AliUid', position='Query'),
+  all?: boolean(name='All', position='Query'),
+  bid: string(name='Bid', position='Query'),
+  keys?: [ string ](name='Keys', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+  release?: boolean(name='Release', position='Query'),
+  resourceIds?: [ string ](name='ResourceIds', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  resourceType: string(name='ResourceType', position='Query'),
+  values?: [ string ](name='Values', position='Query'),
+}
+
+model UntagResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model UntagResponse = {
+  headers: map[string]string(name='headers'),
+  body: UntagResponseBody(name='body'),
+}
+
+async function untag(request: UntagRequest): UntagResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'untag', 'POST', '/', 'json', false, 'json', request);
 }
 
