@@ -28,14 +28,50 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model CancelTaskResponseBody = {
+  requestId?: string(name='requestId'),
+}
+
+model CancelTaskResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CancelTaskResponseBody(name='body'),
+}
+
+async function cancelTask(taskId: string): CancelTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return cancelTaskWithOptions(taskId, headers, runtime);
+}
+
+async function cancelTaskWithOptions(taskId: string, headers: map[string]string, runtime: Util.RuntimeOptions): CancelTaskResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'CancelTask',
+    version = '2022-06-06',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/tasks/${OpenApiUtil.getEncodeParam(taskId)}/operation/cancel`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
 model CreateResourceRequest {
   body?: string(name='body'),
-  resourceTypeVersion?: string(name='resourceTypeVersion'),
+  clientToken?: string(name='clientToken'),
+  regionId?: string(name='regionId'),
 }
 
 model CreateResourceResponseBody = {
   requestId?: string(name='requestId'),
   resourceId?: string(name='resourceId'),
+  retryTimeout?: int32(name='retryTimeout'),
   taskId?: string(name='taskId'),
 }
 
@@ -53,12 +89,12 @@ async function createResource(provider: string, productCode: string, resourceTyp
 
 async function createResourceWithOptions(provider: string, productCode: string, resourceTypeCode: string, request: CreateResourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateResourceResponse {
   Util.validateModel(request);
-  provider = OpenApiUtil.getEncodeParam(provider);
-  productCode = OpenApiUtil.getEncodeParam(productCode);
-  resourceTypeCode = OpenApiUtil.getEncodeParam(resourceTypeCode);
   var query : map[string]any = {};
-  if (!Util.isUnset(request.resourceTypeVersion)) {
-    query['resourceTypeVersion'] = request.resourceTypeVersion;
+  if (!Util.isUnset(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['regionId'] = request.regionId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -70,7 +106,7 @@ async function createResourceWithOptions(provider: string, productCode: string, 
     action = 'CreateResource',
     version = '2022-06-06',
     protocol = 'HTTPS',
-    pathname = `/api/v1/providers/${provider}/products/${productCode}/resourceTypes/${resourceTypeCode}/resources`,
+    pathname = `/api/v1/providers/${OpenApiUtil.getEncodeParam(provider)}/products/${OpenApiUtil.getEncodeParam(productCode)}/resourceTypes/${OpenApiUtil.getEncodeParam(resourceTypeCode)}/resources`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
@@ -81,12 +117,13 @@ async function createResourceWithOptions(provider: string, productCode: string, 
 }
 
 model DeleteResourceRequest {
+  clientToken?: string(name='clientToken'),
   regionId?: string(name='regionId'),
-  resourceTypeVersion?: string(name='resourceTypeVersion'),
 }
 
 model DeleteResourceResponseBody = {
   requestId?: string(name='requestId'),
+  retryTimeout?: int32(name='retryTimeout'),
   taskId?: string(name='taskId'),
 }
 
@@ -104,16 +141,12 @@ async function deleteResource(provider: string, productCode: string, resourceTyp
 
 async function deleteResourceWithOptions(provider: string, productCode: string, resourceTypeCode: string, resourceId: string, request: DeleteResourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteResourceResponse {
   Util.validateModel(request);
-  provider = OpenApiUtil.getEncodeParam(provider);
-  productCode = OpenApiUtil.getEncodeParam(productCode);
-  resourceTypeCode = OpenApiUtil.getEncodeParam(resourceTypeCode);
-  resourceId = OpenApiUtil.getEncodeParam(resourceId);
   var query : map[string]any = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
   if (!Util.isUnset(request.regionId)) {
     query['regionId'] = request.regionId;
-  }
-  if (!Util.isUnset(request.resourceTypeVersion)) {
-    query['resourceTypeVersion'] = request.resourceTypeVersion;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -124,7 +157,7 @@ async function deleteResourceWithOptions(provider: string, productCode: string, 
     action = 'DeleteResource',
     version = '2022-06-06',
     protocol = 'HTTPS',
-    pathname = `/api/v1/providers/${provider}/products/${productCode}/resourceTypes/${resourceTypeCode}/resources/${resourceId}`,
+    pathname = `/api/v1/providers/${OpenApiUtil.getEncodeParam(provider)}/products/${OpenApiUtil.getEncodeParam(productCode)}/resourceTypes/${OpenApiUtil.getEncodeParam(resourceTypeCode)}/resources/${OpenApiUtil.getEncodeParam(resourceId)}`,
     method = 'DELETE',
     authType = 'AK',
     style = 'ROA',
@@ -162,10 +195,6 @@ async function getResource(provider: string, productCode: string, resourceTypeCo
 
 async function getResourceWithOptions(provider: string, productCode: string, resourceTypeCode: string, resourceId: string, request: GetResourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetResourceResponse {
   Util.validateModel(request);
-  provider = OpenApiUtil.getEncodeParam(provider);
-  productCode = OpenApiUtil.getEncodeParam(productCode);
-  resourceTypeCode = OpenApiUtil.getEncodeParam(resourceTypeCode);
-  resourceId = OpenApiUtil.getEncodeParam(resourceId);
   var query : map[string]any = {};
   if (!Util.isUnset(request.regionId)) {
     query['regionId'] = request.regionId;
@@ -182,7 +211,7 @@ async function getResourceWithOptions(provider: string, productCode: string, res
     action = 'GetResource',
     version = '2022-06-06',
     protocol = 'HTTPS',
-    pathname = `/api/v1/providers/${provider}/products/${productCode}/resourceTypes/${resourceTypeCode}/resources/${resourceId}`,
+    pathname = `/api/v1/providers/${OpenApiUtil.getEncodeParam(provider)}/products/${OpenApiUtil.getEncodeParam(productCode)}/resourceTypes/${OpenApiUtil.getEncodeParam(resourceTypeCode)}/resources/${OpenApiUtil.getEncodeParam(resourceId)}`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -257,9 +286,6 @@ async function getResourceType(provider: string, productCode: string, resourceTy
 
 async function getResourceTypeWithOptions(provider: string, productCode: string, resourceTypeCode: string, request: GetResourceTypeRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetResourceTypeResponse {
   Util.validateModel(request);
-  provider = OpenApiUtil.getEncodeParam(provider);
-  productCode = OpenApiUtil.getEncodeParam(productCode);
-  resourceTypeCode = OpenApiUtil.getEncodeParam(resourceTypeCode);
   var query : map[string]any = {};
   if (!Util.isUnset(request.resourceTypeVersion)) {
     query['resourceTypeVersion'] = request.resourceTypeVersion;
@@ -273,7 +299,7 @@ async function getResourceTypeWithOptions(provider: string, productCode: string,
     action = 'GetResourceType',
     version = '2022-06-06',
     protocol = 'HTTPS',
-    pathname = `/api/v1/providers/${provider}/products/${productCode}/resourceTypes/${resourceTypeCode}`,
+    pathname = `/api/v1/providers/${OpenApiUtil.getEncodeParam(provider)}/products/${OpenApiUtil.getEncodeParam(productCode)}/resourceTypes/${OpenApiUtil.getEncodeParam(resourceTypeCode)}`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -292,6 +318,7 @@ model GetTaskResponseBody = {
       message?: string(name='message'),
     }(name='error'),
     product?: string(name='product'),
+    regionId?: string(name='regionId'),
     resourceId?: string(name='resourceId'),
     resourceType?: string(name='resourceType'),
     status?: string(name='status'),
@@ -313,7 +340,6 @@ async function getTask(taskId: string): GetTaskResponse {
 }
 
 async function getTaskWithOptions(taskId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetTaskResponse {
-  taskId = OpenApiUtil.getEncodeParam(taskId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -321,7 +347,7 @@ async function getTaskWithOptions(taskId: string, headers: map[string]string, ru
     action = 'GetTask',
     version = '2022-06-06',
     protocol = 'HTTPS',
-    pathname = `/api/v1/tasks/${taskId}`,
+    pathname = `/api/v1/tasks/${OpenApiUtil.getEncodeParam(taskId)}`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -363,10 +389,6 @@ async function listDataSources(provider: string, productCode: string, resourceTy
 
 async function listDataSourcesWithOptions(provider: string, productCode: string, resourceTypeCode: string, attributeName: string, tmpReq: ListDataSourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListDataSourcesResponse {
   Util.validateModel(tmpReq);
-  provider = OpenApiUtil.getEncodeParam(provider);
-  productCode = OpenApiUtil.getEncodeParam(productCode);
-  resourceTypeCode = OpenApiUtil.getEncodeParam(resourceTypeCode);
-  attributeName = OpenApiUtil.getEncodeParam(attributeName);
   var request = new ListDataSourcesShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
   if (!Util.isUnset(tmpReq.filter)) {
@@ -385,7 +407,7 @@ async function listDataSourcesWithOptions(provider: string, productCode: string,
     action = 'ListDataSources',
     version = '2022-06-06',
     protocol = 'HTTPS',
-    pathname = `/api/v1/providers/${provider}/products/${productCode}/resourceTypes/${resourceTypeCode}/dataSources/${attributeName}`,
+    pathname = `/api/v1/providers/${OpenApiUtil.getEncodeParam(provider)}/products/${OpenApiUtil.getEncodeParam(productCode)}/resourceTypes/${OpenApiUtil.getEncodeParam(resourceTypeCode)}/dataSources/${OpenApiUtil.getEncodeParam(attributeName)}`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -427,7 +449,6 @@ async function listProducts(provider: string, request: ListProductsRequest): Lis
 
 async function listProductsWithOptions(provider: string, request: ListProductsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListProductsResponse {
   Util.validateModel(request);
-  provider = OpenApiUtil.getEncodeParam(provider);
   var query : map[string]any = {};
   if (!Util.isUnset(request.maxResults)) {
     query['maxResults'] = request.maxResults;
@@ -444,7 +465,7 @@ async function listProductsWithOptions(provider: string, request: ListProductsRe
     action = 'ListProducts',
     version = '2022-06-06',
     protocol = 'HTTPS',
-    pathname = `/api/v1/providers/${provider}/products`,
+    pathname = `/api/v1/providers/${OpenApiUtil.getEncodeParam(provider)}/products`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -532,8 +553,6 @@ async function listResourceTypes(provider: string, productCode: string, request:
 
 async function listResourceTypesWithOptions(provider: string, productCode: string, tmpReq: ListResourceTypesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListResourceTypesResponse {
   Util.validateModel(tmpReq);
-  provider = OpenApiUtil.getEncodeParam(provider);
-  productCode = OpenApiUtil.getEncodeParam(productCode);
   var request = new ListResourceTypesShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
   if (!Util.isUnset(tmpReq.resourceTypeCodes)) {
@@ -558,7 +577,7 @@ async function listResourceTypesWithOptions(provider: string, productCode: strin
     action = 'ListResourceTypes',
     version = '2022-06-06',
     protocol = 'HTTPS',
-    pathname = `/api/v1/providers/${provider}/products/${productCode}/resourceTypes`,
+    pathname = `/api/v1/providers/${OpenApiUtil.getEncodeParam(provider)}/products/${OpenApiUtil.getEncodeParam(productCode)}/resourceTypes`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -612,9 +631,6 @@ async function listResources(provider: string, productCode: string, resourceType
 
 async function listResourcesWithOptions(provider: string, productCode: string, resourceTypeCode: string, tmpReq: ListResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListResourcesResponse {
   Util.validateModel(tmpReq);
-  provider = OpenApiUtil.getEncodeParam(provider);
-  productCode = OpenApiUtil.getEncodeParam(productCode);
-  resourceTypeCode = OpenApiUtil.getEncodeParam(resourceTypeCode);
   var request = new ListResourcesShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
   if (!Util.isUnset(tmpReq.filter)) {
@@ -648,7 +664,7 @@ async function listResourcesWithOptions(provider: string, productCode: string, r
     action = 'ListResources',
     version = '2022-06-06',
     protocol = 'HTTPS',
-    pathname = `/api/v1/providers/${provider}/products/${productCode}/resourceTypes/${resourceTypeCode}/resources`,
+    pathname = `/api/v1/providers/${OpenApiUtil.getEncodeParam(provider)}/products/${OpenApiUtil.getEncodeParam(productCode)}/resourceTypes/${OpenApiUtil.getEncodeParam(resourceTypeCode)}/resources`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -660,12 +676,13 @@ async function listResourcesWithOptions(provider: string, productCode: string, r
 
 model UpdateResourceRequest {
   body?: string(name='body'),
+  clientToken?: string(name='clientToken'),
   regionId?: string(name='regionId'),
-  resourceTypeVersion?: string(name='resourceTypeVersion'),
 }
 
 model UpdateResourceResponseBody = {
   requestId?: string(name='requestId'),
+  retryTimeout?: int32(name='retryTimeout'),
   taskId?: string(name='taskId'),
 }
 
@@ -683,16 +700,12 @@ async function updateResource(provider: string, productCode: string, resourceTyp
 
 async function updateResourceWithOptions(provider: string, productCode: string, resourceTypeCode: string, resourceId: string, request: UpdateResourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateResourceResponse {
   Util.validateModel(request);
-  provider = OpenApiUtil.getEncodeParam(provider);
-  productCode = OpenApiUtil.getEncodeParam(productCode);
-  resourceTypeCode = OpenApiUtil.getEncodeParam(resourceTypeCode);
-  resourceId = OpenApiUtil.getEncodeParam(resourceId);
   var query : map[string]any = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
   if (!Util.isUnset(request.regionId)) {
     query['regionId'] = request.regionId;
-  }
-  if (!Util.isUnset(request.resourceTypeVersion)) {
-    query['resourceTypeVersion'] = request.resourceTypeVersion;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -704,7 +717,7 @@ async function updateResourceWithOptions(provider: string, productCode: string, 
     action = 'UpdateResource',
     version = '2022-06-06',
     protocol = 'HTTPS',
-    pathname = `/api/v1/providers/${provider}/products/${productCode}/resourceTypes/${resourceTypeCode}/resources/${resourceId}`,
+    pathname = `/api/v1/providers/${OpenApiUtil.getEncodeParam(provider)}/products/${OpenApiUtil.getEncodeParam(productCode)}/resourceTypes/${OpenApiUtil.getEncodeParam(resourceTypeCode)}/resources/${OpenApiUtil.getEncodeParam(resourceId)}`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
