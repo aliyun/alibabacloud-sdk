@@ -227,9 +227,11 @@ async function createDBRestoreTask(request: CreateDBRestoreTaskRequest): CreateD
 
 model CreateFunctionRequest {
   desc?: string(name='Desc', maxLength=128, position='Body'),
+  memory?: int32(name='Memory', position='Body'),
   name: string(name='Name', position='Body'),
   runtime?: string(name='Runtime', position='Body'),
   spaceId: string(name='SpaceId', position='Body'),
+  timeout?: int32(name='Timeout', position='Body'),
 }
 
 model CreateFunctionResponseBody = {
@@ -575,6 +577,7 @@ model DescribeFunctionResponseBody = {
       timeout?: string(name='Timeout'),
     }(name='Spec'),
     timingTriggerConfig?: string(name='TimingTriggerConfig'),
+    timingTriggerUserPayload?: string(name='TimingTriggerUserPayload'),
   }(name='Function'),
   requestId?: string(name='RequestId'),
 }
@@ -740,6 +743,51 @@ model DescribeSpaceClientConfigResponse = {
 async function describeSpaceClientConfig(request: DescribeSpaceClientConfigRequest): DescribeSpaceClientConfigResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeSpaceClientConfig', 'POST', '/', 'json', true, 'form', request);
+}
+
+model DescribeSpacesRequest {
+  emasWorkspaceId?: long(name='EmasWorkspaceId', position='Body'),
+  pageNum?: int32(name='PageNum', minimum=0, position='Body'),
+  pageSize?: int32(name='PageSize', minimum=1, maximum=1000, position='Body'),
+  spaceIds?: [ string ](name='SpaceIds', shrink='simple', position='Body'),
+  specCode?: string(name='SpecCode', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
+}
+
+model DescribeSpacesResponseBody = {
+  count?: int32(name='Count'),
+  gmtCreate?: string(name='GmtCreate'),
+  requestId?: string(name='RequestId'),
+  spaces?: [ 
+    {
+      autoRenew?: boolean(name='AutoRenew'),
+      chargeType?: string(name='ChargeType'),
+      description?: string(name='Description'),
+      emasWorkspaceId?: long(name='EmasWorkspaceId'),
+      gmtCreate?: string(name='GmtCreate'),
+      gmtModified?: string(name='GmtModified'),
+      instanceId?: string(name='InstanceId'),
+      name?: string(name='Name'),
+      orderType?: string(name='OrderType'),
+      packageEndDate?: string(name='PackageEndDate'),
+      packageStartDate?: string(name='PackageStartDate'),
+      packageStatus?: string(name='PackageStatus'),
+      renewDuration?: string(name='RenewDuration'),
+      serviceStatus?: string(name='ServiceStatus'),
+      spaceId?: string(name='SpaceId'),
+      specCode?: string(name='SpecCode'),
+    }
+  ](name='Spaces'),
+}
+
+model DescribeSpacesResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeSpacesResponseBody(name='body'),
+}
+
+async function describeSpaces(request: DescribeSpacesRequest): DescribeSpacesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeSpaces', 'POST', '/', 'json', true, 'form', request);
 }
 
 model DescribeWebHostingFileRequest {
@@ -1024,7 +1072,7 @@ async function listExtensions(request: ListExtensionsRequest): ListExtensionsRes
 model ListFileRequest {
   fileId?: string(name='FileId', position='Body'),
   keyword?: string(name='Keyword', position='Body'),
-  pageNum?: int32(name='PageNum', minimum=1, position='Body'),
+  nextToken?: string(name='NextToken', position='Query'),
   pageSize?: int32(name='PageSize', minimum=1, maximum=100, position='Body'),
   spaceId: string(name='SpaceId', position='Body'),
 }
@@ -1042,10 +1090,8 @@ model ListFileResponseBody = {
     }
   ](name='DataList'),
   paginator?: {
-    pageCount?: int32(name='PageCount'),
-    pageNum?: int32(name='PageNum'),
+    nextToken?: string(name='NextToken'),
     pageSize?: int32(name='PageSize'),
-    total?: int32(name='Total'),
   }(name='Paginator'),
   requestId?: string(name='RequestId'),
 }
@@ -1220,6 +1266,7 @@ async function listOpenPlatformConfig(request: ListOpenPlatformConfigRequest): L
 }
 
 model ListSpaceRequest {
+  emasWorkspaceId?: string(name='EmasWorkspaceId', position='Body'),
   pageNum?: int32(name='PageNum', minimum=0, position='Body'),
   pageSize?: int32(name='PageSize', minimum=1, maximum=1000, position='Body'),
   spaceIds?: [ string ](name='SpaceIds', shrink='simple', position='Body'),
@@ -1512,6 +1559,148 @@ async function queryServiceStatus(request: QueryServiceStatusRequest): QueryServ
   return @handler.do('RPC', 'QueryServiceStatus', 'POST', '/', 'json', true, 'form', request);
 }
 
+model QuerySpaceConsumptionRequest {
+  spaceId?: string(name='SpaceId', position='Body'),
+}
+
+model QuerySpaceConsumptionResponseBody = {
+  csUsage?: {
+    cdnTraffic?: long(name='CdnTraffic'),
+    downloadCount?: long(name='DownloadCount'),
+    storageSize?: long(name='StorageSize'),
+    uploadCount?: long(name='UploadCount'),
+  }(name='CsUsage'),
+  dbUsage?: {
+    readCount?: long(name='ReadCount'),
+    storageSize?: long(name='StorageSize'),
+    writeCount?: long(name='WriteCount'),
+  }(name='DbUsage'),
+  fcUsage?: {
+    cost?: long(name='Cost'),
+    requestCount?: long(name='RequestCount'),
+    txTraffic?: long(name='TxTraffic'),
+  }(name='FcUsage'),
+  gmtCreate?: string(name='GmtCreate'),
+  requestId?: string(name='RequestId'),
+  spaceId?: string(name='SpaceId'),
+  specCode?: string(name='SpecCode'),
+  whUsage?: {
+    cdnTraffic?: long(name='CdnTraffic'),
+    storageSize?: long(name='StorageSize'),
+  }(name='WhUsage'),
+}
+
+model QuerySpaceConsumptionResponse = {
+  headers: map[string]string(name='headers'),
+  body: QuerySpaceConsumptionResponseBody(name='body'),
+}
+
+async function querySpaceConsumption(request: QuerySpaceConsumptionRequest): QuerySpaceConsumptionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QuerySpaceConsumption', 'POST', '/', 'json', true, 'form', request);
+}
+
+model QuerySpaceSpecDetailRequest {
+  specCode: string(name='SpecCode', position='Body'),
+}
+
+model QuerySpaceSpecDetailResponseBody = {
+  csCdnTraffic?: long(name='CsCdnTraffic'),
+  csDownloadCount?: long(name='CsDownloadCount'),
+  csStorageSize?: long(name='CsStorageSize'),
+  csUploadCount?: long(name='CsUploadCount'),
+  dbReadCount?: long(name='DbReadCount'),
+  dbStorageSize?: long(name='DbStorageSize'),
+  dbWriteCount?: long(name='DbWriteCount'),
+  fcCost?: long(name='FcCost'),
+  fcRequestCount?: long(name='FcRequestCount'),
+  fcTxTraffic?: long(name='FcTxTraffic'),
+  gmtCreate?: string(name='GmtCreate'),
+  requestId?: string(name='RequestId'),
+  specCode?: string(name='SpecCode'),
+  specDetailText?: string(name='SpecDetailText'),
+  whCdnTraffic?: long(name='WhCdnTraffic'),
+  whStorageSize?: long(name='WhStorageSize'),
+}
+
+model QuerySpaceSpecDetailResponse = {
+  headers: map[string]string(name='headers'),
+  body: QuerySpaceSpecDetailResponseBody(name='body'),
+}
+
+async function querySpaceSpecDetail(request: QuerySpaceSpecDetailRequest): QuerySpaceSpecDetailResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QuerySpaceSpecDetail', 'POST', '/', 'json', true, 'form', request);
+}
+
+model QuerySpaceUsageRequest {
+  endTime?: string(name='EndTime', position='Body'),
+  spaceId?: string(name='SpaceId', position='Body'),
+  startTime?: string(name='StartTime', position='Body'),
+}
+
+model QuerySpaceUsageResponseBody = {
+  endTime?: string(name='EndTime'),
+  gmtCreate?: string(name='GmtCreate'),
+  requestId?: string(name='RequestId'),
+  spaceId?: string(name='SpaceId'),
+  spaceUsageDataList?: [ 
+    {
+      csUsage?: {
+        cdnTraffic?: long(name='CdnTraffic'),
+        downloadCount?: long(name='DownloadCount'),
+        storageSize?: long(name='StorageSize'),
+        uploadCount?: long(name='UploadCount'),
+      }(name='CsUsage'),
+      dbUsage?: {
+        readCount?: long(name='ReadCount'),
+        storageSize?: long(name='StorageSize'),
+        writeCount?: long(name='WriteCount'),
+      }(name='DbUsage'),
+      fcUsage?: {
+        cost?: long(name='Cost'),
+        requestCount?: long(name='RequestCount'),
+        txTraffic?: long(name='TxTraffic'),
+      }(name='FcUsage'),
+      timestamp?: string(name='Timestamp'),
+      whUsage?: {
+        cdnTraffic?: long(name='CdnTraffic'),
+        storageSize?: long(name='StorageSize'),
+      }(name='WhUsage'),
+    }
+  ](name='SpaceUsageDataList'),
+  startTime?: string(name='StartTime'),
+}
+
+model QuerySpaceUsageResponse = {
+  headers: map[string]string(name='headers'),
+  body: QuerySpaceUsageResponseBody(name='body'),
+}
+
+async function querySpaceUsage(request: QuerySpaceUsageRequest): QuerySpaceUsageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QuerySpaceUsage', 'POST', '/', 'json', true, 'form', request);
+}
+
+model RefreshWebHostingCustomDomainCacheRequest {
+  domainName: string(name='DomainName', position='Body'),
+  spaceId: string(name='SpaceId', position='Body'),
+}
+
+model RefreshWebHostingCustomDomainCacheResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model RefreshWebHostingCustomDomainCacheResponse = {
+  headers: map[string]string(name='headers'),
+  body: RefreshWebHostingCustomDomainCacheResponseBody(name='body'),
+}
+
+async function refreshWebHostingCustomDomainCache(request: RefreshWebHostingCustomDomainCacheRequest): RefreshWebHostingCustomDomainCacheResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'RefreshWebHostingCustomDomainCache', 'POST', '/', 'json', true, 'form', request);
+}
+
 model RegisterFileRequest {
   id: string(name='Id', position='Body'),
   spaceId: string(name='SpaceId', position='Body'),
@@ -1778,6 +1967,7 @@ model UpdateFunctionRequest {
   spaceId: string(name='SpaceId', position='Body'),
   timeout?: int32(name='Timeout', minimum=1, maximum=600, position='Body'),
   timingTriggerConfig?: string(name='TimingTriggerConfig', position='Body'),
+  timingTriggerUserPayload?: string(name='TimingTriggerUserPayload', position='Body'),
 }
 
 model UpdateFunctionResponseBody = {
@@ -1794,6 +1984,7 @@ model UpdateFunctionResponseBody = {
     timeout?: string(name='Timeout'),
   }(name='Spec'),
   timingTriggerConfig?: string(name='TimingTriggerConfig'),
+  timingTriggerUserPayload?: string(name='TimingTriggerUserPayload'),
 }
 
 model UpdateFunctionResponse = {
