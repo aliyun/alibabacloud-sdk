@@ -3,7 +3,6 @@
  */
 import Util;
 import OSS;
-import RPC;
 import OpenPlatform;
 import OSSUtil;
 import FileForm;
@@ -12,6 +11,7 @@ import OpenApiUtil;
 import EndpointUtil;
 
 extends OpenApi;
+
 
 init(config: OpenApi.Config){
   super(config);
@@ -25,19 +25,20 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   if (!Util.empty(endpoint)) {
     return endpoint;
   }
-
+  
   if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+
 model CompareFacesRequest {
-  sourceImageUrl?: string(name='SourceImageUrl'),
-  sourceImageBase64?: string(name='SourceImageBase64'),
-  targetImageUrl?: string(name='TargetImageUrl'),
-  targetImageBase64?: string(name='TargetImageBase64'),
   bizId?: string(name='BizId'),
   bizType?: string(name='BizType'),
+  sourceImageBase64?: string(name='SourceImageBase64'),
+  sourceImageUrl?: string(name='SourceImageUrl'),
+  targetImageBase64?: string(name='TargetImageBase64'),
+  targetImageUrl?: string(name='TargetImageUrl'),
 }
 
 model CompareFacesResponseBody = {
@@ -45,22 +46,54 @@ model CompareFacesResponseBody = {
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
   resultObject?: {
-    similarityScore?: float(name='SimilarityScore'),
     confidenceThresholds?: string(name='ConfidenceThresholds'),
+    similarityScore?: float(name='SimilarityScore'),
   }(name='ResultObject'),
+  success?: boolean(name='Success'),
 }
 
 model CompareFacesResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CompareFacesResponseBody(name='body'),
 }
 
 async function compareFacesWithOptions(request: CompareFacesRequest, runtime: Util.RuntimeOptions): CompareFacesResponse {
   Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.bizId)) {
+    body['BizId'] = request.bizId;
+  }
+  if (!Util.isUnset(request.bizType)) {
+    body['BizType'] = request.bizType;
+  }
+  if (!Util.isUnset(request.sourceImageBase64)) {
+    body['SourceImageBase64'] = request.sourceImageBase64;
+  }
+  if (!Util.isUnset(request.sourceImageUrl)) {
+    body['SourceImageUrl'] = request.sourceImageUrl;
+  }
+  if (!Util.isUnset(request.targetImageBase64)) {
+    body['TargetImageBase64'] = request.targetImageBase64;
+  }
+  if (!Util.isUnset(request.targetImageUrl)) {
+    body['TargetImageUrl'] = request.targetImageUrl;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('CompareFaces', '2020-11-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CompareFaces',
+    version = '2020-11-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function compareFaces(request: CompareFacesRequest): CompareFacesResponse {
@@ -79,45 +112,64 @@ model DescribeVerifyResultResponseBody = {
   requestId?: string(name='RequestId'),
   resultObject?: {
     authorityComparisionScore?: float(name='AuthorityComparisionScore'),
-    verifyStatus?: int32(name='VerifyStatus'),
     faceComparisonScore?: float(name='FaceComparisonScore'),
     idCardFaceComparisonScore?: float(name='IdCardFaceComparisonScore'),
     material?: {
-      idCardNumber?: string(name='IdCardNumber'),
       faceGlobalUrl?: string(name='FaceGlobalUrl'),
       faceImageUrl?: string(name='FaceImageUrl'),
       faceMask?: boolean(name='FaceMask'),
-      idCardName?: string(name='IdCardName'),
       faceQuality?: string(name='FaceQuality'),
-      videoUrls?: [ string ](name='VideoUrls'),
       idCardInfo?: {
-        sex?: string(name='Sex'),
-        endDate?: string(name='EndDate'),
-        authority?: string(name='Authority'),
         address?: string(name='Address'),
+        authority?: string(name='Authority'),
+        backImageUrl?: string(name='BackImageUrl'),
+        birth?: string(name='Birth'),
+        endDate?: string(name='EndDate'),
+        frontImageUrl?: string(name='FrontImageUrl'),
+        name?: string(name='Name'),
+        nationality?: string(name='Nationality'),
         number?: string(name='Number'),
         startDate?: string(name='StartDate'),
-        backImageUrl?: string(name='BackImageUrl'),
-        nationality?: string(name='Nationality'),
-        birth?: string(name='Birth'),
-        name?: string(name='Name'),
-        frontImageUrl?: string(name='FrontImageUrl'),
       }(name='IdCardInfo'),
+      idCardName?: string(name='IdCardName'),
+      idCardNumber?: string(name='IdCardNumber'),
+      videoUrls?: [ string ](name='VideoUrls'),
     }(name='Material'),
+    verifyStatus?: int32(name='VerifyStatus'),
   }(name='ResultObject'),
+  success?: boolean(name='Success'),
 }
 
 model DescribeVerifyResultResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeVerifyResultResponseBody(name='body'),
 }
 
 async function describeVerifyResultWithOptions(request: DescribeVerifyResultRequest, runtime: Util.RuntimeOptions): DescribeVerifyResultResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.bizId)) {
+    query['BizId'] = request.bizId;
+  }
+  if (!Util.isUnset(request.bizType)) {
+    query['BizType'] = request.bizType;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('DescribeVerifyResult', '2020-11-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'DescribeVerifyResult',
+    version = '2020-11-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function describeVerifyResult(request: DescribeVerifyResultRequest): DescribeVerifyResultResponse {
@@ -126,14 +178,14 @@ async function describeVerifyResult(request: DescribeVerifyResultRequest): Descr
 }
 
 model DescribeVerifyTokenRequest {
-  idCardBackImageUrl?: string(name='IdCardBackImageUrl'),
+  bizId?: string(name='BizId'),
   bizType?: string(name='BizType'),
   faceRetainedImageUrl?: string(name='FaceRetainedImageUrl'),
+  idCardBackImageUrl?: string(name='IdCardBackImageUrl'),
   idCardFrontImageUrl?: string(name='IdCardFrontImageUrl'),
-  userId?: string(name='UserId'),
-  bizId?: string(name='BizId'),
-  name?: string(name='Name'),
   idCardNumber?: string(name='IdCardNumber'),
+  name?: string(name='Name'),
+  userId?: string(name='UserId'),
   userIp?: string(name='UserIp'),
   userPhoneNumber?: string(name='UserPhoneNumber'),
   userRegistTime?: long(name='UserRegistTime'),
@@ -147,19 +199,66 @@ model DescribeVerifyTokenResponseBody = {
     verifyPageUrl?: string(name='VerifyPageUrl'),
     verifyToken?: string(name='VerifyToken'),
   }(name='ResultObject'),
+  success?: boolean(name='Success'),
 }
 
 model DescribeVerifyTokenResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeVerifyTokenResponseBody(name='body'),
 }
 
 async function describeVerifyTokenWithOptions(request: DescribeVerifyTokenRequest, runtime: Util.RuntimeOptions): DescribeVerifyTokenResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.bizId)) {
+    query['BizId'] = request.bizId;
+  }
+  if (!Util.isUnset(request.bizType)) {
+    query['BizType'] = request.bizType;
+  }
+  if (!Util.isUnset(request.faceRetainedImageUrl)) {
+    query['FaceRetainedImageUrl'] = request.faceRetainedImageUrl;
+  }
+  if (!Util.isUnset(request.idCardBackImageUrl)) {
+    query['IdCardBackImageUrl'] = request.idCardBackImageUrl;
+  }
+  if (!Util.isUnset(request.idCardFrontImageUrl)) {
+    query['IdCardFrontImageUrl'] = request.idCardFrontImageUrl;
+  }
+  if (!Util.isUnset(request.idCardNumber)) {
+    query['IdCardNumber'] = request.idCardNumber;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
+  }
+  if (!Util.isUnset(request.userIp)) {
+    query['UserIp'] = request.userIp;
+  }
+  if (!Util.isUnset(request.userPhoneNumber)) {
+    query['UserPhoneNumber'] = request.userPhoneNumber;
+  }
+  if (!Util.isUnset(request.userRegistTime)) {
+    query['UserRegistTime'] = request.userRegistTime;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('DescribeVerifyToken', '2020-11-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'DescribeVerifyToken',
+    version = '2020-11-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function describeVerifyToken(request: DescribeVerifyTokenRequest): DescribeVerifyTokenResponse {
@@ -168,16 +267,16 @@ async function describeVerifyToken(request: DescribeVerifyTokenRequest): Describ
 }
 
 model DetectFaceAttributesRequest {
-  bizType?: string(name='BizType'),
   bizId?: string(name='BizId'),
-  imageUrl?: string(name='ImageUrl'),
+  bizType?: string(name='BizType'),
   imageFile?: string(name='ImageFile'),
+  imageUrl?: string(name='ImageUrl'),
 }
 
 model DetectFaceAttributesAdvanceRequest {
-  imageFileObject: readable(name='ImageFileObject'),
-  bizType?: string(name='BizType'),
   bizId?: string(name='BizId'),
+  bizType?: string(name='BizType'),
+  imageFileObject?: readable(name='ImageFile'),
   imageUrl?: string(name='ImageUrl'),
 }
 
@@ -185,54 +284,78 @@ model DetectFaceAttributesResponseBody = {
   code?: string(name='Code'),
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
   resultObject?: {
-    imgHeight?: int32(name='ImgHeight'),
-    imgWidth?: int32(name='ImgWidth'),
     faceInfos?: {
       faceAttributesDetectInfo?: [ 
       {
-        faceRect?: {
-          left?: int32(name='Left'),
-          top?: int32(name='Top'),
-          width?: int32(name='Width'),
-          height?: int32(name='Height'),
-        }(name='FaceRect'),
         faceAttributes?: {
-          glasses?: string(name='Glasses'),
-          facequal?: float(name='Facequal'),
-          integrity?: int32(name='Integrity'),
-          facetype?: string(name='Facetype'),
-          respirator?: string(name='Respirator'),
-          appearanceScore?: float(name='AppearanceScore'),
           blur?: float(name='Blur'),
-          smiling?: {
-            value?: float(name='Value'),
-            threshold?: float(name='Threshold'),
-          }(name='Smiling'),
+          facequal?: float(name='Facequal'),
+          facetype?: string(name='Facetype'),
+          glasses?: string(name='Glasses'),
           headpose?: {
             pitchAngle?: float(name='PitchAngle'),
             rollAngle?: float(name='RollAngle'),
             yawAngle?: float(name='YawAngle'),
           }(name='Headpose'),
+          integrity?: int32(name='Integrity'),
+          respirator?: string(name='Respirator'),
+          smiling?: {
+            threshold?: float(name='Threshold'),
+            value?: float(name='Value'),
+          }(name='Smiling'),
         }(name='FaceAttributes'),
+        faceRect?: {
+          height?: int32(name='Height'),
+          left?: int32(name='Left'),
+          top?: int32(name='Top'),
+          width?: int32(name='Width'),
+        }(name='FaceRect'),
       }
     ](name='FaceAttributesDetectInfo')
     }(name='FaceInfos'),
+    imgHeight?: int32(name='ImgHeight'),
+    imgWidth?: int32(name='ImgWidth'),
   }(name='ResultObject'),
+  success?: boolean(name='Success'),
 }
 
 model DetectFaceAttributesResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DetectFaceAttributesResponseBody(name='body'),
 }
 
 async function detectFaceAttributesWithOptions(request: DetectFaceAttributesRequest, runtime: Util.RuntimeOptions): DetectFaceAttributesResponse {
   Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.bizId)) {
+    body['BizId'] = request.bizId;
+  }
+  if (!Util.isUnset(request.bizType)) {
+    body['BizType'] = request.bizType;
+  }
+  if (!Util.isUnset(request.imageFile)) {
+    body['ImageFile'] = request.imageFile;
+  }
+  if (!Util.isUnset(request.imageUrl)) {
+    body['ImageUrl'] = request.imageUrl;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('DetectFaceAttributes', '2020-11-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'DetectFaceAttributes',
+    version = '2020-11-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function detectFaceAttributes(request: DetectFaceAttributesRequest): DetectFaceAttributesResponse {
@@ -253,7 +376,7 @@ async function detectFaceAttributesAdvance(request: DetectFaceAttributesAdvanceR
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -284,49 +407,49 @@ async function detectFaceAttributesAdvance(request: DetectFaceAttributesAdvanceR
   var detectFaceAttributesReq = new DetectFaceAttributesRequest{};
   OpenApiUtil.convert(request, detectFaceAttributesReq);
 
-  if(!Util.isUnset(request.imageFileObject)){
+  if(!Util.isUnset(request.imageFileObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageFileObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    detectFaceAttributesReq.imageFile = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    detectFaceAttributesReq.imageFile = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var detectFaceAttributesResp = detectFaceAttributesWithOptions(detectFaceAttributesReq, runtime);
   return detectFaceAttributesResp;
 }
 
 model LivenessDetectRequest {
-  bizType?: string(name='BizType'),
   bizId?: string(name='BizId'),
+  bizType?: string(name='BizType'),
   mediaCategory?: string(name='MediaCategory'),
-  mediaUrl?: string(name='MediaUrl'),
   mediaFile?: string(name='MediaFile'),
+  mediaUrl?: string(name='MediaUrl'),
 }
 
 model LivenessDetectAdvanceRequest {
-  mediaFileObject: readable(name='MediaFileObject'),
-  bizType?: string(name='BizType'),
   bizId?: string(name='BizId'),
+  bizType?: string(name='BizType'),
   mediaCategory?: string(name='MediaCategory'),
+  mediaFileObject?: readable(name='MediaFile'),
   mediaUrl?: string(name='MediaUrl'),
 }
 
@@ -335,23 +458,52 @@ model LivenessDetectResponseBody = {
   message?: string(name='Message'),
   requestId?: string(name='RequestId'),
   resultObject?: {
-    score?: float(name='Score'),
     frameUrl?: string(name='FrameUrl'),
     passed?: string(name='Passed'),
+    score?: float(name='Score'),
   }(name='ResultObject'),
+  success?: boolean(name='Success'),
 }
 
 model LivenessDetectResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: LivenessDetectResponseBody(name='body'),
 }
 
 async function livenessDetectWithOptions(request: LivenessDetectRequest, runtime: Util.RuntimeOptions): LivenessDetectResponse {
   Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.bizId)) {
+    body['BizId'] = request.bizId;
+  }
+  if (!Util.isUnset(request.bizType)) {
+    body['BizType'] = request.bizType;
+  }
+  if (!Util.isUnset(request.mediaCategory)) {
+    body['MediaCategory'] = request.mediaCategory;
+  }
+  if (!Util.isUnset(request.mediaFile)) {
+    body['MediaFile'] = request.mediaFile;
+  }
+  if (!Util.isUnset(request.mediaUrl)) {
+    body['MediaUrl'] = request.mediaUrl;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('LivenessDetect', '2020-11-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'LivenessDetect',
+    version = '2020-11-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function livenessDetect(request: LivenessDetectRequest): LivenessDetectResponse {
@@ -372,7 +524,7 @@ async function livenessDetectAdvance(request: LivenessDetectAdvanceRequest, runt
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -403,44 +555,44 @@ async function livenessDetectAdvance(request: LivenessDetectAdvanceRequest, runt
   var livenessDetectReq = new LivenessDetectRequest{};
   OpenApiUtil.convert(request, livenessDetectReq);
 
-  if(!Util.isUnset(request.mediaFileObject)){
+  if(!Util.isUnset(request.mediaFileObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.mediaFileObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    livenessDetectReq.mediaFile = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    livenessDetectReq.mediaFile = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var livenessDetectResp = livenessDetectWithOptions(livenessDetectReq, runtime);
   return livenessDetectResp;
 }
 
 model VerifyMaterialRequest {
-  idCardBackImageUrl?: string(name='IdCardBackImageUrl'),
-  faceImageUrl?: string(name='FaceImageUrl'),
-  bizType?: string(name='BizType'),
   bizId?: string(name='BizId'),
-  name?: string(name='Name'),
-  idCardNumber?: string(name='IdCardNumber'),
+  bizType?: string(name='BizType'),
+  faceImageUrl?: string(name='FaceImageUrl'),
+  idCardBackImageUrl?: string(name='IdCardBackImageUrl'),
   idCardFrontImageUrl?: string(name='IdCardFrontImageUrl'),
+  idCardNumber?: string(name='IdCardNumber'),
+  name?: string(name='Name'),
   userId?: string(name='UserId'),
 }
 
@@ -450,44 +602,81 @@ model VerifyMaterialResponseBody = {
   requestId?: string(name='RequestId'),
   resultObject?: {
     authorityComparisionScore?: float(name='AuthorityComparisionScore'),
-    verifyStatus?: int32(name='VerifyStatus'),
-    verifyToken?: string(name='VerifyToken'),
     idCardFaceComparisonScore?: float(name='IdCardFaceComparisonScore'),
     material?: {
-      idCardNumber?: string(name='IdCardNumber'),
       faceGlobalUrl?: string(name='FaceGlobalUrl'),
       faceImageUrl?: string(name='FaceImageUrl'),
       faceMask?: string(name='FaceMask'),
-      idCardName?: string(name='IdCardName'),
       faceQuality?: string(name='FaceQuality'),
       idCardInfo?: {
-        sex?: string(name='Sex'),
-        endDate?: string(name='EndDate'),
-        authority?: string(name='Authority'),
         address?: string(name='Address'),
+        authority?: string(name='Authority'),
+        backImageUrl?: string(name='BackImageUrl'),
+        birth?: string(name='Birth'),
+        endDate?: string(name='EndDate'),
+        frontImageUrl?: string(name='FrontImageUrl'),
+        name?: string(name='Name'),
+        nationality?: string(name='Nationality'),
         number?: string(name='Number'),
         startDate?: string(name='StartDate'),
-        backImageUrl?: string(name='BackImageUrl'),
-        nationality?: string(name='Nationality'),
-        birth?: string(name='Birth'),
-        name?: string(name='Name'),
-        frontImageUrl?: string(name='FrontImageUrl'),
       }(name='IdCardInfo'),
+      idCardName?: string(name='IdCardName'),
+      idCardNumber?: string(name='IdCardNumber'),
     }(name='Material'),
+    verifyStatus?: int32(name='VerifyStatus'),
+    verifyToken?: string(name='VerifyToken'),
   }(name='ResultObject'),
+  success?: boolean(name='Success'),
 }
 
 model VerifyMaterialResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: VerifyMaterialResponseBody(name='body'),
 }
 
 async function verifyMaterialWithOptions(request: VerifyMaterialRequest, runtime: Util.RuntimeOptions): VerifyMaterialResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.bizId)) {
+    query['BizId'] = request.bizId;
+  }
+  if (!Util.isUnset(request.bizType)) {
+    query['BizType'] = request.bizType;
+  }
+  if (!Util.isUnset(request.faceImageUrl)) {
+    query['FaceImageUrl'] = request.faceImageUrl;
+  }
+  if (!Util.isUnset(request.idCardBackImageUrl)) {
+    query['IdCardBackImageUrl'] = request.idCardBackImageUrl;
+  }
+  if (!Util.isUnset(request.idCardFrontImageUrl)) {
+    query['IdCardFrontImageUrl'] = request.idCardFrontImageUrl;
+  }
+  if (!Util.isUnset(request.idCardNumber)) {
+    query['IdCardNumber'] = request.idCardNumber;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('VerifyMaterial', '2020-11-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'VerifyMaterial',
+    version = '2020-11-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function verifyMaterial(request: VerifyMaterialRequest): VerifyMaterialResponse {
