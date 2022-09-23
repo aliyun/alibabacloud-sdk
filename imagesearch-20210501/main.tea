@@ -3,7 +3,6 @@
  */
 import Util;
 import OSS;
-import RPC;
 import OpenPlatform;
 import OSSUtil;
 import FileForm;
@@ -13,11 +12,11 @@ import EndpointUtil;
 
 extends OpenApi;
 
+
 init(config: OpenApi.Config){
   super(config);
   @endpointRule = '';
   
-
   checkConfig(config);
   @endpoint = getEndpoint('imagesearch', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -26,12 +25,13 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   if (!Util.empty(endpoint)) {
     return endpoint;
   }
-
+  
   if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+
 model GetProductInfoByIdsRequest {
   fields?: string(name='Fields'),
   itemIds?: string(name='ItemIds'),
@@ -89,13 +89,24 @@ model GetProductInfoByIdsResponseBody = {
 
 model GetProductInfoByIdsResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: GetProductInfoByIdsResponseBody(name='body'),
 }
 
 async function getProductInfoByIdsWithOptions(request: GetProductInfoByIdsRequest, runtime: Util.RuntimeOptions): GetProductInfoByIdsResponse {
   Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.fields)) {
+    body['Fields'] = request.fields;
+  }
+  if (!Util.isUnset(request.itemIds)) {
+    body['ItemIds'] = request.itemIds;
+  }
+  if (!Util.isUnset(request.pid)) {
+    body['Pid'] = request.pid;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
     action = 'GetProductInfoByIds',
@@ -130,11 +141,11 @@ model SearchByPicRequest {
 }
 
 model SearchByPicAdvanceRequest {
-  picContentObject: readable(name='PicContentObject'),
   categoryId?: int32(name='CategoryId'),
   crop?: boolean(name='Crop'),
   fields?: string(name='Fields'),
   num?: int32(name='Num'),
+  picContentObject?: readable(name='PicContent'),
   pid?: string(name='Pid'),
   region?: string(name='Region'),
   relationId?: long(name='RelationId'),
@@ -209,16 +220,47 @@ model SearchByPicResponseBody = {
 
 model SearchByPicResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: SearchByPicResponseBody(name='body'),
 }
 
 async function searchByPicWithOptions(request: SearchByPicRequest, runtime: Util.RuntimeOptions): SearchByPicResponse {
   Util.validateModel(request);
   var query = {};
-  query["UserType"] = request.userType;
+  if (!Util.isUnset(request.userType)) {
+    query['UserType'] = request.userType;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.categoryId)) {
+    body['CategoryId'] = request.categoryId;
+  }
+  if (!Util.isUnset(request.crop)) {
+    body['Crop'] = request.crop;
+  }
+  if (!Util.isUnset(request.fields)) {
+    body['Fields'] = request.fields;
+  }
+  if (!Util.isUnset(request.num)) {
+    body['Num'] = request.num;
+  }
+  if (!Util.isUnset(request.picContent)) {
+    body['PicContent'] = request.picContent;
+  }
+  if (!Util.isUnset(request.pid)) {
+    body['Pid'] = request.pid;
+  }
+  if (!Util.isUnset(request.region)) {
+    body['Region'] = request.region;
+  }
+  if (!Util.isUnset(request.relationId)) {
+    body['RelationId'] = request.relationId;
+  }
+  if (!Util.isUnset(request.start)) {
+    body['Start'] = request.start;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
     action = 'SearchByPic',
@@ -252,7 +294,7 @@ async function searchByPicAdvance(request: SearchByPicAdvanceRequest, runtime: U
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -283,31 +325,31 @@ async function searchByPicAdvance(request: SearchByPicAdvanceRequest, runtime: U
   var searchByPicReq = new SearchByPicRequest{};
   OpenApiUtil.convert(request, searchByPicReq);
 
-  if(!Util.isUnset(request.picContentObject)){
+  if(!Util.isUnset(request.picContentObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.picContentObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    searchByPicReq.picContent =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    searchByPicReq.picContent = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var searchByPicResp = searchByPicWithOptions(searchByPicReq, runtime);
   return searchByPicResp;
@@ -393,16 +435,47 @@ model SearchByUrlResponseBody = {
 
 model SearchByUrlResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: SearchByUrlResponseBody(name='body'),
 }
 
 async function searchByUrlWithOptions(request: SearchByUrlRequest, runtime: Util.RuntimeOptions): SearchByUrlResponse {
   Util.validateModel(request);
   var query = {};
-  query["UserType"] = request.userType;
+  if (!Util.isUnset(request.userType)) {
+    query['UserType'] = request.userType;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.categoryId)) {
+    body['CategoryId'] = request.categoryId;
+  }
+  if (!Util.isUnset(request.crop)) {
+    body['Crop'] = request.crop;
+  }
+  if (!Util.isUnset(request.fields)) {
+    body['Fields'] = request.fields;
+  }
+  if (!Util.isUnset(request.num)) {
+    body['Num'] = request.num;
+  }
+  if (!Util.isUnset(request.picUrl)) {
+    body['PicUrl'] = request.picUrl;
+  }
+  if (!Util.isUnset(request.pid)) {
+    body['Pid'] = request.pid;
+  }
+  if (!Util.isUnset(request.region)) {
+    body['Region'] = request.region;
+  }
+  if (!Util.isUnset(request.relationId)) {
+    body['RelationId'] = request.relationId;
+  }
+  if (!Util.isUnset(request.start)) {
+    body['Start'] = request.start;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
     action = 'SearchByUrl',
