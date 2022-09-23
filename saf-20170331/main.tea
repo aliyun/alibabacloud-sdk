@@ -1,0 +1,82 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = 'regional';
+  @endpointMap = {
+    cn-hangzhou = 'saf.cn-shanghai.aliyuncs.com',
+  };
+
+  checkConfig(config);
+  @endpoint = getEndpoint('saf', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model ExecuteRequestRequest {
+  service?: string(name='Service'),
+  serviceParameters?: string(name='ServiceParameters'),
+}
+
+model ExecuteRequestResponseBody = {
+  code?: int32(name='Code'),
+  data?: string(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+}
+
+model ExecuteRequestResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ExecuteRequestResponseBody(name='body'),
+}
+
+async function executeRequestWithOptions(request: ExecuteRequestRequest, runtime: Util.RuntimeOptions): ExecuteRequestResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.service)) {
+    query['Service'] = request.service;
+  }
+  if (!Util.isUnset(request.serviceParameters)) {
+    query['ServiceParameters'] = request.serviceParameters;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ExecuteRequest',
+    version = '2017-03-31',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function executeRequest(request: ExecuteRequestRequest): ExecuteRequestResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return executeRequestWithOptions(request, runtime);
+}
+
