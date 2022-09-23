@@ -3,7 +3,6 @@
  */
 import Util;
 import OSS;
-import RPC;
 import OpenPlatform;
 import OSSUtil;
 import FileForm;
@@ -13,10 +12,11 @@ import EndpointUtil;
 
 extends OpenApi;
 
+
 init(config: OpenApi.Config){
   super(config);
+  @signatureAlgorithm = 'v2';
   @endpointRule = 'regional';
-  
   @endpointMap = {
     cn-hangzhou = 'mt.cn-hangzhou.aliyuncs.com',
     ap-northeast-1 = 'mt.aliyuncs.com',
@@ -73,6 +73,7 @@ init(config: OpenApi.Config){
     us-east-1 = 'mt.aliyuncs.com',
     us-west-1 = 'mt.aliyuncs.com',
   };
+
   checkConfig(config);
   @endpoint = getEndpoint('alimt', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -81,12 +82,13 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   if (!Util.empty(endpoint)) {
     return endpoint;
   }
-
+  
   if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+
 model CreateDocTranslateTaskRequest {
   callbackUrl?: string(name='CallbackUrl'),
   clientToken?: string(name='ClientToken'),
@@ -97,9 +99,9 @@ model CreateDocTranslateTaskRequest {
 }
 
 model CreateDocTranslateTaskAdvanceRequest {
-  fileUrlObject: readable(name='FileUrlObject'),
   callbackUrl?: string(name='CallbackUrl'),
   clientToken?: string(name='ClientToken'),
+  fileUrlObject?: readable(name='FileUrl'),
   scene?: string(name='Scene'),
   sourceLanguage?: string(name='SourceLanguage'),
   targetLanguage?: string(name='TargetLanguage'),
@@ -113,15 +115,46 @@ model CreateDocTranslateTaskResponseBody = {
 
 model CreateDocTranslateTaskResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateDocTranslateTaskResponseBody(name='body'),
 }
 
 async function createDocTranslateTaskWithOptions(request: CreateDocTranslateTaskRequest, runtime: Util.RuntimeOptions): CreateDocTranslateTaskResponse {
   Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.callbackUrl)) {
+    body['CallbackUrl'] = request.callbackUrl;
+  }
+  if (!Util.isUnset(request.clientToken)) {
+    body['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.fileUrl)) {
+    body['FileUrl'] = request.fileUrl;
+  }
+  if (!Util.isUnset(request.scene)) {
+    body['Scene'] = request.scene;
+  }
+  if (!Util.isUnset(request.sourceLanguage)) {
+    body['SourceLanguage'] = request.sourceLanguage;
+  }
+  if (!Util.isUnset(request.targetLanguage)) {
+    body['TargetLanguage'] = request.targetLanguage;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('CreateDocTranslateTask', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateDocTranslateTask',
+    version = '2018-10-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function createDocTranslateTask(request: CreateDocTranslateTaskRequest): CreateDocTranslateTaskResponse {
@@ -142,7 +175,7 @@ async function createDocTranslateTaskAdvance(request: CreateDocTranslateTaskAdva
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -173,31 +206,31 @@ async function createDocTranslateTaskAdvance(request: CreateDocTranslateTaskAdva
   var createDocTranslateTaskReq = new CreateDocTranslateTaskRequest{};
   OpenApiUtil.convert(request, createDocTranslateTaskReq);
 
-  if(!Util.isUnset(request.fileUrlObject)){
+  if(!Util.isUnset(request.fileUrlObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.fileUrlObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    createDocTranslateTaskReq.fileUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    createDocTranslateTaskReq.fileUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var createDocTranslateTaskResp = createDocTranslateTaskWithOptions(createDocTranslateTaskReq, runtime);
   return createDocTranslateTaskResp;
@@ -222,15 +255,43 @@ model CreateImageTranslateTaskResponseBody = {
 
 model CreateImageTranslateTaskResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateImageTranslateTaskResponseBody(name='body'),
 }
 
 async function createImageTranslateTaskWithOptions(request: CreateImageTranslateTaskRequest, runtime: Util.RuntimeOptions): CreateImageTranslateTaskResponse {
   Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.clientToken)) {
+    body['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.extra)) {
+    body['Extra'] = request.extra;
+  }
+  if (!Util.isUnset(request.sourceLanguage)) {
+    body['SourceLanguage'] = request.sourceLanguage;
+  }
+  if (!Util.isUnset(request.targetLanguage)) {
+    body['TargetLanguage'] = request.targetLanguage;
+  }
+  if (!Util.isUnset(request.urlList)) {
+    body['UrlList'] = request.urlList;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('CreateImageTranslateTask', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'CreateImageTranslateTask',
+    version = '2018-10-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function createImageTranslateTask(request: CreateImageTranslateTaskRequest): CreateImageTranslateTaskResponse {
@@ -256,15 +317,46 @@ model GetBatchTranslateResponseBody = {
 
 model GetBatchTranslateResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: GetBatchTranslateResponseBody(name='body'),
 }
 
 async function getBatchTranslateWithOptions(request: GetBatchTranslateRequest, runtime: Util.RuntimeOptions): GetBatchTranslateResponse {
   Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.apiType)) {
+    body['ApiType'] = request.apiType;
+  }
+  if (!Util.isUnset(request.formatType)) {
+    body['FormatType'] = request.formatType;
+  }
+  if (!Util.isUnset(request.scene)) {
+    body['Scene'] = request.scene;
+  }
+  if (!Util.isUnset(request.sourceLanguage)) {
+    body['SourceLanguage'] = request.sourceLanguage;
+  }
+  if (!Util.isUnset(request.sourceText)) {
+    body['SourceText'] = request.sourceText;
+  }
+  if (!Util.isUnset(request.targetLanguage)) {
+    body['TargetLanguage'] = request.targetLanguage;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('GetBatchTranslate', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetBatchTranslate',
+    version = '2018-10-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getBatchTranslate(request: GetBatchTranslateRequest): GetBatchTranslateResponse {
@@ -283,15 +375,31 @@ model GetDetectLanguageResponseBody = {
 
 model GetDetectLanguageResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: GetDetectLanguageResponseBody(name='body'),
 }
 
 async function getDetectLanguageWithOptions(request: GetDetectLanguageRequest, runtime: Util.RuntimeOptions): GetDetectLanguageResponse {
   Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.sourceText)) {
+    body['SourceText'] = request.sourceText;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('GetDetectLanguage', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetDetectLanguage',
+    version = '2018-10-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getDetectLanguage(request: GetDetectLanguageRequest): GetDetectLanguageResponse {
@@ -315,6 +423,7 @@ model GetDocTranslateTaskResponseBody = {
 
 model GetDocTranslateTaskResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: GetDocTranslateTaskResponseBody(name='body'),
 }
 
@@ -322,9 +431,20 @@ async function getDocTranslateTaskWithOptions(request: GetDocTranslateTaskReques
   Util.validateModel(request);
   var query = OpenApiUtil.query(Util.toMap(request));
   var req = new OpenApi.OpenApiRequest{ 
-    query = query,
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('GetDocTranslateTask', '2018-10-12', 'HTTPS', 'GET', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetDocTranslateTask',
+    version = '2018-10-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getDocTranslateTask(request: GetDocTranslateTaskRequest): GetDocTranslateTaskResponse {
@@ -348,15 +468,34 @@ model GetImageDiagnoseResponseBody = {
 
 model GetImageDiagnoseResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: GetImageDiagnoseResponseBody(name='body'),
 }
 
 async function getImageDiagnoseWithOptions(request: GetImageDiagnoseRequest, runtime: Util.RuntimeOptions): GetImageDiagnoseResponse {
   Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.extra)) {
+    body['Extra'] = request.extra;
+  }
+  if (!Util.isUnset(request.url)) {
+    body['Url'] = request.url;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('GetImageDiagnose', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetImageDiagnose',
+    version = '2018-10-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getImageDiagnose(request: GetImageDiagnoseRequest): GetImageDiagnoseResponse {
@@ -384,15 +523,40 @@ model GetImageTranslateResponseBody = {
 
 model GetImageTranslateResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: GetImageTranslateResponseBody(name='body'),
 }
 
 async function getImageTranslateWithOptions(request: GetImageTranslateRequest, runtime: Util.RuntimeOptions): GetImageTranslateResponse {
   Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.extra)) {
+    body['Extra'] = request.extra;
+  }
+  if (!Util.isUnset(request.sourceLanguage)) {
+    body['SourceLanguage'] = request.sourceLanguage;
+  }
+  if (!Util.isUnset(request.targetLanguage)) {
+    body['TargetLanguage'] = request.targetLanguage;
+  }
+  if (!Util.isUnset(request.url)) {
+    body['Url'] = request.url;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('GetImageTranslate', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetImageTranslate',
+    version = '2018-10-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getImageTranslate(request: GetImageTranslateRequest): GetImageTranslateResponse {
@@ -415,15 +579,31 @@ model GetImageTranslateTaskResponseBody = {
 
 model GetImageTranslateTaskResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: GetImageTranslateTaskResponseBody(name='body'),
 }
 
 async function getImageTranslateTaskWithOptions(request: GetImageTranslateTaskRequest, runtime: Util.RuntimeOptions): GetImageTranslateTaskResponse {
   Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.taskId)) {
+    body['TaskId'] = request.taskId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('GetImageTranslateTask', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetImageTranslateTask',
+    version = '2018-10-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getImageTranslateTask(request: GetImageTranslateTaskRequest): GetImageTranslateTaskResponse {
@@ -459,15 +639,43 @@ model GetTitleDiagnoseResponseBody = {
 
 model GetTitleDiagnoseResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: GetTitleDiagnoseResponseBody(name='body'),
 }
 
 async function getTitleDiagnoseWithOptions(request: GetTitleDiagnoseRequest, runtime: Util.RuntimeOptions): GetTitleDiagnoseResponse {
   Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.categoryId)) {
+    body['CategoryId'] = request.categoryId;
+  }
+  if (!Util.isUnset(request.extra)) {
+    body['Extra'] = request.extra;
+  }
+  if (!Util.isUnset(request.language)) {
+    body['Language'] = request.language;
+  }
+  if (!Util.isUnset(request.platform)) {
+    body['Platform'] = request.platform;
+  }
+  if (!Util.isUnset(request.title)) {
+    body['Title'] = request.title;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('GetTitleDiagnose', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetTitleDiagnose',
+    version = '2018-10-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getTitleDiagnose(request: GetTitleDiagnoseRequest): GetTitleDiagnoseResponse {
@@ -496,15 +704,49 @@ model GetTitleGenerateResponseBody = {
 
 model GetTitleGenerateResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: GetTitleGenerateResponseBody(name='body'),
 }
 
 async function getTitleGenerateWithOptions(request: GetTitleGenerateRequest, runtime: Util.RuntimeOptions): GetTitleGenerateResponse {
   Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.attributes)) {
+    body['Attributes'] = request.attributes;
+  }
+  if (!Util.isUnset(request.categoryId)) {
+    body['CategoryId'] = request.categoryId;
+  }
+  if (!Util.isUnset(request.extra)) {
+    body['Extra'] = request.extra;
+  }
+  if (!Util.isUnset(request.hotWords)) {
+    body['HotWords'] = request.hotWords;
+  }
+  if (!Util.isUnset(request.language)) {
+    body['Language'] = request.language;
+  }
+  if (!Util.isUnset(request.platform)) {
+    body['Platform'] = request.platform;
+  }
+  if (!Util.isUnset(request.title)) {
+    body['Title'] = request.title;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('GetTitleGenerate', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetTitleGenerate',
+    version = '2018-10-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getTitleGenerate(request: GetTitleGenerateRequest): GetTitleGenerateResponse {
@@ -531,15 +773,43 @@ model GetTitleIntelligenceResponseBody = {
 
 model GetTitleIntelligenceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: GetTitleIntelligenceResponseBody(name='body'),
 }
 
 async function getTitleIntelligenceWithOptions(request: GetTitleIntelligenceRequest, runtime: Util.RuntimeOptions): GetTitleIntelligenceResponse {
   Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.catLevelThreeId)) {
+    body['CatLevelThreeId'] = request.catLevelThreeId;
+  }
+  if (!Util.isUnset(request.catLevelTwoId)) {
+    body['CatLevelTwoId'] = request.catLevelTwoId;
+  }
+  if (!Util.isUnset(request.extra)) {
+    body['Extra'] = request.extra;
+  }
+  if (!Util.isUnset(request.keywords)) {
+    body['Keywords'] = request.keywords;
+  }
+  if (!Util.isUnset(request.platform)) {
+    body['Platform'] = request.platform;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('GetTitleIntelligence', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetTitleIntelligence',
+    version = '2018-10-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getTitleIntelligence(request: GetTitleIntelligenceRequest): GetTitleIntelligenceResponse {
@@ -563,42 +833,45 @@ model GetTranslateReportResponseBody = {
 
 model GetTranslateReportResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: GetTranslateReportResponseBody(name='body'),
 }
 
 async function getTranslateReportWithOptions(request: GetTranslateReportRequest, runtime: Util.RuntimeOptions): GetTranslateReportResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.apiName)) {
+    query['ApiName'] = request.apiName;
+  }
+  if (!Util.isUnset(request.beginTime)) {
+    query['BeginTime'] = request.beginTime;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.group)) {
+    query['Group'] = request.group;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('GetTranslateReport', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'GetTranslateReport',
+    version = '2018-10-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function getTranslateReport(request: GetTranslateReportRequest): GetTranslateReportResponse {
   var runtime = new Util.RuntimeOptions{};
   return getTranslateReportWithOptions(request, runtime);
-}
-
-model GetUserResponseBody = {
-  code?: int32(name='Code'),
-  data?: string(name='Data'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-}
-
-model GetUserResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetUserResponseBody(name='body'),
-}
-
-async function getUserWithOptions(runtime: Util.RuntimeOptions): GetUserResponse {
-  var req = new OpenApi.OpenApiRequest{};
-  return doRPCRequest('GetUser', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function getUser(): GetUserResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getUserWithOptions(runtime);
 }
 
 model OpenAlimtServiceRequest {
@@ -613,15 +886,34 @@ model OpenAlimtServiceResponseBody = {
 
 model OpenAlimtServiceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OpenAlimtServiceResponseBody(name='body'),
 }
 
 async function openAlimtServiceWithOptions(request: OpenAlimtServiceRequest, runtime: Util.RuntimeOptions): OpenAlimtServiceResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['Type'] = request.type;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OpenAlimtService', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OpenAlimtService',
+    version = '2018-10-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function openAlimtService(request: OpenAlimtServiceRequest): OpenAlimtServiceResponse {
@@ -630,6 +922,7 @@ async function openAlimtService(request: OpenAlimtServiceRequest): OpenAlimtServ
 }
 
 model TranslateRequest {
+  context?: string(name='Context'),
   formatType?: string(name='FormatType'),
   scene?: string(name='Scene'),
   sourceLanguage?: string(name='SourceLanguage'),
@@ -649,15 +942,48 @@ model TranslateResponseBody = {
 
 model TranslateResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: TranslateResponseBody(name='body'),
 }
 
 async function translateWithOptions(request: TranslateRequest, runtime: Util.RuntimeOptions): TranslateResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.context)) {
+    query['Context'] = request.context;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.formatType)) {
+    body['FormatType'] = request.formatType;
+  }
+  if (!Util.isUnset(request.scene)) {
+    body['Scene'] = request.scene;
+  }
+  if (!Util.isUnset(request.sourceLanguage)) {
+    body['SourceLanguage'] = request.sourceLanguage;
+  }
+  if (!Util.isUnset(request.sourceText)) {
+    body['SourceText'] = request.sourceText;
+  }
+  if (!Util.isUnset(request.targetLanguage)) {
+    body['TargetLanguage'] = request.targetLanguage;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('Translate', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'Translate',
+    version = '2018-10-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function translate(request: TranslateRequest): TranslateResponse {
@@ -674,8 +1000,8 @@ model TranslateCertificateRequest {
 }
 
 model TranslateCertificateAdvanceRequest {
-  imageUrlObject: readable(name='ImageUrlObject'),
   certificateType?: string(name='CertificateType'),
+  imageUrlObject?: readable(name='ImageUrl'),
   resultType?: string(name='ResultType'),
   sourceLanguage?: string(name='SourceLanguage'),
   targetLanguage?: string(name='TargetLanguage'),
@@ -697,15 +1023,43 @@ model TranslateCertificateResponseBody = {
 
 model TranslateCertificateResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: TranslateCertificateResponseBody(name='body'),
 }
 
 async function translateCertificateWithOptions(request: TranslateCertificateRequest, runtime: Util.RuntimeOptions): TranslateCertificateResponse {
   Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.certificateType)) {
+    body['CertificateType'] = request.certificateType;
+  }
+  if (!Util.isUnset(request.imageUrl)) {
+    body['ImageUrl'] = request.imageUrl;
+  }
+  if (!Util.isUnset(request.resultType)) {
+    body['ResultType'] = request.resultType;
+  }
+  if (!Util.isUnset(request.sourceLanguage)) {
+    body['SourceLanguage'] = request.sourceLanguage;
+  }
+  if (!Util.isUnset(request.targetLanguage)) {
+    body['TargetLanguage'] = request.targetLanguage;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('TranslateCertificate', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'TranslateCertificate',
+    version = '2018-10-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function translateCertificate(request: TranslateCertificateRequest): TranslateCertificateResponse {
@@ -726,7 +1080,7 @@ async function translateCertificateAdvance(request: TranslateCertificateAdvanceR
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -757,37 +1111,38 @@ async function translateCertificateAdvance(request: TranslateCertificateAdvanceR
   var translateCertificateReq = new TranslateCertificateRequest{};
   OpenApiUtil.convert(request, translateCertificateReq);
 
-  if(!Util.isUnset(request.imageUrlObject)){
+  if(!Util.isUnset(request.imageUrlObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageUrlObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    translateCertificateReq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    translateCertificateReq.imageUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var translateCertificateResp = translateCertificateWithOptions(translateCertificateReq, runtime);
   return translateCertificateResp;
 }
 
 model TranslateECommerceRequest {
+  context?: string(name='Context'),
   formatType?: string(name='FormatType'),
   scene?: string(name='Scene'),
   sourceLanguage?: string(name='SourceLanguage'),
@@ -807,15 +1162,48 @@ model TranslateECommerceResponseBody = {
 
 model TranslateECommerceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: TranslateECommerceResponseBody(name='body'),
 }
 
 async function translateECommerceWithOptions(request: TranslateECommerceRequest, runtime: Util.RuntimeOptions): TranslateECommerceResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.context)) {
+    query['Context'] = request.context;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.formatType)) {
+    body['FormatType'] = request.formatType;
+  }
+  if (!Util.isUnset(request.scene)) {
+    body['Scene'] = request.scene;
+  }
+  if (!Util.isUnset(request.sourceLanguage)) {
+    body['SourceLanguage'] = request.sourceLanguage;
+  }
+  if (!Util.isUnset(request.sourceText)) {
+    body['SourceText'] = request.sourceText;
+  }
+  if (!Util.isUnset(request.targetLanguage)) {
+    body['TargetLanguage'] = request.targetLanguage;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('TranslateECommerce', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'TranslateECommerce',
+    version = '2018-10-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function translateECommerce(request: TranslateECommerceRequest): TranslateECommerceResponse {
@@ -824,6 +1212,7 @@ async function translateECommerce(request: TranslateECommerceRequest): Translate
 }
 
 model TranslateGeneralRequest {
+  context?: string(name='Context'),
   formatType?: string(name='FormatType'),
   scene?: string(name='Scene'),
   sourceLanguage?: string(name='SourceLanguage'),
@@ -843,15 +1232,48 @@ model TranslateGeneralResponseBody = {
 
 model TranslateGeneralResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: TranslateGeneralResponseBody(name='body'),
 }
 
 async function translateGeneralWithOptions(request: TranslateGeneralRequest, runtime: Util.RuntimeOptions): TranslateGeneralResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.context)) {
+    query['Context'] = request.context;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.formatType)) {
+    body['FormatType'] = request.formatType;
+  }
+  if (!Util.isUnset(request.scene)) {
+    body['Scene'] = request.scene;
+  }
+  if (!Util.isUnset(request.sourceLanguage)) {
+    body['SourceLanguage'] = request.sourceLanguage;
+  }
+  if (!Util.isUnset(request.sourceText)) {
+    body['SourceText'] = request.sourceText;
+  }
+  if (!Util.isUnset(request.targetLanguage)) {
+    body['TargetLanguage'] = request.targetLanguage;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('TranslateGeneral', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'TranslateGeneral',
+    version = '2018-10-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function translateGeneral(request: TranslateGeneralRequest): TranslateGeneralResponse {
@@ -881,15 +1303,46 @@ model TranslateImageResponseBody = {
 
 model TranslateImageResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: TranslateImageResponseBody(name='body'),
 }
 
 async function translateImageWithOptions(request: TranslateImageRequest, runtime: Util.RuntimeOptions): TranslateImageResponse {
   Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.ext)) {
+    body['Ext'] = request.ext;
+  }
+  if (!Util.isUnset(request.field)) {
+    body['Field'] = request.field;
+  }
+  if (!Util.isUnset(request.imageBase64)) {
+    body['ImageBase64'] = request.imageBase64;
+  }
+  if (!Util.isUnset(request.imageUrl)) {
+    body['ImageUrl'] = request.imageUrl;
+  }
+  if (!Util.isUnset(request.sourceLanguage)) {
+    body['SourceLanguage'] = request.sourceLanguage;
+  }
+  if (!Util.isUnset(request.targetLanguage)) {
+    body['TargetLanguage'] = request.targetLanguage;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    body = OpenApiUtil.parseToMap(body),
   };
-  return doRPCRequest('TranslateImage', '2018-10-12', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'TranslateImage',
+    version = '2018-10-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function translateImage(request: TranslateImageRequest): TranslateImageResponse {
