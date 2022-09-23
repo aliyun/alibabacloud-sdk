@@ -3,15 +3,15 @@
  */
 import Util;
 import OpenApi;
-
+import OpenApiUtil;
 import EndpointUtil;
 
 extends OpenApi;
 
+
 init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
-  
   @endpointMap = {
     ap-northeast-2-pop = 'ons.ap-northeast-1.aliyuncs.com',
     cn-beijing-finance-1 = 'ons.aliyuncs.com',
@@ -44,6 +44,7 @@ init(config: OpenApi.Config){
     eu-west-1-oxs = 'ons.ap-northeast-1.aliyuncs.com',
     rus-west-1-pop = 'ons.ap-northeast-1.aliyuncs.com',
   };
+
   checkConfig(config);
   @endpoint = getEndpoint('ons', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -52,23 +53,24 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   if (!Util.empty(endpoint)) {
     return endpoint;
   }
-
+  
   if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
+
 model ListTagResourcesRequest {
   instanceId?: string(name='InstanceId'),
-  resourceType?: string(name='ResourceType'),
   nextToken?: string(name='NextToken'),
+  resourceId?: [ string ](name='ResourceId'),
+  resourceType?: string(name='ResourceType'),
   tag?: [ 
     {
       key?: string(name='Key'),
       value?: string(name='Value'),
     }
   ](name='Tag'),
-  resourceId?: [ string ](name='ResourceId'),
 }
 
 model ListTagResourcesResponseBody = {
@@ -76,26 +78,54 @@ model ListTagResourcesResponseBody = {
   requestId?: string(name='RequestId'),
   tagResources?: [ 
     {
-      resourceType?: string(name='ResourceType'),
       instanceId?: string(name='InstanceId'),
-      tagValue?: string(name='TagValue'),
       resourceId?: string(name='ResourceId'),
+      resourceType?: string(name='ResourceType'),
       tagKey?: string(name='TagKey'),
+      tagValue?: string(name='TagValue'),
     }
   ](name='TagResources'),
 }
 
 model ListTagResourcesResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ListTagResourcesResponseBody(name='body'),
 }
 
 async function listTagResourcesWithOptions(request: ListTagResourcesRequest, runtime: Util.RuntimeOptions): ListTagResourcesResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.resourceId)) {
+    query['ResourceId'] = request.resourceId;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query['ResourceType'] = request.resourceType;
+  }
+  if (!Util.isUnset(request.tag)) {
+    query['Tag'] = request.tag;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('ListTagResources', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'ListTagResources',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function listTagResources(request: ListTagResourcesRequest): ListTagResourcesResponse {
@@ -104,43 +134,65 @@ async function listTagResources(request: ListTagResourcesRequest): ListTagResour
 }
 
 model OnsConsumerAccumulateRequest {
-  groupId?: string(name='GroupId'),
   detail?: boolean(name='Detail'),
+  groupId?: string(name='GroupId'),
   instanceId?: string(name='InstanceId'),
 }
 
 model OnsConsumerAccumulateResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     consumeTps?: float(name='ConsumeTps'),
     delayTime?: long(name='DelayTime'),
-    lastTimestamp?: long(name='LastTimestamp'),
-    totalDiff?: long(name='TotalDiff'),
-    online?: boolean(name='Online'),
     detailInTopicList?: {
       detailInTopicDo?: [ 
       {
         delayTime?: long(name='DelayTime'),
-        totalDiff?: long(name='TotalDiff'),
         lastTimestamp?: long(name='LastTimestamp'),
         topic?: string(name='Topic'),
+        totalDiff?: long(name='TotalDiff'),
       }
     ](name='DetailInTopicDo')
     }(name='DetailInTopicList'),
+    lastTimestamp?: long(name='LastTimestamp'),
+    online?: boolean(name='Online'),
+    totalDiff?: long(name='TotalDiff'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsConsumerAccumulateResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsConsumerAccumulateResponseBody(name='body'),
 }
 
 async function onsConsumerAccumulateWithOptions(request: OnsConsumerAccumulateRequest, runtime: Util.RuntimeOptions): OnsConsumerAccumulateResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.detail)) {
+    query['Detail'] = request.detail;
+  }
+  if (!Util.isUnset(request.groupId)) {
+    query['GroupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsConsumerAccumulate', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsConsumerAccumulate',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsConsumerAccumulate(request: OnsConsumerAccumulateRequest): OnsConsumerAccumulateResponse {
@@ -154,32 +206,51 @@ model OnsConsumerGetConnectionRequest {
 }
 
 model OnsConsumerGetConnectionResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     connectionList?: {
       connectionDo?: [ 
       {
-        version?: string(name='Version'),
         clientAddr?: string(name='ClientAddr'),
-        language?: string(name='Language'),
         clientId?: string(name='ClientId'),
+        language?: string(name='Language'),
+        version?: string(name='Version'),
       }
     ](name='ConnectionDo')
     }(name='ConnectionList'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsConsumerGetConnectionResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsConsumerGetConnectionResponseBody(name='body'),
 }
 
 async function onsConsumerGetConnectionWithOptions(request: OnsConsumerGetConnectionRequest, runtime: Util.RuntimeOptions): OnsConsumerGetConnectionResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.groupId)) {
+    query['GroupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsConsumerGetConnection', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsConsumerGetConnection',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsConsumerGetConnection(request: OnsConsumerGetConnectionRequest): OnsConsumerGetConnectionResponse {
@@ -189,10 +260,10 @@ async function onsConsumerGetConnection(request: OnsConsumerGetConnectionRequest
 
 model OnsConsumerResetOffsetRequest {
   groupId?: string(name='GroupId'),
+  instanceId?: string(name='InstanceId'),
+  resetTimestamp?: long(name='ResetTimestamp'),
   topic?: string(name='Topic'),
   type?: int32(name='Type'),
-  resetTimestamp?: long(name='ResetTimestamp'),
-  instanceId?: string(name='InstanceId'),
 }
 
 model OnsConsumerResetOffsetResponseBody = {
@@ -201,15 +272,43 @@ model OnsConsumerResetOffsetResponseBody = {
 
 model OnsConsumerResetOffsetResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsConsumerResetOffsetResponseBody(name='body'),
 }
 
 async function onsConsumerResetOffsetWithOptions(request: OnsConsumerResetOffsetRequest, runtime: Util.RuntimeOptions): OnsConsumerResetOffsetResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.groupId)) {
+    query['GroupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.resetTimestamp)) {
+    query['ResetTimestamp'] = request.resetTimestamp;
+  }
+  if (!Util.isUnset(request.topic)) {
+    query['Topic'] = request.topic;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['Type'] = request.type;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsConsumerResetOffset', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsConsumerResetOffset',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsConsumerResetOffset(request: OnsConsumerResetOffsetRequest): OnsConsumerResetOffsetResponse {
@@ -218,108 +317,133 @@ async function onsConsumerResetOffset(request: OnsConsumerResetOffsetRequest): O
 }
 
 model OnsConsumerStatusRequest {
-  groupId?: string(name='GroupId'),
   detail?: boolean(name='Detail'),
-  needJstack?: boolean(name='NeedJstack'),
+  groupId?: string(name='GroupId'),
   instanceId?: string(name='InstanceId'),
+  needJstack?: boolean(name='NeedJstack'),
 }
 
 model OnsConsumerStatusResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
-    consumeTps?: float(name='ConsumeTps'),
-    consumeModel?: string(name='ConsumeModel'),
     connectionSet?: {
       connectionDo?: [ 
       {
+        clientAddr?: string(name='ClientAddr'),
+        clientId?: string(name='ClientId'),
+        language?: string(name='Language'),
         remoteIP?: string(name='RemoteIP'),
         version?: string(name='Version'),
-        clientAddr?: string(name='ClientAddr'),
-        language?: string(name='Language'),
-        clientId?: string(name='ClientId'),
       }
     ](name='ConnectionDo')
     }(name='ConnectionSet'),
-    totalDiff?: long(name='TotalDiff'),
+    consumeModel?: string(name='ConsumeModel'),
+    consumeTps?: float(name='ConsumeTps'),
     consumerConnectionInfoList?: {
       consumerConnectionInfoDo?: [ 
       {
+        clientId?: string(name='ClientId'),
+        connection?: string(name='Connection'),
         consumeModel?: string(name='ConsumeModel'),
+        consumeType?: string(name='ConsumeType'),
+        jstack?: {
+          threadTrackDo?: [ 
+          {
+            thread?: string(name='Thread'),
+            trackList?: {
+              track?: [ string ](name='Track')
+            }(name='TrackList'),
+          }
+        ](name='ThreadTrackDo')
+        }(name='Jstack'),
+        language?: string(name='Language'),
+        lastTimeStamp?: long(name='LastTimeStamp'),
         runningDataList?: {
           consumerRunningDataDo?: [ 
           {
+            failedCountPerHour?: long(name='FailedCountPerHour'),
+            failedTps?: float(name='FailedTps'),
             groupId?: string(name='GroupId'),
+            okTps?: float(name='OkTps'),
             rt?: float(name='Rt'),
             topic?: string(name='Topic'),
-            failedCountPerHour?: long(name='FailedCountPerHour'),
-            okTps?: float(name='OkTps'),
-            failedTps?: float(name='FailedTps'),
           }
         ](name='ConsumerRunningDataDo')
         }(name='RunningDataList'),
+        startTimeStamp?: long(name='StartTimeStamp'),
         subscriptionSet?: {
           subscriptionData?: [ 
           {
             subString?: string(name='SubString'),
             subVersion?: long(name='SubVersion'),
-            topic?: string(name='Topic'),
             tagsSet?: {
               tag?: [ string ](name='Tag')
             }(name='TagsSet'),
+            topic?: string(name='Topic'),
           }
         ](name='SubscriptionData')
         }(name='SubscriptionSet'),
-        jstack?: {
-          threadTrackDo?: [ 
-          {
-            trackList?: {
-              track?: [ string ](name='Track')
-            }(name='TrackList'),
-            thread?: string(name='Thread'),
-          }
-        ](name='ThreadTrackDo')
-        }(name='Jstack'),
-        lastTimeStamp?: long(name='LastTimeStamp'),
-        startTimeStamp?: long(name='StartTimeStamp'),
-        language?: string(name='Language'),
-        clientId?: string(name='ClientId'),
-        connection?: string(name='Connection'),
-        version?: string(name='Version'),
-        consumeType?: string(name='ConsumeType'),
         threadCount?: int32(name='ThreadCount'),
+        version?: string(name='Version'),
       }
     ](name='ConsumerConnectionInfoDo')
     }(name='ConsumerConnectionInfoList'),
-    instanceId?: string(name='InstanceId'),
+    delayTime?: long(name='DelayTime'),
     detailInTopicList?: {
       detailInTopicDo?: [ 
       {
         delayTime?: long(name='DelayTime'),
-        totalDiff?: long(name='TotalDiff'),
         lastTimestamp?: long(name='LastTimestamp'),
         topic?: string(name='Topic'),
+        totalDiff?: long(name='TotalDiff'),
       }
     ](name='DetailInTopicDo')
     }(name='DetailInTopicList'),
-    subscriptionSame?: boolean(name='SubscriptionSame'),
-    delayTime?: long(name='DelayTime'),
+    instanceId?: string(name='InstanceId'),
     lastTimestamp?: long(name='LastTimestamp'),
     online?: boolean(name='Online'),
     rebalanceOK?: boolean(name='RebalanceOK'),
+    subscriptionSame?: boolean(name='SubscriptionSame'),
+    totalDiff?: long(name='TotalDiff'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsConsumerStatusResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsConsumerStatusResponseBody(name='body'),
 }
 
 async function onsConsumerStatusWithOptions(request: OnsConsumerStatusRequest, runtime: Util.RuntimeOptions): OnsConsumerStatusResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.detail)) {
+    query['Detail'] = request.detail;
+  }
+  if (!Util.isUnset(request.groupId)) {
+    query['GroupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.needJstack)) {
+    query['NeedJstack'] = request.needJstack;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsConsumerStatus', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsConsumerStatus',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsConsumerStatus(request: OnsConsumerStatusRequest): OnsConsumerStatusResponse {
@@ -329,32 +453,54 @@ async function onsConsumerStatus(request: OnsConsumerStatusRequest): OnsConsumer
 
 model OnsConsumerTimeSpanRequest {
   groupId?: string(name='GroupId'),
-  topic?: string(name='Topic'),
   instanceId?: string(name='InstanceId'),
+  topic?: string(name='Topic'),
 }
 
 model OnsConsumerTimeSpanResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
-    maxTimeStamp?: long(name='MaxTimeStamp'),
     consumeTimeStamp?: long(name='ConsumeTimeStamp'),
-    topic?: string(name='Topic'),
-    minTimeStamp?: long(name='MinTimeStamp'),
     instanceId?: string(name='InstanceId'),
+    maxTimeStamp?: long(name='MaxTimeStamp'),
+    minTimeStamp?: long(name='MinTimeStamp'),
+    topic?: string(name='Topic'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsConsumerTimeSpanResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsConsumerTimeSpanResponseBody(name='body'),
 }
 
 async function onsConsumerTimeSpanWithOptions(request: OnsConsumerTimeSpanRequest, runtime: Util.RuntimeOptions): OnsConsumerTimeSpanResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.groupId)) {
+    query['GroupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.topic)) {
+    query['Topic'] = request.topic;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsConsumerTimeSpan', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsConsumerTimeSpan',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsConsumerTimeSpan(request: OnsConsumerTimeSpanRequest): OnsConsumerTimeSpanResponse {
@@ -363,46 +509,68 @@ async function onsConsumerTimeSpan(request: OnsConsumerTimeSpanRequest): OnsCons
 }
 
 model OnsDLQMessageGetByIdRequest {
-  msgId?: string(name='MsgId'),
   groupId?: string(name='GroupId'),
   instanceId?: string(name='InstanceId'),
+  msgId?: string(name='MsgId'),
 }
 
 model OnsDLQMessageGetByIdResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
-    storeSize?: int32(name='StoreSize'),
-    reconsumeTimes?: int32(name='ReconsumeTimes'),
-    storeTimestamp?: long(name='StoreTimestamp'),
+    bodyCRC?: int32(name='BodyCRC'),
+    bornHost?: string(name='BornHost'),
+    bornTimestamp?: long(name='BornTimestamp'),
     instanceId?: string(name='InstanceId'),
     msgId?: string(name='MsgId'),
-    storeHost?: string(name='StoreHost'),
-    topic?: string(name='Topic'),
     propertyList?: {
       messageProperty?: [ 
       {
-        value?: string(name='Value'),
         name?: string(name='Name'),
+        value?: string(name='Value'),
       }
     ](name='MessageProperty')
     }(name='PropertyList'),
-    bornTimestamp?: long(name='BornTimestamp'),
-    bodyCRC?: int32(name='BodyCRC'),
-    bornHost?: string(name='BornHost'),
+    reconsumeTimes?: int32(name='ReconsumeTimes'),
+    storeHost?: string(name='StoreHost'),
+    storeSize?: int32(name='StoreSize'),
+    storeTimestamp?: long(name='StoreTimestamp'),
+    topic?: string(name='Topic'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsDLQMessageGetByIdResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsDLQMessageGetByIdResponseBody(name='body'),
 }
 
 async function onsDLQMessageGetByIdWithOptions(request: OnsDLQMessageGetByIdRequest, runtime: Util.RuntimeOptions): OnsDLQMessageGetByIdResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.groupId)) {
+    query['GroupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.msgId)) {
+    query['MsgId'] = request.msgId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsDLQMessageGetById', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsDLQMessageGetById',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsDLQMessageGetById(request: OnsDLQMessageGetByIdRequest): OnsDLQMessageGetByIdResponse {
@@ -411,59 +579,93 @@ async function onsDLQMessageGetById(request: OnsDLQMessageGetByIdRequest): OnsDL
 }
 
 model OnsDLQMessagePageQueryByGroupIdRequest {
-  groupId?: string(name='GroupId'),
   beginTime?: long(name='BeginTime'),
-  endTime?: long(name='EndTime'),
-  taskId?: string(name='TaskId'),
   currentPage?: int32(name='CurrentPage'),
-  pageSize?: int32(name='PageSize'),
+  endTime?: long(name='EndTime'),
+  groupId?: string(name='GroupId'),
   instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  taskId?: string(name='TaskId'),
 }
 
 model OnsDLQMessagePageQueryByGroupIdResponseBody = {
-  requestId?: string(name='RequestId'),
   msgFoundDo?: {
     currentPage?: long(name='CurrentPage'),
+    maxPageCount?: long(name='MaxPageCount'),
     msgFoundList?: {
       onsRestMessageDo?: [ 
       {
-        storeSize?: int32(name='StoreSize'),
-        reconsumeTimes?: int32(name='ReconsumeTimes'),
-        storeTimestamp?: long(name='StoreTimestamp'),
+        bodyCRC?: int32(name='BodyCRC'),
+        bornHost?: string(name='BornHost'),
+        bornTimestamp?: long(name='BornTimestamp'),
         instanceId?: string(name='InstanceId'),
         msgId?: string(name='MsgId'),
-        storeHost?: string(name='StoreHost'),
-        topic?: string(name='Topic'),
         propertyList?: {
           messageProperty?: [ 
           {
-            value?: string(name='Value'),
             name?: string(name='Name'),
+            value?: string(name='Value'),
           }
         ](name='MessageProperty')
         }(name='PropertyList'),
-        bornTimestamp?: long(name='BornTimestamp'),
-        bodyCRC?: int32(name='BodyCRC'),
-        bornHost?: string(name='BornHost'),
+        reconsumeTimes?: int32(name='ReconsumeTimes'),
+        storeHost?: string(name='StoreHost'),
+        storeSize?: int32(name='StoreSize'),
+        storeTimestamp?: long(name='StoreTimestamp'),
+        topic?: string(name='Topic'),
       }
     ](name='OnsRestMessageDo')
     }(name='MsgFoundList'),
-    maxPageCount?: long(name='MaxPageCount'),
     taskId?: string(name='TaskId'),
   }(name='MsgFoundDo'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsDLQMessagePageQueryByGroupIdResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsDLQMessagePageQueryByGroupIdResponseBody(name='body'),
 }
 
 async function onsDLQMessagePageQueryByGroupIdWithOptions(request: OnsDLQMessagePageQueryByGroupIdRequest, runtime: Util.RuntimeOptions): OnsDLQMessagePageQueryByGroupIdResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.beginTime)) {
+    query['BeginTime'] = request.beginTime;
+  }
+  if (!Util.isUnset(request.currentPage)) {
+    query['CurrentPage'] = request.currentPage;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.groupId)) {
+    query['GroupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.taskId)) {
+    query['TaskId'] = request.taskId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsDLQMessagePageQueryByGroupId', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsDLQMessagePageQueryByGroupId',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsDLQMessagePageQueryByGroupId(request: OnsDLQMessagePageQueryByGroupIdRequest): OnsDLQMessagePageQueryByGroupIdResponse {
@@ -472,29 +674,51 @@ async function onsDLQMessagePageQueryByGroupId(request: OnsDLQMessagePageQueryBy
 }
 
 model OnsDLQMessageResendByIdRequest {
-  msgId?: string(name='MsgId'),
   groupId?: string(name='GroupId'),
   instanceId?: string(name='InstanceId'),
+  msgId?: string(name='MsgId'),
 }
 
 model OnsDLQMessageResendByIdResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     msgId?: [ string ](name='MsgId')
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsDLQMessageResendByIdResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsDLQMessageResendByIdResponseBody(name='body'),
 }
 
 async function onsDLQMessageResendByIdWithOptions(request: OnsDLQMessageResendByIdRequest, runtime: Util.RuntimeOptions): OnsDLQMessageResendByIdResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.groupId)) {
+    query['GroupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.msgId)) {
+    query['MsgId'] = request.msgId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsDLQMessageResendById', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsDLQMessageResendById',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsDLQMessageResendById(request: OnsDLQMessageResendByIdRequest): OnsDLQMessageResendByIdResponse {
@@ -504,8 +728,8 @@ async function onsDLQMessageResendById(request: OnsDLQMessageResendByIdRequest):
 
 model OnsGroupConsumerUpdateRequest {
   groupId?: string(name='GroupId'),
-  readEnable?: boolean(name='ReadEnable'),
   instanceId?: string(name='InstanceId'),
+  readEnable?: boolean(name='ReadEnable'),
 }
 
 model OnsGroupConsumerUpdateResponseBody = {
@@ -514,15 +738,37 @@ model OnsGroupConsumerUpdateResponseBody = {
 
 model OnsGroupConsumerUpdateResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsGroupConsumerUpdateResponseBody(name='body'),
 }
 
 async function onsGroupConsumerUpdateWithOptions(request: OnsGroupConsumerUpdateRequest, runtime: Util.RuntimeOptions): OnsGroupConsumerUpdateResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.groupId)) {
+    query['GroupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.readEnable)) {
+    query['ReadEnable'] = request.readEnable;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsGroupConsumerUpdate', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsGroupConsumerUpdate',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsGroupConsumerUpdate(request: OnsGroupConsumerUpdateRequest): OnsGroupConsumerUpdateResponse {
@@ -532,9 +778,9 @@ async function onsGroupConsumerUpdate(request: OnsGroupConsumerUpdateRequest): O
 
 model OnsGroupCreateRequest {
   groupId?: string(name='GroupId'),
-  remark?: string(name='Remark'),
-  instanceId?: string(name='InstanceId'),
   groupType?: string(name='GroupType'),
+  instanceId?: string(name='InstanceId'),
+  remark?: string(name='Remark'),
 }
 
 model OnsGroupCreateResponseBody = {
@@ -543,15 +789,40 @@ model OnsGroupCreateResponseBody = {
 
 model OnsGroupCreateResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsGroupCreateResponseBody(name='body'),
 }
 
 async function onsGroupCreateWithOptions(request: OnsGroupCreateRequest, runtime: Util.RuntimeOptions): OnsGroupCreateResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.groupId)) {
+    query['GroupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.groupType)) {
+    query['GroupType'] = request.groupType;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.remark)) {
+    query['Remark'] = request.remark;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsGroupCreate', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsGroupCreate',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsGroupCreate(request: OnsGroupCreateRequest): OnsGroupCreateResponse {
@@ -570,15 +841,34 @@ model OnsGroupDeleteResponseBody = {
 
 model OnsGroupDeleteResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsGroupDeleteResponseBody(name='body'),
 }
 
 async function onsGroupDeleteWithOptions(request: OnsGroupDeleteRequest, runtime: Util.RuntimeOptions): OnsGroupDeleteResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.groupId)) {
+    query['GroupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsGroupDelete', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsGroupDelete',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsGroupDelete(request: OnsGroupDeleteRequest): OnsGroupDeleteResponse {
@@ -587,9 +877,9 @@ async function onsGroupDelete(request: OnsGroupDeleteRequest): OnsGroupDeleteRes
 }
 
 model OnsGroupListRequest {
-  instanceId?: string(name='InstanceId'),
   groupId?: string(name='GroupId'),
   groupType?: string(name='GroupType'),
+  instanceId?: string(name='InstanceId'),
   tag?: [ 
     {
       key?: string(name='Key'),
@@ -599,16 +889,16 @@ model OnsGroupListRequest {
 }
 
 model OnsGroupListResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     subscribeInfoDo?: [ 
     {
-      owner?: string(name='Owner'),
-      updateTime?: long(name='UpdateTime'),
-      independentNaming?: boolean(name='IndependentNaming'),
-      groupId?: string(name='GroupId'),
-      remark?: string(name='Remark'),
       createTime?: long(name='CreateTime'),
+      groupId?: string(name='GroupId'),
+      groupType?: string(name='GroupType'),
+      independentNaming?: boolean(name='IndependentNaming'),
+      instanceId?: string(name='InstanceId'),
+      owner?: string(name='Owner'),
+      remark?: string(name='Remark'),
       tags?: {
         tag?: [ 
         {
@@ -617,24 +907,49 @@ model OnsGroupListResponseBody = {
         }
       ](name='Tag')
       }(name='Tags'),
-      instanceId?: string(name='InstanceId'),
-      groupType?: string(name='GroupType'),
+      updateTime?: long(name='UpdateTime'),
     }
   ](name='SubscribeInfoDo')
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsGroupListResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsGroupListResponseBody(name='body'),
 }
 
 async function onsGroupListWithOptions(request: OnsGroupListRequest, runtime: Util.RuntimeOptions): OnsGroupListResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.groupId)) {
+    query['GroupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.groupType)) {
+    query['GroupType'] = request.groupType;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.tag)) {
+    query['Tag'] = request.tag;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsGroupList', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsGroupList',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsGroupList(request: OnsGroupListRequest): OnsGroupListResponse {
@@ -643,13 +958,15 @@ async function onsGroupList(request: OnsGroupListRequest): OnsGroupListResponse 
 }
 
 model OnsGroupSubDetailRequest {
-  instanceId?: string(name='InstanceId'),
   groupId?: string(name='GroupId'),
+  instanceId?: string(name='InstanceId'),
 }
 
 model OnsGroupSubDetailResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
+    groupId?: string(name='GroupId'),
+    messageModel?: string(name='MessageModel'),
+    online?: boolean(name='Online'),
     subscriptionDataList?: {
       subscriptionDataList?: [ 
       {
@@ -658,23 +975,40 @@ model OnsGroupSubDetailResponseBody = {
       }
     ](name='SubscriptionDataList')
     }(name='SubscriptionDataList'),
-    groupId?: string(name='GroupId'),
-    messageModel?: string(name='MessageModel'),
-    online?: boolean(name='Online'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsGroupSubDetailResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsGroupSubDetailResponseBody(name='body'),
 }
 
 async function onsGroupSubDetailWithOptions(request: OnsGroupSubDetailRequest, runtime: Util.RuntimeOptions): OnsGroupSubDetailResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.groupId)) {
+    query['GroupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsGroupSubDetail', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsGroupSubDetail',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsGroupSubDetail(request: OnsGroupSubDetailRequest): OnsGroupSubDetailResponse {
@@ -688,36 +1022,56 @@ model OnsInstanceBaseInfoRequest {
 
 model OnsInstanceBaseInfoResponseBody = {
   instanceBaseInfo?: {
+    createTime?: string(name='CreateTime'),
     endpoints?: {
-      tcpEndpoint?: string(name='TcpEndpoint'),
-      httpInternetEndpoint?: string(name='HttpInternetEndpoint'),
       httpInternalEndpoint?: string(name='HttpInternalEndpoint'),
+      httpInternetEndpoint?: string(name='HttpInternetEndpoint'),
       httpInternetSecureEndpoint?: string(name='HttpInternetSecureEndpoint'),
+      tcpEndpoint?: string(name='TcpEndpoint'),
+      tcpInternetEndpoint?: string(name='TcpInternetEndpoint'),
     }(name='Endpoints'),
     independentNaming?: boolean(name='IndependentNaming'),
-    maxTps?: long(name='MaxTps'),
-    remark?: string(name='Remark'),
-    instanceName?: string(name='InstanceName'),
-    releaseTime?: long(name='ReleaseTime'),
-    topicCapacity?: int32(name='TopicCapacity'),
-    instanceStatus?: int32(name='InstanceStatus'),
     instanceId?: string(name='InstanceId'),
+    instanceName?: string(name='InstanceName'),
+    instanceStatus?: int32(name='InstanceStatus'),
     instanceType?: int32(name='InstanceType'),
+    maxTps?: long(name='MaxTps'),
+    releaseTime?: long(name='ReleaseTime'),
+    remark?: string(name='Remark'),
+    topicCapacity?: int32(name='TopicCapacity'),
+    spInstanceId?: string(name='spInstanceId'),
+    spInstanceType?: int32(name='spInstanceType'),
   }(name='InstanceBaseInfo'),
   requestId?: string(name='RequestId'),
 }
 
 model OnsInstanceBaseInfoResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsInstanceBaseInfoResponseBody(name='body'),
 }
 
 async function onsInstanceBaseInfoWithOptions(request: OnsInstanceBaseInfoRequest, runtime: Util.RuntimeOptions): OnsInstanceBaseInfoResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsInstanceBaseInfo', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsInstanceBaseInfo',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsInstanceBaseInfo(request: OnsInstanceBaseInfoRequest): OnsInstanceBaseInfoResponse {
@@ -726,29 +1080,48 @@ async function onsInstanceBaseInfo(request: OnsInstanceBaseInfoRequest): OnsInst
 }
 
 model OnsInstanceCreateRequest {
-  remark?: string(name='Remark'),
   instanceName?: string(name='InstanceName'),
+  remark?: string(name='Remark'),
 }
 
 model OnsInstanceCreateResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     instanceId?: string(name='InstanceId'),
     instanceType?: int32(name='InstanceType'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsInstanceCreateResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsInstanceCreateResponseBody(name='body'),
 }
 
 async function onsInstanceCreateWithOptions(request: OnsInstanceCreateRequest, runtime: Util.RuntimeOptions): OnsInstanceCreateResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceName)) {
+    query['InstanceName'] = request.instanceName;
+  }
+  if (!Util.isUnset(request.remark)) {
+    query['Remark'] = request.remark;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsInstanceCreate', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsInstanceCreate',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsInstanceCreate(request: OnsInstanceCreateRequest): OnsInstanceCreateResponse {
@@ -766,15 +1139,31 @@ model OnsInstanceDeleteResponseBody = {
 
 model OnsInstanceDeleteResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsInstanceDeleteResponseBody(name='body'),
 }
 
 async function onsInstanceDeleteWithOptions(request: OnsInstanceDeleteRequest, runtime: Util.RuntimeOptions): OnsInstanceDeleteResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsInstanceDelete', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsInstanceDelete',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsInstanceDelete(request: OnsInstanceDeleteRequest): OnsInstanceDeleteResponse {
@@ -792,14 +1181,16 @@ model OnsInstanceInServiceListRequest {
 }
 
 model OnsInstanceInServiceListResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     instanceVO?: [ 
     {
+      createTime?: long(name='CreateTime'),
       independentNaming?: boolean(name='IndependentNaming'),
+      instanceId?: string(name='InstanceId'),
       instanceName?: string(name='InstanceName'),
-      releaseTime?: long(name='ReleaseTime'),
       instanceStatus?: int32(name='InstanceStatus'),
+      instanceType?: int32(name='InstanceType'),
+      releaseTime?: long(name='ReleaseTime'),
       tags?: {
         tag?: [ 
         {
@@ -808,24 +1199,39 @@ model OnsInstanceInServiceListResponseBody = {
         }
       ](name='Tag')
       }(name='Tags'),
-      instanceId?: string(name='InstanceId'),
-      instanceType?: int32(name='InstanceType'),
     }
   ](name='InstanceVO')
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsInstanceInServiceListResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsInstanceInServiceListResponseBody(name='body'),
 }
 
 async function onsInstanceInServiceListWithOptions(request: OnsInstanceInServiceListRequest, runtime: Util.RuntimeOptions): OnsInstanceInServiceListResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.tag)) {
+    query['Tag'] = request.tag;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsInstanceInServiceList', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsInstanceInServiceList',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsInstanceInServiceList(request: OnsInstanceInServiceListRequest): OnsInstanceInServiceListResponse {
@@ -834,9 +1240,9 @@ async function onsInstanceInServiceList(request: OnsInstanceInServiceListRequest
 }
 
 model OnsInstanceUpdateRequest {
-  remark?: string(name='Remark'),
-  instanceName?: string(name='InstanceName'),
   instanceId?: string(name='InstanceId'),
+  instanceName?: string(name='InstanceName'),
+  remark?: string(name='Remark'),
 }
 
 model OnsInstanceUpdateResponseBody = {
@@ -845,15 +1251,37 @@ model OnsInstanceUpdateResponseBody = {
 
 model OnsInstanceUpdateResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsInstanceUpdateResponseBody(name='body'),
 }
 
 async function onsInstanceUpdateWithOptions(request: OnsInstanceUpdateRequest, runtime: Util.RuntimeOptions): OnsInstanceUpdateResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.instanceName)) {
+    query['InstanceName'] = request.instanceName;
+  }
+  if (!Util.isUnset(request.remark)) {
+    query['Remark'] = request.remark;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsInstanceUpdate', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsInstanceUpdate',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsInstanceUpdate(request: OnsInstanceUpdateRequest): OnsInstanceUpdateResponse {
@@ -862,50 +1290,72 @@ async function onsInstanceUpdate(request: OnsInstanceUpdateRequest): OnsInstance
 }
 
 model OnsMessageGetByKeyRequest {
-  topic?: string(name='Topic'),
-  key?: string(name='Key'),
   instanceId?: string(name='InstanceId'),
+  key?: string(name='Key'),
+  topic?: string(name='Topic'),
 }
 
 model OnsMessageGetByKeyResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     onsRestMessageDo?: [ 
     {
-      storeSize?: int32(name='StoreSize'),
-      reconsumeTimes?: int32(name='ReconsumeTimes'),
-      storeTimestamp?: long(name='StoreTimestamp'),
+      bodyCRC?: int32(name='BodyCRC'),
+      bornHost?: string(name='BornHost'),
+      bornTimestamp?: long(name='BornTimestamp'),
       instanceId?: string(name='InstanceId'),
       msgId?: string(name='MsgId'),
-      storeHost?: string(name='StoreHost'),
-      topic?: string(name='Topic'),
       propertyList?: {
         messageProperty?: [ 
         {
-          value?: string(name='Value'),
           name?: string(name='Name'),
+          value?: string(name='Value'),
         }
       ](name='MessageProperty')
       }(name='PropertyList'),
-      bornTimestamp?: long(name='BornTimestamp'),
-      bodyCRC?: int32(name='BodyCRC'),
-      bornHost?: string(name='BornHost'),
+      reconsumeTimes?: int32(name='ReconsumeTimes'),
+      storeHost?: string(name='StoreHost'),
+      storeSize?: int32(name='StoreSize'),
+      storeTimestamp?: long(name='StoreTimestamp'),
+      topic?: string(name='Topic'),
     }
   ](name='OnsRestMessageDo')
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsMessageGetByKeyResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsMessageGetByKeyResponseBody(name='body'),
 }
 
 async function onsMessageGetByKeyWithOptions(request: OnsMessageGetByKeyRequest, runtime: Util.RuntimeOptions): OnsMessageGetByKeyResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.key)) {
+    query['Key'] = request.key;
+  }
+  if (!Util.isUnset(request.topic)) {
+    query['Topic'] = request.topic;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsMessageGetByKey', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsMessageGetByKey',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsMessageGetByKey(request: OnsMessageGetByKeyRequest): OnsMessageGetByKeyResponse {
@@ -914,46 +1364,68 @@ async function onsMessageGetByKey(request: OnsMessageGetByKeyRequest): OnsMessag
 }
 
 model OnsMessageGetByMsgIdRequest {
+  instanceId?: string(name='InstanceId'),
   msgId?: string(name='MsgId'),
   topic?: string(name='Topic'),
-  instanceId?: string(name='InstanceId'),
 }
 
 model OnsMessageGetByMsgIdResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
-    storeSize?: int32(name='StoreSize'),
-    reconsumeTimes?: int32(name='ReconsumeTimes'),
-    storeTimestamp?: long(name='StoreTimestamp'),
+    bodyCRC?: int32(name='BodyCRC'),
+    bornHost?: string(name='BornHost'),
+    bornTimestamp?: long(name='BornTimestamp'),
     instanceId?: string(name='InstanceId'),
     msgId?: string(name='MsgId'),
-    storeHost?: string(name='StoreHost'),
-    topic?: string(name='Topic'),
     propertyList?: {
       messageProperty?: [ 
       {
-        value?: string(name='Value'),
         name?: string(name='Name'),
+        value?: string(name='Value'),
       }
     ](name='MessageProperty')
     }(name='PropertyList'),
-    bornTimestamp?: long(name='BornTimestamp'),
-    bodyCRC?: int32(name='BodyCRC'),
-    bornHost?: string(name='BornHost'),
+    reconsumeTimes?: int32(name='ReconsumeTimes'),
+    storeHost?: string(name='StoreHost'),
+    storeSize?: int32(name='StoreSize'),
+    storeTimestamp?: long(name='StoreTimestamp'),
+    topic?: string(name='Topic'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsMessageGetByMsgIdResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsMessageGetByMsgIdResponseBody(name='body'),
 }
 
 async function onsMessageGetByMsgIdWithOptions(request: OnsMessageGetByMsgIdRequest, runtime: Util.RuntimeOptions): OnsMessageGetByMsgIdResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.msgId)) {
+    query['MsgId'] = request.msgId;
+  }
+  if (!Util.isUnset(request.topic)) {
+    query['Topic'] = request.topic;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsMessageGetByMsgId', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsMessageGetByMsgId',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsMessageGetByMsgId(request: OnsMessageGetByMsgIdRequest): OnsMessageGetByMsgIdResponse {
@@ -962,59 +1434,93 @@ async function onsMessageGetByMsgId(request: OnsMessageGetByMsgIdRequest): OnsMe
 }
 
 model OnsMessagePageQueryByTopicRequest {
-  topic?: string(name='Topic'),
   beginTime?: long(name='BeginTime'),
-  endTime?: long(name='EndTime'),
-  taskId?: string(name='TaskId'),
   currentPage?: int32(name='CurrentPage'),
-  pageSize?: int32(name='PageSize'),
+  endTime?: long(name='EndTime'),
   instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  taskId?: string(name='TaskId'),
+  topic?: string(name='Topic'),
 }
 
 model OnsMessagePageQueryByTopicResponseBody = {
-  requestId?: string(name='RequestId'),
   msgFoundDo?: {
     currentPage?: long(name='CurrentPage'),
+    maxPageCount?: long(name='MaxPageCount'),
     msgFoundList?: {
       onsRestMessageDo?: [ 
       {
-        storeSize?: int32(name='StoreSize'),
-        reconsumeTimes?: int32(name='ReconsumeTimes'),
-        storeTimestamp?: long(name='StoreTimestamp'),
+        bodyCRC?: int32(name='BodyCRC'),
+        bornHost?: string(name='BornHost'),
+        bornTimestamp?: long(name='BornTimestamp'),
         instanceId?: string(name='InstanceId'),
         msgId?: string(name='MsgId'),
-        storeHost?: string(name='StoreHost'),
-        topic?: string(name='Topic'),
         propertyList?: {
           messageProperty?: [ 
           {
-            value?: string(name='Value'),
             name?: string(name='Name'),
+            value?: string(name='Value'),
           }
         ](name='MessageProperty')
         }(name='PropertyList'),
-        bornTimestamp?: long(name='BornTimestamp'),
-        bodyCRC?: int32(name='BodyCRC'),
-        bornHost?: string(name='BornHost'),
+        reconsumeTimes?: int32(name='ReconsumeTimes'),
+        storeHost?: string(name='StoreHost'),
+        storeSize?: int32(name='StoreSize'),
+        storeTimestamp?: long(name='StoreTimestamp'),
+        topic?: string(name='Topic'),
       }
     ](name='OnsRestMessageDo')
     }(name='MsgFoundList'),
-    maxPageCount?: long(name='MaxPageCount'),
     taskId?: string(name='TaskId'),
   }(name='MsgFoundDo'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsMessagePageQueryByTopicResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsMessagePageQueryByTopicResponseBody(name='body'),
 }
 
 async function onsMessagePageQueryByTopicWithOptions(request: OnsMessagePageQueryByTopicRequest, runtime: Util.RuntimeOptions): OnsMessagePageQueryByTopicResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.beginTime)) {
+    query['BeginTime'] = request.beginTime;
+  }
+  if (!Util.isUnset(request.currentPage)) {
+    query['CurrentPage'] = request.currentPage;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.taskId)) {
+    query['TaskId'] = request.taskId;
+  }
+  if (!Util.isUnset(request.topic)) {
+    query['Topic'] = request.topic;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsMessagePageQueryByTopic', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsMessagePageQueryByTopic',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsMessagePageQueryByTopic(request: OnsMessagePageQueryByTopicRequest): OnsMessagePageQueryByTopicResponse {
@@ -1023,11 +1529,11 @@ async function onsMessagePageQueryByTopic(request: OnsMessagePageQueryByTopicReq
 }
 
 model OnsMessagePushRequest {
-  groupId?: string(name='GroupId'),
   clientId?: string(name='ClientId'),
+  groupId?: string(name='GroupId'),
+  instanceId?: string(name='InstanceId'),
   msgId?: string(name='MsgId'),
   topic?: string(name='Topic'),
-  instanceId?: string(name='InstanceId'),
 }
 
 model OnsMessagePushResponseBody = {
@@ -1036,15 +1542,43 @@ model OnsMessagePushResponseBody = {
 
 model OnsMessagePushResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsMessagePushResponseBody(name='body'),
 }
 
 async function onsMessagePushWithOptions(request: OnsMessagePushRequest, runtime: Util.RuntimeOptions): OnsMessagePushResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clientId)) {
+    query['ClientId'] = request.clientId;
+  }
+  if (!Util.isUnset(request.groupId)) {
+    query['GroupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.msgId)) {
+    query['MsgId'] = request.msgId;
+  }
+  if (!Util.isUnset(request.topic)) {
+    query['Topic'] = request.topic;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsMessagePush', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsMessagePush',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsMessagePush(request: OnsMessagePushRequest): OnsMessagePushResponse {
@@ -1052,67 +1586,58 @@ async function onsMessagePush(request: OnsMessagePushRequest): OnsMessagePushRes
   return onsMessagePushWithOptions(request, runtime);
 }
 
-model OnsMessageSendRequest {
-  topic?: string(name='Topic'),
-  tag?: string(name='Tag'),
-  key?: string(name='Key'),
-  message?: string(name='Message'),
-  instanceId?: string(name='InstanceId'),
-}
-
-model OnsMessageSendResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: string(name='Data'),
-}
-
-model OnsMessageSendResponse = {
-  headers: map[string]string(name='headers'),
-  body: OnsMessageSendResponseBody(name='body'),
-}
-
-async function onsMessageSendWithOptions(request: OnsMessageSendRequest, runtime: Util.RuntimeOptions): OnsMessageSendResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('OnsMessageSend', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function onsMessageSend(request: OnsMessageSendRequest): OnsMessageSendResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsMessageSendWithOptions(request, runtime);
-}
-
 model OnsMessageTraceRequest {
-  topic?: string(name='Topic'),
-  msgId?: string(name='MsgId'),
   instanceId?: string(name='InstanceId'),
+  msgId?: string(name='MsgId'),
+  topic?: string(name='Topic'),
 }
 
 model OnsMessageTraceResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     messageTrack?: [ 
     {
-      trackType?: string(name='TrackType'),
       consumerGroup?: string(name='ConsumerGroup'),
       instanceId?: string(name='InstanceId'),
+      trackType?: string(name='TrackType'),
     }
   ](name='MessageTrack')
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsMessageTraceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsMessageTraceResponseBody(name='body'),
 }
 
 async function onsMessageTraceWithOptions(request: OnsMessageTraceRequest, runtime: Util.RuntimeOptions): OnsMessageTraceResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.msgId)) {
+    query['MsgId'] = request.msgId;
+  }
+  if (!Util.isUnset(request.topic)) {
+    query['Topic'] = request.topic;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsMessageTrace', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsMessageTrace',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsMessageTrace(request: OnsMessageTraceRequest): OnsMessageTraceResponse {
@@ -1120,310 +1645,38 @@ async function onsMessageTrace(request: OnsMessageTraceRequest): OnsMessageTrace
   return onsMessageTraceWithOptions(request, runtime);
 }
 
-model OnsMqttGroupIdCreateRequest {
-  topic?: string(name='Topic'),
-  groupId?: string(name='GroupId'),
-  instanceId?: string(name='InstanceId'),
-}
-
-model OnsMqttGroupIdCreateResponseBody = {
-  requestId?: string(name='RequestId'),
-}
-
-model OnsMqttGroupIdCreateResponse = {
-  headers: map[string]string(name='headers'),
-  body: OnsMqttGroupIdCreateResponseBody(name='body'),
-}
-
-async function onsMqttGroupIdCreateWithOptions(request: OnsMqttGroupIdCreateRequest, runtime: Util.RuntimeOptions): OnsMqttGroupIdCreateResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('OnsMqttGroupIdCreate', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function onsMqttGroupIdCreate(request: OnsMqttGroupIdCreateRequest): OnsMqttGroupIdCreateResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsMqttGroupIdCreateWithOptions(request, runtime);
-}
-
-model OnsMqttGroupIdDeleteRequest {
-  groupId?: string(name='GroupId'),
-  instanceId?: string(name='InstanceId'),
-}
-
-model OnsMqttGroupIdDeleteResponseBody = {
-  requestId?: string(name='RequestId'),
-}
-
-model OnsMqttGroupIdDeleteResponse = {
-  headers: map[string]string(name='headers'),
-  body: OnsMqttGroupIdDeleteResponseBody(name='body'),
-}
-
-async function onsMqttGroupIdDeleteWithOptions(request: OnsMqttGroupIdDeleteRequest, runtime: Util.RuntimeOptions): OnsMqttGroupIdDeleteResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('OnsMqttGroupIdDelete', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function onsMqttGroupIdDelete(request: OnsMqttGroupIdDeleteRequest): OnsMqttGroupIdDeleteResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsMqttGroupIdDeleteWithOptions(request, runtime);
-}
-
-model OnsMqttGroupIdListRequest {
-  instanceId?: string(name='InstanceId'),
-}
-
-model OnsMqttGroupIdListResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    mqttGroupIdDo?: [ 
-    {
-      updateTime?: long(name='UpdateTime'),
-      independentNaming?: boolean(name='IndependentNaming'),
-      groupId?: string(name='GroupId'),
-      createTime?: long(name='CreateTime'),
-      instanceId?: string(name='InstanceId'),
-    }
-  ](name='MqttGroupIdDo')
-  }(name='Data'),
-}
-
-model OnsMqttGroupIdListResponse = {
-  headers: map[string]string(name='headers'),
-  body: OnsMqttGroupIdListResponseBody(name='body'),
-}
-
-async function onsMqttGroupIdListWithOptions(request: OnsMqttGroupIdListRequest, runtime: Util.RuntimeOptions): OnsMqttGroupIdListResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('OnsMqttGroupIdList', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function onsMqttGroupIdList(request: OnsMqttGroupIdListRequest): OnsMqttGroupIdListResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsMqttGroupIdListWithOptions(request, runtime);
-}
-
-model OnsMqttQueryClientByClientIdRequest {
-  clientId?: string(name='ClientId'),
-  instanceId?: string(name='InstanceId'),
-}
-
-model OnsMqttQueryClientByClientIdResponseBody = {
-  requestId?: string(name='RequestId'),
-  mqttClientInfoDo?: {
-    online?: boolean(name='Online'),
-    lastTouch?: long(name='LastTouch'),
-    socketChannel?: string(name='SocketChannel'),
-    clientId?: string(name='ClientId'),
-    subScriptonData?: {
-      subscriptionDo?: [ 
-      {
-        subTopic?: string(name='SubTopic'),
-        parentTopic?: string(name='ParentTopic'),
-        qos?: int32(name='Qos'),
-      }
-    ](name='SubscriptionDo')
-    }(name='SubScriptonData'),
-  }(name='MqttClientInfoDo'),
-}
-
-model OnsMqttQueryClientByClientIdResponse = {
-  headers: map[string]string(name='headers'),
-  body: OnsMqttQueryClientByClientIdResponseBody(name='body'),
-}
-
-async function onsMqttQueryClientByClientIdWithOptions(request: OnsMqttQueryClientByClientIdRequest, runtime: Util.RuntimeOptions): OnsMqttQueryClientByClientIdResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('OnsMqttQueryClientByClientId', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function onsMqttQueryClientByClientId(request: OnsMqttQueryClientByClientIdRequest): OnsMqttQueryClientByClientIdResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsMqttQueryClientByClientIdWithOptions(request, runtime);
-}
-
-model OnsMqttQueryClientByGroupIdRequest {
-  groupId?: string(name='GroupId'),
-  instanceId?: string(name='InstanceId'),
-}
-
-model OnsMqttQueryClientByGroupIdResponseBody = {
-  requestId?: string(name='RequestId'),
-  mqttClientSetDo?: {
-    onlineCount?: long(name='OnlineCount'),
-  }(name='MqttClientSetDo'),
-}
-
-model OnsMqttQueryClientByGroupIdResponse = {
-  headers: map[string]string(name='headers'),
-  body: OnsMqttQueryClientByGroupIdResponseBody(name='body'),
-}
-
-async function onsMqttQueryClientByGroupIdWithOptions(request: OnsMqttQueryClientByGroupIdRequest, runtime: Util.RuntimeOptions): OnsMqttQueryClientByGroupIdResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('OnsMqttQueryClientByGroupId', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function onsMqttQueryClientByGroupId(request: OnsMqttQueryClientByGroupIdRequest): OnsMqttQueryClientByGroupIdResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsMqttQueryClientByGroupIdWithOptions(request, runtime);
-}
-
-model OnsMqttQueryClientByTopicRequest {
-  parentTopic?: string(name='ParentTopic'),
-  subTopic?: string(name='SubTopic'),
-  instanceId?: string(name='InstanceId'),
-}
-
-model OnsMqttQueryClientByTopicResponseBody = {
-  requestId?: string(name='RequestId'),
-  mqttClientSetDo?: {
-    onlineCount?: long(name='OnlineCount'),
-  }(name='MqttClientSetDo'),
-}
-
-model OnsMqttQueryClientByTopicResponse = {
-  headers: map[string]string(name='headers'),
-  body: OnsMqttQueryClientByTopicResponseBody(name='body'),
-}
-
-async function onsMqttQueryClientByTopicWithOptions(request: OnsMqttQueryClientByTopicRequest, runtime: Util.RuntimeOptions): OnsMqttQueryClientByTopicResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('OnsMqttQueryClientByTopic', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function onsMqttQueryClientByTopic(request: OnsMqttQueryClientByTopicRequest): OnsMqttQueryClientByTopicResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsMqttQueryClientByTopicWithOptions(request, runtime);
-}
-
-model OnsMqttQueryHistoryOnlineRequest {
-  groupId?: string(name='GroupId'),
-  beginTime?: long(name='BeginTime'),
-  endTime?: long(name='EndTime'),
-  instanceId?: string(name='InstanceId'),
-}
-
-model OnsMqttQueryHistoryOnlineResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    records?: {
-      statsDataDo?: [ 
-      {
-        y?: float(name='Y'),
-        x?: long(name='X'),
-      }
-    ](name='StatsDataDo')
-    }(name='Records'),
-    XUnit?: string(name='XUnit'),
-    YUnit?: string(name='YUnit'),
-    title?: string(name='Title'),
-  }(name='Data'),
-}
-
-model OnsMqttQueryHistoryOnlineResponse = {
-  headers: map[string]string(name='headers'),
-  body: OnsMqttQueryHistoryOnlineResponseBody(name='body'),
-}
-
-async function onsMqttQueryHistoryOnlineWithOptions(request: OnsMqttQueryHistoryOnlineRequest, runtime: Util.RuntimeOptions): OnsMqttQueryHistoryOnlineResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('OnsMqttQueryHistoryOnline', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function onsMqttQueryHistoryOnline(request: OnsMqttQueryHistoryOnlineRequest): OnsMqttQueryHistoryOnlineResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsMqttQueryHistoryOnlineWithOptions(request, runtime);
-}
-
-model OnsMqttQueryMsgTransTrendRequest {
-  tpsType?: string(name='TpsType'),
-  transType?: string(name='TransType'),
-  parentTopic?: string(name='ParentTopic'),
-  subTopic?: string(name='SubTopic'),
-  msgType?: string(name='MsgType'),
-  qos?: int32(name='Qos'),
-  beginTime?: long(name='BeginTime'),
-  endTime?: long(name='EndTime'),
-  instanceId?: string(name='InstanceId'),
-}
-
-model OnsMqttQueryMsgTransTrendResponseBody = {
-  requestId?: string(name='RequestId'),
-  data?: {
-    records?: {
-      statsDataDo?: [ 
-      {
-        y?: float(name='Y'),
-        x?: long(name='X'),
-      }
-    ](name='StatsDataDo')
-    }(name='Records'),
-    XUnit?: string(name='XUnit'),
-    YUnit?: string(name='YUnit'),
-    title?: string(name='Title'),
-  }(name='Data'),
-}
-
-model OnsMqttQueryMsgTransTrendResponse = {
-  headers: map[string]string(name='headers'),
-  body: OnsMqttQueryMsgTransTrendResponseBody(name='body'),
-}
-
-async function onsMqttQueryMsgTransTrendWithOptions(request: OnsMqttQueryMsgTransTrendRequest, runtime: Util.RuntimeOptions): OnsMqttQueryMsgTransTrendResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('OnsMqttQueryMsgTransTrend', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function onsMqttQueryMsgTransTrend(request: OnsMqttQueryMsgTransTrendRequest): OnsMqttQueryMsgTransTrendResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsMqttQueryMsgTransTrendWithOptions(request, runtime);
-}
-
 model OnsRegionListResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     regionDo?: [ 
     {
-      regionName?: string(name='RegionName'),
       onsRegionId?: string(name='OnsRegionId'),
+      regionName?: string(name='RegionName'),
     }
   ](name='RegionDo')
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsRegionListResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsRegionListResponseBody(name='body'),
 }
 
 async function onsRegionListWithOptions(runtime: Util.RuntimeOptions): OnsRegionListResponse {
   var req = new OpenApi.OpenApiRequest{};
-  return doRPCRequest('OnsRegionList', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsRegionList',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsRegionList(): OnsRegionListResponse {
@@ -1432,10 +1685,10 @@ async function onsRegionList(): OnsRegionListResponse {
 }
 
 model OnsTopicCreateRequest {
-  topic?: string(name='Topic'),
+  instanceId?: string(name='InstanceId'),
   messageType?: int32(name='MessageType'),
   remark?: string(name='Remark'),
-  instanceId?: string(name='InstanceId'),
+  topic?: string(name='Topic'),
 }
 
 model OnsTopicCreateResponseBody = {
@@ -1444,15 +1697,40 @@ model OnsTopicCreateResponseBody = {
 
 model OnsTopicCreateResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsTopicCreateResponseBody(name='body'),
 }
 
 async function onsTopicCreateWithOptions(request: OnsTopicCreateRequest, runtime: Util.RuntimeOptions): OnsTopicCreateResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.messageType)) {
+    query['MessageType'] = request.messageType;
+  }
+  if (!Util.isUnset(request.remark)) {
+    query['Remark'] = request.remark;
+  }
+  if (!Util.isUnset(request.topic)) {
+    query['Topic'] = request.topic;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsTopicCreate', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsTopicCreate',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsTopicCreate(request: OnsTopicCreateRequest): OnsTopicCreateResponse {
@@ -1461,8 +1739,8 @@ async function onsTopicCreate(request: OnsTopicCreateRequest): OnsTopicCreateRes
 }
 
 model OnsTopicDeleteRequest {
-  topic?: string(name='Topic'),
   instanceId?: string(name='InstanceId'),
+  topic?: string(name='Topic'),
 }
 
 model OnsTopicDeleteResponseBody = {
@@ -1471,15 +1749,34 @@ model OnsTopicDeleteResponseBody = {
 
 model OnsTopicDeleteResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsTopicDeleteResponseBody(name='body'),
 }
 
 async function onsTopicDeleteWithOptions(request: OnsTopicDeleteRequest, runtime: Util.RuntimeOptions): OnsTopicDeleteResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.topic)) {
+    query['Topic'] = request.topic;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsTopicDelete', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsTopicDelete',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsTopicDelete(request: OnsTopicDeleteRequest): OnsTopicDeleteResponse {
@@ -1488,7 +1785,6 @@ async function onsTopicDelete(request: OnsTopicDeleteRequest): OnsTopicDeleteRes
 }
 
 model OnsTopicListRequest {
-  topic?: string(name='Topic'),
   instanceId?: string(name='InstanceId'),
   tag?: [ 
     {
@@ -1496,21 +1792,23 @@ model OnsTopicListRequest {
       value?: string(name='Value'),
     }
   ](name='Tag'),
+  topic?: string(name='Topic'),
+  userId?: string(name='UserId'),
 }
 
 model OnsTopicListResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     publishInfoDo?: [ 
     {
-      messageType?: int32(name='MessageType'),
-      relationName?: string(name='RelationName'),
-      owner?: string(name='Owner'),
-      independentNaming?: boolean(name='IndependentNaming'),
-      remark?: string(name='Remark'),
-      relation?: int32(name='Relation'),
       createTime?: long(name='CreateTime'),
-      topic?: string(name='Topic'),
+      independentNaming?: boolean(name='IndependentNaming'),
+      instanceId?: string(name='InstanceId'),
+      messageType?: int32(name='MessageType'),
+      owner?: string(name='Owner'),
+      relation?: int32(name='Relation'),
+      relationName?: string(name='RelationName'),
+      remark?: string(name='Remark'),
+      serviceStatus?: int32(name='ServiceStatus'),
       tags?: {
         tag?: [ 
         {
@@ -1519,23 +1817,49 @@ model OnsTopicListResponseBody = {
         }
       ](name='Tag')
       }(name='Tags'),
-      instanceId?: string(name='InstanceId'),
+      topic?: string(name='Topic'),
     }
   ](name='PublishInfoDo')
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsTopicListResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsTopicListResponseBody(name='body'),
 }
 
 async function onsTopicListWithOptions(request: OnsTopicListRequest, runtime: Util.RuntimeOptions): OnsTopicListResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.tag)) {
+    query['Tag'] = request.tag;
+  }
+  if (!Util.isUnset(request.topic)) {
+    query['Topic'] = request.topic;
+  }
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsTopicList', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsTopicList',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsTopicList(request: OnsTopicListRequest): OnsTopicListResponse {
@@ -1544,30 +1868,49 @@ async function onsTopicList(request: OnsTopicListRequest): OnsTopicListResponse 
 }
 
 model OnsTopicStatusRequest {
-  topic?: string(name='Topic'),
   instanceId?: string(name='InstanceId'),
+  topic?: string(name='Topic'),
 }
 
 model OnsTopicStatusResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
-    perm?: int32(name='Perm'),
     lastTimeStamp?: long(name='LastTimeStamp'),
+    perm?: int32(name='Perm'),
     totalCount?: long(name='TotalCount'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsTopicStatusResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsTopicStatusResponseBody(name='body'),
 }
 
 async function onsTopicStatusWithOptions(request: OnsTopicStatusRequest, runtime: Util.RuntimeOptions): OnsTopicStatusResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.topic)) {
+    query['Topic'] = request.topic;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsTopicStatus', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsTopicStatus',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsTopicStatus(request: OnsTopicStatusRequest): OnsTopicStatusResponse {
@@ -1581,7 +1924,6 @@ model OnsTopicSubDetailRequest {
 }
 
 model OnsTopicSubDetailResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     subscriptionDataList?: {
       subscriptionDataList?: [ 
@@ -1594,19 +1936,39 @@ model OnsTopicSubDetailResponseBody = {
     }(name='SubscriptionDataList'),
     topic?: string(name='Topic'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsTopicSubDetailResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsTopicSubDetailResponseBody(name='body'),
 }
 
 async function onsTopicSubDetailWithOptions(request: OnsTopicSubDetailRequest, runtime: Util.RuntimeOptions): OnsTopicSubDetailResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.topic)) {
+    query['Topic'] = request.topic;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsTopicSubDetail', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsTopicSubDetail',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsTopicSubDetail(request: OnsTopicSubDetailRequest): OnsTopicSubDetailResponse {
@@ -1615,9 +1977,9 @@ async function onsTopicSubDetail(request: OnsTopicSubDetailRequest): OnsTopicSub
 }
 
 model OnsTopicUpdateRequest {
-  topic?: string(name='Topic'),
-  perm?: int32(name='Perm'),
   instanceId?: string(name='InstanceId'),
+  perm?: int32(name='Perm'),
+  topic?: string(name='Topic'),
 }
 
 model OnsTopicUpdateResponseBody = {
@@ -1626,15 +1988,37 @@ model OnsTopicUpdateResponseBody = {
 
 model OnsTopicUpdateResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsTopicUpdateResponseBody(name='body'),
 }
 
 async function onsTopicUpdateWithOptions(request: OnsTopicUpdateRequest, runtime: Util.RuntimeOptions): OnsTopicUpdateResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.perm)) {
+    query['Perm'] = request.perm;
+  }
+  if (!Util.isUnset(request.topic)) {
+    query['Topic'] = request.topic;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsTopicUpdate', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsTopicUpdate',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsTopicUpdate(request: OnsTopicUpdateRequest): OnsTopicUpdateResponse {
@@ -1649,32 +2033,35 @@ model OnsTraceGetResultRequest {
 model OnsTraceGetResultResponseBody = {
   requestId?: string(name='RequestId'),
   traceData?: {
-    status?: string(name='Status'),
-    msgKey?: string(name='MsgKey'),
-    updateTime?: long(name='UpdateTime'),
     createTime?: long(name='CreateTime'),
-    topic?: string(name='Topic'),
-    userId?: string(name='UserId'),
     instanceId?: string(name='InstanceId'),
     msgId?: string(name='MsgId'),
+    msgKey?: string(name='MsgKey'),
+    queryId?: string(name='QueryId'),
+    status?: string(name='Status'),
+    topic?: string(name='Topic'),
     traceList?: {
       traceMapDo?: [ 
       {
-        status?: string(name='Status'),
+        bornHost?: string(name='BornHost'),
+        costTime?: int32(name='CostTime'),
+        msgId?: string(name='MsgId'),
         msgKey?: string(name='MsgKey'),
+        pubGroupName?: string(name='PubGroupName'),
         pubTime?: long(name='PubTime'),
+        status?: string(name='Status'),
         subList?: {
           subMapDo?: [ 
           {
             clientList?: {
               subClientInfoDo?: [ 
               {
-                status?: string(name='Status'),
-                subTime?: long(name='SubTime'),
-                reconsumeTimes?: int32(name='ReconsumeTimes'),
-                subGroupName?: string(name='SubGroupName'),
                 clientHost?: string(name='ClientHost'),
                 costTime?: int32(name='CostTime'),
+                reconsumeTimes?: int32(name='ReconsumeTimes'),
+                status?: string(name='Status'),
+                subGroupName?: string(name='SubGroupName'),
+                subTime?: long(name='SubTime'),
               }
             ](name='SubClientInfoDo')
             }(name='ClientList'),
@@ -1684,30 +2071,43 @@ model OnsTraceGetResultResponseBody = {
           }
         ](name='SubMapDo')
         }(name='SubList'),
-        topic?: string(name='Topic'),
-        costTime?: int32(name='CostTime'),
         tag?: string(name='Tag'),
-        msgId?: string(name='MsgId'),
-        pubGroupName?: string(name='PubGroupName'),
-        bornHost?: string(name='BornHost'),
+        topic?: string(name='Topic'),
       }
     ](name='TraceMapDo')
     }(name='TraceList'),
-    queryId?: string(name='QueryId'),
+    updateTime?: long(name='UpdateTime'),
+    userId?: string(name='UserId'),
   }(name='TraceData'),
 }
 
 model OnsTraceGetResultResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsTraceGetResultResponseBody(name='body'),
 }
 
 async function onsTraceGetResultWithOptions(request: OnsTraceGetResultRequest, runtime: Util.RuntimeOptions): OnsTraceGetResultResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.queryId)) {
+    query['QueryId'] = request.queryId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsTraceGetResult', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsTraceGetResult',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsTraceGetResult(request: OnsTraceGetResultRequest): OnsTraceGetResultResponse {
@@ -1716,29 +2116,57 @@ async function onsTraceGetResult(request: OnsTraceGetResultRequest): OnsTraceGet
 }
 
 model OnsTraceQueryByMsgIdRequest {
-  topic?: string(name='Topic'),
-  msgId?: string(name='MsgId'),
   beginTime?: long(name='BeginTime'),
   endTime?: long(name='EndTime'),
   instanceId?: string(name='InstanceId'),
+  msgId?: string(name='MsgId'),
+  topic?: string(name='Topic'),
 }
 
 model OnsTraceQueryByMsgIdResponseBody = {
-  requestId?: string(name='RequestId'),
   queryId?: string(name='QueryId'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsTraceQueryByMsgIdResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsTraceQueryByMsgIdResponseBody(name='body'),
 }
 
 async function onsTraceQueryByMsgIdWithOptions(request: OnsTraceQueryByMsgIdRequest, runtime: Util.RuntimeOptions): OnsTraceQueryByMsgIdResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.beginTime)) {
+    query['BeginTime'] = request.beginTime;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.msgId)) {
+    query['MsgId'] = request.msgId;
+  }
+  if (!Util.isUnset(request.topic)) {
+    query['Topic'] = request.topic;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsTraceQueryByMsgId', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsTraceQueryByMsgId',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsTraceQueryByMsgId(request: OnsTraceQueryByMsgIdRequest): OnsTraceQueryByMsgIdResponse {
@@ -1747,29 +2175,57 @@ async function onsTraceQueryByMsgId(request: OnsTraceQueryByMsgIdRequest): OnsTr
 }
 
 model OnsTraceQueryByMsgKeyRequest {
-  topic?: string(name='Topic'),
-  msgKey?: string(name='MsgKey'),
   beginTime?: long(name='BeginTime'),
   endTime?: long(name='EndTime'),
   instanceId?: string(name='InstanceId'),
+  msgKey?: string(name='MsgKey'),
+  topic?: string(name='Topic'),
 }
 
 model OnsTraceQueryByMsgKeyResponseBody = {
-  requestId?: string(name='RequestId'),
   queryId?: string(name='QueryId'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsTraceQueryByMsgKeyResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsTraceQueryByMsgKeyResponseBody(name='body'),
 }
 
 async function onsTraceQueryByMsgKeyWithOptions(request: OnsTraceQueryByMsgKeyRequest, runtime: Util.RuntimeOptions): OnsTraceQueryByMsgKeyResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.beginTime)) {
+    query['BeginTime'] = request.beginTime;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.msgKey)) {
+    query['MsgKey'] = request.msgKey;
+  }
+  if (!Util.isUnset(request.topic)) {
+    query['Topic'] = request.topic;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsTraceQueryByMsgKey', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsTraceQueryByMsgKey',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsTraceQueryByMsgKey(request: OnsTraceQueryByMsgKeyRequest): OnsTraceQueryByMsgKeyResponse {
@@ -1778,43 +2234,77 @@ async function onsTraceQueryByMsgKey(request: OnsTraceQueryByMsgKeyRequest): Ons
 }
 
 model OnsTrendGroupOutputTpsRequest {
-  groupId?: string(name='GroupId'),
-  topic?: string(name='Topic'),
   beginTime?: long(name='BeginTime'),
   endTime?: long(name='EndTime'),
-  type?: int32(name='Type'),
+  groupId?: string(name='GroupId'),
   instanceId?: string(name='InstanceId'),
   period?: long(name='Period'),
+  topic?: string(name='Topic'),
+  type?: int32(name='Type'),
 }
 
 model OnsTrendGroupOutputTpsResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     records?: {
       statsDataDo?: [ 
       {
-        y?: float(name='Y'),
         x?: long(name='X'),
+        y?: float(name='Y'),
       }
     ](name='StatsDataDo')
     }(name='Records'),
+    title?: string(name='Title'),
     XUnit?: string(name='XUnit'),
     YUnit?: string(name='YUnit'),
-    title?: string(name='Title'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsTrendGroupOutputTpsResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsTrendGroupOutputTpsResponseBody(name='body'),
 }
 
 async function onsTrendGroupOutputTpsWithOptions(request: OnsTrendGroupOutputTpsRequest, runtime: Util.RuntimeOptions): OnsTrendGroupOutputTpsResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.beginTime)) {
+    query['BeginTime'] = request.beginTime;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.groupId)) {
+    query['GroupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.period)) {
+    query['Period'] = request.period;
+  }
+  if (!Util.isUnset(request.topic)) {
+    query['Topic'] = request.topic;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['Type'] = request.type;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsTrendGroupOutputTps', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsTrendGroupOutputTps',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsTrendGroupOutputTps(request: OnsTrendGroupOutputTpsRequest): OnsTrendGroupOutputTpsResponse {
@@ -1823,42 +2313,73 @@ async function onsTrendGroupOutputTps(request: OnsTrendGroupOutputTpsRequest): O
 }
 
 model OnsTrendTopicInputTpsRequest {
-  topic?: string(name='Topic'),
   beginTime?: long(name='BeginTime'),
   endTime?: long(name='EndTime'),
-  type?: int32(name='Type'),
   instanceId?: string(name='InstanceId'),
   period?: long(name='Period'),
+  topic?: string(name='Topic'),
+  type?: int32(name='Type'),
 }
 
 model OnsTrendTopicInputTpsResponseBody = {
-  requestId?: string(name='RequestId'),
   data?: {
     records?: {
       statsDataDo?: [ 
       {
-        y?: float(name='Y'),
         x?: long(name='X'),
+        y?: float(name='Y'),
       }
     ](name='StatsDataDo')
     }(name='Records'),
+    title?: string(name='Title'),
     XUnit?: string(name='XUnit'),
     YUnit?: string(name='YUnit'),
-    title?: string(name='Title'),
   }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model OnsTrendTopicInputTpsResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OnsTrendTopicInputTpsResponseBody(name='body'),
 }
 
 async function onsTrendTopicInputTpsWithOptions(request: OnsTrendTopicInputTpsRequest, runtime: Util.RuntimeOptions): OnsTrendTopicInputTpsResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.beginTime)) {
+    query['BeginTime'] = request.beginTime;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.period)) {
+    query['Period'] = request.period;
+  }
+  if (!Util.isUnset(request.topic)) {
+    query['Topic'] = request.topic;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['Type'] = request.type;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('OnsTrendTopicInputTps', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OnsTrendTopicInputTps',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function onsTrendTopicInputTps(request: OnsTrendTopicInputTpsRequest): OnsTrendTopicInputTpsResponse {
@@ -1866,81 +2387,31 @@ async function onsTrendTopicInputTps(request: OnsTrendTopicInputTpsRequest): Ons
   return onsTrendTopicInputTpsWithOptions(request, runtime);
 }
 
-model OnsWarnCreateRequest {
-  groupId?: string(name='GroupId'),
-  topic?: string(name='Topic'),
-  threshold?: string(name='Threshold'),
-  contacts?: string(name='Contacts'),
-  delayTime?: string(name='DelayTime'),
-  blockTime?: string(name='BlockTime'),
-  alertTime?: string(name='AlertTime'),
-  level?: string(name='Level'),
-  instanceId?: string(name='InstanceId'),
-}
-
-model OnsWarnCreateResponseBody = {
-  requestId?: string(name='RequestId'),
-}
-
-model OnsWarnCreateResponse = {
-  headers: map[string]string(name='headers'),
-  body: OnsWarnCreateResponseBody(name='body'),
-}
-
-async function onsWarnCreateWithOptions(request: OnsWarnCreateRequest, runtime: Util.RuntimeOptions): OnsWarnCreateResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('OnsWarnCreate', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function onsWarnCreate(request: OnsWarnCreateRequest): OnsWarnCreateResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsWarnCreateWithOptions(request, runtime);
-}
-
-model OnsWarnDeleteRequest {
-  groupId?: string(name='GroupId'),
-  topic?: string(name='Topic'),
-  instanceId?: string(name='InstanceId'),
-}
-
-model OnsWarnDeleteResponseBody = {
-  requestId?: string(name='RequestId'),
-}
-
-model OnsWarnDeleteResponse = {
-  headers: map[string]string(name='headers'),
-  body: OnsWarnDeleteResponseBody(name='body'),
-}
-
-async function onsWarnDeleteWithOptions(request: OnsWarnDeleteRequest, runtime: Util.RuntimeOptions): OnsWarnDeleteResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
-  };
-  return doRPCRequest('OnsWarnDelete', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
-}
-
-async function onsWarnDelete(request: OnsWarnDeleteRequest): OnsWarnDeleteResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsWarnDeleteWithOptions(request, runtime);
-}
-
 model OpenOnsServiceResponseBody = {
-  requestId?: string(name='RequestId'),
   orderId?: string(name='OrderId'),
+  requestId?: string(name='RequestId'),
 }
 
 model OpenOnsServiceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: OpenOnsServiceResponseBody(name='body'),
 }
 
 async function openOnsServiceWithOptions(runtime: Util.RuntimeOptions): OpenOnsServiceResponse {
   var req = new OpenApi.OpenApiRequest{};
-  return doRPCRequest('OpenOnsService', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'OpenOnsService',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function openOnsService(): OpenOnsServiceResponse {
@@ -1950,6 +2421,7 @@ async function openOnsService(): OpenOnsServiceResponse {
 
 model TagResourcesRequest {
   instanceId?: string(name='InstanceId'),
+  resourceId?: [ string ](name='ResourceId'),
   resourceType?: string(name='ResourceType'),
   tag?: [ 
     {
@@ -1957,7 +2429,6 @@ model TagResourcesRequest {
       value?: string(name='Value'),
     }
   ](name='Tag'),
-  resourceId?: [ string ](name='ResourceId'),
 }
 
 model TagResourcesResponseBody = {
@@ -1966,15 +2437,40 @@ model TagResourcesResponseBody = {
 
 model TagResourcesResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: TagResourcesResponseBody(name='body'),
 }
 
 async function tagResourcesWithOptions(request: TagResourcesRequest, runtime: Util.RuntimeOptions): TagResourcesResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.resourceId)) {
+    query['ResourceId'] = request.resourceId;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query['ResourceType'] = request.resourceType;
+  }
+  if (!Util.isUnset(request.tag)) {
+    query['Tag'] = request.tag;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('TagResources', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'TagResources',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function tagResources(request: TagResourcesRequest): TagResourcesResponse {
@@ -1983,10 +2479,10 @@ async function tagResources(request: TagResourcesRequest): TagResourcesResponse 
 }
 
 model UntagResourcesRequest {
-  instanceId?: string(name='InstanceId'),
-  resourceType?: string(name='ResourceType'),
   all?: boolean(name='All'),
+  instanceId?: string(name='InstanceId'),
   resourceId?: [ string ](name='ResourceId'),
+  resourceType?: string(name='ResourceType'),
   tagKey?: [ string ](name='TagKey'),
 }
 
@@ -1996,15 +2492,43 @@ model UntagResourcesResponseBody = {
 
 model UntagResourcesResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: UntagResourcesResponseBody(name='body'),
 }
 
 async function untagResourcesWithOptions(request: UntagResourcesRequest, runtime: Util.RuntimeOptions): UntagResourcesResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.all)) {
+    query['All'] = request.all;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.resourceId)) {
+    query['ResourceId'] = request.resourceId;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query['ResourceType'] = request.resourceType;
+  }
+  if (!Util.isUnset(request.tagKey)) {
+    query['TagKey'] = request.tagKey;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    body = Util.toMap(request),
+    query = OpenApiUtil.query(query),
   };
-  return doRPCRequest('UntagResources', '2019-02-14', 'HTTPS', 'POST', 'AK', 'json', req, runtime);
+  var params = new OpenApi.Params{
+    action = 'UntagResources',
+    version = '2019-02-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
 async function untagResources(request: UntagResourcesRequest): UntagResourcesResponse {
