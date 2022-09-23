@@ -77,6 +77,13 @@ model OtsTableRestoreDetail {
   searchIndexNameSuffix?: string(name='SearchIndexNameSuffix'),
 }
 
+model Report {
+  failedFiles?: string(name='FailedFiles'),
+  skippedFiles?: string(name='SkippedFiles'),
+  successFiles?: string(name='SuccessFiles'),
+  totalFiles?: string(name='TotalFiles'),
+}
+
 model Rule {
   backupType?: string(name='BackupType'),
   destinationRegionId?: string(name='DestinationRegionId'),
@@ -313,6 +320,7 @@ model CreateBackupJobRequest {
   exclude?: string(name='Exclude'),
   include?: string(name='Include'),
   initiatedByAck?: boolean(name='InitiatedByAck'),
+  instanceId?: string(name='InstanceId'),
   jobName?: string(name='JobName'),
   options?: string(name='Options'),
   retention?: long(name='Retention'),
@@ -367,6 +375,9 @@ async function createBackupJobWithOptions(request: CreateBackupJobRequest, runti
   }
   if (!Util.isUnset(request.initiatedByAck)) {
     query['InitiatedByAck'] = request.initiatedByAck;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
   }
   if (!Util.isUnset(request.jobName)) {
     query['JobName'] = request.jobName;
@@ -1191,6 +1202,58 @@ async function createRestoreJob(request: CreateRestoreJobRequest): CreateRestore
   return createRestoreJobWithOptions(request, runtime);
 }
 
+model CreateTempFileUploadUrlRequest {
+  fileName?: string(name='FileName'),
+}
+
+model CreateTempFileUploadUrlResponseBody = {
+  bucketName?: string(name='BucketName'),
+  code?: string(name='Code'),
+  endpoint?: string(name='Endpoint'),
+  expireTime?: long(name='ExpireTime'),
+  message?: string(name='Message'),
+  ossAccessKeyId?: string(name='OssAccessKeyId'),
+  policy?: string(name='Policy'),
+  requestId?: string(name='RequestId'),
+  signature?: string(name='Signature'),
+  success?: boolean(name='Success'),
+  tempFileKey?: string(name='TempFileKey'),
+}
+
+model CreateTempFileUploadUrlResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateTempFileUploadUrlResponseBody(name='body'),
+}
+
+async function createTempFileUploadUrlWithOptions(request: CreateTempFileUploadUrlRequest, runtime: Util.RuntimeOptions): CreateTempFileUploadUrlResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.fileName)) {
+    query['FileName'] = request.fileName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateTempFileUploadUrl',
+    version = '2017-09-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createTempFileUploadUrl(request: CreateTempFileUploadUrlRequest): CreateTempFileUploadUrlResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createTempFileUploadUrlWithOptions(request, runtime);
+}
+
 model CreateVaultRequest {
   bucketName?: string(name='BucketName'),
   compressionAlgorithm?: string(name='CompressionAlgorithm'),
@@ -1677,6 +1740,9 @@ async function deleteVault(request: DeleteVaultRequest): DeleteVaultResponse {
 model DescribeBackupClientsRequest {
   clientIds?: map[string]any(name='ClientIds'),
   clientType?: string(name='ClientType'),
+  crossAccountRoleName?: string(name='CrossAccountRoleName'),
+  crossAccountType?: string(name='CrossAccountType'),
+  crossAccountUserId?: long(name='CrossAccountUserId'),
   instanceIds?: map[string]any(name='InstanceIds'),
   pageNumber?: int32(name='PageNumber'),
   pageSize?: int32(name='PageSize'),
@@ -1691,6 +1757,9 @@ model DescribeBackupClientsRequest {
 model DescribeBackupClientsShrinkRequest {
   clientIdsShrink?: string(name='ClientIds'),
   clientType?: string(name='ClientType'),
+  crossAccountRoleName?: string(name='CrossAccountRoleName'),
+  crossAccountType?: string(name='CrossAccountType'),
+  crossAccountUserId?: long(name='CrossAccountUserId'),
   instanceIdsShrink?: string(name='InstanceIds'),
   pageNumber?: int32(name='PageNumber'),
   pageSize?: int32(name='PageSize'),
@@ -1712,6 +1781,9 @@ model DescribeBackupClientsResponseBody = {
       clientType?: string(name='ClientType'),
       clientVersion?: string(name='ClientVersion'),
       createdTime?: long(name='CreatedTime'),
+      crossAccountRoleName?: string(name='CrossAccountRoleName'),
+      crossAccountType?: string(name='CrossAccountType'),
+      crossAccountUserId?: long(name='CrossAccountUserId'),
       hostname?: string(name='Hostname'),
       instanceId?: string(name='InstanceId'),
       instanceName?: string(name='InstanceName'),
@@ -1769,6 +1841,15 @@ async function describeBackupClientsWithOptions(tmpReq: DescribeBackupClientsReq
   var query = {};
   if (!Util.isUnset(request.clientType)) {
     query['ClientType'] = request.clientType;
+  }
+  if (!Util.isUnset(request.crossAccountRoleName)) {
+    query['CrossAccountRoleName'] = request.crossAccountRoleName;
+  }
+  if (!Util.isUnset(request.crossAccountType)) {
+    query['CrossAccountType'] = request.crossAccountType;
+  }
+  if (!Util.isUnset(request.crossAccountUserId)) {
+    query['CrossAccountUserId'] = request.crossAccountUserId;
   }
   if (!Util.isUnset(request.pageNumber)) {
     query['PageNumber'] = request.pageNumber;
@@ -3114,6 +3195,9 @@ model DescribeRestoreJobs2ResponseBody = {
       }(name='OtsDetail'),
       parentId?: string(name='ParentId'),
       progress?: int32(name='Progress'),
+      report?: {
+        totalFiles?: string(name='TotalFiles'),
+      }(name='Report'),
       restoreId?: string(name='RestoreId'),
       restoreType?: string(name='RestoreType'),
       snapshotHash?: string(name='SnapshotHash'),
@@ -3283,17 +3367,20 @@ model DescribeUdmSnapshotsResponseBody = {
       detail?: {
         consistentLevel?: string(name='ConsistentLevel'),
         containOsDisk?: boolean(name='ContainOsDisk'),
+        diskCategory?: string(name='DiskCategory'),
         diskDevName?: string(name='DiskDevName'),
         diskHbrSnapshotIdWithDeviceMap?: map[string]any(name='DiskHbrSnapshotIdWithDeviceMap'),
         diskIdList?: [ string ](name='DiskIdList'),
         downgradeReason?: string(name='DowngradeReason'),
         instanceIdWithDiskIdListMap?: map[string]any(name='InstanceIdWithDiskIdListMap'),
         instanceName?: string(name='InstanceName'),
+        instanceType?: string(name='InstanceType'),
         nativeSnapshotIdList?: [ string ](name='NativeSnapshotIdList'),
         osDiskId?: string(name='OsDiskId'),
         osName?: string(name='OsName'),
         osNameEn?: string(name='OsNameEn'),
         osType?: string(name='OsType'),
+        performanceLevel?: string(name='PerformanceLevel'),
         platform?: string(name='Platform'),
         snapshotGroupId?: string(name='SnapshotGroupId'),
         systemDisk?: boolean(name='SystemDisk'),
@@ -3989,11 +4076,63 @@ async function generateRamPolicy(request: GenerateRamPolicyRequest): GenerateRam
   return generateRamPolicyWithOptions(request, runtime);
 }
 
+model GetTempFileDownloadLinkRequest {
+  tempFileKey?: string(name='TempFileKey'),
+}
+
+model GetTempFileDownloadLinkResponseBody = {
+  code?: string(name='Code'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+  url?: string(name='Url'),
+}
+
+model GetTempFileDownloadLinkResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetTempFileDownloadLinkResponseBody(name='body'),
+}
+
+async function getTempFileDownloadLinkWithOptions(request: GetTempFileDownloadLinkRequest, runtime: Util.RuntimeOptions): GetTempFileDownloadLinkResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.tempFileKey)) {
+    query['TempFileKey'] = request.tempFileKey;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetTempFileDownloadLink',
+    version = '2017-09-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getTempFileDownloadLink(request: GetTempFileDownloadLinkRequest): GetTempFileDownloadLinkResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getTempFileDownloadLinkWithOptions(request, runtime);
+}
+
 model InstallBackupClientsRequest {
+  crossAccountRoleName?: string(name='CrossAccountRoleName'),
+  crossAccountType?: string(name='CrossAccountType'),
+  crossAccountUserId?: long(name='CrossAccountUserId'),
   instanceIds?: map[string]any(name='InstanceIds'),
 }
 
 model InstallBackupClientsShrinkRequest {
+  crossAccountRoleName?: string(name='CrossAccountRoleName'),
+  crossAccountType?: string(name='CrossAccountType'),
+  crossAccountUserId?: long(name='CrossAccountUserId'),
   instanceIdsShrink?: string(name='InstanceIds'),
 }
 
@@ -4026,6 +4165,15 @@ async function installBackupClientsWithOptions(tmpReq: InstallBackupClientsReque
     request.instanceIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.instanceIds, 'InstanceIds', 'json');
   }
   var query = {};
+  if (!Util.isUnset(request.crossAccountRoleName)) {
+    query['CrossAccountRoleName'] = request.crossAccountRoleName;
+  }
+  if (!Util.isUnset(request.crossAccountType)) {
+    query['CrossAccountType'] = request.crossAccountType;
+  }
+  if (!Util.isUnset(request.crossAccountUserId)) {
+    query['CrossAccountUserId'] = request.crossAccountUserId;
+  }
   if (!Util.isUnset(request.instanceIdsShrink)) {
     query['InstanceIds'] = request.instanceIdsShrink;
   }
@@ -4049,6 +4197,38 @@ async function installBackupClientsWithOptions(tmpReq: InstallBackupClientsReque
 async function installBackupClients(request: InstallBackupClientsRequest): InstallBackupClientsResponse {
   var runtime = new Util.RuntimeOptions{};
   return installBackupClientsWithOptions(request, runtime);
+}
+
+model OpenHbrServiceResponseBody = {
+  orderId?: string(name='OrderId'),
+  requestId?: string(name='RequestId'),
+}
+
+model OpenHbrServiceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: OpenHbrServiceResponseBody(name='body'),
+}
+
+async function openHbrServiceWithOptions(runtime: Util.RuntimeOptions): OpenHbrServiceResponse {
+  var req = new OpenApi.OpenApiRequest{};
+  var params = new OpenApi.Params{
+    action = 'OpenHbrService',
+    version = '2017-09-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function openHbrService(): OpenHbrServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return openHbrServiceWithOptions(runtime);
 }
 
 model SearchHistoricalSnapshotsRequest {
@@ -4274,11 +4454,17 @@ async function stopHanaDatabaseAsync(request: StopHanaDatabaseAsyncRequest): Sto
 
 model UninstallBackupClientsRequest {
   clientIds?: map[string]any(name='ClientIds'),
+  crossAccountRoleName?: string(name='CrossAccountRoleName'),
+  crossAccountType?: string(name='CrossAccountType'),
+  crossAccountUserId?: long(name='CrossAccountUserId'),
   instanceIds?: map[string]any(name='InstanceIds'),
 }
 
 model UninstallBackupClientsShrinkRequest {
   clientIdsShrink?: string(name='ClientIds'),
+  crossAccountRoleName?: string(name='CrossAccountRoleName'),
+  crossAccountType?: string(name='CrossAccountType'),
+  crossAccountUserId?: long(name='CrossAccountUserId'),
   instanceIdsShrink?: string(name='InstanceIds'),
 }
 
@@ -4316,6 +4502,15 @@ async function uninstallBackupClientsWithOptions(tmpReq: UninstallBackupClientsR
   var query = {};
   if (!Util.isUnset(request.clientIdsShrink)) {
     query['ClientIds'] = request.clientIdsShrink;
+  }
+  if (!Util.isUnset(request.crossAccountRoleName)) {
+    query['CrossAccountRoleName'] = request.crossAccountRoleName;
+  }
+  if (!Util.isUnset(request.crossAccountType)) {
+    query['CrossAccountType'] = request.crossAccountType;
+  }
+  if (!Util.isUnset(request.crossAccountUserId)) {
+    query['CrossAccountUserId'] = request.crossAccountUserId;
   }
   if (!Util.isUnset(request.instanceIdsShrink)) {
     query['InstanceIds'] = request.instanceIdsShrink;
@@ -5000,11 +5195,17 @@ async function updateVault(request: UpdateVaultRequest): UpdateVaultResponse {
 
 model UpgradeBackupClientsRequest {
   clientIds?: map[string]any(name='ClientIds'),
+  crossAccountRoleName?: string(name='CrossAccountRoleName'),
+  crossAccountType?: string(name='CrossAccountType'),
+  crossAccountUserId?: long(name='CrossAccountUserId'),
   instanceIds?: map[string]any(name='InstanceIds'),
 }
 
 model UpgradeBackupClientsShrinkRequest {
   clientIdsShrink?: string(name='ClientIds'),
+  crossAccountRoleName?: string(name='CrossAccountRoleName'),
+  crossAccountType?: string(name='CrossAccountType'),
+  crossAccountUserId?: long(name='CrossAccountUserId'),
   instanceIdsShrink?: string(name='InstanceIds'),
 }
 
@@ -5042,6 +5243,15 @@ async function upgradeBackupClientsWithOptions(tmpReq: UpgradeBackupClientsReque
   var query = {};
   if (!Util.isUnset(request.clientIdsShrink)) {
     query['ClientIds'] = request.clientIdsShrink;
+  }
+  if (!Util.isUnset(request.crossAccountRoleName)) {
+    query['CrossAccountRoleName'] = request.crossAccountRoleName;
+  }
+  if (!Util.isUnset(request.crossAccountType)) {
+    query['CrossAccountType'] = request.crossAccountType;
+  }
+  if (!Util.isUnset(request.crossAccountUserId)) {
+    query['CrossAccountUserId'] = request.crossAccountUserId;
   }
   if (!Util.isUnset(request.instanceIdsShrink)) {
     query['InstanceIds'] = request.instanceIdsShrink;
