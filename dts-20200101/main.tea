@@ -3,7 +3,6 @@
  */
 import Util;
 import OSS;
-import RPC;
 import OpenPlatform;
 import OSSUtil;
 import FileForm;
@@ -372,7 +371,7 @@ async function configureDtsJobAdvance(request: ConfigureDtsJobAdvanceRequest, ru
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -405,238 +404,32 @@ async function configureDtsJobAdvance(request: ConfigureDtsJobAdvanceRequest, ru
 
   if(!Util.isUnset(request.fileOssUrlObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.fileOssUrlObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    configureDtsJobReq.fileOssUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    configureDtsJobReq.fileOssUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var configureDtsJobResp = configureDtsJobWithOptions(configureDtsJobReq, runtime);
   return configureDtsJobResp;
-}
-
-model ConfigureEtlJobRequest {
-  checkpoint?: string(name='Checkpoint'),
-  dataInitialization?: boolean(name='DataInitialization'),
-  dataSynchronization?: boolean(name='DataSynchronization'),
-  dbList?: string(name='DbList'),
-  delayNotice?: boolean(name='DelayNotice'),
-  delayPhone?: string(name='DelayPhone'),
-  delayRuleTime?: long(name='DelayRuleTime'),
-  destinationEndpointDataBaseName?: string(name='DestinationEndpointDataBaseName'),
-  destinationEndpointEngineName?: string(name='DestinationEndpointEngineName'),
-  destinationEndpointIP?: string(name='DestinationEndpointIP'),
-  destinationEndpointInstanceID?: string(name='DestinationEndpointInstanceID'),
-  destinationEndpointInstanceType?: string(name='DestinationEndpointInstanceType'),
-  destinationEndpointOracleSID?: string(name='DestinationEndpointOracleSID'),
-  destinationEndpointPassword?: string(name='DestinationEndpointPassword'),
-  destinationEndpointPort?: string(name='DestinationEndpointPort'),
-  destinationEndpointRegion?: string(name='DestinationEndpointRegion'),
-  destinationEndpointUserName?: string(name='DestinationEndpointUserName'),
-  dtsInstanceId?: string(name='DtsInstanceId'),
-  dtsJobId?: string(name='DtsJobId'),
-  dtsJobName?: string(name='DtsJobName'),
-  errorNotice?: boolean(name='ErrorNotice'),
-  errorPhone?: string(name='ErrorPhone'),
-  etlCalculator?: string(name='EtlCalculator'),
-  jobType?: string(name='JobType'),
-  ownerId?: string(name='OwnerId'),
-  regionId?: string(name='RegionId'),
-  reserve?: string(name='Reserve'),
-  sourceEndpointDatabaseName?: string(name='SourceEndpointDatabaseName'),
-  sourceEndpointEngineName?: string(name='SourceEndpointEngineName'),
-  sourceEndpointIP?: string(name='SourceEndpointIP'),
-  sourceEndpointInstanceID?: string(name='SourceEndpointInstanceID'),
-  sourceEndpointInstanceType?: string(name='SourceEndpointInstanceType'),
-  sourceEndpointOracleSID?: string(name='SourceEndpointOracleSID'),
-  sourceEndpointOwnerID?: string(name='SourceEndpointOwnerID'),
-  sourceEndpointPassword?: string(name='SourceEndpointPassword'),
-  sourceEndpointPort?: string(name='SourceEndpointPort'),
-  sourceEndpointRegion?: string(name='SourceEndpointRegion'),
-  sourceEndpointRole?: string(name='SourceEndpointRole'),
-  sourceEndpointUserName?: string(name='SourceEndpointUserName'),
-  structureInitialization?: boolean(name='StructureInitialization'),
-}
-
-model ConfigureEtlJobResponseBody = {
-  dtsInstanceId?: string(name='DtsInstanceId'),
-  dtsJobId?: string(name='DtsJobId'),
-  errCode?: string(name='ErrCode'),
-  errMessage?: string(name='ErrMessage'),
-  httpStatusCode?: string(name='HttpStatusCode'),
-  requestId?: string(name='RequestId'),
-  success?: string(name='Success'),
-}
-
-model ConfigureEtlJobResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ConfigureEtlJobResponseBody(name='body'),
-}
-
-async function configureEtlJobWithOptions(request: ConfigureEtlJobRequest, runtime: Util.RuntimeOptions): ConfigureEtlJobResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.checkpoint)) {
-    query['Checkpoint'] = request.checkpoint;
-  }
-  if (!Util.isUnset(request.dataInitialization)) {
-    query['DataInitialization'] = request.dataInitialization;
-  }
-  if (!Util.isUnset(request.dataSynchronization)) {
-    query['DataSynchronization'] = request.dataSynchronization;
-  }
-  if (!Util.isUnset(request.dbList)) {
-    query['DbList'] = request.dbList;
-  }
-  if (!Util.isUnset(request.delayNotice)) {
-    query['DelayNotice'] = request.delayNotice;
-  }
-  if (!Util.isUnset(request.delayPhone)) {
-    query['DelayPhone'] = request.delayPhone;
-  }
-  if (!Util.isUnset(request.delayRuleTime)) {
-    query['DelayRuleTime'] = request.delayRuleTime;
-  }
-  if (!Util.isUnset(request.destinationEndpointDataBaseName)) {
-    query['DestinationEndpointDataBaseName'] = request.destinationEndpointDataBaseName;
-  }
-  if (!Util.isUnset(request.destinationEndpointEngineName)) {
-    query['DestinationEndpointEngineName'] = request.destinationEndpointEngineName;
-  }
-  if (!Util.isUnset(request.destinationEndpointIP)) {
-    query['DestinationEndpointIP'] = request.destinationEndpointIP;
-  }
-  if (!Util.isUnset(request.destinationEndpointInstanceID)) {
-    query['DestinationEndpointInstanceID'] = request.destinationEndpointInstanceID;
-  }
-  if (!Util.isUnset(request.destinationEndpointInstanceType)) {
-    query['DestinationEndpointInstanceType'] = request.destinationEndpointInstanceType;
-  }
-  if (!Util.isUnset(request.destinationEndpointOracleSID)) {
-    query['DestinationEndpointOracleSID'] = request.destinationEndpointOracleSID;
-  }
-  if (!Util.isUnset(request.destinationEndpointPassword)) {
-    query['DestinationEndpointPassword'] = request.destinationEndpointPassword;
-  }
-  if (!Util.isUnset(request.destinationEndpointPort)) {
-    query['DestinationEndpointPort'] = request.destinationEndpointPort;
-  }
-  if (!Util.isUnset(request.destinationEndpointRegion)) {
-    query['DestinationEndpointRegion'] = request.destinationEndpointRegion;
-  }
-  if (!Util.isUnset(request.destinationEndpointUserName)) {
-    query['DestinationEndpointUserName'] = request.destinationEndpointUserName;
-  }
-  if (!Util.isUnset(request.dtsInstanceId)) {
-    query['DtsInstanceId'] = request.dtsInstanceId;
-  }
-  if (!Util.isUnset(request.dtsJobId)) {
-    query['DtsJobId'] = request.dtsJobId;
-  }
-  if (!Util.isUnset(request.dtsJobName)) {
-    query['DtsJobName'] = request.dtsJobName;
-  }
-  if (!Util.isUnset(request.errorNotice)) {
-    query['ErrorNotice'] = request.errorNotice;
-  }
-  if (!Util.isUnset(request.errorPhone)) {
-    query['ErrorPhone'] = request.errorPhone;
-  }
-  if (!Util.isUnset(request.jobType)) {
-    query['JobType'] = request.jobType;
-  }
-  if (!Util.isUnset(request.ownerId)) {
-    query['OwnerId'] = request.ownerId;
-  }
-  if (!Util.isUnset(request.regionId)) {
-    query['RegionId'] = request.regionId;
-  }
-  if (!Util.isUnset(request.reserve)) {
-    query['Reserve'] = request.reserve;
-  }
-  if (!Util.isUnset(request.sourceEndpointDatabaseName)) {
-    query['SourceEndpointDatabaseName'] = request.sourceEndpointDatabaseName;
-  }
-  if (!Util.isUnset(request.sourceEndpointEngineName)) {
-    query['SourceEndpointEngineName'] = request.sourceEndpointEngineName;
-  }
-  if (!Util.isUnset(request.sourceEndpointIP)) {
-    query['SourceEndpointIP'] = request.sourceEndpointIP;
-  }
-  if (!Util.isUnset(request.sourceEndpointInstanceID)) {
-    query['SourceEndpointInstanceID'] = request.sourceEndpointInstanceID;
-  }
-  if (!Util.isUnset(request.sourceEndpointInstanceType)) {
-    query['SourceEndpointInstanceType'] = request.sourceEndpointInstanceType;
-  }
-  if (!Util.isUnset(request.sourceEndpointOracleSID)) {
-    query['SourceEndpointOracleSID'] = request.sourceEndpointOracleSID;
-  }
-  if (!Util.isUnset(request.sourceEndpointOwnerID)) {
-    query['SourceEndpointOwnerID'] = request.sourceEndpointOwnerID;
-  }
-  if (!Util.isUnset(request.sourceEndpointPassword)) {
-    query['SourceEndpointPassword'] = request.sourceEndpointPassword;
-  }
-  if (!Util.isUnset(request.sourceEndpointPort)) {
-    query['SourceEndpointPort'] = request.sourceEndpointPort;
-  }
-  if (!Util.isUnset(request.sourceEndpointRegion)) {
-    query['SourceEndpointRegion'] = request.sourceEndpointRegion;
-  }
-  if (!Util.isUnset(request.sourceEndpointRole)) {
-    query['SourceEndpointRole'] = request.sourceEndpointRole;
-  }
-  if (!Util.isUnset(request.sourceEndpointUserName)) {
-    query['SourceEndpointUserName'] = request.sourceEndpointUserName;
-  }
-  if (!Util.isUnset(request.structureInitialization)) {
-    query['StructureInitialization'] = request.structureInitialization;
-  }
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.etlCalculator)) {
-    body['EtlCalculator'] = request.etlCalculator;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'ConfigureEtlJob',
-    version = '2020-01-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function configureEtlJob(request: ConfigureEtlJobRequest): ConfigureEtlJobResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return configureEtlJobWithOptions(request, runtime);
 }
 
 model ConfigureMigrationJobRequest {
@@ -7731,7 +7524,7 @@ async function modifyDedicatedCluster(request: ModifyDedicatedClusterRequest): M
 
 model ModifyDtsJobRequest {
   clientToken?: string(name='ClientToken'),
-  dbList?: string(name='DbList'),
+  dbList?: map[string]any(name='DbList'),
   dtsInstanceId?: string(name='DtsInstanceId'),
   etlOperatorColumnReference?: string(name='EtlOperatorColumnReference'),
   fileOssUrl?: string(name='FileOssUrl'),
@@ -7744,10 +7537,23 @@ model ModifyDtsJobRequest {
 
 model ModifyDtsJobAdvanceRequest {
   clientToken?: string(name='ClientToken'),
-  dbList?: string(name='DbList'),
+  dbList?: map[string]any(name='DbList'),
   dtsInstanceId?: string(name='DtsInstanceId'),
   etlOperatorColumnReference?: string(name='EtlOperatorColumnReference'),
   fileOssUrlObject?: readable(name='FileOssUrl'),
+  filterTableName?: string(name='FilterTableName'),
+  modifyTypeEnum?: string(name='ModifyTypeEnum'),
+  regionId?: string(name='RegionId'),
+  reserved?: string(name='Reserved'),
+  synchronizationDirection?: string(name='SynchronizationDirection'),
+}
+
+model ModifyDtsJobShrinkRequest {
+  clientToken?: string(name='ClientToken'),
+  dbListShrink?: string(name='DbList'),
+  dtsInstanceId?: string(name='DtsInstanceId'),
+  etlOperatorColumnReference?: string(name='EtlOperatorColumnReference'),
+  fileOssUrl?: string(name='FileOssUrl'),
   filterTableName?: string(name='FilterTableName'),
   modifyTypeEnum?: string(name='ModifyTypeEnum'),
   regionId?: string(name='RegionId'),
@@ -7770,8 +7576,13 @@ model ModifyDtsJobResponse = {
   body: ModifyDtsJobResponseBody(name='body'),
 }
 
-async function modifyDtsJobWithOptions(request: ModifyDtsJobRequest, runtime: Util.RuntimeOptions): ModifyDtsJobResponse {
-  Util.validateModel(request);
+async function modifyDtsJobWithOptions(tmpReq: ModifyDtsJobRequest, runtime: Util.RuntimeOptions): ModifyDtsJobResponse {
+  Util.validateModel(tmpReq);
+  var request = new ModifyDtsJobShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.dbList)) {
+    request.dbListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.dbList, 'DbList', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.clientToken)) {
     query['ClientToken'] = request.clientToken;
@@ -7789,8 +7600,8 @@ async function modifyDtsJobWithOptions(request: ModifyDtsJobRequest, runtime: Ut
     query['SynchronizationDirection'] = request.synchronizationDirection;
   }
   var body : map[string]any = {};
-  if (!Util.isUnset(request.dbList)) {
-    body['DbList'] = request.dbList;
+  if (!Util.isUnset(request.dbListShrink)) {
+    body['DbList'] = request.dbListShrink;
   }
   if (!Util.isUnset(request.etlOperatorColumnReference)) {
     body['EtlOperatorColumnReference'] = request.etlOperatorColumnReference;
@@ -7840,7 +7651,7 @@ async function modifyDtsJobAdvance(request: ModifyDtsJobAdvanceRequest, runtime:
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -7873,29 +7684,29 @@ async function modifyDtsJobAdvance(request: ModifyDtsJobAdvanceRequest, runtime:
 
   if(!Util.isUnset(request.fileOssUrlObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.fileOssUrlObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    modifyDtsJobReq.fileOssUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    modifyDtsJobReq.fileOssUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var modifyDtsJobResp = modifyDtsJobWithOptions(modifyDtsJobReq, runtime);
   return modifyDtsJobResp;
@@ -8334,63 +8145,6 @@ async function modifySynchronizationObjectWithOptions(request: ModifySynchroniza
 async function modifySynchronizationObject(request: ModifySynchronizationObjectRequest): ModifySynchronizationObjectResponse {
   var runtime = new Util.RuntimeOptions{};
   return modifySynchronizationObjectWithOptions(request, runtime);
-}
-
-model PreviewSqlRequest {
-  etlCalculator?: string(name='EtlCalculator'),
-  regionId?: string(name='RegionId'),
-}
-
-model PreviewSqlResponseBody = {
-  dynamicCode?: string(name='DynamicCode'),
-  dynamicMessage?: string(name='DynamicMessage'),
-  errCode?: string(name='ErrCode'),
-  errMessage?: string(name='ErrMessage'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  requestId?: string(name='RequestId'),
-  sqlList?: [ string ](name='SqlList'),
-  streamGraph?: string(name='StreamGraph'),
-  success?: boolean(name='Success'),
-  validationException?: string(name='ValidationException'),
-}
-
-model PreviewSqlResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: PreviewSqlResponseBody(name='body'),
-}
-
-async function previewSqlWithOptions(request: PreviewSqlRequest, runtime: Util.RuntimeOptions): PreviewSqlResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.regionId)) {
-    query['RegionId'] = request.regionId;
-  }
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.etlCalculator)) {
-    body['EtlCalculator'] = request.etlCalculator;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'PreviewSql',
-    version = '2020-01-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function previewSql(request: PreviewSqlRequest): PreviewSqlResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return previewSqlWithOptions(request, runtime);
 }
 
 model RenewInstanceRequest {
@@ -9535,66 +9289,6 @@ async function suspendSynchronizationJobWithOptions(request: SuspendSynchronizat
 async function suspendSynchronizationJob(request: SuspendSynchronizationJobRequest): SuspendSynchronizationJobResponse {
   var runtime = new Util.RuntimeOptions{};
   return suspendSynchronizationJobWithOptions(request, runtime);
-}
-
-model SwitchPhysicalDtsJobToCloudRequest {
-  dtsInstanceId?: string(name='DtsInstanceId'),
-  dtsJobId?: string(name='DtsJobId'),
-  regionId?: string(name='RegionId'),
-  synchronizationDirection?: string(name='SynchronizationDirection'),
-}
-
-model SwitchPhysicalDtsJobToCloudResponseBody = {
-  dynamicCode?: string(name='DynamicCode'),
-  dynamicMessage?: string(name='DynamicMessage'),
-  errCode?: string(name='ErrCode'),
-  errMessage?: string(name='ErrMessage'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-}
-
-model SwitchPhysicalDtsJobToCloudResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: SwitchPhysicalDtsJobToCloudResponseBody(name='body'),
-}
-
-async function switchPhysicalDtsJobToCloudWithOptions(request: SwitchPhysicalDtsJobToCloudRequest, runtime: Util.RuntimeOptions): SwitchPhysicalDtsJobToCloudResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.dtsInstanceId)) {
-    query['DtsInstanceId'] = request.dtsInstanceId;
-  }
-  if (!Util.isUnset(request.dtsJobId)) {
-    query['DtsJobId'] = request.dtsJobId;
-  }
-  if (!Util.isUnset(request.regionId)) {
-    query['RegionId'] = request.regionId;
-  }
-  if (!Util.isUnset(request.synchronizationDirection)) {
-    query['SynchronizationDirection'] = request.synchronizationDirection;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'SwitchPhysicalDtsJobToCloud',
-    version = '2020-01-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function switchPhysicalDtsJobToCloud(request: SwitchPhysicalDtsJobToCloudRequest): SwitchPhysicalDtsJobToCloudResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return switchPhysicalDtsJobToCloudWithOptions(request, runtime);
 }
 
 model SwitchSynchronizationEndpointRequest {
