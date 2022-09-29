@@ -3,7 +3,6 @@
  */
 import Util;
 import OSS;
-import RPC;
 import OpenPlatform;
 import OSSUtil;
 import FileForm;
@@ -34,29 +33,29 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model AddBodyTraceRequest {
-  dbId?: long(name='DbId', description='数据库ID'),
-  extraData?: string(name='ExtraData', description='自定义信息。支持字母、数字、标点符号和汉字。不超过4096个字符。'),
+  dbId?: long(name='DbId'),
+  extraData?: string(name='ExtraData'),
   images?: [ 
     {
       imageData?: bytes(name='ImageData'),
-      imageURL?: string(name='ImageURL', description='Trace图片URL'),
+      imageURL?: string(name='ImageURL'),
     }
-  ](name='Images', description='Trace图片信息列表'),
-  personId?: long(name='PersonId', description='实体ID，可以包含数字、字母和下划线，相同db下不可以重复，长度1-64。'),
+  ](name='Images'),
+  personId?: long(name='PersonId'),
 }
 
 model AddBodyTraceShrinkRequest {
-  dbId?: long(name='DbId', description='数据库ID'),
-  extraData?: string(name='ExtraData', description='自定义信息。支持字母、数字、标点符号和汉字。不超过4096个字符。'),
-  imagesShrink?: string(name='Images', description='Trace图片信息列表'),
-  personId?: long(name='PersonId', description='实体ID，可以包含数字、字母和下划线，相同db下不可以重复，长度1-64。'),
+  dbId?: long(name='DbId'),
+  extraData?: string(name='ExtraData'),
+  imagesShrink?: string(name='Images'),
+  personId?: long(name='PersonId'),
 }
 
 model AddBodyTraceResponseBody = {
   data?: {
-    id?: long(name='Id', description='TraceID'),
+    id?: long(name='Id'),
   }(name='Data'),
-  requestId?: string(name='RequestId', description='RequestId'),
+  requestId?: string(name='RequestId'),
 }
 
 model AddBodyTraceResponse = {
@@ -72,7 +71,7 @@ async function addBodyTraceWithOptions(tmpReq: AddBodyTraceRequest, runtime: Uti
   if (!Util.isUnset(tmpReq.images)) {
     request.imagesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.images, 'Images', 'json');
   }
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.dbId)) {
     body['DbId'] = request.dbId;
   }
@@ -118,10 +117,10 @@ model AddFaceRequest {
 }
 
 model AddFaceAdvanceRequest {
-  imageUrlObject: readable(name='ImageUrlObject'),
   dbName?: string(name='DbName'),
   entityId?: string(name='EntityId'),
   extraData?: string(name='ExtraData'),
+  imageUrlObject?: readable(name='ImageUrl'),
   qualityScoreThreshold?: float(name='QualityScoreThreshold'),
   similarityScoreThresholdBetweenEntity?: float(name='SimilarityScoreThresholdBetweenEntity'),
   similarityScoreThresholdInEntity?: float(name='SimilarityScoreThresholdInEntity'),
@@ -143,7 +142,7 @@ model AddFaceResponse = {
 
 async function addFaceWithOptions(request: AddFaceRequest, runtime: Util.RuntimeOptions): AddFaceResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.dbName)) {
     body['DbName'] = request.dbName;
   }
@@ -200,7 +199,7 @@ async function addFaceAdvance(request: AddFaceAdvanceRequest, runtime: Util.Runt
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -231,31 +230,31 @@ async function addFaceAdvance(request: AddFaceAdvanceRequest, runtime: Util.Runt
   var addFaceReq = new AddFaceRequest{};
   OpenApiUtil.convert(request, addFaceReq);
 
-  if(!Util.isUnset(request.imageUrlObject)){
+  if(!Util.isUnset(request.imageUrlObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageUrlObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    addFaceReq.imageUrl =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    addFaceReq.imageUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var addFaceResp = addFaceWithOptions(addFaceReq, runtime);
   return addFaceResp;
@@ -279,7 +278,7 @@ model AddFaceEntityResponse = {
 
 async function addFaceEntityWithOptions(request: AddFaceEntityRequest, runtime: Util.RuntimeOptions): AddFaceEntityResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.dbName)) {
     body['DbName'] = request.dbName;
   }
@@ -313,19 +312,19 @@ async function addFaceEntity(request: AddFaceEntityRequest): AddFaceEntityRespon
 
 model AddFaceImageTemplateRequest {
   imageURL?: string(name='ImageURL'),
-  userId?: string(name='UserId', description='A short description of struct'),
+  userId?: string(name='UserId'),
 }
 
 model AddFaceImageTemplateAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-  userId?: string(name='UserId', description='A short description of struct'),
+  imageURLObject?: readable(name='ImageURL'),
+  userId?: string(name='UserId'),
 }
 
 model AddFaceImageTemplateResponseBody = {
   data?: {
     templateId?: string(name='TemplateId'),
   }(name='Data'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  requestId?: string(name='RequestId'),
 }
 
 model AddFaceImageTemplateResponse = {
@@ -336,7 +335,7 @@ model AddFaceImageTemplateResponse = {
 
 async function addFaceImageTemplateWithOptions(request: AddFaceImageTemplateRequest, runtime: Util.RuntimeOptions): AddFaceImageTemplateResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -378,7 +377,7 @@ async function addFaceImageTemplateAdvance(request: AddFaceImageTemplateAdvanceR
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -409,31 +408,31 @@ async function addFaceImageTemplateAdvance(request: AddFaceImageTemplateAdvanceR
   var addFaceImageTemplateReq = new AddFaceImageTemplateRequest{};
   OpenApiUtil.convert(request, addFaceImageTemplateReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    addFaceImageTemplateReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    addFaceImageTemplateReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var addFaceImageTemplateResp = addFaceImageTemplateWithOptions(addFaceImageTemplateReq, runtime);
   return addFaceImageTemplateResp;
@@ -479,7 +478,7 @@ model BatchAddFacesResponseBody = {
       }
     ](name='InsertedFaces'),
   }(name='Data'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  requestId?: string(name='RequestId'),
 }
 
 model BatchAddFacesResponse = {
@@ -495,7 +494,7 @@ async function batchAddFacesWithOptions(tmpReq: BatchAddFacesRequest, runtime: U
   if (!Util.isUnset(tmpReq.faces)) {
     request.facesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.faces, 'Faces', 'json');
   }
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.dbName)) {
     body['DbName'] = request.dbName;
   }
@@ -583,7 +582,6 @@ model BeautifyBodyRequest {
 }
 
 model BeautifyBodyAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
   ageRange?: {
     ageMax?: long(name='AgeMax'),
     ageMinimum?: long(name='AgeMinimum'),
@@ -610,6 +608,7 @@ model BeautifyBodyAdvanceRequest {
     }
   ](name='FaceList'),
   femaleLiquifyDegree?: float(name='FemaleLiquifyDegree'),
+  imageURLObject?: readable(name='ImageURL'),
   isPregnant?: boolean(name='IsPregnant'),
   lengthenDegree?: float(name='LengthenDegree'),
   maleLiquifyDegree?: float(name='MaleLiquifyDegree'),
@@ -648,7 +647,7 @@ model BeautifyBodyResponseBody = {
     action?: string(name='Action'),
     XFlowURL?: string(name='XFlowURL'),
     YFlowURL?: string(name='YFlowURL'),
-  }(name='Data', description='Id of the request'),
+  }(name='Data'),
   requestId?: string(name='RequestId'),
 }
 
@@ -674,7 +673,7 @@ async function beautifyBodyWithOptions(tmpReq: BeautifyBodyRequest, runtime: Uti
   if (!Util.isUnset(tmpReq.poseList)) {
     request.poseListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.poseList, 'PoseList', 'json');
   }
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.ageRangeShrink)) {
     body['AgeRange'] = request.ageRangeShrink;
   }
@@ -746,7 +745,7 @@ async function beautifyBodyAdvance(request: BeautifyBodyAdvanceRequest, runtime:
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -777,31 +776,31 @@ async function beautifyBodyAdvance(request: BeautifyBodyAdvanceRequest, runtime:
   var beautifyBodyReq = new BeautifyBodyRequest{};
   OpenApiUtil.convert(request, beautifyBodyReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    beautifyBodyReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    beautifyBodyReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var beautifyBodyResp = beautifyBodyWithOptions(beautifyBodyReq, runtime);
   return beautifyBodyResp;
@@ -812,7 +811,7 @@ model BlurFaceRequest {
 }
 
 model BlurFaceAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
 }
 
 model BlurFaceResponseBody = {
@@ -830,7 +829,7 @@ model BlurFaceResponse = {
 
 async function blurFaceWithOptions(request: BlurFaceRequest, runtime: Util.RuntimeOptions): BlurFaceResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -869,7 +868,7 @@ async function blurFaceAdvance(request: BlurFaceAdvanceRequest, runtime: Util.Ru
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -900,31 +899,31 @@ async function blurFaceAdvance(request: BlurFaceAdvanceRequest, runtime: Util.Ru
   var blurFaceReq = new BlurFaceRequest{};
   OpenApiUtil.convert(request, blurFaceReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    blurFaceReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    blurFaceReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var blurFaceResp = blurFaceWithOptions(blurFaceReq, runtime);
   return blurFaceResp;
@@ -935,7 +934,7 @@ model BodyPostureRequest {
 }
 
 model BodyPostureAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
 }
 
 model BodyPostureResponseBody = {
@@ -976,7 +975,7 @@ model BodyPostureResponse = {
 
 async function bodyPostureWithOptions(request: BodyPostureRequest, runtime: Util.RuntimeOptions): BodyPostureResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -1015,7 +1014,7 @@ async function bodyPostureAdvance(request: BodyPostureAdvanceRequest, runtime: U
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1046,31 +1045,31 @@ async function bodyPostureAdvance(request: BodyPostureAdvanceRequest, runtime: U
   var bodyPostureReq = new BodyPostureRequest{};
   OpenApiUtil.convert(request, bodyPostureReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    bodyPostureReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    bodyPostureReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var bodyPostureResp = bodyPostureWithOptions(bodyPostureReq, runtime);
   return bodyPostureResp;
@@ -1081,15 +1080,23 @@ model CompareFaceRequest {
   imageDataB?: bytes(name='ImageDataB'),
   imageURLA?: string(name='ImageURLA'),
   imageURLB?: string(name='ImageURLB'),
-  qualityScoreThreshold?: float(name='QualityScoreThreshold', description='质量分阈值，取值范围 [0.0, 100.0],   0.0或空  表示不做质量分判断逻辑。'),
+  qualityScoreThreshold?: float(name='QualityScoreThreshold'),
+}
+
+model CompareFaceAdvanceRequest {
+  imageDataA?: bytes(name='ImageDataA'),
+  imageDataB?: bytes(name='ImageDataB'),
+  imageURLAObject?: readable(name='ImageURLA'),
+  imageURLBObject?: readable(name='ImageURLB'),
+  qualityScoreThreshold?: float(name='QualityScoreThreshold'),
 }
 
 model CompareFaceResponseBody = {
   data?: {
     confidence?: float(name='Confidence'),
-    messageTips?: string(name='MessageTips', description='信息提示信息，纯文字描述，目前支持质量分的提示信息'),
-    qualityScoreA?: float(name='QualityScoreA', description='输入图像A的质量分'),
-    qualityScoreB?: float(name='QualityScoreB', description='输入图像A的质量分'),
+    messageTips?: string(name='MessageTips'),
+    qualityScoreA?: float(name='QualityScoreA'),
+    qualityScoreB?: float(name='QualityScoreB'),
     rectAList?: [ int32 ](name='RectAList'),
     rectBList?: [ int32 ](name='RectBList'),
     thresholds?: [ float ](name='Thresholds'),
@@ -1105,7 +1112,7 @@ model CompareFaceResponse = {
 
 async function compareFaceWithOptions(request: CompareFaceRequest, runtime: Util.RuntimeOptions): CompareFaceResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageDataA)) {
     body['ImageDataA'] = request.imageDataA;
   }
@@ -1143,13 +1150,113 @@ async function compareFace(request: CompareFaceRequest): CompareFaceResponse {
   return compareFaceWithOptions(request, runtime);
 }
 
+async function compareFaceAdvance(request: CompareFaceAdvanceRequest, runtime: Util.RuntimeOptions): CompareFaceResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var compareFaceReq = new CompareFaceRequest{};
+  OpenApiUtil.convert(request, compareFaceReq);
+
+  if(!Util.isUnset(request.imageURLAObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.imageURLAObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    compareFaceReq.imageURLA = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  if(!Util.isUnset(request.imageURLBObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.imageURLBObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    compareFaceReq.imageURLB = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var compareFaceResp = compareFaceWithOptions(compareFaceReq, runtime);
+  return compareFaceResp;
+}
+
 model CountCrowdRequest {
   imageURL?: string(name='ImageURL'),
   isShow?: boolean(name='IsShow'),
 }
 
 model CountCrowdAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
   isShow?: boolean(name='IsShow'),
 }
 
@@ -1169,7 +1276,7 @@ model CountCrowdResponse = {
 
 async function countCrowdWithOptions(request: CountCrowdRequest, runtime: Util.RuntimeOptions): CountCrowdResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -1211,7 +1318,7 @@ async function countCrowdAdvance(request: CountCrowdAdvanceRequest, runtime: Uti
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1242,45 +1349,45 @@ async function countCrowdAdvance(request: CountCrowdAdvanceRequest, runtime: Uti
   var countCrowdReq = new CountCrowdRequest{};
   OpenApiUtil.convert(request, countCrowdReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    countCrowdReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    countCrowdReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var countCrowdResp = countCrowdWithOptions(countCrowdReq, runtime);
   return countCrowdResp;
 }
 
 model CreateBodyDbRequest {
-  name?: string(name='Name', description='数据库名称'),
+  name?: string(name='Name'),
 }
 
 model CreateBodyDbResponseBody = {
   data?: {
-    id?: long(name='Id', description='数据库ID'),
+    id?: long(name='Id'),
   }(name='Data'),
-  requestId?: string(name='RequestId', description='RequestId'),
+  requestId?: string(name='RequestId'),
 }
 
 model CreateBodyDbResponse = {
@@ -1291,7 +1398,7 @@ model CreateBodyDbResponse = {
 
 async function createBodyDbWithOptions(request: CreateBodyDbRequest, runtime: Util.RuntimeOptions): CreateBodyDbResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.name)) {
     body['Name'] = request.name;
   }
@@ -1318,15 +1425,15 @@ async function createBodyDb(request: CreateBodyDbRequest): CreateBodyDbResponse 
 }
 
 model CreateBodyPersonRequest {
-  dbId?: long(name='DbId', description='数据库ID'),
-  name?: string(name='Name', description='实体ID，可以包含数字、字母和下划线，相同db下不可以重复，长度1-64。'),
+  dbId?: long(name='DbId'),
+  name?: string(name='Name'),
 }
 
 model CreateBodyPersonResponseBody = {
   data?: {
-    id?: long(name='Id', description='数据库ID'),
+    id?: long(name='Id'),
   }(name='Data'),
-  requestId?: string(name='RequestId', description='RequestId'),
+  requestId?: string(name='RequestId'),
 }
 
 model CreateBodyPersonResponse = {
@@ -1337,7 +1444,7 @@ model CreateBodyPersonResponse = {
 
 async function createBodyPersonWithOptions(request: CreateBodyPersonRequest, runtime: Util.RuntimeOptions): CreateBodyPersonResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.dbId)) {
     body['DbId'] = request.dbId;
   }
@@ -1382,7 +1489,7 @@ model CreateFaceDbResponse = {
 
 async function createFaceDbWithOptions(request: CreateFaceDbRequest, runtime: Util.RuntimeOptions): CreateFaceDbResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.name)) {
     body['Name'] = request.name;
   }
@@ -1409,11 +1516,11 @@ async function createFaceDb(request: CreateFaceDbRequest): CreateFaceDbResponse 
 }
 
 model DeleteBodyDbRequest {
-  id?: long(name='Id', description='数据库ID'),
+  id?: long(name='Id'),
 }
 
 model DeleteBodyDbResponseBody = {
-  requestId?: string(name='RequestId', description='RequestId'),
+  requestId?: string(name='RequestId'),
 }
 
 model DeleteBodyDbResponse = {
@@ -1424,7 +1531,7 @@ model DeleteBodyDbResponse = {
 
 async function deleteBodyDbWithOptions(request: DeleteBodyDbRequest, runtime: Util.RuntimeOptions): DeleteBodyDbResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.id)) {
     body['Id'] = request.id;
   }
@@ -1451,12 +1558,12 @@ async function deleteBodyDb(request: DeleteBodyDbRequest): DeleteBodyDbResponse 
 }
 
 model DeleteBodyPersonRequest {
-  dbId?: long(name='DbId', description='数据库ID'),
-  personId?: long(name='PersonId', description='人员ID'),
+  dbId?: long(name='DbId'),
+  personId?: long(name='PersonId'),
 }
 
 model DeleteBodyPersonResponseBody = {
-  requestId?: string(name='RequestId', description='RequestId'),
+  requestId?: string(name='RequestId'),
 }
 
 model DeleteBodyPersonResponse = {
@@ -1467,7 +1574,7 @@ model DeleteBodyPersonResponse = {
 
 async function deleteBodyPersonWithOptions(request: DeleteBodyPersonRequest, runtime: Util.RuntimeOptions): DeleteBodyPersonResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.dbId)) {
     body['DbId'] = request.dbId;
   }
@@ -1513,7 +1620,7 @@ model DeleteFaceResponse = {
 
 async function deleteFaceWithOptions(request: DeleteFaceRequest, runtime: Util.RuntimeOptions): DeleteFaceResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.dbName)) {
     body['DbName'] = request.dbName;
   }
@@ -1558,7 +1665,7 @@ model DeleteFaceDbResponse = {
 
 async function deleteFaceDbWithOptions(request: DeleteFaceDbRequest, runtime: Util.RuntimeOptions): DeleteFaceDbResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.name)) {
     body['Name'] = request.name;
   }
@@ -1601,7 +1708,7 @@ model DeleteFaceEntityResponse = {
 
 async function deleteFaceEntityWithOptions(request: DeleteFaceEntityRequest, runtime: Util.RuntimeOptions): DeleteFaceEntityResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.dbName)) {
     body['DbName'] = request.dbName;
   }
@@ -1632,11 +1739,11 @@ async function deleteFaceEntity(request: DeleteFaceEntityRequest): DeleteFaceEnt
 
 model DeleteFaceImageTemplateRequest {
   templateId?: string(name='TemplateId'),
-  userId?: string(name='UserId', description='A short description of struct'),
+  userId?: string(name='UserId'),
 }
 
 model DeleteFaceImageTemplateResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
+  requestId?: string(name='RequestId'),
 }
 
 model DeleteFaceImageTemplateResponse = {
@@ -1647,7 +1754,7 @@ model DeleteFaceImageTemplateResponse = {
 
 async function deleteFaceImageTemplateWithOptions(request: DeleteFaceImageTemplateRequest, runtime: Util.RuntimeOptions): DeleteFaceImageTemplateResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.templateId)) {
     body['TemplateId'] = request.templateId;
   }
@@ -1681,7 +1788,7 @@ model DetectBodyCountRequest {
 }
 
 model DetectBodyCountAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
 }
 
 model DetectBodyCountResponseBody = {
@@ -1699,7 +1806,7 @@ model DetectBodyCountResponse = {
 
 async function detectBodyCountWithOptions(request: DetectBodyCountRequest, runtime: Util.RuntimeOptions): DetectBodyCountResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -1738,7 +1845,7 @@ async function detectBodyCountAdvance(request: DetectBodyCountAdvanceRequest, ru
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1769,31 +1876,31 @@ async function detectBodyCountAdvance(request: DetectBodyCountAdvanceRequest, ru
   var detectBodyCountReq = new DetectBodyCountRequest{};
   OpenApiUtil.convert(request, detectBodyCountReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    detectBodyCountReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    detectBodyCountReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var detectBodyCountResp = detectBodyCountWithOptions(detectBodyCountReq, runtime);
   return detectBodyCountResp;
@@ -1804,7 +1911,7 @@ model DetectCelebrityRequest {
 }
 
 model DetectCelebrityAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
 }
 
 model DetectCelebrityResponseBody = {
@@ -1829,7 +1936,7 @@ model DetectCelebrityResponse = {
 
 async function detectCelebrityWithOptions(request: DetectCelebrityRequest, runtime: Util.RuntimeOptions): DetectCelebrityResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -1868,7 +1975,7 @@ async function detectCelebrityAdvance(request: DetectCelebrityAdvanceRequest, ru
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1899,31 +2006,31 @@ async function detectCelebrityAdvance(request: DetectCelebrityAdvanceRequest, ru
   var detectCelebrityReq = new DetectCelebrityRequest{};
   OpenApiUtil.convert(request, detectCelebrityReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    detectCelebrityReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    detectCelebrityReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var detectCelebrityResp = detectCelebrityWithOptions(detectCelebrityReq, runtime);
   return detectCelebrityResp;
@@ -1934,7 +2041,7 @@ model DetectChefCapRequest {
 }
 
 model DetectChefCapAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
 }
 
 model DetectChefCapResponseBody = {
@@ -1958,7 +2065,7 @@ model DetectChefCapResponse = {
 
 async function detectChefCapWithOptions(request: DetectChefCapRequest, runtime: Util.RuntimeOptions): DetectChefCapResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -1997,7 +2104,7 @@ async function detectChefCapAdvance(request: DetectChefCapAdvanceRequest, runtim
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -2028,31 +2135,31 @@ async function detectChefCapAdvance(request: DetectChefCapAdvanceRequest, runtim
   var detectChefCapReq = new DetectChefCapRequest{};
   OpenApiUtil.convert(request, detectChefCapReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    detectChefCapReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    detectChefCapReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var detectChefCapResp = detectChefCapWithOptions(detectChefCapReq, runtime);
   return detectChefCapResp;
@@ -2067,7 +2174,7 @@ model DetectFaceRequest {
 }
 
 model DetectFaceAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
   landmark?: boolean(name='Landmark'),
   maxFaceNumber?: long(name='MaxFaceNumber'),
   pose?: boolean(name='Pose'),
@@ -2105,7 +2212,7 @@ model DetectFaceResponse = {
 
 async function detectFaceWithOptions(request: DetectFaceRequest, runtime: Util.RuntimeOptions): DetectFaceResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -2156,7 +2263,7 @@ async function detectFaceAdvance(request: DetectFaceAdvanceRequest, runtime: Uti
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -2187,31 +2294,31 @@ async function detectFaceAdvance(request: DetectFaceAdvanceRequest, runtime: Uti
   var detectFaceReq = new DetectFaceRequest{};
   OpenApiUtil.convert(request, detectFaceReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    detectFaceReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    detectFaceReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var detectFaceResp = detectFaceWithOptions(detectFaceReq, runtime);
   return detectFaceResp;
@@ -2225,9 +2332,9 @@ model DetectIPCPedestrianRequest {
 }
 
 model DetectIPCPedestrianAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
   height?: int32(name='Height'),
   imageData?: string(name='ImageData'),
+  imageURLObject?: readable(name='ImageURL'),
   width?: int32(name='Width'),
 }
 
@@ -2255,7 +2362,7 @@ model DetectIPCPedestrianResponse = {
 
 async function detectIPCPedestrianWithOptions(request: DetectIPCPedestrianRequest, runtime: Util.RuntimeOptions): DetectIPCPedestrianResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.height)) {
     body['Height'] = request.height;
   }
@@ -2303,7 +2410,7 @@ async function detectIPCPedestrianAdvance(request: DetectIPCPedestrianAdvanceReq
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -2334,31 +2441,31 @@ async function detectIPCPedestrianAdvance(request: DetectIPCPedestrianAdvanceReq
   var detectIPCPedestrianReq = new DetectIPCPedestrianRequest{};
   OpenApiUtil.convert(request, detectIPCPedestrianReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    detectIPCPedestrianReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    detectIPCPedestrianReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var detectIPCPedestrianResp = detectIPCPedestrianWithOptions(detectIPCPedestrianReq, runtime);
   return detectIPCPedestrianResp;
@@ -2406,7 +2513,7 @@ model DetectLivingFaceResponse = {
 
 async function detectLivingFaceWithOptions(request: DetectLivingFaceRequest, runtime: Util.RuntimeOptions): DetectLivingFaceResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.tasks)) {
     body['Tasks'] = request.tasks;
   }
@@ -2437,7 +2544,7 @@ model DetectPedestrianRequest {
 }
 
 model DetectPedestrianAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
 }
 
 model DetectPedestrianResponseBody = {
@@ -2463,7 +2570,7 @@ model DetectPedestrianResponse = {
 
 async function detectPedestrianWithOptions(request: DetectPedestrianRequest, runtime: Util.RuntimeOptions): DetectPedestrianResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -2502,7 +2609,7 @@ async function detectPedestrianAdvance(request: DetectPedestrianAdvanceRequest, 
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -2533,31 +2640,31 @@ async function detectPedestrianAdvance(request: DetectPedestrianAdvanceRequest, 
   var detectPedestrianReq = new DetectPedestrianRequest{};
   OpenApiUtil.convert(request, detectPedestrianReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    detectPedestrianReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    detectPedestrianReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var detectPedestrianResp = detectPedestrianWithOptions(detectPedestrianReq, runtime);
   return detectPedestrianResp;
@@ -2585,7 +2692,6 @@ model DetectPedestrianIntrusionRequest {
 }
 
 model DetectPedestrianIntrusionAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
   detectRegion?: [ 
     {
       line?: {
@@ -2602,6 +2708,7 @@ model DetectPedestrianIntrusionAdvanceRequest {
       }(name='Rect'),
     }
   ](name='DetectRegion'),
+  imageURLObject?: readable(name='ImageURL'),
   regionType?: string(name='RegionType'),
 }
 
@@ -2646,7 +2753,7 @@ async function detectPedestrianIntrusionWithOptions(tmpReq: DetectPedestrianIntr
   if (!Util.isUnset(tmpReq.detectRegion)) {
     request.detectRegionShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.detectRegion, 'DetectRegion', 'json');
   }
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.detectRegionShrink)) {
     body['DetectRegion'] = request.detectRegionShrink;
   }
@@ -2691,7 +2798,7 @@ async function detectPedestrianIntrusionAdvance(request: DetectPedestrianIntrusi
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -2722,31 +2829,31 @@ async function detectPedestrianIntrusionAdvance(request: DetectPedestrianIntrusi
   var detectPedestrianIntrusionReq = new DetectPedestrianIntrusionRequest{};
   OpenApiUtil.convert(request, detectPedestrianIntrusionReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    detectPedestrianIntrusionReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    detectPedestrianIntrusionReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var detectPedestrianIntrusionResp = detectPedestrianIntrusionWithOptions(detectPedestrianIntrusionReq, runtime);
   return detectPedestrianIntrusionResp;
@@ -2757,7 +2864,7 @@ model DetectVideoLivingFaceRequest {
 }
 
 model DetectVideoLivingFaceAdvanceRequest {
-  videoUrlObject: readable(name='VideoUrlObject'),
+  videoUrlObject?: readable(name='VideoUrl'),
 }
 
 model DetectVideoLivingFaceResponseBody = {
@@ -2781,7 +2888,7 @@ model DetectVideoLivingFaceResponse = {
 
 async function detectVideoLivingFaceWithOptions(request: DetectVideoLivingFaceRequest, runtime: Util.RuntimeOptions): DetectVideoLivingFaceResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.videoUrl)) {
     body['VideoUrl'] = request.videoUrl;
   }
@@ -2820,7 +2927,7 @@ async function detectVideoLivingFaceAdvance(request: DetectVideoLivingFaceAdvanc
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -2851,31 +2958,31 @@ async function detectVideoLivingFaceAdvance(request: DetectVideoLivingFaceAdvanc
   var detectVideoLivingFaceReq = new DetectVideoLivingFaceRequest{};
   OpenApiUtil.convert(request, detectVideoLivingFaceReq);
 
-  if(!Util.isUnset(request.videoUrlObject)){
+  if(!Util.isUnset(request.videoUrlObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.videoUrlObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    detectVideoLivingFaceReq.videoUrl =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    detectVideoLivingFaceReq.videoUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var detectVideoLivingFaceResp = detectVideoLivingFaceWithOptions(detectVideoLivingFaceReq, runtime);
   return detectVideoLivingFaceResp;
@@ -2886,7 +2993,7 @@ model EnhanceFaceRequest {
 }
 
 model EnhanceFaceAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
 }
 
 model EnhanceFaceResponseBody = {
@@ -2904,7 +3011,7 @@ model EnhanceFaceResponse = {
 
 async function enhanceFaceWithOptions(request: EnhanceFaceRequest, runtime: Util.RuntimeOptions): EnhanceFaceResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -2943,7 +3050,7 @@ async function enhanceFaceAdvance(request: EnhanceFaceAdvanceRequest, runtime: U
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -2974,31 +3081,31 @@ async function enhanceFaceAdvance(request: EnhanceFaceAdvanceRequest, runtime: U
   var enhanceFaceReq = new EnhanceFaceRequest{};
   OpenApiUtil.convert(request, enhanceFaceReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    enhanceFaceReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    enhanceFaceReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var enhanceFaceResp = enhanceFaceWithOptions(enhanceFaceReq, runtime);
   return enhanceFaceResp;
@@ -3010,15 +3117,15 @@ model ExtractFingerPrintRequest {
 }
 
 model ExtractFingerPrintAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
   imageData?: bytes(name='ImageData'),
+  imageURLObject?: readable(name='ImageURL'),
 }
 
 model ExtractFingerPrintResponseBody = {
   data?: {
     fingerPrint?: bytes(name='FingerPrint'),
   }(name='Data'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  requestId?: string(name='RequestId'),
 }
 
 model ExtractFingerPrintResponse = {
@@ -3029,7 +3136,7 @@ model ExtractFingerPrintResponse = {
 
 async function extractFingerPrintWithOptions(request: ExtractFingerPrintRequest, runtime: Util.RuntimeOptions): ExtractFingerPrintResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageData)) {
     body['ImageData'] = request.imageData;
   }
@@ -3071,7 +3178,7 @@ async function extractFingerPrintAdvance(request: ExtractFingerPrintAdvanceReque
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -3102,31 +3209,31 @@ async function extractFingerPrintAdvance(request: ExtractFingerPrintAdvanceReque
   var extractFingerPrintReq = new ExtractFingerPrintRequest{};
   OpenApiUtil.convert(request, extractFingerPrintReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    extractFingerPrintReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    extractFingerPrintReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var extractFingerPrintResp = extractFingerPrintWithOptions(extractFingerPrintReq, runtime);
   return extractFingerPrintResp;
@@ -3139,7 +3246,7 @@ model ExtractPedestrianFeatureAttrRequest {
 }
 
 model ExtractPedestrianFeatureAttrAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
   mode?: string(name='Mode'),
   serviceVersion?: string(name='ServiceVersion'),
 }
@@ -3178,7 +3285,7 @@ model ExtractPedestrianFeatureAttrResponse = {
 
 async function extractPedestrianFeatureAttrWithOptions(request: ExtractPedestrianFeatureAttrRequest, runtime: Util.RuntimeOptions): ExtractPedestrianFeatureAttrResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -3223,7 +3330,7 @@ async function extractPedestrianFeatureAttrAdvance(request: ExtractPedestrianFea
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -3254,31 +3361,31 @@ async function extractPedestrianFeatureAttrAdvance(request: ExtractPedestrianFea
   var extractPedestrianFeatureAttrReq = new ExtractPedestrianFeatureAttrRequest{};
   OpenApiUtil.convert(request, extractPedestrianFeatureAttrReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    extractPedestrianFeatureAttrReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    extractPedestrianFeatureAttrReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var extractPedestrianFeatureAttrResp = extractPedestrianFeatureAttrWithOptions(extractPedestrianFeatureAttrReq, runtime);
   return extractPedestrianFeatureAttrResp;
@@ -3348,7 +3455,7 @@ model ExtractPedestrianFeatureAttributeResponse = {
 
 async function extractPedestrianFeatureAttributeWithOptions(request: ExtractPedestrianFeatureAttributeRequest, runtime: Util.RuntimeOptions): ExtractPedestrianFeatureAttributeResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -3388,7 +3495,7 @@ model FaceBeautyRequest {
 }
 
 model FaceBeautyAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
   sharp?: float(name='Sharp'),
   smooth?: float(name='Smooth'),
   white?: float(name='White'),
@@ -3409,7 +3516,7 @@ model FaceBeautyResponse = {
 
 async function faceBeautyWithOptions(request: FaceBeautyRequest, runtime: Util.RuntimeOptions): FaceBeautyResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -3457,7 +3564,7 @@ async function faceBeautyAdvance(request: FaceBeautyAdvanceRequest, runtime: Uti
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -3488,31 +3595,31 @@ async function faceBeautyAdvance(request: FaceBeautyAdvanceRequest, runtime: Uti
   var faceBeautyReq = new FaceBeautyRequest{};
   OpenApiUtil.convert(request, faceBeautyReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    faceBeautyReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    faceBeautyReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var faceBeautyResp = faceBeautyWithOptions(faceBeautyReq, runtime);
   return faceBeautyResp;
@@ -3525,7 +3632,7 @@ model FaceFilterRequest {
 }
 
 model FaceFilterAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
   resourceType?: string(name='ResourceType'),
   strength?: float(name='Strength'),
 }
@@ -3545,7 +3652,7 @@ model FaceFilterResponse = {
 
 async function faceFilterWithOptions(request: FaceFilterRequest, runtime: Util.RuntimeOptions): FaceFilterResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -3590,7 +3697,7 @@ async function faceFilterAdvance(request: FaceFilterAdvanceRequest, runtime: Uti
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -3621,31 +3728,31 @@ async function faceFilterAdvance(request: FaceFilterAdvanceRequest, runtime: Uti
   var faceFilterReq = new FaceFilterRequest{};
   OpenApiUtil.convert(request, faceFilterReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    faceFilterReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    faceFilterReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var faceFilterResp = faceFilterWithOptions(faceFilterReq, runtime);
   return faceFilterResp;
@@ -3659,7 +3766,7 @@ model FaceMakeupRequest {
 }
 
 model FaceMakeupAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
   makeupType?: string(name='MakeupType'),
   resourceType?: string(name='ResourceType'),
   strength?: float(name='Strength'),
@@ -3680,7 +3787,7 @@ model FaceMakeupResponse = {
 
 async function faceMakeupWithOptions(request: FaceMakeupRequest, runtime: Util.RuntimeOptions): FaceMakeupResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -3728,7 +3835,7 @@ async function faceMakeupAdvance(request: FaceMakeupAdvanceRequest, runtime: Uti
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -3759,31 +3866,31 @@ async function faceMakeupAdvance(request: FaceMakeupAdvanceRequest, runtime: Uti
   var faceMakeupReq = new FaceMakeupRequest{};
   OpenApiUtil.convert(request, faceMakeupReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    faceMakeupReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    faceMakeupReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var faceMakeupResp = faceMakeupWithOptions(faceMakeupReq, runtime);
   return faceMakeupResp;
@@ -3796,7 +3903,7 @@ model FaceTidyupRequest {
 }
 
 model FaceTidyupAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
   shapeType?: int32(name='ShapeType'),
   strength?: float(name='Strength'),
 }
@@ -3816,7 +3923,7 @@ model FaceTidyupResponse = {
 
 async function faceTidyupWithOptions(request: FaceTidyupRequest, runtime: Util.RuntimeOptions): FaceTidyupResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -3861,7 +3968,7 @@ async function faceTidyupAdvance(request: FaceTidyupAdvanceRequest, runtime: Uti
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -3892,31 +3999,31 @@ async function faceTidyupAdvance(request: FaceTidyupAdvanceRequest, runtime: Uti
   var faceTidyupReq = new FaceTidyupRequest{};
   OpenApiUtil.convert(request, faceTidyupReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    faceTidyupReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    faceTidyupReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var faceTidyupResp = faceTidyupWithOptions(faceTidyupReq, runtime);
   return faceTidyupResp;
@@ -3943,7 +4050,7 @@ model GenRealPersonVerificationTokenResponse = {
 
 async function genRealPersonVerificationTokenWithOptions(request: GenRealPersonVerificationTokenRequest, runtime: Util.RuntimeOptions): GenRealPersonVerificationTokenResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.certificateName)) {
     body['CertificateName'] = request.certificateName;
   }
@@ -3981,8 +4088,8 @@ model GenerateHumanAnimeStyleRequest {
 }
 
 model GenerateHumanAnimeStyleAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
   algoType?: string(name='AlgoType'),
+  imageURLObject?: readable(name='ImageURL'),
 }
 
 model GenerateHumanAnimeStyleResponseBody = {
@@ -4042,7 +4149,7 @@ async function generateHumanAnimeStyleAdvance(request: GenerateHumanAnimeStyleAd
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -4073,51 +4180,51 @@ async function generateHumanAnimeStyleAdvance(request: GenerateHumanAnimeStyleAd
   var generateHumanAnimeStyleReq = new GenerateHumanAnimeStyleRequest{};
   OpenApiUtil.convert(request, generateHumanAnimeStyleReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    generateHumanAnimeStyleReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    generateHumanAnimeStyleReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var generateHumanAnimeStyleResp = generateHumanAnimeStyleWithOptions(generateHumanAnimeStyleReq, runtime);
   return generateHumanAnimeStyleResp;
 }
 
 model GenerateHumanSketchStyleRequest {
-  imageURL?: string(name='ImageURL', description='A short description of struct'),
+  imageURL?: string(name='ImageURL'),
   returnType?: string(name='ReturnType'),
 }
 
 model GenerateHumanSketchStyleAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
   returnType?: string(name='ReturnType'),
 }
 
 model GenerateHumanSketchStyleResponseBody = {
   data?: {
-    imageURL?: string(name='ImageURL', description='出参图片地址'),
+    imageURL?: string(name='ImageURL'),
   }(name='Data'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  requestId?: string(name='RequestId'),
 }
 
 model GenerateHumanSketchStyleResponse = {
@@ -4128,7 +4235,7 @@ model GenerateHumanSketchStyleResponse = {
 
 async function generateHumanSketchStyleWithOptions(request: GenerateHumanSketchStyleRequest, runtime: Util.RuntimeOptions): GenerateHumanSketchStyleResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -4170,7 +4277,7 @@ async function generateHumanSketchStyleAdvance(request: GenerateHumanSketchStyle
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -4201,55 +4308,55 @@ async function generateHumanSketchStyleAdvance(request: GenerateHumanSketchStyle
   var generateHumanSketchStyleReq = new GenerateHumanSketchStyleRequest{};
   OpenApiUtil.convert(request, generateHumanSketchStyleReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    generateHumanSketchStyleReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    generateHumanSketchStyleReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var generateHumanSketchStyleResp = generateHumanSketchStyleWithOptions(generateHumanSketchStyleReq, runtime);
   return generateHumanSketchStyleResp;
 }
 
 model GetBodyPersonRequest {
-  dbId?: long(name='DbId', description='数据库ID'),
-  personId?: long(name='PersonId', description='人员ID'),
+  dbId?: long(name='DbId'),
+  personId?: long(name='PersonId'),
 }
 
 model GetBodyPersonResponseBody = {
   data?: {
-    dbId?: long(name='DbId', description='数据库ID'),
-    id?: long(name='Id', description='人员ID'),
-    name?: string(name='Name', description='人员名称'),
-    traceCount?: long(name='TraceCount', description='Trace数量'),
+    dbId?: long(name='DbId'),
+    id?: long(name='Id'),
+    name?: string(name='Name'),
+    traceCount?: long(name='TraceCount'),
     traceList?: [ 
       {
-        extraData?: string(name='ExtraData', description='自定义Trace信息'),
-        id?: long(name='Id', description='TraceId'),
+        extraData?: string(name='ExtraData'),
+        id?: long(name='Id'),
       }
-    ](name='TraceList', description='Trace列表'),
+    ](name='TraceList'),
   }(name='Data'),
-  requestId?: string(name='RequestId', description='RequestId'),
+  requestId?: string(name='RequestId'),
 }
 
 model GetBodyPersonResponse = {
@@ -4310,7 +4417,7 @@ model GetFaceEntityResponse = {
 
 async function getFaceEntityWithOptions(request: GetFaceEntityRequest, runtime: Util.RuntimeOptions): GetFaceEntityResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.dbName)) {
     body['DbName'] = request.dbName;
   }
@@ -4361,7 +4468,7 @@ model GetRealPersonVerificationResultResponse = {
 
 async function getRealPersonVerificationResultWithOptions(request: GetRealPersonVerificationResultRequest, runtime: Util.RuntimeOptions): GetRealPersonVerificationResultResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.materialHash)) {
     body['MaterialHash'] = request.materialHash;
   }
@@ -4395,7 +4502,7 @@ model HandPostureRequest {
 }
 
 model HandPostureAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
 }
 
 model HandPostureResponseBody = {
@@ -4446,7 +4553,7 @@ model HandPostureResponse = {
 
 async function handPostureWithOptions(request: HandPostureRequest, runtime: Util.RuntimeOptions): HandPostureResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -4485,7 +4592,7 @@ async function handPostureAdvance(request: HandPostureAdvanceRequest, runtime: U
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -4516,31 +4623,31 @@ async function handPostureAdvance(request: HandPostureAdvanceRequest, runtime: U
   var handPostureReq = new HandPostureRequest{};
   OpenApiUtil.convert(request, handPostureReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    handPostureReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    handPostureReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var handPostureResp = handPostureWithOptions(handPostureReq, runtime);
   return handPostureResp;
@@ -4552,7 +4659,7 @@ model LiquifyFaceRequest {
 }
 
 model LiquifyFaceAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
   slimDegree?: float(name='SlimDegree'),
 }
 
@@ -4560,7 +4667,7 @@ model LiquifyFaceResponseBody = {
   data?: {
     imageURL?: string(name='ImageURL'),
   }(name='Data'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  requestId?: string(name='RequestId'),
 }
 
 model LiquifyFaceResponse = {
@@ -4571,7 +4678,7 @@ model LiquifyFaceResponse = {
 
 async function liquifyFaceWithOptions(request: LiquifyFaceRequest, runtime: Util.RuntimeOptions): LiquifyFaceResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -4613,7 +4720,7 @@ async function liquifyFaceAdvance(request: LiquifyFaceAdvanceRequest, runtime: U
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -4644,52 +4751,52 @@ async function liquifyFaceAdvance(request: LiquifyFaceAdvanceRequest, runtime: U
   var liquifyFaceReq = new LiquifyFaceRequest{};
   OpenApiUtil.convert(request, liquifyFaceReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    liquifyFaceReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    liquifyFaceReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var liquifyFaceResp = liquifyFaceWithOptions(liquifyFaceReq, runtime);
   return liquifyFaceResp;
 }
 
 model ListBodyDbsRequest {
-  limit?: long(name='Limit', description='分页数量'),
-  offset?: long(name='Offset', description='起始位置(不含)'),
+  limit?: long(name='Limit'),
+  offset?: long(name='Offset'),
 }
 
 model ListBodyDbsResponseBody = {
   data?: {
     dbList?: [ 
       {
-        id?: long(name='Id', description='数据库ID'),
-        name?: string(name='Name', description='数据库名称'),
+        id?: long(name='Id'),
+        name?: string(name='Name'),
       }
     ](name='DbList'),
-    total?: long(name='Total', description='数据库ID'),
+    total?: long(name='Total'),
   }(name='Data'),
-  requestId?: string(name='RequestId', description='RequestId'),
+  requestId?: string(name='RequestId'),
 }
 
 model ListBodyDbsResponse = {
@@ -4724,24 +4831,24 @@ async function listBodyDbs(request: ListBodyDbsRequest): ListBodyDbsResponse {
 }
 
 model ListBodyPersonRequest {
-  dbId?: long(name='DbId', description='数据库ID'),
-  limit?: long(name='Limit', description='分页数量'),
-  offset?: long(name='Offset', description='起始位置(不含)'),
+  dbId?: long(name='DbId'),
+  limit?: long(name='Limit'),
+  offset?: long(name='Offset'),
 }
 
 model ListBodyPersonResponseBody = {
   data?: {
     personList?: [ 
       {
-        dbId?: long(name='DbId', description='数据库ID'),
-        id?: long(name='Id', description='人员ID'),
-        name?: string(name='Name', description='人员名称'),
-        traceCount?: long(name='TraceCount', description='Trace数量'),
+        dbId?: long(name='DbId'),
+        id?: long(name='Id'),
+        name?: string(name='Name'),
+        traceCount?: long(name='TraceCount'),
       }
     ](name='PersonList'),
-    total?: long(name='Total', description='数据总量'),
+    total?: long(name='Total'),
   }(name='Data'),
-  requestId?: string(name='RequestId', description='RequestId'),
+  requestId?: string(name='RequestId'),
 }
 
 model ListBodyPersonResponse = {
@@ -4799,7 +4906,7 @@ model ListFaceDbsResponse = {
 
 async function listFaceDbsWithOptions(request: ListFaceDbsRequest, runtime: Util.RuntimeOptions): ListFaceDbsResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.limit)) {
     body['Limit'] = request.limit;
   }
@@ -4864,7 +4971,7 @@ model ListFaceEntitiesResponse = {
 
 async function listFaceEntitiesWithOptions(request: ListFaceEntitiesRequest, runtime: Util.RuntimeOptions): ListFaceEntitiesResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.dbName)) {
     body['DbName'] = request.dbName;
   }
@@ -4911,20 +5018,20 @@ async function listFaceEntities(request: ListFaceEntitiesRequest): ListFaceEntit
 model MergeImageFaceRequest {
   imageURL?: string(name='ImageURL'),
   templateId?: string(name='TemplateId'),
-  userId?: string(name='UserId', description='A short description of struct'),
+  userId?: string(name='UserId'),
 }
 
 model MergeImageFaceAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
   templateId?: string(name='TemplateId'),
-  userId?: string(name='UserId', description='A short description of struct'),
+  userId?: string(name='UserId'),
 }
 
 model MergeImageFaceResponseBody = {
   data?: {
     imageURL?: string(name='ImageURL'),
   }(name='Data'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  requestId?: string(name='RequestId'),
 }
 
 model MergeImageFaceResponse = {
@@ -4935,7 +5042,7 @@ model MergeImageFaceResponse = {
 
 async function mergeImageFaceWithOptions(request: MergeImageFaceRequest, runtime: Util.RuntimeOptions): MergeImageFaceResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -4980,7 +5087,7 @@ async function mergeImageFaceAdvance(request: MergeImageFaceAdvanceRequest, runt
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -5011,31 +5118,31 @@ async function mergeImageFaceAdvance(request: MergeImageFaceAdvanceRequest, runt
   var mergeImageFaceReq = new MergeImageFaceRequest{};
   OpenApiUtil.convert(request, mergeImageFaceReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    mergeImageFaceReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    mergeImageFaceReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var mergeImageFaceResp = mergeImageFaceWithOptions(mergeImageFaceReq, runtime);
   return mergeImageFaceResp;
@@ -5043,12 +5150,12 @@ async function mergeImageFaceAdvance(request: MergeImageFaceAdvanceRequest, runt
 
 model MonitorExaminationRequest {
   imageURL?: string(name='ImageURL'),
-  type?: long(name='Type', description='A short description of struct'),
+  type?: long(name='Type'),
 }
 
 model MonitorExaminationAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-  type?: long(name='Type', description='A short description of struct'),
+  imageURLObject?: readable(name='ImageURL'),
+  type?: long(name='Type'),
 }
 
 model MonitorExaminationResponseBody = {
@@ -5076,7 +5183,7 @@ model MonitorExaminationResponseBody = {
     }(name='PersonInfo'),
     threshold?: float(name='Threshold'),
   }(name='Data'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  requestId?: string(name='RequestId'),
 }
 
 model MonitorExaminationResponse = {
@@ -5087,7 +5194,7 @@ model MonitorExaminationResponse = {
 
 async function monitorExaminationWithOptions(request: MonitorExaminationRequest, runtime: Util.RuntimeOptions): MonitorExaminationResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -5129,7 +5236,7 @@ async function monitorExaminationAdvance(request: MonitorExaminationAdvanceReque
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -5160,31 +5267,31 @@ async function monitorExaminationAdvance(request: MonitorExaminationAdvanceReque
   var monitorExaminationReq = new MonitorExaminationRequest{};
   OpenApiUtil.convert(request, monitorExaminationReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    monitorExaminationReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    monitorExaminationReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var monitorExaminationResp = monitorExaminationWithOptions(monitorExaminationReq, runtime);
   return monitorExaminationResp;
@@ -5195,7 +5302,7 @@ model PedestrianDetectAttributeRequest {
 }
 
 model PedestrianDetectAttributeAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
 }
 
 model PedestrianDetectAttributeResponseBody = {
@@ -5276,7 +5383,7 @@ model PedestrianDetectAttributeResponse = {
 
 async function pedestrianDetectAttributeWithOptions(request: PedestrianDetectAttributeRequest, runtime: Util.RuntimeOptions): PedestrianDetectAttributeResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -5315,7 +5422,7 @@ async function pedestrianDetectAttributeAdvance(request: PedestrianDetectAttribu
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -5346,31 +5453,31 @@ async function pedestrianDetectAttributeAdvance(request: PedestrianDetectAttribu
   var pedestrianDetectAttributeReq = new PedestrianDetectAttributeRequest{};
   OpenApiUtil.convert(request, pedestrianDetectAttributeReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    pedestrianDetectAttributeReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    pedestrianDetectAttributeReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var pedestrianDetectAttributeResp = pedestrianDetectAttributeWithOptions(pedestrianDetectAttributeReq, runtime);
   return pedestrianDetectAttributeResp;
@@ -5378,7 +5485,7 @@ async function pedestrianDetectAttributeAdvance(request: PedestrianDetectAttribu
 
 model QueryFaceImageTemplateRequest {
   templateId?: string(name='TemplateId'),
-  userId?: string(name='UserId', description='A short description of struct'),
+  userId?: string(name='UserId'),
 }
 
 model QueryFaceImageTemplateResponseBody = {
@@ -5393,7 +5500,7 @@ model QueryFaceImageTemplateResponseBody = {
       }
     ](name='Elements'),
   }(name='Data'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  requestId?: string(name='RequestId'),
 }
 
 model QueryFaceImageTemplateResponse = {
@@ -5465,7 +5572,7 @@ model RecognizeActionResponse = {
 
 async function recognizeActionWithOptions(request: RecognizeActionRequest, runtime: Util.RuntimeOptions): RecognizeActionResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.type)) {
     body['Type'] = request.type;
   }
@@ -5505,7 +5612,7 @@ model RecognizeExpressionRequest {
 }
 
 model RecognizeExpressionAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
 }
 
 model RecognizeExpressionResponseBody = {
@@ -5534,7 +5641,7 @@ model RecognizeExpressionResponse = {
 
 async function recognizeExpressionWithOptions(request: RecognizeExpressionRequest, runtime: Util.RuntimeOptions): RecognizeExpressionResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -5573,7 +5680,7 @@ async function recognizeExpressionAdvance(request: RecognizeExpressionAdvanceReq
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -5604,31 +5711,31 @@ async function recognizeExpressionAdvance(request: RecognizeExpressionAdvanceReq
   var recognizeExpressionReq = new RecognizeExpressionRequest{};
   OpenApiUtil.convert(request, recognizeExpressionReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeExpressionReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    recognizeExpressionReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var recognizeExpressionResp = recognizeExpressionWithOptions(recognizeExpressionReq, runtime);
   return recognizeExpressionResp;
@@ -5648,13 +5755,13 @@ model RecognizeFaceRequest {
 }
 
 model RecognizeFaceAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
   age?: boolean(name='Age'),
   beauty?: boolean(name='Beauty'),
   expression?: boolean(name='Expression'),
   gender?: boolean(name='Gender'),
   glass?: boolean(name='Glass'),
   hat?: boolean(name='Hat'),
+  imageURLObject?: readable(name='ImageURL'),
   mask?: boolean(name='Mask'),
   maxFaceNumber?: long(name='MaxFaceNumber'),
   quality?: boolean(name='Quality'),
@@ -5700,7 +5807,7 @@ model RecognizeFaceResponse = {
 
 async function recognizeFaceWithOptions(request: RecognizeFaceRequest, runtime: Util.RuntimeOptions): RecognizeFaceResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.age)) {
     body['Age'] = request.age;
   }
@@ -5766,7 +5873,7 @@ async function recognizeFaceAdvance(request: RecognizeFaceAdvanceRequest, runtim
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -5797,46 +5904,46 @@ async function recognizeFaceAdvance(request: RecognizeFaceAdvanceRequest, runtim
   var recognizeFaceReq = new RecognizeFaceRequest{};
   OpenApiUtil.convert(request, recognizeFaceReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeFaceReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    recognizeFaceReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var recognizeFaceResp = recognizeFaceWithOptions(recognizeFaceReq, runtime);
   return recognizeFaceResp;
 }
 
 model RecognizeHandGestureRequest {
-  appId?: string(name='AppId', description='A short description of struct'),
+  appId?: string(name='AppId'),
   gestureType?: string(name='GestureType'),
   imageURL?: string(name='ImageURL'),
 }
 
 model RecognizeHandGestureAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
-  appId?: string(name='AppId', description='A short description of struct'),
+  appId?: string(name='AppId'),
   gestureType?: string(name='GestureType'),
+  imageURLObject?: readable(name='ImageURL'),
 }
 
 model RecognizeHandGestureResponseBody = {
@@ -5848,7 +5955,7 @@ model RecognizeHandGestureResponseBody = {
     x?: long(name='X'),
     y?: long(name='Y'),
   }(name='Data'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  requestId?: string(name='RequestId'),
 }
 
 model RecognizeHandGestureResponse = {
@@ -5859,7 +5966,7 @@ model RecognizeHandGestureResponse = {
 
 async function recognizeHandGestureWithOptions(request: RecognizeHandGestureRequest, runtime: Util.RuntimeOptions): RecognizeHandGestureResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.appId)) {
     body['AppId'] = request.appId;
   }
@@ -5904,7 +6011,7 @@ async function recognizeHandGestureAdvance(request: RecognizeHandGestureAdvanceR
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -5935,31 +6042,31 @@ async function recognizeHandGestureAdvance(request: RecognizeHandGestureAdvanceR
   var recognizeHandGestureReq = new RecognizeHandGestureRequest{};
   OpenApiUtil.convert(request, recognizeHandGestureReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeHandGestureReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    recognizeHandGestureReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var recognizeHandGestureResp = recognizeHandGestureWithOptions(recognizeHandGestureReq, runtime);
   return recognizeHandGestureResp;
@@ -6016,7 +6123,7 @@ model RecognizePublicFaceResponse = {
 
 async function recognizePublicFaceWithOptions(request: RecognizePublicFaceRequest, runtime: Util.RuntimeOptions): RecognizePublicFaceResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.task)) {
     body['Task'] = request.task;
   }
@@ -6049,7 +6156,7 @@ model RetouchBodyRequest {
 }
 
 model RetouchBodyAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
   lengthenDegree?: float(name='LengthenDegree'),
   slimDegree?: float(name='SlimDegree'),
 }
@@ -6069,7 +6176,7 @@ model RetouchBodyResponse = {
 
 async function retouchBodyWithOptions(request: RetouchBodyRequest, runtime: Util.RuntimeOptions): RetouchBodyResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -6114,7 +6221,7 @@ async function retouchBodyAdvance(request: RetouchBodyAdvanceRequest, runtime: U
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -6145,31 +6252,31 @@ async function retouchBodyAdvance(request: RetouchBodyAdvanceRequest, runtime: U
   var retouchBodyReq = new RetouchBodyRequest{};
   OpenApiUtil.convert(request, retouchBodyReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    retouchBodyReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    retouchBodyReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var retouchBodyResp = retouchBodyWithOptions(retouchBodyReq, runtime);
   return retouchBodyResp;
@@ -6182,7 +6289,7 @@ model RetouchSkinRequest {
 }
 
 model RetouchSkinAdvanceRequest {
-  imageURLObject: readable(name='ImageURLObject'),
+  imageURLObject?: readable(name='ImageURL'),
   retouchDegree?: float(name='RetouchDegree'),
   whiteningDegree?: float(name='WhiteningDegree'),
 }
@@ -6191,7 +6298,7 @@ model RetouchSkinResponseBody = {
   data?: {
     imageURL?: string(name='ImageURL'),
   }(name='Data'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  requestId?: string(name='RequestId'),
 }
 
 model RetouchSkinResponse = {
@@ -6202,7 +6309,7 @@ model RetouchSkinResponse = {
 
 async function retouchSkinWithOptions(request: RetouchSkinRequest, runtime: Util.RuntimeOptions): RetouchSkinResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
@@ -6247,7 +6354,7 @@ async function retouchSkinAdvance(request: RetouchSkinAdvanceRequest, runtime: U
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -6278,68 +6385,68 @@ async function retouchSkinAdvance(request: RetouchSkinAdvanceRequest, runtime: U
   var retouchSkinReq = new RetouchSkinRequest{};
   OpenApiUtil.convert(request, retouchSkinReq);
 
-  if(!Util.isUnset(request.imageURLObject)){
+  if(!Util.isUnset(request.imageURLObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageURLObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    retouchSkinReq.imageURL =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    retouchSkinReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var retouchSkinResp = retouchSkinWithOptions(retouchSkinReq, runtime);
   return retouchSkinResp;
 }
 
 model SearchBodyTraceRequest {
-  dbId?: long(name='DbId', description='数据库ID'),
+  dbId?: long(name='DbId'),
   images?: [ 
     {
-      imageData?: bytes(name='ImageData', description='图片Base64数据'),
-      imageURL?: string(name='ImageURL', description='Trace图片URL'),
+      imageData?: bytes(name='ImageData'),
+      imageURL?: string(name='ImageURL'),
     }
-  ](name='Images', description='Trace图片信息列表'),
-  limit?: long(name='Limit', description='结果Trace数量上限，默认10，取值范围[1, 100]'),
-  minScore?: float(name='MinScore', description='score阈值，只返回大于等于该score的数据，取值范围[-1.0, 1.0]，默认为空'),
+  ](name='Images'),
+  limit?: long(name='Limit'),
+  minScore?: float(name='MinScore'),
 }
 
 model SearchBodyTraceShrinkRequest {
-  dbId?: long(name='DbId', description='数据库ID'),
-  imagesShrink?: string(name='Images', description='Trace图片信息列表'),
-  limit?: long(name='Limit', description='结果Trace数量上限，默认10，取值范围[1, 100]'),
-  minScore?: float(name='MinScore', description='score阈值，只返回大于等于该score的数据，取值范围[-1.0, 1.0]，默认为空'),
+  dbId?: long(name='DbId'),
+  imagesShrink?: string(name='Images'),
+  limit?: long(name='Limit'),
+  minScore?: float(name='MinScore'),
 }
 
 model SearchBodyTraceResponseBody = {
   data?: {
     matchList?: [ 
       {
-        dbId?: long(name='DbId', description='数据库ID'),
-        extraData?: string(name='ExtraData', description='自定义数据信息'),
-        personId?: long(name='PersonId', description='人员ID'),
-        score?: float(name='Score', description='匹配度分值，越大越相似，取值范围[-1.0, 1.0]'),
-        traceId?: long(name='TraceId', description='TraceId'),
+        dbId?: long(name='DbId'),
+        extraData?: string(name='ExtraData'),
+        personId?: long(name='PersonId'),
+        score?: float(name='Score'),
+        traceId?: long(name='TraceId'),
       }
-    ](name='MatchList', description='匹配的Trace列表'),
+    ](name='MatchList'),
   }(name='Data'),
-  requestId?: string(name='RequestId', description='RequestId'),
+  requestId?: string(name='RequestId'),
 }
 
 model SearchBodyTraceResponse = {
@@ -6355,7 +6462,7 @@ async function searchBodyTraceWithOptions(tmpReq: SearchBodyTraceRequest, runtim
   if (!Util.isUnset(tmpReq.images)) {
     request.imagesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.images, 'Images', 'json');
   }
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.dbId)) {
     body['DbId'] = request.dbId;
   }
@@ -6400,9 +6507,9 @@ model SearchFaceRequest {
 }
 
 model SearchFaceAdvanceRequest {
-  imageUrlObject: readable(name='ImageUrlObject'),
   dbName?: string(name='DbName'),
   dbNames?: string(name='DbNames'),
+  imageUrlObject?: readable(name='ImageUrl'),
   limit?: int32(name='Limit'),
   maxFaceNum?: long(name='MaxFaceNum'),
   qualityScoreThreshold?: float(name='QualityScoreThreshold'),
@@ -6443,7 +6550,7 @@ model SearchFaceResponse = {
 
 async function searchFaceWithOptions(request: SearchFaceRequest, runtime: Util.RuntimeOptions): SearchFaceResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.dbName)) {
     body['DbName'] = request.dbName;
   }
@@ -6497,7 +6604,7 @@ async function searchFaceAdvance(request: SearchFaceAdvanceRequest, runtime: Uti
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -6528,31 +6635,31 @@ async function searchFaceAdvance(request: SearchFaceAdvanceRequest, runtime: Uti
   var searchFaceReq = new SearchFaceRequest{};
   OpenApiUtil.convert(request, searchFaceReq);
 
-  if(!Util.isUnset(request.imageUrlObject)){
+  if(!Util.isUnset(request.imageUrlObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.imageUrlObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    searchFaceReq.imageUrl =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    searchFaceReq.imageUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var searchFaceResp = searchFaceWithOptions(searchFaceReq, runtime);
   return searchFaceResp;
@@ -6564,6 +6671,14 @@ model SwapFacialFeaturesRequest {
   sourceImageURL?: string(name='SourceImageURL'),
   targetImageData?: bytes(name='TargetImageData'),
   targetImageURL?: string(name='TargetImageURL'),
+}
+
+model SwapFacialFeaturesAdvanceRequest {
+  editPart?: string(name='EditPart'),
+  sourceImageData?: bytes(name='SourceImageData'),
+  sourceImageURLObject?: readable(name='SourceImageURL'),
+  targetImageData?: bytes(name='TargetImageData'),
+  targetImageURLObject?: readable(name='TargetImageURL'),
 }
 
 model SwapFacialFeaturesResponseBody = {
@@ -6581,7 +6696,7 @@ model SwapFacialFeaturesResponse = {
 
 async function swapFacialFeaturesWithOptions(request: SwapFacialFeaturesRequest, runtime: Util.RuntimeOptions): SwapFacialFeaturesResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.editPart)) {
     body['EditPart'] = request.editPart;
   }
@@ -6619,6 +6734,106 @@ async function swapFacialFeatures(request: SwapFacialFeaturesRequest): SwapFacia
   return swapFacialFeaturesWithOptions(request, runtime);
 }
 
+async function swapFacialFeaturesAdvance(request: SwapFacialFeaturesAdvanceRequest, runtime: Util.RuntimeOptions): SwapFacialFeaturesResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var swapFacialFeaturesReq = new SwapFacialFeaturesRequest{};
+  OpenApiUtil.convert(request, swapFacialFeaturesReq);
+
+  if(!Util.isUnset(request.sourceImageURLObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.sourceImageURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    swapFacialFeaturesReq.sourceImageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  if(!Util.isUnset(request.targetImageURLObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.targetImageURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    swapFacialFeaturesReq.targetImageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var swapFacialFeaturesResp = swapFacialFeaturesWithOptions(swapFacialFeaturesReq, runtime);
+  return swapFacialFeaturesResp;
+}
+
 model UpdateFaceEntityRequest {
   dbName?: string(name='DbName'),
   entityId?: string(name='EntityId'),
@@ -6637,7 +6852,7 @@ model UpdateFaceEntityResponse = {
 
 async function updateFaceEntityWithOptions(request: UpdateFaceEntityRequest, runtime: Util.RuntimeOptions): UpdateFaceEntityResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.dbName)) {
     body['DbName'] = request.dbName;
   }
@@ -6676,6 +6891,13 @@ model VerifyFaceMaskRequest {
   refUrl?: string(name='RefUrl'),
 }
 
+model VerifyFaceMaskAdvanceRequest {
+  imageData?: bytes(name='ImageData'),
+  imageURLObject?: readable(name='ImageURL'),
+  refData?: bytes(name='RefData'),
+  refUrlObject?: readable(name='RefUrl'),
+}
+
 model VerifyFaceMaskResponseBody = {
   data?: {
     confidence?: float(name='Confidence'),
@@ -6696,7 +6918,7 @@ model VerifyFaceMaskResponse = {
 
 async function verifyFaceMaskWithOptions(request: VerifyFaceMaskRequest, runtime: Util.RuntimeOptions): VerifyFaceMaskResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.imageData)) {
     body['ImageData'] = request.imageData;
   }
@@ -6729,5 +6951,105 @@ async function verifyFaceMaskWithOptions(request: VerifyFaceMaskRequest, runtime
 async function verifyFaceMask(request: VerifyFaceMaskRequest): VerifyFaceMaskResponse {
   var runtime = new Util.RuntimeOptions{};
   return verifyFaceMaskWithOptions(request, runtime);
+}
+
+async function verifyFaceMaskAdvance(request: VerifyFaceMaskAdvanceRequest, runtime: Util.RuntimeOptions): VerifyFaceMaskResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var verifyFaceMaskReq = new VerifyFaceMaskRequest{};
+  OpenApiUtil.convert(request, verifyFaceMaskReq);
+
+  if(!Util.isUnset(request.imageURLObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    verifyFaceMaskReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  if(!Util.isUnset(request.refUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.refUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    verifyFaceMaskReq.refUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var verifyFaceMaskResp = verifyFaceMaskWithOptions(verifyFaceMaskReq, runtime);
+  return verifyFaceMaskResp;
 }
 
