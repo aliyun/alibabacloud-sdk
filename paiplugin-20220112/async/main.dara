@@ -614,9 +614,11 @@ model GetGroupResponseBody = {
   data?: {
     algorithm?: string(name='Algorithm', description='关联算法，人群来源为算法。'),
     amount?: int32(name='Amount', description='人群数量。'),
+    campaignId?: string(name='CampaignId', description='关联运营活动Id。'),
     column?: string(name='Column', description='手机号列名，人群来源为CSV文件，MaxCompute，并且包含手机号时需指定。'),
     createdTime?: string(name='CreatedTime', description='创建时间 (UTC+8)。'),
     filter?: string(name='Filter', description='过滤条件，人群来源为MaxCompute时可指定。'),
+    history?: string(name='History', description='历史记录。'),
     id?: string(name='Id', description='人群Id。'),
     inferenceJobId?: string(name='InferenceJobId', description='预测任务Id，人群来源为算法。'),
     name?: string(name='Name', description='人群名称。'),
@@ -626,8 +628,8 @@ model GetGroupResponseBody = {
     source?: int32(name='Source', description='人群来源。
 - 0: 文本，每行一个手机号，最多100个。
 - 1: 文本文件，每行一个手机号，可通过控制台上传或指定自定义OSS地址，指定自定义OSS地址前需确保已在控制台完成一键授权。
-- 2: CSV文件，需指定手机号列名，可通过控制台上传或指定自定义OSS地址，指定自定义OSS地址前需确保已在控制台完成一键授权。
-- 3: MaxCompute(ODPS)表，需指定手机号列名。
+- 2: 多列CSV文件，需指定手机号列名，可通过控制台上传或指定自定义OSS地址，指定自定义OSS地址前需确保已在控制台完成一键授权。
+- 3: MaxCompute表，需指定手机号列名。
 - 4: 算法。'),
     status?: int32(name='Status', description='人群状态。
 - 0: 检查中。
@@ -636,7 +638,7 @@ model GetGroupResponseBody = {
     table?: string(name='Table', description='MaxCompute(ODPS)表名，人群来源为MaxCompute时需指定。'),
     text?: string(name='Text', description='文本，人群来源为文本时需指定。'),
     updatedTime?: string(name='UpdatedTime', description='更新时间 (UTC+8)。'),
-    uri?: string(name='Uri', description='文件地址，人群来源为文本文件，CSV文件，MaxCompute时需指定。'),
+    uri?: string(name='Uri', description='文件地址，人群来源为文本文件，CSV文件时需指定。'),
   }(name='Data', description='返回数据。'),
   errorCode?: int32(name='ErrorCode', description='错误码。'),
   errorMessage?: string(name='ErrorMessage', description='错误信息。'),
@@ -1059,6 +1061,7 @@ async function listGroups(request: ListGroupsRequest): ListGroupsResponse {
 
 model ListInferenceJobsRequest {
   campaignId?: string(name='CampaignId', description='归属运营活动过滤。', position='Query'),
+  campaignName?: string(name='CampaignName', position='Query'),
   name?: string(name='Name', description='预测任务名称过滤。', position='Query'),
   pageNumber?: int32(name='PageNumber', description='分页数，从1开始，默认为1。', position='Query'),
   pageSize?: int32(name='PageSize', description='分页大小，默认为10。', position='Query'),
@@ -1069,6 +1072,7 @@ model ListInferenceJobsRequest {
 - 2: 运行中。
 - 3: 成功。
 - 4: 失败。', position='Query'),
+  trainingJobName?: string(name='TrainingJobName', position='Query'),
 }
 
 model ListInferenceJobsResponseBody = {
@@ -1076,16 +1080,22 @@ model ListInferenceJobsResponseBody = {
     inferenceJobs?: [ 
       {
         algorithm?: string(name='Algorithm', description='关联算法。'),
-        campaignId?: string(name='CampaignId', description='关联运营活动Id。'),
+        campaignId?: string(name='CampaignId', description='关联运营活动ID。'),
         createdTime?: string(name='CreatedTime', description='创建时间 (UTC+8)。'),
-        dataPath?: string(name='DataPath', description='预测数据路径。'),
-        groupId?: string(name='GroupId', description='关联人群Id，如果任务失败则人群无效。'),
+        dataPath?: string(name='DataPath', description='预测数据路径，当预测人群数据分布在多个csv文件时可指定目录，指定路径前需确保已在控制台完成一键授权。'),
+        groupId?: string(name='GroupId', description='预测人群，人群来源必须为多列csv，当同时指定DataPath与GroupId时，以GroupId为准。'),
         history?: string(name='History', description='预测任务日志。'),
-        id?: string(name='Id', description='预测任务Id。'),
+        id?: string(name='Id', description='预测任务ID。'),
         name?: string(name='Name', description='预测任务名称。'),
         remark?: string(name='Remark', description='备注。'),
-        status?: int32(name='Status', description='预测任务状态。'),
-        targetPath?: string(name='TargetPath', description='输出数据路径，需要为空目录。'),
+        status?: int32(name='Status', description='预测任务状态。
+- 0: 队列中。
+- 1: 已提交。
+- 2: 运行中。
+- 3: 成功。
+- 4: 失败。'),
+        targetGroupId?: string(name='TargetGroupId', description='关联目标人群ID，如果任务失败则人群无效。'),
+        targetPath?: string(name='TargetPath', description='输出数据路径，需要为空目录，指定路径前需确保已在控制台完成一键授权。'),
         trainingJobId?: string(name='TrainingJobId', description='关联训练任务。'),
         updatedTime?: string(name='UpdatedTime', description='更新时间 (UTC+8)。'),
         userConfig?: string(name='UserConfig', description='用户配置。'),
@@ -1105,9 +1115,6 @@ model ListInferenceJobsResponse = {
   body: ListInferenceJobsResponseBody(name='body'),
 }
 
-/**
- * 获取预测任务列表。
- */
 async function listInferenceJobs(request: ListInferenceJobsRequest): ListInferenceJobsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListInferenceJobs', 'GET', '/api/v2/inference/jobs', 'json', false, 'json', request);
@@ -1407,6 +1414,7 @@ async function listTemplates(request: ListTemplatesRequest): ListTemplatesRespon
 
 model ListTrainingJobsRequest {
   campaignId?: string(name='CampaignId', description='归属运营活动过滤。', position='Query'),
+  campaignName?: string(name='CampaignName', description='关联运营活动名称', position='Query'),
   name?: string(name='Name', description='训练任务名称过滤。', position='Query'),
   pageNumber?: int32(name='PageNumber', description='分页数，从1开始，默认为1。', position='Query'),
   pageSize?: int32(name='PageSize', description='分页大小，默认为10。', position='Query'),
@@ -1417,6 +1425,7 @@ model ListTrainingJobsRequest {
 - 2: 运行中。
 - 3: 成功。
 - 4: 失败。', position='Query'),
+  trainingScheduleId?: string(name='TrainingScheduleId', description='归属训练计划过滤。', position='Query'),
 }
 
 model ListTrainingJobsResponseBody = {
@@ -1426,15 +1435,21 @@ model ListTrainingJobsResponseBody = {
     totalCount?: int32(name='TotalCount', description='总训练任务数量。'),
     trainingJobs?: [ 
       {
-        algorithm?: string(name='Algorithm', description='关联算法Id。'),
-        campaignId?: string(name='CampaignId', description='关联运营活动Id。'),
+        algorithm?: string(name='Algorithm', description='关联算法ID。'),
+        campaignId?: string(name='CampaignId', description='关联运营活动ID。'),
         createdTime?: string(name='CreatedTime', description='创建时间 (UTC+8)。'),
-        dataPath?: string(name='DataPath', description='训练数据路径。'),
+        dataPath?: string(name='DataPath', description='训练数据路径，指定路径前需确保已在控制台完成一键授权。'),
         history?: string(name='History', description='训练任务日志。'),
-        id?: string(name='Id', description='训练任务Id。'),
+        id?: string(name='Id', description='训练任务ID。'),
         name?: string(name='Name', description='训练任务名称。'),
         remark?: string(name='Remark', description='备注。'),
-        status?: int32(name='Status', description='训练任务状态。'),
+        status?: int32(name='Status', description='训练任务状态。
+- 0: 队列中。
+- 1: 已提交。
+- 2: 运行中。
+- 3: 成功。
+- 4: 失败。'),
+        trainingScheduleId?: string(name='TrainingScheduleId', description='关联训练计划ID。'),
         updatedTime?: string(name='UpdatedTime', description='更新时间 (UTC+8)。'),
         userConfig?: string(name='UserConfig', description='用户配置。'),
       }
@@ -1450,9 +1465,6 @@ model ListTrainingJobsResponse = {
   body: ListTrainingJobsResponseBody(name='body'),
 }
 
-/**
- * 获取训练任务列表。
- */
 async function listTrainingJobs(request: ListTrainingJobsRequest): ListTrainingJobsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListTrainingJobs', 'GET', '/api/v2/training/jobs', 'json', false, 'json', request);
@@ -1491,9 +1503,6 @@ model SendMessageResponse = {
   body: SendMessageResponseBody(name='body'),
 }
 
-/**
- * 发送短信。
- */
 async function sendMessage(request: SendMessageRequest): SendMessageResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'SendMessage', 'POST', '/api/v2/messages', 'json', false, 'json', request);
