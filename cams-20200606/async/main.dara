@@ -30,6 +30,129 @@ function close(): void {
   @handler.close();
 }
 
+model BeeBotAssociateRequest {
+  chatBotInstnaceId: string(name='ChatBotInstnaceId', description='发送号码', position='Body'),
+  isvCode?: string(name='IsvCode', description='Isv校验码，用于校验子帐号是否由ISV授权', position='Body'),
+  perspective?: [ string ](name='Perspective', description='视角编码，用于调用同一知识库下不同视角的各自答案', shrink='json', position='Body'),
+  recommendNum?: int32(name='RecommendNum', description='推荐问题数量，1 - 10', minimum=1, maximum=10, position='Body'),
+  sessionId?: string(name='SessionId', description='会话ID,用于标识一个访问者的会话和保持上下文信息', position='Body'),
+  utterance?: string(name='Utterance', description='机器人访问者输入', position='Body'),
+}
+
+model BeeBotAssociateResponseBody = {
+  code?: string(name='Code', description='返回结果 OK 为正常'),
+  data?: {
+    associate?: [ 
+      {
+        meta?: string(name='Meta', description='附带信息'),
+        title?: string(name='Title', description='关联问题的标题'),
+      }
+    ](name='Associate'),
+    messageId?: string(name='MessageId', description='本条会话应答消息ID'),
+    sessionId?: string(name='SessionId', description='会话ID'),
+  }(name='Data'),
+  message?: string(name='Message', description='提示信息，当返回异常时有值'),
+  requestId?: string(name='RequestId', description='请求ID'),
+}
+
+model BeeBotAssociateResponse = {
+  headers: map[string]string(name='headers'),
+  body: BeeBotAssociateResponseBody(name='body'),
+}
+
+async function beeBotAssociate(request: BeeBotAssociateRequest): BeeBotAssociateResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'BeeBotAssociate', 'POST', '/', 'json', true, 'form', request);
+}
+
+model BeeBotChatRequest {
+  chatBotInstnaceId: string(name='ChatBotInstnaceId', description='发送号码', position='Body'),
+  intentName?: string(name='IntentName', description='对话流中意图名称，若指定此名称，机器人会直接进入此意图做问答', position='Body'),
+  isvCode?: string(name='IsvCode', description='Isv校验码，用于校验子帐号是否由ISV授权', position='Body'),
+  knowledgeId?: string(name='KnowledgeId', description='知识库中知识标题ID', position='Body'),
+  perspective?: [ string ](name='Perspective', description='视觉编码，用于调用同一知识标题下不同视角的答案', shrink='json', position='Body'),
+  senderId?: string(name='SenderId', description='访问者ID。用于识别当前会话中的用户', position='Body'),
+  senderNick?: string(name='SenderNick', description='当前会话中访问的昵称', position='Body'),
+  sessionId?: string(name='SessionId', description='会话ID, 用于标识一个访问者的会话和上下文信息', position='Body'),
+  utterance: string(name='Utterance', description='机器人访问者输入', position='Body'),
+  vendorParam?: map[string]any(name='VendorParam', description='用户自定义参数集，可以传入用户自定义参数到圣诞工厂', shrink='json', position='Body'),
+}
+
+model BeeBotChatResponseBody = {
+  code?: string(name='Code', description='返回结果 OK 为正常'),
+  data?: {
+    messageId?: string(name='MessageId', description='本条会话应答消息的ID'),
+    messages?: [ 
+      {
+        answerSource?: string(name='AnswerSource', description='当AnswerType为Recommend时，此字段表示推荐的答案来源'),
+        answerType?: string(name='AnswerType', description='本条消息的类型'),
+        knowledge?: {
+          answerSource?: string(name='AnswerSource', description='区分答案类型。
+KnowledgeBase:知识库条；'),
+          category?: string(name='Category', description='知识类目'),
+          content?: string(name='Content', description='命中问题的内容'),
+          contentType?: string(name='ContentType', description='纯文本/富文本答案的标示'),
+          hitStatement?: string(name='HitStatement', description='命中语句'),
+          id?: string(name='Id', description='命中问题在知识库中的ID'),
+          relatedKnowledges?: [ 
+            {
+              knowledgeId?: string(name='KnowledgeId', description='知识关联知识的ID'),
+              title?: string(name='Title', description='知识的关联知识的标题'),
+            }
+          ](name='RelatedKnowledges', description='关联知识列表'),
+          summary?: string(name='Summary', description='命中问题的简介'),
+          title?: string(name='Title', description='命中问题的标题'),
+        }(name='Knowledge', description='当AnswerType为Knowledge时，此字段包含机器人返回的Knowledge对象'),
+        recommends?: [ 
+          {
+            answerSource?: string(name='AnswerSource', description='澄清来源的标识'),
+            knowledgeId?: string(name='KnowledgeId', description='澄清的知识id'),
+            title?: string(name='Title', description='澄清内容，可能是
+图谱问答的实体、
+知识问答的知识标题、
+表格问答的列值'),
+          }
+        ](name='Recommends', description='当AnswerType为Recommend时，此字段包含机器人返回的Recommend的列表'),
+        text?: {
+          answerSource?: string(name='AnswerSource', description='区分答案类型'),
+          content?: string(name='Content', description='文本消息的内容'),
+          contentType?: string(name='ContentType', description='纯文本/富文本答案的标示'),
+          dialogName?: string(name='DialogName', description='当AnswerSource为BotFramework时，此字段返回对话单元名称'),
+          ext?: map[string]any(name='Ext', description='此字段返回透传参数'),
+          externalFlags?: map[string]any(name='ExternalFlags', description='当AnswerSource为BotFramework时，此字段返回透传参数'),
+          hitStatement?: string(name='HitStatement', description='命中语句'),
+          intentName?: string(name='IntentName', description='当AnswerSource为BotFramework时，此字段返回意图名称'),
+          metaData?: string(name='MetaData'),
+          nodeId?: string(name='NodeId', description='当AnswerSource为BotFramework时，此字段返回节点Id'),
+          nodeName?: string(name='NodeName', description='当AnswerSource为BotFramework时，此字段返回节点名称'),
+          slots?: [ 
+            {
+              hit?: boolean(name='Hit'),
+              name?: string(name='Name'),
+              origin?: string(name='Origin'),
+              value?: string(name='Value'),
+            }
+          ](name='Slots', description='当AnswerSource为BotFramework时，此字段返回专有名词列表'),
+          userDefinedChatTitle?: string(name='UserDefinedChatTitle', description='自定义闲聊主题title'),
+        }(name='Text', description='当AnswerType为Text时，此字段包含机器人返回的Text对象'),
+      }
+    ](name='Messages', description='消息的列表'),
+    sessionId?: string(name='SessionId', description='本次会话的ID'),
+  }(name='Data'),
+  message?: string(name='Message', description='提示信息，当返回异常时有值'),
+  requestId?: string(name='RequestId', description='请求ID'),
+}
+
+model BeeBotChatResponse = {
+  headers: map[string]string(name='headers'),
+  body: BeeBotChatResponseBody(name='body'),
+}
+
+async function beeBotChat(request: BeeBotChatRequest): BeeBotChatResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'BeeBotChat', 'POST', '/', 'json', true, 'form', request);
+}
+
 model CreateChatappTemplateRequest {
   category: string(name='Category', description='模板分类', position='Body'),
   components: [ 
@@ -195,6 +318,56 @@ async function listChatappTemplate(request: ListChatappTemplateRequest): ListCha
   return @handler.do('RPC', 'ListChatappTemplate', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ModifyChatappTemplateRequest {
+  components: [ 
+    {
+      buttons?: [ 
+        {
+          phoneNumber?: string(name='PhoneNumber', description='号码'),
+          text?: string(name='Text', description='所发送消息的文本'),
+          type: string(name='Type', description='按钮类型
+PHONE_NUMBER（电话）,URL（网页按钮）和QUICK_REPLY（快速回复）'),
+          url?: string(name='Url', description='点击按钮后将访问的网址'),
+          urlType?: string(name='UrlType', description='网址类型 static-静态dynamic-动态'),
+        }
+      ](name='Buttons', description='按钮'),
+      caption?: string(name='Caption', description='描述，当Type为Header，且Format为IMGAGE/DOCUMENT/VIDEO 可以增加描述'),
+      fileName?: string(name='FileName', description='文件名称，当Type为Header，且Format为DOCUMENT时可以给文件指定名称'),
+      format?: string(name='Format', description='格式
+TEXT-文本 IMGAGE-图片 DOCUMENT-文档 VIDEO-视频'),
+      text?: string(name='Text', description='所发送消息的文本'),
+      type: string(name='Type', description='组件类型
+值：BODY、HEADER、FOOTER 和 BUTTONS'),
+      url?: string(name='Url', description='素材路径'),
+    }
+  ](name='Components', shrink='json', position='Body'),
+  custWabaId?: string(name='CustWabaId', description='ISV客户WabaId', position='Body'),
+  example?: map[string]string(name='Example', description='变量，KEY-VALUE结构', shrink='json', position='Body'),
+  isvCode?: string(name='IsvCode', description='Isv校验码，用于校验子帐号是否由ISV授权', position='Body'),
+  language: string(name='Language', description='语言', position='Body'),
+  templateCode: string(name='TemplateCode', description='消息模板编码', position='Body'),
+}
+
+model ModifyChatappTemplateResponseBody = {
+  code?: string(name='Code', description='返回结果 OK 为正常'),
+  data?: {
+    templateCode?: string(name='TemplateCode', description='模板Code'),
+    templateName?: string(name='TemplateName', description='模板名称'),
+  }(name='Data'),
+  message?: string(name='Message', description='提示信息，当返回异常时有值'),
+  requestId?: string(name='RequestId', description='请求ID'),
+}
+
+model ModifyChatappTemplateResponse = {
+  headers: map[string]string(name='headers'),
+  body: ModifyChatappTemplateResponseBody(name='body'),
+}
+
+async function modifyChatappTemplate(request: ModifyChatappTemplateRequest): ModifyChatappTemplateResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ModifyChatappTemplate', 'POST', '/', 'json', true, 'form', request);
+}
+
 model SendChatappMassMessageRequest {
   channelType: string(name='ChannelType', description='通道类型 whatsapp/viber/line', position='Body'),
   custWabaId?: string(name='CustWabaId', description='ISV客户wabaId', position='Body'),
@@ -202,7 +375,7 @@ model SendChatappMassMessageRequest {
   fallBackId?: string(name='FallBackId', description='回落策略ID', position='Body'),
   from: string(name='From', description='发送方', position='Body'),
   isvCode?: string(name='IsvCode', description='Isv校验码，用于校验子帐号是否由ISV授权', position='Body'),
-  language?: string(name='Language', description='语言', position='Body'),
+  language: string(name='Language', description='语言', position='Body'),
   senderList: [ 
     {
       payload?: [ string ](name='Payload', description='payload'),
@@ -211,7 +384,7 @@ model SendChatappMassMessageRequest {
     }
   ](name='SenderList', shrink='json', position='Body'),
   taskId?: string(name='TaskId', description='任务ID', position='Body'),
-  templateCode?: string(name='TemplateCode', description='模板编码', position='Body'),
+  templateCode: string(name='TemplateCode', description='模板编码', position='Body'),
 }
 
 model SendChatappMassMessageResponseBody = {
