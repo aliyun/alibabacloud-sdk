@@ -155,6 +155,7 @@ model ByLoadScalingRuleSpec {
 
 model ByTimeScalingRule {
   endTime?: long(name='EndTime'),
+  launchExpirationTime?: int32(name='LaunchExpirationTime'),
   launchTime?: long(name='LaunchTime'),
   recurrenceType?: string(name='RecurrenceType'),
   recurrenceValue?: string(name='RecurrenceValue'),
@@ -196,7 +197,6 @@ model Cluster {
   tags?: [
     Tag
   ](name='Tags'),
-  vpcId?: string(name='VpcId'),
 }
 
 model ClusterScript {
@@ -397,12 +397,23 @@ model MetaStoreConf {
   dbUserName?: string(name='DbUserName'),
 }
 
+model MetricsTrigger {
+  comparisonOperator?: string(name='ComparisonOperator'),
+  coolDownInterval?: int32(name='CoolDownInterval'),
+  evaluationCount?: int32(name='EvaluationCount'),
+  metricName?: string(name='MetricName'),
+  statistics?: string(name='Statistics'),
+  threshold?: double(name='Threshold'),
+  timeWindow?: int32(name='TimeWindow'),
+}
+
 model Node {
   autoRenew?: boolean(name='AutoRenew'),
   autoRenewDuration?: int32(name='AutoRenewDuration'),
   autoRenewDurationUnit?: string(name='AutoRenewDurationUnit'),
   expireTime?: long(name='ExpireTime'),
   instanceType?: string(name='InstanceType'),
+  maintenanceStatus?: string(name='MaintenanceStatus'),
   nodeGroupId?: string(name='NodeGroupId'),
   nodeGroupType?: string(name='NodeGroupType'),
   nodeId?: string(name='NodeId'),
@@ -641,6 +652,11 @@ model ScalingActivity {
   transition?: string(name='Transition'),
 }
 
+model ScalingConstraints {
+  maxCapacity?: int32(name='MaxCapacity'),
+  minCapacity?: int32(name='MinCapacity'),
+}
+
 model ScalingGroupConfig {
   dataDiskCategory?: string(name='DataDiskCategory'),
   dataDiskCount?: int32(name='DataDiskCount'),
@@ -678,26 +694,19 @@ model ScalingGroupConfig {
 }
 
 model ScalingRule {
+  activityType?: string(name='ActivityType'),
+  adjustmentType?: string(name='AdjustmentType'),
   adjustmentValue?: int32(name='AdjustmentValue'),
-  byLoadScalingRule?: {
-    comparisonOperator?: string(name='ComparisonOperator'),
-    coolDownInterval?: int32(name='CoolDownInterval'),
-    evaluationCount?: int32(name='EvaluationCount'),
-    metricName?: string(name='MetricName'),
-    statistics?: string(name='Statistics'),
-    threshold?: double(name='Threshold'),
-    timeWindow?: int32(name='TimeWindow'),
-  }(name='ByLoadScalingRule'),
-  byTimeScalingRule?: {
-    endTime?: long(name='EndTime'),
-    launchTime?: long(name='LaunchTime'),
-    recurrenceType?: string(name='RecurrenceType'),
-    recurrenceValue?: string(name='RecurrenceValue'),
-  }(name='ByTimeScalingRule'),
+  byLoadScalingRule?: MetricsTrigger(name='ByLoadScalingRule'),
+  byTimeScalingRule?: TimeTrigger(name='ByTimeScalingRule'),
   coolDownInterval?: int32(name='CoolDownInterval'),
+  metricsTrigger?: MetricsTrigger(name='MetricsTrigger'),
+  ruleName?: string(name='RuleName'),
   scalingActivityType?: string(name='ScalingActivityType'),
   scalingRuleName?: string(name='ScalingRuleName'),
   scalingRuleType?: string(name='ScalingRuleType'),
+  timeTrigger?: TimeTrigger(name='TimeTrigger'),
+  triggerType?: string(name='TriggerType'),
 }
 
 model ScalingRuleSpec {
@@ -800,6 +809,14 @@ model TagResource {
   resourceType?: string(name='ResourceType'),
   tagKey?: string(name='TagKey'),
   tagValue?: string(name='TagValue'),
+}
+
+model TimeTrigger {
+  endTime?: long(name='EndTime'),
+  launchExpirationTime?: int32(name='LaunchExpirationTime'),
+  launchTime?: long(name='LaunchTime'),
+  recurrenceType?: string(name='RecurrenceType'),
+  recurrenceValue?: string(name='RecurrenceValue'),
 }
 
 model UpdateApplicationConfig {
@@ -1443,6 +1460,9 @@ model ListNodesRequest {
   privateIps?: [ string ](name='PrivateIps'),
   publicIps?: [ string ](name='PublicIps'),
   regionId?: string(name='RegionId'),
+  tags?: [
+    Tag
+  ](name='Tags'),
 }
 
 model ListNodesResponseBody = {
@@ -1496,6 +1516,9 @@ async function listNodesWithOptions(request: ListNodesRequest, runtime: Util.Run
   }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.tags)) {
+    query['Tags'] = request.tags;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
