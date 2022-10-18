@@ -55,8 +55,16 @@ async function closeTicket(request: CloseTicketRequest): CloseTicketResponse {
 
 model CreateTicketRequest {
   categoryId: string(name='CategoryId', position='Body'),
+  creatorId?: string(name='CreatorId', position='Body'),
   description: string(name='Description', position='Body'),
+  email?: string(name='Email', position='Body'),
+  fileNameList?: [ string ](name='FileNameList', shrink='simple', position='Body'),
+  secretInfo?: {
+    content?: string(name='Content'),
+    fileNameList?: [ string ](name='FileNameList'),
+  }(name='SecretInfo', shrink='json', position='Query'),
   severity: int32(name='Severity', minimum=0, maximum=1000, position='Body'),
+  title?: string(name='Title', position='Body'),
 }
 
 model CreateTicketResponseBody = {
@@ -101,6 +109,32 @@ async function evaluateTicket(request: EvaluateTicketRequest): EvaluateTicketRes
   return @handler.do('RPC', 'EvaluateTicket', 'POST', '/', 'json', true, 'form', request);
 }
 
+model GetAttachmentUploadUrlRequest {
+  fileName: string(name='FileName', position='Body'),
+}
+
+model GetAttachmentUploadUrlResponseBody = {
+  code?: int32(name='Code'),
+  data?: {
+    getSignedUrl?: string(name='GetSignedUrl'),
+    objectKey?: string(name='ObjectKey'),
+    putSignedUrl?: string(name='PutSignedUrl'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model GetAttachmentUploadUrlResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetAttachmentUploadUrlResponseBody(name='body'),
+}
+
+async function getAttachmentUploadUrl(request: GetAttachmentUploadUrlRequest): GetAttachmentUploadUrlResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetAttachmentUploadUrl', 'POST', '/', 'json', true, 'form', request);
+}
+
 model GetMqConsumerTagRequest {
 }
 
@@ -122,7 +156,48 @@ async function getMqConsumerTag(request: GetMqConsumerTagRequest): GetMqConsumer
   return @handler.do('RPC', 'GetMqConsumerTag', 'POST', '/', 'json', false, 'json', request);
 }
 
+model GetTicketRequest {
+  ticketId: string(name='TicketId', position='Body'),
+}
+
+model GetTicketResponseBody = {
+  code?: int32(name='Code'),
+  data?: {
+    categoryId?: string(name='CategoryId'),
+    createTime?: long(name='CreateTime'),
+    creatorId?: string(name='CreatorId'),
+    description?: string(name='Description'),
+    severity?: {
+      label?: string(name='Label'),
+      value?: string(name='Value'),
+    }(name='Severity'),
+    status?: {
+      label?: string(name='Label'),
+      value?: string(name='Value'),
+    }(name='Status'),
+    ticketId?: string(name='TicketId'),
+    title?: string(name='Title'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+  totalCount?: long(name='TotalCount'),
+}
+
+model GetTicketResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetTicketResponseBody(name='body'),
+}
+
+async function getTicket(request: GetTicketRequest): GetTicketResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetTicket', 'POST', '/', 'json', true, 'form', request);
+}
+
 model ListCategoriesRequest {
+  language?: string(name='Language', position='Query'),
   name?: string(name='Name', position='Body'),
   productId: long(name='ProductId', minimum=0, maximum=99999999999, position='Body'),
 }
@@ -151,6 +226,7 @@ async function listCategories(request: ListCategoriesRequest): ListCategoriesRes
 }
 
 model ListProductsRequest {
+  language?: string(name='Language', position='Query'),
   name?: string(name='Name', position='Query'),
 }
 
@@ -191,6 +267,12 @@ model ListTicketNotesResponseBody = {
   code?: int32(name='Code'),
   data?: [ 
     {
+      attachments?: [ 
+        {
+          name?: string(name='Name'),
+          url?: string(name='Url'),
+        }
+      ](name='Attachments'),
       createTime?: long(name='CreateTime'),
       dialog?: {
         content?: string(name='Content'),
@@ -229,6 +311,7 @@ model ListTicketsRequest {
   startDate?: long(name='StartDate', position='Body'),
   statusList?: [ string ](name='StatusList', position='Body'),
   ticketId?: string(name='TicketId', position='Body'),
+  ticketIdList?: [ string ](name='TicketIdList', shrink='simple', position='Body'),
 }
 
 model ListTicketsResponseBody = {
@@ -261,9 +344,33 @@ async function listTickets(request: ListTicketsRequest): ListTicketsResponse {
   return @handler.do('RPC', 'ListTickets', 'POST', '/', 'json', true, 'form', request);
 }
 
+model ReopenTicketRequest {
+  content: string(name='Content', position='Body'),
+  ticketId: string(name='TicketId', position='Body'),
+}
+
+model ReopenTicketResponseBody = {
+  code?: int32(name='Code'),
+  data?: string(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model ReopenTicketResponse = {
+  headers: map[string]string(name='headers'),
+  body: ReopenTicketResponseBody(name='body'),
+}
+
+async function reopenTicket(request: ReopenTicketRequest): ReopenTicketResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ReopenTicket', 'POST', '/', 'json', true, 'form', request);
+}
+
 model ReplyTicketRequest {
   content: string(name='Content', position='Body'),
   encrypt: boolean(name='Encrypt', position='Body'),
+  fileNameList?: [ string ](name='FileNameList', shrink='simple', position='Query'),
   ticketId: string(name='TicketId', position='Body'),
 }
 
