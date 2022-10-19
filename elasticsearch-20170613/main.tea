@@ -2599,10 +2599,19 @@ model DescribeInstanceResponseBody = {
     extendConfigs?: [  map[string]any ](name='extendConfigs'),
     haveClientNode?: boolean(name='haveClientNode'),
     haveKibana?: boolean(name='haveKibana'),
+    ikHotDicts?: [ 
+      {
+        fileSize?: int32(name='fileSize'),
+        name?: string(name='name'),
+        sourceType?: string(name='sourceType'),
+        type?: string(name='type'),
+      }
+    ](name='ikHotDicts'),
     instanceId?: string(name='instanceId'),
     isNewDeployment?: boolean(name='isNewDeployment'),
     kibanaConfiguration?: {
       amount?: int32(name='amount'),
+      disk?: int32(name='disk'),
       spec?: string(name='spec'),
     }(name='kibanaConfiguration'),
     kibanaDomain?: string(name='kibanaDomain'),
@@ -2633,6 +2642,7 @@ model DescribeInstanceResponseBody = {
       disk?: int32(name='disk'),
       diskEncryption?: boolean(name='diskEncryption'),
       diskType?: string(name='diskType'),
+      performanceLevel?: string(name='performanceLevel'),
       spec?: string(name='spec'),
     }(name='nodeSpec'),
     paymentType?: string(name='paymentType'),
@@ -5832,6 +5842,7 @@ model ListInstanceResponseBody = {
         disk?: int32(name='disk'),
         diskEncryption?: boolean(name='diskEncryption'),
         diskType?: string(name='diskType'),
+        performanceLevel?: string(name='performanceLevel'),
         spec?: string(name='spec'),
       }(name='nodeSpec'),
       paymentType?: string(name='paymentType'),
@@ -5846,6 +5857,7 @@ model ListInstanceResponseBody = {
         }
       ](name='tags'),
       updatedAt?: string(name='updatedAt'),
+      vpcInstanceId?: string(name='vpcInstanceId'),
     }
   ](name='Result'),
 }
@@ -8907,12 +8919,13 @@ async function untagResourcesWithOptions(request: UntagResourcesRequest, headers
 }
 
 model UpdateAdminPasswordRequest {
-  body?: string(name='body'),
+  esAdminPassword?: string(name='esAdminPassword'),
   clientToken?: string(name='clientToken'),
 }
 
 model UpdateAdminPasswordResponseBody = {
   requestId?: string(name='RequestId'),
+  result?: boolean(name='Result'),
 }
 
 model UpdateAdminPasswordResponse = {
@@ -8934,10 +8947,15 @@ async function updateAdminPasswordWithOptions(InstanceId: string, request: Updat
     query['clientToken'] = request.clientToken;
   }
 
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.esAdminPassword)) {
+    body['esAdminPassword'] = request.esAdminPassword;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
-    body = request.body,
+    body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
     action = 'UpdateAdminPassword',
