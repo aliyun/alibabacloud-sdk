@@ -31,6 +31,58 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model DApp {
+  baseAppCode?: string(name='BaseAppCode'),
+  code?: string(name='Code'),
+  containerAppCode?: string(name='ContainerAppCode'),
+  containerDeploy?: boolean(name='ContainerDeploy'),
+  gmtCreate?: long(name='GmtCreate'),
+  id?: string(name='Id'),
+  name?: string(name='Name'),
+  remark?: string(name='Remark'),
+}
+
+model DAppArchive {
+  app?: DApp(name='App'),
+  appVersion?: string(name='AppVersion'),
+  gmtCreate?: long(name='GmtCreate'),
+  id?: string(name='Id'),
+  resCount?: int32(name='ResCount'),
+  status?: DPair(name='Status'),
+  version?: string(name='Version'),
+}
+
+model DAppRes {
+  code?: string(name='Code'),
+  id?: string(name='Id'),
+  name?: string(name='Name'),
+  subType?: string(name='SubType'),
+  type?: DPair(name='Type'),
+}
+
+model DAppResCount {
+  items?: [ 
+    {
+      count?: int32(name='Count'),
+      type?: DPair(name='Type'),
+    }
+  ](name='Items'),
+  total?: int32(name='Total'),
+}
+
+model DDeploymentArchive {
+  appCount?: int32(name='AppCount'),
+  gmtCreate?: long(name='GmtCreate'),
+  id?: string(name='Id'),
+  name?: string(name='Name'),
+  resCount?: int32(name='ResCount'),
+  status?: DPair(name='Status'),
+  version?: string(name='Version'),
+}
+
+model DPair {
+}
+
 model AnswerCallRequest {
   accountName?: string(name='AccountName'),
   callId?: string(name='CallId'),
@@ -449,6 +501,52 @@ async function closeTicket(request: CloseTicketRequest): CloseTicketResponse {
   return closeTicketWithOptions(request, runtime);
 }
 
+model CollectDeploymentArchiveRequest {
+  deploymentCode?: string(name='DeploymentCode'),
+  envType?: int32(name='EnvType'),
+  name?: string(name='Name'),
+}
+
+model CollectDeploymentArchiveResponseBody = {
+  code?: string(name='Code'),
+  data?: string(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model CollectDeploymentArchiveResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CollectDeploymentArchiveResponseBody(name='body'),
+}
+
+async function collectDeploymentArchiveWithOptions(request: CollectDeploymentArchiveRequest, runtime: Util.RuntimeOptions): CollectDeploymentArchiveResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CollectDeploymentArchive',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function collectDeploymentArchive(request: CollectDeploymentArchiveRequest): CollectDeploymentArchiveResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return collectDeploymentArchiveWithOptions(request, runtime);
+}
+
 model CreateAgentRequest {
   accountName?: string(name='AccountName'),
   clientToken?: string(name='ClientToken'),
@@ -618,6 +716,71 @@ async function createCustomerWithOptions(request: CreateCustomerRequest, runtime
 async function createCustomer(request: CreateCustomerRequest): CreateCustomerResponse {
   var runtime = new Util.RuntimeOptions{};
   return createCustomerWithOptions(request, runtime);
+}
+
+model CreateDeploymentTaskRequest {
+  appArchiveIds?: [ string ](name='AppArchiveIds'),
+  deploymentArchiveId?: string(name='DeploymentArchiveId'),
+  deploymentCode?: string(name='DeploymentCode'),
+  envType?: string(name='EnvType'),
+}
+
+model CreateDeploymentTaskShrinkRequest {
+  appArchiveIdsShrink?: string(name='AppArchiveIds'),
+  deploymentArchiveId?: string(name='DeploymentArchiveId'),
+  deploymentCode?: string(name='DeploymentCode'),
+  envType?: string(name='EnvType'),
+}
+
+model CreateDeploymentTaskResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    deploymentArchive?: DDeploymentArchive(name='DeploymentArchive'),
+    gmtCreate?: long(name='GmtCreate'),
+    id?: string(name='Id'),
+    name?: string(name='Name'),
+    status?: DPair(name='Status'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model CreateDeploymentTaskResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateDeploymentTaskResponseBody(name='body'),
+}
+
+async function createDeploymentTaskWithOptions(tmpReq: CreateDeploymentTaskRequest, runtime: Util.RuntimeOptions): CreateDeploymentTaskResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateDeploymentTaskShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.appArchiveIds)) {
+    request.appArchiveIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.appArchiveIds, 'AppArchiveIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateDeploymentTask',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createDeploymentTask(request: CreateDeploymentTaskRequest): CreateDeploymentTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createDeploymentTaskWithOptions(request, runtime);
 }
 
 model CreateEntityIvrRouteRequest {
@@ -1345,6 +1508,46 @@ async function disableRole(request: DisableRoleRequest): DisableRoleResponse {
   return disableRoleWithOptions(request, runtime);
 }
 
+model EVENTQUERYRequest {
+  appName?: string(name='appName'),
+  token?: string(name='token'),
+}
+
+model EVENTQUERYResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model EVENTQUERYResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: EVENTQUERYResponseBody(name='body'),
+}
+
+async function eVENTQUERYWithOptions(request: EVENTQUERYRequest, runtime: Util.RuntimeOptions): EVENTQUERYResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'EVENTQUERY',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function eVENTQUERY(request: EVENTQUERYRequest): EVENTQUERYResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return eVENTQUERYWithOptions(request, runtime);
+}
+
 model EditEntityRouteRequest {
   departmentId?: string(name='DepartmentId'),
   entityBizCode?: string(name='EntityBizCode'),
@@ -1839,6 +2042,156 @@ async function getAgent(request: GetAgentRequest): GetAgentResponse {
   return getAgentWithOptions(request, runtime);
 }
 
+model GetAgentBasisStatusRequest {
+  agentIds?: [ long ](name='AgentIds'),
+  currentPage?: int32(name='CurrentPage'),
+  depIds?: [ long ](name='DepIds'),
+  endDate?: long(name='EndDate'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+}
+
+model GetAgentBasisStatusShrinkRequest {
+  agentIdsShrink?: string(name='AgentIds'),
+  currentPage?: int32(name='CurrentPage'),
+  depIdsShrink?: string(name='DepIds'),
+  endDate?: long(name='EndDate'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+}
+
+model GetAgentBasisStatusResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    pageNum?: int32(name='PageNum'),
+    pageSize?: int32(name='PageSize'),
+    rows?: string(name='Rows'),
+    totalNum?: int32(name='TotalNum'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: string(name='Success'),
+}
+
+model GetAgentBasisStatusResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetAgentBasisStatusResponseBody(name='body'),
+}
+
+async function getAgentBasisStatusWithOptions(tmpReq: GetAgentBasisStatusRequest, runtime: Util.RuntimeOptions): GetAgentBasisStatusResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetAgentBasisStatusShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.agentIds)) {
+    request.agentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.agentIds, 'AgentIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAgentBasisStatus',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getAgentBasisStatus(request: GetAgentBasisStatusRequest): GetAgentBasisStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAgentBasisStatusWithOptions(request, runtime);
+}
+
+model GetAgentDetailReportRequest {
+  agentIds?: [ long ](name='AgentIds'),
+  currentPage?: int32(name='CurrentPage'),
+  depIds?: [ long ](name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+  timeLatitudeType?: string(name='TimeLatitudeType'),
+}
+
+model GetAgentDetailReportShrinkRequest {
+  agentIdsShrink?: string(name='AgentIds'),
+  currentPage?: int32(name='CurrentPage'),
+  depIdsShrink?: string(name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+  timeLatitudeType?: string(name='TimeLatitudeType'),
+}
+
+model GetAgentDetailReportResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    pageNum?: long(name='PageNum'),
+    pageSize?: long(name='PageSize'),
+    rows?: string(name='Rows'),
+    totalNum?: long(name='TotalNum'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: string(name='Success'),
+}
+
+model GetAgentDetailReportResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetAgentDetailReportResponseBody(name='body'),
+}
+
+async function getAgentDetailReportWithOptions(tmpReq: GetAgentDetailReportRequest, runtime: Util.RuntimeOptions): GetAgentDetailReportResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetAgentDetailReportShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.agentIds)) {
+    request.agentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.agentIds, 'AgentIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAgentDetailReport',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getAgentDetailReport(request: GetAgentDetailReportRequest): GetAgentDetailReportResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAgentDetailReportWithOptions(request, runtime);
+}
+
 model GetAgentHotlineRequest {
   accountName?: string(name='AccountName'),
   clientToken?: string(name='ClientToken'),
@@ -1963,6 +2316,162 @@ async function getAgentHotlinePhone(request: GetAgentHotlinePhoneRequest): GetAg
   return getAgentHotlinePhoneWithOptions(request, runtime);
 }
 
+model GetAgentServiceStatusRequest {
+  agentIds?: [ long ](name='AgentIds'),
+  currentPage?: int32(name='CurrentPage'),
+  depIds?: [ long ](name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+  timeLatitudeType?: string(name='TimeLatitudeType'),
+}
+
+model GetAgentServiceStatusShrinkRequest {
+  agentIdsShrink?: string(name='AgentIds'),
+  currentPage?: int32(name='CurrentPage'),
+  depIdsShrink?: string(name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+  timeLatitudeType?: string(name='TimeLatitudeType'),
+}
+
+model GetAgentServiceStatusResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    pageNum?: long(name='PageNum'),
+    pageSize?: long(name='PageSize'),
+    rows?: string(name='Rows'),
+    totalNum?: long(name='TotalNum'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model GetAgentServiceStatusResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetAgentServiceStatusResponseBody(name='body'),
+}
+
+async function getAgentServiceStatusWithOptions(tmpReq: GetAgentServiceStatusRequest, runtime: Util.RuntimeOptions): GetAgentServiceStatusResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetAgentServiceStatusShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.agentIds)) {
+    request.agentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.agentIds, 'AgentIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAgentServiceStatus',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getAgentServiceStatus(request: GetAgentServiceStatusRequest): GetAgentServiceStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAgentServiceStatusWithOptions(request, runtime);
+}
+
+model GetAgentStatisticsRequest {
+  agentIds?: [ long ](name='AgentIds'),
+  currentPage?: int32(name='CurrentPage'),
+  depIds?: [ long ](name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+  timeLatitudeType?: string(name='TimeLatitudeType'),
+}
+
+model GetAgentStatisticsShrinkRequest {
+  agentIdsShrink?: string(name='AgentIds'),
+  currentPage?: int32(name='CurrentPage'),
+  depIdsShrink?: string(name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+  timeLatitudeType?: string(name='TimeLatitudeType'),
+}
+
+model GetAgentStatisticsResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    pageNum?: int32(name='PageNum'),
+    pageSize?: int32(name='PageSize'),
+    rows?: string(name='Rows'),
+    totalNum?: int32(name='TotalNum'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: string(name='Success'),
+}
+
+model GetAgentStatisticsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetAgentStatisticsResponseBody(name='body'),
+}
+
+async function getAgentStatisticsWithOptions(tmpReq: GetAgentStatisticsRequest, runtime: Util.RuntimeOptions): GetAgentStatisticsResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetAgentStatisticsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.agentIds)) {
+    request.agentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.agentIds, 'AgentIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAgentStatistics',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getAgentStatistics(request: GetAgentStatisticsRequest): GetAgentStatisticsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAgentStatisticsWithOptions(request, runtime);
+}
+
 model GetAgentWorkStatusRequest {
   accountName?: string(name='AccountName'),
   clientToken?: string(name='ClientToken'),
@@ -2075,6 +2584,108 @@ async function getAllDepartmentWithOptions(request: GetAllDepartmentRequest, run
 async function getAllDepartment(request: GetAllDepartmentRequest): GetAllDepartmentResponse {
   var runtime = new Util.RuntimeOptions{};
   return getAllDepartmentWithOptions(request, runtime);
+}
+
+model GetAppArchivesRequest {
+  deploymentArchiveId?: string(name='DeploymentArchiveId'),
+}
+
+model GetAppArchivesResponseBody = {
+  code?: string(name='Code'),
+  data?: [
+    DAppArchive
+  ](name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model GetAppArchivesResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetAppArchivesResponseBody(name='body'),
+}
+
+async function getAppArchivesWithOptions(request: GetAppArchivesRequest, runtime: Util.RuntimeOptions): GetAppArchivesResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAppArchives',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getAppArchives(request: GetAppArchivesRequest): GetAppArchivesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAppArchivesWithOptions(request, runtime);
+}
+
+model GetAppTasksRequest {
+  deploymentTaskId?: string(name='deploymentTaskId'),
+}
+
+model GetAppTasksResponseBody = {
+  code?: string(name='Code'),
+  data?: [ 
+    {
+      appArchive?: DAppArchive(name='AppArchive'),
+      baseAppArchive?: DAppArchive(name='BaseAppArchive'),
+      gmtCreate?: long(name='GmtCreate'),
+      gmtModified?: long(name='GmtModified'),
+      id?: string(name='Id'),
+      name?: string(name='Name'),
+      pendingResCount?: DAppResCount(name='PendingResCount'),
+      resCount?: DAppResCount(name='ResCount'),
+      status?: DPair(name='Status'),
+    }
+  ](name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model GetAppTasksResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetAppTasksResponseBody(name='body'),
+}
+
+async function getAppTasksWithOptions(request: GetAppTasksRequest, runtime: Util.RuntimeOptions): GetAppTasksResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAppTasks',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getAppTasks(request: GetAppTasksRequest): GetAppTasksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAppTasksWithOptions(request, runtime);
 }
 
 model GetAuthInfoRequest {
@@ -2329,6 +2940,119 @@ async function getCallsPerDayWithOptions(request: GetCallsPerDayRequest, runtime
 async function getCallsPerDay(request: GetCallsPerDayRequest): GetCallsPerDayResponse {
   var runtime = new Util.RuntimeOptions{};
   return getCallsPerDayWithOptions(request, runtime);
+}
+
+model GetDepartmentalLatitudeAgentStatusRequest {
+  currentPage?: long(name='CurrentPage'),
+  depIds?: [ long ](name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: long(name='PageSize'),
+  startDate?: long(name='StartDate'),
+}
+
+model GetDepartmentalLatitudeAgentStatusShrinkRequest {
+  currentPage?: long(name='CurrentPage'),
+  depIdsShrink?: string(name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: long(name='PageSize'),
+  startDate?: long(name='StartDate'),
+}
+
+model GetDepartmentalLatitudeAgentStatusResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    pageNum?: int32(name='PageNum'),
+    pageSize?: int32(name='PageSize'),
+    rows?: string(name='Rows'),
+    totalNum?: int32(name='TotalNum'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model GetDepartmentalLatitudeAgentStatusResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetDepartmentalLatitudeAgentStatusResponseBody(name='body'),
+}
+
+async function getDepartmentalLatitudeAgentStatusWithOptions(tmpReq: GetDepartmentalLatitudeAgentStatusRequest, runtime: Util.RuntimeOptions): GetDepartmentalLatitudeAgentStatusResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetDepartmentalLatitudeAgentStatusShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetDepartmentalLatitudeAgentStatus',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getDepartmentalLatitudeAgentStatus(request: GetDepartmentalLatitudeAgentStatusRequest): GetDepartmentalLatitudeAgentStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getDepartmentalLatitudeAgentStatusWithOptions(request, runtime);
+}
+
+model GetDeploymentArchiveRequest {
+  deploymentArchiveId?: string(name='deploymentArchiveId'),
+}
+
+model GetDeploymentArchiveResponseBody = {
+  code?: string(name='Code'),
+  data?: DDeploymentArchive(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model GetDeploymentArchiveResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetDeploymentArchiveResponseBody(name='body'),
+}
+
+async function getDeploymentArchiveWithOptions(request: GetDeploymentArchiveRequest, runtime: Util.RuntimeOptions): GetDeploymentArchiveResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetDeploymentArchive',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getDeploymentArchive(request: GetDeploymentArchiveRequest): GetDeploymentArchiveResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getDeploymentArchiveWithOptions(request, runtime);
 }
 
 model GetEntityRouteRequest {
@@ -2980,6 +3704,91 @@ async function getHotlineGroupDetailReport(request: GetHotlineGroupDetailReportR
   return getHotlineGroupDetailReportWithOptions(request, runtime);
 }
 
+model GetHotlineServiceStatisticsRequest {
+  agentIds?: [ long ](name='AgentIds'),
+  currentPage?: int32(name='CurrentPage'),
+  depIds?: [ long ](name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping'),
+  groupIds?: [ long ](name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+  timeLatitudeType?: string(name='TimeLatitudeType'),
+}
+
+model GetHotlineServiceStatisticsShrinkRequest {
+  agentIdsShrink?: string(name='AgentIds'),
+  currentPage?: int32(name='CurrentPage'),
+  depIdsShrink?: string(name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping'),
+  groupIdsShrink?: string(name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+  timeLatitudeType?: string(name='TimeLatitudeType'),
+}
+
+model GetHotlineServiceStatisticsResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    pageNum?: int32(name='PageNum'),
+    pageSize?: int32(name='PageSize'),
+    rows?: string(name='Rows'),
+    totalNum?: int32(name='TotalNum'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: string(name='Success'),
+}
+
+model GetHotlineServiceStatisticsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetHotlineServiceStatisticsResponseBody(name='body'),
+}
+
+async function getHotlineServiceStatisticsWithOptions(tmpReq: GetHotlineServiceStatisticsRequest, runtime: Util.RuntimeOptions): GetHotlineServiceStatisticsResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetHotlineServiceStatisticsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.agentIds)) {
+    request.agentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.agentIds, 'AgentIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.groupIds)) {
+    request.groupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.groupIds, 'GroupIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetHotlineServiceStatistics',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getHotlineServiceStatistics(request: GetHotlineServiceStatisticsRequest): GetHotlineServiceStatisticsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getHotlineServiceStatisticsWithOptions(request, runtime);
+}
+
 model GetHotlineWaitingNumberRequest {
   accountName?: string(name='AccountName'),
   clientToken?: string(name='ClientToken'),
@@ -3070,6 +3879,258 @@ async function getNumLocationWithOptions(request: GetNumLocationRequest, runtime
 async function getNumLocation(request: GetNumLocationRequest): GetNumLocationResponse {
   var runtime = new Util.RuntimeOptions{};
   return getNumLocationWithOptions(request, runtime);
+}
+
+model GetOnlineSeatInformationRequest {
+  agentIds?: [ long ](name='AgentIds'),
+  currentPage?: int32(name='CurrentPage'),
+  depIds?: [ long ](name='DepIds'),
+  endDate?: long(name='EndDate'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+}
+
+model GetOnlineSeatInformationShrinkRequest {
+  agentIdsShrink?: string(name='AgentIds'),
+  currentPage?: int32(name='CurrentPage'),
+  depIdsShrink?: string(name='DepIds'),
+  endDate?: long(name='EndDate'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+}
+
+model GetOnlineSeatInformationResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    pageNum?: int32(name='PageNum'),
+    pageSize?: int32(name='PageSize'),
+    rows?: string(name='Rows'),
+    totalNum?: int32(name='TotalNum'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: string(name='Success'),
+}
+
+model GetOnlineSeatInformationResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetOnlineSeatInformationResponseBody(name='body'),
+}
+
+async function getOnlineSeatInformationWithOptions(tmpReq: GetOnlineSeatInformationRequest, runtime: Util.RuntimeOptions): GetOnlineSeatInformationResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetOnlineSeatInformationShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.agentIds)) {
+    request.agentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.agentIds, 'AgentIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetOnlineSeatInformation',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getOnlineSeatInformation(request: GetOnlineSeatInformationRequest): GetOnlineSeatInformationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getOnlineSeatInformationWithOptions(request, runtime);
+}
+
+model GetOnlineServiceVolumeRequest {
+  agentIds?: [ long ](name='AgentIds'),
+  currentPage?: int32(name='CurrentPage'),
+  depIds?: [ long ](name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping'),
+  groupIds?: [ long ](name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+  timeLatitudeType?: string(name='TimeLatitudeType'),
+}
+
+model GetOnlineServiceVolumeShrinkRequest {
+  agentIdsShrink?: string(name='AgentIds'),
+  currentPage?: int32(name='CurrentPage'),
+  depIdsShrink?: string(name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping'),
+  groupIdsShrink?: string(name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+  timeLatitudeType?: string(name='TimeLatitudeType'),
+}
+
+model GetOnlineServiceVolumeResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    pageNum?: int32(name='PageNum'),
+    pageSize?: int32(name='PageSize'),
+    rows?: string(name='Rows'),
+    totalNum?: int32(name='TotalNum'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: string(name='Success'),
+}
+
+model GetOnlineServiceVolumeResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetOnlineServiceVolumeResponseBody(name='body'),
+}
+
+async function getOnlineServiceVolumeWithOptions(tmpReq: GetOnlineServiceVolumeRequest, runtime: Util.RuntimeOptions): GetOnlineServiceVolumeResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetOnlineServiceVolumeShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.agentIds)) {
+    request.agentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.agentIds, 'AgentIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.groupIds)) {
+    request.groupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.groupIds, 'GroupIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetOnlineServiceVolume',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getOnlineServiceVolume(request: GetOnlineServiceVolumeRequest): GetOnlineServiceVolumeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getOnlineServiceVolumeWithOptions(request, runtime);
+}
+
+model GetOnlineTouchSessionListRequest {
+  clientToken?: string(name='ClientToken'),
+  currentPage?: int32(name='CurrentPage'),
+  endDate?: long(name='EndDate'),
+  groupIds?: [ long ](name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+}
+
+model GetOnlineTouchSessionListResponseBody = {
+  code?: string(name='Code'),
+  data?: [ 
+    {
+      channelId?: string(name='ChannelId'),
+      firstTime?: long(name='FirstTime'),
+      groupId?: string(name='GroupId'),
+      groupName?: string(name='GroupName'),
+      messageInfo?: [ 
+        {
+          content?: string(name='Content'),
+          gmtCreated?: string(name='GmtCreated'),
+          messageId?: long(name='MessageId'),
+          senderId?: string(name='SenderId'),
+          senderName?: string(name='SenderName'),
+          senderType?: string(name='SenderType'),
+          status?: string(name='Status'),
+        }
+      ](name='MessageInfo'),
+      sessionId?: string(name='SessionId'),
+      touchId?: string(name='TouchId'),
+      userForeignId?: string(name='UserForeignId'),
+    }
+  ](name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  pageNo?: int32(name='PageNo'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+  totalResults?: int32(name='TotalResults'),
+}
+
+model GetOnlineTouchSessionListResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetOnlineTouchSessionListResponseBody(name='body'),
+}
+
+async function getOnlineTouchSessionListWithOptions(request: GetOnlineTouchSessionListRequest, runtime: Util.RuntimeOptions): GetOnlineTouchSessionListResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.clientToken)) {
+    body['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.currentPage)) {
+    body['CurrentPage'] = request.currentPage;
+  }
+  if (!Util.isUnset(request.endDate)) {
+    body['EndDate'] = request.endDate;
+  }
+  if (!Util.isUnset(request.groupIds)) {
+    body['GroupIds'] = request.groupIds;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    body['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.startDate)) {
+    body['StartDate'] = request.startDate;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetOnlineTouchSessionList',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getOnlineTouchSessionList(request: GetOnlineTouchSessionListRequest): GetOnlineTouchSessionListResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getOnlineTouchSessionListWithOptions(request, runtime);
 }
 
 model GetOutbounNumListRequest {
@@ -3225,6 +4286,629 @@ async function getOuterCallCenterDataListWithOptions(request: GetOuterCallCenter
 async function getOuterCallCenterDataList(request: GetOuterCallCenterDataListRequest): GetOuterCallCenterDataListResponse {
   var runtime = new Util.RuntimeOptions{};
   return getOuterCallCenterDataListWithOptions(request, runtime);
+}
+
+model GetQueueInformationRequest {
+  currentPage?: int32(name='CurrentPage'),
+  depIds?: [ long ](name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping'),
+  groupIds?: [ long ](name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+}
+
+model GetQueueInformationShrinkRequest {
+  currentPage?: int32(name='CurrentPage'),
+  depIdsShrink?: string(name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping'),
+  groupIdsShrink?: string(name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+}
+
+model GetQueueInformationResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    pageNum?: int32(name='PageNum'),
+    pageSize?: int32(name='PageSize'),
+    rows?: string(name='Rows'),
+    totalNum?: int32(name='TotalNum'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: string(name='Success'),
+}
+
+model GetQueueInformationResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetQueueInformationResponseBody(name='body'),
+}
+
+async function getQueueInformationWithOptions(tmpReq: GetQueueInformationRequest, runtime: Util.RuntimeOptions): GetQueueInformationResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetQueueInformationShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.groupIds)) {
+    request.groupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.groupIds, 'GroupIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetQueueInformation',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getQueueInformation(request: GetQueueInformationRequest): GetQueueInformationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getQueueInformationWithOptions(request, runtime);
+}
+
+model GetSeatInformationRequest {
+  instanceId?: string(name='InstanceId'),
+  currentPage?: int32(name='currentPage'),
+  depIds?: [ long ](name='depIds'),
+  endDate?: long(name='endDate'),
+  existDepartmentGrouping?: boolean(name='existDepartmentGrouping'),
+  pageSize?: int32(name='pageSize'),
+  startDate?: long(name='startDate'),
+}
+
+model GetSeatInformationShrinkRequest {
+  instanceId?: string(name='InstanceId'),
+  currentPage?: int32(name='currentPage'),
+  depIdsShrink?: string(name='depIds'),
+  endDate?: long(name='endDate'),
+  existDepartmentGrouping?: boolean(name='existDepartmentGrouping'),
+  pageSize?: int32(name='pageSize'),
+  startDate?: long(name='startDate'),
+}
+
+model GetSeatInformationResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    pageNum?: int32(name='PageNum'),
+    pageSize?: int32(name='PageSize'),
+    rowr?: string(name='Rowr'),
+    totalNum?: int32(name='TotalNum'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: string(name='Success'),
+}
+
+model GetSeatInformationResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetSeatInformationResponseBody(name='body'),
+}
+
+async function getSeatInformationWithOptions(tmpReq: GetSeatInformationRequest, runtime: Util.RuntimeOptions): GetSeatInformationResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetSeatInformationShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'depIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSeatInformation',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getSeatInformation(request: GetSeatInformationRequest): GetSeatInformationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSeatInformationWithOptions(request, runtime);
+}
+
+model GetSkillGroupAgentStatusDetailsRequest {
+  currentPage?: int32(name='CurrentPage'),
+  depIds?: [ long ](name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping'),
+  groupIds?: [ long ](name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+}
+
+model GetSkillGroupAgentStatusDetailsShrinkRequest {
+  currentPage?: int32(name='CurrentPage'),
+  depIdsShrink?: string(name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping'),
+  groupIdsShrink?: string(name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+}
+
+model GetSkillGroupAgentStatusDetailsResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    pageNum?: long(name='PageNum'),
+    pageSize?: long(name='PageSize'),
+    rows?: string(name='Rows'),
+    totalNum?: long(name='TotalNum'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: string(name='Success'),
+}
+
+model GetSkillGroupAgentStatusDetailsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetSkillGroupAgentStatusDetailsResponseBody(name='body'),
+}
+
+async function getSkillGroupAgentStatusDetailsWithOptions(tmpReq: GetSkillGroupAgentStatusDetailsRequest, runtime: Util.RuntimeOptions): GetSkillGroupAgentStatusDetailsResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetSkillGroupAgentStatusDetailsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.groupIds)) {
+    request.groupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.groupIds, 'GroupIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSkillGroupAgentStatusDetails',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getSkillGroupAgentStatusDetails(request: GetSkillGroupAgentStatusDetailsRequest): GetSkillGroupAgentStatusDetailsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSkillGroupAgentStatusDetailsWithOptions(request, runtime);
+}
+
+model GetSkillGroupAndAgentStatusSummaryRequest {
+  currentPage?: int32(name='CurrentPage'),
+  depIds?: [ long ](name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping'),
+  groupIds?: [ long ](name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+}
+
+model GetSkillGroupAndAgentStatusSummaryShrinkRequest {
+  currentPage?: int32(name='CurrentPage'),
+  depIdsShrink?: string(name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping'),
+  groupIdsShrink?: string(name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+}
+
+model GetSkillGroupAndAgentStatusSummaryResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    pageNum?: int32(name='PageNum'),
+    pageSize?: int32(name='PageSize'),
+    rows?: string(name='Rows'),
+    totalNum?: int32(name='TotalNum'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: string(name='Success'),
+}
+
+model GetSkillGroupAndAgentStatusSummaryResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetSkillGroupAndAgentStatusSummaryResponseBody(name='body'),
+}
+
+async function getSkillGroupAndAgentStatusSummaryWithOptions(tmpReq: GetSkillGroupAndAgentStatusSummaryRequest, runtime: Util.RuntimeOptions): GetSkillGroupAndAgentStatusSummaryResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetSkillGroupAndAgentStatusSummaryShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.groupIds)) {
+    request.groupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.groupIds, 'GroupIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSkillGroupAndAgentStatusSummary',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getSkillGroupAndAgentStatusSummary(request: GetSkillGroupAndAgentStatusSummaryRequest): GetSkillGroupAndAgentStatusSummaryResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSkillGroupAndAgentStatusSummaryWithOptions(request, runtime);
+}
+
+model GetSkillGroupLatitudeStateRequest {
+  currentPage?: int32(name='CurrentPage'),
+  depIds?: [ long ](name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping'),
+  groupIds?: [ long ](name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+}
+
+model GetSkillGroupLatitudeStateShrinkRequest {
+  currentPage?: int32(name='CurrentPage'),
+  depIdsShrink?: string(name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping'),
+  groupIdsShrink?: string(name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+}
+
+model GetSkillGroupLatitudeStateResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    pageNum?: int32(name='PageNum'),
+    pageSize?: int32(name='PageSize'),
+    rows?: string(name='Rows'),
+    totalNum?: int32(name='TotalNum'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: string(name='Success'),
+}
+
+model GetSkillGroupLatitudeStateResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetSkillGroupLatitudeStateResponseBody(name='body'),
+}
+
+async function getSkillGroupLatitudeStateWithOptions(tmpReq: GetSkillGroupLatitudeStateRequest, runtime: Util.RuntimeOptions): GetSkillGroupLatitudeStateResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetSkillGroupLatitudeStateShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.groupIds)) {
+    request.groupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.groupIds, 'GroupIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSkillGroupLatitudeState',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getSkillGroupLatitudeState(request: GetSkillGroupLatitudeStateRequest): GetSkillGroupLatitudeStateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSkillGroupLatitudeStateWithOptions(request, runtime);
+}
+
+model GetSkillGroupServiceCapabilityRequest {
+  currentPage?: int32(name='CurrentPage'),
+  depIds?: [ long ](name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping'),
+  groupIds?: [ long ](name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+}
+
+model GetSkillGroupServiceCapabilityShrinkRequest {
+  currentPage?: int32(name='CurrentPage'),
+  depIdsShrink?: string(name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping'),
+  groupIdsShrink?: string(name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+}
+
+model GetSkillGroupServiceCapabilityResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    pageNum?: int32(name='PageNum'),
+    pageSize?: int32(name='PageSize'),
+    rows?: string(name='Rows'),
+    totalNum?: long(name='TotalNum'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: string(name='Success'),
+}
+
+model GetSkillGroupServiceCapabilityResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetSkillGroupServiceCapabilityResponseBody(name='body'),
+}
+
+async function getSkillGroupServiceCapabilityWithOptions(tmpReq: GetSkillGroupServiceCapabilityRequest, runtime: Util.RuntimeOptions): GetSkillGroupServiceCapabilityResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetSkillGroupServiceCapabilityShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.groupIds)) {
+    request.groupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.groupIds, 'GroupIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSkillGroupServiceCapability',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getSkillGroupServiceCapability(request: GetSkillGroupServiceCapabilityRequest): GetSkillGroupServiceCapabilityResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSkillGroupServiceCapabilityWithOptions(request, runtime);
+}
+
+model GetSkillGroupServiceStatusRequest {
+  agentIds?: [ long ](name='AgentIds'),
+  currentPage?: int32(name='CurrentPage'),
+  depIds?: [ long ](name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping'),
+  existChannelInstanceGrouping?: boolean(name='ExistChannelInstanceGrouping'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  existRobotInstanceGrouping?: boolean(name='ExistRobotInstanceGrouping'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping'),
+  groupIds?: [ long ](name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+  timeLatitudeType?: string(name='TimeLatitudeType'),
+}
+
+model GetSkillGroupServiceStatusShrinkRequest {
+  agentIdsShrink?: string(name='AgentIds'),
+  currentPage?: int32(name='CurrentPage'),
+  depIdsShrink?: string(name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping'),
+  existChannelInstanceGrouping?: boolean(name='ExistChannelInstanceGrouping'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  existRobotInstanceGrouping?: boolean(name='ExistRobotInstanceGrouping'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping'),
+  groupIdsShrink?: string(name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+  timeLatitudeType?: string(name='TimeLatitudeType'),
+}
+
+model GetSkillGroupServiceStatusResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    pageNum?: int32(name='PageNum'),
+    pageSize?: int32(name='PageSize'),
+    rows?: string(name='Rows'),
+    totalNum?: int32(name='TotalNum'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: string(name='Success'),
+}
+
+model GetSkillGroupServiceStatusResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetSkillGroupServiceStatusResponseBody(name='body'),
+}
+
+async function getSkillGroupServiceStatusWithOptions(tmpReq: GetSkillGroupServiceStatusRequest, runtime: Util.RuntimeOptions): GetSkillGroupServiceStatusResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetSkillGroupServiceStatusShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.agentIds)) {
+    request.agentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.agentIds, 'AgentIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.groupIds)) {
+    request.groupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.groupIds, 'GroupIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSkillGroupServiceStatus',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getSkillGroupServiceStatus(request: GetSkillGroupServiceStatusRequest): GetSkillGroupServiceStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSkillGroupServiceStatusWithOptions(request, runtime);
+}
+
+model GetSkillGroupStatusTotalRequest {
+  agentIds?: [ long ](name='AgentIds'),
+  currentPage?: int32(name='CurrentPage'),
+  depIds?: [ long ](name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping'),
+  groupIds?: [ long ](name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+  timeLatitudeType?: string(name='TimeLatitudeType'),
+}
+
+model GetSkillGroupStatusTotalShrinkRequest {
+  agentIdsShrink?: string(name='AgentIds'),
+  currentPage?: int32(name='CurrentPage'),
+  depIdsShrink?: string(name='DepIds'),
+  endDate?: long(name='EndDate'),
+  existAgentGrouping?: boolean(name='ExistAgentGrouping'),
+  existDepartmentGrouping?: boolean(name='ExistDepartmentGrouping'),
+  existSkillGroupGrouping?: boolean(name='ExistSkillGroupGrouping'),
+  groupIdsShrink?: string(name='GroupIds'),
+  instanceId?: string(name='InstanceId'),
+  pageSize?: int32(name='PageSize'),
+  startDate?: long(name='StartDate'),
+  timeLatitudeType?: string(name='TimeLatitudeType'),
+}
+
+model GetSkillGroupStatusTotalResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    pageNum?: long(name='PageNum'),
+    pageSize?: long(name='PageSize'),
+    rows?: string(name='Rows'),
+    totalNum?: long(name='TotalNum'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: string(name='Success'),
+}
+
+model GetSkillGroupStatusTotalResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetSkillGroupStatusTotalResponseBody(name='body'),
+}
+
+async function getSkillGroupStatusTotalWithOptions(tmpReq: GetSkillGroupStatusTotalRequest, runtime: Util.RuntimeOptions): GetSkillGroupStatusTotalResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetSkillGroupStatusTotalShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.agentIds)) {
+    request.agentIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.agentIds, 'AgentIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.depIds)) {
+    request.depIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.depIds, 'DepIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.groupIds)) {
+    request.groupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.groupIds, 'GroupIds', 'simple');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSkillGroupStatusTotal',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getSkillGroupStatusTotal(request: GetSkillGroupStatusTotalRequest): GetSkillGroupStatusTotalResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSkillGroupStatusTotalWithOptions(request, runtime);
 }
 
 model GetTagListRequest {
@@ -4129,6 +5813,248 @@ async function listSkillGroupWithOptions(request: ListSkillGroupRequest, runtime
 async function listSkillGroup(request: ListSkillGroupRequest): ListSkillGroupResponse {
   var runtime = new Util.RuntimeOptions{};
   return listSkillGroupWithOptions(request, runtime);
+}
+
+model LogOptimizationRequest {
+  acid?: string(name='Acid'),
+  data?: string(name='Data'),
+  phoneNum?: string(name='PhoneNum'),
+}
+
+model LogOptimizationResponseBody = {
+  code?: string(name='Code'),
+  data?: string(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model LogOptimizationResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: LogOptimizationResponseBody(name='body'),
+}
+
+async function logOptimizationWithOptions(request: LogOptimizationRequest, runtime: Util.RuntimeOptions): LogOptimizationResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.acid)) {
+    query['Acid'] = request.acid;
+  }
+  if (!Util.isUnset(request.data)) {
+    query['Data'] = request.data;
+  }
+  if (!Util.isUnset(request.phoneNum)) {
+    query['PhoneNum'] = request.phoneNum;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'LogOptimization',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function logOptimization(request: LogOptimizationRequest): LogOptimizationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return logOptimizationWithOptions(request, runtime);
+}
+
+model QueryAppResDiffRequest {
+  appTaskId?: string(name='AppTaskId'),
+  diffKeyword?: string(name='DiffKeyword'),
+  index?: int32(name='Index'),
+  keyword?: string(name='Keyword'),
+  resCode?: string(name='ResCode'),
+  resName?: string(name='ResName'),
+  resSubType?: string(name='ResSubType'),
+  resType?: string(name='ResType'),
+  size?: int32(name='Size'),
+}
+
+model QueryAppResDiffResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    data?: [ 
+      {
+        baseFilteredValue?: string(name='BaseFilteredValue'),
+        baseValue?: string(name='BaseValue'),
+        filteredValue?: string(name='FilteredValue'),
+        id?: string(name='Id'),
+        res?: DAppRes(name='Res'),
+        row?: [ 
+          {
+            key?: string(name='Key'),
+            value?: string(name='Value'),
+          }
+        ](name='Row'),
+        type?: DPair(name='Type'),
+        value?: string(name='Value'),
+        status?: DPair(name='status'),
+      }
+    ](name='Data'),
+    head?: [ 
+      {
+        key?: string(name='Key'),
+        title?: string(name='Title'),
+      }
+    ](name='Head'),
+    resCount?: DAppResCount(name='ResCount'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+  totalCount?: long(name='TotalCount'),
+}
+
+model QueryAppResDiffResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: QueryAppResDiffResponseBody(name='body'),
+}
+
+async function queryAppResDiffWithOptions(request: QueryAppResDiffRequest, runtime: Util.RuntimeOptions): QueryAppResDiffResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryAppResDiff',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function queryAppResDiff(request: QueryAppResDiffRequest): QueryAppResDiffResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryAppResDiffWithOptions(request, runtime);
+}
+
+model QueryAppResValueRequest {
+  appTaskId?: string(name='AppTaskId'),
+  index?: int32(name='Index'),
+  keyword?: string(name='Keyword'),
+  resCode?: string(name='ResCode'),
+  resName?: string(name='ResName'),
+  resSubType?: string(name='ResSubType'),
+  resType?: string(name='ResType'),
+  size?: int32(name='Size'),
+  valueKeyword?: string(name='ValueKeyword'),
+}
+
+model QueryAppResValueResponseBody = {
+  code?: string(name='Code'),
+  data?: [ 
+    {
+      id?: string(name='Id'),
+      res?: DAppRes(name='Res'),
+      value?: string(name='Value'),
+    }
+  ](name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+  totalCount?: long(name='TotalCount'),
+}
+
+model QueryAppResValueResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: QueryAppResValueResponseBody(name='body'),
+}
+
+async function queryAppResValueWithOptions(request: QueryAppResValueRequest, runtime: Util.RuntimeOptions): QueryAppResValueResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryAppResValue',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function queryAppResValue(request: QueryAppResValueRequest): QueryAppResValueResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryAppResValueWithOptions(request, runtime);
+}
+
+model QueryDeploymentArchiveRequest {
+  deploymentCode?: string(name='DeploymentCode'),
+  envType?: int32(name='EnvType'),
+  index?: int32(name='Index'),
+  size?: int32(name='Size'),
+}
+
+model QueryDeploymentArchiveResponseBody = {
+  code?: string(name='Code'),
+  data?: [
+    DDeploymentArchive
+  ](name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+  totalCount?: long(name='TotalCount'),
+}
+
+model QueryDeploymentArchiveResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: QueryDeploymentArchiveResponseBody(name='body'),
+}
+
+async function queryDeploymentArchiveWithOptions(request: QueryDeploymentArchiveRequest, runtime: Util.RuntimeOptions): QueryDeploymentArchiveResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryDeploymentArchive',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function queryDeploymentArchive(request: QueryDeploymentArchiveRequest): QueryDeploymentArchiveResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryDeploymentArchiveWithOptions(request, runtime);
 }
 
 model QueryHotlineDashboardRequest {
@@ -6925,6 +8851,231 @@ async function updateTicketWithOptions(request: UpdateTicketRequest, runtime: Ut
 async function updateTicket(request: UpdateTicketRequest): UpdateTicketResponse {
   var runtime = new Util.RuntimeOptions{};
   return updateTicketWithOptions(request, runtime);
+}
+
+model XspaceNextbotChatRequest {
+  channel?: string(name='Channel'),
+  conversationId?: string(name='ConversationId'),
+  instanceId?: string(name='InstanceId'),
+  knowledgeId?: string(name='KnowledgeId'),
+  question?: string(name='Question'),
+  robotId?: string(name='RobotId'),
+  senderId?: string(name='SenderId'),
+  senderNick?: string(name='SenderNick'),
+  sessionId?: string(name='SessionId'),
+  tenantId?: long(name='TenantId'),
+}
+
+model XspaceNextbotChatResponseBody = {
+  code?: string(name='Code'),
+  data?: string(name='Data'),
+  httpStatusCode?: long(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model XspaceNextbotChatResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: XspaceNextbotChatResponseBody(name='body'),
+}
+
+async function xspaceNextbotChatWithOptions(request: XspaceNextbotChatRequest, runtime: Util.RuntimeOptions): XspaceNextbotChatResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.channel)) {
+    query['Channel'] = request.channel;
+  }
+  if (!Util.isUnset(request.conversationId)) {
+    query['ConversationId'] = request.conversationId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.knowledgeId)) {
+    query['KnowledgeId'] = request.knowledgeId;
+  }
+  if (!Util.isUnset(request.question)) {
+    query['Question'] = request.question;
+  }
+  if (!Util.isUnset(request.robotId)) {
+    query['RobotId'] = request.robotId;
+  }
+  if (!Util.isUnset(request.senderId)) {
+    query['SenderId'] = request.senderId;
+  }
+  if (!Util.isUnset(request.senderNick)) {
+    query['SenderNick'] = request.senderNick;
+  }
+  if (!Util.isUnset(request.sessionId)) {
+    query['SessionId'] = request.sessionId;
+  }
+  if (!Util.isUnset(request.tenantId)) {
+    query['TenantId'] = request.tenantId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'XspaceNextbotChat',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function xspaceNextbotChat(request: XspaceNextbotChatRequest): XspaceNextbotChatResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return xspaceNextbotChatWithOptions(request, runtime);
+}
+
+model XspaceNextbotCreatTenantRequest {
+  buId?: string(name='BuId'),
+  buName?: string(name='BuName'),
+  instanceId?: string(name='InstanceId'),
+}
+
+model XspaceNextbotCreatTenantResponseBody = {
+  code?: string(name='Code'),
+  data?: long(name='Data'),
+  httpStatusCode?: long(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model XspaceNextbotCreatTenantResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: XspaceNextbotCreatTenantResponseBody(name='body'),
+}
+
+async function xspaceNextbotCreatTenantWithOptions(request: XspaceNextbotCreatTenantRequest, runtime: Util.RuntimeOptions): XspaceNextbotCreatTenantResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.buId)) {
+    query['BuId'] = request.buId;
+  }
+  if (!Util.isUnset(request.buName)) {
+    query['BuName'] = request.buName;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'XspaceNextbotCreatTenant',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function xspaceNextbotCreatTenant(request: XspaceNextbotCreatTenantRequest): XspaceNextbotCreatTenantResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return xspaceNextbotCreatTenantWithOptions(request, runtime);
+}
+
+model XspaceNextbotInitTenantRequest {
+  account?: string(name='Account'),
+  accountType?: string(name='AccountType'),
+  instanceId?: string(name='InstanceId'),
+  kwLibrary?: string(name='KwLibrary'),
+  productEndTime?: long(name='ProductEndTime'),
+  productStartTime?: long(name='ProductStartTime'),
+  productValidPeriod?: long(name='ProductValidPeriod'),
+  tenantDesc?: string(name='TenantDesc'),
+  tenantId?: string(name='TenantId'),
+  tenantName?: string(name='TenantName'),
+  version?: string(name='Version'),
+}
+
+model XspaceNextbotInitTenantResponseBody = {
+  code?: string(name='Code'),
+  data?: string(name='Data'),
+  httpStatusCode?: long(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model XspaceNextbotInitTenantResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: XspaceNextbotInitTenantResponseBody(name='body'),
+}
+
+async function xspaceNextbotInitTenantWithOptions(request: XspaceNextbotInitTenantRequest, runtime: Util.RuntimeOptions): XspaceNextbotInitTenantResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.account)) {
+    query['Account'] = request.account;
+  }
+  if (!Util.isUnset(request.accountType)) {
+    query['AccountType'] = request.accountType;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.kwLibrary)) {
+    query['KwLibrary'] = request.kwLibrary;
+  }
+  if (!Util.isUnset(request.productEndTime)) {
+    query['ProductEndTime'] = request.productEndTime;
+  }
+  if (!Util.isUnset(request.productStartTime)) {
+    query['ProductStartTime'] = request.productStartTime;
+  }
+  if (!Util.isUnset(request.productValidPeriod)) {
+    query['ProductValidPeriod'] = request.productValidPeriod;
+  }
+  if (!Util.isUnset(request.tenantDesc)) {
+    query['TenantDesc'] = request.tenantDesc;
+  }
+  if (!Util.isUnset(request.tenantId)) {
+    query['TenantId'] = request.tenantId;
+  }
+  if (!Util.isUnset(request.tenantName)) {
+    query['TenantName'] = request.tenantName;
+  }
+  if (!Util.isUnset(request.version)) {
+    query['Version'] = request.version;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'XspaceNextbotInitTenant',
+    version = '2020-07-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function xspaceNextbotInitTenant(request: XspaceNextbotInitTenantRequest): XspaceNextbotInitTenantResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return xspaceNextbotInitTenantWithOptions(request, runtime);
 }
 
 model CreateTicketWithBizDataRequest {
