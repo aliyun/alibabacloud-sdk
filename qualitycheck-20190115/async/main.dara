@@ -30,6 +30,363 @@ function close(): void {
   @handler.close();
 }
 
+model BusinessCategoryBasicInfo {
+  bid?: int32(name='Bid', description='业务ID'),
+  name?: string(name='Name', description='业务名称'),
+  originalId?: long(name='OriginalId', description='originalId'),
+  serviceType?: int32(name='ServiceType', description='服务类型(ServiceCategory)'),
+}
+
+model ConditionBasicInfo {
+  checkRange?: {
+    absolute?: boolean(name='Absolute', description='false: 相对位置; 会结合anchor以及角色来决定句子位置'),
+    allSentencesSatisfy?: boolean(name='AllSentencesSatisfy', description='true: 每句话都必须满足条件；'),
+    anchor?: {
+      cid?: string(name='Cid', description='条件ID'),
+      hitTime?: int32(name='Hit_time', description='命中次数'),
+      location?: string(name='Location', description='位置'),
+    }(name='Anchor', description='前置后置条件'),
+    range?: {
+      from?: int32(name='From', description='对话开始索引'),
+      to?: int32(name='To', description='对话结束索引'),
+    }(name='Range', description='相对范围'),
+    role?: string(name='Role', description='对应 RoleType.type'),
+    roleId?: int32(name='RoleId', description='对应 RoleType.id'),
+  }(name='Check_range', description='检测范围'),
+  cid?: string(name='Cid', description='条件id，可能是db中的主键，也可能是转换成的a, b, c'),
+  exclusion?: int32(name='Exclusion', description='排除'),
+  id?: long(name='Id', description='在db中的主键'),
+  lambda?: string(name='Lambda', description='Lambda表达式：例如:a&&b'),
+  name?: string(name='Name', description='条件名'),
+  operators?: [
+    OperatorBasicInfo
+  ](name='Operators', description='算子列表'),
+  rid?: string(name='Rid', description='条件所属的规则id'),
+  userGroup?: string(name='UserGroup', description='用户组'),
+}
+
+model GraphFlowNode {
+  conditions?: [
+    ConditionBasicInfo
+  ](name='Conditions', description='算子信息'),
+  content?: string(name='Content', description='前端展示使用'),
+  id?: long(name='Id', description='节点id'),
+  index?: int32(name='Index', description='index'),
+  name?: string(name='Name', description='节点名字'),
+  nextNodes?: [ 
+    {
+      checkType?: int32(name='CheckType', description='质检维度'),
+      index?: int32(name='Index', description='流程分支优先级。越小优先级越高'),
+      lambda?: string(name='Lambda', description='通往下一跳的Lambda表达式'),
+      name?: string(name='Name', description='条件分支名'),
+      nextNodeId?: long(name='NextNodeId', description='后续节点ID'),
+      triggers?: [ string ](name='Triggers', description='关注的算子'),
+    }
+  ](name='NextNodes', description='子节点'),
+  nodeType?: string(name='NodeType', description='节点类型'),
+  properties?: {
+    autoReview?: int32(name='AutoReview', description='1 "不自动审核"'),
+    branchJudge?: boolean(name='BranchJudge', description='是否开启分支判断'),
+    checkMoreSize?: int32(name='CheckMoreSize', description='最多检测N句'),
+    checkType?: int32(name='CheckType', description='质检维度'),
+    lambda?: string(name='Lambda', description='普通算子逻辑'),
+    role?: string(name='Role', description='single类型时，角色'),
+    ruleScoreType?: int32(name='RuleScoreType', description='是否计分'),
+    sayType?: string(name='SayType', description='single类型时，是否表达'),
+    scoreNum?: int32(name='ScoreNum', description='计分值'),
+    scoreNumType?: int32(name='ScoreNumType', description='0-触发规则后加减分;1-触发规则后一次性得分'),
+    scoreRuleHitType?: int32(name='ScoreRuleHitType', description='0-命中节点时计分'),
+    scoreType?: int32(name='ScoreType', description='1加分 3减分 默认1'),
+    triggers?: [ string ](name='Triggers', description='关注的算子'),
+    type?: string(name='Type', description='属性类型'),
+  }(name='Properties', description='节点属性'),
+  rid?: long(name='Rid', description='规则ID，当规则没有落库时 rid为空。当规则落库时 rid == id'),
+  useConditions?: boolean(name='UseConditions', description='是否使用 算子匹配还是使用老板的匹配'),
+}
+
+model JudgeNodeMetaDesc {
+  actualValue?: string(name='ActualValue', description='实际值'),
+  dataType?: int32(name='DataType', description='数据类型'),
+  field?: string(name='Field', description='系统字段'),
+  fieldType?: int32(name='FieldType', description='字段数据来源类型：1：系统预定义字段 2：传参质检字段'),
+  symbol?: int32(name='Symbol', description='逻辑表达式'),
+  value?: string(name='Value', description='预设值的值'),
+}
+
+model NextNodeSituations {
+  conditionGroup?: [ 
+    {
+      conditions?: [
+        JudgeNodeMetaDesc
+      ](name='Conditions', description='匹配条件集合'),
+      type?: string(name='Type', description='条件之间的匹配关系'),
+    }
+  ](name='ConditionGroup', description='判断条件'),
+  type?: string(name='Type', description='条件之间的匹配关系 目前都是or的关系'),
+}
+
+model OperatorBasicInfo {
+  id?: long(name='Id', description='主键id'),
+  name?: string(name='Name', description='算子名'),
+  oid?: string(name='Oid', description='可能是主键id，也可能是前端生成的id'),
+  param?: {
+    answerThreshold?: string(name='AnswerThreshold', description='答案命中阈值'),
+    antModelInfo?: map[string]string(name='AntModelInfo', description='蚂蚁模型信息'),
+    average?: boolean(name='Average', description='语速检测，是否计算整个对话平均语速，默认false'),
+    beginType?: string(name='BeginType', description='时长算子，时长计算开始类型，录音开始，还是某句对话开始'),
+    botId?: string(name='BotId', description='机器人id'),
+    caseSensitive?: boolean(name='Case_sensitive', description='区分大小写'),
+    categoryPathCode?: string(name='CategoryPathCode', description='知识类目路径'),
+    checkFirstSentence?: boolean(name='CheckFirstSentence', description='静音检测：要不要检测第一句话'),
+    checkType?: int32(name='CheckType', description='检测方式，1 相邻句能量波动 2 最大能量跨度 默认1'),
+    compareOperator?: string(name='CompareOperator', description='大于，还是小于，gt/lt'),
+    contextChatMatch?: boolean(name='ContextChatMatch', description='是否单句话匹配；'),
+    customerParam?: JudgeNodeMetaDesc(name='CustomerParam', description='随录参数算子参数'),
+    delayTime?: int32(name='DelayTime', description='抢话算子 延时时长'),
+    differentRole?: boolean(name='Different_role', description='different_role'),
+    endType?: string(name='EndType', description='时长算子，时长计算结束类型，录音结束，还是某句对话结束'),
+    excludes?: [ string ](name='Excludes', description='上下文重复算子：排除掉某些对话'),
+    from?: int32(name='From', description='上下文重复算子：检测当前句的前from句是否有重复；0表示前面的所有句'),
+    fromEnd?: boolean(name='From_end', description='from_end'),
+    hitTime?: int32(name='Hit_time', description='上下文重复算子：重复几次'),
+    inSentence?: boolean(name='In_sentence', description='生效句子， true单个句子，false多个句子'),
+    interval?: int32(name='Interval', description='interval代表区间范围开始'),
+    intervalEnd?: int32(name='IntervalEnd', description='intervalEnd 代表区间范围结束'),
+    keywordExtension?: int32(name='KeywordExtension', description='关键字扩展'),
+    keywordMatchSize?: int32(name='KeywordMatchSize', description='匹配到的关键字数量'),
+    keywords?: [ string ](name='Keywords', description='关键词'),
+    knowledgeInfo?: string(name='KnowledgeInfo', description='知识信息'),
+    knowledgeSentenceNum?: int32(name='KnowledgeSentenceNum', description='命中问题后几句内检测答案'),
+    knowledgeTargetId?: string(name='KnowledgeTargetId', description='知识类目或者知识Id'),
+    knowledgeTargetName?: string(name='KnowledgeTargetName', description='知识类目名字或知识名字'),
+    knowledgeTargetType?: int32(name='KnowledgeTargetType', description='0-类目 1-知识'),
+    lgfSentences?: [ string ](name='LgfSentences', description='lgf句子'),
+    maxEmotionChangeValue?: int32(name='MaxEmotionChangeValue', description='能量值变化，默认3, 1~9'),
+    minWordSize?: int32(name='MinWordSize', description='句子中最少字数，小于此字数的句子不检查'),
+    nearDialogue?: boolean(name='Near_dialogue', description='true表示取不同角色相邻的两句话，false表示取不同角色的第一句话比较响应时间（默认）'),
+    notRegex?: string(name='NotRegex', description='排除的正则表达式'),
+    phrase?: string(name='Phrase', description='语句'),
+    pkey?: string(name='Pkey', description='涉外属性需要的变量'),
+    poutputType?: int32(name='Poutput_type', description='poutput类型'),
+    questionThreshold?: string(name='QuestionThreshold', description='问题命中阈值'),
+    references?: [ string ](name='References', description='references引用'),
+    regex?: string(name='Regex', description='正则表达式'),
+    roleId?: int32(name='RoleId', description='算子中使用角色，目前用于上下文重复算子，与target_role一起使用。'),
+    score?: int32(name='Score', description='分数'),
+    similarityThreshold?: double(name='Similarity_threshold', description='相似度阈值'),
+    similarlySentences?: [ string ](name='SimilarlySentences', description='相识问'),
+    synonyms?: map[string][ string ](name='Synonyms', description='同义词'),
+    target?: int32(name='Target', description='target'),
+    targetRole?: string(name='Target_role', description='target_role'),
+    threshold?: float(name='Threshold', description='阈值'),
+    useEasAlgorithm?: boolean(name='UseEasAlgorithm', description='使用eas算法'),
+    velocity?: double(name='Velocity', description='速度'),
+    velocityInMint?: int32(name='VelocityInMint', description='velocityInMint'),
+  }(name='Param', description='算子参数'),
+  qualityCheckType?: int32(name='QualityCheckType', description='质检类型：0 离线质检，1 实时质检'),
+  type?: string(name='Type', description='算子类别'),
+  userGroup?: string(name='UserGroup', description='用户组'),
+}
+
+model RuleCountInfo {
+  autoReview?: int32(name='AutoReview', description='审核选项 1 不自动审核 3 自动审核'),
+  businessCategoryBasicInfoList?: [
+    BusinessCategoryBasicInfo
+  ](name='BusinessCategoryBasicInfoList', description='业务类别基本信息列表'),
+  businessCategoryNameList?: [ string ](name='BusinessCategoryNameList', description='业务类别名称列表'),
+  businessRange?: [ int32 ](name='BusinessRange', description='业务范围'),
+  checkNumber?: long(name='CheckNumber', description='检测会话数'),
+  comments?: string(name='Comments', description='评论'),
+  createEmpName?: string(name='CreateEmpName', description='创建人姓名'),
+  createEmpid?: string(name='CreateEmpid', description='创建人工号'),
+  createTime?: string(name='CreateTime', description='创建时间'),
+  deny?: int32(name='Deny', description='1拒绝编辑规则，0/null可以编辑规则'),
+  effective?: int32(name='Effective', description='是否生效：0否，1是'),
+  effectiveEndTime?: string(name='EffectiveEndTime', description='生效结束时间'),
+  effectiveStartTime?: string(name='EffectiveStartTime', description='生效开始时间'),
+  endTime?: string(name='EndTime', description='结束时间'),
+  fullCycle?: int32(name='FullCycle', description='是否为全生命周期生效，0否，1是'),
+  graphFlow?: any(name='GraphFlow', description='流程画布'),
+  hitNumber?: long(name='HitNumber', description='命中会话量'),
+  hitRate?: float(name='HitRate', description='命中率'),
+  hitRealViolationRate?: float(name='HitRealViolationRate', description='命中违规率'),
+  isDelete?: int32(name='IsDelete', description='是否删除'),
+  isSelect?: boolean(name='IsSelect', description='是否选择'),
+  jobName?: string(name='JobName', description='定时任务名称'),
+  lastUpdateEmpName?: string(name='LastUpdateEmpName', description='最后更新人姓名'),
+  lastUpdateEmpid?: string(name='LastUpdateEmpid', description='最后更新人工号'),
+  lastUpdateTime?: string(name='LastUpdateTime', description='最后更新时间'),
+  name?: string(name='Name', description='规则名称'),
+  operationMode?: int32(name='OperationMode', description='操作模式'),
+  preReviewNumber?: long(name='PreReviewNumber', description='待复核数'),
+  problemNumber?: long(name='ProblemNumber', description='发现问题数'),
+  qualityCheckType?: int32(name='QualityCheckType', description='质检类型：0 离线质检，1 实时质检'),
+  realViolationNumber?: int32(name='RealViolationNumber', description='复核后真实违规的数量'),
+  reviewAccuracyRate?: float(name='ReviewAccuracyRate', description='复核准确率'),
+  reviewNumber?: long(name='ReviewNumber', description='已复核数'),
+  reviewRate?: float(name='ReviewRate', description='复核率'),
+  reviewStatusName?: string(name='ReviewStatusName', description='审核状态名字'),
+  rid?: long(name='Rid', description='规则ID'),
+  ruleScoreSingleType?: int32(name='RuleScoreSingleType', description='-- 8-未设置评分'),
+  ruleScoreType?: int32(name='RuleScoreType', description='是否计分 1不计分 3计分'),
+  ruleType?: int32(name='RuleType', description='内置规则Or用户创建规则'),
+  scoreSubId?: long(name='ScoreSubId', description='小项id'),
+  startTime?: string(name='StartTime', description='开始时间'),
+  status?: int32(name='Status', description='状态：待生效 / 生效中 / 已失效:  0 / 1 / 2'),
+  targetType?: int32(name='TargetType', description='规则种类：10-普通规则，11-流程规则'),
+  type?: int32(name='Type', description='规则类型'),
+  typeName?: string(name='TypeName', description='类型名称'),
+  unReviewNumber?: long(name='UnReviewNumber', description='未复核数量'),
+  userGroup?: string(name='UserGroup', description='用户组'),
+}
+
+model RuleInfo {
+  autoReview?: int32(name='AutoReview', description='审核选项 1 不自动审核 3 自动审核 //4.0 协议兼容使用'),
+  businessCategoryNameList?: [ string ](name='BusinessCategoryNameList', description='业务名称列表'),
+  checkType?: long(name='CheckType', description='0-服务规范性检测 1-服务态度检测 2-服务专业性检测 3-客户态度检测  4-服务流程正确性检测'),
+  comments?: string(name='Comments', description='备注'),
+  configType?: int32(name='ConfigType', description='配置类型：1：简单条件配置，2：高级配置，默认1 //4.0协议专用'),
+  createEmpName?: string(name='CreateEmpName', description='创建人姓名'),
+  createEmpid?: string(name='CreateEmpid', description='创建人工号'),
+  createTime?: string(name='CreateTime', description='创建时间'),
+  deny?: int32(name='Deny', description='1拒绝编辑规则，0/null可以编辑规则'),
+  dialogues?: [
+    RuleTestDialogue
+  ](name='Dialogues', description='测试文案'),
+  effective?: int32(name='Effective', description='是否生效：0否，1是'),
+  effectiveEndTime?: string(name='EffectiveEndTime', description='生效结束时间'),
+  effectiveStartTime?: string(name='EffectiveStartTime', description='生效开始时间'),
+  endTime?: string(name='EndTime', description='结束时间'),
+  externalProperty?: int32(name='ExternalProperty', description='外部属性'),
+  fullCycle?: int32(name='FullCycle', description='是否为全生命周期生效，0否，1是'),
+  graphFlow?: any(name='GraphFlow', description='图流程画布'),
+  isDelete?: int32(name='IsDelete', description='是否已删除'),
+  isOnline?: int32(name='IsOnline', description='是否在线'),
+  lambda?: string(name='Lambda', description='形如a&&b的条件表达式'),
+  lastUpdateEmpName?: string(name='LastUpdateEmpName', description='最后更新人姓名'),
+  lastUpdateEmpid?: string(name='LastUpdateEmpid', description='最后更新人工号'),
+  lastUpdateTime?: string(name='LastUpdateTime', description='最后更新时间'),
+  level?: int32(name='Level', description='规则级别：0 重度违规 1 中度违规 2 轻度违规'),
+  meet?: int32(name='Meet', description='是否满足'),
+  modifyType?: int32(name='ModifyType', description='在质检方案中是否已修改'),
+  name?: string(name='Name', description='规则名称'),
+  operationMode?: int32(name='OperationMode', description='操作模式'),
+  qualityCheckType?: int32(name='QualityCheckType', description='质检类型：0 离线质检，1 实时质检 //4.0逻辑兼容使用'),
+  rid?: string(name='Rid', description='规则ID'),
+  ruleCategoryName?: string(name='RuleCategoryName', description='规则类别名称'),
+  ruleScoreType?: int32(name='RuleScoreType', description='是否计分 1不计分 3计分 //4.0 协议兼容使用'),
+  ruleType?: int32(name='RuleType', description='0：默认；1：用户创建 //4.0逻辑兼容使用'),
+  schemeCheckType?: SchemeCheckType(name='SchemeCheckType', description='质检维度对象'),
+  schemeId?: long(name='SchemeId', description='所属质检方案Id'),
+  schemeName?: string(name='SchemeName', description='质检方案名称'),
+  schemeRuleMappingId?: long(name='SchemeRuleMappingId', description='质检方案与规则映射ID'),
+  scoreDeleted?: boolean(name='ScoreDeleted', description='评分项是否删除，用于删除时显示置灰'),
+  scoreId?: long(name='ScoreId', description='评分大项ID'),
+  scoreName?: string(name='ScoreName', description='评分大项名称'),
+  scoreNum?: int32(name='ScoreNum', description='分数num'),
+  scoreNumType?: int32(name='ScoreNumType', description='0-触发规则后加减分 1-触发规则后一次性得分 //4.0协议专用'),
+  scoreRuleHitType?: int32(name='ScoreRuleHitType', description='0-命中节点时计分'),
+  scoreSubId?: long(name='ScoreSubId', description='小项id'),
+  scoreSubName?: string(name='ScoreSubName', description='评分小项'),
+  scoreType?: int32(name='ScoreType', description='加分或者减分'),
+  sortIndex?: int32(name='SortIndex', description='质检维度内的排序'),
+  startTime?: string(name='StartTime', description='开始时间'),
+  status?: int32(name='Status', description='规则状态'),
+  targetType?: int32(name='TargetType', description='规则类别：10：质检方案-通用规则；11：质检方案-流程规则 //4.0协议专用'),
+  taskFlowId?: long(name='TaskFlowId', description='流程画布ID'),
+  taskFlowType?: int32(name='TaskFlowType', description='流程图类型-已废弃-默认-1'),
+  triggers?: [ string ](name='Triggers', description='关注的条件列表'),
+  type?: int32(name='Type', description='RuleCategory，2舆情监控，3业务类  //4.0 逻辑兼容使用'),
+  weight?: string(name='Weight', description='权重'),
+}
+
+model RuleTestDialogue {
+  content?: [ 
+    {
+      begin?: long(name='Begin', description='开始时间InLong'),
+      beginTime?: long(name='BeginTime', description='开始时间InLong'),
+      emotionValue?: int32(name='EmotionValue', description='情绪能量值'),
+      end?: long(name='End', description='结束时间inLong'),
+      hourMinSec?: string(name='HourMinSec', description='时分秒'),
+      identity?: string(name='Identity', description='身份标识'),
+      role?: string(name='Role', description='角色'),
+      silenceDuration?: long(name='SilenceDuration', description='静音时长'),
+      speechRate?: long(name='SpeechRate', description='语速'),
+      words?: string(name='Words', description='对话'),
+    }
+  ](name='Content', description='对话内容'),
+  id?: long(name='Id', description='对话ID'),
+  name?: string(name='Name', description='对话名称'),
+  userGroup?: string(name='UserGroup', description='用户组'),
+}
+
+model RulesInfo {
+  conditions?: [
+    ConditionBasicInfo
+  ](name='Conditions', description='规则条件信息，多个规则的条件都放在一个list中'),
+  count?: int32(name='Count', description='总条数'),
+  dialogues?: [
+    RuleTestDialogue
+  ](name='Dialogues', description='测试文案'),
+  pageNumber?: int32(name='PageNumber', description='当前页'),
+  pageSize?: int32(name='PageSize', description='页数'),
+  rules?: [
+    RuleInfo
+  ](name='Rules', description='规则基本信息，可能有多个规则'),
+}
+
+model SchemeCheckType {
+  checkName?: string(name='CheckName', description='检测项名称'),
+  checkType?: long(name='CheckType', description='检测项类型：默认如下'),
+  enable?: int32(name='Enable', description='是否启用'),
+  schemeId?: long(name='SchemeId', description='质检方案ID'),
+  schemeScoreInfoList?: [ 
+    {
+      name?: string(name='Name', description='规则名称'),
+      rid?: long(name='Rid', description='规则ID'),
+      scoreNum?: int32(name='ScoreNum', description='客服评分：默认0，[0, 100]'),
+      scoreNumType?: int32(name='ScoreNumType', description='0-触发规则后加减分'),
+      scoreRuleHitType?: int32(name='ScoreRuleHitType', description='0-命中节点时计分'),
+      scoreType?: int32(name='ScoreType', description='1加分 3减分 默认1'),
+      taskFlowId?: long(name='TaskFlowId', description='流程ID'),
+      taskFlowName?: string(name='TaskFlowName', description='流程名称'),
+    }
+  ](name='SchemeScoreInfoList', description='检测项下评分项列表，见SchemeScoreInfo'),
+  score?: int32(name='Score', description='最终得分'),
+  sourceScore?: int32(name='SourceScore', description='原始得分'),
+  taskFlowScoreInfoList?: [ 
+    {
+      schemeScoreInfoList?: [ 
+        {
+          name?: string(name='Name', description='规则名称'),
+          rid?: long(name='Rid', description='规则ID'),
+          scoreNum?: int32(name='ScoreNum', description='客服评分：默认0，[0, 100]'),
+          scoreNumType?: int32(name='ScoreNumType', description='0-触发规则后加减分'),
+          scoreRuleHitType?: int32(name='ScoreRuleHitType', description='0-命中节点时计分'),
+          scoreType?: int32(name='ScoreType', description='1加分 3减分 默认1'),
+          taskFlowId?: long(name='TaskFlowId', description='流程ID'),
+          taskFlowName?: string(name='TaskFlowName', description='流程名称'),
+        }
+      ](name='SchemeScoreInfoList', description='评分项列表'),
+      taskFlowId?: long(name='TaskFlowId', description='流程ID'),
+      taskFlowName?: string(name='TaskFlowName', description='流程名称'),
+      taskFlowType?: int32(name='TaskFlowType', description='"流程版本：0：树，1：图"'),
+    }
+  ](name='TaskFlowScoreInfoList', description='检测项下评分项列表，见TaskFlowScoreInfo'),
+}
+
+model TaskGraphFlow {
+  flowRuleScoreType?: int32(name='FlowRuleScoreType', description='流程计分逻辑设置'),
+  id?: long(name='Id', description='流程画布id'),
+  nodes?: [
+    GraphFlowNode
+  ](name='Nodes', description='流程所有节点'),
+  rid?: long(name='Rid', description='规则ID'),
+  ruleName?: string(name='RuleName', description='规则名称'),
+  showProperties?: string(name='ShowProperties', description='前端展示使用'),
+  skipWhenFirstSessionNodeMiss?: boolean(name='SkipWhenFirstSessionNodeMiss', description='首个对话节点未命中则跳过'),
+}
+
 model AddBusinessCategoryRequest {
   jsonStr: string(name='JsonStr', position='Query'),
 }
@@ -74,6 +431,33 @@ model AddRuleCategoryResponse = {
 async function addRuleCategory(request: AddRuleCategoryRequest): AddRuleCategoryResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'AddRuleCategory', 'POST', '/', 'json', false, 'json', request);
+}
+
+model AddRuleV4Request {
+  isCopy?: boolean(name='IsCopy', position='Body'),
+  jsonStrForRule: string(name='JsonStrForRule', position='Body'),
+}
+
+model AddRuleV4ResponseBody = {
+  code?: string(name='Code'),
+  data?: long(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  messages?: {
+    message?: [ string ](name='Message')
+  }(name='Messages'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model AddRuleV4Response = {
+  headers: map[string]string(name='headers'),
+  body: AddRuleV4ResponseBody(name='body'),
+}
+
+async function addRuleV4(request: AddRuleV4Request): AddRuleV4Response {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'AddRuleV4', 'POST', '/', 'json', true, 'form', request);
 }
 
 model AddThesaurusForApiRequest {
@@ -583,6 +967,32 @@ async function deleteRule(request: DeleteRuleRequest): DeleteRuleResponse {
   return @handler.do('RPC', 'DeleteRule', 'POST', '/', 'json', true, 'form', request);
 }
 
+model DeleteRuleV4Request {
+  forceDelete?: boolean(name='ForceDelete', position='Body'),
+  ruleId: long(name='RuleId', position='Body'),
+}
+
+model DeleteRuleV4ResponseBody = {
+  code?: string(name='Code'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  messages?: {
+    message?: [ string ](name='Message')
+  }(name='Messages'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model DeleteRuleV4Response = {
+  headers: map[string]string(name='headers'),
+  body: DeleteRuleV4ResponseBody(name='body'),
+}
+
+async function deleteRuleV4(request: DeleteRuleV4Request): DeleteRuleV4Response {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteRuleV4', 'POST', '/', 'json', true, 'form', request);
+}
+
 model DeleteSchemeTaskConfigRequest {
   jsonStr?: string(name='jsonStr', position='Query'),
 }
@@ -1036,15 +1446,11 @@ model GetQualityCheckSchemeResponseBody = {
     dataType?: int32(name='DataType'),
     description?: string(name='Description'),
     name?: string(name='Name'),
-    publishContent?: string(name='PublishContent'),
-    ruleIds?: {
-      ruleId?: [ string ](name='RuleId')
-    }(name='RuleIds'),
-    ruleList?: {
-      ruleList?: [ string ](name='RuleList')
-    }(name='RuleList'),
-    schemeCheckTypeList?: {
-      schemeCheckTypeList?: [ 
+    ruleIds?: [ string ](name='RuleIds'),
+    ruleList?: [
+      RulesInfo
+    ](name='RuleList'),
+    schemeCheckTypeList?: [ 
       {
         checkName?: string(name='CheckName'),
         checkType?: long(name='CheckType'),
@@ -1053,8 +1459,7 @@ model GetQualityCheckSchemeResponseBody = {
         score?: int32(name='Score'),
         sourceScore?: int32(name='SourceScore'),
       }
-    ](name='SchemeCheckTypeList')
-    }(name='SchemeCheckTypeList'),
+    ](name='SchemeCheckTypeList'),
     schemeId?: long(name='SchemeId', description='质检方案id'),
     schemeTemplateId?: long(name='SchemeTemplateId'),
     status?: int32(name='Status'),
@@ -1066,9 +1471,7 @@ model GetQualityCheckSchemeResponseBody = {
   }(name='Data'),
   httpStatusCode?: int32(name='HttpStatusCode'),
   message?: string(name='Message'),
-  messages?: {
-    message?: [ string ](name='Message')
-  }(name='Messages'),
+  messages?: [ string ](name='Messages'),
   requestId?: string(name='RequestId'),
   success?: boolean(name='Success'),
 }
@@ -1455,12 +1858,10 @@ model GetRuleByIdRequest {
 
 model GetRuleByIdResponseBody = {
   code?: string(name='Code'),
-  data?: string(name='Data'),
+  data?: RulesInfo(name='Data'),
   httpStatusCode?: int32(name='HttpStatusCode'),
   message?: string(name='Message'),
-  messages?: {
-    message?: [ string ](name='Message')
-  }(name='Messages'),
+  messages?: [ string ](name='Messages'),
   requestId?: string(name='RequestId'),
   success?: boolean(name='Success'),
 }
@@ -1624,6 +2025,30 @@ model GetRuleDetailResponse = {
 async function getRuleDetail(request: GetRuleDetailRequest): GetRuleDetailResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetRuleDetail', 'POST', '/', 'json', false, 'json', request);
+}
+
+model GetRuleV4Request {
+  ruleId: long(name='RuleId', position='Body'),
+}
+
+model GetRuleV4ResponseBody = {
+  code?: string(name='Code'),
+  data?: RulesInfo(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  messages?: [ string ](name='Messages'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model GetRuleV4Response = {
+  headers: map[string]string(name='headers'),
+  body: GetRuleV4ResponseBody(name='body'),
+}
+
+async function getRuleV4(request: GetRuleV4Request): GetRuleV4Response {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetRuleV4', 'POST', '/', 'json', true, 'form', request);
 }
 
 model GetRulesCountListRequest {
@@ -2434,6 +2859,62 @@ model ListRulesResponse = {
 async function listRules(request: ListRulesRequest): ListRulesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListRules', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListRulesV4Request {
+  businessName?: string(name='BusinessName', position='Body'),
+  businessRange?: int32(name='BusinessRange', position='Body'),
+  categoryName?: string(name='CategoryName', position='Body'),
+  countTotal?: boolean(name='CountTotal', position='Body'),
+  createEmpid?: string(name='CreateEmpid', position='Body'),
+  createUserId?: long(name='CreateUserId', position='Body'),
+  currentPage?: int32(name='CurrentPage', position='Body'),
+  endTime?: string(name='EndTime', position='Body'),
+  lastUpdateEmpid?: string(name='LastUpdateEmpid', position='Body'),
+  pageNumber?: int32(name='PageNumber', position='Body'),
+  pageSize?: int32(name='PageSize', minimum=1, maximum=100, position='Body'),
+  requireInfos?: [ string ](name='RequireInfos', position='Body'),
+  rid?: long(name='Rid', position='Body'),
+  ruleIdOrRuleName?: string(name='RuleIdOrRuleName', position='Body'),
+  ruleScoreSingleType?: int32(name='RuleScoreSingleType', position='Body'),
+  ruleType?: int32(name='RuleType', position='Body'),
+  schemeId?: long(name='SchemeId', position='Body'),
+  sourceType?: int32(name='SourceType', position='Body'),
+  startTime?: string(name='StartTime', position='Body'),
+  status?: int32(name='Status', position='Body'),
+  type?: int32(name='Type', position='Body'),
+  typeName?: string(name='TypeName', position='Body'),
+  updateEndTime?: string(name='UpdateEndTime', position='Body'),
+  updateStartTime?: string(name='UpdateStartTime', position='Body'),
+  updateUserId?: long(name='UpdateUserId', position='Body'),
+}
+
+model ListRulesV4ResponseBody = {
+  businessType?: int32(name='BusinessType'),
+  code?: string(name='Code'),
+  count?: int32(name='Count'),
+  currentPage?: int32(name='CurrentPage'),
+  data?: [
+    RuleCountInfo
+  ](name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  messages?: [ string ](name='Messages'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+  totalCount?: int32(name='TotalCount'),
+}
+
+model ListRulesV4Response = {
+  headers: map[string]string(name='headers'),
+  body: ListRulesV4ResponseBody(name='body'),
+}
+
+async function listRulesV4(request: ListRulesV4Request): ListRulesV4Response {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListRulesV4', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ListSchemeTaskConfigRequest {
@@ -3302,6 +3783,33 @@ model UpdateRuleToSchemeResponse = {
 async function updateRuleToScheme(request: UpdateRuleToSchemeRequest): UpdateRuleToSchemeResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UpdateRuleToScheme', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UpdateRuleV4Request {
+  jsonStrForRule: string(name='JsonStrForRule', position='Body'),
+  ruleId?: long(name='RuleId', position='Body'),
+}
+
+model UpdateRuleV4ResponseBody = {
+  code?: string(name='Code'),
+  data?: long(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  messages?: {
+    message?: [ string ](name='Message')
+  }(name='Messages'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model UpdateRuleV4Response = {
+  headers: map[string]string(name='headers'),
+  body: UpdateRuleV4ResponseBody(name='body'),
+}
+
+async function updateRuleV4(request: UpdateRuleV4Request): UpdateRuleV4Response {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateRuleV4', 'POST', '/', 'json', true, 'form', request);
 }
 
 model UpdateSchemeTaskConfigRequest {
