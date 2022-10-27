@@ -56,7 +56,6 @@ async function addContainerApp(request: AddContainerAppRequest): AddContainerApp
 }
 
 model AddExistedNodesRequest {
-  clientToken?: string(name='ClientToken', position='Query'),
   clusterId: string(name='ClusterId', position='Query'),
   imageId: string(name='ImageId', position='Query'),
   imageOwnerAlias: string(name='ImageOwnerAlias', position='Query'),
@@ -86,6 +85,7 @@ async function addExistedNodes(request: AddExistedNodesRequest): AddExistedNodes
 model AddLocalNodesRequest {
   clusterId: string(name='ClusterId', position='Query'),
   nodes: string(name='Nodes', position='Query'),
+  queue?: string(name='Queue', position='Query'),
 }
 
 model AddLocalNodesResponseBody = {
@@ -298,18 +298,18 @@ async function applyNodes(request: ApplyNodesRequest): ApplyNodesResponse {
 model CreateClusterRequest {
   ecsOrder?: {
     compute: {
-        count: int32(name='Count', position=''),
-        instanceType: string(name='InstanceType', position=''),
+        count: int32(name='Count'),
+        instanceType: string(name='InstanceType'),
     }(name='Compute'),
     login: {
-        count: int32(name='Count', position=''),
-        instanceType: string(name='InstanceType', position=''),
+        count: int32(name='Count'),
+        instanceType: string(name='InstanceType'),
     }(name='Login'),
     manager: {
-        count?: int32(name='Count', position=''),
-        instanceType: string(name='InstanceType', position=''),
+        count?: int32(name='Count'),
+        instanceType: string(name='InstanceType'),
     }(name='Manager'),
-  }(name='EcsOrder'),
+  }(name='EcsOrder', position='Query'),
   accountType?: string(name='AccountType', position='Query'),
   additionalVolumes?: [ 
     {
@@ -323,6 +323,7 @@ model CreateClusterRequest {
         }
       ](name='Roles'),
       volumeId?: string(name='VolumeId'),
+      volumeMountOption?: string(name='VolumeMountOption'),
       volumeMountpoint?: string(name='VolumeMountpoint'),
       volumeProtocol?: string(name='VolumeProtocol'),
       volumeType?: string(name='VolumeType'),
@@ -343,6 +344,7 @@ model CreateClusterRequest {
   computeSpotStrategy?: string(name='ComputeSpotStrategy', position='Query'),
   deployMode?: string(name='DeployMode', position='Query'),
   description?: string(name='Description', position='Query'),
+  domain?: string(name='Domain', position='Query'),
   ecsChargeType?: string(name='EcsChargeType', position='Query'),
   ehpcVersion?: string(name='EhpcVersion', position='Query'),
   haEnable?: boolean(name='HaEnable', position='Query'),
@@ -376,8 +378,15 @@ model CreateClusterRequest {
   systemDiskLevel?: string(name='SystemDiskLevel', position='Query'),
   systemDiskSize?: int32(name='SystemDiskSize', position='Query'),
   systemDiskType?: string(name='SystemDiskType', position='Query'),
+  tag?: [ 
+    {
+      key?: string(name='Key', description='标签键'),
+      value?: string(name='Value', description='标签值'),
+    }
+  ](name='Tag', description='标签列表，最多包含20个子项', position='Query'),
   vSwitchId?: string(name='VSwitchId', position='Query'),
   volumeId?: string(name='VolumeId', position='Query'),
+  volumeMountOption?: string(name='VolumeMountOption', position='Query'),
   volumeMountpoint?: string(name='VolumeMountpoint', position='Query'),
   volumeProtocol?: string(name='VolumeProtocol', position='Query'),
   volumeType?: string(name='VolumeType', position='Query'),
@@ -483,9 +492,12 @@ async function createGWSInstance(request: CreateGWSInstanceRequest): CreateGWSIn
 model CreateHybridClusterRequest {
   ecsOrder?: {
     compute: {
-        instanceType: string(name='InstanceType', position=''),
+        instanceType: string(name='InstanceType'),
     }(name='Compute'),
-  }(name='EcsOrder'),
+    manager: {
+        instanceType?: string(name='InstanceType'),
+    }(name='Manager'),
+  }(name='EcsOrder', position='Query'),
   application?: [ 
     {
       tag?: string(name='Tag'),
@@ -508,6 +520,7 @@ model CreateHybridClusterRequest {
   nodes?: [ 
     {
       accountType?: string(name='AccountType'),
+      dir?: string(name='Dir'),
       hostName?: string(name='HostName'),
       ipAddress?: string(name='IpAddress'),
       role?: string(name='Role'),
@@ -695,10 +708,10 @@ async function deleteGWSInstance(request: DeleteGWSInstanceRequest): DeleteGWSIn
 }
 
 model DeleteImageRequest {
+  regionId?: string(name='RegionId', position='Host'),
   clusterId: string(name='ClusterId', position='Query'),
   containerType?: string(name='ContainerType', position='Query'),
   imageTag?: string(name='ImageTag', position='Query'),
-  regionId?: string(name='RegionId', position='Host'),
   repository: string(name='Repository', position='Query'),
 }
 
@@ -751,6 +764,27 @@ model DeleteJobsResponse = {
 async function deleteJobs(request: DeleteJobsRequest): DeleteJobsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteJobs', 'GET', '/', 'json', false, 'json', request);
+}
+
+model DeleteLocalImageRequest {
+  regionId: string(name='RegionId', position='Host'),
+  clusterId: string(name='ClusterId', position='Query'),
+  containerType: string(name='ContainerType', position='Query'),
+  imageName: string(name='ImageName', position='Query'),
+}
+
+model DeleteLocalImageResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model DeleteLocalImageResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteLocalImageResponseBody(name='body'),
+}
+
+async function deleteLocalImage(request: DeleteLocalImageRequest): DeleteLocalImageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteLocalImage', 'GET', '/', 'json', false, 'json', request);
 }
 
 model DeleteNodesRequest {
@@ -925,7 +959,7 @@ model DescribeClusterResponseBody = {
       onPremiseInfo?: [ 
       {
         hostName?: string(name='HostName'),
-        IP?: string(name='IP'),
+        ip?: string(name='IP'),
         type?: string(name='Type'),
       }
     ](name='OnPremiseInfo')
@@ -990,6 +1024,39 @@ model DescribeContainerAppResponse = {
 async function describeContainerApp(request: DescribeContainerAppRequest): DescribeContainerAppResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeContainerApp', 'GET', '/', 'json', false, 'json', request);
+}
+
+model DescribeEstackImageRequest {
+  pageNumber?: int32(name='PageNumber', position='Query'),
+  pageSize?: int32(name='PageSize', maximum=50, position='Query'),
+}
+
+model DescribeEstackImageResponseBody = {
+  imageList?: {
+    imageListInfo?: [ 
+    {
+      imageName?: string(name='ImageName'),
+      imageSize?: int32(name='ImageSize'),
+      imageType?: string(name='ImageType'),
+      imageUrl?: string(name='ImageUrl'),
+      recentUpdateTime?: string(name='RecentUpdateTime'),
+    }
+  ](name='ImageListInfo')
+  }(name='ImageList'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  totalCount?: int32(name='TotalCount'),
+}
+
+model DescribeEstackImageResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeEstackImageResponseBody(name='body'),
+}
+
+async function describeEstackImage(request: DescribeEstackImageRequest): DescribeEstackImageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeEstackImage', 'GET', '/', 'json', false, 'json', request);
 }
 
 model DescribeGWSClusterPolicyRequest {
@@ -1137,10 +1204,10 @@ async function describeGWSInstances(request: DescribeGWSInstancesRequest): Descr
 }
 
 model DescribeImageRequest {
+  regionId: string(name='RegionId', position='Host'),
   clusterId: string(name='ClusterId', position='Query'),
   containerType?: string(name='ContainerType', position='Query'),
   imageTag?: string(name='ImageTag', position='Query'),
-  regionId: string(name='RegionId', position='Host'),
   repository: string(name='Repository', position='Query'),
 }
 
@@ -1452,7 +1519,9 @@ model GetAutoScaleConfigResponseBody = {
       ](name='InstanceTypeInfo')
       }(name='InstanceTypes'),
       maxNodesInQueue?: int32(name='MaxNodesInQueue'),
+      maxNodesPerCycle?: long(name='MaxNodesPerCycle'),
       minNodesInQueue?: int32(name='MinNodesInQueue'),
+      minNodesPerCycle?: long(name='MinNodesPerCycle'),
       queueImageId?: string(name='QueueImageId'),
       queueName?: string(name='QueueName'),
       resourceGroupId?: string(name='ResourceGroupId'),
@@ -1591,6 +1660,27 @@ async function getClusterVolumes(request: GetClusterVolumesRequest): GetClusterV
   return @handler.do('RPC', 'GetClusterVolumes', 'GET', '/', 'json', false, 'json', request);
 }
 
+model GetCommonImageRequest {
+  clusterId?: string(name='ClusterId', position='Query'),
+  containType?: string(name='ContainType', position='Query'),
+  imageName?: string(name='ImageName', position='Query'),
+  regionId?: string(name='RegionId', position='Query'),
+}
+
+model GetCommonImageResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model GetCommonImageResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetCommonImageResponseBody(name='body'),
+}
+
+async function getCommonImage(request: GetCommonImageRequest): GetCommonImageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetCommonImage', 'GET', '/', 'json', false, 'json', request);
+}
+
 model GetGWSConnectTicketRequest {
   appName?: string(name='AppName', position='Query'),
   instanceId: string(name='InstanceId', position='Query'),
@@ -1652,6 +1742,31 @@ async function getIfEcsTypeSupportHtConfig(request: GetIfEcsTypeSupportHtConfigR
   return @handler.do('RPC', 'GetIfEcsTypeSupportHtConfig', 'GET', '/', 'json', false, 'json', request);
 }
 
+model GetPostScriptsRequest {
+  clusterId: string(name='ClusterId', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+}
+
+model GetPostScriptsResponseBody = {
+  postInstallScripts?: [ 
+    {
+      args?: string(name='Args'),
+      url?: string(name='Url'),
+    }
+  ](name='PostInstallScripts'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model GetPostScriptsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetPostScriptsResponseBody(name='body'),
+}
+
+async function getPostScripts(request: GetPostScriptsRequest): GetPostScriptsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetPostScripts', 'GET', '/', 'json', false, 'json', request);
+}
+
 model GetSchedulerInfoRequest {
   clusterId: string(name='ClusterId', position='Query'),
   regionId: string(name='RegionId', position='Query'),
@@ -1680,6 +1795,30 @@ model GetSchedulerInfoResponse = {
 async function getSchedulerInfo(request: GetSchedulerInfoRequest): GetSchedulerInfoResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetSchedulerInfo', 'GET', '/', 'json', false, 'json', request);
+}
+
+model GetUserImageRequest {
+  regionId: string(name='RegionId', position='Host'),
+  clusterId: string(name='ClusterId', position='Query'),
+  containerType: string(name='ContainerType', position='Query'),
+  imageName: string(name='ImageName', position='Query'),
+  imagePath: string(name='ImagePath', position='Query'),
+  OSSBucket: string(name='OSSBucket', position='Query'),
+  OSSEndPoint: string(name='OSSEndPoint', position='Query'),
+}
+
+model GetUserImageResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model GetUserImageResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetUserImageResponseBody(name='body'),
+}
+
+async function getUserImage(request: GetUserImageRequest): GetUserImageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetUserImage', 'GET', '/', 'json', false, 'json', request);
 }
 
 model GetVisualServiceStatusRequest {
@@ -1717,6 +1856,37 @@ model InitializeEHPCResponse = {
 async function initializeEHPC(request: InitializeEHPCRequest): InitializeEHPCResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'InitializeEHPC', 'GET', '/', 'json', false, 'json', request);
+}
+
+model InspectImageRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  clusterId?: string(name='ClusterId', position='Query'),
+  containerType?: string(name='ContainerType', position='Query'),
+  imageName?: string(name='ImageName', position='Query'),
+}
+
+model InspectImageResponseBody = {
+  imageStatus?: {
+    imageInspectInfo?: {
+      bootStrap?: string(name='BootStrap'),
+      buildArch?: string(name='BuildArch'),
+      buildDate?: string(name='BuildDate'),
+      containerVersion?: string(name='ContainerVersion'),
+      defFrom?: string(name='DefFrom'),
+      schemaVersion?: string(name='SchemaVersion'),
+    }(name='ImageInspectInfo'),
+  }(name='ImageStatus'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model InspectImageResponse = {
+  headers: map[string]string(name='headers'),
+  body: InspectImageResponseBody(name='body'),
+}
+
+async function inspectImage(request: InspectImageRequest): InspectImageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'InspectImage', 'GET', '/', 'json', false, 'json', request);
 }
 
 model InstallSoftwareRequest {
@@ -2045,6 +2215,56 @@ async function listCommands(request: ListCommandsRequest): ListCommandsResponse 
   return @handler.do('RPC', 'ListCommands', 'GET', '/', 'json', false, 'json', request);
 }
 
+model ListCommunityImagesRequest {
+  baseOsTag?: string(name='BaseOsTag', position='Query'),
+  clusterId?: string(name='ClusterId', position='Query'),
+  instanceType?: string(name='InstanceType', position='Query'),
+}
+
+model ListCommunityImagesResponseBody = {
+  images?: {
+    imageInfo?: [ 
+    {
+      baseOsTag?: {
+        architecture?: string(name='Architecture'),
+        osTag?: string(name='OsTag'),
+        platform?: string(name='Platform'),
+        version?: string(name='Version'),
+      }(name='BaseOsTag'),
+      description?: string(name='Description'),
+      imageId?: string(name='ImageId'),
+      imageName?: string(name='ImageName'),
+      imageOwnerAlias?: string(name='ImageOwnerAlias'),
+      osTag?: {
+        architecture?: string(name='Architecture'),
+        baseOsTag?: string(name='BaseOsTag'),
+        osTag?: string(name='OsTag'),
+        platform?: string(name='Platform'),
+        version?: string(name='Version'),
+      }(name='OsTag'),
+      postInstallScript?: string(name='PostInstallScript'),
+      pricingCycle?: string(name='PricingCycle'),
+      productCode?: string(name='ProductCode'),
+      size?: int32(name='Size'),
+      skuCode?: string(name='SkuCode'),
+      status?: string(name='Status'),
+      uid?: string(name='Uid'),
+    }
+  ](name='ImageInfo')
+  }(name='Images'),
+  requestId?: string(name='RequestId'),
+}
+
+model ListCommunityImagesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListCommunityImagesResponseBody(name='body'),
+}
+
+async function listCommunityImages(request: ListCommunityImagesRequest): ListCommunityImagesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListCommunityImages', 'GET', '/', 'json', false, 'json', request);
+}
+
 model ListContainerAppsRequest {
   pageNumber?: int32(name='PageNumber', position='Query'),
   pageSize?: int32(name='PageSize', maximum=50, position='Query'),
@@ -2274,6 +2494,7 @@ model ListFileSystemWithMountTargetsResponseBody = {
       regionId?: string(name='RegionId'),
       status?: string(name='Status'),
       storageType?: string(name='StorageType'),
+      vpcId?: string(name='VpcId'),
     }
   ](name='FileSystems')
   }(name='FileSystemList'),
@@ -2524,6 +2745,67 @@ async function listJobs(request: ListJobsRequest): ListJobsResponse {
   return @handler.do('RPC', 'ListJobs', 'GET', '/', 'json', false, 'json', request);
 }
 
+model ListJobsWithFiltersRequest {
+  async?: boolean(name='Async', position='Query'),
+  clusterId: string(name='ClusterId', position='Query'),
+  createTimeEnd?: string(name='CreateTimeEnd', position='Query'),
+  createTimeStart?: string(name='CreateTimeStart', position='Query'),
+  executeOrder?: string(name='ExecuteOrder', position='Query'),
+  jobName?: string(name='JobName', position='Query'),
+  jobStatus?: string(name='JobStatus', position='Query'),
+  nodes?: [ string ](name='Nodes', position='Query'),
+  pageNumber?: long(name='PageNumber', position='Query'),
+  pageSize?: long(name='PageSize', position='Query'),
+  pendOrder?: string(name='PendOrder', position='Query'),
+  queues?: [ string ](name='Queues', position='Query'),
+  regionId?: string(name='RegionId', position='Query'),
+  submitOrder?: string(name='SubmitOrder', position='Query'),
+  users?: [ string ](name='Users', position='Query'),
+}
+
+model ListJobsWithFiltersResponseBody = {
+  jobs?: [ 
+    {
+      arrayRequest?: string(name='ArrayRequest'),
+      comment?: string(name='Comment'),
+      id?: string(name='Id'),
+      lastModifyTime?: string(name='LastModifyTime'),
+      name?: string(name='Name'),
+      nodeList?: string(name='NodeList'),
+      owner?: string(name='Owner'),
+      priority?: string(name='Priority'),
+      queue?: string(name='Queue'),
+      rerunable?: boolean(name='Rerunable'),
+      resources?: {
+        cores?: long(name='Cores'),
+        nodes?: long(name='Nodes'),
+      }(name='Resources'),
+      shellPath?: string(name='ShellPath'),
+      startTime?: string(name='StartTime'),
+      state?: string(name='State'),
+      stderr?: string(name='Stderr'),
+      stdout?: string(name='Stdout'),
+      submitTime?: string(name='SubmitTime'),
+      variableList?: string(name='VariableList'),
+    }
+  ](name='Jobs', description='Jobs'),
+  pageNumber?: long(name='PageNumber', description='PageNumber'),
+  pageSize?: long(name='PageSize', description='PageSize'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  success?: boolean(name='Success', description='Success'),
+  totalCount?: int32(name='TotalCount', description='TotalCount本次请求条件下的数据总量，此参数为可选参数，默认可不返回'),
+}
+
+model ListJobsWithFiltersResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListJobsWithFiltersResponseBody(name='body'),
+}
+
+async function listJobsWithFilters(request: ListJobsWithFiltersRequest): ListJobsWithFiltersResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListJobsWithFilters', 'GET', '/', 'json', false, 'json', request);
+}
+
 model ListNodesRequest {
   clusterId: string(name='ClusterId', position='Query'),
   filter?: string(name='Filter', position='Query'),
@@ -2598,6 +2880,7 @@ async function listNodes(request: ListNodesRequest): ListNodesResponse {
 }
 
 model ListNodesByQueueRequest {
+  async?: boolean(name='Async', position='Query'),
   clusterId: string(name='ClusterId', position='Query'),
   pageNumber?: int32(name='PageNumber', position='Query'),
   pageSize?: int32(name='PageSize', maximum=100, position='Query'),
@@ -2732,6 +3015,7 @@ async function listPreferredEcsTypes(request: ListPreferredEcsTypesRequest): Lis
 }
 
 model ListQueuesRequest {
+  async?: boolean(name='Async', position='Query'),
   clusterId: string(name='ClusterId', position='Query'),
 }
 
@@ -2862,6 +3146,44 @@ async function listSoftwares(request: ListSoftwaresRequest): ListSoftwaresRespon
   return @handler.do('RPC', 'ListSoftwares', 'GET', '/', 'json', false, 'json', request);
 }
 
+model ListTagResourcesRequest {
+  nextToken?: string(name='NextToken', description='下一个查询开始Token', position='Query'),
+  regionId: string(name='RegionId', description='地域', position='Query'),
+  resourceId?: [ string ](name='ResourceId', description='资源ID,最多 50个子项', position='Query'),
+  resourceType: string(name='ResourceType', description='资源类型', position='Query'),
+  tag?: [ 
+    {
+      key?: string(name='Key', description='标签键'),
+      value?: string(name='Value', description='标签值'),
+    }
+  ](name='Tag', description='标签列表，最多包含20个子项', position='Query'),
+}
+
+model ListTagResourcesResponseBody = {
+  nextToken?: string(name='NextToken', description='下一个查询开始Token，NextToken为空说明没有下一个'),
+  requestId?: string(name='RequestId'),
+  tagResources?: {
+    tagResource?: [ 
+    {
+      resourceId?: string(name='ResourceId', description='资源ID'),
+      resourceType?: string(name='ResourceType', description='资源类型'),
+      tagKey?: string(name='TagKey', description='标签键'),
+      tagValue?: string(name='TagValue', description='标签值'),
+    }
+  ](name='TagResource')
+  }(name='TagResources', description='资源列表'),
+}
+
+model ListTagResourcesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListTagResourcesResponseBody(name='body'),
+}
+
+async function listTagResources(request: ListTagResourcesRequest): ListTagResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListTagResources', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListTasksRequest {
   archived?: boolean(name='Archived', position='Query'),
   clusterId: string(name='ClusterId', position='Query'),
@@ -2900,6 +3222,35 @@ async function listTasks(request: ListTasksRequest): ListTasksResponse {
   return @handler.do('RPC', 'ListTasks', 'GET', '/', 'json', false, 'json', request);
 }
 
+model ListUpgradeClientsRequest {
+  clusterId: string(name='ClusterId', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+}
+
+model ListUpgradeClientsResponseBody = {
+  clientRecords?: [ 
+    {
+      newVersion?: string(name='NewVersion'),
+      oldVersion?: string(name='OldVersion'),
+      subUid?: string(name='SubUid'),
+      updateTime?: string(name='UpdateTime'),
+    }
+  ](name='ClientRecords'),
+  currentVersion?: string(name='CurrentVersion'),
+  latestVersion?: string(name='LatestVersion'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model ListUpgradeClientsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListUpgradeClientsResponseBody(name='body'),
+}
+
+async function listUpgradeClients(request: ListUpgradeClientsRequest): ListUpgradeClientsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListUpgradeClients', 'GET', '/', 'json', false, 'json', request);
+}
+
 model ListUsersRequest {
   clusterId: string(name='ClusterId', position='Query'),
   pageNumber?: int32(name='PageNumber', position='Query'),
@@ -2930,6 +3281,43 @@ model ListUsersResponse = {
 async function listUsers(request: ListUsersRequest): ListUsersResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListUsers', 'GET', '/', 'json', false, 'json', request);
+}
+
+model ListUsersAsyncRequest {
+  asyncId?: string(name='AsyncId', position='Query'),
+  clusterId: string(name='ClusterId', position='Query'),
+  pageNumber?: int32(name='PageNumber', position='Query'),
+  pageSize?: int32(name='PageSize', maximum=50, position='Query'),
+}
+
+model ListUsersAsyncResponseBody = {
+  asyncId?: string(name='AsyncId'),
+  asyncStatus?: string(name='AsyncStatus'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  totalCount?: int32(name='TotalCount'),
+  users?: {
+    userInfo?: [ 
+    {
+      addTime?: string(name='AddTime'),
+      group?: string(name='Group'),
+      groupId?: string(name='GroupId'),
+      name?: string(name='Name'),
+      userId?: string(name='UserId'),
+    }
+  ](name='UserInfo')
+  }(name='Users'),
+}
+
+model ListUsersAsyncResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListUsersAsyncResponseBody(name='body'),
+}
+
+async function listUsersAsync(request: ListUsersAsyncRequest): ListUsersAsyncResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListUsersAsync', 'GET', '/', 'json', false, 'json', request);
 }
 
 model ListVolumesRequest {
@@ -3025,6 +3413,7 @@ async function modifyContainerAppAttributes(request: ModifyContainerAppAttribute
 }
 
 model ModifyImageGatewayConfigRequest {
+  regionId?: string(name='RegionId', position='Host'),
   clusterId: string(name='ClusterId', position='Query'),
   DBPassword?: string(name='DBPassword', position='Query'),
   DBServerInfo?: string(name='DBServerInfo', position='Query'),
@@ -3033,7 +3422,6 @@ model ModifyImageGatewayConfigRequest {
   defaultRepoLocation?: string(name='DefaultRepoLocation', position='Query'),
   imageExpirationTimeout?: string(name='ImageExpirationTimeout', position='Query'),
   pullUpdateTimeout?: int32(name='PullUpdateTimeout', position='Query'),
-  regionId?: string(name='RegionId', position='Host'),
   repo?: [ 
     {
       auth?: string(name='Auth'),
@@ -3334,7 +3722,9 @@ model SetAutoScaleConfigRequest {
         }
       ](name='InstanceTypes'),
       maxNodesInQueue?: int32(name='MaxNodesInQueue'),
+      maxNodesPerCycle?: long(name='MaxNodesPerCycle'),
       minNodesInQueue?: int32(name='MinNodesInQueue'),
+      minNodesPerCycle?: long(name='MinNodesPerCycle'),
       queueImageId?: string(name='QueueImageId'),
       queueName?: string(name='QueueName'),
       spotPriceLimit?: float(name='SpotPriceLimit'),
@@ -3427,6 +3817,31 @@ async function setGWSInstanceUser(request: SetGWSInstanceUserRequest): SetGWSIns
   return @handler.do('RPC', 'SetGWSInstanceUser', 'GET', '/', 'json', false, 'json', request);
 }
 
+model SetPostScriptsRequest {
+  clusterId: string(name='ClusterId', position='Query'),
+  postInstallScripts?: [ 
+    {
+      args?: string(name='Args'),
+      url?: string(name='Url'),
+    }
+  ](name='PostInstallScripts', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+}
+
+model SetPostScriptsResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model SetPostScriptsResponse = {
+  headers: map[string]string(name='headers'),
+  body: SetPostScriptsResponseBody(name='body'),
+}
+
+async function setPostScripts(request: SetPostScriptsRequest): SetPostScriptsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SetPostScripts', 'GET', '/', 'json', false, 'json', request);
+}
+
 model SetQueueRequest {
   clusterId: string(name='ClusterId', position='Query'),
   node: [ 
@@ -3465,6 +3880,7 @@ model SetSchedulerInfoRequest {
       resourceLimit?: [ 
         {
           cpus?: int32(name='Cpus'),
+          maxJobs?: int32(name='MaxJobs'),
           mem?: string(name='Mem'),
           nodes?: int32(name='Nodes'),
           queue?: string(name='Queue'),
@@ -3472,6 +3888,8 @@ model SetSchedulerInfoRequest {
         }
       ](name='ResourceLimit'),
       schedInterval?: int32(name='SchedInterval'),
+      schedMaxJobs?: int32(name='SchedMaxJobs'),
+      schedMaxQueuedJobs?: int32(name='SchedMaxQueuedJobs'),
     }
   ](name='PbsInfo', position='Query'),
   regionId: string(name='RegionId', position='Query'),
@@ -3729,9 +4147,52 @@ async function submitJob(request: SubmitJobRequest): SubmitJobResponse {
   return @handler.do('RPC', 'SubmitJob', 'GET', '/', 'json', false, 'json', request);
 }
 
-model SyncUsersRequest {
+model SummaryImagesRequest {
+  regionId: string(name='RegionId', position='Host'),
+  clusterId: string(name='ClusterId', position='Query'),
+  containerType: string(name='ContainerType', position='Query'),
+}
+
+model SummaryImagesResponseBody = {
+  imagesName?: string(name='ImagesName'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model SummaryImagesResponse = {
+  headers: map[string]string(name='headers'),
+  body: SummaryImagesResponseBody(name='body'),
+}
+
+async function summaryImages(request: SummaryImagesRequest): SummaryImagesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SummaryImages', 'GET', '/', 'json', false, 'json', request);
+}
+
+model SummaryImagesInfoRequest {
+  regionId?: string(name='RegionId', position='Host'),
   clusterId?: string(name='ClusterId', position='Query'),
-  regionId?: string(name='RegionId', position='Query'),
+  containerType?: string(name='ContainerType', position='Query'),
+  imageName?: string(name='ImageName', position='Query'),
+}
+
+model SummaryImagesInfoResponseBody = {
+  imagesInfo?: string(name='ImagesInfo'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model SummaryImagesInfoResponse = {
+  headers: map[string]string(name='headers'),
+  body: SummaryImagesInfoResponseBody(name='body'),
+}
+
+async function summaryImagesInfo(request: SummaryImagesInfoRequest): SummaryImagesInfoResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SummaryImagesInfo', 'GET', '/', 'json', false, 'json', request);
+}
+
+model SyncUsersRequest {
+  clusterId: string(name='ClusterId', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
 }
 
 model SyncUsersResponseBody = {
@@ -3746,6 +4207,54 @@ model SyncUsersResponse = {
 async function syncUsers(request: SyncUsersRequest): SyncUsersResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'SyncUsers', 'GET', '/', 'json', false, 'json', request);
+}
+
+model TagResourcesRequest {
+  regionId: string(name='RegionId', description='地域', position='Query'),
+  resourceId: [ string ](name='ResourceId', description='资源ID,最多 50个子项', position='Query'),
+  resourceType: string(name='ResourceType', description='资源类型', position='Query'),
+  tag: [ 
+    {
+      key?: string(name='Key', description='标签键'),
+      value?: string(name='Value', description='标签值'),
+    }
+  ](name='Tag', description='标签列表，最多包含20个子项', position='Query'),
+}
+
+model TagResourcesResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model TagResourcesResponse = {
+  headers: map[string]string(name='headers'),
+  body: TagResourcesResponseBody(name='body'),
+}
+
+async function tagResources(request: TagResourcesRequest): TagResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'TagResources', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UnTagResourcesRequest {
+  all?: boolean(name='All', position='Query'),
+  regionId?: string(name='RegionId', position='Query'),
+  resourceId: [ string ](name='ResourceId', position='Query'),
+  resourceType: string(name='ResourceType', position='Query'),
+  tagKey?: [ string ](name='TagKey', position='Query'),
+}
+
+model UnTagResourcesResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model UnTagResourcesResponse = {
+  headers: map[string]string(name='headers'),
+  body: UnTagResourcesResponseBody(name='body'),
+}
+
+async function unTagResources(request: UnTagResourcesRequest): UnTagResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UnTagResources', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UninstallSoftwareRequest {
