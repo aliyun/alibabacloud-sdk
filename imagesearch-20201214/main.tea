@@ -3,7 +3,6 @@
  */
 import Util;
 import OSS;
-import RPC;
 import OpenPlatform;
 import OSSUtil;
 import FileForm;
@@ -47,12 +46,12 @@ model AddImageRequest {
 }
 
 model AddImageAdvanceRequest {
-  picContentObject: readable(name='PicContentObject'),
   categoryId?: int32(name='CategoryId'),
   crop?: boolean(name='Crop'),
   customContent?: string(name='CustomContent'),
   instanceName?: string(name='InstanceName'),
   intAttr?: int32(name='IntAttr'),
+  picContentObject?: readable(name='PicContent'),
   picName?: string(name='PicName'),
   productId?: string(name='ProductId'),
   region?: string(name='Region'),
@@ -72,12 +71,13 @@ model AddImageResponseBody = {
 
 model AddImageResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: AddImageResponseBody(name='body'),
 }
 
 async function addImageWithOptions(request: AddImageRequest, runtime: Util.RuntimeOptions): AddImageResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.categoryId)) {
     body['CategoryId'] = request.categoryId;
   }
@@ -108,7 +108,6 @@ async function addImageWithOptions(request: AddImageRequest, runtime: Util.Runti
   if (!Util.isUnset(request.strAttr)) {
     body['StrAttr'] = request.strAttr;
   }
-
   var req = new OpenApi.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
@@ -144,7 +143,7 @@ async function addImageAdvance(request: AddImageAdvanceRequest, runtime: Util.Ru
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -175,31 +174,31 @@ async function addImageAdvance(request: AddImageAdvanceRequest, runtime: Util.Ru
   var addImageReq = new AddImageRequest{};
   OpenApiUtil.convert(request, addImageReq);
 
-  if(!Util.isUnset(request.picContentObject)){
+  if(!Util.isUnset(request.picContentObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.picContentObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    addImageReq.picContent =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    addImageReq.picContent = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var addImageResp = addImageWithOptions(addImageReq, runtime);
   return addImageResp;
@@ -223,12 +222,13 @@ model DeleteImageResponseBody = {
 
 model DeleteImageResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteImageResponseBody(name='body'),
 }
 
 async function deleteImageWithOptions(request: DeleteImageRequest, runtime: Util.RuntimeOptions): DeleteImageResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.instanceName)) {
     body['InstanceName'] = request.instanceName;
   }
@@ -238,7 +238,6 @@ async function deleteImageWithOptions(request: DeleteImageRequest, runtime: Util
   if (!Util.isUnset(request.productId)) {
     body['ProductId'] = request.productId;
   }
-
   var req = new OpenApi.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
@@ -282,13 +281,16 @@ model DetailResponseBody = {
 
 model DetailResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DetailResponseBody(name='body'),
 }
 
 async function detailWithOptions(request: DetailRequest, runtime: Util.RuntimeOptions): DetailResponse {
   Util.validateModel(request);
   var query = {};
-  query['InstanceName'] = request.instanceName;
+  if (!Util.isUnset(request.instanceName)) {
+    query['InstanceName'] = request.instanceName;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -326,13 +328,16 @@ model DumpMetaResponseBody = {
 
 model DumpMetaResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DumpMetaResponseBody(name='body'),
 }
 
 async function dumpMetaWithOptions(request: DumpMetaRequest, runtime: Util.RuntimeOptions): DumpMetaResponse {
   Util.validateModel(request);
   var query = {};
-  query['InstanceName'] = request.instanceName;
+  if (!Util.isUnset(request.instanceName)) {
+    query['InstanceName'] = request.instanceName;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -384,16 +389,25 @@ model DumpMetaListResponseBody = {
 
 model DumpMetaListResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DumpMetaListResponseBody(name='body'),
 }
 
 async function dumpMetaListWithOptions(request: DumpMetaListRequest, runtime: Util.RuntimeOptions): DumpMetaListResponse {
   Util.validateModel(request);
   var query = {};
-  query['Id'] = request.id;
-  query['InstanceName'] = request.instanceName;
-  query['PageNumber'] = request.pageNumber;
-  query['PageSize'] = request.pageSize;
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.instanceName)) {
+    query['InstanceName'] = request.instanceName;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -434,16 +448,25 @@ model IncreaseInstanceResponseBody = {
 
 model IncreaseInstanceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: IncreaseInstanceResponseBody(name='body'),
 }
 
 async function increaseInstanceWithOptions(request: IncreaseInstanceRequest, runtime: Util.RuntimeOptions): IncreaseInstanceResponse {
   Util.validateModel(request);
   var query = {};
-  query['BucketName'] = request.bucketName;
-  query['CallbackAddress'] = request.callbackAddress;
-  query['InstanceName'] = request.instanceName;
-  query['Path'] = request.path;
+  if (!Util.isUnset(request.bucketName)) {
+    query['BucketName'] = request.bucketName;
+  }
+  if (!Util.isUnset(request.callbackAddress)) {
+    query['CallbackAddress'] = request.callbackAddress;
+  }
+  if (!Util.isUnset(request.instanceName)) {
+    query['InstanceName'] = request.instanceName;
+  }
+  if (!Util.isUnset(request.path)) {
+    query['Path'] = request.path;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -502,18 +525,31 @@ model IncreaseListResponseBody = {
 
 model IncreaseListResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: IncreaseListResponseBody(name='body'),
 }
 
 async function increaseListWithOptions(request: IncreaseListRequest, runtime: Util.RuntimeOptions): IncreaseListResponse {
   Util.validateModel(request);
   var query = {};
-  query['BucketName'] = request.bucketName;
-  query['Id'] = request.id;
-  query['InstanceName'] = request.instanceName;
-  query['PageNumber'] = request.pageNumber;
-  query['PageSize'] = request.pageSize;
-  query['Path'] = request.path;
+  if (!Util.isUnset(request.bucketName)) {
+    query['BucketName'] = request.bucketName;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.instanceName)) {
+    query['InstanceName'] = request.instanceName;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.path)) {
+    query['Path'] = request.path;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -543,7 +579,6 @@ model SearchImageByNameRequest {
   num?: int32(name='Num'),
   picName?: string(name='PicName'),
   productId?: string(name='ProductId'),
-  regionId?: string(name='RegionId'),
   start?: int32(name='Start'),
 }
 
@@ -588,12 +623,13 @@ model SearchImageByNameResponseBody = {
 
 model SearchImageByNameResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: SearchImageByNameResponseBody(name='body'),
 }
 
 async function searchImageByNameWithOptions(request: SearchImageByNameRequest, runtime: Util.RuntimeOptions): SearchImageByNameResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.categoryId)) {
     body['CategoryId'] = request.categoryId;
   }
@@ -615,7 +651,6 @@ async function searchImageByNameWithOptions(request: SearchImageByNameRequest, r
   if (!Util.isUnset(request.start)) {
     body['Start'] = request.start;
   }
-
   var req = new OpenApi.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
@@ -646,19 +681,17 @@ model SearchImageByPicRequest {
   num?: int32(name='Num'),
   picContent?: string(name='PicContent'),
   region?: string(name='Region'),
-  regionId?: string(name='RegionId'),
   start?: int32(name='Start'),
 }
 
 model SearchImageByPicAdvanceRequest {
-  picContentObject: readable(name='PicContentObject'),
   categoryId?: int32(name='CategoryId'),
   crop?: boolean(name='Crop'),
   filter?: string(name='Filter'),
   instanceName?: string(name='InstanceName'),
   num?: int32(name='Num'),
+  picContentObject?: readable(name='PicContent'),
   region?: string(name='Region'),
-  regionId?: string(name='RegionId'),
   start?: int32(name='Start'),
 }
 
@@ -703,12 +736,13 @@ model SearchImageByPicResponseBody = {
 
 model SearchImageByPicResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: SearchImageByPicResponseBody(name='body'),
 }
 
 async function searchImageByPicWithOptions(request: SearchImageByPicRequest, runtime: Util.RuntimeOptions): SearchImageByPicResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.categoryId)) {
     body['CategoryId'] = request.categoryId;
   }
@@ -733,7 +767,6 @@ async function searchImageByPicWithOptions(request: SearchImageByPicRequest, run
   if (!Util.isUnset(request.start)) {
     body['Start'] = request.start;
   }
-
   var req = new OpenApi.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
@@ -769,7 +802,7 @@ async function searchImageByPicAdvance(request: SearchImageByPicAdvanceRequest, 
   if(Util.isUnset(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new RPC.Config{
+  var authConfig = new OpenApi.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -800,31 +833,31 @@ async function searchImageByPicAdvance(request: SearchImageByPicAdvanceRequest, 
   var searchImageByPicReq = new SearchImageByPicRequest{};
   OpenApiUtil.convert(request, searchImageByPicReq);
 
-  if(!Util.isUnset(request.picContentObject)){
+  if(!Util.isUnset(request.picContentObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
     ossClient = new OSS(ossConfig);
 
     fileObj = new FileForm.FileField{
-      filename = authResponse.objectKey,
+      filename = authResponse.body.objectKey,
       content = request.picContentObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
       file = fileObj,
       successActionStatus = '201',
     };
     uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
+      bucketName = authResponse.body.bucket,
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    searchImageByPicReq.picContent =   `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    searchImageByPicReq.picContent = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var searchImageByPicResp = searchImageByPicWithOptions(searchImageByPicReq, runtime);
   return searchImageByPicResp;
@@ -841,19 +874,20 @@ model UpdateImageRequest {
 
 model UpdateImageResponseBody = {
   code?: int32(name='Code'),
-  message?: string(name='Message', description='Id of the request'),
+  message?: string(name='Message'),
   requestId?: string(name='RequestId'),
   success?: boolean(name='Success'),
 }
 
 model UpdateImageResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: UpdateImageResponseBody(name='body'),
 }
 
 async function updateImageWithOptions(request: UpdateImageRequest, runtime: Util.RuntimeOptions): UpdateImageResponse {
   Util.validateModel(request);
-  var body : map[string]any= {};
+  var body : map[string]any = {};
   if (!Util.isUnset(request.customContent)) {
     body['CustomContent'] = request.customContent;
   }
@@ -872,7 +906,6 @@ async function updateImageWithOptions(request: UpdateImageRequest, runtime: Util
   if (!Util.isUnset(request.strAttr)) {
     body['StrAttr'] = request.strAttr;
   }
-
   var req = new OpenApi.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
