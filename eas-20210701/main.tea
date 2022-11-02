@@ -45,6 +45,17 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model Group {
+  accessToken?: string(name='AccessToken'),
+  clusterId?: string(name='ClusterId'),
+  createTime?: string(name='CreateTime'),
+  internetEndpoint?: string(name='InternetEndpoint'),
+  intranetEndpoint?: string(name='IntranetEndpoint'),
+  name?: string(name='Name'),
+  queueService?: string(name='QueueService'),
+  updateTime?: string(name='UpdateTime'),
+}
+
 model Instance {
   hostIP?: string(name='HostIP'),
   hostName?: string(name='HostName'),
@@ -78,12 +89,14 @@ model Resource {
 }
 
 model ResourceInstance {
+  arch?: string(name='Arch'),
   autoRenewal?: boolean(name='AutoRenewal'),
   chargeType?: string(name='ChargeType'),
   createTime?: string(name='CreateTime'),
   expiredTime?: string(name='ExpiredTime'),
   instanceCpuCount?: int32(name='InstanceCpuCount'),
   instanceGpuCount?: int32(name='InstanceGpuCount'),
+  instanceGpuMemory?: string(name='InstanceGpuMemory'),
   instanceId?: string(name='InstanceId'),
   instanceIp?: string(name='InstanceIp'),
   instanceMemory?: string(name='InstanceMemory'),
@@ -93,6 +106,8 @@ model ResourceInstance {
   instanceUsedCpu?: float(name='InstanceUsedCpu'),
   instanceUsedGpu?: int32(name='InstanceUsedGpu'),
   instanceUsedMemory?: string(name='InstanceUsedMemory'),
+  region?: string(name='Region'),
+  zone?: string(name='Zone'),
 }
 
 model ResourceInstanceWorker {
@@ -132,6 +147,8 @@ model Service {
   requestId?: string(name='RequestId'),
   resource?: string(name='Resource'),
   resourceAlias?: string(name='ResourceAlias'),
+  role?: string(name='Role'),
+  roleAttrs?: string(name='RoleAttrs'),
   runningInstance?: int32(name='RunningInstance'),
   serviceConfig?: string(name='ServiceConfig'),
   serviceGroup?: string(name='ServiceGroup'),
@@ -953,6 +970,7 @@ model DescribeBenchmarkTaskResponseBody = {
   availableAgent?: long(name='AvailableAgent'),
   callerUid?: string(name='CallerUid'),
   desiredAgent?: long(name='DesiredAgent'),
+  endpoint?: string(name='Endpoint'),
   message?: string(name='Message'),
   parentUid?: string(name='ParentUid'),
   reason?: string(name='Reason'),
@@ -994,7 +1012,12 @@ async function describeBenchmarkTaskWithOptions(ClusterId: string, TaskName: str
   return callApi(params, req, runtime);
 }
 
+model DescribeBenchmarkTaskReportRequest {
+  reportType?: string(name='ReportType'),
+}
+
 model DescribeBenchmarkTaskReportResponseBody = {
+  data?: any(name='Data'),
   reportUrl?: string(name='ReportUrl'),
   requestId?: string(name='RequestId'),
 }
@@ -1005,21 +1028,58 @@ model DescribeBenchmarkTaskReportResponse = {
   body: DescribeBenchmarkTaskReportResponseBody(name='body'),
 }
 
-async function describeBenchmarkTaskReport(ClusterId: string, TaskName: string): DescribeBenchmarkTaskReportResponse {
+async function describeBenchmarkTaskReport(ClusterId: string, TaskName: string, request: DescribeBenchmarkTaskReportRequest): DescribeBenchmarkTaskReportResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return describeBenchmarkTaskReportWithOptions(ClusterId, TaskName, headers, runtime);
+  return describeBenchmarkTaskReportWithOptions(ClusterId, TaskName, request, headers, runtime);
 }
 
-async function describeBenchmarkTaskReportWithOptions(ClusterId: string, TaskName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeBenchmarkTaskReportResponse {
+async function describeBenchmarkTaskReportWithOptions(ClusterId: string, TaskName: string, request: DescribeBenchmarkTaskReportRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeBenchmarkTaskReportResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.reportType)) {
+    query['ReportType'] = request.reportType;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'DescribeBenchmarkTaskReport',
     version = '2021-07-01',
     protocol = 'HTTPS',
     pathname = `/api/v2/benchmark-tasks/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(TaskName)}/report`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model DescribeGroupResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: Group  
+}
+
+async function describeGroup(ClusterId: string, GroupName: string): DescribeGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeGroupWithOptions(ClusterId, GroupName, headers, runtime);
+}
+
+async function describeGroupWithOptions(ClusterId: string, GroupName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeGroupResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeGroup',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/groups/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(GroupName)}`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1457,7 +1517,16 @@ async function describeServiceMirrorWithOptions(ClusterId: string, ServiceName: 
   return callApi(params, req, runtime);
 }
 
+model ListBenchmarkTaskRequest {
+  fileter?: string(name='Fileter'),
+  pageNumber?: string(name='PageNumber'),
+  pageSize?: string(name='PageSize'),
+  serviceName?: string(name='ServiceName'),
+}
+
 model ListBenchmarkTaskResponseBody = {
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
   requestId?: string(name='RequestId'),
   tasks?: [ 
     {
@@ -1472,6 +1541,7 @@ model ListBenchmarkTaskResponseBody = {
       updateTime?: string(name='UpdateTime'),
     }
   ](name='Tasks'),
+  totalCount?: int32(name='TotalCount'),
 }
 
 model ListBenchmarkTaskResponse = {
@@ -1480,21 +1550,96 @@ model ListBenchmarkTaskResponse = {
   body: ListBenchmarkTaskResponseBody(name='body'),
 }
 
-async function listBenchmarkTask(): ListBenchmarkTaskResponse {
+async function listBenchmarkTask(request: ListBenchmarkTaskRequest): ListBenchmarkTaskResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return listBenchmarkTaskWithOptions(headers, runtime);
+  return listBenchmarkTaskWithOptions(request, headers, runtime);
 }
 
-async function listBenchmarkTaskWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): ListBenchmarkTaskResponse {
+async function listBenchmarkTaskWithOptions(request: ListBenchmarkTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListBenchmarkTaskResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.fileter)) {
+    query['Fileter'] = request.fileter;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.serviceName)) {
+    query['ServiceName'] = request.serviceName;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'ListBenchmarkTask',
     version = '2021-07-01',
     protocol = 'HTTPS',
     pathname = `/api/v2/benchmark-tasks`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model ListGroupsRequest {
+  filter?: string(name='Filter'),
+  pageNumber?: string(name='PageNumber'),
+  pageSize?: string(name='PageSize'),
+}
+
+model ListGroupsResponseBody = {
+  groups?: [
+    Group
+  ](name='Groups'),
+  pageNumber?: long(name='PageNumber'),
+  pageSize?: long(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  totalCount?: long(name='TotalCount'),
+}
+
+model ListGroupsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListGroupsResponseBody(name='body'),
+}
+
+async function listGroups(request: ListGroupsRequest): ListGroupsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listGroupsWithOptions(request, headers, runtime);
+}
+
+async function listGroupsWithOptions(request: ListGroupsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListGroupsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.filter)) {
+    query['Filter'] = request.filter;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListGroups',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/groups`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1846,6 +1991,7 @@ async function listServiceVersionsWithOptions(ClusterId: string, ServiceName: st
 
 model ListServicesRequest {
   filter?: string(name='Filter'),
+  groupName?: string(name='GroupName'),
   order?: string(name='Order'),
   pageNumber?: int32(name='PageNumber'),
   pageSize?: int32(name='PageSize'),
@@ -1879,6 +2025,9 @@ async function listServicesWithOptions(request: ListServicesRequest, headers: ma
   var query : map[string]any = {};
   if (!Util.isUnset(request.filter)) {
     query['Filter'] = request.filter;
+  }
+  if (!Util.isUnset(request.groupName)) {
+    query['GroupName'] = request.groupName;
   }
   if (!Util.isUnset(request.order)) {
     query['Order'] = request.order;
