@@ -509,6 +509,15 @@ model SortCriterion {
   sort?: string(name='Sort'),
 }
 
+model StorageCollectTaskOperationResult {
+  dlfCreated?: boolean(name='DlfCreated'),
+  errCode?: string(name='ErrCode'),
+  errMessage?: string(name='ErrMessage'),
+  success?: boolean(name='Success'),
+  taskId?: string(name='TaskId'),
+  taskType?: string(name='TaskType'),
+}
+
 model StorageDescriptor {
   bucketCols?: [ string ](name='BucketCols'),
   cols?: [
@@ -563,6 +572,19 @@ model StorageSummary {
   databaseNum?: int32(name='DatabaseNum'),
   partitionNum?: int32(name='PartitionNum'),
   tableNum?: int32(name='TableNum'),
+}
+
+model StrogeCollectTask {
+  destinationBucketName?: string(name='DestinationBucketName'),
+  destinationPrefix?: string(name='DestinationPrefix'),
+  dlfCreated?: boolean(name='DlfCreated'),
+  gmtCreate?: string(name='GmtCreate'),
+  gmtModified?: string(name='GmtModified'),
+  id?: string(name='Id'),
+  inventoryId?: string(name='InventoryId'),
+  location?: string(name='Location'),
+  status?: string(name='Status'),
+  taskType?: string(name='TaskType'),
 }
 
 model Table {
@@ -677,6 +699,9 @@ FieldSchema
 }
 
 model TableProfile {
+  accessNum?: long(name='AccessNum'),
+  accessNumMonthly?: long(name='AccessNumMonthly'),
+  accessNumWeekly?: long(name='AccessNumWeekly'),
   createTime?: string(name='CreateTime'),
   databaseName?: string(name='DatabaseName'),
   fileCnt?: long(name='FileCnt'),
@@ -2623,6 +2648,58 @@ async function deleteTableVersionWithOptions(request: DeleteTableVersionRequest,
     version = '2020-07-10',
     protocol = 'HTTPS',
     pathname = `/api/metastore/catalogs/databases/tables/versions`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model DeregisterLocationRequest {
+  locationId?: string(name='LocationId'),
+}
+
+model DeregisterLocationResponseBody = {
+  data?: {
+    locationId?: string(name='LocationId'),
+    storageCollectTaskOperationResultList?: [
+      StorageCollectTaskOperationResult
+    ](name='StorageCollectTaskOperationResultList'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model DeregisterLocationResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DeregisterLocationResponseBody(name='body'),
+}
+
+async function deregisterLocation(request: DeregisterLocationRequest): DeregisterLocationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deregisterLocationWithOptions(request, headers, runtime);
+}
+
+async function deregisterLocationWithOptions(request: DeregisterLocationRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeregisterLocationResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.locationId)) {
+    query['LocationId'] = request.locationId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeregisterLocation',
+    version = '2020-07-10',
+    protocol = 'HTTPS',
+    pathname = `/webapi/locations`,
     method = 'DELETE',
     authType = 'AK',
     style = 'ROA',
@@ -4823,6 +4900,70 @@ async function refreshLockWithOptions(request: RefreshLockRequest, headers: map[
   return callApi(params, req, runtime);
 }
 
+model RegisterLocationRequest {
+  inventoryCollectEnabled?: boolean(name='InventoryCollectEnabled'),
+  location?: string(name='Location'),
+  ossLogCollectEnabled?: boolean(name='OssLogCollectEnabled'),
+  roleName?: string(name='RoleName'),
+}
+
+model RegisterLocationResponseBody = {
+  data?: {
+    locationId?: string(name='LocationId'),
+    storageCollectTaskOperationResultList?: [
+      StorageCollectTaskOperationResult
+    ](name='StorageCollectTaskOperationResultList'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model RegisterLocationResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: RegisterLocationResponseBody(name='body'),
+}
+
+async function registerLocation(request: RegisterLocationRequest): RegisterLocationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return registerLocationWithOptions(request, headers, runtime);
+}
+
+async function registerLocationWithOptions(request: RegisterLocationRequest, headers: map[string]string, runtime: Util.RuntimeOptions): RegisterLocationResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.inventoryCollectEnabled)) {
+    body['InventoryCollectEnabled'] = request.inventoryCollectEnabled;
+  }
+  if (!Util.isUnset(request.location)) {
+    body['Location'] = request.location;
+  }
+  if (!Util.isUnset(request.ossLogCollectEnabled)) {
+    body['OssLogCollectEnabled'] = request.ossLogCollectEnabled;
+  }
+  if (!Util.isUnset(request.roleName)) {
+    body['RoleName'] = request.roleName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'RegisterLocation',
+    version = '2020-07-10',
+    protocol = 'HTTPS',
+    pathname = `/webapi/locations`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
 model RenamePartitionRequest {
   catalogId?: string(name='CatalogId'),
   databaseName?: string(name='DatabaseName'),
@@ -5835,6 +5976,66 @@ async function updatePermissionsWithOptions(request: UpdatePermissionsRequest, h
     version = '2020-07-10',
     protocol = 'HTTPS',
     pathname = `/api/metastore/auth/permissions/`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+model UpdateRegisteredLocationRequest {
+  inventoryCollectEnabled?: boolean(name='InventoryCollectEnabled'),
+  locationId?: string(name='LocationId'),
+  ossLogCollectEnabled?: boolean(name='OssLogCollectEnabled'),
+}
+
+model UpdateRegisteredLocationResponseBody = {
+  data?: {
+    locationId?: string(name='LocationId'),
+    storageCollectTaskOperationResultList?: [
+      StorageCollectTaskOperationResult
+    ](name='StorageCollectTaskOperationResultList'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model UpdateRegisteredLocationResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateRegisteredLocationResponseBody(name='body'),
+}
+
+async function updateRegisteredLocation(request: UpdateRegisteredLocationRequest): UpdateRegisteredLocationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateRegisteredLocationWithOptions(request, headers, runtime);
+}
+
+async function updateRegisteredLocationWithOptions(request: UpdateRegisteredLocationRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateRegisteredLocationResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.inventoryCollectEnabled)) {
+    body['InventoryCollectEnabled'] = request.inventoryCollectEnabled;
+  }
+  if (!Util.isUnset(request.locationId)) {
+    body['LocationId'] = request.locationId;
+  }
+  if (!Util.isUnset(request.ossLogCollectEnabled)) {
+    body['OssLogCollectEnabled'] = request.ossLogCollectEnabled;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateRegisteredLocation',
+    version = '2020-07-10',
+    protocol = 'HTTPS',
+    pathname = `/webapi/locations`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
