@@ -6,6 +6,8 @@ import OSS;
 import OpenPlatform;
 import OSSUtil;
 import FileForm;
+import Array;
+import Number;
 import OpenApi;
 import OpenApiUtil;
 import EndpointUtil;
@@ -2480,6 +2482,15 @@ model DetectLivingFaceRequest {
   ](name='Tasks'),
 }
 
+model DetectLivingFaceAdvanceRequest {
+  tasks?: [ 
+    {
+      imageData?: bytes(name='ImageData'),
+      imageURLObject?: readable(name='ImageURL'),
+    }
+  ](name='Tasks'),
+}
+
 model DetectLivingFaceResponseBody = {
   data?: {
     elements?: [ 
@@ -2537,6 +2548,87 @@ async function detectLivingFaceWithOptions(request: DetectLivingFaceRequest, run
 async function detectLivingFace(request: DetectLivingFaceRequest): DetectLivingFaceResponse {
   var runtime = new Util.RuntimeOptions{};
   return detectLivingFaceWithOptions(request, runtime);
+}
+
+async function detectLivingFaceAdvance(request: DetectLivingFaceAdvanceRequest, runtime: Util.RuntimeOptions): DetectLivingFaceResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var detectLivingFaceReq = new DetectLivingFaceRequest{};
+  OpenApiUtil.convert(request, detectLivingFaceReq);
+
+  if(!Util.isUnset(request.tasks)) {
+    var i : integer = 0;
+    for (var item0 : request.tasks) {
+      if(!Util.isUnset(item0.imageURLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.imageURLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : DetectLivingFaceRequest.tasks = detectLivingFaceReq.tasks[i];
+        tmp.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i = Number.ltoi(Number.add(Number.itol(i), Number.itol(1)));
+      }
+    }
+  }
+  var detectLivingFaceResp = detectLivingFaceWithOptions(detectLivingFaceReq, runtime);
+  return detectLivingFaceResp;
 }
 
 model DetectPedestrianRequest {
@@ -4447,14 +4539,11 @@ async function getFaceEntity(request: GetFaceEntityRequest): GetFaceEntityRespon
 }
 
 model GetRealPersonVerificationResultRequest {
-  materialHash?: string(name='MaterialHash'),
   verificationToken?: string(name='VerificationToken'),
 }
 
 model GetRealPersonVerificationResultResponseBody = {
   data?: {
-    identityInfo?: string(name='IdentityInfo'),
-    materialMatch?: string(name='MaterialMatch'),
     passed?: boolean(name='Passed'),
   }(name='Data'),
   requestId?: string(name='RequestId'),
@@ -4469,9 +4558,6 @@ model GetRealPersonVerificationResultResponse = {
 async function getRealPersonVerificationResultWithOptions(request: GetRealPersonVerificationResultRequest, runtime: Util.RuntimeOptions): GetRealPersonVerificationResultResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
-  if (!Util.isUnset(request.materialHash)) {
-    body['MaterialHash'] = request.materialHash;
-  }
   if (!Util.isUnset(request.verificationToken)) {
     body['VerificationToken'] = request.verificationToken;
   }
@@ -5546,6 +5632,18 @@ model RecognizeActionRequest {
   videoUrl?: string(name='VideoUrl'),
 }
 
+model RecognizeActionAdvanceRequest {
+  type?: int32(name='Type'),
+  URLList?: [ 
+    {
+      URLObject?: readable(name='URL'),
+      imageData?: bytes(name='imageData'),
+    }
+  ](name='URLList'),
+  videoData?: bytes(name='VideoData'),
+  videoUrl?: string(name='VideoUrl'),
+}
+
 model RecognizeActionResponseBody = {
   data?: {
     elements?: [ 
@@ -5605,6 +5703,87 @@ async function recognizeActionWithOptions(request: RecognizeActionRequest, runti
 async function recognizeAction(request: RecognizeActionRequest): RecognizeActionResponse {
   var runtime = new Util.RuntimeOptions{};
   return recognizeActionWithOptions(request, runtime);
+}
+
+async function recognizeActionAdvance(request: RecognizeActionAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeActionResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeActionReq = new RecognizeActionRequest{};
+  OpenApiUtil.convert(request, recognizeActionReq);
+
+  if(!Util.isUnset(request.URLList)) {
+    var i : integer = 0;
+    for (var item0 : request.URLList) {
+      if(!Util.isUnset(item0.URLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.URLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : RecognizeActionRequest.URLList = recognizeActionReq.URLList[i];
+        tmp.URL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i = Number.ltoi(Number.add(Number.itol(i), Number.itol(1)));
+      }
+    }
+  }
+  var recognizeActionResp = recognizeActionWithOptions(recognizeActionReq, runtime);
+  return recognizeActionResp;
 }
 
 model RecognizeExpressionRequest {
@@ -6081,6 +6260,15 @@ model RecognizePublicFaceRequest {
   ](name='Task'),
 }
 
+model RecognizePublicFaceAdvanceRequest {
+  task?: [ 
+    {
+      imageData?: bytes(name='ImageData'),
+      imageURLObject?: readable(name='ImageURL'),
+    }
+  ](name='Task'),
+}
+
 model RecognizePublicFaceResponseBody = {
   data?: {
     elements?: [ 
@@ -6147,6 +6335,87 @@ async function recognizePublicFaceWithOptions(request: RecognizePublicFaceReques
 async function recognizePublicFace(request: RecognizePublicFaceRequest): RecognizePublicFaceResponse {
   var runtime = new Util.RuntimeOptions{};
   return recognizePublicFaceWithOptions(request, runtime);
+}
+
+async function recognizePublicFaceAdvance(request: RecognizePublicFaceAdvanceRequest, runtime: Util.RuntimeOptions): RecognizePublicFaceResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizePublicFaceReq = new RecognizePublicFaceRequest{};
+  OpenApiUtil.convert(request, recognizePublicFaceReq);
+
+  if(!Util.isUnset(request.task)) {
+    var i : integer = 0;
+    for (var item0 : request.task) {
+      if(!Util.isUnset(item0.imageURLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.imageURLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : RecognizePublicFaceRequest.task = recognizePublicFaceReq.task[i];
+        tmp.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i = Number.ltoi(Number.add(Number.itol(i), Number.itol(1)));
+      }
+    }
+  }
+  var recognizePublicFaceResp = recognizePublicFaceWithOptions(recognizePublicFaceReq, runtime);
+  return recognizePublicFaceResp;
 }
 
 model RetouchBodyRequest {
@@ -6427,6 +6696,18 @@ model SearchBodyTraceRequest {
   minScore?: float(name='MinScore'),
 }
 
+model SearchBodyTraceAdvanceRequest {
+  dbId?: long(name='DbId'),
+  images?: [ 
+    {
+      imageData?: bytes(name='ImageData'),
+      imageURLObject?: readable(name='ImageURL'),
+    }
+  ](name='Images'),
+  limit?: long(name='Limit'),
+  minScore?: float(name='MinScore'),
+}
+
 model SearchBodyTraceShrinkRequest {
   dbId?: long(name='DbId'),
   imagesShrink?: string(name='Images'),
@@ -6495,6 +6776,87 @@ async function searchBodyTraceWithOptions(tmpReq: SearchBodyTraceRequest, runtim
 async function searchBodyTrace(request: SearchBodyTraceRequest): SearchBodyTraceResponse {
   var runtime = new Util.RuntimeOptions{};
   return searchBodyTraceWithOptions(request, runtime);
+}
+
+async function searchBodyTraceAdvance(request: SearchBodyTraceAdvanceRequest, runtime: Util.RuntimeOptions): SearchBodyTraceResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var searchBodyTraceReq = new SearchBodyTraceRequest{};
+  OpenApiUtil.convert(request, searchBodyTraceReq);
+
+  if(!Util.isUnset(request.images)) {
+    var i : integer = 0;
+    for (var item0 : request.images) {
+      if(!Util.isUnset(item0.imageURLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.imageURLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : SearchBodyTraceRequest.images = searchBodyTraceReq.images[i];
+        tmp.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i = Number.ltoi(Number.add(Number.itol(i), Number.itol(1)));
+      }
+    }
+  }
+  var searchBodyTraceResp = searchBodyTraceWithOptions(searchBodyTraceReq, runtime);
+  return searchBodyTraceResp;
 }
 
 model SearchFaceRequest {
