@@ -6,6 +6,8 @@ import OSS;
 import OpenPlatform;
 import OSSUtil;
 import FileForm;
+import Array;
+import Number;
 import OpenApi;
 import OpenApiUtil;
 import EndpointUtil;
@@ -1385,6 +1387,26 @@ model GenerateVideoRequest {
   width?: int32(name='Width'),
 }
 
+model GenerateVideoAdvanceRequest {
+  duration?: float(name='Duration'),
+  durationAdaption?: boolean(name='DurationAdaption'),
+  fileList?: [ 
+    {
+      fileName?: string(name='FileName'),
+      fileUrlObject?: readable(name='FileUrl'),
+      type?: string(name='Type'),
+    }
+  ](name='FileList'),
+  height?: int32(name='Height'),
+  mute?: boolean(name='Mute'),
+  puzzleEffect?: boolean(name='PuzzleEffect'),
+  scene?: string(name='Scene'),
+  smartEffect?: boolean(name='SmartEffect'),
+  style?: string(name='Style'),
+  transitionStyle?: string(name='TransitionStyle'),
+  width?: int32(name='Width'),
+}
+
 model GenerateVideoResponseBody = {
   data?: {
     videoCoverUrl?: string(name='VideoCoverUrl'),
@@ -1456,6 +1478,87 @@ async function generateVideoWithOptions(request: GenerateVideoRequest, runtime: 
 async function generateVideo(request: GenerateVideoRequest): GenerateVideoResponse {
   var runtime = new Util.RuntimeOptions{};
   return generateVideoWithOptions(request, runtime);
+}
+
+async function generateVideoAdvance(request: GenerateVideoAdvanceRequest, runtime: Util.RuntimeOptions): GenerateVideoResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'videoenhan',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var generateVideoReq = new GenerateVideoRequest{};
+  OpenApiUtil.convert(request, generateVideoReq);
+
+  if(!Util.isUnset(request.fileList)) {
+    var i : integer = 0;
+    for (var item0 : request.fileList) {
+      if(!Util.isUnset(item0.fileUrlObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.fileUrlObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : GenerateVideoRequest.fileList = generateVideoReq.fileList[i];
+        tmp.fileUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i = Number.ltoi(Number.add(Number.itol(i), Number.itol(1)));
+      }
+    }
+  }
+  var generateVideoResp = generateVideoWithOptions(generateVideoReq, runtime);
+  return generateVideoResp;
 }
 
 model GetAsyncJobResultRequest {
