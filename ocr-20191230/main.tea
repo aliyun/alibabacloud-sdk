@@ -6,6 +6,8 @@ import OSS;
 import OpenPlatform;
 import OSSUtil;
 import FileForm;
+import Array;
+import Number;
 import OpenApi;
 import OpenApiUtil;
 import EndpointUtil;
@@ -2717,6 +2719,14 @@ model RecognizeQrCodeRequest {
   ](name='Tasks'),
 }
 
+model RecognizeQrCodeAdvanceRequest {
+  tasks?: [ 
+    {
+      imageURLObject?: readable(name='ImageURL'),
+    }
+  ](name='Tasks'),
+}
+
 model RecognizeQrCodeResponseBody = {
   data?: {
     elements?: [ 
@@ -2769,6 +2779,87 @@ async function recognizeQrCodeWithOptions(request: RecognizeQrCodeRequest, runti
 async function recognizeQrCode(request: RecognizeQrCodeRequest): RecognizeQrCodeResponse {
   var runtime = new Util.RuntimeOptions{};
   return recognizeQrCodeWithOptions(request, runtime);
+}
+
+async function recognizeQrCodeAdvance(request: RecognizeQrCodeAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeQrCodeResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var recognizeQrCodeReq = new RecognizeQrCodeRequest{};
+  OpenApiUtil.convert(request, recognizeQrCodeReq);
+
+  if(!Util.isUnset(request.tasks)) {
+    var i : integer = 0;
+    for (var item0 : request.tasks) {
+      if(!Util.isUnset(item0.imageURLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.imageURLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : RecognizeQrCodeRequest.tasks = recognizeQrCodeReq.tasks[i];
+        tmp.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i = Number.ltoi(Number.add(Number.itol(i), Number.itol(1)));
+      }
+    }
+  }
+  var recognizeQrCodeResp = recognizeQrCodeWithOptions(recognizeQrCodeReq, runtime);
+  return recognizeQrCodeResp;
 }
 
 model RecognizeQuotaInvoiceRequest {
