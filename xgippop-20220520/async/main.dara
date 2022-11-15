@@ -58,18 +58,22 @@ async function changeApplicationInfo(request: ChangeApplicationInfoRequest): Cha
 }
 
 model ChargeFlowRequest {
+  channelCode?: string(name='ChannelCode', description='渠道code', position='Query'),
   instanceId: string(name='InstanceId', description='实例编号', position='Query'),
   itemCode?: string(name='ItemCode', description='商品code', position='Query'),
   mobile: string(name='Mobile', description='流量充值号码', position='Query'),
+  orderTime?: string(name='OrderTime', description='订购时间', position='Query'),
+  outBizNo?: string(name='OutBizNo', description='外部订单编号', position='Query'),
   uId?: long(name='UId', position='Query'),
 }
 
 model ChargeFlowResponseBody = {
   code?: string(name='Code', description='结果码'),
   data?: {
+    bizCode?: string(name='BizCode', description='业务编码'),
+    customerFlowOrderId?: string(name='CustomerFlowOrderId', description='C端免流订单ID'),
     customerFlowRequestId?: string(name='CustomerFlowRequestId'),
-    mobile?: string(name='Mobile', description='流量充值号码'),
-    status?: boolean(name='Status'),
+    status?: string(name='Status', description='执行中ordering、成功success、失败fail'),
   }(name='Data', description='结果'),
   message?: string(name='Message', description='结果描述'),
   requestId?: string(name='RequestId', description='请求链路ID，如POP请求进来的requestId，返回时原样返回'),
@@ -365,6 +369,7 @@ model GetItemInstListRequest {
   itemCode: string(name='ItemCode', description='商品code', position='Query'),
   mobile?: string(name='Mobile', description='流量充值号码', position='Query'),
   pageSize: int32(name='PageSize', description='每页多少条', position='Query'),
+  status?: string(name='Status', position='Query'),
   uId?: long(name='UId', position='Query'),
 }
 
@@ -841,9 +846,11 @@ async function orderQosProduct(request: OrderQosProductRequest): OrderQosProduct
 
 model QueryOrderListRequest {
   current: int32(name='Current', description='当前页码，从1开始', position='Query'),
-  instanceId: string(name='InstanceId', description='实例编号', position='Query'),
-  itemCode?: string(name='ItemCode', description='商品code', position='Query'),
+  instanceId?: string(name='InstanceId', description='实例编号', position='Query'),
+  itemCode: string(name='ItemCode', description='商品code', position='Query'),
   mobile?: string(name='Mobile', description='流量充值号码', position='Query'),
+  orderTime?: string(name='OrderTime', position='Query'),
+  outBizNo?: string(name='OutBizNo', position='Query'),
   pageSize: int32(name='PageSize', description='每页多少条', position='Query'),
   uId?: long(name='UId', position='Query'),
 }
@@ -859,6 +866,7 @@ model QueryOrderListResponseBody = {
         operator?: string(name='Operator'),
         orderId?: string(name='OrderId'),
         orderTime?: string(name='OrderTime'),
+        outBizNo?: string(name='OutBizNo'),
         productId?: string(name='ProductId'),
         productName?: string(name='ProductName'),
         status?: string(name='Status'),
@@ -913,40 +921,6 @@ async function saveApplicationInfo(request: SaveApplicationInfoRequest): SaveApp
   return @handler.do('RPC', 'SaveApplicationInfo', 'POST', '/', 'json', true, 'form', request);
 }
 
-model SdkChargeFlowRequest {
-  channelCode: string(name='ChannelCode', description='渠道code', position='Query'),
-  instanceId: string(name='InstanceId', description='实例编号', position='Query'),
-  itemCode?: string(name='ItemCode', description='商品code', position='Query'),
-  mobile: string(name='Mobile', description='流量充值号码', position='Query'),
-  outBizNo: string(name='OutBizNo', description='外部订单编号', position='Query'),
-  uId?: long(name='UId', position='Query'),
-}
-
-model SdkChargeFlowResponseBody = {
-  code?: string(name='Code', description='结果码'),
-  data?: {
-    code?: string(name='Code'),
-    message?: string(name='Message'),
-    mobile?: string(name='Mobile', description='流量充值号码'),
-    requestId?: string(name='RequestId'),
-    success?: boolean(name='Success'),
-  }(name='Data', description='结果'),
-  message?: string(name='Message', description='结果描述'),
-  requestId?: string(name='RequestId', description='请求链路ID，如POP请求进来的requestId，返回时原样返回'),
-  rt?: long(name='Rt', description='服务端处理耗时，ms'),
-  success?: boolean(name='Success', description='是否成功'),
-}
-
-model SdkChargeFlowResponse = {
-  headers: map[string]string(name='headers'),
-  body: SdkChargeFlowResponseBody(name='body'),
-}
-
-async function sdkChargeFlow(request: SdkChargeFlowRequest): SdkChargeFlowResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'SdkChargeFlow', 'POST', '/', 'json', false, 'json', request);
-}
-
 model SdkGetInventoryInfoRequest {
   channelCode?: string(name='ChannelCode', description='渠道code', position='Query'),
   instanceId: string(name='InstanceId', description='实例编号', position='Query'),
@@ -977,52 +951,6 @@ model SdkGetInventoryInfoResponse = {
 async function sdkGetInventoryInfo(request: SdkGetInventoryInfoRequest): SdkGetInventoryInfoResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'SdkGetInventoryInfo', 'GET', '/', 'json', false, 'json', request);
-}
-
-model SdkGetItemInstListRequest {
-  channelCode?: string(name='ChannelCode', description='渠道code', position='Query'),
-  current: int32(name='Current', description='当前页码，从1开始', position='Query'),
-  instanceId?: string(name='InstanceId', description='实例编号', position='Query'),
-  itemCode: string(name='ItemCode', description='商品code', position='Query'),
-  mobile?: string(name='Mobile', description='流量充值号码', position='Query'),
-  outBizNo?: string(name='OutBizNo', description='外部订单编号', position='Query'),
-  pageSize: int32(name='PageSize', description='每页多少条', position='Query'),
-  uId?: long(name='UId', position='Query'),
-}
-
-model SdkGetItemInstListResponseBody = {
-  code?: string(name='Code', description='结果码'),
-  data?: {
-    list?: [ 
-      {
-        createTime?: string(name='CreateTime'),
-        expireTime?: string(name='ExpireTime'),
-        instanceId?: string(name='InstanceId'),
-        productId?: string(name='ProductId'),
-        productName?: string(name='ProductName'),
-        status?: int32(name='Status'),
-      }
-    ](name='List'),
-    pageInfo?: {
-      current?: int32(name='Current', description='当前页码，从1开始'),
-      pageSize?: int32(name='PageSize', description='每页多少条'),
-      total?: long(name='Total', description='总共数量'),
-    }(name='PageInfo', description='分页信息'),
-  }(name='Data', description='结果'),
-  message?: string(name='Message', description='结果描述'),
-  requestId?: string(name='RequestId', description='请求链路ID，如POP请求进来的requestId，返回时原样返回'),
-  rt?: long(name='Rt', description='服务端处理耗时，ms'),
-  success?: boolean(name='Success', description='是否成功'),
-}
-
-model SdkGetItemInstListResponse = {
-  headers: map[string]string(name='headers'),
-  body: SdkGetItemInstListResponseBody(name='body'),
-}
-
-async function sdkGetItemInstList(request: SdkGetItemInstListRequest): SdkGetItemInstListResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'SdkGetItemInstList', 'GET', '/', 'json', false, 'json', request);
 }
 
 model SdkOrderQosProductRequest {
