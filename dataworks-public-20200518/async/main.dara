@@ -223,6 +223,44 @@ async function checkMetaTable(request: CheckMetaTableRequest): CheckMetaTableRes
   return @handler.do('RPC', 'CheckMetaTable', 'POST', '/', 'json', false, 'json', request);
 }
 
+model CreateBaselineRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  alertMarginThreshold?: int32(name='AlertMarginThreshold', description='基线预警余量', position='Body'),
+  baselineName: string(name='BaselineName', description='基线名', position='Body'),
+  baselineType: string(name='BaselineType', description='基线类型 (DAILY, HOURLY)', position='Body'),
+  overtimeSettings: [ 
+    {
+      cycle?: int32(name='Cycle', description='周期，取值范围 [1,24]'),
+      time?: string(name='Time', description='承诺时间，hh:mm格式，hh的取值范围为[0,47]，mm的取值范围为[0,59]'),
+    }
+  ](name='OvertimeSettings', description='基线承诺时间', position='Body'),
+  owner: string(name='Owner', description='责任人', position='Body'),
+  priority: int32(name='Priority', description='基线优先级', position='Body'),
+  projectId: long(name='ProjectId', description='项目id', position='Body'),
+  taskIds?: string(name='TaskIds', position='Body'),
+}
+
+model CreateBaselineResponseBody = {
+  data?: long(name='Data'),
+  dynamicErrorCode?: string(name='DynamicErrorCode'),
+  dynamicErrorMessage?: string(name='DynamicErrorMessage'),
+  errorCode?: string(name='ErrorCode'),
+  errorMessage?: string(name='ErrorMessage'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model CreateBaselineResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateBaselineResponseBody(name='body'),
+}
+
+async function createBaseline(request: CreateBaselineRequest): CreateBaselineResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateBaseline', 'POST', '/', 'json', true, 'form', request);
+}
+
 model CreateBusinessRequest {
   regionId: string(name='RegionId', position='Host'),
   businessName: string(name='BusinessName', position='Body'),
@@ -873,6 +911,7 @@ model CreateRemindRequest {
   remindType: string(name='RemindType', position='Body'),
   remindUnit: string(name='RemindUnit', position='Body'),
   robotUrls?: string(name='RobotUrls', position='Body'),
+  webhooks?: string(name='Webhooks', position='Body'),
 }
 
 model CreateRemindResponseBody = {
@@ -1040,6 +1079,33 @@ model CreateUdfFileResponse = {
 async function createUdfFile(request: CreateUdfFileRequest): CreateUdfFileResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateUdfFile', 'POST', '/', 'json', true, 'form', request);
+}
+
+model DeleteBaselineRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  baselineId: long(name='BaselineId', description='基线Id', position='Body'),
+  projectId: long(name='ProjectId', description='项目空间ID', position='Body'),
+}
+
+model DeleteBaselineResponseBody = {
+  data?: boolean(name='Data'),
+  dynamicErrorCode?: string(name='DynamicErrorCode'),
+  dynamicErrorMessage?: string(name='DynamicErrorMessage'),
+  errorCode?: string(name='ErrorCode'),
+  errorMessage?: string(name='ErrorMessage'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model DeleteBaselineResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteBaselineResponseBody(name='body'),
+}
+
+async function deleteBaseline(request: DeleteBaselineRequest): DeleteBaselineResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteBaseline', 'POST', '/', 'json', true, 'form', request);
 }
 
 model DeleteBusinessRequest {
@@ -1725,6 +1791,71 @@ async function generateDISyncTaskConfigForUpdating(request: GenerateDISyncTaskCo
   return @handler.do('RPC', 'GenerateDISyncTaskConfigForUpdating', 'POST', '/', 'json', false, 'json', request);
 }
 
+model GetBaselineRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  baselineId: long(name='BaselineId', position='Body'),
+  projectId: long(name='ProjectId', position='Body'),
+}
+
+model GetBaselineResponseBody = {
+  data?: {
+    alertEnabled?: boolean(name='AlertEnabled', description='是否开启告警'),
+    alertMarginThreshold?: int32(name='AlertMarginThreshold', description='预警余量，单位为分钟'),
+    alertSettings?: [ 
+      {
+        alertInterval?: int32(name='AlertInterval', description='事件告警间隔'),
+        alertMaximum?: int32(name='AlertMaximum', description='事件告警最大次数'),
+        alertMethods?: [ string ](name='AlertMethods', description='告警方式'),
+        alertRecipient?: string(name='AlertRecipient', description='告警接收人详情'),
+        alertRecipientType?: string(name='AlertRecipientType', description='告警接收人类型'),
+        alertType?: string(name='AlertType', description='告警类型，BASELINE / TOPIC'),
+        baselineAlertEnabled?: boolean(name='BaselineAlertEnabled', description='基线告警开关，基线特有配置'),
+        dingRobots?: [ 
+          {
+            atAll?: boolean(name='AtAll'),
+            webUrl?: string(name='WebUrl'),
+          }
+        ](name='DingRobots', description='钉钉机器人列表'),
+        silenceEndTime?: string(name='SilenceEndTime', description='静默结束时间'),
+        silenceStartTime?: string(name='SilenceStartTime', description='静默开始时间'),
+        topicTypes?: [ string ](name='TopicTypes', description='事件告警类型，事件特有配置'),
+        webhooks?: [ string ](name='Webhooks', description='webhook 列表'),
+      }
+    ](name='AlertSettings', description='告警设置'),
+    baselineId?: long(name='BaselineId', description='基线id'),
+    baselineName?: string(name='BaselineName', description='基线名'),
+    baselineType?: string(name='BaselineType', description='基线类型 (DAILY, HOURLY)'),
+    enabled?: boolean(name='Enabled', description='是否开启基线'),
+    overTimeSettings?: [ 
+      {
+        cycle?: int32(name='Cycle', description='周期，取值范围 [1,24]'),
+        time?: string(name='Time', description='承诺时间，hh:mm格式，hh的取值范围为[0,47]，mm的取值范围为[0,59]'),
+      }
+    ](name='OverTimeSettings', description='基线承诺时间设置'),
+    owner?: string(name='Owner', description='责任人'),
+    priority?: int32(name='Priority', description='优先级'),
+    projectId?: long(name='ProjectId', description='项目id'),
+    taskIds?: [ long ](name='TaskIds', description='基线节点列表'),
+  }(name='Data'),
+  dynamicErrorCode?: string(name='DynamicErrorCode'),
+  dynamicErrorMessage?: string(name='DynamicErrorMessage'),
+  errorCode?: string(name='ErrorCode'),
+  errorMessage?: string(name='ErrorMessage'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model GetBaselineResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetBaselineResponseBody(name='body'),
+}
+
+async function getBaseline(request: GetBaselineRequest): GetBaselineResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetBaseline', 'POST', '/', 'json', true, 'form', request);
+}
+
 model GetBaselineConfigRequest {
   regionId: string(name='RegionId', position='Host'),
   baselineId: long(name='BaselineId', position='Body'),
@@ -2026,41 +2157,6 @@ model GetDISyncTaskResponse = {
 async function getDISyncTask(request: GetDISyncTaskRequest): GetDISyncTaskResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetDISyncTask', 'POST', '/', 'json', false, 'json', request);
-}
-
-model GetDISyncTaskMetricInfoRequest {
-  regionId: string(name='RegionId', position='Host'),
-  endDate: long(name='EndDate', position='Query'),
-  fileId: long(name='FileId', position='Query'),
-  projectId: long(name='ProjectId', position='Query'),
-  startDate: long(name='StartDate', position='Query'),
-}
-
-model GetDISyncTaskMetricInfoResponseBody = {
-  metricInfo?: {
-    deleteReaderRecords?: long(name='DeleteReaderRecords'),
-    deleteWriterRecords?: long(name='DeleteWriterRecords'),
-    insertReaderRecords?: long(name='InsertReaderRecords'),
-    insertWriterRecords?: long(name='InsertWriterRecords'),
-    lastTaskDelay?: long(name='LastTaskDelay'),
-    message?: string(name='Message'),
-    sumReaderRecords?: long(name='SumReaderRecords'),
-    sumWriterRecords?: long(name='SumWriterRecords'),
-    updateReaderRecords?: long(name='UpdateReaderRecords'),
-    updateWriterRecords?: long(name='UpdateWriterRecords'),
-  }(name='MetricInfo'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success', description='isSuccess'),
-}
-
-model GetDISyncTaskMetricInfoResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetDISyncTaskMetricInfoResponseBody(name='body'),
-}
-
-async function getDISyncTaskMetricInfo(request: GetDISyncTaskMetricInfoRequest): GetDISyncTaskMetricInfoResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetDISyncTaskMetricInfo', 'GET', '/', 'json', false, 'json', request);
 }
 
 model GetDagRequest {
@@ -4244,10 +4340,17 @@ model GetProjectResponseBody = {
     projectOwnerBaseId?: string(name='ProjectOwnerBaseId'),
     protectedMode?: int32(name='ProtectedMode'),
     residentArea?: string(name='ResidentArea'),
+    resourceManagerResourceGroupId?: string(name='ResourceManagerResourceGroupId'),
     schedulerMaxRetryTimes?: int32(name='SchedulerMaxRetryTimes'),
     schedulerRetryInterval?: int32(name='SchedulerRetryInterval'),
     status?: int32(name='Status'),
     tablePrivacyMode?: int32(name='TablePrivacyMode'),
+    tags?: [ 
+      {
+        key?: string(name='Key'),
+        value?: string(name='Value'),
+      }
+    ](name='Tags'),
     tenantId?: long(name='TenantId'),
     useProxyOdpsAccount?: boolean(name='UseProxyOdpsAccount'),
   }(name='Data'),
@@ -4275,10 +4378,12 @@ model GetProjectDetailResponseBody = {
   data?: {
     defaultDiResourceGroupIdentifier?: string(name='DefaultDiResourceGroupIdentifier'),
     developmentType?: int32(name='DevelopmentType'),
+    disableDevelopment?: boolean(name='DisableDevelopment'),
     envTypes?: [ string ](name='EnvTypes'),
     gmtCreate?: string(name='GmtCreate'),
     gmtModified?: string(name='GmtModified'),
     isAllowDownload?: int32(name='IsAllowDownload'),
+    isDefault?: int32(name='IsDefault'),
     projectDescription?: string(name='ProjectDescription'),
     projectId?: int32(name='ProjectId'),
     projectIdentifier?: string(name='ProjectIdentifier'),
@@ -4287,10 +4392,19 @@ model GetProjectDetailResponseBody = {
     projectOwnerBaseId?: string(name='ProjectOwnerBaseId'),
     protectedMode?: int32(name='ProtectedMode'),
     residentArea?: string(name='ResidentArea'),
+    resourceManagerResourceGroupId?: string(name='ResourceManagerResourceGroupId'),
     schedulerMaxRetryTimes?: int32(name='SchedulerMaxRetryTimes'),
     schedulerRetryInterval?: int32(name='SchedulerRetryInterval'),
     status?: int32(name='Status'),
+    tablePrivacyMode?: int32(name='TablePrivacyMode'),
+    tags?: [ 
+      {
+        key?: string(name='Key'),
+        value?: string(name='Value'),
+      }
+    ](name='Tags'),
     tenantId?: long(name='TenantId'),
+    useProxyOdpsAccount?: boolean(name='UseProxyOdpsAccount'),
   }(name='Data'),
   httpStatusCode?: int32(name='HttpStatusCode'),
   requestId?: string(name='RequestId'),
@@ -4489,6 +4603,7 @@ model GetRemindResponseBody = {
       }
     ](name='Robots'),
     useflag?: boolean(name='Useflag'),
+    webhooks?: [ string ](name='Webhooks'),
   }(name='Data'),
   errorCode?: string(name='ErrorCode'),
   errorMessage?: string(name='ErrorMessage'),
@@ -4873,6 +4988,63 @@ async function listBaselineStatuses(request: ListBaselineStatusesRequest): ListB
   return @handler.do('RPC', 'ListBaselineStatuses', 'POST', '/', 'json', true, 'form', request);
 }
 
+model ListBaselinesRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  baselineTypes?: string(name='BaselineTypes', description='基线类型', position='Body'),
+  enable?: boolean(name='Enable', description='是否开启基线', position='Body'),
+  owner?: string(name='Owner', description='责任人', position='Body'),
+  pageNumber: int32(name='PageNumber', position='Body'),
+  pageSize: int32(name='PageSize', position='Body'),
+  priority?: string(name='Priority', position='Body'),
+  projectEnv?: string(name='ProjectEnv', position='Body'),
+  projectId: long(name='ProjectId', description='项目空间id', position='Body'),
+  searchText?: string(name='SearchText', description='基线名模糊查询', position='Body'),
+}
+
+model ListBaselinesResponseBody = {
+  data?: {
+    baselines?: [ 
+      {
+        alertEnabled?: boolean(name='AlertEnabled'),
+        alertMarginThreshold?: int32(name='AlertMarginThreshold'),
+        baselineId?: long(name='BaselineId'),
+        baselineName?: string(name='BaselineName'),
+        baselineType?: string(name='BaselineType'),
+        enabled?: boolean(name='Enabled'),
+        overTimeSettings?: [ 
+          {
+            cycle?: int32(name='Cycle'),
+            time?: string(name='Time'),
+          }
+        ](name='OverTimeSettings'),
+        owner?: string(name='Owner'),
+        priority?: int32(name='Priority'),
+        projectId?: long(name='ProjectId'),
+      }
+    ](name='Baselines'),
+    pageNumber?: string(name='PageNumber'),
+    pageSize?: string(name='PageSize'),
+    totalCount?: string(name='TotalCount'),
+  }(name='Data'),
+  dynamicErrorCode?: string(name='DynamicErrorCode'),
+  dynamicErrorMessage?: string(name='DynamicErrorMessage'),
+  errorCode?: string(name='ErrorCode'),
+  errorMessage?: string(name='ErrorMessage'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model ListBaselinesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListBaselinesResponseBody(name='body'),
+}
+
+async function listBaselines(request: ListBaselinesRequest): ListBaselinesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListBaselines', 'POST', '/', 'json', true, 'form', request);
+}
+
 model ListBusinessRequest {
   regionId: string(name='RegionId', position='Host'),
   keyword?: string(name='Keyword', position='Body'),
@@ -5016,76 +5188,6 @@ model ListConnectionsResponse = {
 async function listConnections(request: ListConnectionsRequest): ListConnectionsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListConnections', 'GET', '/', 'json', false, 'json', request);
-}
-
-model ListCurrentTasksForResourceGroupRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  pageNumber?: int32(name='PageNumber', position='Body'),
-  pageSize?: int32(name='PageSize', position='Body'),
-  projectEnv: string(name='ProjectEnv', position='Body'),
-  resourceGroupIdentifier: string(name='ResourceGroupIdentifier', position='Body'),
-  status: int32(name='Status', description='3-等待资源；4-运行中', minimum=1, maximum=10, position='Body'),
-}
-
-model ListCurrentTasksForResourceGroupResponseBody = {
-  data?: {
-    pageNum?: int32(name='PageNum'),
-    pageSize?: int32(name='PageSize'),
-    tasks?: [ 
-      {
-        concurrency?: string(name='Concurrency'),
-        projectName?: string(name='ProjectName'),
-        status?: int32(name='Status'),
-        taskId?: string(name='TaskId'),
-        taskName?: string(name='TaskName'),
-        taskSource?: string(name='TaskSource'),
-        taskType?: int32(name='TaskType'),
-      }
-    ](name='Tasks'),
-    totalNum?: int32(name='TotalNum'),
-  }(name='Data'),
-  errorCode?: string(name='ErrorCode'),
-  errorMessage?: string(name='ErrorMessage'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success'),
-}
-
-model ListCurrentTasksForResourceGroupResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListCurrentTasksForResourceGroupResponseBody(name='body'),
-}
-
-async function listCurrentTasksForResourceGroup(request: ListCurrentTasksForResourceGroupRequest): ListCurrentTasksForResourceGroupResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListCurrentTasksForResourceGroup', 'POST', '/', 'json', true, 'form', request);
-}
-
-model ListCurrentUsageForResourceGroupRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  projectEnv?: string(name='ProjectEnv', position='Body'),
-  resourceGroupIdentifier: string(name='ResourceGroupIdentifier', position='Body'),
-}
-
-model ListCurrentUsageForResourceGroupResponseBody = {
-  data?: {
-    recodeTime?: long(name='RecodeTime'),
-    usage?: float(name='Usage'),
-  }(name='Data'),
-  errorMessage?: string(name='ErrorMessage'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success'),
-}
-
-model ListCurrentUsageForResourceGroupResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListCurrentUsageForResourceGroupResponseBody(name='body'),
-}
-
-async function listCurrentUsageForResourceGroup(request: ListCurrentUsageForResourceGroupRequest): ListCurrentUsageForResourceGroupResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListCurrentUsageForResourceGroup', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ListDIProjectConfigRequest {
@@ -5812,6 +5914,41 @@ async function listDeployments(request: ListDeploymentsRequest): ListDeployments
   return @handler.do('RPC', 'ListDeployments', 'POST', '/', 'json', true, 'form', request);
 }
 
+model ListEnabledExtensionsForProjectRequest {
+  regionId: string(name='RegionId', position='Host'),
+  eventCode: string(name='EventCode', position='Body'),
+  fileType?: string(name='FileType', position='Body'),
+  projectId: long(name='ProjectId', position='Body'),
+}
+
+model ListEnabledExtensionsForProjectResponseBody = {
+  extensions?: [ 
+    {
+      createUser?: string(name='CreateUser'),
+      extensionCode?: string(name='ExtensionCode'),
+      extensionDesc?: string(name='ExtensionDesc'),
+      extensionName?: string(name='ExtensionName'),
+      gmtCreate?: long(name='GmtCreate'),
+      gmtModified?: long(name='GmtModified'),
+      modifyUser?: string(name='ModifyUser'),
+      owner?: string(name='Owner'),
+      parameterSetting?: string(name='ParameterSetting'),
+      tenantId?: long(name='TenantId'),
+    }
+  ](name='Extensions'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model ListEnabledExtensionsForProjectResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListEnabledExtensionsForProjectResponseBody(name='body'),
+}
+
+async function listEnabledExtensionsForProject(request: ListEnabledExtensionsForProjectRequest): ListEnabledExtensionsForProjectResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListEnabledExtensionsForProject', 'POST', '/', 'json', true, 'form', request);
+}
+
 model ListExtensionsRequest {
   regionId?: string(name='RegionId', position='Host'),
   pageNumber?: int32(name='PageNumber', position='Query'),
@@ -5849,7 +5986,7 @@ model ListExtensionsResponse = {
 
 async function listExtensions(request: ListExtensionsRequest): ListExtensionsResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListExtensions', 'GET', '/', 'json', false, 'json', request);
+  return @handler.do('RPC', 'ListExtensions', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListFileTypeRequest {
@@ -6034,49 +6171,6 @@ model ListFoldersResponse = {
 async function listFolders(request: ListFoldersRequest): ListFoldersResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListFolders', 'POST', '/', 'json', true, 'form', request);
-}
-
-model ListHistoryTasksForResourceGroupRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  endTime: long(name='EndTime', description='最晚当前时间', minimum=1547952690, position='Body'),
-  pageNumber?: int32(name='PageNumber', minimum=1, position='Body'),
-  pageSize?: int32(name='PageSize', maximum=100, position='Body'),
-  projectEnv?: string(name='ProjectEnv', position='Body'),
-  resourceGroupIdentifier: string(name='ResourceGroupIdentifier', position='Body'),
-  startTime: long(name='StartTime', description='7天内', minimum=1547952690, position='Body'),
-}
-
-model ListHistoryTasksForResourceGroupResponseBody = {
-  data?: {
-    pageNum?: int32(name='PageNum'),
-    pageSize?: int32(name='PageSize'),
-    tasks?: [ 
-      {
-        concurrency?: int32(name='Concurrency'),
-        projectName?: string(name='ProjectName'),
-        status?: int32(name='Status'),
-        taskId?: string(name='TaskId'),
-        taskName?: string(name='TaskName'),
-        taskType?: int32(name='TaskType'),
-      }
-    ](name='Tasks'),
-    totalNum?: int32(name='TotalNum'),
-  }(name='Data'),
-  errorCode?: string(name='ErrorCode'),
-  errorMessage?: string(name='ErrorMessage'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  success?: boolean(name='Success'),
-}
-
-model ListHistoryTasksForResourceGroupResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListHistoryTasksForResourceGroupResponseBody(name='body'),
-}
-
-async function listHistoryTasksForResourceGroup(request: ListHistoryTasksForResourceGroupRequest): ListHistoryTasksForResourceGroupResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListHistoryTasksForResourceGroup', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ListInnerNodesRequest {
@@ -6782,6 +6876,13 @@ model ListProjectsRequest {
   regionId: string(name='RegionId', position='Host'),
   pageNumber?: int32(name='PageNumber', minimum=1, maximum=10000000, position='Query'),
   pageSize?: int32(name='PageSize', minimum=1, maximum=10000000, position='Query'),
+  resourceManagerResourceGroupId?: string(name='ResourceManagerResourceGroupId', position='Query'),
+  tags?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tags', shrink='json', position='Query'),
 }
 
 model ListProjectsResponseBody = {
@@ -6790,6 +6891,8 @@ model ListProjectsResponseBody = {
     pageSize?: int32(name='PageSize'),
     projectList?: [ 
       {
+        disableDevelopment?: boolean(name='DisableDevelopment'),
+        isDefault?: int32(name='IsDefault'),
         projectDescription?: string(name='ProjectDescription'),
         projectId?: long(name='ProjectId'),
         projectIdentifier?: string(name='ProjectIdentifier'),
@@ -6797,6 +6900,15 @@ model ListProjectsResponseBody = {
         projectOwnerBaseId?: string(name='ProjectOwnerBaseId'),
         projectStatus?: int32(name='ProjectStatus'),
         projectStatusCode?: string(name='ProjectStatusCode'),
+        resourceManagerResourceGroupId?: string(name='ResourceManagerResourceGroupId'),
+        tablePrivacyMode?: int32(name='TablePrivacyMode'),
+        tags?: [ 
+          {
+            key?: string(name='Key'),
+            value?: string(name='Value'),
+          }
+        ](name='Tags'),
+        useProxyOdpsAccount?: boolean(name='UseProxyOdpsAccount'),
       }
     ](name='ProjectList'),
     totalCount?: int32(name='TotalCount'),
@@ -7153,6 +7265,13 @@ model ListResourceGroupsRequest {
   bizExtKey?: string(name='BizExtKey', position='Query'),
   keyword?: string(name='Keyword', position='Query'),
   resourceGroupType: int32(name='ResourceGroupType', position='Query'),
+  resourceManagerResourceGroupId?: string(name='ResourceManagerResourceGroupId', position='Query'),
+  tags?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tags', shrink='json', position='Query'),
 }
 
 model ListResourceGroupsResponseBody = {
@@ -7168,9 +7287,16 @@ model ListResourceGroupsResponseBody = {
       mode?: string(name='Mode'),
       name?: string(name='Name'),
       resourceGroupType?: string(name='ResourceGroupType'),
+      resourceManagerResourceGroupId?: string(name='ResourceManagerResourceGroupId'),
       sequence?: int32(name='Sequence'),
       specs?: map[string]any(name='Specs'),
       status?: int32(name='Status'),
+      tags?: [ 
+        {
+          key?: string(name='Key'),
+          value?: string(name='Value'),
+        }
+      ](name='Tags'),
       tenantId?: long(name='TenantId'),
       updateTime?: string(name='UpdateTime'),
     }
@@ -7192,10 +7318,10 @@ async function listResourceGroups(request: ListResourceGroupsRequest): ListResou
 
 model ListShiftPersonnelsRequest {
   regionId?: string(name='RegionId', position='Host'),
-  beginTime?: long(name='BeginTime', position='Body'),
-  endTime?: long(name='EndTime', position='Body'),
+  beginTime: long(name='BeginTime', position='Body'),
+  endTime: long(name='EndTime', position='Body'),
   shiftPersonUID?: string(name='ShiftPersonUID', position='Body'),
-  shiftScheduleIdentifier?: string(name='ShiftScheduleIdentifier', position='Body'),
+  shiftScheduleIdentifier: string(name='ShiftScheduleIdentifier', position='Body'),
   userType?: string(name='UserType', position='Body'),
 }
 
@@ -7426,38 +7552,6 @@ model ListTopicsResponse = {
 async function listTopics(request: ListTopicsRequest): ListTopicsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListTopics', 'POST', '/', 'json', true, 'form', request);
-}
-
-model ListUsageForResourceGroupRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  endTime: long(name='EndTime', description='最晚当前时间', minimum=1547952690, position='Body'),
-  projectEnv: string(name='ProjectEnv', position='Body'),
-  resourceGroupIdentifier: string(name='ResourceGroupIdentifier', position='Body'),
-  startTime: long(name='StartTime', description='7天内', minimum=1547952690, position='Body'),
-}
-
-model ListUsageForResourceGroupResponseBody = {
-  data?: [ 
-    {
-      recodeTime?: long(name='RecodeTime'),
-      usage?: double(name='Usage'),
-    }
-  ](name='Data'),
-  errorCode?: string(name='ErrorCode'),
-  errorMessage?: string(name='ErrorMessage'),
-  httpStatusCode?: int32(name='HttpStatusCode'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-}
-
-model ListUsageForResourceGroupResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListUsageForResourceGroupResponseBody(name='body'),
-}
-
-async function listUsageForResourceGroup(request: ListUsageForResourceGroupRequest): ListUsageForResourceGroupResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListUsageForResourceGroup', 'POST', '/', 'json', true, 'form', request);
 }
 
 model OfflineNodeRequest {
@@ -8259,6 +8353,69 @@ async function topTenErrorTimesInstance(request: TopTenErrorTimesInstanceRequest
   return @handler.do('RPC', 'TopTenErrorTimesInstance', 'POST', '/', 'json', true, 'form', request);
 }
 
+model UpdateBaselineRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  alertEnabled?: boolean(name='AlertEnabled', description='是否开启告警', position='Body'),
+  alertMarginThreshold?: int32(name='AlertMarginThreshold', description='基线预警余量', position='Body'),
+  alertSettings?: [ 
+    {
+      alertInterval: int32(name='AlertInterval', description='事件告警间隔'),
+      alertMaximum: int32(name='AlertMaximum', description='事件告警最大次数'),
+      alertMethods?: [ string ](name='AlertMethods', description='告警方式'),
+      alertRecipient?: string(name='AlertRecipient', description='告警接收人详情'),
+      alertRecipientType?: string(name='AlertRecipientType', description='告警接收人类型'),
+      alertType?: string(name='AlertType', description='告警类型，BASELINE / TOPIC'),
+      baselineAlertEnabled?: boolean(name='BaselineAlertEnabled', description='基线告警开关，基线特有配置'),
+      dingRobots?: [ 
+        {
+          atAll?: boolean(name='AtAll'),
+          webUrl?: string(name='WebUrl'),
+        }
+      ](name='DingRobots', description='钉钉机器人列表'),
+      silenceEndTime?: string(name='SilenceEndTime', description='静默结束时间'),
+      silenceStartTime?: string(name='SilenceStartTime', description='静默开始时间'),
+      topicTypes?: [ string ](name='TopicTypes', description='事件告警类型，事件特有配置'),
+      webhooks?: [ string ](name='Webhooks', description='webhook 列表'),
+    }
+  ](name='AlertSettings', description='告警配置', shrink='json', position='Body'),
+  baselineId: long(name='BaselineId', position='Body'),
+  baselineName?: string(name='BaselineName', description='基线名', position='Body'),
+  baselineType?: string(name='BaselineType', description='基线类型 (DAILY, HOURLY)', position='Body'),
+  enabled?: boolean(name='Enabled', description='是否开启基线', position='Body'),
+  overtimeSettings?: [ 
+    {
+      cycle?: int32(name='Cycle', description='周期，取值范围 [1,24]'),
+      time?: string(name='Time', description='承诺时间，hh:mm格式，hh的取值范围为[0,47]，mm的取值范围为[0,59]'),
+    }
+  ](name='OvertimeSettings', description='基线承诺时间', shrink='json', position='Body'),
+  owner?: string(name='Owner', description='责任人', position='Body'),
+  priority?: int32(name='Priority', description='基线优先级', position='Body'),
+  projectId: long(name='ProjectId', position='Body'),
+  removeTaskIds?: string(name='RemoveTaskIds', position='Body'),
+  taskIds?: string(name='TaskIds', position='Body'),
+}
+
+model UpdateBaselineResponseBody = {
+  data?: boolean(name='Data'),
+  dynamicErrorCode?: string(name='DynamicErrorCode'),
+  dynamicErrorMessage?: string(name='DynamicErrorMessage'),
+  errorCode?: string(name='ErrorCode'),
+  errorMessage?: string(name='ErrorMessage'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model UpdateBaselineResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateBaselineResponseBody(name='body'),
+}
+
+async function updateBaseline(request: UpdateBaselineRequest): UpdateBaselineResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateBaseline', 'POST', '/', 'json', true, 'form', request);
+}
+
 model UpdateBusinessRequest {
   regionId: string(name='RegionId', position='Host'),
   businessId: long(name='BusinessId', position='Body'),
@@ -8738,6 +8895,7 @@ model UpdateRemindRequest {
   remindUnit?: string(name='RemindUnit', position='Body'),
   robotUrls?: string(name='RobotUrls', position='Body'),
   useFlag?: boolean(name='UseFlag', position='Body'),
+  webhooks?: string(name='Webhooks', position='Body'),
 }
 
 model UpdateRemindResponseBody = {
