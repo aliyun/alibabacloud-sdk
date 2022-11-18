@@ -39,7 +39,7 @@ model ChangeSkyRequest {
 
 model ChangeSkyAdvanceRequest {
   imageURLObject?: readable(name='ImageURL'),
-  replaceImageURL?: string(name='ReplaceImageURL'),
+  replaceImageURLObject?: readable(name='ReplaceImageURL'),
 }
 
 model ChangeSkyResponseBody = {
@@ -155,6 +155,32 @@ async function changeSkyAdvance(request: ChangeSkyAdvanceRequest, runtime: Util.
     };
     ossClient.postObject(uploadRequest, ossRuntime);
     changeSkyReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  if(!Util.isUnset(request.replaceImageURLObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.replaceImageURLObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    changeSkyReq.replaceImageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var changeSkyResp = changeSkyWithOptions(changeSkyReq, runtime);
   return changeSkyResp;
