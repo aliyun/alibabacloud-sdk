@@ -32,27 +32,27 @@ function close(): void {
 
 model AddRepositoryMemberRequest {
   repositoryId: long(name='repositoryId', description='代码库ID', minimum=0, maximum=9223372036854775807, position='Path'),
-  accessToken?: string(name='AccessToken', description='Codeup访问令牌，使用AK/SK方式访问可以不用填AccessToken', position='Query'),
+  accessToken?: string(name='accessToken', description='Codeup访问令牌，使用AK/SK方式访问可以不用填AccessToken', position='Query'),
   accessLevel: int32(name='accessLevel', description='成员权限', position='Body'),
   aliyunPks: string(name='aliyunPks', description='需要添加为代码库成员的用户阿里云ID。支持多个，以","分割', position='Body'),
   organizationId: string(name='organizationId', description='企业ID', position='Query'),
 }
 
 model AddRepositoryMemberResponseBody = {
-  errorCode?: string(name='ErrorCode', description='错误码'),
-  errorMessage?: string(name='ErrorMessage', description='错误信息'),
-  requestId?: string(name='RequestId', description='请求ID'),
+  errorCode?: string(name='errorCode', description='错误码'),
+  errorMessage?: string(name='errorMessage', description='错误信息'),
+  requestId?: string(name='requestId', description='请求ID'),
   result?: [ 
     {
-      accessLevel?: int32(name='AccessLevel', description='权限类型'),
-      avatarUrl?: string(name='AvatarUrl', description='头像地址'),
-      email?: string(name='Email', description='邮箱'),
-      externUserId?: string(name='ExternUserId', description='云效用户ID'),
-      id?: long(name='Id', description='Codeup用户Id'),
-      state?: string(name='State', description='状态'),
+      accessLevel?: int32(name='accessLevel', description='权限类型'),
+      avatarUrl?: string(name='avatarUrl', description='头像地址'),
+      email?: string(name='email', description='邮箱'),
+      externUserId?: string(name='externUserId', description='云效用户ID'),
+      id?: long(name='id', description='Codeup用户Id'),
+      state?: string(name='state', description='状态'),
     }
-  ](name='Result', description='返回结果'),
-  success?: boolean(name='Success', description='请求状态'),
+  ](name='result', description='返回结果'),
+  success?: boolean(name='success', description='请求状态'),
 }
 
 model AddRepositoryMemberResponse = {
@@ -67,8 +67,7 @@ async function addRepositoryMember(request: AddRepositoryMemberRequest): AddRepo
 
 model AddWebhookRequest {
   repositoryId: long(name='repositoryId', minimum=0, maximum=9223372036854775807, position='Path'),
-  accessToken?: string(name='AccessToken', position='Query'),
-  organizationId: string(name='OrganizationId', position='Query'),
+  accessToken?: string(name='accessToken', position='Query'),
   description?: string(name='description', description='webhook描述', position='Body'),
   enableSslVerification?: boolean(name='enableSslVerification', description='使用ssl认证', position='Body'),
   mergeRequestsEvents?: boolean(name='mergeRequestsEvents', description='合并请求事件', position='Body'),
@@ -77,6 +76,7 @@ model AddWebhookRequest {
   secretToken?: string(name='secretToken', position='Body'),
   tagPushEvents?: boolean(name='tagPushEvents', description='标签推送事件', position='Body'),
   url: string(name='url', description='hook url', position='Body'),
+  organizationId: string(name='organizationId', position='Query'),
 }
 
 model AddWebhookResponseBody = {
@@ -298,6 +298,66 @@ async function createOAuthToken(request: CreateOAuthTokenRequest): CreateOAuthTo
   return @handler.do('RESTFUL', 'CreateOAuthToken', 'POST', '/login/oauth/create', 'json', false, 'json', request);
 }
 
+model CreatePipelineRequest {
+  organizationId: string(name='organizationId', position='Path'),
+  basicInfo: {
+    envId?: long(name='envId', description='流水线环境配置：0日常环境、1预发环境、2正式环境'),
+    groupId?: long(name='groupId', description='流水线分组id'),
+    name: string(name='name', description='流水线名称'),
+    tagIds?: string(name='tagIds', description='标签id，多个标签以逗号隔开'),
+  }(name='basicInfo', description='流水线基础信息', position='Body'),
+  pipelineYaml: string(name='pipelineYaml', description='流水线yaml配置', position='Body'),
+  settings?: {
+    caches?: [ 
+      {
+        desc?: string(name='desc', description='缓存描述'),
+        directory?: string(name='directory', description='缓存目录'),
+        disable?: boolean(name='disable', description='是否开启'),
+      }
+    ](name='caches', description='缓存目录配置'),
+    globalParams?: [ 
+      {
+        key?: string(name='key', description='变量key'),
+        mask?: boolean(name='mask', description='是否私密模式'),
+        runningConfig?: boolean(name='runningConfig', description='是否开启运行时配置'),
+        value?: string(name='value', description='变量值'),
+      }
+    ](name='globalParams', description='变量配置'),
+    runnerCacheMode?: string(name='runnerCacheMode', description='私有构建集群缓存配置;local本地、cloud、云端'),
+  }(name='settings', description='缓存和变量配置', position='Body'),
+  triggerInfo?: {
+    scheduled?: {
+      daysOfWeek?: string(name='daysOfWeek', description='周期触发日期选择,多个用逗号隔开；
+1周日、2周一、3周二、4周三、5周四、6周五、7周日；不填默认选择全部'),
+      fixedTime?: string(name='fixedTime', description='单次触发触发时间'),
+      from?: string(name='from', description='周期触发开始时间'),
+      interval?: int32(name='interval', description='周期触发间隔时间'),
+      onlySourceChange?: boolean(name='onlySourceChange', description='代码变更时定时器触发'),
+      to?: string(name='to', description='周期触发结束时间'),
+      type?: string(name='type', description='触发类型；PERIO周期触发、FIXED固定触发'),
+    }(name='scheduled', description='定时触发配置'),
+    webhookEnable?: boolean(name='webhookEnable', description='流水线webhook开关'),
+  }(name='triggerInfo', description='流水线触发设置', position='Body'),
+}
+
+model CreatePipelineResponseBody = {
+  errorCode?: string(name='errorCode', description='错误码'),
+  errorMessage?: string(name='errorMessage', description='错误信息'),
+  object?: long(name='object', description='流水线id'),
+  requestId?: string(name='requestId', description='请求id，每次请求都是唯一值，便于后续排查问题'),
+  success?: boolean(name='success'),
+}
+
+model CreatePipelineResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreatePipelineResponseBody(name='body'),
+}
+
+async function createPipeline(request: CreatePipelineRequest): CreatePipelineResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreatePipeline', 'POST', '/organization/{organizationId}/pipelines', 'json', false, 'json', request);
+}
+
 model CreatePipelineGroupRequest {
   organizationId: string(name='organizationId', position='Path'),
   name: string(name='name', maxLength=40, position='Query'),
@@ -365,6 +425,115 @@ model CreateProjectResponse = {
 async function createProject(request: CreateProjectRequest): CreateProjectResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateProject', 'POST', '/organization/{organizationId}/projects/createProject', 'json', false, 'json', request);
+}
+
+model CreateProtectdBranchRequest {
+  repositoryId: long(name='repositoryId', position='Path'),
+  accessToken?: string(name='accessToken', position='Query'),
+  allowMergeRoles: [ int32 ](name='allowMergeRoles', position='Body'),
+  allowMergeUserIds: [ string ](name='allowMergeUserIds', position='Body'),
+  allowPushRoles: [ int32 ](name='allowPushRoles', position='Body'),
+  allowPushUserIds: [ string ](name='allowPushUserIds', position='Body'),
+  branch: string(name='branch', position='Body'),
+  id?: long(name='id', position='Body'),
+  mergeRequestSetting?: {
+    allowMergeRequestRoles?: [ int32 ](name='allowMergeRequestRoles'),
+    defaultAssignees?: [ string ](name='defaultAssignees'),
+    isAllowSelfApproval?: boolean(name='isAllowSelfApproval'),
+    isRequireDiscussionProcessed?: boolean(name='isRequireDiscussionProcessed'),
+    isRequired?: boolean(name='isRequired'),
+    isResetApprovalWhenNewPush?: boolean(name='isResetApprovalWhenNewPush'),
+    minimumApproval?: int32(name='minimumApproval'),
+    mrMode?: string(name='mrMode'),
+    whiteList?: string(name='whiteList'),
+  }(name='mergeRequestSetting', position='Body'),
+  testSettingDTO?: {
+    checkConfig?: {
+      checkItems?: [ 
+        {
+          isRequired?: boolean(name='isRequired'),
+          name?: string(name='name'),
+        }
+      ](name='checkItems'),
+    }(name='checkConfig'),
+    checkTaskQualityConfig?: {
+      bizNo?: string(name='bizNo'),
+      enabled?: boolean(name='enabled'),
+      message?: string(name='message'),
+      taskName?: string(name='taskName'),
+    }(name='checkTaskQualityConfig'),
+    codeGuidelinesDetection?: {
+      enabled?: boolean(name='enabled'),
+      message?: string(name='message'),
+    }(name='codeGuidelinesDetection'),
+    isRequired?: boolean(name='isRequired'),
+    sensitiveInfoDetection?: {
+      enabled?: boolean(name='enabled'),
+      message?: string(name='message'),
+    }(name='sensitiveInfoDetection'),
+  }(name='testSettingDTO', position='Body'),
+  organizationId: string(name='organizationId', description='A short description of struct', position='Query'),
+}
+
+model CreateProtectdBranchResponseBody = {
+  errorCode?: string(name='errorCode'),
+  errorMessage?: string(name='errorMessage'),
+  requestId?: string(name='requestId', description='Id of the request'),
+  result?: {
+    allowMergeRoles?: [ int32 ](name='allowMergeRoles'),
+    allowMergeUserIds?: [ long ](name='allowMergeUserIds'),
+    allowPushRoles?: [ int32 ](name='allowPushRoles'),
+    allowPushUserIds?: [ long ](name='allowPushUserIds'),
+    branch?: string(name='branch'),
+    id?: long(name='id'),
+    mergeRequestSetting?: {
+      allowMergeRequestRoles?: [ int32 ](name='allowMergeRequestRoles'),
+      defaultAssignees?: [ string ](name='defaultAssignees'),
+      isAllowSelfApproval?: boolean(name='isAllowSelfApproval'),
+      isRequireDiscussionProcessed?: boolean(name='isRequireDiscussionProcessed'),
+      isRequired?: boolean(name='isRequired'),
+      isResetApprovalWhenNewPush?: boolean(name='isResetApprovalWhenNewPush'),
+      minimumApproval?: int32(name='minimumApproval'),
+      mrMode?: string(name='mrMode'),
+      whiteList?: string(name='whiteList'),
+    }(name='mergeRequestSetting'),
+    testSettingDTO?: {
+      checkConfig?: {
+        checkItems?: [ 
+          {
+            isRequired?: boolean(name='isRequired'),
+            name?: string(name='name'),
+          }
+        ](name='checkItems'),
+      }(name='checkConfig'),
+      checkTaskQualityConfig?: {
+        bizNo?: string(name='bizNo'),
+        enabled?: boolean(name='enabled'),
+        message?: string(name='message'),
+        taskName?: string(name='taskName'),
+      }(name='checkTaskQualityConfig'),
+      codeGuidelinesDetection?: {
+        enabled?: boolean(name='enabled'),
+        message?: string(name='message'),
+      }(name='codeGuidelinesDetection'),
+      isRequired?: boolean(name='isRequired'),
+      sensitiveInfoDetection?: {
+        enabled?: boolean(name='enabled'),
+        message?: string(name='message'),
+      }(name='sensitiveInfoDetection'),
+    }(name='testSettingDTO'),
+  }(name='result'),
+  success?: boolean(name='success'),
+}
+
+model CreateProtectdBranchResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateProtectdBranchResponseBody(name='body'),
+}
+
+async function createProtectdBranch(request: CreateProtectdBranchRequest): CreateProtectdBranchResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateProtectdBranch', 'POST', '/repository/{repositoryId}/protect_branches', 'json', false, 'json', request);
 }
 
 model CreateRepositoryRequest {
@@ -561,10 +730,10 @@ model CreateWorkitemRequest {
   category: string(name='category', description='工作项的类型id，比如：Bug、Task对应id', position='Body'),
   description?: string(name='description', description='工作项内容', position='Body'),
   descriptionFormat?: string(name='descriptionFormat', description='内容格式', position='Body'),
-  fieldValueList: [ 
+  fieldValueList?: [ 
     {
-      fieldIdentifier: string(name='fieldIdentifier', description='字段唯一标识'),
-      value: string(name='value', description='字段值，写入时使用'),
+      fieldIdentifier?: string(name='fieldIdentifier', description='字段唯一标识'),
+      value?: string(name='value', description='字段值，写入时使用'),
       workitemIdentifier?: string(name='workitemIdentifier', description='工作项的唯一标识'),
     }
   ](name='fieldValueList', description='自定义字段', position='Body'),
@@ -1056,6 +1225,47 @@ async function deleteRepository(request: DeleteRepositoryRequest): DeleteReposit
   return @handler.do('RESTFUL', 'DeleteRepository', 'POST', '/repository/{repositoryId}/remove', 'json', false, 'json', request);
 }
 
+model DeleteRepositoryWebhookRequest {
+  repositoryId: long(name='repositoryId', position='Path'),
+  hookId: long(name='hookId', position='Path'),
+  accessToken?: string(name='accessToken', position='Query'),
+  organizationId: string(name='organizationId', position='Query'),
+}
+
+model DeleteRepositoryWebhookResponseBody = {
+  errorCode?: string(name='errorCode'),
+  errorMessage?: string(name='errorMessage'),
+  requestId?: string(name='requestId', description='Id of the request'),
+  result?: {
+    buildEvents?: boolean(name='buildEvents'),
+    createdAt?: string(name='createdAt'),
+    description?: string(name='description'),
+    enableSslVerification?: boolean(name='enableSslVerification'),
+    id?: long(name='id'),
+    issuesEvents?: boolean(name='issuesEvents'),
+    lastTestResult?: string(name='lastTestResult'),
+    mergeRequestsEvents?: boolean(name='mergeRequestsEvents'),
+    noteEvents?: boolean(name='noteEvents'),
+    projectId?: long(name='projectId'),
+    pushEvents?: boolean(name='pushEvents'),
+    secretToken?: string(name='secretToken'),
+    tagPushEvents?: boolean(name='tagPushEvents'),
+    type?: string(name='type'),
+    url?: string(name='url'),
+  }(name='result'),
+  success?: boolean(name='success'),
+}
+
+model DeleteRepositoryWebhookResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteRepositoryWebhookResponseBody(name='body'),
+}
+
+async function deleteRepositoryWebhook(request: DeleteRepositoryWebhookRequest): DeleteRepositoryWebhookResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteRepositoryWebhook', 'DELETE', '/repository/{repositoryId}/hooks/{hookId}', 'json', false, 'json', request);
+}
+
 model DeleteResourceMemberRequest {
   organizationId: string(name='organizationId', description='企业标识，也称企业id，字符串形式，可在云效访问链接中获取，如  https:// devops.aliyun.com/organization/【OrgId】', position='Path'),
   resourceType: string(name='resourceType', description='资源id', minimum=1, maximum=999999999999999, position='Path'),
@@ -1239,23 +1449,23 @@ async function getBranchInfo(request: GetBranchInfoRequest): GetBranchInfoRespon
 
 model GetCodeupOrganizationRequest {
   identity: string(name='identity', position='Path'),
-  accessToken?: string(name='AccessToken', position='Query'),
+  accessToken?: string(name='accessToken', position='Query'),
 }
 
 model GetCodeupOrganizationResponseBody = {
-  errorCode?: string(name='ErrorCode'),
-  errorMessage?: string(name='ErrorMessage'),
-  requestId?: string(name='RequestId'),
+  errorCode?: string(name='errorCode'),
+  errorMessage?: string(name='errorMessage'),
+  requestId?: string(name='requestId'),
   result?: {
-    createdAt?: string(name='CreatedAt'),
-    id?: long(name='Id'),
-    namespaceId?: long(name='NamespaceId'),
-    organizationId?: string(name='OrganizationId'),
-    path?: string(name='Path'),
-    updatedAt?: string(name='UpdatedAt'),
-    userRole?: string(name='UserRole'),
-  }(name='Result'),
-  success?: boolean(name='Success'),
+    createdAt?: string(name='createdAt'),
+    id?: long(name='id'),
+    namespaceId?: long(name='namespaceId'),
+    organizationId?: string(name='organizationId'),
+    path?: string(name='path'),
+    updatedAt?: string(name='updatedAt'),
+    userRole?: string(name='userRole'),
+  }(name='result'),
+  success?: boolean(name='success'),
 }
 
 model GetCodeupOrganizationResponse = {
@@ -1338,35 +1548,35 @@ async function getFileBlobs(request: GetFileBlobsRequest): GetFileBlobsResponse 
 model GetFileLastCommitRequest {
   repositoryId: long(name='repositoryId', description='代码库ID', minimum=0, maximum=9223372036854775807, position='Path'),
   accessToken?: string(name='accessToken', description='个人访问令牌', position='Query'),
-  filepath: string(name='filepath', description='文件路径', position='Query'),
+  filePath: string(name='filePath', description='文件路径', position='Query'),
   organizationId: string(name='organizationId', description='云效企业ID', position='Query'),
   sha: string(name='sha', description='分支名称、标签名称或Commit ID', position='Query'),
   showSignature?: boolean(name='showSignature', position='Query'),
 }
 
 model GetFileLastCommitResponseBody = {
-  errorCode?: string(name='ErrorCode', description='错误码'),
-  errorMessage?: string(name='ErrorMessage', description='错误信息'),
-  requestId?: string(name='RequestId', description='请求ID'),
+  errorCode?: string(name='errorCode', description='错误码'),
+  errorMessage?: string(name='errorMessage', description='错误信息'),
+  requestId?: string(name='requestId', description='请求ID'),
   result?: {
-    authorDate?: string(name='AuthorDate', description='作者提交时间'),
-    authorEmail?: string(name='AuthorEmail', description='提交者邮箱'),
-    authorName?: string(name='AuthorName', description='作者姓名'),
-    committedDate?: string(name='CommittedDate', description='提交者提交时间'),
-    committerEmail?: string(name='CommitterEmail', description='提交者邮箱'),
-    committerName?: string(name='CommitterName', description='提交者姓名'),
-    createdAt?: string(name='CreatedAt', description='创建时间'),
-    id?: string(name='Id', description='Commit ID'),
-    message?: string(name='Message', description='提交内容'),
-    parentIds?: [ string ](name='ParentIds', description='父提交ID'),
-    shortId?: string(name='ShortId', description='Commit短ID'),
+    authorDate?: string(name='authorDate', description='作者提交时间'),
+    authorEmail?: string(name='authorEmail', description='提交者邮箱'),
+    authorName?: string(name='authorName', description='作者姓名'),
+    committedDate?: string(name='committedDate', description='提交者提交时间'),
+    committerEmail?: string(name='committerEmail', description='提交者邮箱'),
+    committerName?: string(name='committerName', description='提交者姓名'),
+    createdAt?: string(name='createdAt', description='创建时间'),
+    id?: string(name='id', description='Commit ID'),
+    message?: string(name='message', description='提交内容'),
+    parentIds?: [ string ](name='parentIds', description='父提交ID'),
+    shortId?: string(name='shortId', description='Commit短ID'),
     signature?: {
       gpgKeyId?: string(name='GpgKeyId', description='GPG密钥ID'),
       verificationStatus?: string(name='VerificationStatus', description='验证状态'),
-    }(name='Signature', description='签名'),
-    title?: string(name='Title', description='标题，提交的第一行内容'),
-  }(name='Result', description='响应结果'),
-  success?: boolean(name='Success', description='请求结果'),
+    }(name='signature', description='签名'),
+    title?: string(name='title', description='标题，提交的第一行内容'),
+  }(name='result', description='响应结果'),
+  success?: boolean(name='success', description='请求结果'),
 }
 
 model GetFileLastCommitResponse = {
@@ -1796,10 +2006,10 @@ async function getProjectInfo(request: GetProjectInfoRequest): GetProjectInfoRes
 }
 
 model GetProjectMemberRequest {
-  accessToken?: string(name='AccessToken', description='accessToken（选填），使用AK方式调用时无需填accessToken', position='Query'),
-  organizationId: string(name='OrganizationId', description='企业ID', position='Query'),
-  repositoryId: long(name='repositoryId', description='代码仓库Id', position='Query'),
-  userAliyunPk: string(name='userAliyunPk', description='用户阿里云PK', position='Query'),
+  repositoryId: long(name='repositoryId', description='代码仓库Id', position='Path'),
+  aliyunPk: string(name='aliyunPk', description='用户阿里云PK', position='Path'),
+  accessToken?: string(name='accessToken', description='accessToken（选填），使用AK方式调用时无需填accessToken', position='Query'),
+  organizationId: string(name='organizationId', description='企业ID', position='Query'),
 }
 
 model GetProjectMemberResponseBody = {
@@ -1823,7 +2033,7 @@ model GetProjectMemberResponse = {
 
 async function getProjectMember(request: GetProjectMemberRequest): GetProjectMemberResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'GetProjectMember', 'GET', '/repository/member/get', 'json', false, 'json', request);
+  return @handler.do('RESTFUL', 'GetProjectMember', 'GET', '/repository/{repositoryId}/members/get/{aliyunPk}', 'json', false, 'json', request);
 }
 
 model GetRepositoryRequest {
@@ -1877,6 +2087,72 @@ model GetRepositoryResponse = {
 async function getRepository(request: GetRepositoryRequest): GetRepositoryResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetRepository', 'GET', '/repository/get', 'json', false, 'json', request);
+}
+
+model GetRepositoryCommitRequest {
+  repositoryId: long(name='repositoryId', description='The ID of a project', position='Path'),
+  sha: string(name='sha', description='The commit hash or name of a repository branch or tag', position='Path'),
+  accessToken?: string(name='accessToken', position='Query'),
+  organizationId: string(name='organizationId', position='Query'),
+  showSignature?: boolean(name='showSignature', description='展示签名', position='Query'),
+}
+
+model GetRepositoryCommitResponseBody = {
+  errorCode?: string(name='errorCode'),
+  errorMessage?: string(name='errorMessage'),
+  requestId?: string(name='requestId'),
+  result?: {
+    author?: {
+      avatarUrl?: string(name='avatarUrl'),
+      email?: string(name='email'),
+      externUid?: string(name='externUid'),
+      id?: long(name='id'),
+      name?: string(name='name'),
+      state?: string(name='state'),
+      tbUserId?: string(name='tbUserId'),
+      username?: string(name='username'),
+      websiteUrl?: string(name='websiteUrl'),
+    }(name='author'),
+    authorEmail?: string(name='authorEmail'),
+    authorName?: string(name='authorName'),
+    authoredDate?: string(name='authoredDate'),
+    commentsCount?: long(name='commentsCount'),
+    committedDate?: string(name='committedDate'),
+    committer?: {
+      avatarUrl?: string(name='avatarUrl'),
+      email?: string(name='email'),
+      externUid?: string(name='externUid'),
+      id?: long(name='id'),
+      name?: string(name='name'),
+      state?: string(name='state'),
+      tbUserId?: string(name='tbUserId'),
+      username?: string(name='username'),
+      websiteUrl?: string(name='websiteUrl'),
+    }(name='committer'),
+    committerEmail?: string(name='committerEmail'),
+    committerName?: string(name='committerName'),
+    createdAt?: string(name='createdAt'),
+    id?: string(name='id'),
+    message?: string(name='message'),
+    parentIds?: [ string ](name='parentIds'),
+    shortId?: string(name='shortId'),
+    signature?: {
+      gpgKeyId?: string(name='gpgKeyId'),
+      verificationStatus?: string(name='verificationStatus'),
+    }(name='signature'),
+    title?: string(name='title'),
+  }(name='result'),
+  success?: boolean(name='success'),
+}
+
+model GetRepositoryCommitResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetRepositoryCommitResponseBody(name='body'),
+}
+
+async function getRepositoryCommit(request: GetRepositoryCommitRequest): GetRepositoryCommitResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetRepositoryCommit', 'GET', '/repository/{repositoryId}/commits/{sha}', 'json', false, 'json', request);
 }
 
 model GetSprintInfoRequest {
@@ -3085,7 +3361,7 @@ model ListRepositoryBranchesResponseBody = {
     }
   ](name='result'),
   success?: boolean(name='success'),
-  total?: string(name='total'),
+  total?: long(name='total'),
 }
 
 model ListRepositoryBranchesResponse = {
@@ -3103,7 +3379,7 @@ model ListRepositoryCommitDiffRequest {
   sha: string(name='sha', position='Path'),
   accessToken?: string(name='accessToken', position='Query'),
   contextLine?: int32(name='contextLine', position='Query'),
-  organizationId?: string(name='organizationId', position='Query'),
+  organizationId: string(name='organizationId', position='Query'),
 }
 
 model ListRepositoryCommitDiffResponseBody = {
@@ -3138,6 +3414,82 @@ model ListRepositoryCommitDiffResponse = {
 async function listRepositoryCommitDiff(request: ListRepositoryCommitDiffRequest): ListRepositoryCommitDiffResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListRepositoryCommitDiff', 'GET', '/repository/{repositoryId}/commits/{sha}/diff', 'json', false, 'json', request);
+}
+
+model ListRepositoryCommitsRequest {
+  repositoryId: long(name='repositoryId', position='Path'),
+  accessToken?: string(name='accessToken', position='Query'),
+  end?: string(name='end', position='Query'),
+  organizationId: string(name='organizationId', description='A short description of struct', position='Query'),
+  page?: long(name='page', position='Query'),
+  pageSize?: long(name='pageSize', position='Query'),
+  path?: string(name='path', position='Query'),
+  refName: string(name='refName', position='Query'),
+  search?: string(name='search', position='Query'),
+  showCommentsCount?: boolean(name='showCommentsCount', position='Query'),
+  showSignature?: boolean(name='showSignature', position='Query'),
+  start?: string(name='start', position='Query'),
+}
+
+model ListRepositoryCommitsResponseBody = {
+  errorCode?: string(name='errorCode'),
+  errorMessage?: string(name='errorMessage'),
+  requestId?: string(name='requestId', description='Id of the request'),
+  result?: [ 
+    {
+      author?: {
+        avatarUrl?: string(name='avatarUrl'),
+        email?: string(name='email'),
+        externUid?: string(name='externUid'),
+        id?: long(name='id'),
+        name?: string(name='name'),
+        state?: string(name='state'),
+        tbUserId?: string(name='tbUserId'),
+        username?: string(name='username'),
+        websiteUrl?: string(name='websiteUrl'),
+      }(name='author'),
+      authorEmail?: string(name='authorEmail'),
+      authorName?: string(name='authorName'),
+      authoredDate?: string(name='authoredDate'),
+      commentsCount?: long(name='commentsCount'),
+      committedDate?: string(name='committedDate'),
+      committer?: {
+        avatarUrl?: string(name='avatarUrl'),
+        email?: string(name='email'),
+        externUid?: string(name='externUid'),
+        id?: long(name='id'),
+        name?: string(name='name'),
+        state?: string(name='state'),
+        tbUserId?: string(name='tbUserId'),
+        username?: string(name='username'),
+        websiteUrl?: string(name='websiteUrl'),
+      }(name='committer'),
+      committerEmail?: string(name='committerEmail'),
+      committerName?: string(name='committerName'),
+      createdAt?: string(name='createdAt'),
+      id?: string(name='id'),
+      message?: string(name='message'),
+      parentIds?: [ string ](name='parentIds'),
+      shortId?: string(name='shortId'),
+      signature?: {
+        gpgKeyId?: string(name='gpgKeyId'),
+        verificationStatus?: string(name='verificationStatus'),
+      }(name='signature'),
+      title?: string(name='title'),
+    }
+  ](name='result'),
+  success?: boolean(name='success'),
+  total?: long(name='total'),
+}
+
+model ListRepositoryCommitsResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListRepositoryCommitsResponseBody(name='body'),
+}
+
+async function listRepositoryCommits(request: ListRepositoryCommitsRequest): ListRepositoryCommitsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListRepositoryCommits', 'GET', '/repository/{repositoryId}/commits', 'json', false, 'json', request);
 }
 
 model ListRepositoryMemberWithInheritedRequest {
@@ -4156,6 +4508,66 @@ async function updateHostGroup(request: UpdateHostGroupRequest): UpdateHostGroup
   return @handler.do('RESTFUL', 'UpdateHostGroup', 'PUT', '/organization/{organizationId}/hostGroups/{id}', 'json', true, 'form', request);
 }
 
+model UpdatePipelineRequest {
+  organizationId: string(name='organizationId', position='Path'),
+  basicInfo: {
+    envId?: long(name='envId'),
+    groupId?: long(name='groupId'),
+    name: string(name='name'),
+    pipelineId: long(name='pipelineId'),
+    tagIds?: string(name='tagIds'),
+  }(name='basicInfo', position='Body'),
+  pipelineYaml: string(name='pipelineYaml', position='Body'),
+  settings?: {
+    caches?: [ 
+      {
+        desc?: string(name='desc'),
+        directory?: string(name='directory'),
+        disable?: boolean(name='disable'),
+      }
+    ](name='caches'),
+    globalParams?: [ 
+      {
+        key?: string(name='key'),
+        mask?: boolean(name='mask'),
+        runningConfig?: boolean(name='runningConfig'),
+        value?: string(name='value'),
+      }
+    ](name='globalParams'),
+    runnerCacheMode?: string(name='runnerCacheMode'),
+  }(name='settings', position='Body'),
+  triggerInfo?: {
+    scheduled?: {
+      daysOfWeek?: string(name='daysOfWeek'),
+      fixedTime?: string(name='fixedTime'),
+      from?: string(name='from'),
+      interval?: int32(name='interval'),
+      onlySourceChange?: boolean(name='onlySourceChange'),
+      to?: string(name='to'),
+      type?: string(name='type'),
+    }(name='scheduled'),
+    webhookEnable?: boolean(name='webhookEnable'),
+  }(name='triggerInfo', position='Body'),
+}
+
+model UpdatePipelineResponseBody = {
+  errorCode?: string(name='errorCode'),
+  errorMessage?: string(name='errorMessage'),
+  object?: long(name='object'),
+  requestId?: string(name='requestId'),
+  success?: boolean(name='success'),
+}
+
+model UpdatePipelineResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdatePipelineResponseBody(name='body'),
+}
+
+async function updatePipeline(request: UpdatePipelineRequest): UpdatePipelineResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdatePipeline', 'PUT', '/organization/{organizationId}/pipelines', 'json', false, 'json', request);
+}
+
 model UpdatePipelineBaseInfoRequest {
   organizationId: string(name='organizationId', description='企业标识，也称企业id，字符串形式，可在云效访问链接中获取，如https://devops.aliyun.com/organization/【OrganizationId】', position='Path'),
   pipelineId?: string(name='pipelineId', position='Path'),
@@ -4246,13 +4658,13 @@ model UpdateProtectedBranchesRequest {
   id: long(name='id', position='Path,Body'),
   accessToken?: string(name='accessToken', description='accessToken（选填），使用AK方式调用时无需填accessToken', position='Query'),
   allowMergeRoles?: [ int32 ](name='allowMergeRoles', position='Body'),
-  allowMergeUserIds?: [ long ](name='allowMergeUserIds', position='Body'),
+  allowMergeUserIds?: [ string ](name='allowMergeUserIds', position='Body'),
   allowPushRoles?: [ int32 ](name='allowPushRoles', position='Body'),
-  allowPushUserIds?: [ long ](name='allowPushUserIds', position='Body'),
+  allowPushUserIds?: [ string ](name='allowPushUserIds', position='Body'),
   branch?: string(name='branch', position='Body'),
   mergeRequestSetting?: {
     allowMergeRequestRoles?: [ int32 ](name='allowMergeRequestRoles'),
-    defaultAssignees?: [ int32 ](name='defaultAssignees'),
+    defaultAssignees?: [ string ](name='defaultAssignees'),
     isAllowSelfApproval?: boolean(name='isAllowSelfApproval'),
     isRequireDiscussionProcessed?: boolean(name='isRequireDiscussionProcessed'),
     isRequired?: boolean(name='isRequired'),
@@ -4302,7 +4714,7 @@ model UpdateProtectedBranchesResponseBody = {
     id?: long(name='id'),
     mergeRequestSetting?: {
       allowMergeRequestRoles?: [ int32 ](name='allowMergeRequestRoles'),
-      defaultAssignees?: [ int32 ](name='defaultAssignees'),
+      defaultAssignees?: [ string ](name='defaultAssignees'),
       isAllowSelfApproval?: boolean(name='isAllowSelfApproval'),
       isRequireDiscussionProcessed?: boolean(name='isRequireDiscussionProcessed'),
       isRequired?: boolean(name='isRequired'),
@@ -4436,7 +4848,7 @@ async function updateRepository(request: UpdateRepositoryRequest): UpdateReposit
 
 model UpdateRepositoryMemberRequest {
   repositoryId: long(name='repositoryId', position='Path'),
-  userId: long(name='userId', position='Path'),
+  aliyunPk: string(name='aliyunPk', position='Path'),
   accessToken?: string(name='accessToken', position='Query'),
   accessLevel?: int32(name='accessLevel', position='Body'),
   expireAt?: string(name='expireAt', position='Body'),
@@ -4449,7 +4861,7 @@ model UpdateRepositoryMemberRequest {
       sourceType?: string(name='sourceType'),
     }
   ](name='relatedInfos', position='Body'),
-  organizationId?: string(name='organizationId', position='Query'),
+  organizationId: string(name='organizationId', position='Query'),
 }
 
 model UpdateRepositoryMemberResponseBody = {
@@ -4483,7 +4895,7 @@ model UpdateRepositoryMemberResponse = {
 
 async function updateRepositoryMember(request: UpdateRepositoryMemberRequest): UpdateRepositoryMemberResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'UpdateRepositoryMember', 'PUT', '/repository/{repositoryId}/{userId}', 'json', false, 'json', request);
+  return @handler.do('RESTFUL', 'UpdateRepositoryMember', 'PUT', '/repository/{repositoryId}/members/{aliyunPk}', 'json', false, 'json', request);
 }
 
 model UpdateResourceMemberRequest {
