@@ -144,7 +144,6 @@ model BindAuthToMachineRequest {
 model BindAuthToMachineResponseBody = {
   bindCount?: int32(name='BindCount'),
   insufficientCoreCount?: int32(name='InsufficientCoreCount'),
-  insufficientCount?: int32(name='InsufficientCount'),
   insufficientEcsCount?: int32(name='InsufficientEcsCount'),
   requestId?: string(name='RequestId'),
   resultCode?: int32(name='ResultCode'),
@@ -260,6 +259,10 @@ model CreateBackupPolicyRequest {
 }
 
 model CreateBackupPolicyResponseBody = {
+  backupPolicy?: {
+    id?: string(name='Id'),
+    status?: string(name='Status'),
+  }(name='BackupPolicy'),
   requestId?: string(name='RequestId'),
 }
 
@@ -376,7 +379,7 @@ async function createHoneypot(request: CreateHoneypotRequest): CreateHoneypotRes
 model CreateHoneypotNodeRequest {
   allowHoneypotAccessInternet?: boolean(name='AllowHoneypotAccessInternet', description='是否允许蜜罐访问外网', position='Query'),
   availableProbeNum?: int32(name='AvailableProbeNum', description='可用探针数量', position='Query'),
-  nodeName?: string(name='NodeName', description='管理节点名称', position='Query'),
+  nodeName: string(name='NodeName', description='管理节点名称', position='Query'),
   securityGroupProbeIpList?: [ string ](name='SecurityGroupProbeIpList', position='Query'),
 }
 
@@ -465,6 +468,7 @@ async function createOrUpdateAssetGroup(request: CreateOrUpdateAssetGroupRequest
 }
 
 model CreateServiceLinkedRoleRequest {
+  serviceLinkedRole?: string(name='ServiceLinkedRole', position='Query'),
 }
 
 model CreateServiceLinkedRoleResponseBody = {
@@ -919,6 +923,8 @@ model DescribeAlarmEventListRequest {
   operateTimeStart?: string(name='OperateTimeStart', position='Query'),
   pageSize: string(name='PageSize', position='Query'),
   remark?: string(name='Remark', position='Query'),
+  sortColumn?: string(name='SortColumn', position='Query'),
+  sortType?: string(name='SortType', position='Query'),
   sourceIp?: string(name='SourceIp', position='Query'),
   tacticId?: string(name='TacticId', position='Query'),
   timeEnd?: string(name='TimeEnd', position='Query'),
@@ -1269,6 +1275,7 @@ model DescribeBackupClientsResponseBody = {
     {
       clientId?: string(name='ClientId'),
       clientStatus?: string(name='ClientStatus'),
+      clientVersion?: string(name='ClientVersion'),
       instanceId?: string(name='InstanceId'),
       uuid?: string(name='Uuid'),
     }
@@ -1350,6 +1357,7 @@ model DescribeBackupPoliciesResponseBody = {
       policyRegionId?: string(name='PolicyRegionId'),
       policyVersion?: string(name='PolicyVersion'),
       remarkedUuidList?: [ string ](name='RemarkedUuidList'),
+      serverType?: string(name='ServerType'),
       serviceErrorCount?: int32(name='ServiceErrorCount'),
       serviceErrorUuidList?: [ string ](name='ServiceErrorUuidList'),
       status?: string(name='Status'),
@@ -2667,6 +2675,58 @@ async function describeImageGroupedVulList(request: DescribeImageGroupedVulListR
   return @handler.do('RPC', 'DescribeImageGroupedVulList', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeImageListBySensitiveFileRequest {
+  currentPage?: int32(name='CurrentPage', position='Query'),
+  imageDigest?: string(name='ImageDigest', position='Query'),
+  lang?: string(name='Lang', position='Query'),
+  pageSize?: int32(name='PageSize', position='Query'),
+  repoInstanceId?: string(name='RepoInstanceId', position='Query'),
+  repoName?: string(name='RepoName', position='Query'),
+  repoNamespace?: string(name='RepoNamespace', position='Query'),
+  riskLevel?: string(name='RiskLevel', position='Query'),
+  scanRange?: [ string ](name='ScanRange', shrink='json', position='Query'),
+  sensitiveFileKey?: string(name='SensitiveFileKey', position='Query'),
+}
+
+model DescribeImageListBySensitiveFileResponseBody = {
+  code?: string(name='Code'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  imageInfos?: [ 
+    {
+      digest?: string(name='Digest'),
+      firstScanTime?: long(name='FirstScanTime'),
+      instanceId?: string(name='InstanceId'),
+      lastScanTime?: long(name='LastScanTime'),
+      regionId?: string(name='RegionId'),
+      repoName?: string(name='RepoName'),
+      repoNamespace?: string(name='RepoNamespace'),
+      riskLevel?: string(name='RiskLevel'),
+      tag?: string(name='Tag'),
+      uuid?: string(name='Uuid'),
+    }
+  ](name='ImageInfos'),
+  message?: string(name='Message'),
+  pageInfo?: {
+    count?: int32(name='Count'),
+    currentPage?: int32(name='CurrentPage'),
+    lastRowKey?: string(name='LastRowKey'),
+    pageSize?: int32(name='PageSize'),
+    totalCount?: int32(name='TotalCount'),
+  }(name='PageInfo'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model DescribeImageListBySensitiveFileResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeImageListBySensitiveFileResponseBody(name='body'),
+}
+
+async function describeImageListBySensitiveFile(request: DescribeImageListBySensitiveFileRequest): DescribeImageListBySensitiveFileResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeImageListBySensitiveFile', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DescribeImageListWithBaselineNameRequest {
   baselineNameKey: string(name='BaselineNameKey', position='Query'),
   clusterId?: string(name='ClusterId', position='Query'),
@@ -2756,6 +2816,99 @@ model DescribeImageScanAuthCountResponse = {
 async function describeImageScanAuthCount(request: DescribeImageScanAuthCountRequest): DescribeImageScanAuthCountResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeImageScanAuthCount', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeImageSensitiveFileByKeyRequest {
+  currentPage?: int32(name='CurrentPage', position='Query'),
+  imageUuid?: string(name='ImageUuid', position='Query'),
+  lang?: string(name='Lang', position='Query'),
+  pageSize?: int32(name='PageSize', position='Query'),
+  scanRange?: [ string ](name='ScanRange', shrink='json', position='Query'),
+  sensitiveFileKey?: string(name='SensitiveFileKey', position='Query'),
+}
+
+model DescribeImageSensitiveFileByKeyResponseBody = {
+  code?: string(name='Code'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  pageInfo?: {
+    count?: int32(name='Count'),
+    currentPage?: int32(name='CurrentPage'),
+    lastRowKey?: string(name='LastRowKey'),
+    pageSize?: int32(name='PageSize'),
+    totalCount?: int32(name='TotalCount'),
+  }(name='PageInfo'),
+  requestId?: string(name='RequestId'),
+  sensitiveFileList?: [ 
+    {
+      advice?: string(name='Advice'),
+      filePath?: string(name='FilePath'),
+      firstScanTime?: long(name='FirstScanTime'),
+      lastScanTime?: long(name='LastScanTime'),
+      layerDigest?: string(name='LayerDigest'),
+      promt?: string(name='Promt'),
+      riskLevel?: string(name='RiskLevel'),
+      sensitiveFileKey?: string(name='SensitiveFileKey'),
+      sensitiveFileName?: string(name='SensitiveFileName'),
+    }
+  ](name='SensitiveFileList'),
+  success?: boolean(name='Success'),
+}
+
+model DescribeImageSensitiveFileByKeyResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeImageSensitiveFileByKeyResponseBody(name='body'),
+}
+
+async function describeImageSensitiveFileByKey(request: DescribeImageSensitiveFileByKeyRequest): DescribeImageSensitiveFileByKeyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeImageSensitiveFileByKey', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeImageSensitiveFileListRequest {
+  criteria?: string(name='Criteria', position='Query'),
+  criteriaType?: string(name='CriteriaType', position='Query'),
+  currentPage?: int32(name='CurrentPage', position='Query'),
+  imageUuid?: string(name='ImageUuid', position='Query'),
+  lang?: string(name='Lang', position='Query'),
+  pageSize?: int32(name='PageSize', position='Query'),
+  riskLevel?: string(name='RiskLevel', position='Query'),
+  scanRange?: [ string ](name='ScanRange', shrink='json', position='Query'),
+}
+
+model DescribeImageSensitiveFileListResponseBody = {
+  code?: string(name='Code'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  pageInfo?: {
+    count?: int32(name='Count'),
+    currentPage?: int32(name='CurrentPage'),
+    lastRowKey?: string(name='LastRowKey'),
+    pageSize?: int32(name='PageSize'),
+    totalCount?: int32(name='TotalCount'),
+  }(name='PageInfo'),
+  requestId?: string(name='RequestId'),
+  sensitiveFileList?: [ 
+    {
+      count?: int32(name='Count'),
+      firstScanTime?: long(name='FirstScanTime'),
+      lastScanTime?: long(name='LastScanTime'),
+      riskLevel?: string(name='RiskLevel'),
+      sensitiveFileKey?: string(name='SensitiveFileKey'),
+      sensitiveFileName?: string(name='SensitiveFileName'),
+    }
+  ](name='SensitiveFileList'),
+  success?: boolean(name='Success'),
+}
+
+model DescribeImageSensitiveFileListResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeImageSensitiveFileListResponseBody(name='body'),
+}
+
+async function describeImageSensitiveFileList(request: DescribeImageSensitiveFileListRequest): DescribeImageSensitiveFileListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeImageSensitiveFileList', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeImageStatisticsRequest {
@@ -3015,6 +3168,42 @@ model DescribeInstanceStatisticsResponse = {
 async function describeInstanceStatistics(request: DescribeInstanceStatisticsRequest): DescribeInstanceStatisticsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeInstanceStatistics', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeLogMetaRequest {
+  from?: string(name='From', position='Query'),
+  lang?: string(name='Lang', position='Query'),
+  sourceIp?: string(name='SourceIp', position='Query'),
+}
+
+model DescribeLogMetaResponseBody = {
+  logMetaList?: [ 
+    {
+      category?: string(name='Category'),
+      hotTtl?: int32(name='HotTtl'),
+      logDesc?: string(name='LogDesc'),
+      logStore?: string(name='LogStore'),
+      project?: string(name='Project'),
+      status?: string(name='Status'),
+      topic?: string(name='Topic'),
+      ttl?: int32(name='Ttl'),
+      userLogStore?: string(name='UserLogStore'),
+      userProject?: string(name='UserProject'),
+      userRegion?: string(name='UserRegion'),
+    }
+  ](name='LogMetaList'),
+  requestId?: string(name='RequestId'),
+  totalCount?: int32(name='TotalCount'),
+}
+
+model DescribeLogMetaResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeLogMetaResponseBody(name='body'),
+}
+
+async function describeLogMeta(request: DescribeLogMetaRequest): DescribeLogMetaResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeLogMeta', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeLoginBaseConfigsRequest {
@@ -3547,6 +3736,25 @@ model DescribePropertyScaDetailResponse = {
 async function describePropertyScaDetail(request: DescribePropertyScaDetailRequest): DescribePropertyScaDetailResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribePropertyScaDetail', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribePropertyScheduleConfigRequest {
+  type: string(name='Type', position='Query'),
+}
+
+model DescribePropertyScheduleConfigResponseBody = {
+  config?: string(name='Config'),
+  requestId?: string(name='RequestId'),
+}
+
+model DescribePropertyScheduleConfigResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribePropertyScheduleConfigResponseBody(name='body'),
+}
+
+async function describePropertyScheduleConfig(request: DescribePropertyScheduleConfigRequest): DescribePropertyScheduleConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribePropertyScheduleConfig', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribePropertySoftwareDetailRequest {
@@ -4319,6 +4527,7 @@ async function describeSecurityStatInfo(request: DescribeSecurityStatInfoRequest
 }
 
 model DescribeServiceLinkedRoleStatusRequest {
+  serviceLinkedRole?: string(name='ServiceLinkedRole', position='Query'),
 }
 
 model DescribeServiceLinkedRoleStatusResponseBody = {
@@ -4424,12 +4633,14 @@ model DescribeStrategyResponseBody = {
       cycleDays?: int32(name='CycleDays'),
       cycleStartTime?: int32(name='CycleStartTime'),
       ecsCount?: int32(name='EcsCount'),
+      endTime?: string(name='EndTime'),
       execStatus?: int32(name='ExecStatus'),
       id?: int32(name='Id'),
       name?: string(name='Name'),
       passRate?: int32(name='PassRate'),
       processRate?: int32(name='ProcessRate'),
       riskCount?: int32(name='RiskCount'),
+      startTime?: string(name='StartTime'),
       type?: int32(name='Type'),
     }
   ](name='Strategies'),
@@ -4454,8 +4665,10 @@ model DescribeStrategyDetailRequest {
 model DescribeStrategyDetailResponseBody = {
   requestId?: string(name='RequestId'),
   strategy?: {
+    customType?: string(name='CustomType'),
     cycleDays?: int32(name='CycleDays'),
     cycleStartTime?: int32(name='CycleStartTime'),
+    endTime?: string(name='EndTime'),
     id?: int32(name='Id'),
     name?: string(name='Name'),
     riskTypeWhiteListQueryResultList?: [ 
@@ -4499,6 +4712,8 @@ model DescribeStrategyDetailResponseBody = {
         typeName?: string(name='TypeName'),
       }
     ](name='RiskTypeWhiteListQueryResultList'),
+    startTime?: string(name='StartTime'),
+    targetType?: string(name='TargetType'),
     type?: int32(name='Type'),
   }(name='Strategy'),
 }
@@ -4731,6 +4946,8 @@ model DescribeSuspEventsRequest {
   pageSize?: string(name='PageSize', position='Query'),
   parentEventTypes?: string(name='ParentEventTypes', position='Query'),
   remark?: string(name='Remark', position='Query'),
+  sortColumn?: string(name='SortColumn', description='排序字段', position='Query'),
+  sortType?: string(name='SortType', description='排序方式', position='Query'),
   source?: string(name='Source', position='Query'),
   sourceIp?: string(name='SourceIp', position='Query'),
   status?: string(name='Status', position='Query'),
@@ -5148,6 +5365,33 @@ model DescribeVpcListResponse = {
 async function describeVpcList(request: DescribeVpcListRequest): DescribeVpcListResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeVpcList', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeVulConfigRequest {
+  sourceIp?: string(name='SourceIp', position='Query'),
+  type?: string(name='Type', position='Query'),
+}
+
+model DescribeVulConfigResponseBody = {
+  requestId?: string(name='RequestId'),
+  targetConfigs?: [ 
+    {
+      config?: string(name='Config'),
+      overAllConfig?: string(name='OverAllConfig'),
+      type?: string(name='Type'),
+    }
+  ](name='TargetConfigs'),
+  totalCount?: int32(name='TotalCount'),
+}
+
+model DescribeVulConfigResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeVulConfigResponseBody(name='body'),
+}
+
+async function describeVulConfig(request: DescribeVulConfigRequest): DescribeVulConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeVulConfig', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeVulDetailsRequest {
@@ -6086,6 +6330,7 @@ model ListCheckResultResponseBody = {
       riskLevel?: string(name='RiskLevel'),
       status?: string(name='Status'),
       taskId?: string(name='TaskId'),
+      trialPermission?: boolean(name='TrialPermission'),
       vendor?: string(name='Vendor'),
       vendorShowName?: string(name='VendorShowName'),
     }
@@ -6707,12 +6952,15 @@ async function modifyStartVulScan(request: ModifyStartVulScanRequest): ModifySta
 model ModifyStrategyRequest {
   customType: string(name='CustomType', position='Query'),
   cycleDays: string(name='CycleDays', position='Query'),
-  cycleStartTime: string(name='CycleStartTime', position='Query'),
+  cycleStartTime?: string(name='CycleStartTime', position='Query'),
+  endTime: string(name='EndTime', position='Query'),
   id?: string(name='Id', position='Query'),
   name: string(name='Name', position='Query'),
   riskCustomParams: string(name='RiskCustomParams', position='Query'),
   riskSubTypeName: string(name='RiskSubTypeName', position='Query'),
   sourceIp?: string(name='SourceIp', position='Query'),
+  startTime: string(name='StartTime', position='Query'),
+  targetType: string(name='TargetType', position='Query'),
 }
 
 model ModifyStrategyResponseBody = {
@@ -6943,8 +7191,34 @@ async function modifyWebLockUpdateConfig(request: ModifyWebLockUpdateConfigReque
   return @handler.do('RPC', 'ModifyWebLockUpdateConfig', 'POST', '/', 'json', false, 'json', request);
 }
 
+model OpenSensitiveFileScanRequest {
+  switchOn?: string(name='SwitchOn', description='开关操作, on打开, off关闭', position='Query'),
+}
+
+model OpenSensitiveFileScanResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    switchOn?: string(name='SwitchOn', description='开关操作, on打开, off关闭'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model OpenSensitiveFileScanResponse = {
+  headers: map[string]string(name='headers'),
+  body: OpenSensitiveFileScanResponseBody(name='body'),
+}
+
+async function openSensitiveFileScan(request: OpenSensitiveFileScanRequest): OpenSensitiveFileScanResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OpenSensitiveFileScan', 'POST', '/', 'json', false, 'json', request);
+}
+
 model OperateAgentClientInstallRequest {
   instanceIds?: string(name='InstanceIds', position='Query'),
+  lang?: string(name='Lang', position='Query'),
   uuids?: string(name='Uuids', position='Query'),
 }
 
