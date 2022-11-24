@@ -105,9 +105,9 @@ model AttachInstancesRequest {
   instances: [ string ](name='instances', description='实例列表。', position='Body'),
   isEdgeWorker?: boolean(name='is_edge_worker', description='是否为边缘节点。', position='Body'),
   keepInstanceName?: boolean(name='keep_instance_name', description='是否保留实例名称。', position='Body'),
-  keyPair: string(name='key_pair', description='key_pair名称，与login_password二选一', position='Body'),
+  keyPair?: string(name='key_pair', description='key_pair名称，与login_password二选一', position='Body'),
   nodepoolId?: string(name='nodepool_id', description='节点池ID，欲将节点添加到哪个节点池中。。', position='Body'),
-  password: string(name='password', description='password，与key_pair二选一。', position='Body'),
+  password?: string(name='password', description='password，与key_pair二选一。', position='Body'),
   rdsInstances?: [ string ](name='rds_instances', description='RDS实例列表。', position='Body'),
   runtime?: Runtime(name='runtime', position='Body'),
   tags?: [
@@ -222,7 +222,7 @@ model CreateClusterRequest {
   clusterDomain?: string(name='cluster_domain', description='集群本地域名', position='Body'),
   clusterSpec?: string(name='cluster_spec', description='托管版集群类型', position='Body'),
   clusterType: string(name='cluster_type', description='集群类型', position='Body'),
-  containerCidr: string(name='container_cidr', description='POD网络网段', position='Body'),
+  containerCidr?: string(name='container_cidr', description='POD网络网段', position='Body'),
   controlplaneLogComponents?: [ string ](name='controlplane_log_components', description='需要采集日志的组件', position='Body'),
   controlplaneLogProject?: string(name='controlplane_log_project', description='使用已有log project时，需要指定log project', position='Body'),
   controlplaneLogTtl?: string(name='controlplane_log_ttl', description='控制平面日志', position='Body'),
@@ -1693,6 +1693,7 @@ model DescribeKubernetesVersionMetadataResponse = {
           imageType?: string(name='image_type', description='镜像类型。	'),
           osType?: string(name='os_type', description='操作系统发行版本号。'),
           imageCategory?: string(name='image_category', description='镜像分类'),
+          architecture?: string(name='architecture', description='镜像架构'),
         }
       ](name='images', description='ECS系统镜像列表。	'),
       metaData?: map[string]any(name='meta_data', description='Kubernetes版本元数据信息。	'),
@@ -2079,6 +2080,11 @@ model DescribeUserQuotaResponseBody = {
   askClusterQuota?: long(name='ask_cluster_quota', description='Serverless集群配额。'),
   clusterNodepoolQuota?: long(name='cluster_nodepool_quota', description='集群节点池配额。'),
   clusterQuota?: long(name='cluster_quota', description='专有版集群托管版集群的总配额。'),
+  edgeImprovedNodepoolQuota?: {
+    bandwidth?: int32(name='bandwidth', description='每个边缘增强型节点池允许的最大带宽，单位Mbps'),
+    count?: int32(name='count', description='每个账号下允许创建的边缘增强型节点池数量。'),
+    period?: int32(name='period', description='每个边缘增强型节点池最大购买时长，单位月。由于边缘增强型节点池为按量付费，用户暂时无需关注该字段。'),
+  }(name='edge_improved_nodepool_quota', description='边缘增强型节点池quota'),
   nodeQuota?: long(name='node_quota', description='单集群的节点配额。'),
 }
 
@@ -3040,6 +3046,28 @@ model UpgradeClusterAddonsResponse = {
 async function upgradeClusterAddons(request: UpgradeClusterAddonsRequest): UpgradeClusterAddonsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpgradeClusterAddons', 'POST', '/clusters/{ClusterId}/components/upgrade', 'none', false, 'json', request);
+}
+
+model UpgradeClusterNodepoolRequest {
+  clusterId: string(name='ClusterId', position='Path'),
+  nodepoolId: string(name='NodepoolId', position='Path'),
+  imageId?: string(name='image_id', description='节点系统镜像ID。', position='Body'),
+  kubernetesVersion?: string(name='kubernetes_version', description='节点Kubernetes版本。', position='Body'),
+  runtimeVersion?: string(name='runtime_version', description='节点运行时版本。', position='Body'),
+}
+
+model UpgradeClusterNodepoolResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model UpgradeClusterNodepoolResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpgradeClusterNodepoolResponseBody(name='body'),
+}
+
+async function upgradeClusterNodepool(request: UpgradeClusterNodepoolRequest): UpgradeClusterNodepoolResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpgradeClusterNodepool', 'POST', '/clusters/{ClusterId}/nodepools/{NodepoolId}/upgrade', 'json', false, 'json', request);
 }
 
 model StandardComponentsValue = {
