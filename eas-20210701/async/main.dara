@@ -150,6 +150,7 @@ model Service {
   role?: string(name='Role', description='服务角色'),
   roleAttrs?: string(name='RoleAttrs', description='服务角色额外属性'),
   runningInstance?: int32(name='RunningInstance', description='正在运行的服务的实例个数'),
+  safetyLock?: string(name='SafetyLock', description='服务安全锁'),
   serviceConfig?: string(name='ServiceConfig', description='服务的配置信息'),
   serviceGroup?: string(name='ServiceGroup', description='服务所在分组'),
   serviceId?: string(name='ServiceId', description='服务ID'),
@@ -879,7 +880,7 @@ async function describeServiceMirror(request: DescribeServiceMirrorRequest): Des
 }
 
 model ListBenchmarkTaskRequest {
-  fileter?: string(name='Fileter', position='Query'),
+  filter?: string(name='Filter', position='Query'),
   pageNumber?: string(name='PageNumber', position='Query'),
   pageSize?: string(name='PageSize', position='Query'),
   serviceName?: string(name='ServiceName', position='Query'),
@@ -975,6 +976,8 @@ model ListResourceInstancesRequest {
   chargeType?: string(name='ChargeType', description='付费类型
 PrePaid预付费
 PostPaid后付费', position='Query'),
+  instanceId?: string(name='InstanceId', position='Query'),
+  instanceName?: string(name='InstanceName', position='Query'),
   pageNumber?: int32(name='PageNumber', description='请求的页码（默认为1）', position='Query'),
   pageSize?: int32(name='PageSize', description='每页的大小（默认为100）', position='Query'),
 }
@@ -1029,6 +1032,8 @@ async function listResourceServices(request: ListResourceServicesRequest): ListR
 model ListResourcesRequest {
   pageNumber?: int32(name='PageNumber', description='请求的页码（默认为1）', position='Query'),
   pageSize?: int32(name='PageSize', description='每页的大小（默认为100）', position='Query'),
+  resourceId?: string(name='ResourceId', position='Query'),
+  resourceName?: string(name='ResourceName', position='Query'),
 }
 
 model ListResourcesResponseBody = {
@@ -1309,6 +1314,29 @@ async function updateResourceDLink(request: UpdateResourceDLinkRequest): UpdateR
   return @handler.do('RESTFUL', 'UpdateResourceDLink', 'PUT', '/api/v2/resources/{ClusterId}/{ResourceId}/dlink', 'json', false, 'json', request);
 }
 
+model UpdateResourceInstanceRequest {
+  clusterId: string(name='ClusterId', description='实例所属集群', position='Path'),
+  resourceId: string(name='ResourceId', description='实例所属资源组Id', position='Path'),
+  instanceId: string(name='InstanceId', description='实例Id', position='Path'),
+  action: string(name='Action', description='更新服务的行为：Cordon, Uncordon, Drain', position='Body'),
+}
+
+model UpdateResourceInstanceResponseBody = {
+  instanceId?: string(name='InstanceId', description='实例名'),
+  requestId?: string(name='RequestId', description='请求ID'),
+  resourceId?: string(name='ResourceId', description='资源组ID'),
+}
+
+model UpdateResourceInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateResourceInstanceResponseBody(name='body'),
+}
+
+async function updateResourceInstance(request: UpdateResourceInstanceRequest): UpdateResourceInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateResourceInstance', 'PUT', '/api/v2/resources/{ClusterId}/{ResourceId}/instances/{InstanceId}', 'json', false, 'json', request);
+}
+
 model UpdateServiceRequest {
   clusterId?: string(name='ClusterId', position='Path'),
   serviceName?: string(name='ServiceName', position='Path'),
@@ -1407,6 +1435,27 @@ model UpdateServiceMirrorResponse = {
 async function updateServiceMirror(request: UpdateServiceMirrorRequest): UpdateServiceMirrorResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateServiceMirror', 'PUT', '/api/v2/services/{ClusterId}/{ServiceName}/mirror', 'json', false, 'json', request);
+}
+
+model UpdateServiceSafetyLockRequest {
+  clusterId: string(name='ClusterId', position='Path'),
+  serviceName: string(name='ServiceName', position='Path'),
+  lock: string(name='Lock', position='Body'),
+}
+
+model UpdateServiceSafetyLockResponseBody = {
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+}
+
+model UpdateServiceSafetyLockResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateServiceSafetyLockResponseBody(name='body'),
+}
+
+async function updateServiceSafetyLock(request: UpdateServiceSafetyLockRequest): UpdateServiceSafetyLockResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateServiceSafetyLock', 'PUT', '/api/v2/services/{ClusterId}/{ServiceName}/lock', 'json', false, 'json', request);
 }
 
 model UpdateServiceVersionRequest {
