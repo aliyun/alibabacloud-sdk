@@ -280,6 +280,7 @@ model JobSettings {
   businessUserId?: string(name='BusinessUserId'),
   caller?: string(name='Caller'),
   enableErrorMonitoringInAIMaster?: boolean(name='EnableErrorMonitoringInAIMaster'),
+  enableOssAppend?: boolean(name='EnableOssAppend'),
   enableRDMA?: boolean(name='EnableRDMA'),
   enableTideResource?: boolean(name='EnableTideResource'),
   errorMonitoringArgs?: string(name='ErrorMonitoringArgs'),
@@ -324,16 +325,22 @@ model PodMetric {
 model Quota {
   clusterId?: string(name='ClusterId'),
   clusterName?: string(name='ClusterName'),
-  enableTideResource?: boolean(name='EnableTideResource'),
-  isExclusiveQuota?: boolean(name='IsExclusiveQuota'),
+  quotaConfig?: QuotaConfig(name='QuotaConfig'),
   quotaId?: string(name='QuotaId'),
   quotaName?: string(name='QuotaName'),
   quotaType?: string(name='QuotaType'),
-  resourceLevel?: string(name='ResourceLevel'),
   totalQuota?: QuotaDetail(name='TotalQuota'),
   totalTideQuota?: QuotaDetail(name='TotalTideQuota'),
   usedQuota?: QuotaDetail(name='UsedQuota'),
   usedTideQuota?: QuotaDetail(name='UsedTideQuota'),
+}
+
+model QuotaConfig {
+  allowedMaxPriority?: int32(name='AllowedMaxPriority'),
+  enableDLC?: boolean(name='EnableDLC'),
+  enableDSW?: boolean(name='EnableDSW'),
+  enableTideResource?: boolean(name='EnableTideResource'),
+  resourceLevel?: string(name='ResourceLevel'),
 }
 
 model QuotaDetail {
@@ -667,7 +674,6 @@ async function deleteJob(JobId: string): DeleteJobResponse {
 }
 
 async function deleteJobWithOptions(JobId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteJobResponse {
-  JobId = OpenApiUtil.getEncodeParam(JobId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -675,7 +681,7 @@ async function deleteJobWithOptions(JobId: string, headers: map[string]string, r
     action = 'DeleteJob',
     version = '2020-12-03',
     protocol = 'HTTPS',
-    pathname = `/api/v1/jobs/${JobId}`,
+    pathname = `/api/v1/jobs/${OpenApiUtil.getEncodeParam(JobId)}`,
     method = 'DELETE',
     authType = 'AK',
     style = 'ROA',
@@ -708,7 +714,6 @@ async function deleteTensorboard(TensorboardId: string, request: DeleteTensorboa
 
 async function deleteTensorboardWithOptions(TensorboardId: string, request: DeleteTensorboardRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteTensorboardResponse {
   Util.validateModel(request);
-  TensorboardId = OpenApiUtil.getEncodeParam(TensorboardId);
   var query : map[string]any = {};
   if (!Util.isUnset(request.workspaceId)) {
     query['WorkspaceId'] = request.workspaceId;
@@ -722,7 +727,7 @@ async function deleteTensorboardWithOptions(TensorboardId: string, request: Dele
     action = 'DeleteTensorboard',
     version = '2020-12-03',
     protocol = 'HTTPS',
-    pathname = `/api/v1/tensorboards/${TensorboardId}`,
+    pathname = `/api/v1/tensorboards/${OpenApiUtil.getEncodeParam(TensorboardId)}`,
     method = 'DELETE',
     authType = 'AK',
     style = 'ROA',
@@ -816,7 +821,6 @@ async function getJob(JobId: string): GetJobResponse {
 }
 
 async function getJobWithOptions(JobId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetJobResponse {
-  JobId = OpenApiUtil.getEncodeParam(JobId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -824,7 +828,7 @@ async function getJobWithOptions(JobId: string, headers: map[string]string, runt
     action = 'GetJob',
     version = '2020-12-03',
     protocol = 'HTTPS',
-    pathname = `/api/v1/jobs/${JobId}`,
+    pathname = `/api/v1/jobs/${OpenApiUtil.getEncodeParam(JobId)}`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -860,7 +864,6 @@ async function getJobEvents(JobId: string, request: GetJobEventsRequest): GetJob
 
 async function getJobEventsWithOptions(JobId: string, request: GetJobEventsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetJobEventsResponse {
   Util.validateModel(request);
-  JobId = OpenApiUtil.getEncodeParam(JobId);
   var query : map[string]any = {};
   if (!Util.isUnset(request.endTime)) {
     query['EndTime'] = request.endTime;
@@ -880,7 +883,7 @@ async function getJobEventsWithOptions(JobId: string, request: GetJobEventsReque
     action = 'GetJobEvents',
     version = '2020-12-03',
     protocol = 'HTTPS',
-    pathname = `/api/v1/jobs/${JobId}/events`,
+    pathname = `/api/v1/jobs/${OpenApiUtil.getEncodeParam(JobId)}/events`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -920,7 +923,6 @@ async function getJobMetrics(JobId: string, request: GetJobMetricsRequest): GetJ
 
 async function getJobMetricsWithOptions(JobId: string, request: GetJobMetricsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetJobMetricsResponse {
   Util.validateModel(request);
-  JobId = OpenApiUtil.getEncodeParam(JobId);
   var query : map[string]any = {};
   if (!Util.isUnset(request.endTime)) {
     query['EndTime'] = request.endTime;
@@ -946,7 +948,7 @@ async function getJobMetricsWithOptions(JobId: string, request: GetJobMetricsReq
     action = 'GetJobMetrics',
     version = '2020-12-03',
     protocol = 'HTTPS',
-    pathname = `/api/v1/jobs/${JobId}/metrics`,
+    pathname = `/api/v1/jobs/${OpenApiUtil.getEncodeParam(JobId)}/metrics`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -985,8 +987,6 @@ async function getPodEvents(JobId: string, PodId: string, request: GetPodEventsR
 
 async function getPodEventsWithOptions(JobId: string, PodId: string, request: GetPodEventsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetPodEventsResponse {
   Util.validateModel(request);
-  JobId = OpenApiUtil.getEncodeParam(JobId);
-  PodId = OpenApiUtil.getEncodeParam(PodId);
   var query : map[string]any = {};
   if (!Util.isUnset(request.endTime)) {
     query['EndTime'] = request.endTime;
@@ -1009,7 +1009,7 @@ async function getPodEventsWithOptions(JobId: string, PodId: string, request: Ge
     action = 'GetPodEvents',
     version = '2020-12-03',
     protocol = 'HTTPS',
-    pathname = `/api/v1/jobs/${JobId}/pods/${PodId}/events`,
+    pathname = `/api/v1/jobs/${OpenApiUtil.getEncodeParam(JobId)}/pods/${OpenApiUtil.getEncodeParam(PodId)}/events`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1049,8 +1049,6 @@ async function getPodLogs(JobId: string, PodId: string, request: GetPodLogsReque
 
 async function getPodLogsWithOptions(JobId: string, PodId: string, request: GetPodLogsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetPodLogsResponse {
   Util.validateModel(request);
-  JobId = OpenApiUtil.getEncodeParam(JobId);
-  PodId = OpenApiUtil.getEncodeParam(PodId);
   var query : map[string]any = {};
   if (!Util.isUnset(request.downloadToFile)) {
     query['DownloadToFile'] = request.downloadToFile;
@@ -1076,7 +1074,7 @@ async function getPodLogsWithOptions(JobId: string, PodId: string, request: GetP
     action = 'GetPodLogs',
     version = '2020-12-03',
     protocol = 'HTTPS',
-    pathname = `/api/v1/jobs/${JobId}/pods/${PodId}/logs`,
+    pathname = `/api/v1/jobs/${OpenApiUtil.getEncodeParam(JobId)}/pods/${OpenApiUtil.getEncodeParam(PodId)}/logs`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1105,7 +1103,6 @@ async function getTensorboard(TensorboardId: string, request: GetTensorboardRequ
 
 async function getTensorboardWithOptions(TensorboardId: string, request: GetTensorboardRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetTensorboardResponse {
   Util.validateModel(request);
-  TensorboardId = OpenApiUtil.getEncodeParam(TensorboardId);
   var query : map[string]any = {};
   if (!Util.isUnset(request.jodId)) {
     query['JodId'] = request.jodId;
@@ -1122,7 +1119,7 @@ async function getTensorboardWithOptions(TensorboardId: string, request: GetTens
     action = 'GetTensorboard',
     version = '2020-12-03',
     protocol = 'HTTPS',
-    pathname = `/api/v1/tensorboards/${TensorboardId}`,
+    pathname = `/api/v1/tensorboards/${OpenApiUtil.getEncodeParam(TensorboardId)}`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1203,6 +1200,7 @@ model ListJobsRequest {
   displayName?: string(name='DisplayName'),
   endTime?: string(name='EndTime'),
   fromAllWorkspaces?: boolean(name='FromAllWorkspaces'),
+  jobId?: string(name='JobId'),
   jobType?: string(name='JobType'),
   order?: string(name='Order'),
   pageNumber?: int32(name='PageNumber'),
@@ -1223,6 +1221,7 @@ model ListJobsShrinkRequest {
   displayName?: string(name='DisplayName'),
   endTime?: string(name='EndTime'),
   fromAllWorkspaces?: boolean(name='FromAllWorkspaces'),
+  jobId?: string(name='JobId'),
   jobType?: string(name='JobType'),
   order?: string(name='Order'),
   pageNumber?: int32(name='PageNumber'),
@@ -1279,6 +1278,9 @@ async function listJobsWithOptions(tmpReq: ListJobsRequest, headers: map[string]
   }
   if (!Util.isUnset(request.fromAllWorkspaces)) {
     query['FromAllWorkspaces'] = request.fromAllWorkspaces;
+  }
+  if (!Util.isUnset(request.jobId)) {
+    query['JobId'] = request.jobId;
   }
   if (!Util.isUnset(request.jobType)) {
     query['JobType'] = request.jobType;
@@ -1459,7 +1461,6 @@ async function startTensorboard(TensorboardId: string, request: StartTensorboard
 
 async function startTensorboardWithOptions(TensorboardId: string, request: StartTensorboardRequest, headers: map[string]string, runtime: Util.RuntimeOptions): StartTensorboardResponse {
   Util.validateModel(request);
-  TensorboardId = OpenApiUtil.getEncodeParam(TensorboardId);
   var query : map[string]any = {};
   if (!Util.isUnset(request.workspaceId)) {
     query['WorkspaceId'] = request.workspaceId;
@@ -1473,7 +1474,7 @@ async function startTensorboardWithOptions(TensorboardId: string, request: Start
     action = 'StartTensorboard',
     version = '2020-12-03',
     protocol = 'HTTPS',
-    pathname = `/api/v1/tensorboards/${TensorboardId}/start`,
+    pathname = `/api/v1/tensorboards/${OpenApiUtil.getEncodeParam(TensorboardId)}/start`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -1501,7 +1502,6 @@ async function stopJob(JobId: string): StopJobResponse {
 }
 
 async function stopJobWithOptions(JobId: string, headers: map[string]string, runtime: Util.RuntimeOptions): StopJobResponse {
-  JobId = OpenApiUtil.getEncodeParam(JobId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -1509,7 +1509,7 @@ async function stopJobWithOptions(JobId: string, headers: map[string]string, run
     action = 'StopJob',
     version = '2020-12-03',
     protocol = 'HTTPS',
-    pathname = `/api/v1/jobs/${JobId}/stop`,
+    pathname = `/api/v1/jobs/${OpenApiUtil.getEncodeParam(JobId)}/stop`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
@@ -1542,7 +1542,6 @@ async function stopTensorboard(TensorboardId: string, request: StopTensorboardRe
 
 async function stopTensorboardWithOptions(TensorboardId: string, request: StopTensorboardRequest, headers: map[string]string, runtime: Util.RuntimeOptions): StopTensorboardResponse {
   Util.validateModel(request);
-  TensorboardId = OpenApiUtil.getEncodeParam(TensorboardId);
   var query : map[string]any = {};
   if (!Util.isUnset(request.workspaceId)) {
     query['WorkspaceId'] = request.workspaceId;
@@ -1556,7 +1555,7 @@ async function stopTensorboardWithOptions(TensorboardId: string, request: StopTe
     action = 'StopTensorboard',
     version = '2020-12-03',
     protocol = 'HTTPS',
-    pathname = `/api/v1/tensorboards/${TensorboardId}/stop`,
+    pathname = `/api/v1/tensorboards/${OpenApiUtil.getEncodeParam(TensorboardId)}/stop`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -1589,7 +1588,6 @@ async function updateJob(JobId: string, request: UpdateJobRequest): UpdateJobRes
 
 async function updateJobWithOptions(JobId: string, request: UpdateJobRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateJobResponse {
   Util.validateModel(request);
-  JobId = OpenApiUtil.getEncodeParam(JobId);
   var body : map[string]any = {};
   if (!Util.isUnset(request.priority)) {
     body['Priority'] = request.priority;
@@ -1603,7 +1601,7 @@ async function updateJobWithOptions(JobId: string, request: UpdateJobRequest, he
     action = 'UpdateJob',
     version = '2020-12-03',
     protocol = 'HTTPS',
-    pathname = `/api/v1/jobs/${JobId}`,
+    pathname = `/api/v1/jobs/${OpenApiUtil.getEncodeParam(JobId)}`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -1637,7 +1635,6 @@ async function updateTensorboard(TensorboardId: string, request: UpdateTensorboa
 
 async function updateTensorboardWithOptions(TensorboardId: string, request: UpdateTensorboardRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateTensorboardResponse {
   Util.validateModel(request);
-  TensorboardId = OpenApiUtil.getEncodeParam(TensorboardId);
   var query : map[string]any = {};
   if (!Util.isUnset(request.maxRunningTimeMinutes)) {
     query['MaxRunningTimeMinutes'] = request.maxRunningTimeMinutes;
@@ -1654,7 +1651,7 @@ async function updateTensorboardWithOptions(TensorboardId: string, request: Upda
     action = 'UpdateTensorboard',
     version = '2020-12-03',
     protocol = 'HTTPS',
-    pathname = `/api/v1/tensorboards/${TensorboardId}`,
+    pathname = `/api/v1/tensorboards/${OpenApiUtil.getEncodeParam(TensorboardId)}`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
