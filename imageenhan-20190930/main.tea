@@ -803,7 +803,7 @@ model ErasePersonRequest {
 
 model ErasePersonAdvanceRequest {
   imageURLObject?: readable(name='ImageURL'),
-  userMask?: string(name='UserMask'),
+  userMaskObject?: readable(name='UserMask'),
 }
 
 model ErasePersonResponseBody = {
@@ -919,6 +919,32 @@ async function erasePersonAdvance(request: ErasePersonAdvanceRequest, runtime: U
     };
     ossClient.postObject(uploadRequest, ossRuntime);
     erasePersonReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  if(!Util.isUnset(request.userMaskObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.userMaskObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    erasePersonReq.userMask = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var erasePersonResp = erasePersonWithOptions(erasePersonReq, runtime);
   return erasePersonResp;
