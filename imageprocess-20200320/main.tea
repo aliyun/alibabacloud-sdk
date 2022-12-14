@@ -6,6 +6,7 @@ import OSS;
 import OpenPlatform;
 import OSSUtil;
 import FileForm;
+import Number;
 import OpenApi;
 import OpenApiUtil;
 import EndpointUtil;
@@ -33,40 +34,52 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model AnalyzeChestVesselRequest {
-  dataFormat?: string(name='DataFormat'),
-  dataSourceType?: string(name='DataSourceType'),
-  orgId?: string(name='OrgId'),
+  dataFormat?: string(name='DataFormat', example='NIFTI'),
+  dataSourceType?: string(name='DataSourceType', example='HTTP_NII'),
+  orgId?: string(name='OrgId', example='7ff51bfe-e73d-11ea-827d-506b4b3f3cf6'),
   orgName?: string(name='OrgName'),
   URLList?: [ 
     {
-      URL?: string(name='URL'),
+      URL?: string(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/ct_artery_aa_ph/aa/13_1.3.12.2.1107.5.1.4.67018.30000019012009435582900046382.nii.gz'),
     }
-  ](name='URLList'),
+  ](name='URLList', description='1'),
+}
+
+model AnalyzeChestVesselAdvanceRequest {
+  dataFormat?: string(name='DataFormat', example='NIFTI'),
+  dataSourceType?: string(name='DataSourceType', example='HTTP_NII'),
+  orgId?: string(name='OrgId', example='7ff51bfe-e73d-11ea-827d-506b4b3f3cf6'),
+  orgName?: string(name='OrgName'),
+  URLList?: [ 
+    {
+      URLObject?: readable(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/ct_artery_aa_ph/aa/13_1.3.12.2.1107.5.1.4.67018.30000019012009435582900046382.nii.gz'),
+    }
+  ](name='URLList', description='1'),
 }
 
 model AnalyzeChestVesselResponseBody = {
   data?: {
     aortaInfo?: {
-      area?: [ float ](name='Area'),
+      area?: [ float ](name='Area', description='1'),
       coordinates?: [[ float ]      ](name='Coordinates'),
-      labelValue?: long(name='LabelValue'),
-      maxArea?: float(name='MaxArea'),
-      maxAreaIndex?: long(name='MaxAreaIndex'),
-      maxDiameter?: float(name='MaxDiameter'),
+      labelValue?: long(name='LabelValue', example='2'),
+      maxArea?: float(name='MaxArea', example='2722'),
+      maxAreaIndex?: long(name='MaxAreaIndex', example='416'),
+      maxDiameter?: float(name='MaxDiameter', example='63'),
     }(name='AortaInfo'),
     pulmonaryInfo?: {
-      area?: [ float ](name='Area'),
+      area?: [ float ](name='Area', description='1'),
       coordinates?: [[ float ]      ](name='Coordinates'),
-      labelValue?: long(name='LabelValue'),
-      maxArea?: float(name='MaxArea'),
-      maxAreaIndex?: long(name='MaxAreaIndex'),
-      maxDiameter?: float(name='MaxDiameter'),
-      nearestAortaArea?: float(name='NearestAortaArea'),
+      labelValue?: long(name='LabelValue', example='1'),
+      maxArea?: float(name='MaxArea', example='928'),
+      maxAreaIndex?: long(name='MaxAreaIndex', example='0'),
+      maxDiameter?: float(name='MaxDiameter', example='42'),
+      nearestAortaArea?: float(name='NearestAortaArea', example='2439'),
     }(name='PulmonaryInfo'),
-    resultURL?: string(name='ResultURL'),
+    resultURL?: string(name='ResultURL', example='http://vibktprfx-prod-prod-aic-med-cn-shanghai.oss-cn-shanghai.aliyuncs.com/ct_artery_aa_ph/local_test/2021-07-08/6C4713DF-F548-47DF-A456-5DA1C8334444_result_compressed.tgz?Expires=1625732732&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSR****&Signature=5UKVmLfM7GWllIcPr9a6dKz%2B5h****'),
   }(name='Data'),
   message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='B87D013B-F25F-47DC-ABE1-440F4837AFD2'),
 }
 
 model AnalyzeChestVesselResponse = {
@@ -115,14 +128,107 @@ async function analyzeChestVessel(request: AnalyzeChestVesselRequest): AnalyzeCh
   return analyzeChestVesselWithOptions(request, runtime);
 }
 
+async function analyzeChestVesselAdvance(request: AnalyzeChestVesselAdvanceRequest, runtime: Util.RuntimeOptions): AnalyzeChestVesselResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var analyzeChestVesselReq = new AnalyzeChestVesselRequest{};
+  OpenApiUtil.convert(request, analyzeChestVesselReq);
+
+  if(!Util.isUnset(request.URLList)) {
+    var i0 : integer = 0;
+    for (var item0 : request.URLList) {
+      if(!Util.isUnset(item0.URLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.URLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : AnalyzeChestVesselRequest.URLList = analyzeChestVesselReq.URLList[i0];
+        tmp.URL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i0 = Number.ltoi(Number.add(Number.itol(i0), Number.itol(1)));
+      }
+    }
+  }
+  var analyzeChestVesselResp = analyzeChestVesselWithOptions(analyzeChestVesselReq, runtime);
+  return analyzeChestVesselResp;
+}
+
 model CalcCACSRequest {
-  dataFormat?: string(name='DataFormat'),
-  dataSourceType?: string(name='DataSourceType'),
-  orgId?: string(name='OrgId'),
+  dataFormat?: string(name='DataFormat', example='NIFTI'),
+  dataSourceType?: string(name='DataSourceType', example='HTTP_NII'),
+  orgId?: string(name='OrgId', example='7ff51bfe-e73d-11ea-827d-506b4b3f3cf6'),
   orgName?: string(name='OrgName'),
   URLList?: [ 
     {
-      URL?: string(name='URL'),
+      URL?: string(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/cacs/cacs_test_image.nii.gz'),
+    }
+  ](name='URLList'),
+}
+
+model CalcCACSAdvanceRequest {
+  dataFormat?: string(name='DataFormat', example='NIFTI'),
+  dataSourceType?: string(name='DataSourceType', example='HTTP_NII'),
+  orgId?: string(name='OrgId', example='7ff51bfe-e73d-11ea-827d-506b4b3f3cf6'),
+  orgName?: string(name='OrgName'),
+  URLList?: [ 
+    {
+      URLObject?: readable(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/cacs/cacs_test_image.nii.gz'),
     }
   ](name='URLList'),
 }
@@ -132,17 +238,17 @@ model CalcCACSResponseBody = {
     detections?: [ 
       {
         calciumCenter?: [ long ](name='CalciumCenter'),
-        calciumId?: long(name='CalciumId'),
-        calciumScore?: float(name='CalciumScore'),
-        calciumVolume?: float(name='CalciumVolume'),
+        calciumId?: long(name='CalciumId', example='1'),
+        calciumScore?: float(name='CalciumScore', example='19.22474'),
+        calciumVolume?: float(name='CalciumVolume', example='28.837109'),
       }
     ](name='Detections'),
-    resultUrl?: string(name='ResultUrl'),
-    score?: string(name='Score'),
-    volumeScore?: string(name='VolumeScore'),
+    resultUrl?: string(name='ResultUrl', example='http://vibktprfx-prod-prod-aic-med-cn-shanghai.oss-cn-shanghai.aliyuncs.com/calc-cacs/2020-09-29/2020-09-29-11%3A07%3A41-D74FE0DF-8F80-41EB-B08B-2E67053587EC.tar.gz?Expires=1601350661&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRp****&Signature=iB16ms28Y5mzB11ghYUd7upCi4****'),
+    score?: string(name='Score', example='117.61'),
+    volumeScore?: string(name='VolumeScore', example='111.96'),
   }(name='Data'),
   message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='6797D285-9290-4FBB-9742-AA1E286EF3B9'),
 }
 
 model CalcCACSResponse = {
@@ -191,20 +297,101 @@ async function calcCACS(request: CalcCACSRequest): CalcCACSResponse {
   return calcCACSWithOptions(request, runtime);
 }
 
+async function calcCACSAdvance(request: CalcCACSAdvanceRequest, runtime: Util.RuntimeOptions): CalcCACSResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var calcCACSReq = new CalcCACSRequest{};
+  OpenApiUtil.convert(request, calcCACSReq);
+
+  if(!Util.isUnset(request.URLList)) {
+    var i0 : integer = 0;
+    for (var item0 : request.URLList) {
+      if(!Util.isUnset(item0.URLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.URLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : CalcCACSRequest.URLList = calcCACSReq.URLList[i0];
+        tmp.URL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i0 = Number.ltoi(Number.add(Number.itol(i0), Number.itol(1)));
+      }
+    }
+  }
+  var calcCACSResp = calcCACSWithOptions(calcCACSReq, runtime);
+  return calcCACSResp;
+}
+
 model ClassifyFNFRequest {
-  dataFormat?: string(name='DataFormat'),
-  imageUrl?: string(name='ImageUrl'),
-  orgId?: string(name='OrgId'),
-  orgName?: string(name='OrgName'),
-  tracerId?: string(name='TracerId'),
+  dataFormat?: string(name='DataFormat', example='jpg'),
+  imageUrl?: string(name='ImageUrl', example='https://viapi-test.oss-cn-shanghai.aliyuncs.com/test-team/xuhan/8%E6%9C%88%E4%BB%BD%E5%8C%BB%E7%96%97/sample_jpg_1.jpg'),
+  orgId?: string(name='OrgId', example='0001'),
+  orgName?: string(name='OrgName', example='weiyi'),
+  tracerId?: string(name='TracerId', example='123'),
 }
 
 model ClassifyFNFAdvanceRequest {
-  dataFormat?: string(name='DataFormat'),
-  imageUrlObject?: readable(name='ImageUrl'),
-  orgId?: string(name='OrgId'),
-  orgName?: string(name='OrgName'),
-  tracerId?: string(name='TracerId'),
+  dataFormat?: string(name='DataFormat', example='jpg'),
+  imageUrlObject?: readable(name='ImageUrl', example='https://viapi-test.oss-cn-shanghai.aliyuncs.com/test-team/xuhan/8%E6%9C%88%E4%BB%BD%E5%8C%BB%E7%96%97/sample_jpg_1.jpg'),
+  orgId?: string(name='OrgId', example='0001'),
+  orgName?: string(name='OrgName', example='weiyi'),
+  tracerId?: string(name='TracerId', example='123'),
 }
 
 model ClassifyFNFResponseBody = {
@@ -213,16 +400,16 @@ model ClassifyFNFResponseBody = {
       {
         boxes?: [ int32 ](name='Boxes'),
         tag?: {
-          label?: string(name='Label'),
+          label?: string(name='Label', example='v3'),
         }(name='Tag'),
-        value?: float(name='Value'),
+        value?: float(name='Value', example='0.5692939758300781'),
       }
     ](name='Fractures'),
-    imageUrl?: string(name='ImageUrl'),
-    orgId?: string(name='OrgId'),
-    orgName?: string(name='OrgName'),
+    imageUrl?: string(name='ImageUrl', example='https://viapi-test.oss-cn-shanghai.aliyuncs.com/test-team/xuhan/8%E6%9C%88%E4%BB%BD%E5%8C%BB%E7%96%97/sample_jpg_1.jpg'),
+    orgId?: string(name='OrgId', example='0001'),
+    orgName?: string(name='OrgName', example='weiyi'),
   }(name='Data'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='4AE1D335-B269-4540-B069-416329F3DCD0'),
 }
 
 model ClassifyFNFResponse = {
@@ -346,26 +533,37 @@ async function classifyFNFAdvance(request: ClassifyFNFAdvanceRequest, runtime: U
 }
 
 model DetectCovid19CadRequest {
-  dataFormat?: string(name='DataFormat'),
-  orgId?: string(name='OrgId'),
-  orgName?: string(name='OrgName'),
+  dataFormat?: string(name='DataFormat', example='DICOM'),
+  orgId?: string(name='OrgId', example='0001'),
+  orgName?: string(name='OrgName', example='weiyi'),
   URLList?: [ 
     {
-      URL?: string(name='URL'),
+      URL?: string(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/LIDC-IDRI-0176/CT0001.dcm'),
+    }
+  ](name='URLList'),
+}
+
+model DetectCovid19CadAdvanceRequest {
+  dataFormat?: string(name='DataFormat', example='DICOM'),
+  orgId?: string(name='OrgId', example='0001'),
+  orgName?: string(name='OrgName', example='weiyi'),
+  URLList?: [ 
+    {
+      URLObject?: readable(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/LIDC-IDRI-0176/CT0001.dcm'),
     }
   ](name='URLList'),
 }
 
 model DetectCovid19CadResponseBody = {
   data?: {
-    lesionRatio?: string(name='LesionRatio'),
-    mask?: string(name='Mask'),
-    newProbability?: string(name='NewProbability'),
-    normalProbability?: string(name='NormalProbability'),
-    otherProbability?: string(name='OtherProbability'),
+    lesionRatio?: string(name='LesionRatio', example='0.9387283236994219'),
+    mask?: string(name='Mask', example='http://algo-app-aic-med-cn-shanghai-prod.oss-cn-shanghai.aliyuncs.com/covid19-dcm/unspecified/2020032702/1b1e1018-6fcf-11ea-8fa1-d20b34387541.nii.gz?Expires=1585276394&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRp****&Signature=%2F1LNGWJUqvY0VRYGgg8Ldtb3BF****'),
+    newProbability?: string(name='NewProbability', example='4.062644e-06'),
+    normalProbability?: string(name='NormalProbability', example='0.7230905'),
+    otherProbability?: string(name='OtherProbability', example='0.27690542'),
   }(name='Data'),
   message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='7CB9B663-3EF8-4C9C-A464-FDA2B5F1E3A4'),
 }
 
 model DetectCovid19CadResponse = {
@@ -411,39 +609,120 @@ async function detectCovid19Cad(request: DetectCovid19CadRequest): DetectCovid19
   return detectCovid19CadWithOptions(request, runtime);
 }
 
+async function detectCovid19CadAdvance(request: DetectCovid19CadAdvanceRequest, runtime: Util.RuntimeOptions): DetectCovid19CadResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var detectCovid19CadReq = new DetectCovid19CadRequest{};
+  OpenApiUtil.convert(request, detectCovid19CadReq);
+
+  if(!Util.isUnset(request.URLList)) {
+    var i0 : integer = 0;
+    for (var item0 : request.URLList) {
+      if(!Util.isUnset(item0.URLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.URLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : DetectCovid19CadRequest.URLList = detectCovid19CadReq.URLList[i0];
+        tmp.URL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i0 = Number.ltoi(Number.add(Number.itol(i0), Number.itol(1)));
+      }
+    }
+  }
+  var detectCovid19CadResp = detectCovid19CadWithOptions(detectCovid19CadReq, runtime);
+  return detectCovid19CadResp;
+}
+
 model DetectHipKeypointXRayRequest {
-  dataFormat?: string(name='DataFormat'),
-  imageUrl?: string(name='ImageUrl'),
-  orgId?: string(name='OrgId'),
-  orgName?: string(name='OrgName'),
-  tracerId?: string(name='TracerId'),
+  dataFormat?: string(name='DataFormat', example='dcm'),
+  imageUrl?: string(name='ImageUrl', example='https://viapi-test.oss-cn-shanghai.aliyuncs.com/test-team/xuhan/8%E6%9C%88%E4%BB%BD%E5%8C%BB%E7%96%97/sample_dcm_1.dcm'),
+  orgId?: string(name='OrgId', example='0001'),
+  orgName?: string(name='OrgName', example='weiyi'),
+  tracerId?: string(name='TracerId', example='123'),
 }
 
 model DetectHipKeypointXRayAdvanceRequest {
-  dataFormat?: string(name='DataFormat'),
-  imageUrlObject?: readable(name='ImageUrl'),
-  orgId?: string(name='OrgId'),
-  orgName?: string(name='OrgName'),
-  tracerId?: string(name='TracerId'),
+  dataFormat?: string(name='DataFormat', example='dcm'),
+  imageUrlObject?: readable(name='ImageUrl', example='https://viapi-test.oss-cn-shanghai.aliyuncs.com/test-team/xuhan/8%E6%9C%88%E4%BB%BD%E5%8C%BB%E7%96%97/sample_dcm_1.dcm'),
+  orgId?: string(name='OrgId', example='0001'),
+  orgName?: string(name='OrgName', example='weiyi'),
+  tracerId?: string(name='TracerId', example='123'),
 }
 
 model DetectHipKeypointXRayResponseBody = {
   data?: {
-    imageUrl?: string(name='ImageUrl'),
+    imageUrl?: string(name='ImageUrl', example='https://viapi-test.oss-cn-shanghai.aliyuncs.com/test-team/xuhan/8%E6%9C%88%E4%BB%BD%E5%8C%BB%E7%96%97/sample_dcm_1.dcm'),
     keyPoints?: [ 
       {
-        coordinates?: [ int32 ](name='Coordinates'),
+        coordinates?: [ int32 ](name='Coordinates', description='1'),
         tag?: {
-          direction?: string(name='Direction'),
-          label?: string(name='Label'),
+          direction?: string(name='Direction', example='R'),
+          label?: string(name='Label', example='v1'),
         }(name='Tag'),
-        value?: float(name='Value'),
+        value?: float(name='Value', example='0.05762995779514313'),
       }
     ](name='KeyPoints'),
-    orgId?: string(name='OrgId'),
-    orgName?: string(name='OrgName'),
+    orgId?: string(name='OrgId', example='0001'),
+    orgName?: string(name='OrgName', example='weiyi'),
   }(name='Data'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='03B463B1-F306-41B5-8CD3-C65801570057'),
 }
 
 model DetectHipKeypointXRayResponse = {
@@ -567,38 +846,38 @@ async function detectHipKeypointXRayAdvance(request: DetectHipKeypointXRayAdvanc
 }
 
 model DetectKneeKeypointXRayRequest {
-  dataFormat?: string(name='DataFormat'),
-  imageUrl?: string(name='ImageUrl'),
-  orgId?: string(name='OrgId'),
-  orgName?: string(name='OrgName'),
-  tracerId?: string(name='TracerId'),
+  dataFormat?: string(name='DataFormat', example='png'),
+  imageUrl?: string(name='ImageUrl', example='https://viapi-test.oss-cn-shanghai.aliyuncs.com/test-team/xuhan/8%E6%9C%88%E4%BB%BD%E5%8C%BB%E7%96%97/sample_png_1.png'),
+  orgId?: string(name='OrgId', example='0001'),
+  orgName?: string(name='OrgName', example='weiyi'),
+  tracerId?: string(name='TracerId', example='123'),
 }
 
 model DetectKneeKeypointXRayAdvanceRequest {
-  dataFormat?: string(name='DataFormat'),
-  imageUrlObject?: readable(name='ImageUrl'),
-  orgId?: string(name='OrgId'),
-  orgName?: string(name='OrgName'),
-  tracerId?: string(name='TracerId'),
+  dataFormat?: string(name='DataFormat', example='png'),
+  imageUrlObject?: readable(name='ImageUrl', example='https://viapi-test.oss-cn-shanghai.aliyuncs.com/test-team/xuhan/8%E6%9C%88%E4%BB%BD%E5%8C%BB%E7%96%97/sample_png_1.png'),
+  orgId?: string(name='OrgId', example='0001'),
+  orgName?: string(name='OrgName', example='weiyi'),
+  tracerId?: string(name='TracerId', example='123'),
 }
 
 model DetectKneeKeypointXRayResponseBody = {
   data?: {
-    imageUrl?: string(name='ImageUrl'),
+    imageUrl?: string(name='ImageUrl', example='https://viapi-test.oss-cn-shanghai.aliyuncs.com/test-team/xuhan/8%E6%9C%88%E4%BB%BD%E5%8C%BB%E7%96%97/sample_png_1.png'),
     keyPoints?: [ 
       {
-        coordinates?: [ int32 ](name='Coordinates'),
+        coordinates?: [ int32 ](name='Coordinates', description='1'),
         tag?: {
-          direction?: string(name='Direction'),
-          label?: string(name='Label'),
+          direction?: string(name='Direction', example='R'),
+          label?: string(name='Label', example='v1'),
         }(name='Tag'),
-        value?: float(name='Value'),
+        value?: float(name='Value', example='0.3920471668243408'),
       }
     ](name='KeyPoints'),
-    orgId?: string(name='OrgId'),
-    orgName?: string(name='OrgName'),
+    orgId?: string(name='OrgId', example='0001'),
+    orgName?: string(name='OrgName', example='weiyi'),
   }(name='Data'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='ADF539E2-893F-490D-9553-F4415331FE4D'),
 }
 
 model DetectKneeKeypointXRayResponse = {
@@ -722,17 +1001,17 @@ async function detectKneeKeypointXRayAdvance(request: DetectKneeKeypointXRayAdva
 }
 
 model DetectKneeXRayRequest {
-  dataFormat?: string(name='DataFormat'),
-  orgId?: string(name='OrgId'),
-  orgName?: string(name='OrgName'),
-  url?: string(name='Url'),
+  dataFormat?: string(name='DataFormat', example='DICOM'),
+  orgId?: string(name='OrgId', example='0001'),
+  orgName?: string(name='OrgName', example='weiyi'),
+  url?: string(name='Url', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/X-ray/sample.dcm'),
 }
 
 model DetectKneeXRayAdvanceRequest {
-  dataFormat?: string(name='DataFormat'),
-  orgId?: string(name='OrgId'),
-  orgName?: string(name='OrgName'),
-  urlObject?: readable(name='Url'),
+  dataFormat?: string(name='DataFormat', example='DICOM'),
+  orgId?: string(name='OrgId', example='0001'),
+  orgName?: string(name='OrgName', example='weiyi'),
+  urlObject?: readable(name='Url', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/X-ray/sample.dcm'),
 }
 
 model DetectKneeXRayResponseBody = {
@@ -743,7 +1022,7 @@ model DetectKneeXRayResponseBody = {
       }
     ](name='KLDetections'),
   }(name='Data'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='8388FAAE-275C-468F-B962-649E2C04E25B'),
 }
 
 model DetectKneeXRayResponse = {
@@ -864,15 +1143,27 @@ async function detectKneeXRayAdvance(request: DetectKneeXRayAdvanceRequest, runt
 }
 
 model DetectLungNoduleRequest {
-  dataFormat?: string(name='DataFormat'),
-  orgId?: string(name='OrgId'),
-  orgName?: string(name='OrgName'),
-  threshold?: float(name='Threshold'),
+  dataFormat?: string(name='DataFormat', example='DICOM'),
+  orgId?: string(name='OrgId', example='0001'),
+  orgName?: string(name='OrgName', example='weiyi'),
+  threshold?: float(name='Threshold', example='0.60'),
   URLList?: [ 
     {
-      URL?: string(name='URL'),
+      URL?: string(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/LIDC-IDRI-0001/000001.dcm'),
     }
-  ](name='URLList'),
+  ](name='URLList', description='1'),
+}
+
+model DetectLungNoduleAdvanceRequest {
+  dataFormat?: string(name='DataFormat', example='DICOM'),
+  orgId?: string(name='OrgId', example='0001'),
+  orgName?: string(name='OrgName', example='weiyi'),
+  threshold?: float(name='Threshold', example='0.60'),
+  URLList?: [ 
+    {
+      URLObject?: readable(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/LIDC-IDRI-0001/000001.dcm'),
+    }
+  ](name='URLList', description='1'),
 }
 
 model DetectLungNoduleResponseBody = {
@@ -881,31 +1172,31 @@ model DetectLungNoduleResponseBody = {
       {
         elements?: [ 
           {
-            category?: string(name='Category'),
-            confidence?: float(name='Confidence'),
-            diameter?: float(name='Diameter'),
-            imageX?: float(name='ImageX'),
-            imageY?: float(name='ImageY'),
-            imageZ?: float(name='ImageZ'),
-            lobe?: string(name='Lobe'),
-            lung?: string(name='Lung'),
-            meanValue?: float(name='MeanValue'),
-            SOPInstanceUID?: string(name='SOPInstanceUID'),
-            volume?: float(name='Volume'),
-            x?: float(name='X'),
-            y?: float(name='Y'),
-            z?: float(name='Z'),
+            category?: string(name='Category', example='1'),
+            confidence?: float(name='Confidence', example='0.7012705768508907'),
+            diameter?: float(name='Diameter', example='9.730626493692398'),
+            imageX?: float(name='ImageX', example='308.9676976455463'),
+            imageY?: float(name='ImageY', example='198.3552282631497'),
+            imageZ?: float(name='ImageZ', example='20.434030793471255'),
+            lobe?: string(name='Lobe', example='up'),
+            lung?: string(name='Lung', example='left'),
+            meanValue?: float(name='MeanValue', example='261.37589112119247'),
+            SOPInstanceUID?: string(name='SOPInstanceUID', example='1.3.6.1.4.1.14519.5.2.1.6279.6001.261151233960269013402330853013'),
+            volume?: float(name='Volume', example='10959.220491175074'),
+            x?: float(name='X', example='51.24291240631416'),
+            y?: float(name='Y', example='-32.23147700784307'),
+            z?: float(name='Z', example='-46.81608170781766'),
           }
         ](name='Elements'),
-        origin?: [ float ](name='Origin'),
+        origin?: [ float ](name='Origin', description='1'),
         report?: string(name='Report'),
-        seriesInstanceUid?: string(name='SeriesInstanceUid'),
-        spacing?: [ float ](name='Spacing'),
+        seriesInstanceUid?: string(name='SeriesInstanceUid', example='1.3.6.1.4.1.14519.5.2.1.6279.6001.179049373636438705059720603192'),
+        spacing?: [ float ](name='Spacing', description='1'),
       }
     ](name='Series'),
   }(name='Data'),
   message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='9889ef5b-b973-4dd0-9f26-3b9cc489c436'),
 }
 
 model DetectLungNoduleResponse = {
@@ -954,11 +1245,101 @@ async function detectLungNodule(request: DetectLungNoduleRequest): DetectLungNod
   return detectLungNoduleWithOptions(request, runtime);
 }
 
+async function detectLungNoduleAdvance(request: DetectLungNoduleAdvanceRequest, runtime: Util.RuntimeOptions): DetectLungNoduleResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var detectLungNoduleReq = new DetectLungNoduleRequest{};
+  OpenApiUtil.convert(request, detectLungNoduleReq);
+
+  if(!Util.isUnset(request.URLList)) {
+    var i0 : integer = 0;
+    for (var item0 : request.URLList) {
+      if(!Util.isUnset(item0.URLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.URLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : DetectLungNoduleRequest.URLList = detectLungNoduleReq.URLList[i0];
+        tmp.URL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i0 = Number.ltoi(Number.add(Number.itol(i0), Number.itol(1)));
+      }
+    }
+  }
+  var detectLungNoduleResp = detectLungNoduleWithOptions(detectLungNoduleReq, runtime);
+  return detectLungNoduleResp;
+}
+
 model DetectLymphRequest {
-  dataSourceType?: string(name='DataSourceType'),
+  dataSourceType?: string(name='DataSourceType', example='HTTP_FILES'),
   URLList?: [ 
     {
-      URL?: string(name='URL'),
+      URL?: string(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/LIDC-IDRI-0001/xxxx.dcm'),
+    }
+  ](name='URLList'),
+}
+
+model DetectLymphAdvanceRequest {
+  dataSourceType?: string(name='DataSourceType', example='HTTP_FILES'),
+  URLList?: [ 
+    {
+      URLObject?: readable(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/LIDC-IDRI-0001/xxxx.dcm'),
     }
   ](name='URLList'),
 }
@@ -969,13 +1350,13 @@ model DetectLymphResponseBody = {
       {
         boxes?: [ float ](name='Boxes'),
         diametermm?: [ float ](name='Diametermm'),
-        keySlice?: long(name='KeySlice'),
+        keySlice?: long(name='KeySlice', example='7'),
         recist?: [[ float ]        ](name='Recist'),
-        score?: float(name='Score'),
+        score?: float(name='Score', example='0.6298'),
       }
     ](name='Lesions'),
   }(name='Data'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='59598577-13C6-12A2-8CBF-A4DA4C9280A1'),
 }
 
 model DetectLymphResponse = {
@@ -1015,11 +1396,101 @@ async function detectLymph(request: DetectLymphRequest): DetectLymphResponse {
   return detectLymphWithOptions(request, runtime);
 }
 
+async function detectLymphAdvance(request: DetectLymphAdvanceRequest, runtime: Util.RuntimeOptions): DetectLymphResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var detectLymphReq = new DetectLymphRequest{};
+  OpenApiUtil.convert(request, detectLymphReq);
+
+  if(!Util.isUnset(request.URLList)) {
+    var i0 : integer = 0;
+    for (var item0 : request.URLList) {
+      if(!Util.isUnset(item0.URLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.URLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : DetectLymphRequest.URLList = detectLymphReq.URLList[i0];
+        tmp.URL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i0 = Number.ltoi(Number.add(Number.itol(i0), Number.itol(1)));
+      }
+    }
+  }
+  var detectLymphResp = detectLymphWithOptions(detectLymphReq, runtime);
+  return detectLymphResp;
+}
+
 model DetectPancRequest {
-  dataSourceType?: string(name='DataSourceType'),
+  dataSourceType?: string(name='DataSourceType', example='HTTP_FILES'),
   URLList?: [ 
     {
-      URL?: string(name='URL'),
+      URL?: string(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/LIDC-IDRI-0001/xxxx.dcm'),
+    }
+  ](name='URLList'),
+}
+
+model DetectPancAdvanceRequest {
+  dataSourceType?: string(name='DataSourceType', example='HTTP_FILES'),
+  URLList?: [ 
+    {
+      URLObject?: readable(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/LIDC-IDRI-0001/xxxx.dcm'),
     }
   ](name='URLList'),
 }
@@ -1027,14 +1498,14 @@ model DetectPancRequest {
 model DetectPancResponseBody = {
   data?: {
     lesion?: {
-      mask?: string(name='Mask'),
-      nonPdacVol?: string(name='NonPdacVol'),
-      pancVol?: string(name='PancVol'),
-      pdacVol?: string(name='PdacVol'),
+      mask?: string(name='Mask', example='http://vibktprfx-prod-prod-aic-med-cn-shanghai.oss-cn-shanghai.aliyuncs.com/screen-pdac/2022-05-25_14%3A33%3A30/4CA2BF25-BCDB-9C6C-B14C-EB41E8266588.nii.gz?Expires=1653462210&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSR****&Signature=8t%2FknUrQyyyCU2p7QhMC%2BXBCR****'),
+      nonPdacVol?: string(name='NonPdacVol', example='0'),
+      pancVol?: string(name='PancVol', example='0'),
+      pdacVol?: string(name='PdacVol', example='0'),
       possibilities?: [ string ](name='Possibilities'),
     }(name='Lesion'),
   }(name='Data'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='CA1C672A-4F85-1CD9-893D-3434C924C4B2'),
 }
 
 model DetectPancResponse = {
@@ -1074,14 +1545,107 @@ async function detectPanc(request: DetectPancRequest): DetectPancResponse {
   return detectPancWithOptions(request, runtime);
 }
 
+async function detectPancAdvance(request: DetectPancAdvanceRequest, runtime: Util.RuntimeOptions): DetectPancResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var detectPancReq = new DetectPancRequest{};
+  OpenApiUtil.convert(request, detectPancReq);
+
+  if(!Util.isUnset(request.URLList)) {
+    var i0 : integer = 0;
+    for (var item0 : request.URLList) {
+      if(!Util.isUnset(item0.URLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.URLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : DetectPancRequest.URLList = detectPancReq.URLList[i0];
+        tmp.URL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i0 = Number.ltoi(Number.add(Number.itol(i0), Number.itol(1)));
+      }
+    }
+  }
+  var detectPancResp = detectPancWithOptions(detectPancReq, runtime);
+  return detectPancResp;
+}
+
 model DetectRibFractureRequest {
-  dataFormat?: string(name='DataFormat'),
-  orgId?: string(name='OrgId'),
+  dataFormat?: string(name='DataFormat', example='NIFTI'),
+  orgId?: string(name='OrgId', example='7ff51bfe-e73d-11ea-827d-506b4b3f3cf6'),
   orgName?: string(name='OrgName'),
-  sourceType?: string(name='SourceType'),
+  sourceType?: string(name='SourceType', example='HTTP_NII'),
   URLList?: [ 
     {
-      URL?: string(name='URL'),
+      URL?: string(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/ribfrac/ribfrac-test-image.nii.gz'),
+    }
+  ](name='URLList'),
+}
+
+model DetectRibFractureAdvanceRequest {
+  dataFormat?: string(name='DataFormat', example='NIFTI'),
+  orgId?: string(name='OrgId', example='7ff51bfe-e73d-11ea-827d-506b4b3f3cf6'),
+  orgName?: string(name='OrgName'),
+  sourceType?: string(name='SourceType', example='HTTP_NII'),
+  URLList?: [ 
+    {
+      URLObject?: readable(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/ribfrac/ribfrac-test-image.nii.gz'),
     }
   ](name='URLList'),
 }
@@ -1092,19 +1656,20 @@ model DetectRibFractureResponseBody = {
       {
         coordinateImage?: [ int32 ](name='CoordinateImage'),
         coordinates?: [ int32 ](name='Coordinates'),
-        fractureCategory?: string(name='FractureCategory'),
-        fractureConfidence?: float(name='FractureConfidence'),
-        fractureId?: int32(name='FractureId'),
-        fractureLocation?: string(name='FractureLocation'),
-        fractureSegment?: long(name='FractureSegment'),
+        fracSOPInstanceUID?: string(name='FracSOPInstanceUID'),
+        fractureCategory?: string(name='FractureCategory', example='1'),
+        fractureConfidence?: float(name='FractureConfidence', example='0.7916666666666667'),
+        fractureId?: int32(name='FractureId', example='2'),
+        fractureLocation?: string(name='FractureLocation', example='L4'),
+        fractureSegment?: long(name='FractureSegment', example='0'),
       }
     ](name='Detections'),
     origin?: [ float ](name='Origin'),
-    resultURL?: string(name='ResultURL'),
+    resultURL?: string(name='ResultURL', example='http://vibktprfx-prod-prod-aic-med-cn-shanghai.oss-cn-shanghai.aliyuncs.com/detect-rib-fracture/local_test/2020-12-22/result-D5CD101C-F8E5-43CA-9E99-44C783B8F8BE.tar.gz?Expires=1608631727&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRp****&Signature=d6c32E1IB4b7Ayo1lpjs%2Bq3Ylv****'),
     spacing?: [ float ](name='Spacing'),
   }(name='Data'),
   message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='5C695B5D-41A6-4202-8BF7-E647698678DF'),
 }
 
 model DetectRibFractureResponse = {
@@ -1153,16 +1718,97 @@ async function detectRibFracture(request: DetectRibFractureRequest): DetectRibFr
   return detectRibFractureWithOptions(request, runtime);
 }
 
+async function detectRibFractureAdvance(request: DetectRibFractureAdvanceRequest, runtime: Util.RuntimeOptions): DetectRibFractureResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var detectRibFractureReq = new DetectRibFractureRequest{};
+  OpenApiUtil.convert(request, detectRibFractureReq);
+
+  if(!Util.isUnset(request.URLList)) {
+    var i0 : integer = 0;
+    for (var item0 : request.URLList) {
+      if(!Util.isUnset(item0.URLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.URLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : DetectRibFractureRequest.URLList = detectRibFractureReq.URLList[i0];
+        tmp.URL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i0 = Number.ltoi(Number.add(Number.itol(i0), Number.itol(1)));
+      }
+    }
+  }
+  var detectRibFractureResp = detectRibFractureWithOptions(detectRibFractureReq, runtime);
+  return detectRibFractureResp;
+}
+
 model DetectSkinDiseaseRequest {
-  orgId?: string(name='OrgId'),
-  orgName?: string(name='OrgName'),
-  url?: string(name='Url'),
+  orgId?: string(name='OrgId', example='0001'),
+  orgName?: string(name='OrgName', example='demo'),
+  url?: string(name='Url', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/imageprocess/DetectSkinDisease/DetectSkinDisease1.png'),
 }
 
 model DetectSkinDiseaseAdvanceRequest {
-  orgId?: string(name='OrgId'),
-  orgName?: string(name='OrgName'),
-  urlObject?: readable(name='Url'),
+  orgId?: string(name='OrgId', example='0001'),
+  orgName?: string(name='OrgName', example='demo'),
+  urlObject?: readable(name='Url', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/imageprocess/DetectSkinDisease/DetectSkinDisease1.png'),
 }
 
 model DetectSkinDiseaseResponseBody = {
@@ -1173,7 +1819,7 @@ model DetectSkinDiseaseResponseBody = {
     results?: map[string]any(name='Results'),
     resultsEnglish?: map[string]any(name='ResultsEnglish'),
   }(name='Data'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='DE9ABC80-4DD4-4F1B-B95C-D0E438B8FE56'),
 }
 
 model DetectSkinDiseaseResponse = {
@@ -1291,12 +1937,23 @@ async function detectSkinDiseaseAdvance(request: DetectSkinDiseaseAdvanceRequest
 }
 
 model DetectSpineMRIRequest {
-  dataFormat?: string(name='DataFormat'),
-  orgId?: string(name='OrgId'),
-  orgName?: string(name='OrgName'),
+  dataFormat?: string(name='DataFormat', example='DICOM'),
+  orgId?: string(name='OrgId', example='0001'),
+  orgName?: string(name='OrgName', example='weiyi'),
   URLList?: [ 
     {
-      URL?: string(name='URL'),
+      URL?: string(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/spine-mri/00bY9Fa67NR3/1.3.12.2.1107.5.2.30.27581.2018051110083199050615391.dcm'),
+    }
+  ](name='URLList'),
+}
+
+model DetectSpineMRIAdvanceRequest {
+  dataFormat?: string(name='DataFormat', example='DICOM'),
+  orgId?: string(name='OrgId', example='0001'),
+  orgName?: string(name='OrgName', example='weiyi'),
+  URLList?: [ 
+    {
+      URLObject?: readable(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/spine-mri/00bY9Fa67NR3/1.3.12.2.1107.5.2.30.27581.2018051110083199050615391.dcm'),
     }
   ](name='URLList'),
 }
@@ -1305,20 +1962,20 @@ model DetectSpineMRIResponseBody = {
   data?: {
     discs?: [ 
       {
-        disease?: string(name='Disease'),
-        identification?: string(name='Identification'),
+        disease?: string(name='Disease', example='v1'),
+        identification?: string(name='Identification', example='L5-S1'),
         location?: [ float ](name='Location'),
       }
     ](name='Discs'),
     vertebras?: [ 
       {
-        disease?: string(name='Disease'),
-        identification?: string(name='Identification'),
+        disease?: string(name='Disease', example='v2'),
+        identification?: string(name='Identification', example='L5'),
         location?: [ float ](name='Location'),
       }
     ](name='Vertebras'),
   }(name='Data'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='3bddad65-c0d8-4758-86cf-9136c20a11f3'),
 }
 
 model DetectSpineMRIResponse = {
@@ -1364,13 +2021,94 @@ async function detectSpineMRI(request: DetectSpineMRIRequest): DetectSpineMRIRes
   return detectSpineMRIWithOptions(request, runtime);
 }
 
+async function detectSpineMRIAdvance(request: DetectSpineMRIAdvanceRequest, runtime: Util.RuntimeOptions): DetectSpineMRIResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var detectSpineMRIReq = new DetectSpineMRIRequest{};
+  OpenApiUtil.convert(request, detectSpineMRIReq);
+
+  if(!Util.isUnset(request.URLList)) {
+    var i0 : integer = 0;
+    for (var item0 : request.URLList) {
+      if(!Util.isUnset(item0.URLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.URLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : DetectSpineMRIRequest.URLList = detectSpineMRIReq.URLList[i0];
+        tmp.URL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i0 = Number.ltoi(Number.add(Number.itol(i0), Number.itol(1)));
+      }
+    }
+  }
+  var detectSpineMRIResp = detectSpineMRIWithOptions(detectSpineMRIReq, runtime);
+  return detectSpineMRIResp;
+}
+
 model FeedbackSessionRequest {
   feedback?: string(name='Feedback'),
-  sessionId?: string(name='SessionId'),
+  sessionId?: string(name='SessionId', example='69675e9ddaea4b1ca8b9ddbafd02edc2'),
 }
 
 model FeedbackSessionResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='01E1BC28-9155-59F0-BA7E-3706170DEF1B'),
 }
 
 model FeedbackSessionResponse = {
@@ -1411,18 +2149,18 @@ async function feedbackSession(request: FeedbackSessionRequest): FeedbackSession
 }
 
 model GetAsyncJobResultRequest {
-  jobId?: string(name='JobId'),
+  jobId?: string(name='JobId', example='7CB9B663-3EF8-4C9C-A464-FDA2B5F1E3A4'),
 }
 
 model GetAsyncJobResultResponseBody = {
   data?: {
-    errorCode?: string(name='ErrorCode'),
-    errorMessage?: string(name='ErrorMessage'),
-    jobId?: string(name='JobId'),
-    result?: string(name='Result'),
-    status?: string(name='Status'),
+    errorCode?: string(name='ErrorCode', example='InvalidParameter'),
+    errorMessage?: string(name='ErrorMessage', example='paramsIllegal'),
+    jobId?: string(name='JobId', example='CCCAAAFB-5628-40DD-A12C-6F52326C1B03'),
+    result?: string(name='Result', example='{\\"NewProbability\\":\\"4.062644e-06\\",\\"NormalProbability\\":\\"0.7230905\\",\\"OtherProbability\\":\\"0.27690542\\",\\"LesionRatio\\":\\"0.9387283236994219\\",\\"Mask\\":\\"http://algo-app-aic-med-cn-shanghai-prod.oss-cn-shanghai.aliyuncs.com/covid19-dcm/unspecified/2020032702/1b1e1018-6fcf-11ea-8fa1-d20b34387541.nii.gz?Expires=1585276394&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRp****&Signature=%2F1LNGWJUqvY0VRYGgg8Ldtb3BF****\\"}'),
+    status?: string(name='Status', example='PROCESS_SUCCESS'),
   }(name='Data'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='7CB9B663-3EF8-4C9C-A464-FDA2B5F1E3A4'),
 }
 
 model GetAsyncJobResultResponse = {
@@ -1460,29 +2198,46 @@ async function getAsyncJobResult(request: GetAsyncJobResultRequest): GetAsyncJob
 }
 
 model RunCTRegistrationRequest {
-  dataFormat?: string(name='DataFormat'),
-  dataSourceType?: string(name='DataSourceType'),
+  dataFormat?: string(name='DataFormat', description='DICOM。', example='DICOM'),
+  dataSourceType?: string(name='DataSourceType', example='HTTP_FILES'),
   floatingList?: [ 
     {
-      floatingURL?: string(name='FloatingURL'),
+      floatingURL?: string(name='FloatingURL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/registration/flt/34_P18.4.1.dcm'),
     }
   ](name='FloatingList'),
-  orgId?: string(name='OrgId'),
+  orgId?: string(name='OrgId', example='7ff51bfe-e73d-11ea-827d-506b4b3f3cf6'),
   orgName?: string(name='OrgName'),
   referenceList?: [ 
     {
-      referenceURL?: string(name='ReferenceURL'),
+      referenceURL?: string(name='ReferenceURL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/registration/ref/33_P18.4.1.dcm'),
+    }
+  ](name='ReferenceList'),
+}
+
+model RunCTRegistrationAdvanceRequest {
+  dataFormat?: string(name='DataFormat', description='DICOM。', example='DICOM'),
+  dataSourceType?: string(name='DataSourceType', example='HTTP_FILES'),
+  floatingList?: [ 
+    {
+      floatingURLObject?: readable(name='FloatingURL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/registration/flt/34_P18.4.1.dcm'),
+    }
+  ](name='FloatingList'),
+  orgId?: string(name='OrgId', example='7ff51bfe-e73d-11ea-827d-506b4b3f3cf6'),
+  orgName?: string(name='OrgName'),
+  referenceList?: [ 
+    {
+      referenceURLObject?: readable(name='ReferenceURL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/registration/ref/33_P18.4.1.dcm'),
     }
   ](name='ReferenceList'),
 }
 
 model RunCTRegistrationResponseBody = {
   data?: {
-    DUrl?: string(name='DUrl'),
-    NUrl?: string(name='NUrl'),
+    DUrl?: string(name='DUrl', example='http://vibktprfx-prod-prod-aic-med-cn-shanghai.oss-cn-shanghai.aliyuncs.com/chest-ct-registration/ctctreg/2020-09-05_13%3A59%3A59_894c42d0-876a-9198-9fd9-09431fb96fad.tar.gz?Expires=1599287399&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSR****&Signature=cWTQtdb7geuEJ46cNO%2BGGimrN****'),
+    NUrl?: string(name='NUrl', example='http://vibktprfx-prod-prod-aic-med-cn-shanghai.oss-cn-shanghai.aliyuncs.com/chest-ct-registration/ctctreg/2020-09-05_13%3A59%3A59_894c42d0-876a-9198-9fd9-09431fb96fad.nii.gz?Expires=1599287399&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSR****&Signature=Tgjk1WsZFvvyIUMunxizNtivhY****'),
   }(name='Data'),
   message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='EB3ACFE6-EA75-49E1-83C0-953580F74D88'),
 }
 
 model RunCTRegistrationResponse = {
@@ -1534,15 +2289,129 @@ async function runCTRegistration(request: RunCTRegistrationRequest): RunCTRegist
   return runCTRegistrationWithOptions(request, runtime);
 }
 
+async function runCTRegistrationAdvance(request: RunCTRegistrationAdvanceRequest, runtime: Util.RuntimeOptions): RunCTRegistrationResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var runCTRegistrationReq = new RunCTRegistrationRequest{};
+  OpenApiUtil.convert(request, runCTRegistrationReq);
+
+  if(!Util.isUnset(request.floatingList)) {
+    var i0 : integer = 0;
+    for (var item0 : request.floatingList) {
+      if(!Util.isUnset(item0.floatingURLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.floatingURLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : RunCTRegistrationRequest.floatingList = runCTRegistrationReq.floatingList[i0];
+        tmp.floatingURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i0 = Number.ltoi(Number.add(Number.itol(i0), Number.itol(1)));
+      }
+    }
+  }
+  if(!Util.isUnset(request.referenceList)) {
+    var i1 : integer = 0;
+    for (var item0 : request.referenceList) {
+      if(!Util.isUnset(item0.referenceURLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.referenceURLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : RunCTRegistrationRequest.referenceList = runCTRegistrationReq.referenceList[i1];
+        tmp.referenceURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i1 = Number.ltoi(Number.add(Number.itol(i1), Number.itol(1)));
+      }
+    }
+  }
+  var runCTRegistrationResp = runCTRegistrationWithOptions(runCTRegistrationReq, runtime);
+  return runCTRegistrationResp;
+}
+
 model RunMedQARequest {
   answerImageDataList?: [ 
     {
-      answerImageData?: bytes(name='AnswerImageData'),
+      answerImageData?: string(name='AnswerImageData', example='iVBORw0KGgoAAAANSUhEUgAAAoAAAAHJCAIAAACaEB9NAAEAAElEQVR4nNT9Wb****'),
     }
   ](name='AnswerImageDataList'),
   answerImageURLList?: [ 
     {
-      answerImageURL?: string(name='AnswerImageURL'),
+      answerImageURL?: string(name='AnswerImageURL', example='https://viapi-oss.oss-cn-shanghai.aliyuncs.com/doc/imageprocess/roseola.jpeg'),
     }
   ](name='AnswerImageURLList'),
   answerTextList?: [ 
@@ -1551,22 +2420,45 @@ model RunMedQARequest {
     }
   ](name='AnswerTextList'),
   department?: string(name='Department'),
-  orgId?: string(name='OrgId'),
-  orgName?: string(name='OrgName'),
-  questionType?: string(name='QuestionType'),
-  sessionId?: string(name='SessionId'),
+  orgId?: string(name='OrgId', example='0001'),
+  orgName?: string(name='OrgName', example='weiyi'),
+  questionType?: string(name='QuestionType', example='chiefComplaint'),
+  sessionId?: string(name='SessionId', example='d1f6a6c2444f4c01adfadd413938e5c7'),
+}
+
+model RunMedQAAdvanceRequest {
+  answerImageDataList?: [ 
+    {
+      answerImageData?: string(name='AnswerImageData', example='iVBORw0KGgoAAAANSUhEUgAAAoAAAAHJCAIAAACaEB9NAAEAAElEQVR4nNT9Wb****'),
+    }
+  ](name='AnswerImageDataList'),
+  answerImageURLList?: [ 
+    {
+      answerImageURLObject?: readable(name='AnswerImageURL', example='https://viapi-oss.oss-cn-shanghai.aliyuncs.com/doc/imageprocess/roseola.jpeg'),
+    }
+  ](name='AnswerImageURLList'),
+  answerTextList?: [ 
+    {
+      answerText?: string(name='AnswerText'),
+    }
+  ](name='AnswerTextList'),
+  department?: string(name='Department'),
+  orgId?: string(name='OrgId', example='0001'),
+  orgName?: string(name='OrgName', example='weiyi'),
+  questionType?: string(name='QuestionType', example='chiefComplaint'),
+  sessionId?: string(name='SessionId', example='d1f6a6c2444f4c01adfadd413938e5c7'),
 }
 
 model RunMedQAResponseBody = {
   data?: {
-    answerType?: string(name='AnswerType'),
+    answerType?: string(name='AnswerType', example='text'),
     options?: [ string ](name='Options'),
     question?: string(name='Question'),
-    questionType?: string(name='QuestionType'),
+    questionType?: string(name='QuestionType', example='age'),
     reports?: map[string]string(name='Reports'),
-    sessionId?: string(name='SessionId'),
+    sessionId?: string(name='SessionId', example='d1f6a6c2444f4c01adfadd413938e5c7'),
   }(name='Data'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='BFF7EEC3-F6B5-4387-AC1D-BB095A1A02E4'),
 }
 
 model RunMedQAResponse = {
@@ -1624,138 +2516,243 @@ async function runMedQA(request: RunMedQARequest): RunMedQAResponse {
   return runMedQAWithOptions(request, runtime);
 }
 
+async function runMedQAAdvance(request: RunMedQAAdvanceRequest, runtime: Util.RuntimeOptions): RunMedQAResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var runMedQAReq = new RunMedQARequest{};
+  OpenApiUtil.convert(request, runMedQAReq);
+
+  if(!Util.isUnset(request.answerImageURLList)) {
+    var i0 : integer = 0;
+    for (var item0 : request.answerImageURLList) {
+      if(!Util.isUnset(item0.answerImageURLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.answerImageURLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : RunMedQARequest.answerImageURLList = runMedQAReq.answerImageURLList[i0];
+        tmp.answerImageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i0 = Number.ltoi(Number.add(Number.itol(i0), Number.itol(1)));
+      }
+    }
+  }
+  var runMedQAResp = runMedQAWithOptions(runMedQAReq, runtime);
+  return runMedQAResp;
+}
+
 model ScreenChestCTRequest {
-  dataFormat?: string(name='DataFormat'),
-  mask?: long(name='Mask'),
-  orgId?: string(name='OrgId'),
-  orgName?: string(name='OrgName'),
+  dataFormat?: string(name='DataFormat', example='DICOM'),
+  mask?: long(name='Mask', example='4'),
+  orgId?: string(name='OrgId', example='7ff51bfe-e73d-11ea-827d-506b4b3f3cf6'),
+  orgName?: string(name='OrgName', example='weiyi'),
   URLList?: [ 
     {
-      URL?: string(name='URL'),
+      URL?: string(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/coronacases_org_001/1.2.112.92121.1.1689.19.2.2020040219072764787101585825****.dcm'),
     }
   ](name='URLList'),
-  verbose?: long(name='Verbose'),
+  verbose?: long(name='Verbose', example='0'),
+}
+
+model ScreenChestCTAdvanceRequest {
+  dataFormat?: string(name='DataFormat', example='DICOM'),
+  mask?: long(name='Mask', example='4'),
+  orgId?: string(name='OrgId', example='7ff51bfe-e73d-11ea-827d-506b4b3f3cf6'),
+  orgName?: string(name='OrgName', example='weiyi'),
+  URLList?: [ 
+    {
+      URLObject?: readable(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/coronacases_org_001/1.2.112.92121.1.1689.19.2.2020040219072764787101585825****.dcm'),
+    }
+  ](name='URLList'),
+  verbose?: long(name='Verbose', example='0'),
 }
 
 model ScreenChestCTResponseBody = {
   data?: {
     analyzeChestVessel?: {
       aortaInfo?: {
-        area?: [ float ](name='Area'),
+        area?: [ float ](name='Area', description='1'),
         coordinates?: [[ float ]        ](name='Coordinates'),
-        labelValue?: long(name='LabelValue'),
-        maxArea?: float(name='MaxArea'),
-        maxAreaIndex?: long(name='MaxAreaIndex'),
-        maxDiameter?: float(name='MaxDiameter'),
+        labelValue?: long(name='LabelValue', example='2'),
+        maxArea?: float(name='MaxArea', example='2722'),
+        maxAreaIndex?: long(name='MaxAreaIndex', example='416'),
+        maxDiameter?: float(name='MaxDiameter', example='63'),
       }(name='AortaInfo'),
       pulmonaryInfo?: {
-        area?: [ float ](name='Area'),
+        area?: [ float ](name='Area', description='1'),
         coordinates?: [[ float ]        ](name='Coordinates'),
-        labelValue?: long(name='LabelValue'),
-        maxArea?: float(name='MaxArea'),
-        maxAreaIndex?: long(name='MaxAreaIndex'),
-        maxDiameter?: float(name='MaxDiameter'),
-        nearestAortaArea?: float(name='NearestAortaArea'),
+        labelValue?: long(name='LabelValue', example='1'),
+        maxArea?: float(name='MaxArea', example='928'),
+        maxAreaIndex?: long(name='MaxAreaIndex', example='0'),
+        maxDiameter?: float(name='MaxDiameter', example='42'),
+        nearestAortaArea?: float(name='NearestAortaArea', example='2439'),
       }(name='PulmonaryInfo'),
-      resultURL?: string(name='ResultURL'),
+      resultURL?: string(name='ResultURL', example='http://vibktprfx-prod-prod-aic-med-cn-shanghai.oss-cn-shanghai.aliyuncs.com/ct_artery_aa_ph/local_test/2021-07-08/6C4713DF-F548-47DF-A456-5DA1C8334444_result_compressed.tgz?Expires=1625732732&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSR****&Signature=5UKVmLfM7GWllIcPr9a6dKz%2B5h****'),
     }(name='AnalyzeChestVessel'),
     CACS?: {
       detections?: [ 
         {
           calciumCenter?: [ long ](name='CalciumCenter'),
-          calciumId?: long(name='CalciumId'),
-          calciumScore?: float(name='CalciumScore'),
-          calciumVolume?: float(name='CalciumVolume'),
+          calciumId?: long(name='CalciumId', example='1'),
+          calciumScore?: float(name='CalciumScore', example='19.22474'),
+          calciumVolume?: float(name='CalciumVolume', example='28.837109'),
         }
       ](name='Detections'),
-      resultUrl?: string(name='ResultUrl'),
-      score?: string(name='Score'),
-      seriesInstanceUID?: string(name='SeriesInstanceUID'),
-      volumeScore?: string(name='VolumeScore'),
+      resultUrl?: string(name='ResultUrl', example='http://vibktprfx-prod-prod-aic-med-cn-shanghai.oss-cn-shanghai.aliyuncs.com/calc-cacs/2020-09-29/2020-09-29-11%3A07%3A41-D74FE0DF-8F80-41EB-B08B-2E67053587EC.tar.gz?Expires=1601350661&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRp****&Signature=iB16ms28Y5mzB11ghYUd7upCi4****'),
+      score?: string(name='Score', example='4.83'),
+      seriesInstanceUID?: string(name='SeriesInstanceUID', example='1.2.392.489642.9116.2.6.1.44063.1986736248.1658817546.650139'),
+      volumeScore?: string(name='VolumeScore', example='111.96'),
     }(name='CACS'),
     covid?: {
-      lesionRatio?: string(name='LesionRatio'),
-      mask?: string(name='Mask'),
-      newProbability?: string(name='NewProbability'),
-      normalProbability?: string(name='NormalProbability'),
-      otherProbability?: string(name='OtherProbability'),
-      seriesInstanceUID?: string(name='SeriesInstanceUID'),
+      lesionRatio?: string(name='LesionRatio', example='0.9387283236994219'),
+      mask?: string(name='Mask', example='http://algo-app-aic-med-cn-shanghai-prod.oss-cn-shanghai.aliyuncs.com/covid19-dcm/unspecified/2020032702/1b1e1018-6fcf-11ea-8fa1-d20b34387541.nii.gz?Expires=1585276394&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRp****&Signature=%2F1LNGWJUqvY0VRYGgg8Ldtb3BF****'),
+      newProbability?: string(name='NewProbability', example='4.062644e-06'),
+      normalProbability?: string(name='NormalProbability', example='0.7230905'),
+      otherProbability?: string(name='OtherProbability', example='0.27690542'),
+      seriesInstanceUID?: string(name='SeriesInstanceUID', example='1.2.392.200036.9116.2.6.1.44063.1805049129.1658817546.650139'),
     }(name='Covid'),
     detectLymph?: {
       lesions?: [ 
         {
           boxes?: [ float ](name='Boxes'),
           diametermm?: [ float ](name='Diametermm'),
-          keySlice?: long(name='KeySlice'),
+          keySlice?: long(name='KeySlice', example='7'),
           recist?: [[ float ]          ](name='Recist'),
-          score?: float(name='Score'),
+          score?: float(name='Score', example='0.6298'),
         }
       ](name='Lesions'),
-      seriesInstanceUID?: string(name='SeriesInstanceUID'),
+      seriesInstanceUID?: string(name='SeriesInstanceUID', example='1.2.568.200036.9116.2.6.1.44063.1805049129.1357480934.650139'),
     }(name='DetectLymph'),
     detectPdac?: {
       lesion?: {
-        mask?: string(name='Mask'),
-        nonPdacVol?: string(name='NonPdacVol'),
-        pancVol?: string(name='PancVol'),
-        pdacVol?: string(name='PdacVol'),
+        mask?: string(name='Mask', example='http://vibktprfx-prod-prod-aic-med-cn-shanghai.oss-cn-shanghai.aliyuncs.com/screen-pdac/2022-05-25_14%3A33%3A30/4CA2BF25-BCDB-9C6C-B14C-EB41E8266588.nii.gz?Expires=1653462210&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSR****&Signature=8t%2FknUrQyyyCU2p7QhMC%2BXBCR****'),
+        nonPdacVol?: string(name='NonPdacVol', example='0'),
+        pancVol?: string(name='PancVol', example='0'),
+        pdacVol?: string(name='PdacVol', example='0'),
         possibilities?: [ string ](name='Possibilities'),
       }(name='Lesion'),
-      seriesInstanceUID?: string(name='SeriesInstanceUID'),
+      seriesInstanceUID?: string(name='SeriesInstanceUID', example='1.2.239.200036.9116.2.6.1.44063.1805049129.1357480934.650139'),
     }(name='DetectPdac'),
     detectRibFracture?: {
       detections?: [ 
         {
           coordinateImage?: [ long ](name='CoordinateImage'),
           coordinates?: [ long ](name='Coordinates'),
-          fractureCategory?: long(name='FractureCategory'),
-          fractureConfidence?: float(name='FractureConfidence'),
-          fractureId?: long(name='FractureId'),
-          fractureLocation?: string(name='FractureLocation'),
-          fractureSegment?: long(name='FractureSegment'),
+          fracSOPInstanceUID?: string(name='FracSOPInstanceUID'),
+          fractureCategory?: long(name='FractureCategory', example='1'),
+          fractureConfidence?: float(name='FractureConfidence', example='0.7916666666666667'),
+          fractureId?: long(name='FractureId', example='2'),
+          fractureLocation?: string(name='FractureLocation', example='L4'),
+          fractureSegment?: long(name='FractureSegment', example='0'),
         }
       ](name='Detections'),
-      fractureMaskURL?: string(name='FractureMaskURL'),
+      fractureMaskURL?: string(name='FractureMaskURL', example='http://vibktprfx-prod-prod-aic-med-cn-shanghai.oss-cn-shanghai.aliyuncs.com/screen-chest-ct/detect-rib-fracture/2022-07-27/2022-07-27-15_15_39-8BBD1C28-383A-548F-AD7D-CB5E0ABA207D_be6ffcb2d2e9494cba8112e07f93f466_ribFracture-mask.nii.gz?Expires=1659165340&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSR****&Signature=2lzFDLfGbhVXsHm%2BKhgpglWmA****'),
       origin?: [ float ](name='Origin'),
-      resultURL?: string(name='ResultURL'),
-      ribSegmentMaskURL?: string(name='RibSegmentMaskURL'),
-      seriesInstanceUID?: string(name='SeriesInstanceUID'),
+      resultURL?: string(name='ResultURL', example='http://vibktprfx-prod-prod-aic-med-cn-shanghai.oss-cn-shanghai.aliyuncs.com/detect-rib-fracture/local_test/2020-12-22/result-D5CD101C-F8E5-43CA-9E99-44C783B8F8BE.tar.gz?Expires=1608631727&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRp****&Signature=d6c32E1IB4b7Ayo1lpjs%2Bq3Ylv****'),
+      ribSegmentMaskURL?: string(name='RibSegmentMaskURL', example='http://vibktprfx-prod-prod-aic-med-cn-shanghai.oss-cn-shanghai.aliyuncs.com/screen-chest-ct/detect-rib-fracture/2022-07-27/2022-07-27-15_15_39-8BBD1C28-383A-548F-AD7D-CB5E0ABA207D_be6ffcb2d2e9494cba8112e07f93f466_ribFracture-ribmask.nii.gz?Expires=1659165340&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSR****&Signature=5Z%2FCS3B%2B%2Ff6nlBk7alY39LvH3****'),
+      seriesInstanceUID?: string(name='SeriesInstanceUID', example='1.2.392.489642.9116.2.6.1.78361.1298784213.1658817546.650139'),
       spacing?: [ float ](name='Spacing'),
     }(name='DetectRibFracture'),
-    errorMessage?: string(name='ErrorMessage'),
+    errorMessage?: string(name='ErrorMessage', example='Failed to execute [cacs,covid]'),
     lungNodule?: {
       series?: [ 
         {
           elements?: [ 
             {
-              category?: string(name='Category'),
-              confidence?: float(name='Confidence'),
-              diameter?: float(name='Diameter'),
-              imageX?: float(name='ImageX'),
-              imageY?: float(name='ImageY'),
-              imageZ?: float(name='ImageZ'),
-              lobe?: string(name='Lobe'),
-              lung?: string(name='Lung'),
-              meanValue?: float(name='MeanValue'),
-              SOPInstanceUID?: string(name='SOPInstanceUID'),
-              volume?: float(name='Volume'),
-              x?: float(name='X'),
-              y?: float(name='Y'),
-              z?: float(name='Z'),
+              category?: string(name='Category', example='1'),
+              confidence?: float(name='Confidence', example='0.7012705768508907'),
+              diameter?: float(name='Diameter', example='9.730626493692398'),
+              imageX?: float(name='ImageX', example='308.9676976455463'),
+              imageY?: float(name='ImageY', example='198.3552282631497'),
+              imageZ?: float(name='ImageZ', example='198.3552282631497'),
+              lobe?: string(name='Lobe', example='up'),
+              lung?: string(name='Lung', example='left'),
+              meanValue?: float(name='MeanValue', example='261.37589112119247'),
+              SOPInstanceUID?: string(name='SOPInstanceUID', example='1.3.6.1.4.1.14519.5.2.1.6279.6001.261151233960269013402330853013'),
+              volume?: float(name='Volume', example='10959.220491175074'),
+              x?: float(name='X', example='51.24291240631416'),
+              y?: float(name='Y', example='-32.23147700784307'),
+              z?: float(name='Z', example='-46.81608170781766'),
             }
           ](name='Elements'),
           origin?: [ float ](name='Origin'),
           report?: string(name='Report'),
-          seriesInstanceUid?: string(name='SeriesInstanceUid'),
+          seriesInstanceUid?: string(name='SeriesInstanceUid', example='1.3.6.1.4.1.14519.5.2.1.6279.6001.179049373636438705059720603192'),
           spacing?: [ float ](name='Spacing'),
         }
       ](name='Series'),
     }(name='LungNodule'),
-    nestedUrlList?: map[string]any(name='NestedUrlList'),
-    URLList?: map[string]any(name='URLList'),
+    nestedUrlList?: map[string]any(name='NestedUrlList', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/coronacases_org_001/1.2.112.92121.1.1689.19.2.2020040219072764787101585825****.dcm'),
+    screenEc?: {
+      lesion?: {
+        benignVolume?: string(name='BenignVolume'),
+        ecVolume?: string(name='EcVolume'),
+        esoVolume?: string(name='EsoVolume'),
+        mask?: string(name='Mask'),
+        possibilities?: [ string ](name='Possibilities'),
+      }(name='Lesion'),
+      seriesInsanceUid?: string(name='SeriesInsanceUid'),
+    }(name='ScreenEc'),
+    URLList?: map[string]any(name='URLList', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/coronacases_org_001/1.2.112.92121.1.1689.19.2.2020040219072764787101585825****.dcm'),
   }(name='Data'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='imageUrl download failed'),
+  requestId?: string(name='RequestId', example='528B54D4-3AAB-47CF-B6CE-0C2A2FB4C7C2'),
 }
 
 model ScreenChestCTResponse = {
@@ -1807,11 +2804,92 @@ async function screenChestCT(request: ScreenChestCTRequest): ScreenChestCTRespon
   return screenChestCTWithOptions(request, runtime);
 }
 
+async function screenChestCTAdvance(request: ScreenChestCTAdvanceRequest, runtime: Util.RuntimeOptions): ScreenChestCTResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var screenChestCTReq = new ScreenChestCTRequest{};
+  OpenApiUtil.convert(request, screenChestCTReq);
+
+  if(!Util.isUnset(request.URLList)) {
+    var i0 : integer = 0;
+    for (var item0 : request.URLList) {
+      if(!Util.isUnset(item0.URLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.URLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : ScreenChestCTRequest.URLList = screenChestCTReq.URLList[i0];
+        tmp.URL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i0 = Number.ltoi(Number.add(Number.itol(i0), Number.itol(1)));
+      }
+    }
+  }
+  var screenChestCTResp = screenChestCTWithOptions(screenChestCTReq, runtime);
+  return screenChestCTResp;
+}
+
 model ScreenECRequest {
-  dataSourceType?: string(name='DataSourceType'),
+  dataSourceType?: string(name='DataSourceType', example='HTTP_FILES'),
   URLList?: [ 
     {
-      URL?: string(name='URL'),
+      URL?: string(name='URL', example='https://medclients-sh.oss-cn-shanghai.aliyuncs.com/demo/LIDC-IDRI-0001/xxxx.dcm'),
     }
   ](name='URLList'),
 }
@@ -1819,15 +2897,15 @@ model ScreenECRequest {
 model ScreenECResponseBody = {
   data?: {
     lesion?: {
-      benignVolume?: string(name='BenignVolume'),
-      ecVolume?: string(name='EcVolume'),
-      esoVolume?: string(name='EsoVolume'),
-      mask?: string(name='Mask'),
+      benignVolume?: string(name='BenignVolume', example='0'),
+      ecVolume?: string(name='EcVolume', example='0'),
+      esoVolume?: string(name='EsoVolume', example='26814'),
+      mask?: string(name='Mask', example='http://vibktprfx-prod-prod-aic-med-cn-shanghai.oss-cn-shanghai.aliyuncs.com/screen-pdac/2022-05-25_14%3A33%3A30/4CA2BF25-BCDB-9C6C-B14C-EB41E8266588.nii.gz?Expires=1653462210&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSR****&Signature=8t%2FknUrQyyyCU2p7QhMC%2BXBCR****'),
       possibilities?: [ string ](name='Possibilities'),
     }(name='Lesion'),
   }(name='Data'),
   message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='9B65AC8E-311A-1ED1-BBE6-6AA6D35D31A6'),
 }
 
 model ScreenECResponse = {
@@ -1868,25 +2946,39 @@ async function screenEC(request: ScreenECRequest): ScreenECResponse {
 }
 
 model SegmentOARRequest {
-  bodyPart?: string(name='BodyPart'),
-  contrast?: boolean(name='Contrast'),
-  dataFormat?: string(name='DataFormat'),
+  bodyPart?: string(name='BodyPart', example='CHEST'),
+  contrast?: boolean(name='Contrast', example='true'),
+  dataFormat?: string(name='DataFormat', example='NIFTI'),
   maskList?: [ long ](name='MaskList'),
-  orgId?: string(name='OrgId'),
+  orgId?: string(name='OrgId', example='7ff51bfe-e73d-11ea-827d-506b4b3f3cf6'),
   orgName?: string(name='OrgName'),
   URLList?: [ 
     {
-      URL?: string(name='URL'),
+      URL?: string(name='URL', example='https://viapi-test.oss-cn-shanghai.aliyuncs.com/test-team/imageprocess/coronacases_org_001/****.dcm'),
+    }
+  ](name='URLList'),
+}
+
+model SegmentOARAdvanceRequest {
+  bodyPart?: string(name='BodyPart', example='CHEST'),
+  contrast?: boolean(name='Contrast', example='true'),
+  dataFormat?: string(name='DataFormat', example='NIFTI'),
+  maskList?: [ long ](name='MaskList'),
+  orgId?: string(name='OrgId', example='7ff51bfe-e73d-11ea-827d-506b4b3f3cf6'),
+  orgName?: string(name='OrgName'),
+  URLList?: [ 
+    {
+      URLObject?: readable(name='URL', example='https://viapi-test.oss-cn-shanghai.aliyuncs.com/test-team/imageprocess/coronacases_org_001/****.dcm'),
     }
   ](name='URLList'),
 }
 
 model SegmentOARResponseBody = {
   data?: {
-    resultURL?: string(name='ResultURL'),
+    resultURL?: string(name='ResultURL', example='http://vibktprfx-prod-prod-aic-med-cn-shanghai.oss-cn-shanghai.aliyuncs.com/calc-cacs/2020-09-29/2020-09-29-11%3A07%3A41-D74FE0DF-8F80-41EB-B08B-2E67053587EC.tar.gz?Expires=1601350661&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRp****&Signature=iB16ms28Y5mzB11ghYUd7upCi4****'),
   }(name='Data'),
   message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='57784EDF-7322-1559-89C2-26A08570B26B'),
 }
 
 model SegmentOARResponse = {
@@ -1941,18 +3033,99 @@ async function segmentOAR(request: SegmentOARRequest): SegmentOARResponse {
   return segmentOARWithOptions(request, runtime);
 }
 
+async function segmentOARAdvance(request: SegmentOARAdvanceRequest, runtime: Util.RuntimeOptions): SegmentOARResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageprocess',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var segmentOARReq = new SegmentOARRequest{};
+  OpenApiUtil.convert(request, segmentOARReq);
+
+  if(!Util.isUnset(request.URLList)) {
+    var i0 : integer = 0;
+    for (var item0 : request.URLList) {
+      if(!Util.isUnset(item0.URLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.URLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : SegmentOARRequest.URLList = segmentOARReq.URLList[i0];
+        tmp.URL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i0 = Number.ltoi(Number.add(Number.itol(i0), Number.itol(1)));
+      }
+    }
+  }
+  var segmentOARResp = segmentOARWithOptions(segmentOARReq, runtime);
+  return segmentOARResp;
+}
+
 model TranslateMedRequest {
-  fromLanguage?: string(name='FromLanguage'),
+  fromLanguage?: string(name='FromLanguage', example='zh_CN'),
   text?: string(name='Text'),
-  toLanguage?: string(name='ToLanguage'),
+  toLanguage?: string(name='ToLanguage', example='en'),
 }
 
 model TranslateMedResponseBody = {
   data?: {
-    text?: string(name='Text'),
-    words?: long(name='Words'),
+    text?: string(name='Text', example='Neonatal jaundice question how to treat'),
+    words?: long(name='Words', example='11'),
   }(name='Data'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='5C0DA144-3497-4551-97F2-49E1F053B16D'),
 }
 
 model TranslateMedResponse = {
