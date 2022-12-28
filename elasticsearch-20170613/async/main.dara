@@ -37,6 +37,42 @@ model ClientNodeConfiguration {
   spec: string(name='spec', description='协调节点规格'),
 }
 
+model CollectorDeployMachine {
+  configType: string(name='configType', description='固定值：collectorDeployMachine', example='collectorDeployMachine'),
+  groupId?: string(name='groupId', description='ECS机器组Id', example='default_ct-cn-f3t0dq5p97199ru3z'),
+  instanceId?: string(name='instanceId', description='ACK集群Id', example='ce93d7566df2141f490f0f60f646252c3'),
+  machines?: [ 
+    {
+      agentStatus?: string(name='agentStatus', description='当前ECS实例采集器安装状态', example='UNINSTALLED'),
+      instanceId?: string(name='instanceId', description='ECS实例Id', example='i-xs34****'),
+    }
+  ](name='machines', description='部署在ECS时，部署到的机器的相关信息，包括ECS的id和每台机器上的采集器状态'),
+  successPodsCount?: string(name='successPodsCount', description='返回ACK集群中成功采集状态的Pod节点数', example='1'),
+  totalPodsCount?: string(name='totalPodsCount', description='返回ACK集群所有采集的Pod节点数', example='2'),
+  type: string(name='type', description='采集器部署机器目标的类型，分为ECS和ACK两种', example='ACKCluster'),
+}
+
+model CollectorKibanaInstance {
+  configType: string(name='configType', description='采集器Output配置类型，固定值：collectorElasticsearchForKibana', example='collectorElasticsearchForKibana'),
+  host: string(name='host', description='kibana对应的es实例地址', example='es-cn-*****-kibana.internal.elasticsearch.aliyuncs.com:5601'),
+  instanceId: string(name='instanceId', description='采集器Output实例Id', example='es-cn-45dfy****'),
+  kibanaHost: string(name='kibanaHost', description='kibana地址', example='https://es-cn-****.kibana.elasticsearch.aliyuncs.com:5601'),
+  password: string(name='password', description='kibana密码', example='password'),
+  protocol: string(name='protocol', description='传输协议', example='HTTP'),
+  userName: string(name='userName', description='kibana用户名', example='username'),
+}
+
+model CollectorTargetInstance {
+  configType: string(name='configType', description='当前配置类型。固定值：collectorTargetInstance', example='collectorTargetInstance'),
+  enableMonitoring: boolean(name='enableMonitoring', description='采集器是否启用Monitoring', example='false'),
+  hosts?: [ string ](name='hosts', description='output实例地址'),
+  instanceId: string(name='instanceId', description='output实例Id', example='es-cn-ks8x****'),
+  instanceType: string(name='instanceType', description='实例类型', example='elasticsearch'),
+  password: string(name='password', description='output实例密码', example='password'),
+  protocol: string(name='protocol', description='传输协议', example='HTTP'),
+  userName: string(name='userName', description='output实例用户名', example='username'),
+}
+
 model DictInfo {
   fileSize?: long(name='fileSize', description='词典文件大小'),
   name?: string(name='name', description='词典文件名称'),
@@ -494,7 +530,19 @@ async function closeManagedIndex(request: CloseManagedIndexRequest): CloseManage
 }
 
 model CreateCollectorRequest {
-  body?: string(name='body', position='Body'),
+  collectorPaths?: [ string ](name='collectorPaths', description='filebeat的采集路径，只有ECS机器上的使用', position='Body'),
+  configs: [ 
+    {
+      content: string(name='content', description='文件内容。详见：https://help.aliyun.com/document_detail/146447.html', example='详见https://help.aliyun.com/document_detail/146447.html'),
+      fileName: string(name='fileName', description='文件路径名称', example='fields.yml'),
+    }
+  ](name='configs', description='配置文件信息', position='Body'),
+  dryRun: boolean(name='dryRun', description='创建是否校验。true:只校验不创建，false：校验并创建', position='Body'),
+  extendConfigs: [  map[string]any ](name='extendConfigs', description='采集器Output实例配置', position='Body'),
+  name: string(name='name', description='采集器实例名称，自定义', example='cn-collecor', position='Body'),
+  resType: string(name='resType', description='采集器类型。', example='fileBeat', position='Body'),
+  resVersion: string(name='resVersion', description='采集器版本', example='6.8.5_with_community', position='Body'),
+  vpcId: string(name='vpcId', description='采集器所属专有网络ID。', example='vpc-45ews***', position='Body'),
   clientToken?: string(name='clientToken', example='5A2CFF0E-5718-45B5-9D4D-70B3FF****', position='Query'),
 }
 
@@ -663,12 +711,21 @@ async function createILMPolicy(request: CreateILMPolicyRequest): CreateILMPolicy
 model CreateIndexTemplateRequest {
   instanceId: string(name='InstanceId', example='es-cn-n6w24n9u900am****', position='Path'),
   clientToken?: string(name='ClientToken', example='E1136AE9-4E49-4585-9358-6FDD2A6D****', position='Query'),
-  body?: string(name='body', position='Body'),
+  dataStream: boolean(name='dataStream', description='是否同时自动创建数据流', position='Body'),
+  ilmPolicy?: string(name='ilmPolicy', description='生命周期策略名称', example='policy-1', position='Body'),
+  indexPatterns: [ string ](name='indexPatterns', description='索引匹配模式正则', position='Body'),
+  indexTemplate: string(name='indexTemplate', description='索引模版名称', example='index-template', position='Body'),
+  priority?: int32(name='priority', description='优先级。数组越大，优先级越高。', example='100', minimum=0, maximum=2147483647, position='Body'),
+  template?: {
+    aliases?: string(name='aliases', description='aliases设置', example='{"mydata": {}}'),
+    mappings?: string(name='mappings', description='mappings设置', example='{"properties": {"created_at": {"type": "date","format": "EEE MMM dd HH:mm:ss Z yyyy"},"host_name": {"type": "keyword"}}}'),
+    settings?: string(name='settings', description='settings设置', example='{\\"index.refresh_interval\\":\\"1s\\"}'),
+  }(name='template', description='模版设置。详情见：https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-template.html#multiple-component-templates', position='Body'),
 }
 
 model CreateIndexTemplateResponseBody = {
   requestId?: string(name='RequestId', example='F99407AB-2FA9-489E-A259-40CF6DCC****'),
-  result?: string(name='Result', example='index-template'),
+  result?: string(name='Result', description='索引模版名称', example='index-template'),
 }
 
 model CreateIndexTemplateResponse = {
@@ -917,8 +974,8 @@ async function deleteDataTask(request: DeleteDataTaskRequest): DeleteDataTaskRes
 }
 
 model DeleteDeprecatedTemplateRequest {
-  instanceId?: string(name='InstanceId', description='A short description of struct', example='es-cn-tl329rbpc0001****', position='Path'),
-  name?: string(name='name', example='template', position='Path'),
+  instanceId: string(name='InstanceId', description='A short description of struct', example='es-cn-tl329rbpc0001****', position='Path'),
+  name: string(name='name', example='template', position='Path'),
 }
 
 model DeleteDeprecatedTemplateResponseBody = {
