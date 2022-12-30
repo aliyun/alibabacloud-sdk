@@ -93,8 +93,27 @@ model TrafficPolicy {
 model AddAuthResourceRequest {
   acceptLanguage?: string(name='AcceptLanguage', example='zh'),
   authId?: long(name='AuthId', description='The ID of the authorization record.', example='13'),
+  authResourceHeaderList?: [ 
+    {
+      headerKey?: string(name='HeaderKey'),
+      headerMethod?: string(name='HeaderMethod'),
+      headerValue?: string(name='HeaderValue'),
+    }
+  ](name='AuthResourceHeaderList'),
   domainId?: long(name='DomainId', description='The ID of the domain name.', example='128'),
   gatewayUniqueId?: string(name='GatewayUniqueId', description='The unique ID of the gateway.', example='gw-86575c0bc9f04ecfbacb92b8e392****'),
+  ignoreCase?: boolean(name='IgnoreCase'),
+  matchType?: string(name='MatchType'),
+  path?: string(name='Path', description='The path.', example='/abc'),
+}
+
+model AddAuthResourceShrinkRequest {
+  acceptLanguage?: string(name='AcceptLanguage', example='zh'),
+  authId?: long(name='AuthId', description='The ID of the authorization record.', example='13'),
+  authResourceHeaderListShrink?: string(name='AuthResourceHeaderList'),
+  domainId?: long(name='DomainId', description='The ID of the domain name.', example='128'),
+  gatewayUniqueId?: string(name='GatewayUniqueId', description='The unique ID of the gateway.', example='gw-86575c0bc9f04ecfbacb92b8e392****'),
+  ignoreCase?: boolean(name='IgnoreCase'),
   matchType?: string(name='MatchType'),
   path?: string(name='Path', description='The path.', example='/abc'),
 }
@@ -116,8 +135,13 @@ model AddAuthResourceResponse = {
   body: AddAuthResourceResponseBody(name='body'),
 }
 
-async function addAuthResourceWithOptions(request: AddAuthResourceRequest, runtime: Util.RuntimeOptions): AddAuthResourceResponse {
-  Util.validateModel(request);
+async function addAuthResourceWithOptions(tmpReq: AddAuthResourceRequest, runtime: Util.RuntimeOptions): AddAuthResourceResponse {
+  Util.validateModel(tmpReq);
+  var request = new AddAuthResourceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.authResourceHeaderList)) {
+    request.authResourceHeaderListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.authResourceHeaderList, 'AuthResourceHeaderList', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.acceptLanguage)) {
     query['AcceptLanguage'] = request.acceptLanguage;
@@ -125,11 +149,17 @@ async function addAuthResourceWithOptions(request: AddAuthResourceRequest, runti
   if (!Util.isUnset(request.authId)) {
     query['AuthId'] = request.authId;
   }
+  if (!Util.isUnset(request.authResourceHeaderListShrink)) {
+    query['AuthResourceHeaderList'] = request.authResourceHeaderListShrink;
+  }
   if (!Util.isUnset(request.domainId)) {
     query['DomainId'] = request.domainId;
   }
   if (!Util.isUnset(request.gatewayUniqueId)) {
     query['GatewayUniqueId'] = request.gatewayUniqueId;
+  }
+  if (!Util.isUnset(request.ignoreCase)) {
+    query['IgnoreCase'] = request.ignoreCase;
   }
   if (!Util.isUnset(request.matchType)) {
     query['MatchType'] = request.matchType;
@@ -160,15 +190,21 @@ async function addAuthResource(request: AddAuthResourceRequest): AddAuthResource
 }
 
 model AddBlackWhiteListRequest {
-  acceptLanguage?: string(name='AcceptLanguage', example='zh'),
+  acceptLanguage?: string(name='AcceptLanguage', description='The language of the response. Valid values:
+
+*   zh: Chinese
+*   en: English', example='zh'),
   content?: string(name='Content', description='The content of the blacklist.', example='1.117.115.51'),
   gatewayUniqueId?: string(name='GatewayUniqueId', description='The unique ID of the gateway.', example='gw-0fe488252dc44d55a9dd57875193****'),
-  isWhite?: boolean(name='IsWhite', description='Specifies whether to enable the whitelist mode for authorization.', example='false'),
-  name?: string(name='Name'),
-  note?: string(name='Note'),
-  resourceIdJsonList?: string(name='ResourceIdJsonList'),
+  isWhite?: boolean(name='IsWhite', description='Specifies whether to create a whitelist.', example='false'),
+  name?: string(name='Name', description='The name.', example='name'),
+  note?: string(name='Note', description='The description.', example='this is a note'),
+  resourceIdJsonList?: string(name='ResourceIdJsonList', description='The resource IDs in the JSON format.', example='[123]'),
   resourceType?: string(name='ResourceType', description='The resource type to which the blacklist or whitelist applies.', example='GATEWAY'),
-  status?: string(name='Status', description='The status of the blacklist.', example='off'),
+  status?: string(name='Status', description='The status of the blacklist.
+
+*   on: enabled
+*   off: disabled', example='off'),
   type?: string(name='Type', description='The type of object in the blacklist or whitelist.', example='IP'),
 }
 
@@ -176,12 +212,12 @@ model AddBlackWhiteListResponseBody = {
   code?: int32(name='Code', description='The status code returned.', example='200'),
   data?: long(name='Data', description='The ID of the record.', example='2'),
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code returned.', example='200'),
-  message?: string(name='Message', description='The error message returned if the request fails.', example='You are not authorized to perform this operation.'),
+  message?: string(name='Message', description='The error message.', example='You are not authorized to perform this operation.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='966F6CA7-16D0-50AB-AB02-E140934F90C1'),
-  success?: boolean(name='Success', description='Indicates whether the request is successful. Valid values:
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
 
-- `true`: The request is successful.                                  
-- `false`: The request fails.', example='true'),
+*   `true`: The request was successful.
+*   `false`: The request failed.', example='true'),
 }
 
 model AddBlackWhiteListResponse = {
@@ -3392,6 +3428,61 @@ async function deleteGatewaySlb(request: DeleteGatewaySlbRequest): DeleteGateway
   return deleteGatewaySlbWithOptions(request, runtime);
 }
 
+model DeleteMigrationTaskRequest {
+  acceptLanguage?: string(name='AcceptLanguage', example='zh'),
+  id?: string(name='Id', example='1'),
+  requestPars?: string(name='RequestPars', example='{}'),
+}
+
+model DeleteMigrationTaskResponseBody = {
+  data?: boolean(name='Data', example='true'),
+  errorCode?: string(name='ErrorCode', example='mse-100-000'),
+  httpCode?: string(name='HttpCode', example='200'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', example='8BD1E58D-0755-42AC-A599-E6B55112****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteMigrationTaskResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DeleteMigrationTaskResponseBody(name='body'),
+}
+
+async function deleteMigrationTaskWithOptions(request: DeleteMigrationTaskRequest, runtime: Util.RuntimeOptions): DeleteMigrationTaskResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.requestPars)) {
+    query['RequestPars'] = request.requestPars;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteMigrationTask',
+    version = '2019-05-31',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deleteMigrationTask(request: DeleteMigrationTaskRequest): DeleteMigrationTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteMigrationTaskWithOptions(request, runtime);
+}
+
 model DeleteNacosConfigRequest {
   acceptLanguage?: string(name='AcceptLanguage', description='The language of the response. Valid values:
 
@@ -5939,10 +6030,10 @@ model GetPluginsRequest {
   acceptLanguage?: string(name='AcceptLanguage', description='The language of the response. Valid values:
 
 zh: Chinese en: English', example='zh'),
-  category?: int32(name='Category', description='The plug-in directory.
+  category?: int32(name='Category', description='The type of the plug-in. Valid values:
 
-*   0: user-defined
-*   1: permission authentication
+*   0: custom
+*   1: permission authorization
 *   2: security protection
 *   3: transmission protocol
 *   4: traffic control
@@ -5956,11 +6047,11 @@ model GetPluginsResponseBody = {
   code?: int32(name='Code', description='Code.', example='200'),
   data?: [ 
     {
-      category?: int32(name='Category', description='The directory of the plug-in.
+      category?: int32(name='Category', description='The type of the plug-in. Valid values:
 
-0: user-defined
+0: custom
 
-1: permission authentication
+1: permission authorization
 
 2: security protection
 
@@ -5969,20 +6060,20 @@ model GetPluginsResponseBody = {
 4: traffic control
 
 5: traffic observation', example='0'),
-      configCheck?: string(name='ConfigCheck', description='The information about the configuration check.', example='\\# Configure to check required fields for the plug-in, such as name, age, and friends. Sample configuration: name: John age: 18 friends: - David - Anne'),
+      configCheck?: string(name='ConfigCheck', description='The information about the plug-in configuration used for checking.', example='\\# The configuration includes the fields required for checking, such as name, age, and friends. Sample configuration: name: John age: 18 friends: - David - Anne'),
       id?: long(name='Id', description='The ID of the plug-in.', example='1'),
       maxVersion?: string(name='MaxVersion'),
       mode?: int32(name='Mode'),
       name?: string(name='Name', description='The name of the plug-in.', example='key-auth'),
       newVersionPublishingFlag?: boolean(name='NewVersionPublishingFlag'),
-      phase?: int32(name='Phase', description='The plug-in execution stage.
+      phase?: int32(name='Phase', description='The execution stage of the plug-in.
 
 *   0: default stage
 *   1: authorization stage
 *   2: authentication stage
 *   3: statistics stage', example='1'),
       primaryUser?: string(name='PrimaryUser', description='The ID of the creator.', example='123'),
-      priority?: int32(name='Priority', description='The plug-in execution priority. A larger value indicates a higher priority.', example='1'),
+      priority?: int32(name='Priority', description='The execution priority of the plug-in. A larger value indicates a higher priority.', example='1'),
       publishState?: int32(name='PublishState', description='The publish status.', example='1'),
       status?: string(name='Status', description='Indicates whether the plug-in is enabled.
 
@@ -5990,8 +6081,8 @@ model GetPluginsResponseBody = {
 *   1: enabled', example='1'),
       summary?: string(name='Summary', description='The summary of the plug-in.', example='This is a plug-in.'),
       version?: string(name='Version', description='The version of the plug-in.', example='v1'),
-      wasmFile?: string(name='WasmFile', description='The Object Storage Service (OSS) of the WebAssembly plug-in.', example='https://mse-shared-cn-hangzhou.oss-cn-hangzhou.aliyuncs.com/cfg/import/1917515******/gw-0adf3ad751284cc69fcf9669fba*****/2022/11/02/4d390496-2c17-4b42-a479-f9068ba****/16673573***5.wasm'),
-      wasmLang?: int32(name='WasmLang', description='The WebAssembly language.
+      wasmFile?: string(name='WasmFile', description='The URL of the Object Storage Service (OSS) bucket that stores the WebAssembly plug-in.', example='https://mse-shared-cn-hangzhou.oss-cn-hangzhou.aliyuncs.com/cfg/import/1917515******/gw-0adf3ad751284cc69fcf9669fba*****/2022/11/02/4d390496-2c17-4b42-a479-f9068ba****/16673573***5.wasm'),
+      wasmLang?: int32(name='WasmLang', description='The WebAssembly language. Valid values:
 
 *   0: C++
 *   1: TinyGo
@@ -5999,10 +6090,10 @@ model GetPluginsResponseBody = {
 *   3: AssemblyScript
 *   4: Zig', example='0'),
     }
-  ](name='Data', description='The returned data.'),
+  ](name='Data', description='The data entries returned.'),
   dynamicCode?: string(name='DynamicCode', description='The dynamic part in the error message.', example='code'),
   dynamicMessage?: string(name='DynamicMessage', description='The dynamic error message.', example='message'),
-  errorCode?: string(name='ErrorCode', description='The error code returned.', example='500'),
+  errorCode?: string(name='ErrorCode', description='The error code returned if the request failed.', example='500'),
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code returned.', example='200'),
   message?: string(name='Message', description='The message returned.', example='success'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='03A3E2F4-6804-5663-9D5D-2EC47A1*****'),
@@ -6145,41 +6236,56 @@ async function getServiceList(request: GetServiceListRequest): GetServiceListRes
 }
 
 model GetServiceListenersRequest {
-  acceptLanguage?: string(name='AcceptLanguage', example='zh'),
-  clusterId?: string(name='ClusterId', example='mse-09k1q11****'),
-  clusterName?: string(name='ClusterName', example='DEFAULT'),
-  groupName?: string(name='GroupName', example='WEB_GROUP'),
-  hasIpCount?: string(name='HasIpCount', example='none'),
-  instanceId?: string(name='InstanceId', example='mse_prepaid_public_cn-tl32odtt20j'),
-  namespaceId?: string(name='NamespaceId', example='ddaf8f12-****-b1c1-86e7c72e266b'),
-  pageNum?: int32(name='PageNum', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  regionId?: string(name='RegionId', example='cn-hangzhou'),
-  requestPars?: string(name='RequestPars', example='{}'),
-  serviceName?: string(name='ServiceName', example='zeekr-orderboss'),
+  acceptLanguage?: string(name='AcceptLanguage', description='The language of the response. Valid values:
+
+*   zh: Chinese
+*   en: English', example='zh'),
+  clusterId?: string(name='ClusterId', description='The ID of the MSE instance to which the service belongs.
+
+> You must specify InstanceId or ClusterId.', example='mse-09k1q11****'),
+  clusterName?: string(name='ClusterName', description='The name of the cluster to which the service belongs.
+
+> The cluster is a concept for Nacos services and does not refer to a Microservices Engine (MSE) instance.', example='DEFAULT'),
+  groupName?: string(name='GroupName', description='The group to which the service belongs.', example='WEB_GROUP'),
+  hasIpCount?: string(name='HasIpCount', description='A reserved parameter.', example='none'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance to which the service belongs.
+
+> You must specify InstanceId or ClusterId.', example='mse_prepaid_public_cn-tl32odtt20j'),
+  namespaceId?: string(name='NamespaceId', description='The namespace to which the service belongs.', example='ddaf8f12-****-b1c1-86e7c72e266b'),
+  pageNum?: int32(name='PageNum', description='The number of the page to return.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page.', example='10'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  requestPars?: string(name='RequestPars', description='The extended request parameters in the JSON format.', example='{}'),
+  serviceName?: string(name='ServiceName', description='The name of the service whose listeners you want to query.', example='zeekr-orderboss'),
 }
 
 model GetServiceListenersResponseBody = {
   data?: [ 
     {
-      addr?: string(name='Addr', example='119.23.84.102'),
-      agent?: string(name='Agent', example='Nacos-Java-Client:v2.1.1'),
-      app?: string(name='App', example='app'),
-      cluster?: string(name='Cluster', example='DEFAULT'),
-      IP?: string(name='IP', example='172.16.1.5'),
-      namespaceId?: string(name='NamespaceId', example='0ba53825-b183-414f-a6a0-288e4f1c467e'),
-      port?: string(name='Port', example='8080'),
-      serviceName?: string(name='ServiceName', example='zeekr-orderboss'),
+      addr?: string(name='Addr', description='The address of the listener.', example='119.23.84.102'),
+      agent?: string(name='Agent', description='The listener client version.', example='Nacos-Java-Client:v2.1.1'),
+      app?: string(name='App', description='The application name of the listener.', example='app'),
+      cluster?: string(name='Cluster', description='The name of the cluster to which the monitored service belongs.', example='DEFAULT'),
+      IP?: string(name='IP', description='The IP address of the monitored service.', example='172.16.1.5'),
+      namespaceId?: string(name='NamespaceId', description='The ID of the namespace.', example='0ba53825-b183-414f-a6a0-288e4f1c467e'),
+      port?: string(name='Port', description='The port number of the monitored service.', example='8080'),
+      serviceName?: string(name='ServiceName', description='The name of the monitored service.', example='zeekr-orderboss'),
     }
-  ](name='Data'),
-  errorCode?: string(name='ErrorCode', example='mse-100-000'),
-  httpCode?: string(name='HttpCode', example='202'),
-  message?: string(name='Message', example='success'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='54973C90-F379-4372-9AA5-053A3F7****'),
-  success?: boolean(name='Success', example='true'),
-  totalCount?: int32(name='TotalCount', example='2'),
+  ](name='Data', description='The returned data.'),
+  errorCode?: string(name='ErrorCode', description='The error code returned if the request failed.', example='mse-100-000'),
+  httpCode?: string(name='HttpCode', description='The HTTP status code returned.', example='202'),
+  message?: string(name='Message', description='The message returned.
+
+*   If the request is successful, a success message is returned.
+*   If the request fails, an error message is returned.', example='success'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='54973C90-F379-4372-9AA5-053A3F7****'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   `true`: The request was successful.
+*   `false`: The request failed.', example='true'),
+  totalCount?: int32(name='TotalCount', description='The number of listeners that are queried.', example='2'),
 }
 
 model GetServiceListenersResponse = {
@@ -7485,6 +7591,80 @@ async function listClusters(request: ListClustersRequest): ListClustersResponse 
   return listClustersWithOptions(request, runtime);
 }
 
+model ListConfigTrackRequest {
+  acceptLanguage?: string(name='AcceptLanguage', example='zh'),
+  dataId?: string(name='DataId', example='ballot'),
+  endTs?: long(name='EndTs', example='1657178373'),
+  group?: string(name='Group', example='DEFAULT_GROUP'),
+  instanceId?: string(name='InstanceId', example='mse_prepaid_public_cn-i7m2ne****'),
+  ip?: string(name='Ip', example='192.168.22.2'),
+  namespaceId?: string(name='NamespaceId', example='f3a510e2-df52-4fad-9815-42d8bc40****'),
+  pageNum?: long(name='PageNum', example='1'),
+  pageSize?: long(name='PageSize', example='10'),
+  requestPars?: string(name='RequestPars', example='{}'),
+  reverse?: boolean(name='Reverse', example='true'),
+  startTs?: long(name='StartTs', example='1671010148'),
+}
+
+model ListConfigTrackResponseBody = {
+  errorCode?: string(name='ErrorCode', example='mse-100-000'),
+  httpCode?: string(name='HttpCode', example='200'),
+  message?: string(name='Message'),
+  pageNumber?: long(name='PageNumber', example='1'),
+  pageSize?: long(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='0CE3ABD2-1E04-561F-A9B4-0423D50****'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: long(name='TotalCount', example='3'),
+  traces?: [ 
+    {
+      client?: boolean(name='Client', example='false'),
+      dataId?: string(name='DataId', example='eir-server.properties'),
+      delay?: string(name='Delay', example='0'),
+      event?: string(name='Event', example='pull'),
+      group?: string(name='Group', example='DEFAULT_GROUP'),
+      logDate?: string(name='LogDate', example='2022-11-28 15:09:15'),
+      md5?: string(name='Md5', example='d21c9091c60daa0ff7ee2f420141e5a0'),
+      push?: boolean(name='Push', example='false'),
+      requestIp?: string(name='RequestIp', example='192.168.1.2'),
+      responseIp?: string(name='ResponseIp', example='mse-1973b9a0-1670834*****-reg-center-0-2'),
+      result?: string(name='Result', example='ok'),
+      ts?: string(name='Ts', example='1659666529'),
+      type?: string(name='Type', example='beta'),
+    }
+  ](name='Traces'),
+}
+
+model ListConfigTrackResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListConfigTrackResponseBody(name='body'),
+}
+
+async function listConfigTrackWithOptions(request: ListConfigTrackRequest, runtime: Util.RuntimeOptions): ListConfigTrackResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListConfigTrack',
+    version = '2019-05-31',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listConfigTrack(request: ListConfigTrackRequest): ListConfigTrackResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listConfigTrackWithOptions(request, runtime);
+}
+
 model ListEngineNamespacesRequest {
   acceptLanguage?: string(name='AcceptLanguage', description='The language of the response. Valid values:
 
@@ -8729,6 +8909,72 @@ async function listListenersByIp(request: ListListenersByIpRequest): ListListene
   return listListenersByIpWithOptions(request, runtime);
 }
 
+model ListMigrationTaskRequest {
+  acceptLanguage?: string(name='AcceptLanguage', example='zh'),
+  originInstanceName?: string(name='OriginInstanceName', example='whdc'),
+  pageNum?: long(name='PageNum', example='1'),
+  pageSize?: long(name='PageSize', example='10'),
+  requestPars?: string(name='RequestPars', example='{}'),
+}
+
+model ListMigrationTaskResponseBody = {
+  data?: [ 
+    {
+      clusterType?: string(name='ClusterType', example='Nacos-Ans'),
+      gmtCreate?: string(name='GmtCreate', example='2022-01-07T10:07:57.000+0000'),
+      gmtModified?: string(name='GmtModified', example='2021-12-30T06:41:52.000+0000'),
+      id?: long(name='Id', example='1'),
+      originInstanceAddress?: string(name='OriginInstanceAddress', example='192.168.1.1:8848'),
+      originInstanceName?: string(name='OriginInstanceName', example='test'),
+      originInstanceNamespace?: string(name='OriginInstanceNamespace', example='fsdfsdfdsf'),
+      projectDesc?: string(name='ProjectDesc', example='test'),
+      targetClusterName?: string(name='TargetClusterName', example='multiple-naocs'),
+      targetClusterUrl?: string(name='TargetClusterUrl', example='mse-f1******-nacos-ans.mse.aliyuncs.com:8848'),
+      targetInstanceId?: string(name='TargetInstanceId', example='mse-cn-zv*****'),
+      userId?: string(name='UserId', example='2'),
+    }
+  ](name='Data'),
+  errorCode?: string(name='ErrorCode', example='mse-100-000'),
+  httpCode?: string(name='HttpCode', example='200'),
+  message?: string(name='Message'),
+  pageNumber?: long(name='PageNumber', example='1'),
+  pageSize?: long(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='451EBE59-5F33-5B15-83C1-78593B9*****'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: long(name='TotalCount', example='2'),
+}
+
+model ListMigrationTaskResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListMigrationTaskResponseBody(name='body'),
+}
+
+async function listMigrationTaskWithOptions(request: ListMigrationTaskRequest, runtime: Util.RuntimeOptions): ListMigrationTaskResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListMigrationTask',
+    version = '2019-05-31',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listMigrationTask(request: ListMigrationTaskRequest): ListMigrationTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listMigrationTaskWithOptions(request, runtime);
+}
+
 model ListNacosConfigsRequest {
   acceptLanguage?: string(name='AcceptLanguage', description='The language of the response. Valid values:
 
@@ -8952,6 +9198,76 @@ async function listNacosHistoryConfigsWithOptions(request: ListNacosHistoryConfi
 async function listNacosHistoryConfigs(request: ListNacosHistoryConfigsRequest): ListNacosHistoryConfigsResponse {
   var runtime = new Util.RuntimeOptions{};
   return listNacosHistoryConfigsWithOptions(request, runtime);
+}
+
+model ListNamingTrackRequest {
+  acceptLanguage?: string(name='AcceptLanguage', example='zh'),
+  endTs?: long(name='EndTs', example='1665299698'),
+  group?: string(name='Group', example='group'),
+  instanceId?: string(name='InstanceId', example='mse_prepaid_public_cn-tl32d*****'),
+  ip?: string(name='Ip', example='172.16.183.232'),
+  namespaceId?: string(name='NamespaceId', example='cd4d3703-e2a6-46b5-85c6-4447e4f****'),
+  pageNum?: long(name='PageNum', example='1'),
+  pageSize?: long(name='PageSize', example='10'),
+  requestPars?: string(name='RequestPars', example='{}'),
+  reverse?: boolean(name='Reverse', example='false'),
+  serviceName?: string(name='ServiceName', example='fpx-xms-baseinfo'),
+  startTs?: long(name='StartTs', example='1660238450'),
+}
+
+model ListNamingTrackResponseBody = {
+  errorCode?: string(name='ErrorCode', example='mse-100-000'),
+  httpCode?: string(name='HttpCode', example='200'),
+  message?: string(name='Message'),
+  pageNumber?: long(name='PageNumber', example='1'),
+  pageSize?: long(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='9916CBED-B2D5-5685-9129-4592FE1*****'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: long(name='TotalCount', example='7'),
+  traces?: [ 
+    {
+      clientIp?: string(name='ClientIp', example='120.40.32.235'),
+      group?: string(name='Group', example='prod'),
+      instanceSize?: string(name='InstanceSize', example='1'),
+      nodeName?: string(name='NodeName', example='mse-197*****-167083******-reg-center-0-0'),
+      pushTime?: string(name='PushTime', example='2022-12-16 11:48:07'),
+      pushTimeAll?: string(name='PushTimeAll', example='628ms'),
+      pushTimeNetwork?: string(name='PushTimeNetwork', example='37ms'),
+      serverName?: string(name='ServerName', example='fpx-xms-baseinfo'),
+      slaTime?: string(name='SlaTime', example='628ms'),
+    }
+  ](name='Traces'),
+}
+
+model ListNamingTrackResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListNamingTrackResponseBody(name='body'),
+}
+
+async function listNamingTrackWithOptions(request: ListNamingTrackRequest, runtime: Util.RuntimeOptions): ListNamingTrackResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListNamingTrack',
+    version = '2019-05-31',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listNamingTrack(request: ListNamingTrackRequest): ListNamingTrackResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listNamingTrackWithOptions(request, runtime);
 }
 
 model ListSSLCertRequest {
@@ -9238,7 +9554,7 @@ model ListTagResourcesRequest {
 *   zh: Chinese
 *   en: English', example='zh'),
   nextToken?: string(name='NextToken', description='The token that is required for the next query.', example='AAAAAV3MpHK1AP0pfERHZN5pu6kywps2Ezza3n8HAAzCCqsi'),
-  regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
   resourceId?: [ string ](name='ResourceId', description='The resource IDs. You can specify a maximum of 50 resource IDs.'),
   resourceType?: string(name='ResourceType', description='The type of the resources. Valid values:
 
@@ -9253,8 +9569,8 @@ model ListTagResourcesRequest {
 }
 
 model ListTagResourcesResponseBody = {
-  errorCode?: string(name='ErrorCode', description='The error code returned.', example='mse-100-000'),
-  message?: string(name='Message', description='The message returned.', example='The request is successfully processed.'),
+  errorCode?: string(name='ErrorCode', description='The error code returned if the request failed.', example='mse-100-000'),
+  message?: string(name='Message', description='The message returned.', example='The request was successfully processed.'),
   nextToken?: string(name='NextToken', description='The token that is required for the next query. If the NextToken parameter is empty, no subsequent query is required.', example='AAAAAV3MpHK1AP0pfERHZN5pu6ng3BeUyo2zbY5wgL1DBa2T'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='92ED7C9C-84A2-595F-87FE-354F84C0F739'),
   success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
@@ -10488,19 +10804,20 @@ async function queryGatewayRegion(request: QueryGatewayRegionRequest): QueryGate
 model QueryGatewayTypeRequest {
   acceptLanguage?: string(name='AcceptLanguage', description='The language of the response. Valid values:
 
-- zh: Chinese
-- en: English', example='zh'),
+*   zh: Chinese
+*   en: English', example='zh'),
 }
 
 model QueryGatewayTypeResponseBody = {
-  code?: int32(name='Code', description='The status code returned. A value of 200 indicates that the request is successful. Other values indicate that the request fails.', example='200'),
-  data?: [ string ](name='Data', description='The information about gateway types.'),
+  code?: int32(name='Code', description='The status code returned. The value 200 indicates that the request was successful. Other values indicate that the request failed.', example='200'),
+  data?: [ string ](name='Data', description='The information about the gateway type. The data type of this parameter is List.'),
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code returned.', example='200'),
-  message?: string(name='Message', description='The message returned. If the request is successful, a success message is returned. If the request fails, an error message is returned.', example='The request is processed successfully.'),
+  message?: string(name='Message', description='The message returned. If the request is successful, a success message is returned. If the request fails, an error message is returned.', example='The request is successfully processed.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='52BA6DA6-A702-4362-A32F-DFF79655****'),
-  success?: boolean(name='Success', description='Indicates whether the request is successful. Valid values:
-- `true`: The request is successful. 
-- `false`: The request fails.', example='true'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   `true`: The request was successful.
+*   `false`: The request failed.', example='true'),
 }
 
 model QueryGatewayTypeResponse = {
@@ -11140,23 +11457,37 @@ async function selectGatewaySlb(request: SelectGatewaySlbRequest): SelectGateway
 }
 
 model TagResourcesRequest {
-  acceptLanguage?: string(name='AcceptLanguage', example='zh'),
-  regionId?: string(name='RegionId', example='cn-hangzhou'),
-  resourceId?: [ string ](name='ResourceId'),
-  resourceType?: string(name='ResourceType', example='CLUSTER'),
+  acceptLanguage?: string(name='AcceptLanguage', description='The language of the response. Valid values:
+
+*   zh: Chinese
+*   en: English', example='zh'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  resourceId?: [ string ](name='ResourceId', description='The ID of the instance.
+
+> This parameter specifies the instance ID that is passed. Examples:
+
+*   **ResourceId.1** indicates the ID of the first instance.
+*   **ResourceId.2** indicates the ID of the second instance.'),
+  resourceType?: string(name='ResourceType', description='The type of the resources. Valid values:
+
+*   CLUSTER: MSE instance
+*   GATEWAY: cloud-native gateway', example='CLUSTER'),
   tag?: [ 
     {
       key?: string(name='Key', example='env'),
-      value?: string(name='Value', example='prd'),
+      value?: string(name='Value', description='The value of a tag.', example='prd'),
     }
-  ](name='Tag'),
+  ](name='Tag', description='The list of tags. You can specify a maximum of 20 tags.'),
 }
 
 model TagResourcesResponseBody = {
-  errorCode?: string(name='ErrorCode', example='mse-100-000'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', example='E0A79810-9396-521C-A09D-E757B3E2BAF4'),
-  success?: boolean(name='Success', example='true'),
+  errorCode?: string(name='ErrorCode', description='The error code returned if the request failed.', example='mse-100-000'),
+  message?: string(name='Message', description='The message returned.', example='The request was successfully processed.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='E0A79810-9396-521C-A09D-E757B3E2BAF4'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   `true`: The request was successful.
+*   `false`: The request failed.', example='true'),
 }
 
 model TagResourcesResponse = {
@@ -13247,6 +13578,106 @@ async function updateMessageQueueRouteWithOptions(tmpReq: UpdateMessageQueueRout
 async function updateMessageQueueRoute(request: UpdateMessageQueueRouteRequest): UpdateMessageQueueRouteResponse {
   var runtime = new Util.RuntimeOptions{};
   return updateMessageQueueRouteWithOptions(request, runtime);
+}
+
+model UpdateMigrationTaskRequest {
+  acceptLanguage?: string(name='AcceptLanguage', example='zh'),
+  clusterType?: string(name='ClusterType', example='Nacos-Ans'),
+  id?: string(name='Id', example='1'),
+  originInstanceAddress?: string(name='OriginInstanceAddress', example='192.168.1.1:8848'),
+  originInstanceName?: string(name='OriginInstanceName'),
+  originInstanceNamespace?: string(name='OriginInstanceNamespace', example='namesapceId1,namesapceId2'),
+  projectDesc?: string(name='ProjectDesc'),
+  requestPars?: string(name='RequestPars', example='{}'),
+  targetClusterName?: string(name='TargetClusterName'),
+  targetClusterUrl?: string(name='TargetClusterUrl', example='mse-66*****-nacos-ans.mse.aliyuncs.com:8848'),
+  targetInstanceId?: string(name='TargetInstanceId', example='mse-cn-ud82*****'),
+}
+
+model UpdateMigrationTaskResponseBody = {
+  data?: {
+    clusterType?: string(name='ClusterType', example='Nacos-Ans'),
+    gmtCreate?: string(name='GmtCreate', example='2022-01-07T10:07:57.000+0000'),
+    gmtModified?: string(name='GmtModified', example='2022-01-07T10:07:57.000+0000'),
+    id?: string(name='Id', example='1'),
+    originInstanceAddress?: string(name='OriginInstanceAddress', example='192.168.100.2:2181'),
+    originInstanceName?: string(name='OriginInstanceName', example='src'),
+    originInstanceNamespace?: string(name='OriginInstanceNamespace', example='fsdfsdfdsf'),
+    projectDesc?: string(name='ProjectDesc', example='1232345'),
+    targetClusterName?: string(name='TargetClusterName', example='multiple-naocs'),
+    targetClusterUrl?: string(name='TargetClusterUrl', example='mse-0b*****-nacos-ans.mse.aliyuncs.com:8848'),
+    targetInstanceId?: string(name='TargetInstanceId', example='mse-cn-zvp2u*****'),
+    userId?: string(name='UserId', example='183876217*****'),
+  }(name='Data'),
+  errorCode?: string(name='ErrorCode', example='mse-100-000'),
+  httpCode?: string(name='HttpCode', example='200'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', example='AF21683A-29C7-4853-AC0F-B5ADEE4****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateMigrationTaskResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateMigrationTaskResponseBody(name='body'),
+}
+
+async function updateMigrationTaskWithOptions(request: UpdateMigrationTaskRequest, runtime: Util.RuntimeOptions): UpdateMigrationTaskResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.clusterType)) {
+    query['ClusterType'] = request.clusterType;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.originInstanceAddress)) {
+    query['OriginInstanceAddress'] = request.originInstanceAddress;
+  }
+  if (!Util.isUnset(request.originInstanceName)) {
+    query['OriginInstanceName'] = request.originInstanceName;
+  }
+  if (!Util.isUnset(request.originInstanceNamespace)) {
+    query['OriginInstanceNamespace'] = request.originInstanceNamespace;
+  }
+  if (!Util.isUnset(request.projectDesc)) {
+    query['ProjectDesc'] = request.projectDesc;
+  }
+  if (!Util.isUnset(request.requestPars)) {
+    query['RequestPars'] = request.requestPars;
+  }
+  if (!Util.isUnset(request.targetClusterName)) {
+    query['TargetClusterName'] = request.targetClusterName;
+  }
+  if (!Util.isUnset(request.targetClusterUrl)) {
+    query['TargetClusterUrl'] = request.targetClusterUrl;
+  }
+  if (!Util.isUnset(request.targetInstanceId)) {
+    query['TargetInstanceId'] = request.targetInstanceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateMigrationTask',
+    version = '2019-05-31',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function updateMigrationTask(request: UpdateMigrationTaskRequest): UpdateMigrationTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateMigrationTaskWithOptions(request, runtime);
 }
 
 model UpdateNacosClusterRequest {
