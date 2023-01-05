@@ -881,12 +881,16 @@ async function applyAutoSnapshotPolicy(request: ApplyAutoSnapshotPolicyRequest):
 }
 
 model AssignIpv6AddressesRequest {
-  ipv6Address?: [ string ](name='Ipv6Address', example='2001:db8:1234:1a00::****'),
+  ipv6Address?: [ string ](name='Ipv6Address', description='One or more IPv6 addresses to assign to the ENI. Valid values of N: 1 to 10.
+
+Example: Ipv6Address.1=2001:db8:1234:1a00::\\*\\*\\*\\*
+
+>  You must specify `Ipv6Addresses.N` or `Ipv6AddressCount` but cannot specify both.', example='2001:db8:1234:1a00::****'),
   ipv6AddressCount?: int32(name='Ipv6AddressCount', description='The number of IPv6 addresses to randomly generate for the ENI. Valid values: 1 to 10.
 
->  You must specify `Ipv6Addresses.N` or `Ipv6AddressCount` but not both.', example='1'),
-  ipv6Prefix?: [ string ](name='Ipv6Prefix'),
-  ipv6PrefixCount?: int32(name='Ipv6PrefixCount'),
+>  You must specify `Ipv6Addresses.N` or `Ipv6AddressCount` but cannot specify both.', example='1'),
+  ipv6Prefix?: [ string ](name='Ipv6Prefix', description='One or more IPv6 address prefixes to assign to the ENI.'),
+  ipv6PrefixCount?: int32(name='Ipv6PrefixCount', description='The number of IPv6 address prefixes.', example='100'),
   networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the ENI.', example='eni-bp1iqejowblx6h8j****'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
@@ -898,7 +902,7 @@ model AssignIpv6AddressesRequest {
 model AssignIpv6AddressesResponseBody = {
   ipv6PrefixSets?: {
     ipv6Prefix?: [ string ](name='Ipv6Prefix')
-  }(name='Ipv6PrefixSets'),
+  }(name='Ipv6PrefixSets', description='The IPv6 address prefixes assigned to the ENI.'),
   ipv6Sets?: {
     ipv6Address?: [ string ](name='Ipv6Address')
   }(name='Ipv6Sets', description='The IPv6 addresses assigned to the ENI.'),
@@ -914,13 +918,13 @@ model AssignIpv6AddressesResponse = {
 
 /**
   * ## Description
-  * You can specify IPv6 addresses within the CIDR block of the vSwitch with which the ENI is associated, or specify the number of IPv6 addresses to automatically assign. Take note of the following items:
+  * You can specify IPv6 addresses within the CIDR block of the vSwitch with which the ENI is associated, or specify the number of IPv6 addresses to automatically generate for the ENI. When you call this operation, take note of the following items:
   * *   IPv6 must be enabled for the vSwitch with which the ENI is associated. For more information, see [Enable IPv6 for a vSwitch](~~98923~~).
-  * *   The ENI must be in the Available (Available) or Bound (InUse) state.
+  * *   The ENI must be in the Available (Available) or InUse (InUse) state.
   * *   The Elastic Compute Service (ECS) instance to which the primary ENI is bound must be in the Running (Running) or Stopped (Stopped) state.
   * *   The maximum number of IPv6 addresses that can be assigned to an ENI varies per instance type.
   *     *   If the ENI is in the Available (Available) state, it can be assigned a maximum of 10 IPv6 addresses.
-  *     *   If the ENI is already bound to an ECS instance, the maximum number of IPv6 addresses that can be assigned to the ENI is determined based on the instance type. For more information, see [Instance families](~~25378~~).
+  *     *   If the ENI is already bound to an ECS instance, the maximum number of IPv6 addresses that can be assigned to the ENI is determined based on the instance type. For more information, see [Overview of instance families](~~25378~~).
   * *   After the operation is called, you can obtain the IPv6 addresses assigned to the ENI from the response.
   *
   * @param request AssignIpv6AddressesRequest
@@ -982,13 +986,13 @@ async function assignIpv6AddressesWithOptions(request: AssignIpv6AddressesReques
 
 /**
   * ## Description
-  * You can specify IPv6 addresses within the CIDR block of the vSwitch with which the ENI is associated, or specify the number of IPv6 addresses to automatically assign. Take note of the following items:
+  * You can specify IPv6 addresses within the CIDR block of the vSwitch with which the ENI is associated, or specify the number of IPv6 addresses to automatically generate for the ENI. When you call this operation, take note of the following items:
   * *   IPv6 must be enabled for the vSwitch with which the ENI is associated. For more information, see [Enable IPv6 for a vSwitch](~~98923~~).
-  * *   The ENI must be in the Available (Available) or Bound (InUse) state.
+  * *   The ENI must be in the Available (Available) or InUse (InUse) state.
   * *   The Elastic Compute Service (ECS) instance to which the primary ENI is bound must be in the Running (Running) or Stopped (Stopped) state.
   * *   The maximum number of IPv6 addresses that can be assigned to an ENI varies per instance type.
   *     *   If the ENI is in the Available (Available) state, it can be assigned a maximum of 10 IPv6 addresses.
-  *     *   If the ENI is already bound to an ECS instance, the maximum number of IPv6 addresses that can be assigned to the ENI is determined based on the instance type. For more information, see [Instance families](~~25378~~).
+  *     *   If the ENI is already bound to an ECS instance, the maximum number of IPv6 addresses that can be assigned to the ENI is determined based on the instance type. For more information, see [Overview of instance families](~~25378~~).
   * *   After the operation is called, you can obtain the IPv6 addresses assigned to the ENI from the response.
   *
   * @param request AssignIpv6AddressesRequest
@@ -1701,6 +1705,7 @@ async function attachKeyPair(request: AttachKeyPairRequest): AttachKeyPairRespon
 
 model AttachNetworkInterfaceRequest {
   instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-bp16qstyvxj9gpqw****'),
+  networkCardIndex?: int32(name='NetworkCardIndex'),
   networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the ENI.', example='eni-bp17pdijfczax1huji****'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
@@ -1740,6 +1745,9 @@ async function attachNetworkInterfaceWithOptions(request: AttachNetworkInterface
   var query = {};
   if (!Util.isUnset(request.instanceId)) {
     query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.networkCardIndex)) {
+    query['NetworkCardIndex'] = request.networkCardIndex;
   }
   if (!Util.isUnset(request.networkInterfaceId)) {
     query['NetworkInterfaceId'] = request.networkInterfaceId;
@@ -4533,142 +4541,6 @@ async function createCommand(request: CreateCommandRequest): CreateCommandRespon
   return createCommandWithOptions(request, runtime);
 }
 
-model CreateDedicatedBlockStorageClusterRequest {
-  capacity?: int32(name='Capacity', description='The capacity of the dedicated block storage cluster. Valid values: 60 to 2304. Unit: TiB.', example='60'),
-  category?: string(name='Category', description='The category of disks that can be created in the dedicated block storage cluster.
-
-Valid value: cloud_essd. Only enhanced SSDs (ESSDs) can be created in dedicated block storage clusters.', example='cloud_essd'),
-  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate a client token. Make sure that a unique client token is used for different requests.
-
-The `ClientToken` value can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure idempotence](~~25693~~).', example='123e4567-e89b-12d3-a456-426612340000'),
-  dedicatedBlockStorageClusterName?: string(name='DedicatedBlockStorageClusterName', description='The name of the dedicated block storage cluster.', example='myDBSCCluster'),
-  description?: string(name='Description', description='The description of the dedicated block storage cluster.', example='This is description.'),
-  fromApp?: string(name='FromApp', description='> This parameter will be offline soon, please use other parameters.', example='null'),
-  ownerAccount?: string(name='OwnerAccount'),
-  ownerId?: long(name='OwnerId'),
-  period?: int32(name='Period', description='The subscription period of the dedicated block storage cluster. The unit is specified by the `PeriodUnit` parameter. Valid values:
-
-*   When the `PeriodUnit` parameter is set to Year, valid values are 1, 2, 3, and 4.
-*   When the `PeriodUnit` parameter is set to Month, valid values are 6, 7, 8, 9, 10, and 11.
-
->  Dedicated Block Storage Cluster supports only the subscription billing method. Therefore, you must specify the `Period` and `PeriodUnit` parameters.', example='2'),
-  periodUnit?: string(name='PeriodUnit', description='The unit of the subscription period. Valid values:
-
-*   Year
-*   Month
-
->  Dedicated Block Storage Cluster supports only the subscription billing method. Therefore, you must specify the `Period` and `PeriodUnit` parameters.', example='Year'),
-  regionId?: string(name='RegionId', description='The ID of the region in which to create the dedicated block storage cluster. You can call the [DescribeRegions](~~25609~~) operation to query thecurrent list of regions.', example='cn-heyuan'),
-  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
-  resourceOwnerId?: long(name='ResourceOwnerId'),
-  type?: string(name='Type', description='The type of the dedicated block storage cluster. Valid values:
-
-*   Standard: When you set Type to Standard, ESSDs at performance level 0 (PL0 ESSDs) can be created in the dedicated block storage cluster.
-*   Premium: When you set Type to Premium, ESSDs at performance level 1 (PL1 ESSDs) can be created in the dedicated block storage cluster.
-
-Default value: Premium.', example='Premium'),
-  zoneId?: string(name='ZoneId', description='The ID of the zone where the cluster is deployed. You can call the [DescribeZones](~~25610~~) operation to query the most recent zone list.', example='cn-heyuan-b'),
-}
-
-model CreateDedicatedBlockStorageClusterResponseBody = {
-  dedicatedBlockStorageClusterId?: string(name='DedicatedBlockStorageClusterId', description='The ID of the dedicated block storage cluster.', example='dbsc-f8z4d3k4nsgg9okb****'),
-  dedicatedBlockStorageClusterOrderId?: string(name='DedicatedBlockStorageClusterOrderId', description='The ID of the order.', example='50155660025****'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='20758A-585D-4A41-A9B2-28DA8F4F534F'),
-}
-
-model CreateDedicatedBlockStorageClusterResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: CreateDedicatedBlockStorageClusterResponseBody(name='body'),
-}
-
-/**
-  * >  Dedicated Block Storage Cluster is available in the China (Heyuan), Indonesia (Jakarta), and China South 1 Finance regions.
-  * Dedicated block storage clusters are physically isolated from public block storage clusters. The owner of each dedicated block storage cluster has exclusive access to all resources in the cluster. For more information, see [Overview](~~208883~~).
-  * Disks created in a dedicated block storage cluster can be attached only to Elastic Compute Service (ECS) instances that reside in the same zone as the cluster. Before you create a dedicated block storage cluster, decide the regions and zones in which to deploy your cloud resources.
-  *
-  * @param request CreateDedicatedBlockStorageClusterRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return CreateDedicatedBlockStorageClusterResponse
- */
-async function createDedicatedBlockStorageClusterWithOptions(request: CreateDedicatedBlockStorageClusterRequest, runtime: Util.RuntimeOptions): CreateDedicatedBlockStorageClusterResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.capacity)) {
-    query['Capacity'] = request.capacity;
-  }
-  if (!Util.isUnset(request.category)) {
-    query['Category'] = request.category;
-  }
-  if (!Util.isUnset(request.clientToken)) {
-    query['ClientToken'] = request.clientToken;
-  }
-  if (!Util.isUnset(request.dedicatedBlockStorageClusterName)) {
-    query['DedicatedBlockStorageClusterName'] = request.dedicatedBlockStorageClusterName;
-  }
-  if (!Util.isUnset(request.description)) {
-    query['Description'] = request.description;
-  }
-  if (!Util.isUnset(request.fromApp)) {
-    query['FromApp'] = request.fromApp;
-  }
-  if (!Util.isUnset(request.ownerAccount)) {
-    query['OwnerAccount'] = request.ownerAccount;
-  }
-  if (!Util.isUnset(request.ownerId)) {
-    query['OwnerId'] = request.ownerId;
-  }
-  if (!Util.isUnset(request.period)) {
-    query['Period'] = request.period;
-  }
-  if (!Util.isUnset(request.periodUnit)) {
-    query['PeriodUnit'] = request.periodUnit;
-  }
-  if (!Util.isUnset(request.regionId)) {
-    query['RegionId'] = request.regionId;
-  }
-  if (!Util.isUnset(request.resourceOwnerAccount)) {
-    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
-  }
-  if (!Util.isUnset(request.resourceOwnerId)) {
-    query['ResourceOwnerId'] = request.resourceOwnerId;
-  }
-  if (!Util.isUnset(request.type)) {
-    query['Type'] = request.type;
-  }
-  if (!Util.isUnset(request.zoneId)) {
-    query['ZoneId'] = request.zoneId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'CreateDedicatedBlockStorageCluster',
-    version = '2014-05-26',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * >  Dedicated Block Storage Cluster is available in the China (Heyuan), Indonesia (Jakarta), and China South 1 Finance regions.
-  * Dedicated block storage clusters are physically isolated from public block storage clusters. The owner of each dedicated block storage cluster has exclusive access to all resources in the cluster. For more information, see [Overview](~~208883~~).
-  * Disks created in a dedicated block storage cluster can be attached only to Elastic Compute Service (ECS) instances that reside in the same zone as the cluster. Before you create a dedicated block storage cluster, decide the regions and zones in which to deploy your cloud resources.
-  *
-  * @param request CreateDedicatedBlockStorageClusterRequest
-  * @return CreateDedicatedBlockStorageClusterResponse
- */
-async function createDedicatedBlockStorageCluster(request: CreateDedicatedBlockStorageClusterRequest): CreateDedicatedBlockStorageClusterResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createDedicatedBlockStorageClusterWithOptions(request, runtime);
-}
-
 model CreateDedicatedHostClusterRequest {
   dedicatedHostClusterName?: string(name='DedicatedHostClusterName', description='The name of the dedicated host cluster. The name must be 2 to 128 characters in length and can contain letters, digits, periods (.), underscores (\\_), and hyphens (-). It must start with a letter. It cannot contain `http://` or `https://`.
 
@@ -7052,6 +6924,7 @@ For non-I/O optimized instances of retired instance types, the default value is 
 Default value: true.', example='true'),
     description?: string(name='Description', description='The description of the system disk. The description must be 2 to 256 characters in length and cannot start with `http://` or `https://`.', example='testSystemDiskDescription'),
     diskName?: string(name='DiskName', description='The name of the system disk. The name must be 2 to 128 characters in length. It must start with a letter and cannot start with `http://` or `https://`. It can contain letters, digits, colons (:), underscores (\\_), and hyphens (-).', example='testSystemDiskName'),
+    encrypted?: string(name='Encrypted'),
     iops?: int32(name='Iops', example='null'),
     performanceLevel?: string(name='PerformanceLevel', description='The performance level of the ESSD that is used as the system disk. Default value: PL0. Valid values:
 
@@ -7496,6 +7369,7 @@ For non-I/O optimized instances of retired instance types, the default value is 
 Default value: true.', example='true'),
     description?: string(name='Description', description='The description of the system disk. The description must be 2 to 256 characters in length and cannot start with `http://` or `https://`.', example='testSystemDiskDescription'),
     diskName?: string(name='DiskName', description='The name of the system disk. The name must be 2 to 128 characters in length. It must start with a letter and cannot start with `http://` or `https://`. It can contain letters, digits, colons (.), underscores (\\_), and hyphens (-).', example='cloud_ssdSystem'),
+    encrypted?: string(name='Encrypted'),
     iops?: int32(name='Iops', example='30000'),
     performanceLevel?: string(name='PerformanceLevel', description='The performance level of the ESSD used as the system disk. Default value: PL0. Valid values:
 
@@ -8094,7 +7968,6 @@ model CreateNetworkInterfaceResponse = {
 }
 
 /**
-  * ## Description
   * *   An ENI enters the Available (Available) state after it is created.
   * *   An ENI can be bound only to a single instance of the Virtual Private Cloud (VPC) type within the same zone.
   * *   An ENI can be bound only to a single instance. Before you can bind an ENI to another instance, you must unbind the ENI from the current instance.
@@ -8214,7 +8087,6 @@ async function createNetworkInterfaceWithOptions(request: CreateNetworkInterface
 }
 
 /**
-  * ## Description
   * *   An ENI enters the Available (Available) state after it is created.
   * *   An ENI can be bound only to a single instance of the Virtual Private Cloud (VPC) type within the same zone.
   * *   An ENI can be bound only to a single instance. Before you can bind an ENI to another instance, you must unbind the ENI from the current instance.
@@ -14952,139 +14824,6 @@ async function describeCommandsWithOptions(request: DescribeCommandsRequest, run
 async function describeCommands(request: DescribeCommandsRequest): DescribeCommandsResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeCommandsWithOptions(request, runtime);
-}
-
-model DescribeDedicatedBlockStorageClustersRequest {
-  category?: string(name='Category', description='The category of disks that can be created in the dedicated block storage cluster.
-
-Valid value: cloud_essd. Only enhanced SSDs (ESSDs) can be created in dedicated block storage clusters.', example='cloud_essd'),
-  dedicatedBlockStorageClusterId?: [ string ](name='DedicatedBlockStorageClusterId'),
-  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return on each page. Maximum value: 500.
-
-Default value: 10.', example='10'),
-  nextToken?: string(name='NextToken', description='The pagination token. Set the value to the NextToken value returned from a previous call to the DescribeDedicatedBlockStorageClusters operation. Leave this parameter empty when you call this operation for the first time.', example='AAAAAdDWBF2'),
-  ownerAccount?: string(name='OwnerAccount'),
-  ownerId?: long(name='OwnerId'),
-  regionId?: string(name='RegionId', description='The region ID of the dedicated block storage cluster. You can call the [DescribeRegions](~~25609~~) operation to query the most recent region list.', example='cn-heyuan'),
-  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
-  resourceOwnerId?: long(name='ResourceOwnerId'),
-  status?: [ string ](name='Status', description='The states of the dedicated block storage clusters. You can specify multiple cluster states to query dedicated block storage clusters in these states.'),
-  zoneId?: string(name='ZoneId', description='The zone ID of the dedicated block storage cluster. You can call the [DescribeZones](~~25610~~) operation to query the most recent zone list.', example='cn-heyuan-b'),
-}
-
-model DescribeDedicatedBlockStorageClustersResponseBody = {
-  dedicatedBlockStorageClusters?: {
-    dedicatedBlockStorageCluster?: [ 
-    {
-      category?: string(name='Category', description='The category of the disks created in the dedicated block storage cluster.', example='cloud_essd'),
-      createTime?: string(name='CreateTime', description='The time when the dedicated block storage cluster was created.', example='2021-09-08 16:45:45'),
-      dedicatedBlockStorageClusterCapacity?: {
-        availableCapacity?: long(name='AvailableCapacity', description='The available capacity of the dedicated block storage cluster. Unit: GiB.', example='61440'),
-        totalCapacity?: long(name='TotalCapacity', description='The total capacity of the dedicated block storage cluster. Unit: GiB.', example='61440'),
-      }(name='DedicatedBlockStorageClusterCapacity', description='The storage capacity of the dedicated block storage cluster.'),
-      dedicatedBlockStorageClusterId?: string(name='DedicatedBlockStorageClusterId', description='The ID of the dedicated block storage cluster.', example='dbsc-f8z4d3k4nsgg9okb****'),
-      dedicatedBlockStorageClusterName?: string(name='DedicatedBlockStorageClusterName', description='The name of the dedicated block storage cluster.', example='myDBSCCluster'),
-      description?: string(name='Description', description='The description of the dedicated block storage cluster.', example='This is description.'),
-      expiredTime?: string(name='ExpiredTime', description='The expiration time of the dedicated block storage cluster.', example='2022-03-09 00:00:00'),
-      status?: string(name='Status', description='The state of the dedicated block storage clusters. Valid values:
-
-*   Preparing: The clusters are pending delivery.
-*   Running: The clusters are running.
-*   Expired: The clusters expire.
-*   Offline: The clusters are offline.', example='Running'),
-      type?: string(name='Type', description='The type of the dedicated block storage cluster. Valid values:
-
-*   Standard: ESSDs at performance level 0 (PL0 ESSDs) can be created in basic dedicated block storage clusters.
-*   Premium: ESSDs at performance level 1 (PL1 ESSDs) can be created in basic dedicated block storage clusters.', example='Standard'),
-      zoneId?: string(name='ZoneId', description='The zone ID of the dedicated block storage cluster.', example='cn-heyuan-b'),
-    }
-  ](name='DedicatedBlockStorageCluster')
-  }(name='DedicatedBlockStorageClusters', description='Details about one or more dedicated block storage clusters.'),
-  nextToken?: string(name='NextToken', description='The pagination token returned in this call.', example='AAAAAdDWBF2'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='11B55F58-D3A4-4A9B-9596-342420D02FF8'),
-}
-
-model DescribeDedicatedBlockStorageClustersResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: DescribeDedicatedBlockStorageClustersResponseBody(name='body'),
-}
-
-/**
-  * ## Description
-  * >  Dedicated Block Storage Cluster is available in the China (Heyuan), Indonesia (Jakarta), and China South 1 Finance regions.
-  * *   You can specify multiple request parameters to be queried. Specified parameters have logical AND relations. Only the specified parameters are included in the filter conditions.
-  * *   We recommend that you use the NextToken and MaxResults parameters for a paged query. During a paged query, when you call the DescribeDedicatedBlockStorageClusters operation to retrieve the first page of results, set MaxResults to specify the maximum number of entries to return in the call. The return value of NextToken is a pagination token, which can be used in the next call to retrieve a new page of results. When you call the DescribeDedicatedBlockStorageClusters operation to retrieve a new page of results, set NextToken to the NextToken value returned in the previous call and set MaxResults to specify the maximum number of entries to return in this call.
-  *
-  * @param request DescribeDedicatedBlockStorageClustersRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return DescribeDedicatedBlockStorageClustersResponse
- */
-async function describeDedicatedBlockStorageClustersWithOptions(request: DescribeDedicatedBlockStorageClustersRequest, runtime: Util.RuntimeOptions): DescribeDedicatedBlockStorageClustersResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.category)) {
-    query['Category'] = request.category;
-  }
-  if (!Util.isUnset(request.dedicatedBlockStorageClusterId)) {
-    query['DedicatedBlockStorageClusterId'] = request.dedicatedBlockStorageClusterId;
-  }
-  if (!Util.isUnset(request.maxResults)) {
-    query['MaxResults'] = request.maxResults;
-  }
-  if (!Util.isUnset(request.nextToken)) {
-    query['NextToken'] = request.nextToken;
-  }
-  if (!Util.isUnset(request.ownerAccount)) {
-    query['OwnerAccount'] = request.ownerAccount;
-  }
-  if (!Util.isUnset(request.ownerId)) {
-    query['OwnerId'] = request.ownerId;
-  }
-  if (!Util.isUnset(request.regionId)) {
-    query['RegionId'] = request.regionId;
-  }
-  if (!Util.isUnset(request.resourceOwnerAccount)) {
-    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
-  }
-  if (!Util.isUnset(request.resourceOwnerId)) {
-    query['ResourceOwnerId'] = request.resourceOwnerId;
-  }
-  if (!Util.isUnset(request.status)) {
-    query['Status'] = request.status;
-  }
-  if (!Util.isUnset(request.zoneId)) {
-    query['ZoneId'] = request.zoneId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'DescribeDedicatedBlockStorageClusters',
-    version = '2014-05-26',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * ## Description
-  * >  Dedicated Block Storage Cluster is available in the China (Heyuan), Indonesia (Jakarta), and China South 1 Finance regions.
-  * *   You can specify multiple request parameters to be queried. Specified parameters have logical AND relations. Only the specified parameters are included in the filter conditions.
-  * *   We recommend that you use the NextToken and MaxResults parameters for a paged query. During a paged query, when you call the DescribeDedicatedBlockStorageClusters operation to retrieve the first page of results, set MaxResults to specify the maximum number of entries to return in the call. The return value of NextToken is a pagination token, which can be used in the next call to retrieve a new page of results. When you call the DescribeDedicatedBlockStorageClusters operation to retrieve a new page of results, set NextToken to the NextToken value returned in the previous call and set MaxResults to specify the maximum number of entries to return in this call.
-  *
-  * @param request DescribeDedicatedBlockStorageClustersRequest
-  * @return DescribeDedicatedBlockStorageClustersResponse
- */
-async function describeDedicatedBlockStorageClusters(request: DescribeDedicatedBlockStorageClustersRequest): DescribeDedicatedBlockStorageClustersResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeDedicatedBlockStorageClustersWithOptions(request, runtime);
 }
 
 model DescribeDedicatedHostAutoRenewRequest {
@@ -22930,6 +22669,7 @@ model DescribeLaunchTemplateVersionsResponseBody = {
           deleteWithInstance?: boolean(name='DeleteWithInstance'),
           description?: string(name='Description'),
           diskName?: string(name='DiskName'),
+          encrypted?: string(name='Encrypted'),
           iops?: int32(name='Iops'),
           performanceLevel?: string(name='PerformanceLevel'),
           provisionedIops?: long(name='ProvisionedIops'),
@@ -23596,6 +23336,7 @@ model DescribeNetworkInterfaceAttributeResponseBody = {
     memberNetworkInterfaceIds?: {
       memberNetworkInterfaceId?: [ string ](name='MemberNetworkInterfaceId')
     }(name='MemberNetworkInterfaceIds', description='>  This parameter is in invitational preview and unavailable for general users.'),
+    networkCardIndex?: int32(name='NetworkCardIndex'),
     trunkNetworkInterfaceId?: string(name='TrunkNetworkInterfaceId', description='>  This parameter is in invitational preview and unavailable for general users.', example='hide'),
   }(name='Attachment', description='>  This parameter is in invitational preview and unavailable for general users.'),
   bondInterfaceSpecification?: {
@@ -23962,6 +23703,7 @@ model DescribeNetworkInterfacesResponseBody = {
       attachment?: {
         deviceIndex?: int32(name='DeviceIndex', description='> This parameter is in invitational preview and is unavailable.', example='0'),
         instanceId?: string(name='InstanceId', description='> This parameter is in invitational preview and is unavailable.', example='null'),
+        networkCardIndex?: int32(name='NetworkCardIndex'),
         trunkNetworkInterfaceId?: string(name='TrunkNetworkInterfaceId', description='> This parameter is in invitational preview and is unavailable.', example='null'),
       }(name='Attachment', description='> This parameter is in invitational preview and is unavailable.'),
       creationTime?: string(name='CreationTime', description='The time when the ENI was created.', example='2019-12-25T12:31:31Z'),
@@ -36044,6 +35786,7 @@ Default value: optional.
 
 >  For more information about modes of accessing instance metadata, see [Access mode of instance metadata](~~150575~~).', example='optional'),
   instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-bp67acfmxaz****'),
+  instanceMetadataTags?: string(name='InstanceMetadataTags'),
   ownerId?: long(name='OwnerId'),
   regionId?: string(name='RegionId', description='The region ID of the instance. You can call the [DescribeRegions](~~25609~~) operation to query the most recent region list.', example='cn-hangzhou'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
@@ -36074,6 +35817,9 @@ async function modifyInstanceMetadataOptionsWithOptions(request: ModifyInstanceM
   }
   if (!Util.isUnset(request.instanceId)) {
     query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.instanceMetadataTags)) {
+    query['InstanceMetadataTags'] = request.instanceMetadataTags;
   }
   if (!Util.isUnset(request.ownerId)) {
     query['OwnerId'] = request.ownerId;
@@ -40418,15 +40164,14 @@ async function releaseEipAddress(request: ReleaseEipAddressRequest): ReleaseEipA
 }
 
 model ReleasePublicIpAddressRequest {
+  dryRun?: boolean(name='DryRun'),
   instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-bp67acfmxazb4p****'),
-  ownerAccount?: string(name='OwnerAccount'),
-  ownerId?: long(name='OwnerId'),
   publicIpAddress?: string(name='PublicIpAddress', description='The public IP address of the instance.', example='121.40.**.**'),
-  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
-  resourceOwnerId?: long(name='ResourceOwnerId'),
+  regionId?: string(name='RegionId'),
 }
 
 model ReleasePublicIpAddressResponseBody = {
+  remainTimes?: string(name='RemainTimes'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
@@ -40439,23 +40184,17 @@ model ReleasePublicIpAddressResponse = {
 async function releasePublicIpAddressWithOptions(request: ReleasePublicIpAddressRequest, runtime: Util.RuntimeOptions): ReleasePublicIpAddressResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.dryRun)) {
+    query['DryRun'] = request.dryRun;
+  }
   if (!Util.isUnset(request.instanceId)) {
     query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.ownerAccount)) {
-    query['OwnerAccount'] = request.ownerAccount;
-  }
-  if (!Util.isUnset(request.ownerId)) {
-    query['OwnerId'] = request.ownerId;
   }
   if (!Util.isUnset(request.publicIpAddress)) {
     query['PublicIpAddress'] = request.publicIpAddress;
   }
-  if (!Util.isUnset(request.resourceOwnerAccount)) {
-    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
-  }
-  if (!Util.isUnset(request.resourceOwnerId)) {
-    query['ResourceOwnerId'] = request.resourceOwnerId;
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -43212,6 +42951,7 @@ Take note of the following items:
 
 *   This parameter is valid only when `NetworkInterface.N.InstanceType` is set to `Primary`. If `NetworkInterface.N.InstanceType` is set to `Secondary` or left empty, you cannot set this parameter.
 *   If you specify this parameter, you cannot specify `Ipv6AddressCount`, `Ipv6Address.N`, or `NetworkInterface.N.Ipv6Address.N`.', example='1'),
+      networkCardIndex?: int32(name='NetworkCardIndex'),
       networkInterfaceName?: string(name='NetworkInterfaceName', description='The name of ENI N.
 
 Take note of the following items:
