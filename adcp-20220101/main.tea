@@ -112,6 +112,41 @@ async function attachClusterToHub(request: AttachClusterToHubRequest): AttachClu
 model CreateHubClusterRequest {
   apiServerPublicEip?: boolean(name='ApiServerPublicEip', description='Specifies whether to use a public IP address to expose the API server. Valid values: - true: uses a public IP address to expose the API server. - true: uses an internal IP address to expose the API server.', example='true'),
   auditLogEnabled?: boolean(name='AuditLogEnabled', description='Specifies whether to enable audit logs. Valid values: - true: enables audit logs. - false: disables audit logs.', example='false'),
+  clusterConfiguration?: {
+    argoServerEnabled?: boolean(name='ArgoServerEnabled'),
+    priceLimit?: string(name='PriceLimit'),
+    worflowEnabled?: boolean(name='WorflowEnabled'),
+    workflowScheduleMode?: string(name='WorkflowScheduleMode'),
+    workflowUnits?: [ 
+      {
+        regionId?: string(name='RegionId'),
+        vSwitches?: [ 
+          {
+            vswitchId?: string(name='VswitchId'),
+            zoneId?: string(name='ZoneId'),
+          }
+        ](name='VSwitches'),
+        vpcId?: string(name='VpcId'),
+      }
+    ](name='WorkflowUnits'),
+  }(name='ClusterConfiguration'),
+  isEnterpriseSecurityGroup?: boolean(name='IsEnterpriseSecurityGroup', description='Specifies whether the security group is an advanced security group.', example='false'),
+  name?: string(name='Name', description='The name of the master instance.', example='ack-demo'),
+  profile?: string(name='Profile', description='Scenario-oriented master control type. The value can be:
+
+- `Default`: Standard scenario Master instance.
+- `XFlow`: Workflow scenario master instance.
+
+Default Value: `Default`.', example='Default'),
+  regionId?: string(name='RegionId', description='The ID of the region. You can call the DescribeRegions operation to query available regions.', example='cn-beijing'),
+  vSwitches?: string(name='VSwitches', description='The ID of the vSwitch.', example='["vsw-2zeaijsas4zkzz81xm***"]'),
+  vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC) to which the master instance belongs. You can call the DescribeVpcs operation to query available VPCs.', example='vpc-f8zin0jscsr84s96tg***'),
+}
+
+model CreateHubClusterShrinkRequest {
+  apiServerPublicEip?: boolean(name='ApiServerPublicEip', description='Specifies whether to use a public IP address to expose the API server. Valid values: - true: uses a public IP address to expose the API server. - true: uses an internal IP address to expose the API server.', example='true'),
+  auditLogEnabled?: boolean(name='AuditLogEnabled', description='Specifies whether to enable audit logs. Valid values: - true: enables audit logs. - false: disables audit logs.', example='false'),
+  clusterConfigurationShrink?: string(name='ClusterConfiguration'),
   isEnterpriseSecurityGroup?: boolean(name='IsEnterpriseSecurityGroup', description='Specifies whether the security group is an advanced security group.', example='false'),
   name?: string(name='Name', description='The name of the master instance.', example='ack-demo'),
   profile?: string(name='Profile', description='Scenario-oriented master control type. The value can be:
@@ -137,8 +172,17 @@ model CreateHubClusterResponse = {
   body: CreateHubClusterResponseBody(name='body'),
 }
 
-async function createHubClusterWithOptions(request: CreateHubClusterRequest, runtime: Util.RuntimeOptions): CreateHubClusterResponse {
-  Util.validateModel(request);
+async function createHubClusterWithOptions(tmpReq: CreateHubClusterRequest, runtime: Util.RuntimeOptions): CreateHubClusterResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateHubClusterShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.clusterConfiguration)) {
+    request.clusterConfigurationShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.clusterConfiguration, 'ClusterConfiguration', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.clusterConfigurationShrink)) {
+    query['ClusterConfiguration'] = request.clusterConfigurationShrink;
+  }
   var body : map[string]any = {};
   if (!Util.isUnset(request.apiServerPublicEip)) {
     body['ApiServerPublicEip'] = request.apiServerPublicEip;
@@ -165,6 +209,7 @@ async function createHubClusterWithOptions(request: CreateHubClusterRequest, run
     body['VpcId'] = request.vpcId;
   }
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
