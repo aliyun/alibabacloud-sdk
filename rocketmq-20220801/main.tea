@@ -30,6 +30,7 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 
 model CreateConsumerGroupRequest {
   consumeRetryPolicy?: {
+    deadLetterTargetTopic?: string(name='deadLetterTargetTopic'),
     maxRetryTimes?: int32(name='maxRetryTimes', example='16'),
     retryPolicy?: string(name='retryPolicy', example='DefaultRetryPolicy'),
   }(name='consumeRetryPolicy'),
@@ -397,6 +398,7 @@ model GetConsumerGroupResponseBody = {
   code?: string(name='code', example='InvalidConsumerGroupId'),
   data?: {
     consumeRetryPolicy?: {
+      deadLetterTargetTopic?: string(name='deadLetterTargetTopic'),
       maxRetryTimes?: int32(name='maxRetryTimes', example='16'),
       retryPolicy?: string(name='retryPolicy', example='DefaultRetryPolicy'),
     }(name='consumeRetryPolicy'),
@@ -771,6 +773,14 @@ async function listInstances(request: ListInstancesRequest): ListInstancesRespon
 
 model ListTopicsRequest {
   filter?: string(name='filter', example='topic_test'),
+  messageTypes?: [ string ](name='messageTypes'),
+  pageNumber?: int32(name='pageNumber', example='1'),
+  pageSize?: int32(name='pageSize', example='3'),
+}
+
+model ListTopicsShrinkRequest {
+  filter?: string(name='filter', example='topic_test'),
+  messageTypesShrink?: string(name='messageTypes'),
   pageNumber?: int32(name='pageNumber', example='1'),
   pageSize?: int32(name='pageSize', example='3'),
 }
@@ -808,11 +818,19 @@ model ListTopicsResponse = {
   body: ListTopicsResponseBody(name='body'),
 }
 
-async function listTopicsWithOptions(instanceId: string, request: ListTopicsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTopicsResponse {
-  Util.validateModel(request);
+async function listTopicsWithOptions(instanceId: string, tmpReq: ListTopicsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTopicsResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListTopicsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.messageTypes)) {
+    request.messageTypesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.messageTypes, 'messageTypes', 'simple');
+  }
   var query : map[string]any = {};
   if (!Util.isUnset(request.filter)) {
     query['filter'] = request.filter;
+  }
+  if (!Util.isUnset(request.messageTypesShrink)) {
+    query['messageTypes'] = request.messageTypesShrink;
   }
   if (!Util.isUnset(request.pageNumber)) {
     query['pageNumber'] = request.pageNumber;
