@@ -3,7 +3,7 @@
  */
 import Util;
 import OpenApi;
-
+import OpenApiUtil;
 import EndpointUtil;
 
 extends OpenApi;
@@ -26,5 +26,65 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model PushMeteringDataRequest {
+  gmtCreate?: string(name='GmtCreate', example='2023-01-11 10:31:00'),
+  meteringData?: [ 
+    {
+      endTime?: long(name='EndTime', example='1666854480406'),
+      instanceId?: string(name='InstanceId', example='gtm-cn-20p314k5h05'),
+      meteringAssist?: string(name='MeteringAssist', example='test001'),
+      meteringEntity?: string(name='MeteringEntity', example='{"VirtualCpu":10}'),
+      startTime?: long(name='StartTime', example='1662284820000'),
+    }
+  ](name='MeteringData'),
+}
+
+model PushMeteringDataResponseBody = {
+  code?: string(name='Code', example='200'),
+  dynamicMessage?: string(name='DynamicMessage', example='parameter \\"service\\" can not be blank.'),
+  forceFatal?: boolean(name='ForceFatal', example='false'),
+  message?: string(name='Message', example='Instance 5723f7ee-952d-411f-94f4-b942a550d9b8 does not exist.'),
+  requestId?: string(name='RequestId', example='A6A33748-D573-593C-A3BC-593E33D68311'),
+  result?: boolean(name='Result', example='True'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model PushMeteringDataResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: PushMeteringDataResponseBody(name='body'),
+}
+
+async function pushMeteringDataWithOptions(request: PushMeteringDataRequest, runtime: Util.RuntimeOptions): PushMeteringDataResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.gmtCreate)) {
+    body['GmtCreate'] = request.gmtCreate;
+  }
+  if (!Util.isUnset(request.meteringData)) {
+    body['MeteringData'] = request.meteringData;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'PushMeteringData',
+    version = '2022-12-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function pushMeteringData(request: PushMeteringDataRequest): PushMeteringDataResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return pushMeteringDataWithOptions(request, runtime);
 }
 
