@@ -1,16 +1,26 @@
 /**
  *
  */
-import Util;
-import OpenApi;
-import OpenApiUtil;
-import EndpointUtil;
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
 
-extends OpenApi;
-
-
-init(config: OpenApi.Config){
-  super(config);
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'Ons';
+  @version = '2019-02-14';
   @endpointRule = 'regional';
   @endpointMap = {
     ap-northeast-2-pop = 'ons.ap-northeast-1.aliyuncs.com',
@@ -44,33 +54,23 @@ init(config: OpenApi.Config){
     eu-west-1-oxs = 'ons.ap-northeast-1.aliyuncs.com',
     rus-west-1-pop = 'ons.ap-northeast-1.aliyuncs.com',
   };
-
-  checkConfig(config);
-  @endpoint = getEndpoint('ons', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
-function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
-    return endpoint;
-  }
-  
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
-    return endpointMap[regionId];
-  }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+function close(): void {
+  @handler.close();
 }
 
 model ListTagResourcesRequest {
   instanceId?: string(name='InstanceId', description='The ID of the instance to which the resource whose tags you want to query belongs.
 
-> : This parameter is required when you query the tags of a topic or a group.', example='MQ_INST_188077086902****_BXSuW61e'),
-  nextToken?: string(name='NextToken', description='The token that determines the start point of the query.', example='caeba0****be03f84eb48b699f0a4883'),
-  resourceId?: [ string ](name='ResourceId', description='The list of resource IDs.', example='TopicA'),
-  resourceType?: string(name='ResourceType', description='The type of the resource to which you want to attach tags. Valid values:
+> : This parameter is required when you query the tags of a topic or a group.', example='MQ_INST_188077086902****_BXSuW61e', position='Query'),
+  nextToken?: string(name='NextToken', description='The token that determines the start point of the query.', example='caeba0****be03f84eb48b699f0a4883', position='Query'),
+  resourceId?: [ string ](name='ResourceId', description='The list of resource IDs.', example='TopicA', position='Query'),
+  resourceType: string(name='ResourceType', description='The type of the resource to which you want to attach tags. Valid values:
 
 *   **INSTANCE**
 *   **TOPIC**
-*   **GROUP**', example='TOPIC'),
+*   **GROUP**', example='TOPIC', position='Query'),
   tag?: [ 
     {
       key?: string(name='Key', description='The key of the tag that you want to attach to the specified resource.
@@ -82,7 +82,7 @@ model ListTagResourcesRequest {
 *   The value of this parameter can be an empty string.
 *   The tag key can be up to 128 characters in length and cannot start with `acs:` or `aliyun`. It cannot contain `http://` or `https://`.', example='ServiceA'),
     }
-  ](name='Tag', description='The list of tags that are attached to the resources. A maximum of 20 tags can be included in the list.'),
+  ](name='Tag', description='The list of tags that are attached to the resources. A maximum of 20 tags can be included in the list.', position='Query'),
 }
 
 model ListTagResourcesResponseBody = {
@@ -105,7 +105,6 @@ model ListTagResourcesResponseBody = {
 
 model ListTagResourcesResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: ListTagResourcesResponseBody(name='body'),
 }
 
@@ -115,66 +114,19 @@ model ListTagResourcesResponse = {
   * *   If you include the **Tag.N.Key** parameter in a request, you can obtain the tag value and the ID of the resource to which the tag is attached.********
   * *   If you include the **ResourceId.N** parameter in a request, you can obtain the keys and values of all tags that are attached to the specified resource.
   *
-  * @param request ListTagResourcesRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListTagResourcesResponse
- */
-async function listTagResourcesWithOptions(request: ListTagResourcesRequest, runtime: Util.RuntimeOptions): ListTagResourcesResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.nextToken)) {
-    query['NextToken'] = request.nextToken;
-  }
-  if (!Util.isUnset(request.resourceId)) {
-    query['ResourceId'] = request.resourceId;
-  }
-  if (!Util.isUnset(request.resourceType)) {
-    query['ResourceType'] = request.resourceType;
-  }
-  if (!Util.isUnset(request.tag)) {
-    query['Tag'] = request.tag;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListTagResources',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * When you call the **ListTagResources** operation, specify at least one of the following parameters in the request: **Tag.N.Key** and **ResourceId.N**. You can specify a resource ID to query all tags that are attached to the specified resource. You can also specify a tag key to query the tag value and the resource to which the tag is attached.
-  * *   If you include the **Tag.N.Key** parameter in a request, you can obtain the tag value and the ID of the resource to which the tag is attached.********
-  * *   If you include the **ResourceId.N** parameter in a request, you can obtain the keys and values of all tags that are attached to the specified resource.
-  *
-  * @param request ListTagResourcesRequest
-  * @return ListTagResourcesResponse
  */
 async function listTagResources(request: ListTagResourcesRequest): ListTagResourcesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listTagResourcesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListTagResources', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsConsumerAccumulateRequest {
   detail?: boolean(name='Detail', description='Specifies whether to query the details of each topic to which the consumer group subscribes. Valid values:
 
 *   **true**: The details of each topic are queried. You can obtain the details from the **DetailInTopicList** response parameter.
-*   **false**: The details of each topic are not queried. This is the default value. If you use this value, the value of the **DetailInTopicList** response parameter is empty.', example='true'),
-  groupId?: string(name='GroupId', description='The ID of the consumer group whose message accumulation you want to query.', example='GID_test_consumer_id'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance.', example='MQ_INST_111111111111_DOxxxxxx'),
+*   **false**: The details of each topic are not queried. This is the default value. If you use this value, the value of the **DetailInTopicList** response parameter is empty.', example='true', position='Query'),
+  groupId: string(name='GroupId', description='The ID of the consumer group whose message accumulation you want to query.', example='GID_test_consumer_id', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
 }
 
 model OnsConsumerAccumulateResponseBody = {
@@ -203,7 +155,6 @@ model OnsConsumerAccumulateResponseBody = {
 
 model OnsConsumerAccumulateResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsConsumerAccumulateResponseBody(name='body'),
 }
 
@@ -211,54 +162,15 @@ model OnsConsumerAccumulateResponse = {
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
   * You can call this operation in scenarios in which you want to know the message consumption progress of a specified consumer group in production environments. You can obtain the information about message consumption and consumption latency based on the returned information. This operation returns the total number of accumulated messages in all topics to which the specified consumer group subscribes and the number of accumulated messages in each topic.
   *
-  * @param request OnsConsumerAccumulateRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsConsumerAccumulateResponse
- */
-async function onsConsumerAccumulateWithOptions(request: OnsConsumerAccumulateRequest, runtime: Util.RuntimeOptions): OnsConsumerAccumulateResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.detail)) {
-    query['Detail'] = request.detail;
-  }
-  if (!Util.isUnset(request.groupId)) {
-    query['GroupId'] = request.groupId;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsConsumerAccumulate',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * You can call this operation in scenarios in which you want to know the message consumption progress of a specified consumer group in production environments. You can obtain the information about message consumption and consumption latency based on the returned information. This operation returns the total number of accumulated messages in all topics to which the specified consumer group subscribes and the number of accumulated messages in each topic.
-  *
-  * @param request OnsConsumerAccumulateRequest
-  * @return OnsConsumerAccumulateResponse
  */
 async function onsConsumerAccumulate(request: OnsConsumerAccumulateRequest): OnsConsumerAccumulateResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsConsumerAccumulateWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsConsumerAccumulate', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsConsumerGetConnectionRequest {
-  groupId?: string(name='GroupId', description='The ID of the consumer group whose client connection status you want to query.', example='GID_test_consumer_id'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance to which the consumer group belongs.', example='MQ_INST_111111111111_DOxxxxxx'),
+  groupId: string(name='GroupId', description='The ID of the consumer group whose client connection status you want to query.', example='GID_test_consumer_id', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance to which the consumer group belongs.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
 }
 
 model OnsConsumerGetConnectionResponseBody = {
@@ -279,7 +191,6 @@ model OnsConsumerGetConnectionResponseBody = {
 
 model OnsConsumerGetConnectionResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsConsumerGetConnectionResponseBody(name='body'),
 }
 
@@ -287,54 +198,18 @@ model OnsConsumerGetConnectionResponse = {
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
   * When messages are accumulated in a topic, you can call this operation to check whether a consumer is online.
   *
-  * @param request OnsConsumerGetConnectionRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsConsumerGetConnectionResponse
- */
-async function onsConsumerGetConnectionWithOptions(request: OnsConsumerGetConnectionRequest, runtime: Util.RuntimeOptions): OnsConsumerGetConnectionResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.groupId)) {
-    query['GroupId'] = request.groupId;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsConsumerGetConnection',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * When messages are accumulated in a topic, you can call this operation to check whether a consumer is online.
-  *
-  * @param request OnsConsumerGetConnectionRequest
-  * @return OnsConsumerGetConnectionResponse
  */
 async function onsConsumerGetConnection(request: OnsConsumerGetConnectionRequest): OnsConsumerGetConnectionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsConsumerGetConnectionWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsConsumerGetConnection', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsConsumerResetOffsetRequest {
-  groupId?: string(name='GroupId', description='The ID of the consumer group for which you want to reset the consumer offset.', example='GID_test_consumer_id'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance to which the consumer group belongs.', example='MQ_INST_111111111111_DOxxxxxx'),
-  resetTimestamp?: long(name='ResetTimestamp', description='The timestamp to which you want to reset the consumer offset. This parameter takes effect only when the **Type** parameter is set to **1**. Unit: milliseconds.', example='1591153871000'),
-  topic?: string(name='Topic', description='The name of the topic for which you want to reset the consumer offset.', example='test-mq-topic'),
-  type?: int32(name='Type', description='The method that you want to use to clear accumulated messages. Valid values:
+  groupId: string(name='GroupId', description='The ID of the consumer group for which you want to reset the consumer offset.', example='GID_test_consumer_id', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance to which the consumer group belongs.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
+  resetTimestamp?: long(name='ResetTimestamp', description='The timestamp to which you want to reset the consumer offset. This parameter takes effect only when the **Type** parameter is set to **1**. Unit: milliseconds.', example='1591153871000', position='Query'),
+  topic: string(name='Topic', description='The name of the topic for which you want to reset the consumer offset.', example='test-mq-topic', position='Query'),
+  type: int32(name='Type', description='The method that you want to use to clear accumulated messages. Valid values:
 
 *   **0:** All accumulated messages are cleared. Messages that are not consumed are ignored. Consumers in the specified consumer group consume only messages that are published to the topic after the current point in time.
 
@@ -342,7 +217,7 @@ If "reconsumeLater" is returned, the accumulated messages are not cleared becaus
 
 *   **1:** The messages that were published to the topic before a specified point in time are cleared. You must specify a point in time. Consumers in the specified consumer group consume only the messages that are published to the topic after the specified point in time.
 
-You can specify a point in time within the time range that is from the earliest point in time when a message was published to the topic to the most recent point in time when a message was published to the topic. Points in time that are not within the allowed time range are invalid.', example='1'),
+You can specify a point in time within the time range that is from the earliest point in time when a message was published to the topic to the most recent point in time when a message was published to the topic. Points in time that are not within the allowed time range are invalid.', example='1', position='Query'),
 }
 
 model OnsConsumerResetOffsetResponseBody = {
@@ -351,7 +226,6 @@ model OnsConsumerResetOffsetResponseBody = {
 
 model OnsConsumerResetOffsetResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsConsumerResetOffsetResponseBody(name='body'),
 }
 
@@ -361,73 +235,26 @@ model OnsConsumerResetOffsetResponse = {
   * *   Clear all accumulated messages in a specified topic.
   * *   Clear the messages that were published to the specified topic before a specified point in time.
   *
-  * @param request OnsConsumerResetOffsetRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsConsumerResetOffsetResponse
- */
-async function onsConsumerResetOffsetWithOptions(request: OnsConsumerResetOffsetRequest, runtime: Util.RuntimeOptions): OnsConsumerResetOffsetResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.groupId)) {
-    query['GroupId'] = request.groupId;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.resetTimestamp)) {
-    query['ResetTimestamp'] = request.resetTimestamp;
-  }
-  if (!Util.isUnset(request.topic)) {
-    query['Topic'] = request.topic;
-  }
-  if (!Util.isUnset(request.type)) {
-    query['Type'] = request.type;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsConsumerResetOffset',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * You can call this operation to clear accumulated messages or reset the consumption progress. You can use one of the following methods to clear accumulated messages:
-  * *   Clear all accumulated messages in a specified topic.
-  * *   Clear the messages that were published to the specified topic before a specified point in time.
-  *
-  * @param request OnsConsumerResetOffsetRequest
-  * @return OnsConsumerResetOffsetResponse
  */
 async function onsConsumerResetOffset(request: OnsConsumerResetOffsetRequest): OnsConsumerResetOffsetResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsConsumerResetOffsetWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsConsumerResetOffset', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsConsumerStatusRequest {
   detail?: boolean(name='Detail', description='Specifies whether to query the details of the consumer group. Valid values:
 
 *   **true**: The details of the consumer group are queried. You can obtain details from the **ConsumerConnectionInfoList** and **DetailInTopicList** response parameters.
-*   **false**: The details of the consumer group are not queried. The values of the **ConsumerConnectionInfoList** and **DetailInTopicList** response parameters are empty. This value is the default value of the Detail parameter.', example='true'),
-  groupId?: string(name='GroupId', description='The ID of the consumer group whose details you want to query.', example='GID_test_group_id'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance to which the consumer group belongs.', example='MQ_INST_111111111111_DOxxxxxx'),
+*   **false**: The details of the consumer group are not queried. The values of the **ConsumerConnectionInfoList** and **DetailInTopicList** response parameters are empty. This value is the default value of the Detail parameter.', example='true', position='Query'),
+  groupId: string(name='GroupId', description='The ID of the consumer group whose details you want to query.', example='GID_test_group_id', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance to which the consumer group belongs.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
   needJstack?: boolean(name='NeedJstack', description='Specifies whether to query the information about thread stack traces. Valid values:
 
 *   **true**: The information about thread stack traces is queried. You can obtain the information from the **Jstack** response parameter.
 
 >  If you want to obtain the information about thread stack traces, make sure that the **Detail** parameter in the request is set to **true**.
 
-*   **false**: The information about thread stack traces is not queried. The value of the **Jstack** response parameter is empty. This value is the default value of the NeedJstack parameter.', example='true'),
+*   **false**: The information about thread stack traces is not queried. The value of the **Jstack** response parameter is empty. This value is the default value of the NeedJstack parameter.', example='true', position='Query'),
 }
 
 model OnsConsumerStatusResponseBody = {
@@ -541,7 +368,6 @@ The value of this parameter is a UNIX timestamp in milliseconds.', example='1566
 
 model OnsConsumerStatusResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsConsumerStatusResponseBody(name='body'),
 }
 
@@ -550,59 +376,16 @@ model OnsConsumerStatusResponse = {
   * *   You can call this operation in scenarios in which consumers are online and messages are accumulated. You can troubleshoot errors based on the information that is returned by this operation. You can check whether all consumers in the consumer group subscribe to the same topics and tags, and whether load balancing is performed as expected. You can also obtain the information about thread stack traces of online consumers.
   * *   This operation uses multiple backend operations to query and aggregate data. The system requires a long period of time to process a request. We recommend that you do not frequently call this operation.
   *
-  * @param request OnsConsumerStatusRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsConsumerStatusResponse
- */
-async function onsConsumerStatusWithOptions(request: OnsConsumerStatusRequest, runtime: Util.RuntimeOptions): OnsConsumerStatusResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.detail)) {
-    query['Detail'] = request.detail;
-  }
-  if (!Util.isUnset(request.groupId)) {
-    query['GroupId'] = request.groupId;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.needJstack)) {
-    query['NeedJstack'] = request.needJstack;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsConsumerStatus',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * *   You can call this operation in scenarios in which consumers are online and messages are accumulated. You can troubleshoot errors based on the information that is returned by this operation. You can check whether all consumers in the consumer group subscribe to the same topics and tags, and whether load balancing is performed as expected. You can also obtain the information about thread stack traces of online consumers.
-  * *   This operation uses multiple backend operations to query and aggregate data. The system requires a long period of time to process a request. We recommend that you do not frequently call this operation.
-  *
-  * @param request OnsConsumerStatusRequest
-  * @return OnsConsumerStatusResponse
  */
 async function onsConsumerStatus(request: OnsConsumerStatusRequest): OnsConsumerStatusResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsConsumerStatusWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsConsumerStatus', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsConsumerTimeSpanRequest {
-  groupId?: string(name='GroupId', description='The ID of the consumer group whose reset time range you want to query.', example='GID_test_group_id'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance to which the consumer group belongs.', example='MQ_INST_111111111111_DOxxxxxx'),
-  topic?: string(name='Topic', description='The topic to which the consumer group subscribes.', example='test-mq_topic'),
+  groupId: string(name='GroupId', description='The ID of the consumer group whose reset time range you want to query.', example='GID_test_group_id', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance to which the consumer group belongs.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
+  topic: string(name='Topic', description='The topic to which the consumer group subscribes.', example='test-mq_topic', position='Query'),
 }
 
 model OnsConsumerTimeSpanResponseBody = {
@@ -618,7 +401,6 @@ model OnsConsumerTimeSpanResponseBody = {
 
 model OnsConsumerTimeSpanResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsConsumerTimeSpanResponseBody(name='body'),
 }
 
@@ -626,55 +408,16 @@ model OnsConsumerTimeSpanResponse = {
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
   * You can call this operation to query the earliest point in time when a message was published to a specified topic and the most recent point in time when a message was published to the specified topic. You can also obtain the most recent point in time when a message in the topic was consumed. This operation is usually used with the \\*\\*OnsConsumerAccumulate\\*\\* operation to display the overview of the consumption progress.
   *
-  * @param request OnsConsumerTimeSpanRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsConsumerTimeSpanResponse
- */
-async function onsConsumerTimeSpanWithOptions(request: OnsConsumerTimeSpanRequest, runtime: Util.RuntimeOptions): OnsConsumerTimeSpanResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.groupId)) {
-    query['GroupId'] = request.groupId;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.topic)) {
-    query['Topic'] = request.topic;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsConsumerTimeSpan',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * You can call this operation to query the earliest point in time when a message was published to a specified topic and the most recent point in time when a message was published to the specified topic. You can also obtain the most recent point in time when a message in the topic was consumed. This operation is usually used with the \\*\\*OnsConsumerAccumulate\\*\\* operation to display the overview of the consumption progress.
-  *
-  * @param request OnsConsumerTimeSpanRequest
-  * @return OnsConsumerTimeSpanResponse
  */
 async function onsConsumerTimeSpan(request: OnsConsumerTimeSpanRequest): OnsConsumerTimeSpanResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsConsumerTimeSpanWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsConsumerTimeSpan', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsDLQMessageGetByIdRequest {
-  groupId?: string(name='GroupId', description='The ID of the consumer group whose dead-letter messages you want to query.', example='GID_test_group_id'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance to which the message you want to query belongs.', example='MQ_INST_111111111111_DOxxxxxx'),
-  msgId?: string(name='MsgId', description='The ID of the dead-letter message that you want to query.', example='0BC16699165C03B925DB8A404E2D****'),
+  groupId: string(name='GroupId', description='The ID of the consumer group whose dead-letter messages you want to query.', example='GID_test_group_id', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance to which the message you want to query belongs.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
+  msgId: string(name='MsgId', description='The ID of the dead-letter message that you want to query.', example='0BC16699165C03B925DB8A404E2D****', position='Query'),
 }
 
 model OnsDLQMessageGetByIdResponseBody = {
@@ -710,7 +453,6 @@ For more information about the terms that are used in Message Queue for Apache R
 
 model OnsDLQMessageGetByIdResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsDLQMessageGetByIdResponseBody(name='body'),
 }
 
@@ -718,59 +460,20 @@ model OnsDLQMessageGetByIdResponse = {
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
   * This operation uses the exact match method to query a dead-letter message based on the message ID. You can obtain the message ID that is required to query the information about a dead-letter message from the SendResult parameter that is returned after the message is sent. You can also obtain the message ID by calling the OnsDLQMessagePageQueryByGroupId operation to query multiple messages at a time. The queried information about the dead-letter message includes the point in time when the message is stored, the message body, and attributes such as the message tag and the message key.
   *
-  * @param request OnsDLQMessageGetByIdRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsDLQMessageGetByIdResponse
- */
-async function onsDLQMessageGetByIdWithOptions(request: OnsDLQMessageGetByIdRequest, runtime: Util.RuntimeOptions): OnsDLQMessageGetByIdResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.groupId)) {
-    query['GroupId'] = request.groupId;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.msgId)) {
-    query['MsgId'] = request.msgId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsDLQMessageGetById',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * This operation uses the exact match method to query a dead-letter message based on the message ID. You can obtain the message ID that is required to query the information about a dead-letter message from the SendResult parameter that is returned after the message is sent. You can also obtain the message ID by calling the OnsDLQMessagePageQueryByGroupId operation to query multiple messages at a time. The queried information about the dead-letter message includes the point in time when the message is stored, the message body, and attributes such as the message tag and the message key.
-  *
-  * @param request OnsDLQMessageGetByIdRequest
-  * @return OnsDLQMessageGetByIdResponse
  */
 async function onsDLQMessageGetById(request: OnsDLQMessageGetByIdRequest): OnsDLQMessageGetByIdResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsDLQMessageGetByIdWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsDLQMessageGetById', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsDLQMessagePageQueryByGroupIdRequest {
-  beginTime?: long(name='BeginTime', description='The beginning of the time range to query. The value of this parameter is a UNIX timestamp in milliseconds. If you specify a valid value for the **TaskId** parameter in the request, this parameter does not take effect. The system uses the value of the BeginTime parameter that you specified in the request when you created the specified query task.', example='1570723200000'),
-  currentPage?: int32(name='CurrentPage', description='The number of the page to return. Pages start from page 1. Valid values: 1 to 50.', example='2'),
-  endTime?: long(name='EndTime', description='The end of the time range to query. The value of this parameter is a UNIX timestamp in milliseconds. If you specify a valid value for the **TaskId** parameter in the request, this parameter does not take effect. The system uses the value of the EndTime parameter that you specified in the request when you created the specified query task.', example='1570809600000'),
-  groupId?: string(name='GroupId', description='The ID of the consumer group whose dead-letter messages you want to query.', example='GID_test_group_id'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance to which the dead-letter messages you want to query belong.', example='MQ_INST_111111111111_DOxxxxxx'),
-  pageSize?: int32(name='PageSize', description='The number of dead-letter messages to return on each page. Valid values: 5 to 50. Default value: 20. If you specify a valid value for the **TaskId** parameter in the request, this parameter does not take effect. The system uses the value of the PageSize parameter that you specified in the request when you created the specified query task.', example='5'),
-  taskId?: string(name='TaskId', description='The ID of the query task. The first time you call this operation to query dead-letter messages that are sent to a specified consumer group within a specified time range, this parameter is not required. This parameter is required in subsequent queries for dead-letter messages on a specified page. You can obtain the task ID from the returned result of the first query.', example='0BC1310300002A9F000021E4D7A48346'),
+  beginTime: long(name='BeginTime', description='The beginning of the time range to query. The value of this parameter is a UNIX timestamp in milliseconds. If you specify a valid value for the **TaskId** parameter in the request, this parameter does not take effect. The system uses the value of the BeginTime parameter that you specified in the request when you created the specified query task.', example='1570723200000', position='Query'),
+  currentPage: int32(name='CurrentPage', description='The number of the page to return. Pages start from page 1. Valid values: 1 to 50.', example='2', position='Query'),
+  endTime: long(name='EndTime', description='The end of the time range to query. The value of this parameter is a UNIX timestamp in milliseconds. If you specify a valid value for the **TaskId** parameter in the request, this parameter does not take effect. The system uses the value of the EndTime parameter that you specified in the request when you created the specified query task.', example='1570809600000', position='Query'),
+  groupId: string(name='GroupId', description='The ID of the consumer group whose dead-letter messages you want to query.', example='GID_test_group_id', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance to which the dead-letter messages you want to query belong.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of dead-letter messages to return on each page. Valid values: 5 to 50. Default value: 20. If you specify a valid value for the **TaskId** parameter in the request, this parameter does not take effect. The system uses the value of the PageSize parameter that you specified in the request when you created the specified query task.', example='5', position='Query'),
+  taskId?: string(name='TaskId', description='The ID of the query task. The first time you call this operation to query dead-letter messages that are sent to a specified consumer group within a specified time range, this parameter is not required. This parameter is required in subsequent queries for dead-letter messages on a specified page. You can obtain the task ID from the returned result of the first query.', example='0BC1310300002A9F000021E4D7A48346', position='Query'),
 }
 
 model OnsDLQMessagePageQueryByGroupIdResponseBody = {
@@ -815,7 +518,6 @@ For more information about the terms that are used in Message Queue for Apache R
 
 model OnsDLQMessagePageQueryByGroupIdResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsDLQMessagePageQueryByGroupIdResponseBody(name='body'),
 }
 
@@ -826,70 +528,16 @@ model OnsDLQMessagePageQueryByGroupIdResponse = {
   *     1.  Perform a paged query by specifying the group ID, start time, end time, and number of entries to return on each page. If matched messages are found, the information about the dead-letter messages on the first page, total number of pages, and task ID are returned by default.
   *     2.  Specify the task ID and a page number to call this operation again to query the dead-letter messages on the specified page. In this query, the BeginTime, EndTime, and PageSize parameters do not take effect. By default, the system uses the values of these parameters that you specified in the request when you created the specified query task.
   *
-  * @param request OnsDLQMessagePageQueryByGroupIdRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsDLQMessagePageQueryByGroupIdResponse
- */
-async function onsDLQMessagePageQueryByGroupIdWithOptions(request: OnsDLQMessagePageQueryByGroupIdRequest, runtime: Util.RuntimeOptions): OnsDLQMessagePageQueryByGroupIdResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.beginTime)) {
-    query['BeginTime'] = request.beginTime;
-  }
-  if (!Util.isUnset(request.currentPage)) {
-    query['CurrentPage'] = request.currentPage;
-  }
-  if (!Util.isUnset(request.endTime)) {
-    query['EndTime'] = request.endTime;
-  }
-  if (!Util.isUnset(request.groupId)) {
-    query['GroupId'] = request.groupId;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query['PageSize'] = request.pageSize;
-  }
-  if (!Util.isUnset(request.taskId)) {
-    query['TaskId'] = request.taskId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsDLQMessagePageQueryByGroupId',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * *   If you do not know the ID of the dead-letter message that you want to query, you can call this operation to query all dead-letter messages that are sent to a specified consumer group within a specified time range. The results are returned by page.
-  * *   We recommend that you specify a short time range to query dead-letter messages in this method. If you specify a long time range, a large number of dead-letter messages are returned. In this case, you cannot find the dead-letter message that you want to query in an efficient manner. You can perform the following steps to query dead-letter messages:
-  *     1.  Perform a paged query by specifying the group ID, start time, end time, and number of entries to return on each page. If matched messages are found, the information about the dead-letter messages on the first page, total number of pages, and task ID are returned by default.
-  *     2.  Specify the task ID and a page number to call this operation again to query the dead-letter messages on the specified page. In this query, the BeginTime, EndTime, and PageSize parameters do not take effect. By default, the system uses the values of these parameters that you specified in the request when you created the specified query task.
-  *
-  * @param request OnsDLQMessagePageQueryByGroupIdRequest
-  * @return OnsDLQMessagePageQueryByGroupIdResponse
  */
 async function onsDLQMessagePageQueryByGroupId(request: OnsDLQMessagePageQueryByGroupIdRequest): OnsDLQMessagePageQueryByGroupIdResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsDLQMessagePageQueryByGroupIdWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsDLQMessagePageQueryByGroupId', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsDLQMessageResendByIdRequest {
-  groupId?: string(name='GroupId', description='The ID of the consumer group whose dead-letter messages you want to query.', example='GID_test_group_id'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance to which the message you want to query belongs.', example='MQ_INST_188077086902****_BXSuW61e'),
-  msgId?: string(name='MsgId', description='The ID of the dead-letter message that you want to query.', example='0BC16699343051CD9F1D798E7734****'),
+  groupId: string(name='GroupId', description='The ID of the consumer group whose dead-letter messages you want to query.', example='GID_test_group_id', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance to which the message you want to query belongs.', example='MQ_INST_188077086902****_BXSuW61e', position='Query'),
+  msgId: string(name='MsgId', description='The ID of the dead-letter message that you want to query.', example='0BC16699343051CD9F1D798E7734****', position='Query'),
 }
 
 model OnsDLQMessageResendByIdResponseBody = {
@@ -901,7 +549,6 @@ model OnsDLQMessageResendByIdResponseBody = {
 
 model OnsDLQMessageResendByIdResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsDLQMessageResendByIdResponseBody(name='body'),
 }
 
@@ -911,62 +558,21 @@ model OnsDLQMessageResendByIdResponse = {
   * *   A dead-letter message is a message that fails to be consumed after the number of consumption retries reaches the upper limit. Generally, dead-letter messages are produced because of incorrect consumption logic. We recommend that you troubleshoot the consumption failures and then call this operation to send the message to the consumer group for consumption again.
   * *   Message Queue for Apache RocketMQ does not manage the status of dead-letter messages based on the consumption status of the dead-letter messages. After you call this operation to send a dead-letter message to a consumer group and the message is consumed, Message Queue for Apache RocketMQ does not remove the dead-letter message from the dead-letter queue. You must manage dead-letter messages and determine whether to send a dead-letter message to a consumer group for consumption. This way, you do not resend and reconsume the messages that are consumed.
   *
-  * @param request OnsDLQMessageResendByIdRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsDLQMessageResendByIdResponse
- */
-async function onsDLQMessageResendByIdWithOptions(request: OnsDLQMessageResendByIdRequest, runtime: Util.RuntimeOptions): OnsDLQMessageResendByIdResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.groupId)) {
-    query['GroupId'] = request.groupId;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.msgId)) {
-    query['MsgId'] = request.msgId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsDLQMessageResendById',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * *   After the number of retries to send a message to a consumer group for consumption reaches the upper limit and the message is not consumed by a consumer in the group, the message is added to the dead-letter queue of the consumer group. The message is a dead-letter message. After you resend the dead-letter message to the consumer group for consumption and the message fails to be consumed again after the maximum number of retries, a dead-letter message with the same message ID is added to the dead-letter queue. You can view the details of the dead-letter message on the Dead-letter Queues page in the Message Queue for Apache RocketMQ console or by calling the API operations that are used to query dead-letter messages. You can obtain the number of consumption failures for a message based on the number of dead-letter messages with the same message ID in the dead-letter queue.
-  * *   A dead-letter message is a message that fails to be consumed after the number of consumption retries reaches the upper limit. Generally, dead-letter messages are produced because of incorrect consumption logic. We recommend that you troubleshoot the consumption failures and then call this operation to send the message to the consumer group for consumption again.
-  * *   Message Queue for Apache RocketMQ does not manage the status of dead-letter messages based on the consumption status of the dead-letter messages. After you call this operation to send a dead-letter message to a consumer group and the message is consumed, Message Queue for Apache RocketMQ does not remove the dead-letter message from the dead-letter queue. You must manage dead-letter messages and determine whether to send a dead-letter message to a consumer group for consumption. This way, you do not resend and reconsume the messages that are consumed.
-  *
-  * @param request OnsDLQMessageResendByIdRequest
-  * @return OnsDLQMessageResendByIdResponse
  */
 async function onsDLQMessageResendById(request: OnsDLQMessageResendByIdRequest): OnsDLQMessageResendByIdResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsDLQMessageResendByIdWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsDLQMessageResendById', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsGroupConsumerUpdateRequest {
-  groupId?: string(name='GroupId', description='The ID of the consumer group for which you want to configure the read permissions.', example='GID_test_groupId'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance to which the consumer group you want to configure belongs.', example='MQ_INST_111111111111_DOxxxxxx'),
-  readEnable?: boolean(name='ReadEnable', description='Specifies whether to authorize the consumer group with the specified ID to read messages. Valid values:
+  groupId: string(name='GroupId', description='The ID of the consumer group for which you want to configure the read permissions.', example='GID_test_groupId', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance to which the consumer group you want to configure belongs.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
+  readEnable: boolean(name='ReadEnable', description='Specifies whether to authorize the consumer group with the specified ID to read messages. Valid values:
 
 *   **true**: Authorize the consumer group with the specified ID to read messages.
 *   **false**: Do not authorize the consumer group with the specified group ID to read messages.
 
-Default value: **true**.', example='true'),
+Default value: **true**.', example='true', position='Query'),
 }
 
 model OnsGroupConsumerUpdateResponseBody = {
@@ -975,7 +581,6 @@ model OnsGroupConsumerUpdateResponseBody = {
 
 model OnsGroupConsumerUpdateResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsGroupConsumerUpdateResponseBody(name='body'),
 }
 
@@ -983,53 +588,14 @@ model OnsGroupConsumerUpdateResponse = {
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
   * You can call this operation to configure the permissions for a consumer group to read messages based on a specified region of Message Queue for Apache RocketMQ and a specified group ID. You can call this operation in scenarios in which you want to forbid consumers in a specific group from reading messages.
   *
-  * @param request OnsGroupConsumerUpdateRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsGroupConsumerUpdateResponse
- */
-async function onsGroupConsumerUpdateWithOptions(request: OnsGroupConsumerUpdateRequest, runtime: Util.RuntimeOptions): OnsGroupConsumerUpdateResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.groupId)) {
-    query['GroupId'] = request.groupId;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.readEnable)) {
-    query['ReadEnable'] = request.readEnable;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsGroupConsumerUpdate',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * You can call this operation to configure the permissions for a consumer group to read messages based on a specified region of Message Queue for Apache RocketMQ and a specified group ID. You can call this operation in scenarios in which you want to forbid consumers in a specific group from reading messages.
-  *
-  * @param request OnsGroupConsumerUpdateRequest
-  * @return OnsGroupConsumerUpdateResponse
  */
 async function onsGroupConsumerUpdate(request: OnsGroupConsumerUpdateRequest): OnsGroupConsumerUpdateResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsGroupConsumerUpdateWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsGroupConsumerUpdate', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsGroupCreateRequest {
-  groupId?: string(name='GroupId', description='The ID of the consumer group that you want to create. Specify the group ID based on the following rules:
+  groupId: string(name='GroupId', description='The ID of the consumer group that you want to create. Specify the group ID based on the following rules:
 
 *   The group ID must be 2 to 64 characters in length and can contain only letters, digits, hyphens (-), and underscores (\\_).
 *   If the Message Queue for Apache RocketMQ instance in which you want to create the consumer group uses a namespace, the group ID must be unique in the instance. The group ID cannot be the same as an existing group ID or a topic name in the instance. The group ID can be the same as a group ID or a topic name in another instance that uses a different namespace. For example, if Instance A and Instance B use different namespaces, a group ID in Instance A can be the same as a group ID or a topic name in Instance B.
@@ -1039,13 +605,13 @@ model OnsGroupCreateRequest {
 
 *   After the consumer group is created, the group ID cannot be changed.
 
-*   To check whether an instance uses a namespace, log on to the Message Queue for Apache RocketMQ console, go to the **Instance Details** page, and then view the value of the Namespace field in the **Basic Information** section.', example='GID_test_groupId'),
+*   To check whether an instance uses a namespace, log on to the Message Queue for Apache RocketMQ console, go to the **Instance Details** page, and then view the value of the Namespace field in the **Basic Information** section.', example='GID_test_groupId', position='Query'),
   groupType?: string(name='GroupType', description='The protocol over which clients in the consumer group communicate with the Message Queue for Apache RocketMQ broker. All clients in a consumer group communicate with the Message Queue for Apache RocketMQ broker over the same protocol. You must create different groups for TCP clients and HTTP clients. Valid values:
 
 *   **tcp**: Clients in the consumer group consume messages over TCP. This is the default value.
-*   **http**: Clients in the consumer group consume messages over HTTP.', example='tcp'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance in which you want to create the consumer group.', example='MQ_INST_111111111111_DOxxxxxx'),
-  remark?: string(name='Remark', description='The description of the consumer group.', example='test'),
+*   **http**: Clients in the consumer group consume messages over HTTP.', example='tcp', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance in which you want to create the consumer group.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
+  remark?: string(name='Remark', description='The description of the consumer group.', example='test', position='Query'),
 }
 
 model OnsGroupCreateResponseBody = {
@@ -1054,7 +620,6 @@ model OnsGroupCreateResponseBody = {
 
 model OnsGroupCreateResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsGroupCreateResponseBody(name='body'),
 }
 
@@ -1062,57 +627,15 @@ model OnsGroupCreateResponse = {
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
   * When you release a new application or implement new business logic, you need new consumer groups. You can call this operation to create a consumer group.
   *
-  * @param request OnsGroupCreateRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsGroupCreateResponse
- */
-async function onsGroupCreateWithOptions(request: OnsGroupCreateRequest, runtime: Util.RuntimeOptions): OnsGroupCreateResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.groupId)) {
-    query['GroupId'] = request.groupId;
-  }
-  if (!Util.isUnset(request.groupType)) {
-    query['GroupType'] = request.groupType;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.remark)) {
-    query['Remark'] = request.remark;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsGroupCreate',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * When you release a new application or implement new business logic, you need new consumer groups. You can call this operation to create a consumer group.
-  *
-  * @param request OnsGroupCreateRequest
-  * @return OnsGroupCreateResponse
  */
 async function onsGroupCreate(request: OnsGroupCreateRequest): OnsGroupCreateResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsGroupCreateWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsGroupCreate', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsGroupDeleteRequest {
-  groupId?: string(name='GroupId', description='The ID of the consumer group that you want to delete.', example='GID_test_groupId'),
-  instanceId?: string(name='InstanceId', description='The ID of the Message Queue for Apache RocketMQ instance that contains the specified group.', example='MQ_INST_111111111111_DOxxxxxx'),
+  groupId: string(name='GroupId', description='The ID of the consumer group that you want to delete.', example='GID_test_groupId', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the Message Queue for Apache RocketMQ instance that contains the specified group.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
 }
 
 model OnsGroupDeleteResponseBody = {
@@ -1121,7 +644,6 @@ model OnsGroupDeleteResponseBody = {
 
 model OnsGroupDeleteResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsGroupDeleteResponseBody(name='body'),
 }
 
@@ -1131,71 +653,33 @@ model OnsGroupDeleteResponse = {
   * *   After you delete a group, the consumers in the group immediately stop receiving messages. Exercise caution when you call this operation.
   * You can call this operation to delete a group when you need to deallocate the resources of the group. For example, after an application is brought offline, you can delete the groups that are used for the application. After you delete a group, the backend of Message Queue for Apache RocketMQ deallocates the resources of the group. The system requires a long period of time to deallocate the resources. We recommend that you do not create a group that uses the same name as a deleted group immediately after you delete the group. If the system fails to delete the specified group, troubleshoot the issue based on the error code.
   *
-  * @param request OnsGroupDeleteRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsGroupDeleteResponse
- */
-async function onsGroupDeleteWithOptions(request: OnsGroupDeleteRequest, runtime: Util.RuntimeOptions): OnsGroupDeleteResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.groupId)) {
-    query['GroupId'] = request.groupId;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsGroupDelete',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > 
-  * *   The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * *   After you delete a group, the consumers in the group immediately stop receiving messages. Exercise caution when you call this operation.
-  * You can call this operation to delete a group when you need to deallocate the resources of the group. For example, after an application is brought offline, you can delete the groups that are used for the application. After you delete a group, the backend of Message Queue for Apache RocketMQ deallocates the resources of the group. The system requires a long period of time to deallocate the resources. We recommend that you do not create a group that uses the same name as a deleted group immediately after you delete the group. If the system fails to delete the specified group, troubleshoot the issue based on the error code.
-  *
-  * @param request OnsGroupDeleteRequest
-  * @return OnsGroupDeleteResponse
  */
 async function onsGroupDelete(request: OnsGroupDeleteRequest): OnsGroupDeleteResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsGroupDeleteWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsGroupDelete', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsGroupListRequest {
   groupId?: string(name='GroupId', description='This parameter is required only when you query specific consumer groups by using the fuzzy query method. If this parameter is not configured, the system queries all consumer groups that can be accessed by the current account.
 
-If you set this parameter to GID_ABC, the information about the consumer groups whose IDs contain GID_ABC is returned. For example, the information about the GID_test_GID_ABC\\_123 and GID_ABC\\_356 consumer groups is returned.', example='GID_test_group_id'),
+If you set this parameter to GID_ABC, the information about the consumer groups whose IDs contain GID_ABC is returned. For example, the information about the GID_test_GID_ABC\\_123 and GID_ABC\\_356 consumer groups is returned.', example='GID_test_group_id', position='Query'),
   groupType?: string(name='GroupType', description='The protocol over which the queried consumer groups consume messages. All clients in a consumer group communicate with the Message Queue for Apache RocketMQ broker over the same protocol. A consumer group cannot contain TCP clients and HTTP clients at the same time. You must create different consumer groups for TCP clients and HTTP clients. Valid values:
 
 *   **tcp**: specifies the consumer groups that consume messages over TCP. This is the default value.
-*   **http**: indicates that the consumer group consumes messages over HTTP.', example='tcp'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance to which the consumer group you want to query belongs.', example='MQ_INST_111111111111_DOxxxxxx'),
+*   **http**: indicates that the consumer group consumes messages over HTTP.', example='tcp', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance to which the consumer group you want to query belongs.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The key of a tag that is attached to the consumer group. This parameter is not required. If you configure this parameter, you must configure the **Tag.N.Value** parameter.**** If you configure both the Tag.N.Key and Tag.N.Value parameters, the group IDs are filtered based on the specified tag. If you do not configure these parameters, all group IDs are queried.
+      key: string(name='Key', description='The key of a tag that is attached to the consumer group. This parameter is not required. If you configure this parameter, you must configure the **Tag.N.Value** parameter.**** If you configure both the Tag.N.Key and Tag.N.Value parameters, the group IDs are filtered based on the specified tag. If you do not configure these parameters, all group IDs are queried.
 
 *   The value of this parameter cannot be an empty string.
 *   The tag key can be up to 128 characters in length and cannot start with `acs:` or `aliyun`. It cannot contain `http://` or `https://`.', example='CartService'),
-      value?: string(name='Value', description='The value of the tag that is attached to the group. This parameter is not required. If you configure this parameter, you must configure the **Tag.N.Value** parameter.**** If you configure both the Tag.N.Key and Tag.N.Value parameters, the group IDs are filtered based on the specified tag. If you do not configure these parameters, all group IDs are queried.
+      value: string(name='Value', description='The value of the tag that is attached to the group. This parameter is not required. If you configure this parameter, you must configure the **Tag.N.Value** parameter.**** If you configure both the Tag.N.Key and Tag.N.Value parameters, the group IDs are filtered based on the specified tag. If you do not configure these parameters, all group IDs are queried.
 
 *   The value of this parameter can be an empty string.
 *   The tag key can be up to 128 characters in length and cannot start with `acs:` or `aliyun`. It cannot contain `http://` or `https://`.', example='ServiceA'),
     }
-  ](name='Tag', description='The list of tags that are attached to the consumer group. A maximum of 20 tags can be included in the list.'),
+  ](name='Tag', description='The list of tags that are attached to the consumer group. A maximum of 20 tags can be included in the list.', position='Query'),
 }
 
 model OnsGroupListResponseBody = {
@@ -1232,63 +716,21 @@ model OnsGroupListResponseBody = {
 
 model OnsGroupListResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsGroupListResponseBody(name='body'),
 }
 
 /**
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
   *
-  * @param request OnsGroupListRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsGroupListResponse
- */
-async function onsGroupListWithOptions(request: OnsGroupListRequest, runtime: Util.RuntimeOptions): OnsGroupListResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.groupId)) {
-    query['GroupId'] = request.groupId;
-  }
-  if (!Util.isUnset(request.groupType)) {
-    query['GroupType'] = request.groupType;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.tag)) {
-    query['Tag'] = request.tag;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsGroupList',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  *
-  * @param request OnsGroupListRequest
-  * @return OnsGroupListResponse
  */
 async function onsGroupList(request: OnsGroupListRequest): OnsGroupListResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsGroupListWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsGroupList', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsGroupSubDetailRequest {
-  groupId?: string(name='GroupId', description='The ID of the consumer group that you want to query.', example='GID_test_group_id'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance to which the consumer group you want to query belongs.', example='MQ_INST_111111111111_DOxxxxxx'),
+  groupId: string(name='GroupId', description='The ID of the consumer group that you want to query.', example='GID_test_group_id', position='Query'),
+  instanceId: string(name='InstanceId', description='The ID of the instance to which the consumer group you want to query belongs.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
 }
 
 model OnsGroupSubDetailResponseBody = {
@@ -1315,56 +757,20 @@ For more information about consumption modes, see [Clustering consumption and br
 
 model OnsGroupSubDetailResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsGroupSubDetailResponseBody(name='body'),
 }
 
 /**
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
   *
-  * @param request OnsGroupSubDetailRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsGroupSubDetailResponse
- */
-async function onsGroupSubDetailWithOptions(request: OnsGroupSubDetailRequest, runtime: Util.RuntimeOptions): OnsGroupSubDetailResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.groupId)) {
-    query['GroupId'] = request.groupId;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsGroupSubDetail',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  *
-  * @param request OnsGroupSubDetailRequest
-  * @return OnsGroupSubDetailResponse
  */
 async function onsGroupSubDetail(request: OnsGroupSubDetailRequest): OnsGroupSubDetailResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsGroupSubDetailWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsGroupSubDetail', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsInstanceBaseInfoRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the instance that you want to query.', example='MQ_INST_138015630679****_BAAy1Hac'),
+  instanceId: string(name='InstanceId', description='The ID of the instance that you want to query.', example='MQ_INST_138015630679****_BAAy1Hac', position='Query'),
 }
 
 model OnsInstanceBaseInfoResponseBody = {
@@ -1424,7 +830,6 @@ For more information, see the description on the buy page.
 
 model OnsInstanceBaseInfoResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsInstanceBaseInfoResponseBody(name='body'),
 }
 
@@ -1432,51 +837,18 @@ model OnsInstanceBaseInfoResponse = {
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
   * To send and receive messages, a client must be connected to a Message Queue for Apache RocketMQ instance by using an endpoint. You can call this operation to query the endpoints of the instance.
   *
-  * @param request OnsInstanceBaseInfoRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsInstanceBaseInfoResponse
- */
-async function onsInstanceBaseInfoWithOptions(request: OnsInstanceBaseInfoRequest, runtime: Util.RuntimeOptions): OnsInstanceBaseInfoResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsInstanceBaseInfo',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * To send and receive messages, a client must be connected to a Message Queue for Apache RocketMQ instance by using an endpoint. You can call this operation to query the endpoints of the instance.
-  *
-  * @param request OnsInstanceBaseInfoRequest
-  * @return OnsInstanceBaseInfoResponse
  */
 async function onsInstanceBaseInfo(request: OnsInstanceBaseInfoRequest): OnsInstanceBaseInfoResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsInstanceBaseInfoWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsInstanceBaseInfo', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsInstanceCreateRequest {
-  instanceName?: string(name='InstanceName', description='The name of the instance. Valid values:
+  instanceName: string(name='InstanceName', description='The name of the instance. Valid values:
 
 *   The name of the instance must be unique in the region where the instance is deployed.
-*   The name must be 3 to 64 characters in length and can contain letters, digits, hyphens (-), and underscores (\\_).', example='Test'),
-  remark?: string(name='Remark', description='The description of the instance.', example='Description'),
+*   The name must be 3 to 64 characters in length and can contain letters, digits, hyphens (-), and underscores (\\_).', example='Test', position='Query'),
+  remark?: string(name='Remark', description='The description of the instance.', example='Description', position='Query'),
 }
 
 model OnsInstanceCreateResponseBody = {
@@ -1491,7 +863,6 @@ model OnsInstanceCreateResponseBody = {
 
 model OnsInstanceCreateResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsInstanceCreateResponseBody(name='body'),
 }
 
@@ -1501,52 +872,14 @@ model OnsInstanceCreateResponse = {
   * *   A maximum of eight Message Queue for Apache RocketMQ instances can be deployed in each region.
   * *   This operation can be called to create only a Standard Edition instance. You can use the Message Queue for Apache RocketMQ console to create Standard Edition instances and Enterprise Platinum Edition instances. For information about how to create Message Queue for Apache RocketMQ instances, see [Manage instances](~~200153~~).
   *
-  * @param request OnsInstanceCreateRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsInstanceCreateResponse
- */
-async function onsInstanceCreateWithOptions(request: OnsInstanceCreateRequest, runtime: Util.RuntimeOptions): OnsInstanceCreateResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.instanceName)) {
-    query['InstanceName'] = request.instanceName;
-  }
-  if (!Util.isUnset(request.remark)) {
-    query['Remark'] = request.remark;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsInstanceCreate',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * An instance is a virtual machine (VM) that can be used to store information about the topics and groups of Message Queue for Apache RocketMQ. You can call this operation when you need to create service resources for the business that you want to launch. Take note of the following points when you call this operation:
-  * *   A maximum of eight Message Queue for Apache RocketMQ instances can be deployed in each region.
-  * *   This operation can be called to create only a Standard Edition instance. You can use the Message Queue for Apache RocketMQ console to create Standard Edition instances and Enterprise Platinum Edition instances. For information about how to create Message Queue for Apache RocketMQ instances, see [Manage instances](~~200153~~).
-  *
-  * @param request OnsInstanceCreateRequest
-  * @return OnsInstanceCreateResponse
  */
 async function onsInstanceCreate(request: OnsInstanceCreateRequest): OnsInstanceCreateResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsInstanceCreateWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsInstanceCreate', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsInstanceDeleteRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the instance.', example='MQ_INST_188077086902****_BXSuW61e'),
+  instanceId: string(name='InstanceId', description='The ID of the instance.', example='MQ_INST_188077086902****_BXSuW61e', position='Query'),
 }
 
 model OnsInstanceDeleteResponseBody = {
@@ -1555,7 +888,6 @@ model OnsInstanceDeleteResponseBody = {
 
 model OnsInstanceDeleteResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsInstanceDeleteResponseBody(name='body'),
 }
 
@@ -1564,59 +896,25 @@ model OnsInstanceDeleteResponse = {
   * *   You can call this operation when you need to reclaim resources. For example, after you unpublish an application, you can reclaim the resources that were used for the application. An instance can be deleted only when the instance does not contain topics and groups.
   * *   After an instance is deleted, the instance cannot be recovered. Exercise caution when you call this operation.
   *
-  * @param request OnsInstanceDeleteRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsInstanceDeleteResponse
- */
-async function onsInstanceDeleteWithOptions(request: OnsInstanceDeleteRequest, runtime: Util.RuntimeOptions): OnsInstanceDeleteResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsInstanceDelete',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * *   You can call this operation when you need to reclaim resources. For example, after you unpublish an application, you can reclaim the resources that were used for the application. An instance can be deleted only when the instance does not contain topics and groups.
-  * *   After an instance is deleted, the instance cannot be recovered. Exercise caution when you call this operation.
-  *
-  * @param request OnsInstanceDeleteRequest
-  * @return OnsInstanceDeleteResponse
  */
 async function onsInstanceDelete(request: OnsInstanceDeleteRequest): OnsInstanceDeleteResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsInstanceDeleteWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsInstanceDelete', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsInstanceInServiceListRequest {
   tag?: [ 
     {
-      key?: string(name='Key', description='The key of a tag that is attached to the instances you want to query. This parameter is not required. If you configure this parameter, you must also configure the **Tag.N.Key** parameter.**** If you include the Key and Value parameters in a request, this operation queries only the instances that use the specified tags. If you do not include these parameters in a request, this operation queries all instances that you can access.
+      key: string(name='Key', description='The key of a tag that is attached to the instances you want to query. This parameter is not required. If you configure this parameter, you must also configure the **Tag.N.Key** parameter.**** If you include the Key and Value parameters in a request, this operation queries only the instances that use the specified tags. If you do not include these parameters in a request, this operation queries all instances that you can access.
 
 *   The value of this parameter cannot be an empty string.
 *   The tag key can be up to 128 characters in length and cannot start with `acs:` or `aliyun`. It cannot contain `http://` or `https://`.', example='CartService'),
-      value?: string(name='Value', description='The value of a tag that is attached to the instances you want to query. This parameter is not required. If you configure this parameter, you must also configure the **Tag.N.Key** parameter.**** If you include the Key and Value parameters in a request, this operation queries only the instances that use the specified tags. If you do not include these parameters in a request, this operation queries all instances that you can access.
+      value: string(name='Value', description='The value of a tag that is attached to the instances you want to query. This parameter is not required. If you configure this parameter, you must also configure the **Tag.N.Key** parameter.**** If you include the Key and Value parameters in a request, this operation queries only the instances that use the specified tags. If you do not include these parameters in a request, this operation queries all instances that you can access.
 
 *   The value of this parameter can be an empty string.
 *   The tag key can be up to 128 characters in length and cannot start with `acs:` or `aliyun`. It cannot contain `http://` or `https://`.', example='SericeA'),
     }
-  ](name='Tag', description='The list of tags that are attached to the instance. A maximum of 20 tags can be included in a list.'),
+  ](name='Tag', description='The list of tags that are attached to the instance. A maximum of 20 tags can be included in a list.', position='Query'),
 }
 
 model OnsInstanceInServiceListResponseBody = {
@@ -1661,59 +959,26 @@ For more information about the instance editions and differences between the edi
 
 model OnsInstanceInServiceListResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsInstanceInServiceListResponseBody(name='body'),
 }
 
 /**
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
   *
-  * @param request OnsInstanceInServiceListRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsInstanceInServiceListResponse
- */
-async function onsInstanceInServiceListWithOptions(request: OnsInstanceInServiceListRequest, runtime: Util.RuntimeOptions): OnsInstanceInServiceListResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.tag)) {
-    query['Tag'] = request.tag;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsInstanceInServiceList',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  *
-  * @param request OnsInstanceInServiceListRequest
-  * @return OnsInstanceInServiceListResponse
  */
 async function onsInstanceInServiceList(request: OnsInstanceInServiceListRequest): OnsInstanceInServiceListResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsInstanceInServiceListWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsInstanceInServiceList', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsInstanceUpdateRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the instance whose name or description you want to update.', example='MQ_INST_188077086902****_BXSuW61e'),
+  instanceId: string(name='InstanceId', description='The ID of the instance whose name or description you want to update.', example='MQ_INST_188077086902****_BXSuW61e', position='Query'),
   instanceName?: string(name='InstanceName', description='The new name of the instance. The name must meet the following rules:
 
 *   The name of the instance must be unique in the region where the instance is deployed.
 *   The name must be 3 to 64 characters in length and can contain letters, digits, hyphens (-), and underscores (\\_).
-*   If you do not configure this parameter, the instance name remains unchanged.', example='Updatedname'),
-  remark?: string(name='Remark', description='The updated description of the instance. If you do not configure this parameter, the instance description remains unchanged.', example='Updateddescription'),
+*   If you do not configure this parameter, the instance name remains unchanged.', example='Updatedname', position='Query'),
+  remark?: string(name='Remark', description='The updated description of the instance. If you do not configure this parameter, the instance description remains unchanged.', example='Updateddescription', position='Query'),
 }
 
 model OnsInstanceUpdateResponseBody = {
@@ -1722,7 +987,6 @@ model OnsInstanceUpdateResponseBody = {
 
 model OnsInstanceUpdateResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsInstanceUpdateResponseBody(name='body'),
 }
 
@@ -1730,55 +994,16 @@ model OnsInstanceUpdateResponse = {
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
   * A maximum of eight Message Queue for Apache RocketMQ instances can be deployed in each region.
   *
-  * @param request OnsInstanceUpdateRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsInstanceUpdateResponse
- */
-async function onsInstanceUpdateWithOptions(request: OnsInstanceUpdateRequest, runtime: Util.RuntimeOptions): OnsInstanceUpdateResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.instanceName)) {
-    query['InstanceName'] = request.instanceName;
-  }
-  if (!Util.isUnset(request.remark)) {
-    query['Remark'] = request.remark;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsInstanceUpdate',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * A maximum of eight Message Queue for Apache RocketMQ instances can be deployed in each region.
-  *
-  * @param request OnsInstanceUpdateRequest
-  * @return OnsInstanceUpdateResponse
  */
 async function onsInstanceUpdate(request: OnsInstanceUpdateRequest): OnsInstanceUpdateResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsInstanceUpdateWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsInstanceUpdate', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsMessageDetailRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the Message Queue for Apache RocketMQ Instance.', example='MQ_INST_184681981******_BXig0x6A'),
-  msgId?: string(name='MsgId', description='The ID of the message that you want to query.', example='1E0578FE110F18B4AAC235C0******'),
-  topic?: string(name='Topic', description='The name of the topic in which the message you want to query is stored.', example='test-mq_topic'),
+  instanceId: string(name='InstanceId', description='The ID of the Message Queue for Apache RocketMQ Instance.', example='MQ_INST_184681981******_BXig0x6A', position='Query'),
+  msgId: string(name='MsgId', description='The ID of the message that you want to query.', example='1E0578FE110F18B4AAC235C0******', position='Query'),
+  topic: string(name='Topic', description='The name of the topic in which the message you want to query is stored.', example='test-mq_topic', position='Query'),
 }
 
 model OnsMessageDetailResponseBody = {
@@ -1815,39 +1040,18 @@ For more information about the terms that are used in Message Queue for Apache R
 
 model OnsMessageDetailResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsMessageDetailResponseBody(name='body'),
 }
 
-async function onsMessageDetailWithOptions(request: OnsMessageDetailRequest, runtime: Util.RuntimeOptions): OnsMessageDetailResponse {
-  Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsMessageDetail',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'GET',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function onsMessageDetail(request: OnsMessageDetailRequest): OnsMessageDetailResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsMessageDetailWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsMessageDetail', 'GET', '/', 'json', false, 'json', request);
 }
 
 model OnsMessageGetByKeyRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the instance where the message that you want to query resides.', example='MQ_INST_111111111111_DOxxxxxx'),
-  key?: string(name='Key', description='The key of the message that you want to query.', example='messageKey1'),
-  topic?: string(name='Topic', description='The topic that contains the message that you want to query.', example='test-mq_topic'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance where the message that you want to query resides.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
+  key: string(name='Key', description='The key of the message that you want to query.', example='messageKey1', position='Query'),
+  topic: string(name='Topic', description='The topic that contains the message that you want to query.', example='test-mq_topic', position='Query'),
 }
 
 model OnsMessageGetByKeyResponseBody = {
@@ -1889,7 +1093,6 @@ For more information about the terms that are used in Message Queue for Apache R
 
 model OnsMessageGetByKeyResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsMessageGetByKeyResponseBody(name='body'),
 }
 
@@ -1900,58 +1103,16 @@ model OnsMessageGetByKeyResponse = {
   *     1.  Call this operation to query message IDs.
   *     2.  Call the **OnsMessageGetByMsgId** operation to query the details of a specified message. The OnsMessageGetByMsgId operation uses the exact match method. For more information about the **OnsMessageGetByMsgId** operation, see [OnsMessageGetByMsgId](~~29607~~).
   *
-  * @param request OnsMessageGetByKeyRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsMessageGetByKeyResponse
- */
-async function onsMessageGetByKeyWithOptions(request: OnsMessageGetByKeyRequest, runtime: Util.RuntimeOptions): OnsMessageGetByKeyResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.key)) {
-    query['Key'] = request.key;
-  }
-  if (!Util.isUnset(request.topic)) {
-    query['Topic'] = request.topic;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsMessageGetByKey',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * *   This operation uses the fuzzy match method to query messages based on a specified message key. The same message key may be used by multiple messages. Therefore, the returned result may contain the information about multiple messages.
-  * *   This operation can be used in scenarios in which you cannot obtain the IDs of the messages that you want to query. You can perform the following steps to query the information about messages:
-  *     1.  Call this operation to query message IDs.
-  *     2.  Call the **OnsMessageGetByMsgId** operation to query the details of a specified message. The OnsMessageGetByMsgId operation uses the exact match method. For more information about the **OnsMessageGetByMsgId** operation, see [OnsMessageGetByMsgId](~~29607~~).
-  *
-  * @param request OnsMessageGetByKeyRequest
-  * @return OnsMessageGetByKeyResponse
  */
 async function onsMessageGetByKey(request: OnsMessageGetByKeyRequest): OnsMessageGetByKeyResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsMessageGetByKeyWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsMessageGetByKey', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsMessageGetByMsgIdRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the instance where the message that you want to query resides.', example='MQ_INST_111111111111_DOxxxxxx'),
-  msgId?: string(name='MsgId', description='The ID of the message that you want to query.', example='1E0578FE110F18B4AAC235C05F2*****'),
-  topic?: string(name='Topic', description='The topic that contains the message that you want to query.', example='test-mq_topic'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance where the message that you want to query resides.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
+  msgId: string(name='MsgId', description='The ID of the message that you want to query.', example='1E0578FE110F18B4AAC235C05F2*****', position='Query'),
+  topic: string(name='Topic', description='The topic that contains the message that you want to query.', example='test-mq_topic', position='Query'),
 }
 
 model OnsMessageGetByMsgIdResponseBody = {
@@ -1987,7 +1148,6 @@ For more information about the terms that are used in Message Queue for Apache R
 
 model OnsMessageGetByMsgIdResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsMessageGetByMsgIdResponseBody(name='body'),
 }
 
@@ -1996,60 +1156,20 @@ model OnsMessageGetByMsgIdResponse = {
   * *   If a message is not consumed as expected, you can call this operation to query the information about the message for troubleshooting.
   * *   This operation uses the exact match method to query a message based on the message ID. You can obtain the message ID from the SendResult parameter that is returned after the message is sent. You must store the returned information after each message is sent. The queried information about a message includes the point in time when the message was sent, the broker on which the message is stored, and the attributes of the message such as the message key and tag.
   *
-  * @param request OnsMessageGetByMsgIdRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsMessageGetByMsgIdResponse
- */
-async function onsMessageGetByMsgIdWithOptions(request: OnsMessageGetByMsgIdRequest, runtime: Util.RuntimeOptions): OnsMessageGetByMsgIdResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.msgId)) {
-    query['MsgId'] = request.msgId;
-  }
-  if (!Util.isUnset(request.topic)) {
-    query['Topic'] = request.topic;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsMessageGetByMsgId',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * *   If a message is not consumed as expected, you can call this operation to query the information about the message for troubleshooting.
-  * *   This operation uses the exact match method to query a message based on the message ID. You can obtain the message ID from the SendResult parameter that is returned after the message is sent. You must store the returned information after each message is sent. The queried information about a message includes the point in time when the message was sent, the broker on which the message is stored, and the attributes of the message such as the message key and tag.
-  *
-  * @param request OnsMessageGetByMsgIdRequest
-  * @return OnsMessageGetByMsgIdResponse
  */
 async function onsMessageGetByMsgId(request: OnsMessageGetByMsgIdRequest): OnsMessageGetByMsgIdResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsMessageGetByMsgIdWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsMessageGetByMsgId', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsMessagePageQueryByTopicRequest {
-  beginTime?: long(name='BeginTime', description='The beginning of the time range to query. Set the value to a UNIX timestamp that represents the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC. If you specify a valid value for the **TaskId** parameter in the request, this parameter does not take effect. The system uses the value of the BeginTime parameter that you specified in the request when you created the specified query task.', example='1570723200000'),
-  currentPage?: int32(name='CurrentPage', description='The number of the page to return. Pages start from page 1. Valid values: 1 to 50.', example='2'),
-  endTime?: long(name='EndTime', description='The end of the time range to query. Set the value to a UNIX timestamp that represents the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC. If you specify a valid value for the **TaskId** parameter in the request, this parameter does not take effect. The system uses the value of the EndTime parameter that you specified in the request when you created the specified query task.', example='1570809600000'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance where the message that you want to query resides.', example='MQ_INST_111111111111_DOxxxxxx'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Valid values: 5 to 50. Default value: 20. If you specify a valid value for the **TaskId** parameter in the request, this parameter does not take effect. The system uses the value of the PageSize parameter that you specified in the request for creating the query task.', example='5'),
-  taskId?: string(name='TaskId', description='The ID of the query task. The first time you call this operation to query dead-letter messages that are sent to a specified consumer group within a specified time range, this parameter is not required. This parameter is required in subsequent queries for dead-letter messages on a specified page. You can obtain the task ID from the returned result of the first query.', example='0BC1310300002A9F000021E4D7A48346'),
-  topic?: string(name='Topic', description='The topic in which the messages you want to query are stored.', example='test-mq_topic'),
+  beginTime: long(name='BeginTime', description='The beginning of the time range to query. Set the value to a UNIX timestamp that represents the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC. If you specify a valid value for the **TaskId** parameter in the request, this parameter does not take effect. The system uses the value of the BeginTime parameter that you specified in the request when you created the specified query task.', example='1570723200000', position='Query'),
+  currentPage: int32(name='CurrentPage', description='The number of the page to return. Pages start from page 1. Valid values: 1 to 50.', example='2', position='Query'),
+  endTime: long(name='EndTime', description='The end of the time range to query. Set the value to a UNIX timestamp that represents the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC. If you specify a valid value for the **TaskId** parameter in the request, this parameter does not take effect. The system uses the value of the EndTime parameter that you specified in the request when you created the specified query task.', example='1570809600000', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance where the message that you want to query resides.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Valid values: 5 to 50. Default value: 20. If you specify a valid value for the **TaskId** parameter in the request, this parameter does not take effect. The system uses the value of the PageSize parameter that you specified in the request for creating the query task.', example='5', position='Query'),
+  taskId?: string(name='TaskId', description='The ID of the query task. The first time you call this operation to query dead-letter messages that are sent to a specified consumer group within a specified time range, this parameter is not required. This parameter is required in subsequent queries for dead-letter messages on a specified page. You can obtain the task ID from the returned result of the first query.', example='0BC1310300002A9F000021E4D7A48346', position='Query'),
+  topic: string(name='Topic', description='The topic in which the messages you want to query are stored.', example='test-mq_topic', position='Query'),
 }
 
 model OnsMessagePageQueryByTopicResponseBody = {
@@ -2094,7 +1214,6 @@ For more information about the terms that are used in Message Queue for Apache R
 
 model OnsMessagePageQueryByTopicResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsMessagePageQueryByTopicResponseBody(name='body'),
 }
 
@@ -2105,72 +1224,18 @@ model OnsMessagePageQueryByTopicResponse = {
   *     1.  Perform a paged query by specifying the topic, start time, end time, and number of entries to return on each page. If the topic contains messages, the information about the messages on the first page, total number of pages, and task ID are returned by default.
   *     2.  Specify the task ID and a page number to call this operation again to query the messages on the specified page. In this query, the BeginTime, EndTime, and PageSize parameters do not take effect. By default, the system uses the values of these parameters that you specified in the request when you created the specified query task.
   *
-  * @param request OnsMessagePageQueryByTopicRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsMessagePageQueryByTopicResponse
- */
-async function onsMessagePageQueryByTopicWithOptions(request: OnsMessagePageQueryByTopicRequest, runtime: Util.RuntimeOptions): OnsMessagePageQueryByTopicResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.beginTime)) {
-    query['BeginTime'] = request.beginTime;
-  }
-  if (!Util.isUnset(request.currentPage)) {
-    query['CurrentPage'] = request.currentPage;
-  }
-  if (!Util.isUnset(request.endTime)) {
-    query['EndTime'] = request.endTime;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query['PageSize'] = request.pageSize;
-  }
-  if (!Util.isUnset(request.taskId)) {
-    query['TaskId'] = request.taskId;
-  }
-  if (!Util.isUnset(request.topic)) {
-    query['Topic'] = request.topic;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsMessagePageQueryByTopic',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * *   If you do not know the message ID or message key of a message that you want to query, you can call this operation to query all messages that are stored in a topic within a specified time range. The results are displayed by page.
-  * *   We recommend that you specify a short time range to query messages. If you specify a long time range, a large number of messages are returned. In this case, you cannot find the message that you want to query in an efficient manner. You can perform the following steps to query messages:
-  *     1.  Perform a paged query by specifying the topic, start time, end time, and number of entries to return on each page. If the topic contains messages, the information about the messages on the first page, total number of pages, and task ID are returned by default.
-  *     2.  Specify the task ID and a page number to call this operation again to query the messages on the specified page. In this query, the BeginTime, EndTime, and PageSize parameters do not take effect. By default, the system uses the values of these parameters that you specified in the request when you created the specified query task.
-  *
-  * @param request OnsMessagePageQueryByTopicRequest
-  * @return OnsMessagePageQueryByTopicResponse
  */
 async function onsMessagePageQueryByTopic(request: OnsMessagePageQueryByTopicRequest): OnsMessagePageQueryByTopicResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsMessagePageQueryByTopicWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsMessagePageQueryByTopic', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsMessagePushRequest {
-  clientId?: string(name='ClientId', description='The ID of the consumer. You can call the [OnsConsumerGetConnection](~~29598~~) operation to query the ID of each consumer in a consumer group.', example='30.5.121.**@24813#-1999745829#-1737591554#453111174894656'),
-  groupId?: string(name='GroupId', description='The ID of the consumer group. For information about what a consumer group is, see [Terms](~~29533~~).', example='GID_test_group_id'),
-  instanceId?: string(name='InstanceId', description='The ID of the Message Queue for Apache RocketMQ instance to which the specified consumer group belongs.', example='MQ_INST_111111111111_DOxxxxxx'),
-  msgId?: string(name='MsgId', description='The ID of the message.', example='0BC1669963053CF68F733BB70396****'),
-  topic?: string(name='Topic', description='The topic to which the message is pushed.', example='test-mq_topic'),
+  clientId: string(name='ClientId', description='The ID of the consumer. You can call the [OnsConsumerGetConnection](~~29598~~) operation to query the ID of each consumer in a consumer group.', example='30.5.121.**@24813#-1999745829#-1737591554#453111174894656', position='Query'),
+  groupId: string(name='GroupId', description='The ID of the consumer group. For information about what a consumer group is, see [Terms](~~29533~~).', example='GID_test_group_id', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the Message Queue for Apache RocketMQ instance to which the specified consumer group belongs.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
+  msgId: string(name='MsgId', description='The ID of the message.', example='0BC1669963053CF68F733BB70396****', position='Query'),
+  topic: string(name='Topic', description='The topic to which the message is pushed.', example='test-mq_topic', position='Query'),
 }
 
 model OnsMessagePushResponseBody = {
@@ -2179,7 +1244,6 @@ model OnsMessagePushResponseBody = {
 
 model OnsMessagePushResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsMessagePushResponseBody(name='body'),
 }
 
@@ -2187,61 +1251,16 @@ model OnsMessagePushResponse = {
   * ## Note
   * This operation can be used to check whether messages in a specified topic can be consumed by consumers in a specified consumer group. This operation obtains the body of the message that is specified by the MsgId parameter, re-encapsulates the message body to produce a new message, and then pushes the new message to a specified consumer. The content of the message that is sent to the consumer is the same as the content of the original message. They are not the same message because they use different message IDs.
   *
-  * @param request OnsMessagePushRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsMessagePushResponse
- */
-async function onsMessagePushWithOptions(request: OnsMessagePushRequest, runtime: Util.RuntimeOptions): OnsMessagePushResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.clientId)) {
-    query['ClientId'] = request.clientId;
-  }
-  if (!Util.isUnset(request.groupId)) {
-    query['GroupId'] = request.groupId;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.msgId)) {
-    query['MsgId'] = request.msgId;
-  }
-  if (!Util.isUnset(request.topic)) {
-    query['Topic'] = request.topic;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsMessagePush',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * ## Note
-  * This operation can be used to check whether messages in a specified topic can be consumed by consumers in a specified consumer group. This operation obtains the body of the message that is specified by the MsgId parameter, re-encapsulates the message body to produce a new message, and then pushes the new message to a specified consumer. The content of the message that is sent to the consumer is the same as the content of the original message. They are not the same message because they use different message IDs.
-  *
-  * @param request OnsMessagePushRequest
-  * @return OnsMessagePushResponse
  */
 async function onsMessagePush(request: OnsMessagePushRequest): OnsMessagePushResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsMessagePushWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsMessagePush', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsMessageTraceRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the instance where the message that you want to query resides.', example='MQ_INST_111111111111_DOxxxxxx'),
-  msgId?: string(name='MsgId', description='The ID of the message that you want to query.', example='1E05791C117818B4AAC23B1BB0CE****'),
-  topic?: string(name='Topic', description='The topic to which the message belongs.', example='test-mq_topic'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance where the message that you want to query resides.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
+  msgId: string(name='MsgId', description='The ID of the message that you want to query.', example='1E05791C117818B4AAC23B1BB0CE****', position='Query'),
+  topic: string(name='Topic', description='The topic to which the message belongs.', example='test-mq_topic', position='Query'),
 }
 
 model OnsMessageTraceResponseBody = {
@@ -2265,7 +1284,6 @@ model OnsMessageTraceResponseBody = {
 
 model OnsMessageTraceResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsMessageTraceResponseBody(name='body'),
 }
 
@@ -2274,50 +1292,13 @@ model OnsMessageTraceResponse = {
   * *   You can call this operation to check whether a specified message is consumed. If the message is not consumed, you can troubleshoot the issue based on the returned information.
   * *   This operation queries information based on the built-in offset mechanism of Message Queue for Apache RocketMQ. In most cases, the results are correct. If you have reset the consumer offset or cleared accumulated messages, the results may not be correct.
   *
-  * @param request OnsMessageTraceRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsMessageTraceResponse
- */
-async function onsMessageTraceWithOptions(request: OnsMessageTraceRequest, runtime: Util.RuntimeOptions): OnsMessageTraceResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.msgId)) {
-    query['MsgId'] = request.msgId;
-  }
-  if (!Util.isUnset(request.topic)) {
-    query['Topic'] = request.topic;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsMessageTrace',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * *   You can call this operation to check whether a specified message is consumed. If the message is not consumed, you can troubleshoot the issue based on the returned information.
-  * *   This operation queries information based on the built-in offset mechanism of Message Queue for Apache RocketMQ. In most cases, the results are correct. If you have reset the consumer offset or cleared accumulated messages, the results may not be correct.
-  *
-  * @param request OnsMessageTraceRequest
-  * @return OnsMessageTraceResponse
  */
 async function onsMessageTrace(request: OnsMessageTraceRequest): OnsMessageTraceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsMessageTraceWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsMessageTrace', 'POST', '/', 'json', false, 'json', request);
+}
+
+model OnsRegionListRequest {
 }
 
 model OnsRegionListResponseBody = {
@@ -2334,7 +1315,6 @@ model OnsRegionListResponseBody = {
 
 model OnsRegionListResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsRegionListResponseBody(name='body'),
 }
 
@@ -2344,42 +1324,15 @@ model OnsRegionListResponse = {
   * *   Connect your application to Message Queue for Apache RocketMQ: Select the nearest API gateway endpoint based on the region where your application is deployed, and enter the corresponding **region ID**. The **regionId** is used to access Alibaba Cloud API Gateway because Message Queue for Apache RocketMQ instances provide API services by using the OpenAPI Explorer platform, which is also called POP.
   * *   Access a region to manage its resources: Specify a region where you want to manage Message Queue for Apache RocketMQ resources and enter the region ID. You can query the region ID by calling the **OnsRegionList** operation.
   *
-  * @param request OnsRegionListRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsRegionListResponse
  */
-async function onsRegionListWithOptions(runtime: Util.RuntimeOptions): OnsRegionListResponse {
-  var req = new OpenApi.OpenApiRequest{};
-  var params = new OpenApi.Params{
-    action = 'OnsRegionList',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * When you use an SDK to access and manage a Message Queue for Apache RocketMQ instance, you must sequentially specify the information about two regions. You can query the information about the second region by calling the \\*\\*OnsRegionList\\*\\* operation. You must apply for a public endpoint in the following scenarios:
-  * *   Connect your application to Message Queue for Apache RocketMQ: Select the nearest API gateway endpoint based on the region where your application is deployed, and enter the corresponding **region ID**. The **regionId** is used to access Alibaba Cloud API Gateway because Message Queue for Apache RocketMQ instances provide API services by using the OpenAPI Explorer platform, which is also called POP.
-  * *   Access a region to manage its resources: Specify a region where you want to manage Message Queue for Apache RocketMQ resources and enter the region ID. You can query the region ID by calling the **OnsRegionList** operation.
-  *
-  * @return OnsRegionListResponse
- */
-async function onsRegionList(): OnsRegionListResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsRegionListWithOptions(runtime);
+async function onsRegionList(request: OnsRegionListRequest): OnsRegionListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsRegionList', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsTopicCreateRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the instance in which you want to create the topic.', example='MQ_INST_188077086902****_BXSuW61e'),
-  messageType?: int32(name='MessageType', description='The type of the message. Valid values:
+  instanceId?: string(name='InstanceId', description='The ID of the instance in which you want to create the topic.', example='MQ_INST_188077086902****_BXSuW61e', position='Query'),
+  messageType: int32(name='MessageType', description='The type of the message. Valid values:
 
 *   **0**: normal messages
 *   **1**: partitionally ordered messages
@@ -2387,16 +1340,16 @@ model OnsTopicCreateRequest {
 *   **4**: transactional messages
 *   **5**: scheduled or delayed messages
 
-For more information about message types, see [Message types](~~155952~~).', example='0'),
-  remark?: string(name='Remark', description='The description of the topic that you want to create.', example='Test'),
-  topic?: string(name='Topic', description='The name of the topic that you want to create. The name must meet the following rules:
+For more information about message types, see [Message types](~~155952~~).', example='0', position='Query'),
+  remark?: string(name='Remark', description='The description of the topic that you want to create.', example='Test', position='Query'),
+  topic: string(name='Topic', description='The name of the topic that you want to create. The name must meet the following rules:
 
 *   The name must be 3 to 64 characters in length and can contain letters, digits, hyphens (-), and underscores (\\_).
 *   The topic name cannot start with CID or GID because CID and GID are reserved prefixes for group IDs.
 *   If the Message Queue for Apache RocketMQ instance in which you want to create the topic uses a namespace, the topic name must be unique in the instance. The topic name cannot be the same as an existing topic name or a group ID in the instance. The topic name can be the same as a topic name or a group ID in another instance that uses a different namespace. For example, if Instance A and Instance B use different namespaces, a topic name in Instance A can be the same as a topic name or a group ID in Instance B.
 *   If the instance in which you want to create the topic does not use a namespace, the topic name must be globally unique across instances and regions. The topic name cannot be the same as an existing topic name or group ID in Message Queue for Apache RocketMQ instances that belong to your Alibaba Cloud account.
 
->  To check whether an instance uses a namespace, log on to the Message Queue for Apache RocketMQ console, go to the **Instance Details** page, and then view the value of the Namespace field in the **Basic Information** section.', example='test'),
+>  To check whether an instance uses a namespace, log on to the Message Queue for Apache RocketMQ console, go to the **Instance Details** page, and then view the value of the Namespace field in the **Basic Information** section.', example='test', position='Query'),
 }
 
 model OnsTopicCreateResponseBody = {
@@ -2405,7 +1358,6 @@ model OnsTopicCreateResponseBody = {
 
 model OnsTopicCreateResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsTopicCreateResponseBody(name='body'),
 }
 
@@ -2413,57 +1365,15 @@ model OnsTopicCreateResponse = {
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
   * When you want to release a new application or expand your business, you can call this operation to create a topic based on your business requirements.
   *
-  * @param request OnsTopicCreateRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsTopicCreateResponse
- */
-async function onsTopicCreateWithOptions(request: OnsTopicCreateRequest, runtime: Util.RuntimeOptions): OnsTopicCreateResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.messageType)) {
-    query['MessageType'] = request.messageType;
-  }
-  if (!Util.isUnset(request.remark)) {
-    query['Remark'] = request.remark;
-  }
-  if (!Util.isUnset(request.topic)) {
-    query['Topic'] = request.topic;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsTopicCreate',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * When you want to release a new application or expand your business, you can call this operation to create a topic based on your business requirements.
-  *
-  * @param request OnsTopicCreateRequest
-  * @return OnsTopicCreateResponse
  */
 async function onsTopicCreate(request: OnsTopicCreateRequest): OnsTopicCreateResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsTopicCreateWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsTopicCreate', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsTopicDeleteRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the instance that contains the topic you want to delete.', example='MQ_INST_188077086902****_BXSuW61e'),
-  topic?: string(name='Topic', description='The name of the topic that you want to delete.', example='test'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance that contains the topic you want to delete.', example='MQ_INST_188077086902****_BXSuW61e', position='Query'),
+  topic: string(name='Topic', description='The name of the topic that you want to delete.', example='test', position='Query'),
 }
 
 model OnsTopicDeleteResponseBody = {
@@ -2472,7 +1382,6 @@ model OnsTopicDeleteResponseBody = {
 
 model OnsTopicDeleteResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsTopicDeleteResponseBody(name='body'),
 }
 
@@ -2480,64 +1389,28 @@ model OnsTopicDeleteResponse = {
   * >  The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur. - After you delete the topic, the publishing and subscription relationships that are constructed based on the topic are cleared. Exercise caution when you call this operation.
   * You can call this operation to delete a topic when you need to reclaim the resources from the topic. For example, after an application is brought offline, you can delete the topics that are used for the application. After you delete a topic, the backend of Message Queue for Apache RocketMQ reclaims the resources from the topic. The system requires a long period of time to reclaim the resources. After you delete a topic, we recommend that you do not create a topic that uses the same name as the deleted topic within a short period of time. If the system fails to delete the specified topic, troubleshoot the issue based on the error code.
   *
-  * @param request OnsTopicDeleteRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsTopicDeleteResponse
- */
-async function onsTopicDeleteWithOptions(request: OnsTopicDeleteRequest, runtime: Util.RuntimeOptions): OnsTopicDeleteResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.topic)) {
-    query['Topic'] = request.topic;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsTopicDelete',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * >  The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur. - After you delete the topic, the publishing and subscription relationships that are constructed based on the topic are cleared. Exercise caution when you call this operation.
-  * You can call this operation to delete a topic when you need to reclaim the resources from the topic. For example, after an application is brought offline, you can delete the topics that are used for the application. After you delete a topic, the backend of Message Queue for Apache RocketMQ reclaims the resources from the topic. The system requires a long period of time to reclaim the resources. After you delete a topic, we recommend that you do not create a topic that uses the same name as the deleted topic within a short period of time. If the system fails to delete the specified topic, troubleshoot the issue based on the error code.
-  *
-  * @param request OnsTopicDeleteRequest
-  * @return OnsTopicDeleteResponse
  */
 async function onsTopicDelete(request: OnsTopicDeleteRequest): OnsTopicDeleteResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsTopicDeleteWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsTopicDelete', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsTopicListRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the instance that contains the topics you want to query.', example='MQ_INST_188077086902****_BXSuW61e'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance that contains the topics you want to query.', example='MQ_INST_188077086902****_BXSuW61e', position='Query'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The key of a tag that is attached to the topics you want to query. This parameter is not required. If you configure this parameter, you must also configure the **Tag.N.Value** parameter.**** If you include the Key and Value parameters in a request, this operation queries only the topics that use the specified tags. If you do not include these parameters in a request, this operation queries all topics that you can access.
+      key: string(name='Key', description='The key of a tag that is attached to the topics you want to query. This parameter is not required. If you configure this parameter, you must also configure the **Tag.N.Value** parameter.**** If you include the Key and Value parameters in a request, this operation queries only the topics that use the specified tags. If you do not include these parameters in a request, this operation queries all topics that you can access.
 
 *   The value of this parameter cannot be an empty string.
 *   The tag value can be up to 128 characters in length and cannot start with `acs:` or `aliyun`. It cannot contain `http://` or `https://`.', example='CartService'),
-      value?: string(name='Value', description='The value of a tag that is attached to the topics you want to query. This parameter is not required. If you configure this parameter, you must also configure the **Tag.N.Key** parameter.**** If you include the Key and Value parameters in a request, this operation queries only the topics that use the specified tags. If you do not include these parameters in a request, this operation queries all topics that you can access.
+      value: string(name='Value', description='The value of a tag that is attached to the topics you want to query. This parameter is not required. If you configure this parameter, you must also configure the **Tag.N.Key** parameter.**** If you include the Key and Value parameters in a request, this operation queries only the topics that use the specified tags. If you do not include these parameters in a request, this operation queries all topics that you can access.
 
 *   The value of this parameter can be an empty string.
 *   The tag value can be up to 128 characters in length and cannot start with `acs:` or `aliyun`. It cannot contain `http://` or `https://`.', example='ServiceA'),
     }
-  ](name='Tag', description='The list of tags that are attached to the topic. A maximum of 20 tags can be included in the list.'),
-  topic?: string(name='Topic', description='The name of the topic that you want to query. This parameter is required when you want to query a specific topic. If you do not include this parameter in a request, all topics that you can access are queried.', example='test'),
-  userId?: string(name='UserId', example='138015630679****'),
+  ](name='Tag', description='The list of tags that are attached to the topic. A maximum of 20 tags can be included in the list.', position='Query'),
+  topic?: string(name='Topic', description='The name of the topic that you want to query. This parameter is required when you want to query a specific topic. If you do not include this parameter in a request, all topics that you can access are queried.', example='test', position='Query'),
+  userId?: string(name='UserId', example='138015630679****', position='Query'),
 }
 
 model OnsTopicListResponseBody = {
@@ -2587,7 +1460,6 @@ model OnsTopicListResponseBody = {
 
 model OnsTopicListResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsTopicListResponseBody(name='body'),
 }
 
@@ -2595,57 +1467,15 @@ model OnsTopicListResponse = {
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
   * This operation returns the basic information about topics and does not return the details of topics.
   *
-  * @param request OnsTopicListRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsTopicListResponse
- */
-async function onsTopicListWithOptions(request: OnsTopicListRequest, runtime: Util.RuntimeOptions): OnsTopicListResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.tag)) {
-    query['Tag'] = request.tag;
-  }
-  if (!Util.isUnset(request.topic)) {
-    query['Topic'] = request.topic;
-  }
-  if (!Util.isUnset(request.userId)) {
-    query['UserId'] = request.userId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsTopicList',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * This operation returns the basic information about topics and does not return the details of topics.
-  *
-  * @param request OnsTopicListRequest
-  * @return OnsTopicListResponse
  */
 async function onsTopicList(request: OnsTopicListRequest): OnsTopicListResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsTopicListWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsTopicList', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsTopicStatusRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the instance that contains the topic you want to query.', example='MQ_INST_188077086902****_BXSuW61e'),
-  topic?: string(name='Topic', description='The name of the topic that you want to query.', example='test'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance that contains the topic you want to query.', example='MQ_INST_188077086902****_BXSuW61e', position='Query'),
+  topic: string(name='Topic', description='The name of the topic that you want to query.', example='test', position='Query'),
 }
 
 model OnsTopicStatusResponseBody = {
@@ -2667,7 +1497,6 @@ For information about the definition of ready messages and ready time, see [Term
 
 model OnsTopicStatusResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsTopicStatusResponseBody(name='body'),
 }
 
@@ -2675,51 +1504,15 @@ model OnsTopicStatusResponse = {
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
   * You can determine the resource usage of a topic based on the information that is returned by this operation. The returned information includes the total number of messages in the topic and the most recent point in time when a message was published to the topic.
   *
-  * @param request OnsTopicStatusRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsTopicStatusResponse
- */
-async function onsTopicStatusWithOptions(request: OnsTopicStatusRequest, runtime: Util.RuntimeOptions): OnsTopicStatusResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.topic)) {
-    query['Topic'] = request.topic;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsTopicStatus',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * You can determine the resource usage of a topic based on the information that is returned by this operation. The returned information includes the total number of messages in the topic and the most recent point in time when a message was published to the topic.
-  *
-  * @param request OnsTopicStatusRequest
-  * @return OnsTopicStatusResponse
  */
 async function onsTopicStatus(request: OnsTopicStatusRequest): OnsTopicStatusResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsTopicStatusWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsTopicStatus', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsTopicSubDetailRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the instance that contains the topic you want to query.', example='MQ_INST_111111111111_DOxxxxxx'),
-  topic?: string(name='Topic', description='The name of the topic that you want to query.', example='test'),
+  instanceId: string(name='InstanceId', description='The ID of the instance that contains the topic you want to query.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
+  topic: string(name='Topic', description='The name of the topic that you want to query.', example='test', position='Query'),
 }
 
 model OnsTopicSubDetailResponseBody = {
@@ -2745,7 +1538,6 @@ For more information about consumption modes, see [Clustering consumption and br
 
 model OnsTopicSubDetailResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsTopicSubDetailResponseBody(name='body'),
 }
 
@@ -2753,56 +1545,20 @@ model OnsTopicSubDetailResponse = {
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
   * You can call this operation to query the online consumer groups that subscribe to a specified topic. If all consumers in a group are offline, the information about the group is not returned.
   *
-  * @param request OnsTopicSubDetailRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsTopicSubDetailResponse
- */
-async function onsTopicSubDetailWithOptions(request: OnsTopicSubDetailRequest, runtime: Util.RuntimeOptions): OnsTopicSubDetailResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.topic)) {
-    query['Topic'] = request.topic;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsTopicSubDetail',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * You can call this operation to query the online consumer groups that subscribe to a specified topic. If all consumers in a group are offline, the information about the group is not returned.
-  *
-  * @param request OnsTopicSubDetailRequest
-  * @return OnsTopicSubDetailResponse
  */
 async function onsTopicSubDetail(request: OnsTopicSubDetailRequest): OnsTopicSubDetailResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsTopicSubDetailWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsTopicSubDetail', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsTopicUpdateRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the instance to which the topic belongs.', example='MQ_INST_111111111111_DOxxxxxx'),
-  perm?: int32(name='Perm', description='The read/write mode that you want to configure for the topic. Valid values:
+  instanceId?: string(name='InstanceId', description='The ID of the instance to which the topic belongs.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
+  perm: int32(name='Perm', description='The read/write mode that you want to configure for the topic. Valid values:
 
 *   **6:** Both read and write operations are allowed.
 *   **4:** Write operations are forbidden.
-*   **2:** Read operations are forbidden.', example='6'),
-  topic?: string(name='Topic', description='The name of the topic that you want to manage.', example='test'),
+*   **2:** Read operations are forbidden.', example='6', position='Query'),
+  topic: string(name='Topic', description='The name of the topic that you want to manage.', example='test', position='Query'),
 }
 
 model OnsTopicUpdateResponseBody = {
@@ -2811,7 +1567,6 @@ model OnsTopicUpdateResponseBody = {
 
 model OnsTopicUpdateResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsTopicUpdateResponseBody(name='body'),
 }
 
@@ -2820,56 +1575,15 @@ model OnsTopicUpdateResponse = {
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise system risks may occur.
   * You can call this operation to forbid read or write operations on a specific topic.
   *
-  * @param request OnsTopicUpdateRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsTopicUpdateResponse
- */
-// Deprecated
-async function onsTopicUpdateWithOptions(request: OnsTopicUpdateRequest, runtime: Util.RuntimeOptions): OnsTopicUpdateResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.perm)) {
-    query['Perm'] = request.perm;
-  }
-  if (!Util.isUnset(request.topic)) {
-    query['Topic'] = request.topic;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsTopicUpdate',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * @deprecated
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise system risks may occur.
-  * You can call this operation to forbid read or write operations on a specific topic.
-  *
-  * @param request OnsTopicUpdateRequest
-  * @return OnsTopicUpdateResponse
  */
 // Deprecated
 async function onsTopicUpdate(request: OnsTopicUpdateRequest): OnsTopicUpdateResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsTopicUpdateWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsTopicUpdate', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsTraceGetResultRequest {
-  queryId?: string(name='QueryId', description='The ID of the task that was created to query the trace of the message.', example='272967562652883649157096685****'),
+  queryId: string(name='QueryId', description='The ID of the task that was created to query the trace of the message.', example='272967562652883649157096685****', position='Query'),
 }
 
 model OnsTraceGetResultResponseBody = {
@@ -2941,7 +1655,6 @@ model OnsTraceGetResultResponseBody = {
 
 model OnsTraceGetResultResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsTraceGetResultResponseBody(name='body'),
 }
 
@@ -2950,52 +1663,18 @@ model OnsTraceGetResultResponse = {
   * *   Before you call this operation to query the details of the trace of a message, you must create a task to query the trace of the message based on the message ID or message key and obtains the task ID. Then, you can call this operation to query the details of the message trace based on the task ID. You can call the [OnsTraceQueryByMsgId](~~59830~~) operation or the [OnsTraceQueryByMsgKey](~~59831~~) operation to create a task to query the trace of the message and obtain the task ID from the **QueryId** response parameter.
   * *   A trace query task is time-consuming. If you call this operation to query the details immediately after you create a trace query task, the results may be empty. In this case, we recommend that you try again later.
   *
-  * @param request OnsTraceGetResultRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsTraceGetResultResponse
- */
-async function onsTraceGetResultWithOptions(request: OnsTraceGetResultRequest, runtime: Util.RuntimeOptions): OnsTraceGetResultResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.queryId)) {
-    query['QueryId'] = request.queryId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsTraceGetResult',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * ## Usage notes
-  * *   Before you call this operation to query the details of the trace of a message, you must create a task to query the trace of the message based on the message ID or message key and obtains the task ID. Then, you can call this operation to query the details of the message trace based on the task ID. You can call the [OnsTraceQueryByMsgId](~~59830~~) operation or the [OnsTraceQueryByMsgKey](~~59831~~) operation to create a task to query the trace of the message and obtain the task ID from the **QueryId** response parameter.
-  * *   A trace query task is time-consuming. If you call this operation to query the details immediately after you create a trace query task, the results may be empty. In this case, we recommend that you try again later.
-  *
-  * @param request OnsTraceGetResultRequest
-  * @return OnsTraceGetResultResponse
  */
 async function onsTraceGetResult(request: OnsTraceGetResultRequest): OnsTraceGetResultResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsTraceGetResultWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsTraceGetResult', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsTraceQueryByMsgIdRequest {
-  beginTime?: long(name='BeginTime', description='The beginning of the time range to query. The value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1570852800000'),
-  endTime?: long(name='EndTime', description='The end of the time range to query. The value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1570968000000'),
-  instanceId?: string(name='InstanceId', description='The ID of the Message Queue for Apache RocketMQ instance which contains the specified topic.', example='MQ_INST_111111111111_DOxxxxxx'),
-  msgId?: string(name='MsgId', description='The ID of the message that you want to query.', example='1E05791C117818B4AAC23B1BB0CE****'),
-  topic?: string(name='Topic', description='The topic in which the message you want to query is stored.', example='test'),
+  beginTime: long(name='BeginTime', description='The beginning of the time range to query. The value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1570852800000', position='Query'),
+  endTime: long(name='EndTime', description='The end of the time range to query. The value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1570968000000', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the Message Queue for Apache RocketMQ instance which contains the specified topic.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
+  msgId: string(name='MsgId', description='The ID of the message that you want to query.', example='1E05791C117818B4AAC23B1BB0CE****', position='Query'),
+  topic: string(name='Topic', description='The topic in which the message you want to query is stored.', example='test', position='Query'),
 }
 
 model OnsTraceQueryByMsgIdResponseBody = {
@@ -3005,7 +1684,6 @@ model OnsTraceQueryByMsgIdResponseBody = {
 
 model OnsTraceQueryByMsgIdResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsTraceQueryByMsgIdResponseBody(name='body'),
 }
 
@@ -3013,63 +1691,18 @@ model OnsTraceQueryByMsgIdResponse = {
   * ## Note
   * If you want to query the trace of a message based on the message ID, you can call this operation to create a query task. After you obtain the task ID, you can call the [OnsTraceGetResult](~~59832~~) operation to query the details of the message trace based on the task ID.
   *
-  * @param request OnsTraceQueryByMsgIdRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsTraceQueryByMsgIdResponse
- */
-async function onsTraceQueryByMsgIdWithOptions(request: OnsTraceQueryByMsgIdRequest, runtime: Util.RuntimeOptions): OnsTraceQueryByMsgIdResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.beginTime)) {
-    query['BeginTime'] = request.beginTime;
-  }
-  if (!Util.isUnset(request.endTime)) {
-    query['EndTime'] = request.endTime;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.msgId)) {
-    query['MsgId'] = request.msgId;
-  }
-  if (!Util.isUnset(request.topic)) {
-    query['Topic'] = request.topic;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsTraceQueryByMsgId',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * ## Note
-  * If you want to query the trace of a message based on the message ID, you can call this operation to create a query task. After you obtain the task ID, you can call the [OnsTraceGetResult](~~59832~~) operation to query the details of the message trace based on the task ID.
-  *
-  * @param request OnsTraceQueryByMsgIdRequest
-  * @return OnsTraceQueryByMsgIdResponse
  */
 async function onsTraceQueryByMsgId(request: OnsTraceQueryByMsgIdRequest): OnsTraceQueryByMsgIdResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsTraceQueryByMsgIdWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsTraceQueryByMsgId', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsTraceQueryByMsgKeyRequest {
-  beginTime?: long(name='BeginTime', description='The beginning of the time range to query. The value of this parameter is a UNIX timestamp in milliseconds.', example='1570852800000'),
-  endTime?: long(name='EndTime', description='The end of the time range to query. The value of this parameter is a UNIX timestamp in milliseconds.', example='1570968000000'),
-  instanceId?: string(name='InstanceId', description='The ID of the Message Queue for Apache RocketMQ instance that contains the specified topic.', example='MQ_INST_111111111111_DOxxxxxx'),
-  msgKey?: string(name='MsgKey', description='The key of the messages that you want to query.', example='ORDERID_100'),
-  topic?: string(name='Topic', description='The topic that contains the messages you want to query.', example='test'),
+  beginTime: long(name='BeginTime', description='The beginning of the time range to query. The value of this parameter is a UNIX timestamp in milliseconds.', example='1570852800000', position='Query'),
+  endTime: long(name='EndTime', description='The end of the time range to query. The value of this parameter is a UNIX timestamp in milliseconds.', example='1570968000000', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the Message Queue for Apache RocketMQ instance that contains the specified topic.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
+  msgKey: string(name='MsgKey', description='The key of the messages that you want to query.', example='ORDERID_100', position='Query'),
+  topic: string(name='Topic', description='The topic that contains the messages you want to query.', example='test', position='Query'),
 }
 
 model OnsTraceQueryByMsgKeyResponseBody = {
@@ -3079,7 +1712,6 @@ model OnsTraceQueryByMsgKeyResponseBody = {
 
 model OnsTraceQueryByMsgKeyResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsTraceQueryByMsgKeyResponseBody(name='body'),
 }
 
@@ -3087,68 +1719,23 @@ model OnsTraceQueryByMsgKeyResponse = {
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
   * If you obtain the key of a message and want to query the trace of the message, you can call this operation to create a query task. After you obtain the task ID, you can call the OnsTraceGetResult operation to query the details of the message trace based on the task ID.
   *
-  * @param request OnsTraceQueryByMsgKeyRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsTraceQueryByMsgKeyResponse
- */
-async function onsTraceQueryByMsgKeyWithOptions(request: OnsTraceQueryByMsgKeyRequest, runtime: Util.RuntimeOptions): OnsTraceQueryByMsgKeyResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.beginTime)) {
-    query['BeginTime'] = request.beginTime;
-  }
-  if (!Util.isUnset(request.endTime)) {
-    query['EndTime'] = request.endTime;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.msgKey)) {
-    query['MsgKey'] = request.msgKey;
-  }
-  if (!Util.isUnset(request.topic)) {
-    query['Topic'] = request.topic;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsTraceQueryByMsgKey',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * If you obtain the key of a message and want to query the trace of the message, you can call this operation to create a query task. After you obtain the task ID, you can call the OnsTraceGetResult operation to query the details of the message trace based on the task ID.
-  *
-  * @param request OnsTraceQueryByMsgKeyRequest
-  * @return OnsTraceQueryByMsgKeyResponse
  */
 async function onsTraceQueryByMsgKey(request: OnsTraceQueryByMsgKeyRequest): OnsTraceQueryByMsgKeyResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsTraceQueryByMsgKeyWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsTraceQueryByMsgKey', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsTrendGroupOutputTpsRequest {
-  beginTime?: long(name='BeginTime', description='The beginning of the time range to query. The value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1570852800000'),
-  endTime?: long(name='EndTime', description='The end of the time range to query. The value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1570868400000'),
-  groupId?: string(name='GroupId', description='The ID of the consumer group that you want to query.', example='GID_test'),
-  instanceId?: string(name='InstanceId', description='The ID of the Message Queue for Apache RocketMQ instance which contains the specified consumer group.', example='MQ_INST_111111111111_DOxxxxxx'),
-  period?: long(name='Period', description='The sampling period. Unit: minutes. Valid values: 1, 5, and 10.', example='10'),
-  topic?: string(name='Topic', description='The name of the topic that you want to query.', example='test'),
-  type?: int32(name='Type', description='The type of information that you want to query. Valid values:
+  beginTime: long(name='BeginTime', description='The beginning of the time range to query. The value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1570852800000', position='Query'),
+  endTime: long(name='EndTime', description='The end of the time range to query. The value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1570868400000', position='Query'),
+  groupId: string(name='GroupId', description='The ID of the consumer group that you want to query.', example='GID_test', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the Message Queue for Apache RocketMQ instance which contains the specified consumer group.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
+  period?: long(name='Period', description='The sampling period. Unit: minutes. Valid values: 1, 5, and 10.', example='10', position='Query'),
+  topic: string(name='Topic', description='The name of the topic that you want to query.', example='test', position='Query'),
+  type: int32(name='Type', description='The type of information that you want to query. Valid values:
 
 *   **0**: the number of messages that are consumed during each sampling period.
-*   **1**: the TPS for message consumption during each sampling period.', example='0'),
+*   **1**: the TPS for message consumption during each sampling period.', example='0', position='Query'),
 }
 
 model OnsTrendGroupOutputTpsResponseBody = {
@@ -3162,15 +1749,14 @@ model OnsTrendGroupOutputTpsResponseBody = {
     ](name='StatsDataDo')
     }(name='Records', description='The data set that is returned based on sampling period.'),
     title?: string(name='Title', description='The name of the table that stores the data.', example='MQ_INST_111111111111_DOxxxxxx%test@MQ_INST_111111111111_DOxxxxxx%GID_test trend of received messages'),
-    XUnit?: string(name='XUnit', description='The unit of the timestamp. Unit: milliseconds.', example='time'),
-    YUnit?: string(name='YUnit', description='The unit of the value of the Y parameter.', example='msg'),
+    xUnit?: string(name='XUnit', description='The unit of the timestamp. Unit: milliseconds.', example='time'),
+    yUnit?: string(name='YUnit', description='The unit of the value of the Y parameter.', example='msg'),
   }(name='Data', description='The data that is returned.'),
   requestId?: string(name='RequestId', description='The ID of the request. The system generates a unique ID for each request. You can troubleshoot issues based on the request ID.', example='CE57AEDC-8FD2-43ED-8E3B-1F878077****'),
 }
 
 model OnsTrendGroupOutputTpsResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsTrendGroupOutputTpsResponseBody(name='body'),
 }
 
@@ -3181,76 +1767,22 @@ model OnsTrendGroupOutputTpsResponse = {
   * *   The transactions per second (TPS) for message consumption during each sampling period
   * >  If your application publishes a small number of messages and does not publish messages at a specific interval, we recommend that you query the number of messages that are consumed during each sampling period because the statistics of TPS may not show a clear change trend.
   *
-  * @param request OnsTrendGroupOutputTpsRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsTrendGroupOutputTpsResponse
- */
-async function onsTrendGroupOutputTpsWithOptions(request: OnsTrendGroupOutputTpsRequest, runtime: Util.RuntimeOptions): OnsTrendGroupOutputTpsResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.beginTime)) {
-    query['BeginTime'] = request.beginTime;
-  }
-  if (!Util.isUnset(request.endTime)) {
-    query['EndTime'] = request.endTime;
-  }
-  if (!Util.isUnset(request.groupId)) {
-    query['GroupId'] = request.groupId;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.period)) {
-    query['Period'] = request.period;
-  }
-  if (!Util.isUnset(request.topic)) {
-    query['Topic'] = request.topic;
-  }
-  if (!Util.isUnset(request.type)) {
-    query['Type'] = request.type;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsTrendGroupOutputTps',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * ## Note
-  * You can call this operation to query the following statistics that are collected in the production environment:
-  * *   The number of messages that are consumed during each sampling period
-  * *   The transactions per second (TPS) for message consumption during each sampling period
-  * >  If your application publishes a small number of messages and does not publish messages at a specific interval, we recommend that you query the number of messages that are consumed during each sampling period because the statistics of TPS may not show a clear change trend.
-  *
-  * @param request OnsTrendGroupOutputTpsRequest
-  * @return OnsTrendGroupOutputTpsResponse
  */
 async function onsTrendGroupOutputTps(request: OnsTrendGroupOutputTpsRequest): OnsTrendGroupOutputTpsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsTrendGroupOutputTpsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsTrendGroupOutputTps', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OnsTrendTopicInputTpsRequest {
-  beginTime?: long(name='BeginTime', description='The beginning of the time range to query. The value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1570852800000'),
-  endTime?: long(name='EndTime', description='The end of the time range to query. The value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1570868400000'),
-  instanceId?: string(name='InstanceId', description='The ID of the Message Queue for Apache RocketMQ instance which contains the topic you want to query.', example='MQ_INST_111111111111_DOxxxxxx'),
-  period?: long(name='Period', description='The sampling period. Unit: minutes. Valid values: 1, 5, and 10.', example='10'),
-  topic?: string(name='Topic', description='The name of the topic that you want to query.', example='test'),
-  type?: int32(name='Type', description='The type of information that you want to query. Valid values:
+  beginTime: long(name='BeginTime', description='The beginning of the time range to query. The value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1570852800000', position='Query'),
+  endTime: long(name='EndTime', description='The end of the time range to query. The value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1570868400000', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the Message Queue for Apache RocketMQ instance which contains the topic you want to query.', example='MQ_INST_111111111111_DOxxxxxx', position='Query'),
+  period?: long(name='Period', description='The sampling period. Unit: minutes. Valid values: 1, 5, and 10.', example='10', position='Query'),
+  topic: string(name='Topic', description='The name of the topic that you want to query.', example='test', position='Query'),
+  type: int32(name='Type', description='The type of information that you want to query. Valid values:
 
 *   **0**: the number of the messages that are published to the specified topic during each sampling period.
-*   **1**: the TPS for message publishing to the specified topic during each sampling period.', example='0'),
+*   **1**: the TPS for message publishing to the specified topic during each sampling period.', example='0', position='Query'),
 }
 
 model OnsTrendTopicInputTpsResponseBody = {
@@ -3264,15 +1796,14 @@ model OnsTrendTopicInputTpsResponseBody = {
     ](name='StatsDataDo')
     }(name='Records', description='The data set that is returned based on each sampling period.'),
     title?: string(name='Title', description='The name of the table that stores the data.', example='MQ_INST_111111111111_DOxxxxxx%test trend of received messages'),
-    XUnit?: string(name='XUnit', description='The unit of the timestamp. Unit: milliseconds.', example='time'),
-    YUnit?: string(name='YUnit', description='The unit of the value of the Y parameter.', example='msg'),
+    xUnit?: string(name='XUnit', description='The unit of the timestamp. Unit: milliseconds.', example='time'),
+    yUnit?: string(name='YUnit', description='The unit of the value of the Y parameter.', example='msg'),
   }(name='Data', description='The data that is returned.'),
   requestId?: string(name='RequestId', description='The ID of the request. The system generates a unique ID for each request. You can troubleshoot issues based on the request ID.', example='E213AD8A-0730-4B3D-A35A-340DA47D****'),
 }
 
 model OnsTrendTopicInputTpsResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OnsTrendTopicInputTpsResponseBody(name='body'),
 }
 
@@ -3281,59 +1812,13 @@ model OnsTrendTopicInputTpsResponse = {
   * You can call this operation to query the statistics of messages that are published to a specified topic in the production environment. You can obtain the number of messages that are published to the topic or the transactions per second (TPS) for message publishing during each sampling period within a specified time range.
   * >  If your application publishes a small number of messages and does not publish messages at a specific interval, we recommend that you query the number of messages that are published to the topic during each sampling period because the statistics of TPS may not show a clear change trend.
   *
-  * @param request OnsTrendTopicInputTpsRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OnsTrendTopicInputTpsResponse
- */
-async function onsTrendTopicInputTpsWithOptions(request: OnsTrendTopicInputTpsRequest, runtime: Util.RuntimeOptions): OnsTrendTopicInputTpsResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.beginTime)) {
-    query['BeginTime'] = request.beginTime;
-  }
-  if (!Util.isUnset(request.endTime)) {
-    query['EndTime'] = request.endTime;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.period)) {
-    query['Period'] = request.period;
-  }
-  if (!Util.isUnset(request.topic)) {
-    query['Topic'] = request.topic;
-  }
-  if (!Util.isUnset(request.type)) {
-    query['Type'] = request.type;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OnsTrendTopicInputTps',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * ## Note
-  * You can call this operation to query the statistics of messages that are published to a specified topic in the production environment. You can obtain the number of messages that are published to the topic or the transactions per second (TPS) for message publishing during each sampling period within a specified time range.
-  * >  If your application publishes a small number of messages and does not publish messages at a specific interval, we recommend that you query the number of messages that are published to the topic during each sampling period because the statistics of TPS may not show a clear change trend.
-  *
-  * @param request OnsTrendTopicInputTpsRequest
-  * @return OnsTrendTopicInputTpsResponse
  */
 async function onsTrendTopicInputTps(request: OnsTrendTopicInputTpsRequest): OnsTrendTopicInputTpsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return onsTrendTopicInputTpsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OnsTrendTopicInputTps', 'POST', '/', 'json', false, 'json', request);
+}
+
+model OpenOnsServiceRequest {
 }
 
 model OpenOnsServiceResponseBody = {
@@ -3343,7 +1828,6 @@ model OpenOnsServiceResponseBody = {
 
 model OpenOnsServiceResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: OpenOnsServiceResponseBody(name='body'),
 }
 
@@ -3352,62 +1836,36 @@ model OpenOnsServiceResponse = {
   * You can call this operation when you use Message Queue for Apache RocketMQ for the first time. You can use Message Queue for Apache RocketMQ only after this service is activated.
   * The Message Queue for Apache RocketMQ service can be activated only in the China (Hangzhou) region. Service activation is not billed.
   *
-  * @param request OpenOnsServiceRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return OpenOnsServiceResponse
  */
-async function openOnsServiceWithOptions(runtime: Util.RuntimeOptions): OpenOnsServiceResponse {
-  var req = new OpenApi.OpenApiRequest{};
-  var params = new OpenApi.Params{
-    action = 'OpenOnsService',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * You can call this operation when you use Message Queue for Apache RocketMQ for the first time. You can use Message Queue for Apache RocketMQ only after this service is activated.
-  * The Message Queue for Apache RocketMQ service can be activated only in the China (Hangzhou) region. Service activation is not billed.
-  *
-  * @return OpenOnsServiceResponse
- */
-async function openOnsService(): OpenOnsServiceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return openOnsServiceWithOptions(runtime);
+async function openOnsService(request: OpenOnsServiceRequest): OpenOnsServiceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OpenOnsService', 'POST', '/', 'json', false, 'json', request);
 }
 
 model TagResourcesRequest {
   instanceId?: string(name='InstanceId', description='The ID of the Message Queue for Apache RocketMQ instance which contains the resource to which you want to attach tags.
 
-> : This parameter is required when you attach tags to a topic or a group.', example='MQ_INST_188077086902****_BXSuW61e'),
-  resourceId?: [ string ](name='ResourceId', description='The list of resource IDs.', example='TopicA'),
-  resourceType?: string(name='ResourceType', description='The type of the resource to which you want to attach tags. Valid values:
+> : This parameter is required when you attach tags to a topic or a group.', example='MQ_INST_188077086902****_BXSuW61e', position='Query'),
+  resourceId: [ string ](name='ResourceId', description='The list of resource IDs.', example='TopicA', position='Query'),
+  resourceType: string(name='ResourceType', description='The type of the resource to which you want to attach tags. Valid values:
 
 *   **INSTANCE**
 *   **TOPIC**
-*   **GROUP**', example='TOPIC'),
-  tag?: [ 
+*   **GROUP**', example='TOPIC', position='Query'),
+  tag: [ 
     {
-      key?: string(name='Key', description='The key of the tag that you want to attach to the specified resource. If you configure this parameter, you must also configure the **Tag.N.Key** parameter.****
+      key: string(name='Key', description='The key of the tag that you want to attach to the specified resource. If you configure this parameter, you must also configure the **Tag.N.Key** parameter.****
 
 *   The value of N can be an integer value from 1 to 20.
 *   The value of this parameter cannot be an empty string.
 *   The tag key can be up to 128 characters in length and cannot start with `acs:` or `aliyun`. It cannot contain `http://` or `https://`.', example='FinanceDept'),
-      value?: string(name='Value', description='The value of the tag that you want to attach to the specified resource. If you configure this parameter, you must also configure the **Tag.N.Key** parameter.****
+      value: string(name='Value', description='The value of the tag that you want to attach to the specified resource. If you configure this parameter, you must also configure the **Tag.N.Key** parameter.****
 
 *   The value of N can be an integer value from 1 to 20.
 *   The value of this parameter can be an empty string.
 *   The tag key can be up to 128 characters in length and cannot start with `acs:` or `aliyun`. It cannot contain `http://` or `https://`.', example='FinanceJoshua'),
     }
-  ](name='Tag', description='The list of tags that are attached to the resources.'),
+  ](name='Tag', description='The list of tags that are attached to the resources.', position='Query'),
 }
 
 model TagResourcesResponseBody = {
@@ -3416,7 +1874,6 @@ model TagResourcesResponseBody = {
 
 model TagResourcesResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: TagResourcesResponseBody(name='body'),
 }
 
@@ -3424,64 +1881,22 @@ model TagResourcesResponse = {
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
   * You can call this operation to attach tags to a source. You can use tags to classify resources in Message Queue for Apache RocketMQ. This can help you aggregate and search resources in an efficient manner.
   *
-  * @param request TagResourcesRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return TagResourcesResponse
- */
-async function tagResourcesWithOptions(request: TagResourcesRequest, runtime: Util.RuntimeOptions): TagResourcesResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.resourceId)) {
-    query['ResourceId'] = request.resourceId;
-  }
-  if (!Util.isUnset(request.resourceType)) {
-    query['ResourceType'] = request.resourceType;
-  }
-  if (!Util.isUnset(request.tag)) {
-    query['Tag'] = request.tag;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'TagResources',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  * You can call this operation to attach tags to a source. You can use tags to classify resources in Message Queue for Apache RocketMQ. This can help you aggregate and search resources in an efficient manner.
-  *
-  * @param request TagResourcesRequest
-  * @return TagResourcesResponse
  */
 async function tagResources(request: TagResourcesRequest): TagResourcesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return tagResourcesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'TagResources', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UntagResourcesRequest {
-  all?: boolean(name='All', description='Specifies whether to remove all tags that are attached to the specified resource. This parameter takes effect only when the **TagKey.N** parameter is not configured. Default value: **false**.', example='false'),
-  instanceId?: string(name='InstanceId', description='This parameter is required when you detach tags from a topic or a group.', example='MQ_INST_188077086902****_BX4jvZZG'),
-  resourceId?: [ string ](name='ResourceId', description='The list of resource IDs.', example='TopicA'),
-  resourceType?: string(name='ResourceType', description='The type of the resources from which you want to detach tags. Valid values:
+  all?: boolean(name='All', description='Specifies whether to remove all tags that are attached to the specified resource. This parameter takes effect only when the **TagKey.N** parameter is not configured. Default value: **false**.', example='false', position='Query'),
+  instanceId?: string(name='InstanceId', description='This parameter is required when you detach tags from a topic or a group.', example='MQ_INST_188077086902****_BX4jvZZG', position='Query'),
+  resourceId: [ string ](name='ResourceId', description='The list of resource IDs.', example='TopicA', position='Query'),
+  resourceType: string(name='ResourceType', description='The type of the resources from which you want to detach tags. Valid values:
 
 *   **INSTANCE**
 *   **TOPIC**
-*   **GROUP**', example='TOPIC'),
-  tagKey?: [ string ](name='TagKey', description='The tag keys of the resource.', example='CartService'),
+*   **GROUP**', example='TOPIC', position='Query'),
+  tagKey?: [ string ](name='TagKey', description='The tag keys of the resource.', example='CartService', position='Query'),
 }
 
 model UntagResourcesResponseBody = {
@@ -3490,60 +1905,15 @@ model UntagResourcesResponseBody = {
 
 model UntagResourcesResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: UntagResourcesResponseBody(name='body'),
 }
 
 /**
   * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
   *
-  * @param request UntagResourcesRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return UntagResourcesResponse
- */
-async function untagResourcesWithOptions(request: UntagResourcesRequest, runtime: Util.RuntimeOptions): UntagResourcesResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.all)) {
-    query['All'] = request.all;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.resourceId)) {
-    query['ResourceId'] = request.resourceId;
-  }
-  if (!Util.isUnset(request.resourceType)) {
-    query['ResourceType'] = request.resourceType;
-  }
-  if (!Util.isUnset(request.tagKey)) {
-    query['TagKey'] = request.tagKey;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'UntagResources',
-    version = '2019-02-14',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * > : The API operations that are provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
-  *
-  * @param request UntagResourcesRequest
-  * @return UntagResourcesResponse
  */
 async function untagResources(request: UntagResourcesRequest): UntagResourcesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return untagResourcesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UntagResources', 'POST', '/', 'json', false, 'json', request);
 }
 
