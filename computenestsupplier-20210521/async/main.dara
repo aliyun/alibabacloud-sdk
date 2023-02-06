@@ -1,35 +1,37 @@
 /**
  *
  */
-import Util;
-import OpenApi;
-import OpenApiUtil;
-import EndpointUtil;
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
 
-extends OpenApi;
-
-
-init(config: OpenApi.Config){
-  super(config);
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'ComputeNestSupplier';
+  @version = '2021-05-21';
   @endpointRule = 'regional';
-  
-  checkConfig(config);
-  @endpoint = getEndpoint('computenestsupplier', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+  @endpointMap = {
+  };
 }
 
-function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
-    return endpoint;
-  }
-  
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
-    return endpointMap[regionId];
-  }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+function close(): void {
+  @handler.close();
 }
 
 model CreateArtifactRequest {
-  artifactId?: string(name='ArtifactId', example='artifact-eea08d1e2d3a43aexxxx'),
+  artifactId?: string(name='ArtifactId', example='artifact-eea08d1e2d3a43aexxxx', position='Query'),
   artifactProperty?: {
     commodityCode?: string(name='CommodityCode', example='cmjj00xxxx'),
     commodityVersion?: string(name='CommodityVersion', example='V1.0'),
@@ -38,22 +40,12 @@ model CreateArtifactRequest {
     regionId?: string(name='RegionId', example='cn-hangzhou'),
     scriptMetadata?: string(name='ScriptMetadata', example='{"ScriptMetadata":"{\\"CommandType\\":\\"RunShellScript\\",\\"Platform\\":\\"Linux\\",\\"Script\\":\\"ls\\"}"}'),
     url?: string(name='Url', example='https://service-info-private.oss-cn-hangzhou.aliyuncs.com/1309208528xxxxxx/template/2e1ce8fc-xxxx-481c-9e8e-789ba9db487d.json'),
-  }(name='ArtifactProperty'),
-  artifactType?: string(name='ArtifactType', example='EcsImage'),
-  description?: string(name='Description'),
-  name?: string(name='Name'),
-  supportRegionIds?: [ string ](name='SupportRegionIds'),
-  versionName?: string(name='VersionName', example='v1'),
-}
-
-model CreateArtifactShrinkRequest {
-  artifactId?: string(name='ArtifactId', example='artifact-eea08d1e2d3a43aexxxx'),
-  artifactPropertyShrink?: string(name='ArtifactProperty'),
-  artifactType?: string(name='ArtifactType', example='EcsImage'),
-  description?: string(name='Description'),
-  name?: string(name='Name'),
-  supportRegionIds?: [ string ](name='SupportRegionIds'),
-  versionName?: string(name='VersionName', example='v1'),
+  }(name='ArtifactProperty', shrink='json', position='Query'),
+  artifactType: string(name='ArtifactType', example='EcsImage', position='Query'),
+  description?: string(name='Description', position='Query'),
+  name: string(name='Name', position='Query'),
+  supportRegionIds?: [ string ](name='SupportRegionIds', position='Query'),
+  versionName: string(name='VersionName', example='v1', position='Query'),
 }
 
 model CreateArtifactResponseBody = {
@@ -77,64 +69,17 @@ model CreateArtifactResponseBody = {
 
 model CreateArtifactResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: CreateArtifactResponseBody(name='body'),
 }
 
-async function createArtifactWithOptions(tmpReq: CreateArtifactRequest, runtime: Util.RuntimeOptions): CreateArtifactResponse {
-  Util.validateModel(tmpReq);
-  var request = new CreateArtifactShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.artifactProperty)) {
-    request.artifactPropertyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.artifactProperty, 'ArtifactProperty', 'json');
-  }
-  var query = {};
-  if (!Util.isUnset(request.artifactId)) {
-    query['ArtifactId'] = request.artifactId;
-  }
-  if (!Util.isUnset(request.artifactPropertyShrink)) {
-    query['ArtifactProperty'] = request.artifactPropertyShrink;
-  }
-  if (!Util.isUnset(request.artifactType)) {
-    query['ArtifactType'] = request.artifactType;
-  }
-  if (!Util.isUnset(request.description)) {
-    query['Description'] = request.description;
-  }
-  if (!Util.isUnset(request.name)) {
-    query['Name'] = request.name;
-  }
-  if (!Util.isUnset(request.supportRegionIds)) {
-    query['SupportRegionIds'] = request.supportRegionIds;
-  }
-  if (!Util.isUnset(request.versionName)) {
-    query['VersionName'] = request.versionName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'CreateArtifact',
-    version = '2021-05-21',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function createArtifact(request: CreateArtifactRequest): CreateArtifactResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createArtifactWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateArtifact', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteArtifactRequest {
-  artifactId?: string(name='ArtifactId', example='artifact-eea08d1e2d3a43aexxxx'),
-  artifactVersion?: string(name='ArtifactVersion', example='2'),
+  artifactId: string(name='ArtifactId', example='artifact-eea08d1e2d3a43aexxxx', position='Query'),
+  artifactVersion?: string(name='ArtifactVersion', example='2', position='Query'),
 }
 
 model DeleteArtifactResponseBody = {
@@ -143,44 +88,17 @@ model DeleteArtifactResponseBody = {
 
 model DeleteArtifactResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: DeleteArtifactResponseBody(name='body'),
 }
 
-async function deleteArtifactWithOptions(request: DeleteArtifactRequest, runtime: Util.RuntimeOptions): DeleteArtifactResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.artifactId)) {
-    query['ArtifactId'] = request.artifactId;
-  }
-  if (!Util.isUnset(request.artifactVersion)) {
-    query['ArtifactVersion'] = request.artifactVersion;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'DeleteArtifact',
-    version = '2021-05-21',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function deleteArtifact(request: DeleteArtifactRequest): DeleteArtifactResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteArtifactWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteArtifact', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetArtifactRequest {
-  artifactId?: string(name='ArtifactId', example='artifact-eea08d1e2d3a43aexxxx'),
-  artifactVersion?: string(name='ArtifactVersion', example='1'),
+  artifactId: string(name='ArtifactId', example='artifact-eea08d1e2d3a43aexxxx', position='Query'),
+  artifactVersion?: string(name='ArtifactVersion', example='1', position='Query'),
 }
 
 model GetArtifactResponseBody = {
@@ -201,44 +119,17 @@ model GetArtifactResponseBody = {
 
 model GetArtifactResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: GetArtifactResponseBody(name='body'),
 }
 
-async function getArtifactWithOptions(request: GetArtifactRequest, runtime: Util.RuntimeOptions): GetArtifactResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.artifactId)) {
-    query['ArtifactId'] = request.artifactId;
-  }
-  if (!Util.isUnset(request.artifactVersion)) {
-    query['ArtifactVersion'] = request.artifactVersion;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetArtifact',
-    version = '2021-05-21',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function getArtifact(request: GetArtifactRequest): GetArtifactResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getArtifactWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetArtifact', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetArtifactRepositoryCredentialsRequest {
-  artifactType?: string(name='ArtifactType', example='File'),
-  deployRegionId?: string(name='DeployRegionId', example='cn-hangzhou'),
+  artifactType: string(name='ArtifactType', example='File', position='Query'),
+  deployRegionId?: string(name='DeployRegionId', example='cn-hangzhou', position='Query'),
 }
 
 model GetArtifactRepositoryCredentialsResponseBody = {
@@ -262,44 +153,17 @@ model GetArtifactRepositoryCredentialsResponseBody = {
 
 model GetArtifactRepositoryCredentialsResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: GetArtifactRepositoryCredentialsResponseBody(name='body'),
 }
 
-async function getArtifactRepositoryCredentialsWithOptions(request: GetArtifactRepositoryCredentialsRequest, runtime: Util.RuntimeOptions): GetArtifactRepositoryCredentialsResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.artifactType)) {
-    query['ArtifactType'] = request.artifactType;
-  }
-  if (!Util.isUnset(request.deployRegionId)) {
-    query['DeployRegionId'] = request.deployRegionId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetArtifactRepositoryCredentials',
-    version = '2021-05-21',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function getArtifactRepositoryCredentials(request: GetArtifactRepositoryCredentialsRequest): GetArtifactRepositoryCredentialsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getArtifactRepositoryCredentialsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetArtifactRepositoryCredentials', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetServiceInstanceRequest {
-  regionId?: string(name='RegionId', example='cn-hangzhou'),
-  serviceInstanceId?: string(name='ServiceInstanceId', example='si-d6ab3a63ccbb4b17****'),
+  regionId: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  serviceInstanceId: string(name='ServiceInstanceId', example='si-d6ab3a63ccbb4b17****', position='Query'),
 }
 
 model GetServiceInstanceResponseBody = {
@@ -396,45 +260,18 @@ model GetServiceInstanceResponseBody = {
 
 model GetServiceInstanceResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: GetServiceInstanceResponseBody(name='body'),
 }
 
-async function getServiceInstanceWithOptions(request: GetServiceInstanceRequest, runtime: Util.RuntimeOptions): GetServiceInstanceResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.regionId)) {
-    query['RegionId'] = request.regionId;
-  }
-  if (!Util.isUnset(request.serviceInstanceId)) {
-    query['ServiceInstanceId'] = request.serviceInstanceId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetServiceInstance',
-    version = '2021-05-21',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function getServiceInstance(request: GetServiceInstanceRequest): GetServiceInstanceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getServiceInstanceWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetServiceInstance', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListArtifactVersionsRequest {
-  artifactId?: string(name='ArtifactId', example='artifact-eea08d1e2d3a43aexxxx'),
-  maxResult?: string(name='MaxResult', example='20'),
-  nextToken?: string(name='NextToken', example='AAAAAc3HCuYhJi/wvpk4xOr0VLbfVwapgMwCN1wYzPVzLbItEdB0uWSY7AGnM3qCgm/YnjuEfwSnMwiMkcUoI0hRQzE='),
+  artifactId: string(name='ArtifactId', example='artifact-eea08d1e2d3a43aexxxx', position='Query'),
+  maxResult?: string(name='MaxResult', example='20', position='Query'),
+  nextToken?: string(name='NextToken', example='AAAAAc3HCuYhJi/wvpk4xOr0VLbfVwapgMwCN1wYzPVzLbItEdB0uWSY7AGnM3qCgm/YnjuEfwSnMwiMkcUoI0hRQzE=', position='Query'),
 }
 
 model ListArtifactVersionsResponseBody = {
@@ -467,42 +304,12 @@ model ListArtifactVersionsResponseBody = {
 
 model ListArtifactVersionsResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: ListArtifactVersionsResponseBody(name='body'),
 }
 
-async function listArtifactVersionsWithOptions(request: ListArtifactVersionsRequest, runtime: Util.RuntimeOptions): ListArtifactVersionsResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.artifactId)) {
-    query['ArtifactId'] = request.artifactId;
-  }
-  if (!Util.isUnset(request.maxResult)) {
-    query['MaxResult'] = request.maxResult;
-  }
-  if (!Util.isUnset(request.nextToken)) {
-    query['NextToken'] = request.nextToken;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListArtifactVersions',
-    version = '2021-05-21',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listArtifactVersions(request: ListArtifactVersionsRequest): ListArtifactVersionsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listArtifactVersionsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListArtifactVersions', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListArtifactsRequest {
@@ -511,9 +318,9 @@ model ListArtifactsRequest {
       name?: string(name='Name', example='ArtifactType'),
       values?: [ string ](name='Values'),
     }
-  ](name='Filter'),
-  maxResults?: string(name='MaxResults', example='20'),
-  nextToken?: string(name='NextToken', example='AAAAAc3HCuYhJi/wvpk4xOr0VLbfVwapgMwCN1wYzPVzLbItEdB0uWSY7AGnM3qCgm/YnjuEfwSnMwiMkcUoI0hRQzE='),
+  ](name='Filter', position='Query'),
+  maxResults?: string(name='MaxResults', example='20', position='Query'),
+  nextToken?: string(name='NextToken', example='AAAAAc3HCuYhJi/wvpk4xOr0VLbfVwapgMwCN1wYzPVzLbItEdB0uWSY7AGnM3qCgm/YnjuEfwSnMwiMkcUoI0hRQzE=', position='Query'),
 }
 
 model ListArtifactsResponseBody = {
@@ -536,42 +343,12 @@ model ListArtifactsResponseBody = {
 
 model ListArtifactsResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: ListArtifactsResponseBody(name='body'),
 }
 
-async function listArtifactsWithOptions(request: ListArtifactsRequest, runtime: Util.RuntimeOptions): ListArtifactsResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.filter)) {
-    query['Filter'] = request.filter;
-  }
-  if (!Util.isUnset(request.maxResults)) {
-    query['MaxResults'] = request.maxResults;
-  }
-  if (!Util.isUnset(request.nextToken)) {
-    query['NextToken'] = request.nextToken;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListArtifacts',
-    version = '2021-05-21',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listArtifacts(request: ListArtifactsRequest): ListArtifactsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listArtifactsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListArtifacts', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListServiceInstancesRequest {
@@ -580,16 +357,16 @@ model ListServiceInstancesRequest {
       name?: string(name='Name', example='ServiceInstanceId'),
       value?: [ string ](name='Value'),
     }
-  ](name='Filter'),
-  maxResults?: string(name='MaxResults', example='10'),
-  nextToken?: string(name='NextToken', example='BBBAAfu+XtuBE55iRLHEYYuojI4='),
-  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  ](name='Filter', position='Query'),
+  maxResults?: string(name='MaxResults', example='10', position='Query'),
+  nextToken?: string(name='NextToken', example='BBBAAfu+XtuBE55iRLHEYYuojI4=', position='Query'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
   tag?: [ 
     {
       key?: string(name='Key', example='key1'),
       value?: string(name='Value', example='value1'),
     }
-  ](name='Tag'),
+  ](name='Tag', position='Query'),
 }
 
 model ListServiceInstancesResponseBody = {
@@ -650,48 +427,12 @@ model ListServiceInstancesResponseBody = {
 
 model ListServiceInstancesResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: ListServiceInstancesResponseBody(name='body'),
 }
 
-async function listServiceInstancesWithOptions(request: ListServiceInstancesRequest, runtime: Util.RuntimeOptions): ListServiceInstancesResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.filter)) {
-    query['Filter'] = request.filter;
-  }
-  if (!Util.isUnset(request.maxResults)) {
-    query['MaxResults'] = request.maxResults;
-  }
-  if (!Util.isUnset(request.nextToken)) {
-    query['NextToken'] = request.nextToken;
-  }
-  if (!Util.isUnset(request.regionId)) {
-    query['RegionId'] = request.regionId;
-  }
-  if (!Util.isUnset(request.tag)) {
-    query['Tag'] = request.tag;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListServiceInstances',
-    version = '2021-05-21',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listServiceInstances(request: ListServiceInstancesRequest): ListServiceInstancesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listServiceInstancesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListServiceInstances', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListServiceUsagesRequest {
@@ -700,15 +441,15 @@ model ListServiceUsagesRequest {
       name?: string(name='Name', example='ServiceId'),
       value?: [ string ](name='Value'),
     }
-  ](name='Filter'),
-  maxResults?: int32(name='MaxResults', example='20'),
-  nextToken?: string(name='NextToken', example='AAAAAWns8w4MmhzeptXVRG0PUEU='),
+  ](name='Filter', position='Query'),
+  maxResults?: int32(name='MaxResults', example='20', position='Query'),
+  nextToken?: string(name='NextToken', example='AAAAAWns8w4MmhzeptXVRG0PUEU=', position='Query'),
 }
 
 model ListServiceUsagesResponseBody = {
   maxResults?: int32(name='MaxResults', example='20'),
-  nextToken?: string(name='NextToken', example='AAAAAYChudnQUoBH+mGWFpb6oP0='),
-  requestId?: string(name='RequestId', example='18AD0960-A9FE-1AC8-ADF8-22131Fxxxxxx'),
+  nextToken?: string(name='NextToken', description='NextToken', example='AAAAAYChudnQUoBH+mGWFpb6oP0='),
+  requestId?: string(name='RequestId', description='Id of the request', example='18AD0960-A9FE-1AC8-ADF8-22131Fxxxxxx'),
   serviceUsages?: [ 
     {
       comments?: string(name='Comments'),
@@ -736,46 +477,16 @@ model ListServiceUsagesResponseBody = {
 
 model ListServiceUsagesResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: ListServiceUsagesResponseBody(name='body'),
 }
 
-async function listServiceUsagesWithOptions(request: ListServiceUsagesRequest, runtime: Util.RuntimeOptions): ListServiceUsagesResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.filter)) {
-    query['Filter'] = request.filter;
-  }
-  if (!Util.isUnset(request.maxResults)) {
-    query['MaxResults'] = request.maxResults;
-  }
-  if (!Util.isUnset(request.nextToken)) {
-    query['NextToken'] = request.nextToken;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListServiceUsages',
-    version = '2021-05-21',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listServiceUsages(request: ListServiceUsagesRequest): ListServiceUsagesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listServiceUsagesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListServiceUsages', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ReleaseArtifactRequest {
-  artifactId?: string(name='ArtifactId', example='artifact-9feded91880e4c78xxxx'),
+  artifactId: string(name='ArtifactId', example='artifact-9feded91880e4c78xxxx', position='Query'),
 }
 
 model ReleaseArtifactResponseBody = {
@@ -792,41 +503,17 @@ model ReleaseArtifactResponseBody = {
 
 model ReleaseArtifactResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: ReleaseArtifactResponseBody(name='body'),
 }
 
-async function releaseArtifactWithOptions(request: ReleaseArtifactRequest, runtime: Util.RuntimeOptions): ReleaseArtifactResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.artifactId)) {
-    query['ArtifactId'] = request.artifactId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ReleaseArtifact',
-    version = '2021-05-21',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function releaseArtifact(request: ReleaseArtifactRequest): ReleaseArtifactResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return releaseArtifactWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ReleaseArtifact', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateArtifactRequest {
-  artifactId?: string(name='ArtifactId', example='artifact-eea08d1e2d3a43aexxxx'),
-  artifactProperty?: {
+  artifactId: string(name='ArtifactId', example='artifact-eea08d1e2d3a43aexxxx', position='Query'),
+  artifactProperty: {
     commodityCode?: string(name='CommodityCode', example='cmjj00xxxx'),
     commodityVersion?: string(name='CommodityVersion', example='V1.0'),
     fileScriptMetadata?: string(name='FileScriptMetadata', example='{\\"WorkDir\\":\\"/root\\",\\"CommandType\\":\\"RunShellScript\\",\\"Platform\\":\\"Linux\\",\\"Script\\":\\"echo hello\\"}'),
@@ -834,18 +521,10 @@ model UpdateArtifactRequest {
     regionId?: string(name='RegionId', example='cn-hangzhou'),
     scriptMetadata?: string(name='ScriptMetadata', example='{"ScriptMetadata":"{\\"CommandType\\":\\"RunShellScript\\",\\"Platform\\":\\"Linux\\",\\"Script\\":\\"ls\\"}"}'),
     url?: string(name='Url', example='https://service-info-private.oss-cn-hangzhou.aliyuncs.com/1309208528xxxxxx/template/2e1ce8fc-xxxx-481c-9e8e-789ba9db487d.json'),
-  }(name='ArtifactProperty'),
-  description?: string(name='Description'),
-  supportRegionIds?: [ string ](name='SupportRegionIds'),
-  versionName?: string(name='VersionName', example='v1'),
-}
-
-model UpdateArtifactShrinkRequest {
-  artifactId?: string(name='ArtifactId', example='artifact-eea08d1e2d3a43aexxxx'),
-  artifactPropertyShrink?: string(name='ArtifactProperty'),
-  description?: string(name='Description'),
-  supportRegionIds?: [ string ](name='SupportRegionIds'),
-  versionName?: string(name='VersionName', example='v1'),
+  }(name='ArtifactProperty', shrink='json', position='Query'),
+  description?: string(name='Description', position='Query'),
+  supportRegionIds?: [ string ](name='SupportRegionIds', position='Query'),
+  versionName: string(name='VersionName', example='v1', position='Query'),
 }
 
 model UpdateArtifactResponseBody = {
@@ -867,52 +546,11 @@ model UpdateArtifactResponseBody = {
 
 model UpdateArtifactResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: UpdateArtifactResponseBody(name='body'),
 }
 
-async function updateArtifactWithOptions(tmpReq: UpdateArtifactRequest, runtime: Util.RuntimeOptions): UpdateArtifactResponse {
-  Util.validateModel(tmpReq);
-  var request = new UpdateArtifactShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.artifactProperty)) {
-    request.artifactPropertyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.artifactProperty, 'ArtifactProperty', 'json');
-  }
-  var query = {};
-  if (!Util.isUnset(request.artifactId)) {
-    query['ArtifactId'] = request.artifactId;
-  }
-  if (!Util.isUnset(request.artifactPropertyShrink)) {
-    query['ArtifactProperty'] = request.artifactPropertyShrink;
-  }
-  if (!Util.isUnset(request.description)) {
-    query['Description'] = request.description;
-  }
-  if (!Util.isUnset(request.supportRegionIds)) {
-    query['SupportRegionIds'] = request.supportRegionIds;
-  }
-  if (!Util.isUnset(request.versionName)) {
-    query['VersionName'] = request.versionName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'UpdateArtifact',
-    version = '2021-05-21',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function updateArtifact(request: UpdateArtifactRequest): UpdateArtifactResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateArtifactWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateArtifact', 'POST', '/', 'json', false, 'json', request);
 }
 
