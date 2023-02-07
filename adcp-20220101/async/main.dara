@@ -78,27 +78,11 @@ async function attachClusterToHub(request: AttachClusterToHubRequest): AttachClu
 
 model CreateHubClusterRequest {
   apiServerPublicEip?: boolean(name='ApiServerPublicEip', description='Specifies whether to use a public IP address to expose the API server. Valid values: - true: uses a public IP address to expose the API server. - true: uses an internal IP address to expose the API server.', example='true', position='Body'),
+  argoServerEnabled?: boolean(name='ArgoServerEnabled', position='Body'),
   auditLogEnabled?: boolean(name='AuditLogEnabled', description='Specifies whether to enable audit logs. Valid values: - true: enables audit logs. - false: disables audit logs.', example='false', position='Body'),
-  clusterConfiguration?: {
-    argoServerEnabled?: boolean(name='ArgoServerEnabled'),
-    priceLimit?: string(name='PriceLimit'),
-    worflowEnabled?: boolean(name='WorflowEnabled'),
-    workflowScheduleMode?: string(name='WorkflowScheduleMode'),
-    workflowUnits?: [ 
-      {
-        regionId?: string(name='RegionId'),
-        vSwitches?: [ 
-          {
-            vswitchId?: string(name='VswitchId'),
-            zoneId?: string(name='ZoneId'),
-          }
-        ](name='VSwitches'),
-        vpcId?: string(name='VpcId'),
-      }
-    ](name='WorkflowUnits'),
-  }(name='ClusterConfiguration', shrink='json', position='Query'),
   isEnterpriseSecurityGroup?: boolean(name='IsEnterpriseSecurityGroup', description='Specifies whether the security group is an advanced security group.', example='false', position='Body'),
   name?: string(name='Name', description='The name of the master instance.', example='ack-demo', position='Body'),
+  priceLimit?: string(name='PriceLimit', position='Body'),
   profile?: string(name='Profile', description='Scenario-oriented master control type. The value can be:
 
 - `Default`: Standard scenario Master instance.
@@ -108,6 +92,7 @@ Default Value: `Default`.', example='Default', position='Body'),
   regionId: string(name='RegionId', description='The ID of the region. You can call the DescribeRegions operation to query available regions.', example='cn-beijing', position='Body'),
   vSwitches: string(name='VSwitches', description='The ID of the vSwitch.', example='["vsw-2zeaijsas4zkzz81xm***"]', position='Body'),
   vpcId: string(name='VpcId', description='The ID of the virtual private cloud (VPC) to which the master instance belongs. You can call the DescribeVpcs operation to query available VPCs.', example='vpc-f8zin0jscsr84s96tg***', position='Body'),
+  workflowScheduleMode?: string(name='WorkflowScheduleMode', position='Body'),
 }
 
 model CreateHubClusterResponseBody = {
@@ -173,15 +158,15 @@ model DescribeHubClusterDetailsResponseBody = {
     }(name='ClusterInfo', description='The details about the master instance.'),
     conditions?: [ 
       {
-        message?: string(name='Message', description='删除条件错误信息', example='Successful'),
-        reason?: string(name='Reason', description='删除条件原因', example='Successful'),
-        status?: string(name='Status', description='删除条件状态，取值
-- True 不能删除
-- False 允许删除
-- Unknow 未知', example='True'),
-        type?: string(name='Type', description='删除条件类型', example='DeletionProtection'),
+        message?: string(name='Message', description='The error message of the deletion condition.', example='Successful'),
+        reason?: string(name='Reason', description='The reason for the deletion condition.', example='Successful'),
+        status?: string(name='Status', description='The status of the deletion condition. Valid values:
+- True: The master instance cannot be deleted.
+- False: The master instance can be deleted.
+- Unknow: Whether the master instance can be deleted is unknown.', example='True'),
+        type?: string(name='Type', description='The type of deletion condition.', example='DeletionProtection'),
       }
-    ](name='Conditions', description='集群删除条件信息列表'),
+    ](name='Conditions', description='The list of the deletion conditions of the master instance.'),
     endpoints?: {
       intranetApiServerEndpoint?: string(name='IntranetApiServerEndpoint', description='The internal endpoint of the API server of the master instance.', example='https://172.16.6.**:6443'),
       publicApiServerEndpoint?: string(name='PublicApiServerEndpoint', description='The public endpoint of the API server of the master instance.', example='https://123.57.21.***:6443'),
@@ -202,6 +187,23 @@ model DescribeHubClusterDetailsResponseBody = {
       vSwitches?: [ string ](name='VSwitches', description='A list of the vSwitches that are used by the master instance.'),
       vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC) in which the master instance resides.', example='vpc-f8ziib1019r9o0hdv2***'),
     }(name='Network', description='The network configurations of the master instance.'),
+    workflowConfig?: {
+      argoServerEnabled?: boolean(name='ArgoServerEnabled'),
+      priceLimit?: string(name='PriceLimit'),
+      workflowScheduleMode?: string(name='WorkflowScheduleMode'),
+      workflowUnits?: [ 
+        {
+          regionId?: string(name='RegionId'),
+          vSwitches?: [ 
+            {
+              vswitchId?: string(name='VswitchId'),
+              zoneId?: string(name='ZoneId'),
+            }
+          ](name='VSwitches'),
+          vpcId?: string(name='VpcId'),
+        }
+      ](name='WorkflowUnits'),
+    }(name='WorkflowConfig'),
   }(name='Cluster', description='The details about the master instance.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='52C1B7DF-96C1-5214-97B6-1B0859FEAFE5'),
 }
@@ -450,32 +452,17 @@ async function detachClusterFromHub(request: DetachClusterFromHubRequest): Detac
 
 model UpdateHubClusterFeatureRequest {
   apiServerEipId?: string(name='ApiServerEipId', description='The ID of the EIP.', example='eip-xxx', position='Query'),
+  argoCDEnabled?: boolean(name='ArgoCDEnabled', position='Query'),
+  argoServerEnabled?: boolean(name='ArgoServerEnabled', position='Query'),
   auditLogEnabled?: boolean(name='AuditLogEnabled', description='Specifies whether to enable audit logs. Valid values: - true: enable audit logs. - false: disables audit logs.', example='true', position='Query'),
   clusterId: string(name='ClusterId', description='The ID of the master instance.', example='c46979b1075f04d99b5f2b710393e5****', position='Query'),
   deletionProtection?: boolean(name='DeletionProtection', description='Specifies whether to enable deletion protection for the master instance. After you enable deletion protection, you cannot delete the master instance in the console or by calling API operations. Valid values:', example='true', position='Query'),
-  enableArgoCD?: boolean(name='EnableArgoCD', description='Whether to enable ArgoCD.
-
-- true Enabled
-- false Disabled', example='false', position='Query'),
   enableMesh?: boolean(name='EnableMesh', description='Specifies whether to enable Service Mesh (ASM). Valid values: true: enables ASM. false: disables ASM.', example='true', position='Query'),
-  enabled?: boolean(name='Enabled', position='Query'),
   name?: string(name='Name', description='The name of the master instance. The name must be 1 to 63 characters in length, and can contain letters and digits. The name must start with a letter. The name can contain letters, digits, underscores (_), and hyphens (-).', example='ack-demo', position='Query'),
   priceLimit?: string(name='PriceLimit', position='Query'),
   publicApiServerEnabled?: boolean(name='PublicApiServerEnabled', description='Specifies whether to associate an elastic IP address (EIP) with the API server. Default value: false. To associate an EIP with the API server, set the value to true. You can use a custom EIP by setting the ApiServerEipId parameter. If you do not set the ApiServerEipId parameter, the system automatically creates an EIP.', example='true', position='Query'),
-  scheduleMode?: string(name='ScheduleMode', position='Query'),
-  serverEnabled?: boolean(name='ServerEnabled', position='Query'),
-  units?: [ 
-    {
-      regionId?: string(name='RegionId'),
-      vSwitches?: [ 
-        {
-          vswitchId?: string(name='VswitchId'),
-          zoneId?: string(name='ZoneId'),
-        }
-      ](name='VSwitches'),
-      vpcId?: string(name='VpcId'),
-    }
-  ](name='Units', shrink='json', position='Query'),
+  vSwitches?: [ string ](name='VSwitches', shrink='json', position='Query'),
+  workflowScheduleMode?: string(name='WorkflowScheduleMode', position='Query'),
 }
 
 model UpdateHubClusterFeatureResponseBody = {

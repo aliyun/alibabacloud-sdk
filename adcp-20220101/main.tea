@@ -111,27 +111,11 @@ async function attachClusterToHub(request: AttachClusterToHubRequest): AttachClu
 
 model CreateHubClusterRequest {
   apiServerPublicEip?: boolean(name='ApiServerPublicEip', description='Specifies whether to use a public IP address to expose the API server. Valid values: - true: uses a public IP address to expose the API server. - true: uses an internal IP address to expose the API server.', example='true'),
+  argoServerEnabled?: boolean(name='ArgoServerEnabled'),
   auditLogEnabled?: boolean(name='AuditLogEnabled', description='Specifies whether to enable audit logs. Valid values: - true: enables audit logs. - false: disables audit logs.', example='false'),
-  clusterConfiguration?: {
-    argoServerEnabled?: boolean(name='ArgoServerEnabled'),
-    priceLimit?: string(name='PriceLimit'),
-    worflowEnabled?: boolean(name='WorflowEnabled'),
-    workflowScheduleMode?: string(name='WorkflowScheduleMode'),
-    workflowUnits?: [ 
-      {
-        regionId?: string(name='RegionId'),
-        vSwitches?: [ 
-          {
-            vswitchId?: string(name='VswitchId'),
-            zoneId?: string(name='ZoneId'),
-          }
-        ](name='VSwitches'),
-        vpcId?: string(name='VpcId'),
-      }
-    ](name='WorkflowUnits'),
-  }(name='ClusterConfiguration'),
   isEnterpriseSecurityGroup?: boolean(name='IsEnterpriseSecurityGroup', description='Specifies whether the security group is an advanced security group.', example='false'),
   name?: string(name='Name', description='The name of the master instance.', example='ack-demo'),
+  priceLimit?: string(name='PriceLimit'),
   profile?: string(name='Profile', description='Scenario-oriented master control type. The value can be:
 
 - `Default`: Standard scenario Master instance.
@@ -141,23 +125,7 @@ Default Value: `Default`.', example='Default'),
   regionId?: string(name='RegionId', description='The ID of the region. You can call the DescribeRegions operation to query available regions.', example='cn-beijing'),
   vSwitches?: string(name='VSwitches', description='The ID of the vSwitch.', example='["vsw-2zeaijsas4zkzz81xm***"]'),
   vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC) to which the master instance belongs. You can call the DescribeVpcs operation to query available VPCs.', example='vpc-f8zin0jscsr84s96tg***'),
-}
-
-model CreateHubClusterShrinkRequest {
-  apiServerPublicEip?: boolean(name='ApiServerPublicEip', description='Specifies whether to use a public IP address to expose the API server. Valid values: - true: uses a public IP address to expose the API server. - true: uses an internal IP address to expose the API server.', example='true'),
-  auditLogEnabled?: boolean(name='AuditLogEnabled', description='Specifies whether to enable audit logs. Valid values: - true: enables audit logs. - false: disables audit logs.', example='false'),
-  clusterConfigurationShrink?: string(name='ClusterConfiguration'),
-  isEnterpriseSecurityGroup?: boolean(name='IsEnterpriseSecurityGroup', description='Specifies whether the security group is an advanced security group.', example='false'),
-  name?: string(name='Name', description='The name of the master instance.', example='ack-demo'),
-  profile?: string(name='Profile', description='Scenario-oriented master control type. The value can be:
-
-- `Default`: Standard scenario Master instance.
-- `XFlow`: Workflow scenario master instance.
-
-Default Value: `Default`.', example='Default'),
-  regionId?: string(name='RegionId', description='The ID of the region. You can call the DescribeRegions operation to query available regions.', example='cn-beijing'),
-  vSwitches?: string(name='VSwitches', description='The ID of the vSwitch.', example='["vsw-2zeaijsas4zkzz81xm***"]'),
-  vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC) to which the master instance belongs. You can call the DescribeVpcs operation to query available VPCs.', example='vpc-f8zin0jscsr84s96tg***'),
+  workflowScheduleMode?: string(name='WorkflowScheduleMode'),
 }
 
 model CreateHubClusterResponseBody = {
@@ -172,20 +140,14 @@ model CreateHubClusterResponse = {
   body: CreateHubClusterResponseBody(name='body'),
 }
 
-async function createHubClusterWithOptions(tmpReq: CreateHubClusterRequest, runtime: Util.RuntimeOptions): CreateHubClusterResponse {
-  Util.validateModel(tmpReq);
-  var request = new CreateHubClusterShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.clusterConfiguration)) {
-    request.clusterConfigurationShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.clusterConfiguration, 'ClusterConfiguration', 'json');
-  }
-  var query = {};
-  if (!Util.isUnset(request.clusterConfigurationShrink)) {
-    query['ClusterConfiguration'] = request.clusterConfigurationShrink;
-  }
+async function createHubClusterWithOptions(request: CreateHubClusterRequest, runtime: Util.RuntimeOptions): CreateHubClusterResponse {
+  Util.validateModel(request);
   var body : map[string]any = {};
   if (!Util.isUnset(request.apiServerPublicEip)) {
     body['ApiServerPublicEip'] = request.apiServerPublicEip;
+  }
+  if (!Util.isUnset(request.argoServerEnabled)) {
+    body['ArgoServerEnabled'] = request.argoServerEnabled;
   }
   if (!Util.isUnset(request.auditLogEnabled)) {
     body['AuditLogEnabled'] = request.auditLogEnabled;
@@ -195,6 +157,9 @@ async function createHubClusterWithOptions(tmpReq: CreateHubClusterRequest, runt
   }
   if (!Util.isUnset(request.name)) {
     body['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.priceLimit)) {
+    body['PriceLimit'] = request.priceLimit;
   }
   if (!Util.isUnset(request.profile)) {
     body['Profile'] = request.profile;
@@ -208,8 +173,10 @@ async function createHubClusterWithOptions(tmpReq: CreateHubClusterRequest, runt
   if (!Util.isUnset(request.vpcId)) {
     body['VpcId'] = request.vpcId;
   }
+  if (!Util.isUnset(request.workflowScheduleMode)) {
+    body['WorkflowScheduleMode'] = request.workflowScheduleMode;
+  }
   var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
@@ -319,15 +286,15 @@ model DescribeHubClusterDetailsResponseBody = {
     }(name='ClusterInfo', description='The details about the master instance.'),
     conditions?: [ 
       {
-        message?: string(name='Message', description='删除条件错误信息', example='Successful'),
-        reason?: string(name='Reason', description='删除条件原因', example='Successful'),
-        status?: string(name='Status', description='删除条件状态，取值
-- True 不能删除
-- False 允许删除
-- Unknow 未知', example='True'),
-        type?: string(name='Type', description='删除条件类型', example='DeletionProtection'),
+        message?: string(name='Message', description='The error message of the deletion condition.', example='Successful'),
+        reason?: string(name='Reason', description='The reason for the deletion condition.', example='Successful'),
+        status?: string(name='Status', description='The status of the deletion condition. Valid values:
+- True: The master instance cannot be deleted.
+- False: The master instance can be deleted.
+- Unknow: Whether the master instance can be deleted is unknown.', example='True'),
+        type?: string(name='Type', description='The type of deletion condition.', example='DeletionProtection'),
       }
-    ](name='Conditions', description='集群删除条件信息列表'),
+    ](name='Conditions', description='The list of the deletion conditions of the master instance.'),
     endpoints?: {
       intranetApiServerEndpoint?: string(name='IntranetApiServerEndpoint', description='The internal endpoint of the API server of the master instance.', example='https://172.16.6.**:6443'),
       publicApiServerEndpoint?: string(name='PublicApiServerEndpoint', description='The public endpoint of the API server of the master instance.', example='https://123.57.21.***:6443'),
@@ -348,6 +315,23 @@ model DescribeHubClusterDetailsResponseBody = {
       vSwitches?: [ string ](name='VSwitches', description='A list of the vSwitches that are used by the master instance.'),
       vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC) in which the master instance resides.', example='vpc-f8ziib1019r9o0hdv2***'),
     }(name='Network', description='The network configurations of the master instance.'),
+    workflowConfig?: {
+      argoServerEnabled?: boolean(name='ArgoServerEnabled'),
+      priceLimit?: string(name='PriceLimit'),
+      workflowScheduleMode?: string(name='WorkflowScheduleMode'),
+      workflowUnits?: [ 
+        {
+          regionId?: string(name='RegionId'),
+          vSwitches?: [ 
+            {
+              vswitchId?: string(name='VswitchId'),
+              zoneId?: string(name='ZoneId'),
+            }
+          ](name='VSwitches'),
+          vpcId?: string(name='VpcId'),
+        }
+      ](name='WorkflowUnits'),
+    }(name='WorkflowConfig'),
   }(name='Cluster', description='The details about the master instance.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='52C1B7DF-96C1-5214-97B6-1B0859FEAFE5'),
 }
@@ -772,51 +756,32 @@ async function detachClusterFromHub(request: DetachClusterFromHubRequest): Detac
 
 model UpdateHubClusterFeatureRequest {
   apiServerEipId?: string(name='ApiServerEipId', description='The ID of the EIP.', example='eip-xxx'),
+  argoCDEnabled?: boolean(name='ArgoCDEnabled'),
+  argoServerEnabled?: boolean(name='ArgoServerEnabled'),
   auditLogEnabled?: boolean(name='AuditLogEnabled', description='Specifies whether to enable audit logs. Valid values: - true: enable audit logs. - false: disables audit logs.', example='true'),
   clusterId?: string(name='ClusterId', description='The ID of the master instance.', example='c46979b1075f04d99b5f2b710393e5****'),
   deletionProtection?: boolean(name='DeletionProtection', description='Specifies whether to enable deletion protection for the master instance. After you enable deletion protection, you cannot delete the master instance in the console or by calling API operations. Valid values:', example='true'),
-  enableArgoCD?: boolean(name='EnableArgoCD', description='Whether to enable ArgoCD.
-
-- true Enabled
-- false Disabled', example='false'),
   enableMesh?: boolean(name='EnableMesh', description='Specifies whether to enable Service Mesh (ASM). Valid values: true: enables ASM. false: disables ASM.', example='true'),
-  enabled?: boolean(name='Enabled'),
   name?: string(name='Name', description='The name of the master instance. The name must be 1 to 63 characters in length, and can contain letters and digits. The name must start with a letter. The name can contain letters, digits, underscores (_), and hyphens (-).', example='ack-demo'),
   priceLimit?: string(name='PriceLimit'),
   publicApiServerEnabled?: boolean(name='PublicApiServerEnabled', description='Specifies whether to associate an elastic IP address (EIP) with the API server. Default value: false. To associate an EIP with the API server, set the value to true. You can use a custom EIP by setting the ApiServerEipId parameter. If you do not set the ApiServerEipId parameter, the system automatically creates an EIP.', example='true'),
-  scheduleMode?: string(name='ScheduleMode'),
-  serverEnabled?: boolean(name='ServerEnabled'),
-  units?: [ 
-    {
-      regionId?: string(name='RegionId'),
-      vSwitches?: [ 
-        {
-          vswitchId?: string(name='VswitchId'),
-          zoneId?: string(name='ZoneId'),
-        }
-      ](name='VSwitches'),
-      vpcId?: string(name='VpcId'),
-    }
-  ](name='Units'),
+  vSwitches?: [ string ](name='VSwitches'),
+  workflowScheduleMode?: string(name='WorkflowScheduleMode'),
 }
 
 model UpdateHubClusterFeatureShrinkRequest {
   apiServerEipId?: string(name='ApiServerEipId', description='The ID of the EIP.', example='eip-xxx'),
+  argoCDEnabled?: boolean(name='ArgoCDEnabled'),
+  argoServerEnabled?: boolean(name='ArgoServerEnabled'),
   auditLogEnabled?: boolean(name='AuditLogEnabled', description='Specifies whether to enable audit logs. Valid values: - true: enable audit logs. - false: disables audit logs.', example='true'),
   clusterId?: string(name='ClusterId', description='The ID of the master instance.', example='c46979b1075f04d99b5f2b710393e5****'),
   deletionProtection?: boolean(name='DeletionProtection', description='Specifies whether to enable deletion protection for the master instance. After you enable deletion protection, you cannot delete the master instance in the console or by calling API operations. Valid values:', example='true'),
-  enableArgoCD?: boolean(name='EnableArgoCD', description='Whether to enable ArgoCD.
-
-- true Enabled
-- false Disabled', example='false'),
   enableMesh?: boolean(name='EnableMesh', description='Specifies whether to enable Service Mesh (ASM). Valid values: true: enables ASM. false: disables ASM.', example='true'),
-  enabled?: boolean(name='Enabled'),
   name?: string(name='Name', description='The name of the master instance. The name must be 1 to 63 characters in length, and can contain letters and digits. The name must start with a letter. The name can contain letters, digits, underscores (_), and hyphens (-).', example='ack-demo'),
   priceLimit?: string(name='PriceLimit'),
   publicApiServerEnabled?: boolean(name='PublicApiServerEnabled', description='Specifies whether to associate an elastic IP address (EIP) with the API server. Default value: false. To associate an EIP with the API server, set the value to true. You can use a custom EIP by setting the ApiServerEipId parameter. If you do not set the ApiServerEipId parameter, the system automatically creates an EIP.', example='true'),
-  scheduleMode?: string(name='ScheduleMode'),
-  serverEnabled?: boolean(name='ServerEnabled'),
-  unitsShrink?: string(name='Units'),
+  vSwitchesShrink?: string(name='VSwitches'),
+  workflowScheduleMode?: string(name='WorkflowScheduleMode'),
 }
 
 model UpdateHubClusterFeatureResponseBody = {
@@ -833,12 +798,18 @@ async function updateHubClusterFeatureWithOptions(tmpReq: UpdateHubClusterFeatur
   Util.validateModel(tmpReq);
   var request = new UpdateHubClusterFeatureShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.units)) {
-    request.unitsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.units, 'Units', 'json');
+  if (!Util.isUnset(tmpReq.vSwitches)) {
+    request.vSwitchesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.vSwitches, 'VSwitches', 'json');
   }
   var query = {};
   if (!Util.isUnset(request.apiServerEipId)) {
     query['ApiServerEipId'] = request.apiServerEipId;
+  }
+  if (!Util.isUnset(request.argoCDEnabled)) {
+    query['ArgoCDEnabled'] = request.argoCDEnabled;
+  }
+  if (!Util.isUnset(request.argoServerEnabled)) {
+    query['ArgoServerEnabled'] = request.argoServerEnabled;
   }
   if (!Util.isUnset(request.auditLogEnabled)) {
     query['AuditLogEnabled'] = request.auditLogEnabled;
@@ -849,14 +820,8 @@ async function updateHubClusterFeatureWithOptions(tmpReq: UpdateHubClusterFeatur
   if (!Util.isUnset(request.deletionProtection)) {
     query['DeletionProtection'] = request.deletionProtection;
   }
-  if (!Util.isUnset(request.enableArgoCD)) {
-    query['EnableArgoCD'] = request.enableArgoCD;
-  }
   if (!Util.isUnset(request.enableMesh)) {
     query['EnableMesh'] = request.enableMesh;
-  }
-  if (!Util.isUnset(request.enabled)) {
-    query['Enabled'] = request.enabled;
   }
   if (!Util.isUnset(request.name)) {
     query['Name'] = request.name;
@@ -867,14 +832,11 @@ async function updateHubClusterFeatureWithOptions(tmpReq: UpdateHubClusterFeatur
   if (!Util.isUnset(request.publicApiServerEnabled)) {
     query['PublicApiServerEnabled'] = request.publicApiServerEnabled;
   }
-  if (!Util.isUnset(request.scheduleMode)) {
-    query['ScheduleMode'] = request.scheduleMode;
+  if (!Util.isUnset(request.vSwitchesShrink)) {
+    query['VSwitches'] = request.vSwitchesShrink;
   }
-  if (!Util.isUnset(request.serverEnabled)) {
-    query['ServerEnabled'] = request.serverEnabled;
-  }
-  if (!Util.isUnset(request.unitsShrink)) {
-    query['Units'] = request.unitsShrink;
+  if (!Util.isUnset(request.workflowScheduleMode)) {
+    query['WorkflowScheduleMode'] = request.workflowScheduleMode;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
