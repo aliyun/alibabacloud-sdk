@@ -1105,6 +1105,140 @@ async function extendImageStyleAdvance(request: ExtendImageStyleAdvanceRequest, 
   return extendImageStyleResp;
 }
 
+model GenerateCartoonizedImageRequest {
+  imageType?: string(name='ImageType', example='girl'),
+  imageUrl?: string(name='ImageUrl', example='https://viapi-test.oss-cn-shanghai.aliyuncs.com/test-team/zhangchaorun/1025.jpg'),
+  index?: string(name='Index', example='0'),
+}
+
+model GenerateCartoonizedImageAdvanceRequest {
+  imageType?: string(name='ImageType', example='girl'),
+  imageUrlObject?: readable(name='ImageUrl', example='https://viapi-test.oss-cn-shanghai.aliyuncs.com/test-team/zhangchaorun/1025.jpg'),
+  index?: string(name='Index', example='0'),
+}
+
+model GenerateCartoonizedImageResponseBody = {
+  data?: {
+    resultUrl?: string(name='ResultUrl', example='http://vibktprfx-prod-prod-damo-eas-cn-shanghai.oss-cn-shanghai.aliyuncs.com/generative-cartoon/2023-02-02/5a3e5760-ff27-4321-8976-d05656fb716a/20230202_154009511910_pclb0gomva.jpg?Expires=1675325422&amp;OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRp****&amp;Signature=UmAa7HxeumVkDfrdoL02dtztwS****'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', example='48f38719-f0c2-4784-a9cc-30df95e393a9'),
+}
+
+model GenerateCartoonizedImageResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GenerateCartoonizedImageResponseBody(name='body'),
+}
+
+async function generateCartoonizedImageWithOptions(request: GenerateCartoonizedImageRequest, runtime: Util.RuntimeOptions): GenerateCartoonizedImageResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.imageType)) {
+    body['ImageType'] = request.imageType;
+  }
+  if (!Util.isUnset(request.imageUrl)) {
+    body['ImageUrl'] = request.imageUrl;
+  }
+  if (!Util.isUnset(request.index)) {
+    body['Index'] = request.index;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GenerateCartoonizedImage',
+    version = '2019-09-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function generateCartoonizedImage(request: GenerateCartoonizedImageRequest): GenerateCartoonizedImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return generateCartoonizedImageWithOptions(request, runtime);
+}
+
+async function generateCartoonizedImageAdvance(request: GenerateCartoonizedImageAdvanceRequest, runtime: Util.RuntimeOptions): GenerateCartoonizedImageResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageenhan',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var generateCartoonizedImageReq = new GenerateCartoonizedImageRequest{};
+  OpenApiUtil.convert(request, generateCartoonizedImageReq);
+
+  if(!Util.isUnset(request.imageUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.imageUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    generateCartoonizedImageReq.imageUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var generateCartoonizedImageResp = generateCartoonizedImageWithOptions(generateCartoonizedImageReq, runtime);
+  return generateCartoonizedImageResp;
+}
+
 model GenerateDynamicImageRequest {
   operation?: string(name='Operation', example='11'),
   url?: string(name='Url', example='https://vigen-invi.oss-cn-shanghai.aliyuncs.com/temp/xl/dynamicPhoto/viapi_test_images/xxxx.jpg'),
