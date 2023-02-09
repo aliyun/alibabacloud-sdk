@@ -306,6 +306,7 @@ model PathConfig {
   methods?: [ string ](name='methods', description='请求方法，不填表示当前路径的所有方法匹配同一函数'),
   path?: string(name='path', description='请求路径', example='/login'),
   qualifier?: string(name='qualifier', description='该路径/方法对应服务的版本/别名', example='prod'),
+  rewriteConfig?: RewriteConfig(name='rewriteConfig', description='URI重写配置'),
   serviceName?: string(name='serviceName', description='该路径/方法对应的服务名称', example='s1'),
 }
 
@@ -336,6 +337,27 @@ model RdsTriggerConfig {
 model Resource {
   resourceArn?: string(name='resourceArn', description='resourceArn'),
   tags?: map[string]string(name='tags', description='tags'),
+}
+
+model RewriteConfig {
+  equalRules?: [ 
+    {
+      match?: string(name='match', description='匹配规则', example='/old'),
+      replacement?: string(name='replacement', description='替换规则', example='/new'),
+    }
+  ](name='equalRules', description='完全匹配规则'),
+  regexRules?: [ 
+    {
+      match?: string(name='match', description='匹配规则', example='^/js/(.*?)$'),
+      replacement?: string(name='replacement', description='替换规则', example='/public/javascripts/$1'),
+    }
+  ](name='regexRules', description='正则匹配规则'),
+  wildcardRules?: [ 
+    {
+      match?: string(name='match', description='匹配规则', example='/api/*'),
+      replacement?: string(name='replacement', description='替换规则', example='/$1'),
+    }
+  ](name='wildcardRules', description='通配符匹配规则'),
 }
 
 model RouteConfig {
@@ -482,16 +504,16 @@ model ClaimGPUInstanceRequest {
   role?: string(name='role', description='The role of the user.', example='acs:ram::1234567890:role/fc-test', position='Body'),
   sgId?: string(name='sgId', description='The ID of the security group.', example='sg-xxxx', position='Body'),
   sourceCidrIp: string(name='sourceCidrIp', description='The source IPv4 CIDR block of the GPU rendering instance.', example='0.0.0.0/0', position='Body'),
-  tcpPortRange?: [ string ](name='tcpPortRange', description='The range of TCP ports that are open to the security group of the GPU-rendered instance.', position='Body'),
+  tcpPortRange?: [ string ](name='tcpPortRange', description='The range of TCP ports that are open to the security group of the GPU rendering instance.', position='Body'),
   udpPortRange?: [ string ](name='udpPortRange', description='The range of UDP ports that are open to the security group of the GPU rendering instance.', position='Body'),
-  vpcId?: string(name='vpcId', description='The ID of the virtual private cloud (VPC).', example='v-xxxx', position='Body'),
+  vpcId?: string(name='vpcId', description='The ID of the VPC in which the instance resides.', example='v-xxxx', position='Body'),
   vswId?: string(name='vswId', description='The ID of the vSwitch.', example='vsw-xxxx', position='Body'),
 }
 
 model ClaimGPUInstanceResponseBody = {
-  createdTime?: string(name='createdTime', description='The time when the product instance was created.', example='2022-11-11 07:31:04.899465017 +0000 UTC m=+37.671563424'),
-  instanceId?: string(name='instanceId', description='The ID of the instance.', example='i-xxx'),
-  publicIp?: string(name='publicIp', description='The public IP address.', example='0.0.0.0'),
+  createdTime?: string(name='createdTime', description='The time when the product instance is created.', example='2022-11-11 07:31:04.899465017 +0000 UTC m=+37.671563424'),
+  instanceId?: string(name='instanceId', description='The ID of the instance that you query.', example='i-xxx'),
+  publicIp?: string(name='publicIp', description='The public IP address of the server.', example='0.0.0.0'),
 }
 
 model ClaimGPUInstanceResponse = {
@@ -547,22 +569,22 @@ async function createAlias(request: CreateAliasRequest): CreateAliasResponse {
 
 model CreateCustomDomainRequest {
   xFcAccountId?: string(name='X-Fc-Account-Id', description='The ID of your Alibaba Cloud account.', example='188077086902****', position='Header'),
-  xFcDate?: string(name='X-Fc-Date', description='The time when Function Compute API is called. Specify the time in the **EEE,d MMM yyyy HH:mm:ss GMT** format.', example='Wed, 11 May 2022 09:00:00 GMT', position='Header'),
+  xFcDate?: string(name='X-Fc-Date', description='The time when the operation is called. The format is: **EEE,d MMM yyyy HH:mm:ss GMT**.', example='Wed, 11 May 2022 09:00:00 GMT', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', description='The custom request ID.', example='rid281s******', position='Header'),
   certConfig?: CertConfig(name='certConfig', description='The configurations of the HTTPS certificate.', position='Body'),
   domainName: string(name='domainName', description='The domain name.', example='example.com', position='Body'),
   protocol?: string(name='protocol', description='The protocol types supported by the domain name. Valid values:
 
-- **HTTP**: Only HTTP is supported. 
-- **HTTPS**: Only HTTPS is supported. 
-- **HTTP,HTTPS**: Both HTTP and HTTPS are supported.', example='HTTP', position='Body'),
+*   **HTTP**: Only HTTP is supported.
+*   **HTTPS**: Only HTTPS is supported.
+*   **HTTP,HTTPS**: HTTP and HTTPS are supported.', example='HTTP', position='Body'),
   routeConfig?: RouteConfig(name='routeConfig', description='The route table that maps the paths to functions when the functions are invoked by using the custom domain name.', position='Body'),
-  tlsConfig?: TLSConfig(name='tlsConfig', description='The configurations of the TLS.', position='Body'),
-  wafConfig?: WAFConfig(name='wafConfig', position='Body'),
+  tlsConfig?: TLSConfig(name='tlsConfig', description='The Transport Layer Security (TLS) configuration.', position='Body'),
+  wafConfig?: WAFConfig(name='wafConfig', description='The Web Application Firewall (WAF) configuration.', position='Body'),
 }
 
 model CreateCustomDomainResponseBody = {
-  accountId?: string(name='accountId', description='The ID of the account.', example='1986114****4305'),
+  accountId?: string(name='accountId', description='The ID of your Alibaba Cloud account.', example='1986114****4305'),
   apiVersion?: string(name='apiVersion', description='The version of the API.', example='2016-08-15'),
   certConfig?: CertConfig(name='certConfig', description='The configurations of the HTTPS certificate.'),
   createdTime?: string(name='createdTime', description='The time when the domain name was added.', example='2020-07-27T08:02:19Z'),
@@ -570,12 +592,12 @@ model CreateCustomDomainResponseBody = {
   lastModifiedTime?: string(name='lastModifiedTime', description='The time when the domain name was last modified.', example='2020-07-27T08:02:19Z'),
   protocol?: string(name='protocol', description='The protocol types supported by the domain name. Valid values:
 
-- **HTTP**: Only HTTP is supported. 
-- **HTTPS**: Only HTTPS is supported. 
-- **HTTP,HTTPS**: Both HTTP and HTTPS are supported.', example='HTTP'),
+*   **HTTP**: Only HTTP is supported.
+*   **HTTPS**: Only HTTPS is supported.
+*   **HTTP,HTTPS**: HTTP and HTTPS are supported.', example='HTTP'),
   routeConfig?: RouteConfig(name='routeConfig', description='The route table that maps the paths to functions when the functions are invoked by using the custom domain name.'),
-  tlsConfig?: TLSConfig(name='tlsConfig', description='The configurations of the TLS.'),
-  wafConfig?: WAFConfig(name='wafConfig'),
+  tlsConfig?: TLSConfig(name='tlsConfig', description='The Transport Layer Security (TLS) configuration.'),
+  wafConfig?: WAFConfig(name='wafConfig', description='The Web Application Firewall (WAF) configuration.'),
 }
 
 model CreateCustomDomainResponse = {
@@ -605,6 +627,7 @@ model CreateFunctionRequest {
   diskSize?: int32(name='diskSize', description='The disk size of the function. Unit: MB. Valid values: 512 and 10240.', example='512', position='Body'),
   environmentVariables?: map[string]string(name='environmentVariables', description='The environment variables that you configured for the function. You can obtain the values of the environment variables from the function. For more information, see [Overview](~~69777~~).', position='Body'),
   functionName: string(name='functionName', description='The name of the function. The name can contain letters, digits, underscores (\\_), and hyphens (-) only. The name cannot start with a digit or a hyphen (-). The name must be 1 to 64 characters in length.', example='functionName', position='Body'),
+  gpuMemorySize?: int32(name='gpuMemorySize', description='function的GPU显存规格，单位为MB，为1024MB的倍数', example='2048', position='Body'),
   handler: string(name='handler', description='The handler of the function. The format varies based on the programming language. For more information, see [Function handlers](~~157704~~).', example='index.handler', position='Body'),
   initializationTimeout?: int32(name='initializationTimeout', description='The timeout period for the execution of the initializer function. Unit: seconds. Default value: 3. Valid values: 1 to 300. When this period expires, the execution of the initializer function is terminated.', example='60', position='Body'),
   initializer?: string(name='initializer', description='The handler of the initializer function. For more information, see [Initializer functions](~~157704~~).', example='index.initializer', position='Body'),
@@ -641,6 +664,7 @@ model CreateFunctionResponseBody = {
   functionId?: string(name='functionId', description='The unique ID generated by the system for the function.', example='2d28e0e9-9ba5-4eed-8b1a-d3d9cd24
 ****'),
   functionName?: string(name='functionName', description='The name of the function.', example='demo-function'),
+  gpuMemorySize?: int32(name='gpuMemorySize', description='function的GPU显存规格，单位为MB，为1024MB的倍数', example='2048'),
   handler?: string(name='handler', description='The handler of the function.', example='index.handler'),
   initializationTimeout?: int32(name='initializationTimeout', description='The timeout period for the execution of the initializer function. Unit: seconds. Default value: 3. Minimum value: 1. When this period ends, the execution of the initializer function is terminated.', example='60'),
   initializer?: string(name='initializer', description='The handler of the initializer function. The format is determined by the programming language.', example='index.handler'),
@@ -1087,25 +1111,25 @@ async function getAlias(request: GetAliasRequest): GetAliasResponse {
 model GetCustomDomainRequest {
   domainName: string(name='domainName', description='The domain name.', example='example.com', position='Path'),
   xFcAccountId?: string(name='X-Fc-Account-Id', description='The ID of your Alibaba Cloud account.', example='188077086902****', position='Header'),
-  xFcDate?: string(name='X-Fc-Date', description='The time when Function Compute API is called. Specify the time in the **EEE,d MMM yyyy HH:mm:ss GMT** format.', example='Wed, 11 May 2022 09:00:00 GMT', position='Header'),
+  xFcDate?: string(name='X-Fc-Date', description='The time when the operation is called. The format is: **EEE,d MMM yyyy HH:mm:ss GMT**.', example='Wed, 11 May 2022 09:00:00 GMT', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', description='The custom request ID.', example='r4isu4sls****', position='Header'),
 }
 
 model GetCustomDomainResponseBody = {
-  accountId?: string(name='accountId', description='The version number of the API.', example='2016-08-15'),
-  apiVersion?: string(name='apiVersion', description='The version number of the API.', example='2016-08-15'),
-  certConfig?: CertConfig(name='certConfig', description='The configurations of the HTTPS certificate.', example='-'),
-  createdTime?: string(name='createdTime', description='The time when the domain name was added.', example='2020-07-27T08:02:19Z'),
+  accountId?: string(name='accountId', description='The ID of your Alibaba Cloud account.', example='2016-08-15'),
+  apiVersion?: string(name='apiVersion', description='The version of the API.', example='2016-08-15'),
+  certConfig?: CertConfig(name='certConfig', description='The configurations of the HTTPS certificate.'),
+  createdTime?: string(name='createdTime', description='The time when the custom domain name was created.', example='2020-07-27T08:02:19Z'),
   domainName?: string(name='domainName', description='The domain name.', example='example.com'),
   lastModifiedTime?: string(name='lastModifiedTime', description='The time when the domain name was last modified.', example='2020-07-27T08:02:19Z'),
   protocol?: string(name='protocol', description='The protocol types supported by the domain name. Valid values:
 
-- **HTTP**: Only HTTP is supported. 
-- **HTTPS**: Only HTTPS is supported. 
-- **HTTP,HTTPS**: Both HTTP and HTTPS are supported.', example='HTTP'),
-  routeConfig?: RouteConfig(name='routeConfig', description='The route table that maps the paths to functions when the functions are invoked by using the custom domain name.', example='-'),
-  tlsConfig?: TLSConfig(name='tlsConfig', description='The configurations of the TLS.'),
-  wafConfig?: WAFConfig(name='wafConfig'),
+*   **HTTP**: Only HTTP is supported.
+*   **HTTPS**: Only HTTPS is supported.
+*   **HTTP,HTTPS**: HTTP and HTTPS are supported.', example='HTTP'),
+  routeConfig?: RouteConfig(name='routeConfig', description='The route table that maps the paths to functions when the functions are invoked by using the custom domain name.'),
+  tlsConfig?: TLSConfig(name='tlsConfig', description='The Transport Layer Security (TLS) configuration.'),
+  wafConfig?: WAFConfig(name='wafConfig', description='The Web Application Firewall (WAF) configuration.'),
 }
 
 model GetCustomDomainResponse = {
@@ -1142,6 +1166,7 @@ model GetFunctionResponseBody = {
   environmentVariables?: map[string]string(name='environmentVariables', description='The environment variables that you configured for the function. You can obtain the values of the environment variables from the function. For more information, see [Overview](~~69777~~).'),
   functionId?: string(name='functionId', description='The ID that is generated by the system for the function. Each function ID is unique in Function Compute.', example='aa715851-1c20-4b89-a8fb-***'),
   functionName?: string(name='functionName', description='The name of the function.', example='function_name'),
+  gpuMemorySize?: int32(name='gpuMemorySize', description='function的GPU显存规格，单位为MB，为1024MB的倍数', example='2048'),
   handler?: string(name='handler', description='The handler of the function. For more information, see [Function handler](~~157704~~).', example='index.handler'),
   initializationTimeout?: int32(name='initializationTimeout', description='The timeout period for the execution of the initializer function. Unit: seconds. Default value: 3. Valid values: 1 to 300. When this period ends, the execution of the initializer function is terminated.', example='60'),
   initializer?: string(name='initializer', description='The handler of the initializer function. The format of the value is determined by the programming language that you use. For more information, see [Initializer function](~~157704~~).', example='index.handler'),
@@ -1526,34 +1551,34 @@ async function listAliases(request: ListAliasesRequest): ListAliasesResponse {
 
 model ListCustomDomainsRequest {
   xFcAccountId?: string(name='X-Fc-Account-Id', description='The ID of your Alibaba Cloud account.', example='188077086902****', position='Header'),
-  xFcDate?: string(name='X-Fc-Date', description='The time when Function Compute API is called. Specify the time in the **EEE,d MMM yyyy HH:mm:ss GMT** format.', example='Wed, 11 May 2022 09:00:00 GMT', position='Header'),
+  xFcDate?: string(name='X-Fc-Date', description='The time when the operation is called. The format is: **EEE,d MMM yyyy HH:mm:ss GMT**.', example='Wed, 11 May 2022 09:00:00 GMT', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', description='The custom request ID.', example='asdf*****', position='Header'),
-  limit?: int32(name='limit', description='The maximum number of resources to return. Default value: 20. Maximum value: 100. The number of returned resources is less than or equal to the specified number.', example='20', position='Query'),
-  nextToken?: string(name='nextToken', description='The token used to obtain more results. If the number of resources exceeds the limit, the nextToken parameter is returned. You can include the parameter in subsequent calls to obtain more results. You do not need to provide this parameter in the first call.', example='fc-thinkphp-demo.functioncompute.com', position='Query'),
+  limit?: int32(name='limit', description='The maximum number of resources to return. Valid values: \\[0,100]. Default value: 20. The number of returned results is less than or equal to the specified number.', example='20', position='Query'),
+  nextToken?: string(name='nextToken', description='The token that is required for pagination. If the number of resources exceeds the limit, the nextToken parameter is returned. You can include the parameter in subsequent calls to obtain more results. You do not need to provide this parameter in the first call.', example='fc-thinkphp-demo.functioncompute.com', position='Query'),
   prefix?: string(name='prefix', description='The prefix that the returned domain names must contain.', example='prefix_text', position='Query'),
-  startKey?: string(name='startKey', description='The returned resources are sorted in alphabetical order, and the resources that include and follow the resource specified by the startKey parameter are returned.', example='next_service', position='Query'),
+  startKey?: string(name='startKey', description='The starting position of the result list. The returned resources are sorted in alphabetical order, and the resources that include and follow the resource specified by the startKey parameter are returned.', example='next_service', position='Query'),
 }
 
 model ListCustomDomainsResponseBody = {
   customDomains?: [ 
     {
-      accountId?: string(name='accountId', description='The ID of the account.', example='1986114****4305'),
+      accountId?: string(name='accountId', description='The ID of your Alibaba Cloud account.', example='1986114****4305'),
       apiVersion?: string(name='apiVersion', description='The version of the API.', example='2016-08-15'),
       certConfig?: CertConfig(name='certConfig', description='The configurations of the HTTPS certificate.'),
-      createdTime?: string(name='createdTime', description='The time when the domain name was added.', example='2020-07-27T08:02:19Z'),
+      createdTime?: string(name='createdTime', description='The time when the custom domain name was created.', example='2020-07-27T08:02:19Z'),
       domainName?: string(name='domainName', description='The domain name.', example='example.com'),
       lastModifiedTime?: string(name='lastModifiedTime', description='The time when the domain name was last modified.', example='2020-07-27T08:02:19Z'),
-      protocol?: string(name='protocol', description='The protocol types supported by the domain name. Valid values: 
+      protocol?: string(name='protocol', description='The protocol type that is supported by the custom domain name.
 
-- **HTTP**: Only HTTP is supported. 
-- **HTTPS**: Only HTTPS is supported. 
-- **HTTP,HTTPS**: Both HTTP and HTTPS are supported.', example='HTTP'),
+*   **HTTP**: Only HTTP is supported.
+*   **HTTPS**: Only HTTPS is supported.
+*   **HTTP,HTTPS**: HTTP and HTTPS are supported.', example='HTTP'),
       routeConfig?: RouteConfig(name='routeConfig', description='The route table that maps the paths to functions when the functions are invoked by using the custom domain name.'),
-      tlsConfig?: TLSConfig(name='tlsConfig', description='The configurations of the TLS.'),
-      wafConfig?: WAFConfig(name='wafConfig'),
+      tlsConfig?: TLSConfig(name='tlsConfig', description='The Transport Layer Security (TLS) configuration.'),
+      wafConfig?: WAFConfig(name='wafConfig', description='The Web Application Firewall (WAF) configuration.'),
     }
   ](name='customDomains', description='The information about custom domain names.'),
-  nextToken?: string(name='nextToken', description='The token used to obtain more results. If the number of resources exceeds the limit, the nextToken parameter is returned. You can include the parameter in subsequent calls to obtain more results. You do not need to provide this parameter in the first call.', example='example.com'),
+  nextToken?: string(name='nextToken', description='The pagination token to use to request the next page of results. If the number of resources exceeds the limit, the nextToken parameter is returned. You can include the parameter in subsequent calls to obtain more results. You do not need to provide this parameter in the first call.', example='example.com'),
 }
 
 model ListCustomDomainsResponse = {
@@ -1677,6 +1702,7 @@ model ListFunctionsResponseBody = {
       environmentVariables?: map[string]string(name='environmentVariables', description='The environment variables that you configured for the function. You can obtain the values of the environment variables from the function.'),
       functionId?: string(name='functionId', description='The unique ID generated by the system for the function.', example='2d28e0e9-9ba5-4eed-8b1a-d3d9cd24****'),
       functionName?: string(name='functionName', description='The name of the function.', example='demo-function'),
+      gpuMemorySize?: int32(name='gpuMemorySize', description='function的GPU显存规格，单位为MB，为1024MB的倍数', example='2048'),
       handler?: string(name='handler', description='The handler of the function.', example='index.handler'),
       initializationTimeout?: int32(name='initializationTimeout', description='The timeout period for the execution of the initializer function. Unit: seconds. Default value: 3. Valid values: 1 to 300. When this period ends, the execution of the initializer function is terminated.', example='60'),
       initializer?: string(name='initializer', description='The handler of the initializer function. The format of the value is determined by the programming language that you use. For more information, see [Initializer function](~~157704~~).', example='index.handler'),
@@ -1872,11 +1898,11 @@ model ListReservedCapacitiesRequest {
   xFcDate?: string(name='X-Fc-Date', description='The time when the Function Compute API is called. The format is **EEE,d MMM yyyy HH:mm:ss GMT**.', example='Wed, 11 May 2022 09:00:00 GMT', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', description='The custom request ID.', example='asdf****', position='Header'),
   limit?: string(name='limit', description='The maximum number of resources to return. Valid values: \\[1, 100].', example='20', position='Query'),
-  nextToken?: string(name='nextToken', description='The token that is required for pagination.', example='8bj81uI8n****', position='Query'),
+  nextToken?: string(name='nextToken', description='The token that determines the start point of the query.', example='8bj81uI8n****', position='Query'),
 }
 
 model ListReservedCapacitiesResponseBody = {
-  nextToken?: string(name='nextToken', description='The pagination token to request the next page of results.', example='8bj81uI8n****'),
+  nextToken?: string(name='nextToken', description='The token used to obtain more results.', example='8bj81uI8n****'),
   reservedCapacities?: [
     OpenReservedCapacity
   ](name='reservedCapacities', description='The information about subscription instances.'),
@@ -2350,7 +2376,7 @@ async function registerEventSource(request: RegisterEventSourceRequest): Registe
 model ReleaseGPUInstanceRequest {
   instanceId: string(name='instanceId', description='The ID of the instance.', example='i-xxx', position='Path'),
   xFcAccountId?: string(name='X-Fc-Account-Id', description='The ID of your Alibaba Cloud account.', example='188077086902****', position='Header'),
-  xFcDate?: string(name='X-Fc-Date', description='The time on which the function is invoked. The format of the value is: EEE,d MMM yyyy HH:mm:ss GMT.', example='2022-11-11 07:31:04.899465017 +0000 UTC m=+37.671563424', position='Header'),
+  xFcDate?: string(name='X-Fc-Date', description='The time when the function is invoked. The format of the value is: EEE,d MMM yyyy HH:mm:ss GMT.', example='2022-11-11 07:31:04.899465017 +0000 UTC m=+37.671563424', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', description='The custom request ID.', example='test-trace-id', position='Header'),
 }
 
@@ -2474,34 +2500,34 @@ async function updateAlias(request: UpdateAliasRequest): UpdateAliasResponse {
 model UpdateCustomDomainRequest {
   domainName: string(name='domainName', description='The domain name.', example='example.com', position='Path'),
   xFcAccountId?: string(name='X-Fc-Account-Id', description='The ID of your Alibaba Cloud account.', example='188077086902****', position='Header'),
-  xFcDate?: string(name='X-Fc-Date', description='The time when Function Compute API is called. Specify the time in the **EEE,d MMM yyyy HH:mm:ss GMT** format.', example='Wed, 11 May 2022 09:00:00 GMT', position='Header'),
+  xFcDate?: string(name='X-Fc-Date', description='The time when the operation is called. The format is: **EEE,d MMM yyyy HH:mm:ss GMT**.', example='Wed, 11 May 2022 09:00:00 GMT', position='Header'),
   xFcTraceId?: string(name='X-Fc-Trace-Id', description='The custom request ID.', example='asdf*****', position='Header'),
   certConfig?: CertConfig(name='certConfig', description='The configurations of the HTTPS certificate.', position='Body'),
   protocol?: string(name='protocol', description='The protocol types supported by the domain name. Valid values:
 
-- **HTTP**: Only HTTP is supported.
-- **HTTPS**: Only HTTPS is supported.
-- **HTTP,HTTPS**: Both HTTP and HTTPS are supported.', example='HTTP', position='Body'),
+*   **HTTP**: Only HTTP is supported.
+*   **HTTPS**: Only HTTPS is supported.
+*   **HTTP,HTTPS**: Both HTTP and HTTPS are supported.', example='HTTP', position='Body'),
   routeConfig?: RouteConfig(name='routeConfig', description='The route table that maps the paths to functions when the functions are invoked by using the custom domain name.', position='Body'),
-  tlsConfig?: TLSConfig(name='tlsConfig', description='The configurations of the TLS.', position='Body'),
-  wafConfig?: WAFConfig(name='wafConfig', position='Body'),
+  tlsConfig?: TLSConfig(name='tlsConfig', description='The Transport Layer Security (TLS) configuration.', position='Body'),
+  wafConfig?: WAFConfig(name='wafConfig', description='The Web Application Firewall (WAF) configuration.', position='Body'),
 }
 
 model UpdateCustomDomainResponseBody = {
-  accountId?: string(name='accountId', description='The ID of the account.', example='1986114****4305'),
-  apiVersion?: string(name='apiVersion', description='The version number of the API.', example='2016-08-15'),
+  accountId?: string(name='accountId', description='The ID of your Alibaba Cloud account.', example='1986114****4305'),
+  apiVersion?: string(name='apiVersion', description='The version of the API.', example='2016-08-15'),
   certConfig?: CertConfig(name='certConfig', description='The configurations of the HTTPS certificate.'),
-  createdTime?: string(name='createdTime', description='The time when the domain name was added.', example='2020-07-27T08:02:19Z'),
+  createdTime?: string(name='createdTime', description='The time when the custom domain name was created.', example='2020-07-27T08:02:19Z'),
   domainName?: string(name='domainName', description='The domain name.', example='example.com'),
   lastModifiedTime?: string(name='lastModifiedTime', description='The time when the domain name was last modified.', example='2020-07-27T08:02:19Z'),
-  protocol?: string(name='protocol', description='The protocol types supported by the domain name. Valid values: 
+  protocol?: string(name='protocol', description='The protocol type that is supported by the custom domain name.
 
-- **HTTP**: Only HTTP is supported.
-- **HTTPS**: Only HTTPS is supported.
-- **HTTP,HTTPS**: Both HTTP and HTTPS are supported.', example='HTTP'),
+*   **HTTP**: Only HTTP is supported.
+*   **HTTPS**: Only HTTPS is supported.
+*   **HTTP,HTTPS**: HTTP and HTTPS are supported.', example='HTTP'),
   routeConfig?: RouteConfig(name='routeConfig', description='The route table that maps the paths to functions when the functions are invoked by using the custom domain name.'),
-  tlsConfig?: TLSConfig(name='tlsConfig', description='The configurations of the TLS.'),
-  wafConfig?: WAFConfig(name='wafConfig'),
+  tlsConfig?: TLSConfig(name='tlsConfig', description='The Transport Layer Security (TLS) configuration.'),
+  wafConfig?: WAFConfig(name='wafConfig', description='The Web Application Firewall (WAF) configuration.'),
 }
 
 model UpdateCustomDomainResponse = {
@@ -2524,35 +2550,36 @@ model UpdateFunctionRequest {
   xFcTraceId?: string(name='X-Fc-Trace-Id', description='The trace ID of the request. The value is the same as that of the requestId parameter in the response.', example='test-trace-id', position='Header'),
   instanceConcurrency?: int32(name='InstanceConcurrency', description='The number of requests that can be concurrently processed by a single instance.', example='10', position='Body'),
   caPort?: int32(name='caPort', description='The port on which the HTTP server listens for the custom runtime or custom container runtime.', example='9000', position='Body'),
-  code?: Code(name='code', description='**Function code packages** can be provided with the following two methods. You must use only one of the methods in a single request.
+  code?: Code(name='code', description='**Function code packages** can be provided with the following two methods. You must use only one of the methods in a request.
 
-*   Specify the names of the **Object Storage Service (OSS) bucket** and **object** where the code package is stored.
-*   Set the **zipFile** parameter to the Base64-encoded content of the ZIP file.', position='Body'),
+*   Specify the name of the **Object Storage Service (OSS) bucket** and **object** where the code package is stored.
+*   Specify that the **zipFile** parameter is used as the Base64-encoded content of the ZIP file.', position='Body'),
   cpu?: float(name='cpu', description='The number of vCPUs of the function. The value must be a multiple of 0.05.', example='1.5', position='Body'),
-  customContainerConfig?: CustomContainerConfig(name='customContainerConfig', description='The configurations of the custom container runtime. After you configure the custom container, Function Compute can execute functions in a container created from a custom image.', position='Body'),
-  customDNS?: CustomDNS(name='customDNS', description='The custom Domain Name System (DNS) configurations of the function.', position='Body'),
-  customHealthCheckConfig?: CustomHealthCheckConfig(name='customHealthCheckConfig', description='The custom health check configuration of the function. This parameter is applicable only to custom runtimes and custom containers.', position='Body'),
+  customContainerConfig?: CustomContainerConfig(name='customContainerConfig', description='The configuration of the custom container. After you configure the custom container, Function Compute can execute functions in a container created from a custom image.', position='Body'),
+  customDNS?: CustomDNS(name='customDNS', description='The custom DNS configurations of the function.', position='Body'),
+  customHealthCheckConfig?: CustomHealthCheckConfig(name='customHealthCheckConfig', description='The custom health check configurations of the function. This parameter is applicable to only custom runtimes and custom containers.', position='Body'),
   customRuntimeConfig?: CustomRuntimeConfig(name='customRuntimeConfig', description='The configurations of the custom runtime.', position='Body'),
   description?: string(name='description', description='The description of the function.', example='test desc', position='Body'),
   diskSize?: int32(name='diskSize', description='The disk size of the function. Unit: MB. Valid values: 512 and 10240.', example='512', position='Body'),
-  environmentVariables?: map[string]string(name='environmentVariables', description='The environment variables that you configured for the function. You can obtain the values of the environment variables from the function. For more information, see [Overview](~~69777~~).', position='Body'),
+  environmentVariables?: map[string]string(name='environmentVariables', description='The environment variables that are configured for the function. You can obtain the values of the environment variables from the function. For more information, see [Environment variables](~~69777~~).', position='Body'),
+  gpuMemorySize?: int32(name='gpuMemorySize', description='function的GPU显存规格，单位为MB，为1024MB的倍数', example='2048', position='Body'),
   handler?: string(name='handler', description='The handler of the function. The format varies based on the programming language. For more information, see [Function handlers](~~157704~~).', example='index.handler', position='Body'),
-  initializationTimeout?: int32(name='initializationTimeout', description='The timeout period for the execution of the initializer function. Unit: seconds. Default value: 3. Minimum value: 1. When this period ends, the execution of the initializer function is terminated.', example='60', position='Body'),
+  initializationTimeout?: int32(name='initializationTimeout', description='The timeout period for the execution of the initializer function. Unit: seconds. Default value: 3. Minimum value: 1. When the period ends, the execution of the initializer function is terminated.', example='60', position='Body'),
   initializer?: string(name='initializer', description='The handler of the initializer function. The format is determined by the programming language. For more information, see [Function handlers](~~157704~~).', example='index.handler', position='Body'),
   instanceLifecycleConfig?: InstanceLifecycleConfig(name='instanceLifecycleConfig', description='The lifecycle configurations of the instance.', position='Body'),
-  instanceSoftConcurrency?: int32(name='instanceSoftConcurrency', description='The soft concurrency of the instance. You can use this parameter to implement graceful scale-up of instances. If the number of concurrent requests on an instance is greater than the number of the soft concurrency, the instance scale-up is triggered. For example, if your instance requires a long term to start, you can specify a suitable soft concurrency to start the instance in advance.
+  instanceSoftConcurrency?: int32(name='instanceSoftConcurrency', description='The soft concurrency of the instance. You can use this parameter to implement graceful scale-up of instances. If the number of concurrent requests on an instance is greater than the number of the soft concurrency, the instance scale-up is triggered. For example, if your instance requires a long time to start, you can specify a suitable soft concurrency to start the instance in advance.
 
-The value must be less than or equal to that of **instanceConcurrency**.', example='5', position='Body'),
+The value must be less than or equal to that of the **instanceConcurrency** parameter.', example='5', position='Body'),
   instanceType?: string(name='instanceType', description='The instance type of the function. Valid values:
 
 *   **e1**: elastic instance
 *   **c1**: performance instance', example='e1', position='Body'),
-  layers?: [ string ](name='layers', description='An array that consists of the information of layers.
+  layers?: [ string ](name='layers', description='The information about layers.
 
->  Multiple layers are merged based on the order of array subscripts. The content of a layer with a smaller subscript overwrites the file with the same name in the layer with a larger subscript.', position='Body'),
+> Multiple layers are merged based on the order of array subscripts. The content of a layer with a smaller subscript overwrites the file that has the same name and a larger subscript in the layer.', position='Body'),
   memorySize?: int32(name='memorySize', description='The memory size for the function. Unit: MB. The memory size must be a multiple of 64 MB. The memory size varies based on the function instance type. For more information, see [Instance types](~~179379~~).', example='512', position='Body'),
-  runtime?: string(name='runtime', description='The runtime environment of the function. Valid values: **nodejs14**, **nodejs12**, **nodejs10**, **nodejs8**, **nodejs6**, **nodejs4.4**, **python3.9**, **python3**, **python2.7**, **java11**, **java8**, **go1**, **php7.2**, **dotnetcore2.1**, **custom** and **custom-container**.', example='python3.9', position='Body'),
-  timeout?: int32(name='timeout', description='The timeout period for the execution of the function. Unit: seconds. Default value: 3. Minimum value: 1. When this period ends, the execution of the function is terminated.', example='60', position='Body'),
+  runtime?: string(name='runtime', description='The runtime environment of the function. Valid values: **nodejs16**, **nodejs14**, **nodejs12**, **nodejs10**, **nodejs8**, **nodejs6**, **nodejs4.4**, **python3.9**, **python3**, **python2.7**, **java11**, **java8**, **go1**, **php7.2**, **dotnetcore3.1**, **dotnetcore2.1**, **custom** and **custom-container**. For more information, see [Supported function runtime environments](~~73338~~).', example='python3.9', position='Body'),
+  timeout?: int32(name='timeout', description='The timeout period for the execution of the function. Unit: seconds. Default value: 3. Minimum value: 1. When the period ends, the execution of the function is terminated.', example='60', position='Body'),
 }
 
 model UpdateFunctionResponseBody = {
@@ -2560,34 +2587,35 @@ model UpdateFunctionResponseBody = {
   codeChecksum?: string(name='codeChecksum', description='The CRC-64 value of the function code package.', example='5434025278388143772'),
   codeSize?: long(name='codeSize', description='The size of the function code package that is returned by the system. Unit: byte.', example='1024'),
   cpu?: float(name='cpu', description='The number of vCPUs of the function. The value must be a multiple of 0.05.', example='1.5'),
-  createdTime?: string(name='createdTime', description='The time when the function was created.', example='2016-08-15T15:00:00.000+0000'),
+  createdTime?: string(name='createdTime', description='The time when the function is created.', example='2016-08-15T15:00:00.000+0000'),
   customContainerConfig?: CustomContainerConfig(name='customContainerConfig', description='The configurations of the custom container runtime. After you configure the custom container runtime, Function Compute can execute the function in a container created from a custom image.'),
   customDNS?: CustomDNS(name='customDNS', description='The custom DNS configurations of the function.'),
-  customHealthCheckConfig?: CustomHealthCheckConfig(name='customHealthCheckConfig', description='The custom health check configuration of the function. This parameter is applicable only to custom runtimes and custom containers.'),
+  customHealthCheckConfig?: CustomHealthCheckConfig(name='customHealthCheckConfig', description='The custom health check configurations of the function. This parameter is applicable to only custom runtimes and custom containers.'),
   customRuntimeConfig?: CustomRuntimeConfig(name='customRuntimeConfig', description='The configurations of the custom runtime.'),
   description?: string(name='description', description='The description of the function.', example='This is a demo hello world function'),
   diskSize?: int32(name='diskSize', description='The disk size of the function. Unit: MB. Valid values: 512 and 10240.', example='512'),
-  environmentVariables?: map[string]string(name='environmentVariables', description='The environment variables that you configured for the function. You can obtain the values of the environment variables from the function. For more information, see [Overview](~~69777~~).'),
-  functionId?: string(name='functionId', description='The unique ID generated by the system for the function.', example='2d28e0e9-9ba5-4eed-8b1a-d3d9cd24****'),
+  environmentVariables?: map[string]string(name='environmentVariables', description='The environment variables that are configured for the function. You can obtain the values of the environment variables from the function. For more information, see [Environment variables](~~69777~~).'),
+  functionId?: string(name='functionId', description='The unique ID that is generated by the system for the function.', example='2d28e0e9-9ba5-4eed-8b1a-d3d9cd24****'),
   functionName?: string(name='functionName', description='The name of the function.', example='demo-function'),
+  gpuMemorySize?: int32(name='gpuMemorySize', description='function的GPU显存规格，单位为MB，为1024MB的倍数', example='2048'),
   handler?: string(name='handler', description='The handler of the function.', example='index.handler'),
-  initializationTimeout?: int32(name='initializationTimeout', description='The timeout period for the execution of the initializer function. Unit: seconds. Default value: 3. Minimum value: 1. When this period ends, the execution of the initializer function is terminated.', example='60'),
+  initializationTimeout?: int32(name='initializationTimeout', description='The timeout period for the execution of the initializer function. Unit: seconds. Default value: 3. Minimum value: 1. When the period ends, the execution of the initializer function is terminated.', example='60'),
   initializer?: string(name='initializer', description='The handler of the initializer function. The format is determined by the programming language.', example='index.handler'),
   instanceConcurrency?: int32(name='instanceConcurrency', description='The number of requests that can be concurrently processed by a single instance.', example='10'),
   instanceLifecycleConfig?: InstanceLifecycleConfig(name='instanceLifecycleConfig', description='The lifecycle configurations of the instance.'),
-  instanceSoftConcurrency?: int32(name='instanceSoftConcurrency', description='The soft concurrency of the instance. You can use this parameter to implement graceful scale-up of instances. If the number of concurrent requests on an instance is greater than the number of the soft concurrency, the instance scale-up is triggered. For example, if your instance requires a long term to start, you can specify a suitable soft concurrency to start the instance in advance.
+  instanceSoftConcurrency?: int32(name='instanceSoftConcurrency', description='The soft concurrency of the instance. You can use this parameter to implement graceful scale-up of instances. If the number of concurrent requests on an instance is greater than the number of the soft concurrency, the instance scale-up is triggered. For example, if your instance requires a long time to start, you can specify a suitable soft concurrency to start the instance in advance.
 
-The value must be less than or equal to that of **instanceConcurrency**.', example='5'),
+The value must be less than or equal to that of the **instanceConcurrency** parameter.', example='5'),
   instanceType?: string(name='instanceType', description='The instance type of the function. Valid values:
 
 *   **e1**: elastic instance
 *   **c1**: performance instance', example='e1'),
   lastModifiedTime?: string(name='lastModifiedTime', description='The time when the function was last modified.', example='2016-08-15T17:00:00.000+0000'),
-  layers?: [ string ](name='layers', description='An array that consists of the information of layers.
+  layers?: [ string ](name='layers', description='The information about layers.
 
->  Multiple layers are merged based on the order of array subscripts. The content of a layer with a smaller subscript overwrites the file with the same name in the layer with a larger subscript.'),
-  memorySize?: int32(name='memorySize', description='The memory size for the function. Unit: MB.', example='512'),
-  runtime?: string(name='runtime', description='The runtime environment of the function. Valid values: **nodejs14**, **nodejs12**, **nodejs10**, **nodejs8**, **nodejs6**, **nodejs4.4**, **python3.9**, **python3**, **python2.7**, **java11**, **java8**, **go1**, **php7.2**, **dotnetcore2.1**, **custom** and **custom-container**.', example='python3.9'),
+> Multiple layers are merged based on the order of array subscripts. The content of a layer with a smaller subscript overwrites the file that has the same name and a larger subscript in the layer.'),
+  memorySize?: int32(name='memorySize', description='The memory size that is configured for the function. Unit: MB.', example='512'),
+  runtime?: string(name='runtime', description='The runtime environment of the function. Valid values: **nodejs16**, **nodejs14**, **nodejs12**, **nodejs10**, **nodejs8**, **nodejs6**, **nodejs4.4**, **python3.9**, **python3**, **python2.7**, **java11**, **java8**, **go1**, **php7.2**, **dotnetcore3.1**, **dotnetcore2.1**, **custom** and **custom-container**. For more information, see [Supported function runtime environments](~~73338~~).', example='python3.9'),
   timeout?: int32(name='timeout', description='The timeout period for the execution. Unit: seconds.', example='10'),
 }
 
