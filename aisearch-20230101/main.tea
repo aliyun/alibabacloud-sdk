@@ -1,0 +1,328 @@
+/**
+ *
+ */
+import Util;
+import OSS;
+import OpenPlatform;
+import OSSUtil;
+import FileForm;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('aisearch', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model Box {
+  height?: int32(name='Height', example='200'),
+  left?: int32(name='Left', example='10'),
+  top?: int32(name='Top', example='20'),
+  width?: int32(name='Width', example='100'),
+}
+
+model AddImageRequest {
+  boxes?: [
+    Box
+  ](name='Boxes'),
+  customContent?: string(name='CustomContent'),
+  detectLimit?: int32(name='DetectLimit'),
+  intAttr?: int32(name='IntAttr'),
+  picContent?: string(name='PicContent'),
+  picName?: string(name='PicName'),
+  picUrl?: string(name='PicUrl'),
+  strAttr?: string(name='StrAttr'),
+}
+
+model AddImageAdvanceRequest {
+  boxes?: [
+    Box
+  ](name='Boxes'),
+  customContent?: string(name='CustomContent'),
+  detectLimit?: int32(name='DetectLimit'),
+  intAttr?: int32(name='IntAttr'),
+  picContentObject?: readable(name='PicContent'),
+  picName?: string(name='PicName'),
+  picUrl?: string(name='PicUrl'),
+  strAttr?: string(name='StrAttr'),
+}
+
+model AddImageShrinkRequest {
+  boxesShrink?: string(name='Boxes'),
+  customContent?: string(name='CustomContent'),
+  detectLimit?: int32(name='DetectLimit'),
+  intAttr?: int32(name='IntAttr'),
+  picContent?: string(name='PicContent'),
+  picName?: string(name='PicName'),
+  picUrl?: string(name='PicUrl'),
+  strAttr?: string(name='StrAttr'),
+}
+
+model AddImageResponseBody = {
+  requestId?: string(name='RequestId', example='AEBFD401-E487-502A-B20D-54CACD4AA42D'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model AddImageResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: AddImageResponseBody(name='body'),
+}
+
+async function addImageWithOptions(InstanceName: string, ProductId: string, tmpReq: AddImageRequest, headers: map[string]string, runtime: Util.RuntimeOptions): AddImageResponse {
+  Util.validateModel(tmpReq);
+  var request = new AddImageShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.boxes)) {
+    request.boxesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.boxes, 'Boxes', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.customContent)) {
+    query['CustomContent'] = request.customContent;
+  }
+  if (!Util.isUnset(request.detectLimit)) {
+    query['DetectLimit'] = request.detectLimit;
+  }
+  if (!Util.isUnset(request.intAttr)) {
+    query['IntAttr'] = request.intAttr;
+  }
+  if (!Util.isUnset(request.picContent)) {
+    query['PicContent'] = request.picContent;
+  }
+  if (!Util.isUnset(request.picName)) {
+    query['PicName'] = request.picName;
+  }
+  if (!Util.isUnset(request.picUrl)) {
+    query['PicUrl'] = request.picUrl;
+  }
+  if (!Util.isUnset(request.strAttr)) {
+    query['StrAttr'] = request.strAttr;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.boxesShrink)) {
+    body['Boxes'] = request.boxesShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'AddImage',
+    version = '2023-01-01',
+    protocol = 'HTTPS',
+    pathname = `/api/instance/${OpenApiUtil.getEncodeParam(InstanceName)}/entity/${OpenApiUtil.getEncodeParam(ProductId)}/image`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function addImage(InstanceName: string, ProductId: string, request: AddImageRequest): AddImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return addImageWithOptions(InstanceName, ProductId, request, headers, runtime);
+}
+
+async function addImageAdvance(InstanceName: string, ProductId: string, request: AddImageAdvanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): AddImageResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'aisearch',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var addImageReq = new AddImageRequest{};
+  OpenApiUtil.convert(request, addImageReq);
+
+  if(!Util.isUnset(request.picContentObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.picContentObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    addImageReq.picContent = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var addImageResp = addImageWithOptions(InstanceName, ProductId, addImageReq, headers, runtime);
+  return addImageResp;
+}
+
+model GetInstanceResponseBody = {
+  data?: {
+    capacity?: int32(name='Capacity', example='5'),
+    instanceId?: string(name='InstanceId', example='imagesearch_aisearch_xxx'),
+    instanceName?: string(name='InstanceName'),
+    qps?: string(name='Qps'),
+    region?: string(name='Region'),
+    serviceType?: string(name='ServiceType', example='COMMODITY'),
+    status?: string(name='Status', example='NORMAL'),
+    totalCount?: long(name='TotalCount', example='1000'),
+    utcCreateTime?: long(name='UtcCreateTime', example='1623081600000'),
+    utcExpireTime?: long(name='UtcExpireTime', example='1620382716000'),
+  }(name='Data'),
+  requestId?: string(name='RequestId', example='3F37E8F4-2D57-5FEC-96AF-B88ACF3252FC'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetInstanceResponseBody(name='body'),
+}
+
+async function getInstanceWithOptions(InstanceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetInstanceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetInstance',
+    version = '2023-01-01',
+    protocol = 'HTTPS',
+    pathname = `/api/instance/${OpenApiUtil.getEncodeParam(InstanceName)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getInstance(InstanceName: string): GetInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getInstanceWithOptions(InstanceName, headers, runtime);
+}
+
+model UpdateImageRequest {
+  customContent?: string(name='CustomContent'),
+  intAttr?: int32(name='IntAttr'),
+  picName?: string(name='PicName'),
+  strAttr?: string(name='StrAttr'),
+}
+
+model UpdateImageResponseBody = {
+  requestId?: string(name='RequestId', example='AEBFD401-E487-502A-B20D-54CACD4AA42D'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateImageResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateImageResponseBody(name='body'),
+}
+
+async function updateImageWithOptions(InstanceName: string, ProductId: string, request: UpdateImageRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateImageResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.customContent)) {
+    query['CustomContent'] = request.customContent;
+  }
+  if (!Util.isUnset(request.intAttr)) {
+    query['IntAttr'] = request.intAttr;
+  }
+  if (!Util.isUnset(request.picName)) {
+    query['PicName'] = request.picName;
+  }
+  if (!Util.isUnset(request.strAttr)) {
+    query['StrAttr'] = request.strAttr;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateImage',
+    version = '2023-01-01',
+    protocol = 'HTTPS',
+    pathname = `/api/instance/${OpenApiUtil.getEncodeParam(InstanceName)}/entity/${OpenApiUtil.getEncodeParam(ProductId)}/image`,
+    method = 'PATCH',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function updateImage(InstanceName: string, ProductId: string, request: UpdateImageRequest): UpdateImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateImageWithOptions(InstanceName, ProductId, request, headers, runtime);
+}
+
