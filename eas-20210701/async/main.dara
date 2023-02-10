@@ -66,9 +66,13 @@ model Instance {
   namespace?: string(name='Namespace', description='实例的命名空间'),
   readyProcesses?: int32(name='ReadyProcesses', description='实例已经启动完成的进程数'),
   reason?: string(name='Reason', description='实例当前状态的标识'),
+  resourceType?: string(name='ResourceType', description='实例所属的资源组类型，包括PublicResource和PrivateResource', example='PublicResource'),
   restartCount?: int32(name='RestartCount', description='实例重启次数'),
+  role?: string(name='Role', description='实例所属的服务角色，包括Queue, DataLoader, Standard等角色', example='Standard'),
   startAt?: string(name='StartAt', description='实例的启动时间'),
   status?: string(name='Status', description='实例状态'),
+  tenantHostIP?: string(name='TenantHostIP', description='宿主机所在的vpc分配的地址', example='192.168.0.39'),
+  tenantInstanceIP?: string(name='TenantInstanceIP', description='实例所在的VPC分配的IP', example='192.168.0.39'),
   totalProcesses?: int32(name='TotalProcesses', description='实例总的进程数'),
 }
 
@@ -102,10 +106,12 @@ model ResourceInstance {
   instanceMemory?: string(name='InstanceMemory', description='实例的内存大小'),
   instanceName?: string(name='InstanceName', description='实例名称'),
   instanceStatus?: string(name='InstanceStatus', description='实例状态'),
+  instanceTenantIp?: string(name='InstanceTenantIp', description='实例专属网络IP'),
   instanceType?: string(name='InstanceType', description='实例的机型'),
-  instanceUsedCpu?: float(name='InstanceUsedCpu', description='实例被使用的CPU数量'),
-  instanceUsedGpu?: int32(name='InstanceUsedGpu', description='实例被使用的GPU数量'),
-  instanceUsedMemory?: string(name='InstanceUsedMemory', description='实例被使用的内存大小'),
+  instanceUsedCpu?: float(name='InstanceUsedCpu', description='实例已使用的CPU数量'),
+  instanceUsedGpu?: float(name='InstanceUsedGpu', description='实例已使用的GPU数量'),
+  instanceUsedGpuMemory?: string(name='InstanceUsedGpuMemory', description='实例已使用的显存大小'),
+  instanceUsedMemory?: string(name='InstanceUsedMemory', description='实例已使用的内存大小'),
   region?: string(name='Region', description='实例所属区域'),
   zone?: string(name='Zone', description='实例所属可用区'),
 }
@@ -136,6 +142,12 @@ model Service {
   image?: string(name='Image', description='服务的数据镜像'),
   internetEndpoint?: string(name='InternetEndpoint', description='服务的公网endpoint'),
   intranetEndpoint?: string(name='IntranetEndpoint', description='服务内网endpoint'),
+  labels?: [ 
+    {
+      labelKey?: string(name='LabelKey', description='服务标签键'),
+      labelValue?: string(name='LabelValue', description='服务标签值'),
+    }
+  ](name='Labels', description='服务标签列表'),
   latestVersion?: int32(name='LatestVersion', description='服务最新版本号'),
   memory?: int32(name='Memory', description='每个worker需要的内存大小，单位为M'),
   message?: string(name='Message', description='服务的摘要信息'),
@@ -163,15 +175,50 @@ model Service {
   weight?: int32(name='Weight', description='服务灰度发布的权重值'),
 }
 
+model CommitServiceRequest {
+  clusterId?: string(name='ClusterId', description='集群Id。', example='cn-beijing', position='Path'),
+  serviceName?: string(name='ServiceName', description='服务名。', example='foo', position='Path'),
+}
+
+model CommitServiceResponseBody = {
+  message?: string(name='Message', description='执行结果。', example='Success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+}
+
+model CommitServiceResponse = {
+  headers: map[string]string(name='headers'),
+  body: CommitServiceResponseBody(name='body'),
+}
+
+async function commitService(request: CommitServiceRequest): CommitServiceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CommitService', 'PUT', '/api/v2/services/{ClusterId}/{ServiceName}/commit', 'json', false, 'json', request);
+}
+
 model CreateBenchmarkTaskRequest {
-  body?: string(name='body', position='Body'),
+  body?: string(name='body', example='{
+    "base": {
+        "duration": 600
+    },
+    "service": {
+        "serviceName": "test_service",
+        "requestToken": "test_token"
+    },
+    "data": {
+        "path": "https://larec-benchmark-cd.oss-cn-chengdu.aliyuncs.com/youbei/sv_dbmtl/data/youbei.warmup.tf.bin",
+        "dataType": "binary"
+    },
+    "optional": {
+       "maxRt": 100
+    }
+}', position='Body'),
 }
 
 model CreateBenchmarkTaskResponseBody = {
-  message?: string(name='Message'),
-  region?: string(name='Region'),
-  requestId?: string(name='RequestId'),
-  taskName?: string(name='TaskName'),
+  message?: string(name='Message', example='Benchmark  task [foo] is Creating'),
+  region?: string(name='Region', example='cn-shanghai'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82********'),
+  taskName?: string(name='TaskName', example='benchmark-larec-test-1076'),
 }
 
 model CreateBenchmarkTaskResponse = {
@@ -185,18 +232,18 @@ async function createBenchmarkTask(request: CreateBenchmarkTaskRequest): CreateB
 }
 
 model CreateResourceRequest {
-  autoRenewal?: boolean(name='AutoRenewal', description='是否自动续费', position='Body'),
-  chargeType: string(name='ChargeType', description='付费类型，预付费PrePaid，后付费PostPaid', position='Body'),
-  ecsInstanceCount: int32(name='EcsInstanceCount', description='实例数量', position='Body'),
-  ecsInstanceType: string(name='EcsInstanceType', description='实例机型，对应ecs机型', position='Body'),
+  autoRenewal?: boolean(name='AutoRenewal', description='是否自动续费', example='false', position='Body'),
+  chargeType: string(name='ChargeType', description='付费类型，预付费PrePaid，后付费PostPaid', example='PostPaid', position='Body'),
+  ecsInstanceCount: int32(name='EcsInstanceCount', description='实例数量', example='5', position='Body'),
+  ecsInstanceType: string(name='EcsInstanceType', description='实例机型，对应ecs机型', example='ecs.c6.8xlarge', position='Body'),
 }
 
 model CreateResourceResponseBody = {
-  clusterId?: string(name='ClusterId', description='资源组所在集群ID'),
-  ownerUid?: string(name='OwnerUid', description='资源组的Owner UID'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  resourceId?: string(name='ResourceId', description='资源组ID'),
-  resourceName?: string(name='ResourceName', description='资源组名称'),
+  clusterId?: string(name='ClusterId', description='资源组所在集群ID', example='cn-shanghai'),
+  ownerUid?: string(name='OwnerUid', description='资源组的Owner UID', example='14401087478****'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+  resourceId?: string(name='ResourceId', description='资源组ID', example='eas-r-h7lcw24dyqztwxxxxxx'),
+  resourceName?: string(name='ResourceName', description='资源组名称', example='MyResource'),
 }
 
 model CreateResourceResponse = {
@@ -210,18 +257,18 @@ async function createResource(request: CreateResourceRequest): CreateResourceRes
 }
 
 model CreateResourceInstancesRequest {
-  clusterId: string(name='ClusterId', description='资源组所在的集群ID', position='Path'),
-  resourceId: string(name='ResourceId', description='资源组ID', position='Path'),
-  autoRenewal?: boolean(name='AutoRenewal', description='是否自动续费', position='Body'),
-  chargeType: string(name='ChargeType', description='付费类型，预付费PrePaid，后付费PostPaid', position='Body'),
-  ecsInstanceCount: int32(name='EcsInstanceCount', description='新创建的实例个数，(0, 100]', position='Body'),
-  ecsInstanceType: string(name='EcsInstanceType', description='实例机型，对应ecs机型', position='Body'),
-  userData?: string(name='UserData', description='用户自这义数据，小于 16KB', position='Body'),
+  clusterId: string(name='ClusterId', description='资源组所在的集群ID', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', description='资源组ID', example='eas-r-asdasdasd', position='Path'),
+  autoRenewal?: boolean(name='AutoRenewal', description='是否自动续费', example='false', position='Body'),
+  chargeType: string(name='ChargeType', description='付费类型，预付费PrePaid，后付费PostPaid', example='PrePaid', position='Body'),
+  ecsInstanceCount: int32(name='EcsInstanceCount', description='新创建的实例个数，(0, 100]', example='5', position='Body'),
+  ecsInstanceType: string(name='EcsInstanceType', description='实例机型，对应ecs机型', example='ecs.s6-c1m2.xlarge', position='Body'),
+  userData?: string(name='UserData', description='用户自这义数据，小于 16KB', example='x112223333', position='Body'),
 }
 
 model CreateResourceInstancesResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Create 5 new ecs instance(s) in resource [eas-r-asdasdasd] successfully'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
 }
 
 model CreateResourceInstancesResponse = {
@@ -235,15 +282,15 @@ async function createResourceInstances(request: CreateResourceInstancesRequest):
 }
 
 model CreateResourceLogRequest {
-  clusterId: string(name='ClusterId', position='Path'),
-  resourceId: string(name='ResourceId', position='Path'),
-  logStore?: string(name='LogStore', description='sls日志库', position='Body'),
-  projectName?: string(name='ProjectName', description='资源组对应的sls日志管理项目', position='Body'),
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', example='eas-r-asdasdasd', position='Path'),
+  logStore?: string(name='LogStore', description='sls日志库', example='access_log', position='Body'),
+  projectName?: string(name='ProjectName', description='资源组对应的sls日志管理项目', example='eas-r-asdasdasd-sls', position='Body'),
 }
 
 model CreateResourceLogResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Resource [eas-r-asdasdasd] is deleted.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
 }
 
 model CreateResourceLogResponse = {
@@ -257,17 +304,19 @@ async function createResourceLog(request: CreateResourceLogRequest): CreateResou
 }
 
 model CreateServiceRequest {
+  develop?: string(name='Develop', description='是否进入开发模式。', position='Query'),
+  labels?: map[string]string(name='Labels', shrink='json', position='Query'),
   body?: string(name='body', position='Body'),
 }
 
 model CreateServiceResponseBody = {
-  internetEndpoint?: string(name='InternetEndpoint'),
-  intranetEndpoint?: string(name='IntranetEndpoint'),
-  region?: string(name='Region'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  serviceId?: string(name='ServiceId'),
-  serviceName?: string(name='ServiceName'),
-  status?: string(name='Status'),
+  internetEndpoint?: string(name='InternetEndpoint', example='http://pai-eas.vpc.cn-shanghai.****'),
+  intranetEndpoint?: string(name='IntranetEndpoint', example='http://pai-eas.cn-shanghai.****'),
+  region?: string(name='Region', example='cn-shanghai'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+  serviceId?: string(name='ServiceId', example='eas-m-aaxxxddf'),
+  serviceName?: string(name='ServiceName', example='yourname'),
+  status?: string(name='Status', example='Creating'),
 }
 
 model CreateServiceResponse = {
@@ -281,22 +330,22 @@ async function createService(request: CreateServiceRequest): CreateServiceRespon
 }
 
 model CreateServiceAutoScalerRequest {
-  clusterId: string(name='ClusterId', description='服务所在区域', position='Path'),
-  serviceName: string(name='ServiceName', description='服务名字', position='Path'),
-  max: int32(name='max', description='最大 replica 数，需要大于MinReplica', position='Body'),
-  min: int32(name='min', description='最小 replica 数，需要大于0', position='Body'),
+  clusterId: string(name='ClusterId', description='服务所在区域', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='服务名字', example='foo', position='Path'),
+  max: int32(name='max', description='最大 replica 数，需要大于MinReplica', example='8', position='Body'),
+  min: int32(name='min', description='最小 replica 数，需要大于0', example='2', position='Body'),
   scaleStrategies: [ 
     {
-      metricName: string(name='metricName'),
-      service?: string(name='service'),
-      threshold: float(name='threshold'),
+      metricName: string(name='metricName', example='qps'),
+      service?: string(name='service', example='demo_svc'),
+      threshold: float(name='threshold', example='10'),
     }
   ](name='scaleStrategies', position='Body'),
 }
 
 model CreateServiceAutoScalerResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Succeed to auto scale service [foo]'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
 }
 
 model CreateServiceAutoScalerResponse = {
@@ -310,21 +359,21 @@ async function createServiceAutoScaler(request: CreateServiceAutoScalerRequest):
 }
 
 model CreateServiceCronScalerRequest {
-  clusterId: string(name='ClusterId', description='服务所在区域', position='Path'),
-  serviceName: string(name='ServiceName', description='服务名字', position='Path'),
+  clusterId: string(name='ClusterId', description='服务所在区域', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='服务名字', example='foo', position='Path'),
   excludeDates?: [ string ](name='ExcludeDates', description='需要排除的时间点的cron表达式', position='Body'),
   scaleJobs: [ 
     {
-      name?: string(name='Name'),
-      schedule: string(name='Schedule', description='要执行伸缩任务的cron表达式'),
-      targetSize: int32(name='TargetSize', description='执行伸缩任务的目标replica'),
+      name?: string(name='Name', example='scale-job-1'),
+      schedule: string(name='Schedule', description='要执行伸缩任务的cron表达式', example='0 18 * * * *'),
+      targetSize: int32(name='TargetSize', description='执行伸缩任务的目标replica', example='1'),
     }
   ](name='ScaleJobs', description='定时伸缩任务描述', position='Body'),
 }
 
 model CreateServiceCronScalerResponseBody = {
-  message?: string(name='Message', description='操作成功消息'),
-  requestId?: string(name='RequestId', description='请求ID'),
+  message?: string(name='Message', description='操作成功消息', example='Create cron scaler for service [foo] successfully'),
+  requestId?: string(name='RequestId', description='请求ID', example='40325405-579C-4D82****'),
 }
 
 model CreateServiceCronScalerResponse = {
@@ -338,15 +387,15 @@ async function createServiceCronScaler(request: CreateServiceCronScalerRequest):
 }
 
 model CreateServiceMirrorRequest {
-  clusterId: string(name='ClusterId', description='服务所在区域', position='Path'),
-  serviceName: string(name='ServiceName', description='服务名字', position='Path'),
-  ratio?: int32(name='Ratio', description='比例 [0, 100]', position='Body'),
+  clusterId: string(name='ClusterId', description='服务所在区域', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='服务名字', example='foo', position='Path'),
+  ratio?: int32(name='Ratio', description='比例 [0, 100]', example='30', position='Body'),
   target?: [ string ](name='Target', description='服务实例列表', position='Body'),
 }
 
 model CreateServiceMirrorResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Traffic mirroring is ON for service [foo] in region [cn-shanghia], ratio [70%]'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82***'),
 }
 
 model CreateServiceMirrorResponse = {
@@ -360,13 +409,13 @@ async function createServiceMirror(request: CreateServiceMirrorRequest): CreateS
 }
 
 model DeleteBenchmarkTaskRequest {
-  clusterId: string(name='ClusterId', position='Path'),
-  taskName: string(name='TaskName', position='Path'),
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  taskName: string(name='TaskName', example='benchmark-larec-test-2b11', position='Path'),
 }
 
 model DeleteBenchmarkTaskResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Benchmark task [benchmark-test-service-234c] is Deleting'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model DeleteBenchmarkTaskResponse = {
@@ -380,13 +429,13 @@ async function deleteBenchmarkTask(request: DeleteBenchmarkTaskRequest): DeleteB
 }
 
 model DeleteResourceRequest {
-  clusterId: string(name='ClusterId', description='资源组所在的集群ID', position='Path'),
-  resourceId: string(name='ResourceId', description='资源组的ID', position='Path'),
+  clusterId: string(name='ClusterId', description='资源组所在的集群ID', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', description='资源组的ID', example='eas-r-asdasdasd', position='Path'),
 }
 
 model DeleteResourceResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Resource [eas-r-asdasdasd] is deleted.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82-9624-EC2B1779848E'),
 }
 
 model DeleteResourceResponse = {
@@ -400,13 +449,13 @@ async function deleteResource(request: DeleteResourceRequest): DeleteResourceRes
 }
 
 model DeleteResourceDLinkRequest {
-  clusterId: string(name='ClusterId', description='资源组所在的集群ID', position='Path'),
-  resourceId: string(name='ResourceId', description='资源组的ID', position='Path'),
+  clusterId: string(name='ClusterId', description='资源组所在的集群ID', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', description='资源组的ID', example='eas-r-asdasdasd', position='Path'),
 }
 
 model DeleteResourceDLinkResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Network interfaces are deleting'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
 }
 
 model DeleteResourceDLinkResponse = {
@@ -420,15 +469,15 @@ async function deleteResourceDLink(request: DeleteResourceDLinkRequest): DeleteR
 }
 
 model DeleteResourceInstancesRequest {
-  clusterId: string(name='ClusterId', position='Path'),
-  resourceId: string(name='ResourceId', position='Path'),
-  allFailed?: boolean(name='AllFailed', position='Query'),
-  instanceList?: string(name='InstanceList', position='Query'),
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', example='eas-r-asdasdasd', position='Path'),
+  allFailed?: boolean(name='AllFailed', example='true', position='Query'),
+  instanceList?: string(name='InstanceList', example='eas-i-xxxxxxx,eas-i-xxxxxxx', position='Query'),
 }
 
 model DeleteResourceInstancesResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Instances eas-i-011227132046,eas-i-011227132046 are deleting'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
 }
 
 model DeleteResourceInstancesResponse = {
@@ -442,13 +491,13 @@ async function deleteResourceInstances(request: DeleteResourceInstancesRequest):
 }
 
 model DeleteResourceLogRequest {
-  clusterId: string(name='ClusterId', position='Path'),
-  resourceId: string(name='ResourceId', position='Path'),
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', example='eas-r-asdasdasd', position='Path'),
 }
 
 model DeleteResourceLogResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Log service for resource [eas-r-asdasdasd] is deleting'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
 }
 
 model DeleteResourceLogResponse = {
@@ -462,13 +511,13 @@ async function deleteResourceLog(request: DeleteResourceLogRequest): DeleteResou
 }
 
 model DeleteServiceRequest {
-  clusterId: string(name='ClusterId', position='Path'),
-  serviceName: string(name='ServiceName', position='Path'),
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', example='foo', position='Path'),
 }
 
 model DeleteServiceResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Service [foo] in region [cn-shanghai] is terminating'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
 }
 
 model DeleteServiceResponse = {
@@ -482,13 +531,13 @@ async function deleteService(request: DeleteServiceRequest): DeleteServiceRespon
 }
 
 model DeleteServiceAutoScalerRequest {
-  clusterId: string(name='ClusterId', description='服务所在区域', position='Path'),
-  serviceName: string(name='ServiceName', description='服务名字', position='Path'),
+  clusterId: string(name='ClusterId', description='服务所在区域', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='服务名字', example='foo', position='Path'),
 }
 
 model DeleteServiceAutoScalerResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Autoscaler for service [foo] deleted successfully'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
 }
 
 model DeleteServiceAutoScalerResponse = {
@@ -502,13 +551,13 @@ async function deleteServiceAutoScaler(request: DeleteServiceAutoScalerRequest):
 }
 
 model DeleteServiceCronScalerRequest {
-  clusterId: string(name='ClusterId', position='Path'),
-  serviceName: string(name='ServiceName', position='Path'),
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', example='foo', position='Path'),
 }
 
 model DeleteServiceCronScalerResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Cronscaler for service [foo] deleted successfully'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
 }
 
 model DeleteServiceCronScalerResponse = {
@@ -522,14 +571,14 @@ async function deleteServiceCronScaler(request: DeleteServiceCronScalerRequest):
 }
 
 model DeleteServiceInstancesRequest {
-  clusterId: string(name='ClusterId', description='服务所在区域', position='Path'),
-  serviceName: string(name='ServiceName', description='服务名字', position='Path'),
-  instanceList: string(name='InstanceList', description='删除的实例列表，多个实例名字之间逗号隔开', position='Query'),
+  clusterId: string(name='ClusterId', description='服务所在区域', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='服务名字', example='foo', position='Path'),
+  instanceList: string(name='InstanceList', description='删除的实例列表，多个实例名字之间逗号隔开', example='foo-rdsbxxxx,foo-rdsaxxxx', position='Query'),
 }
 
 model DeleteServiceInstancesResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Instance(s) [foo-rdsb,foo-rdsa]  for service [foo] in region [cn-shanghai] was deleted successfully'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
 }
 
 model DeleteServiceInstancesResponse = {
@@ -542,14 +591,35 @@ async function deleteServiceInstances(request: DeleteServiceInstancesRequest): D
   return @handler.do('RESTFUL', 'DeleteServiceInstances', 'DELETE', '/api/v2/services/{ClusterId}/{ServiceName}/instances', 'json', false, 'json', request);
 }
 
+model DeleteServiceLabelRequest {
+  clusterId: string(name='ClusterId', description='服务所在区域。', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='服务名字。', example='foo', position='Path'),
+  keys: [ string ](name='Keys', description='要删除的服务标签。', shrink='simple', position='Query'),
+}
+
+model DeleteServiceLabelResponseBody = {
+  message?: string(name='Message', description='返回信息。', example='Success'),
+  requestId?: string(name='RequestId', description='请求ID。', example='40325405-579C-4D82****'),
+}
+
+model DeleteServiceLabelResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteServiceLabelResponseBody(name='body'),
+}
+
+async function deleteServiceLabel(request: DeleteServiceLabelRequest): DeleteServiceLabelResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteServiceLabel', 'DELETE', '/api/v2/services/{ClusterId}/{ServiceName}/label', 'json', false, 'json', request);
+}
+
 model DeleteServiceMirrorRequest {
-  clusterId: string(name='ClusterId', description='服务所在区域', position='Path'),
-  serviceName: string(name='ServiceName', description='服务名字', position='Path'),
+  clusterId: string(name='ClusterId', description='服务所在区域', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='服务名字', example='foo', position='Path'),
 }
 
 model DeleteServiceMirrorResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Traffic mirroring is OFF for service [foo] in region [cn-shanghia], ratio [70%]'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82***'),
 }
 
 model DeleteServiceMirrorResponse = {
@@ -563,24 +633,24 @@ async function deleteServiceMirror(request: DeleteServiceMirrorRequest): DeleteS
 }
 
 model DescribeBenchmarkTaskRequest {
-  clusterId: string(name='ClusterId', position='Path'),
-  taskName: string(name='TaskName', position='Path'),
+  clusterId: string(name='ClusterId', description='压测任务所在的区域。', example='cn-shanghai', position='Path'),
+  taskName: string(name='TaskName', description='压测任务的名字。', example='benchmark-larec-test-eac4', position='Path'),
 }
 
 model DescribeBenchmarkTaskResponseBody = {
-  availableAgent?: long(name='AvailableAgent'),
-  callerUid?: string(name='CallerUid'),
-  desiredAgent?: long(name='DesiredAgent'),
-  endpoint?: string(name='Endpoint'),
-  message?: string(name='Message'),
-  parentUid?: string(name='ParentUid'),
-  reason?: string(name='Reason'),
-  requestId?: string(name='RequestId'),
-  serviceName?: string(name='ServiceName'),
-  status?: string(name='Status'),
-  taskId?: string(name='TaskId'),
-  taskName?: string(name='TaskName'),
-  token?: string(name='Token'),
+  availableAgent?: long(name='AvailableAgent', description='实际可用的压测实例个数。', example='4'),
+  callerUid?: string(name='CallerUid', description='调用者的UID。', example='1640133467****'),
+  desiredAgent?: long(name='DesiredAgent', description='预期的压测实例个数。', example='4'),
+  endpoint?: string(name='Endpoint', description='服务对外公开的访问路径。', example='http://15990xxxx.cn-hangzhou.pai-eas.aliyuncs.com/api/predict/xxx'),
+  message?: string(name='Message', description='当前压测任务的运行进度信息。', example='Benchmar task is Running'),
+  parentUid?: string(name='ParentUid', description='资源拥有者的UID。', example='1029728669****'),
+  reason?: string(name='Reason', description='当前压测任务状态产生的原因。', example='RUNNING'),
+  requestId?: string(name='RequestId', description='请求ID。', example='40325405-579C-4D82****'),
+  serviceName?: string(name='ServiceName', description='压测的eas服务名。', example='foo'),
+  status?: string(name='Status', description='压测任务的状态。', example='Running'),
+  taskId?: string(name='TaskId', description='压测任务ID。', example='eas-b-gv4y86u****'),
+  taskName?: string(name='TaskName', description='压测任务名字。', example='benchmark-larec-test-ae70'),
+  token?: string(name='Token', description='访问eas服务的鉴权token。', example='6062787a-9301****'),
 }
 
 model DescribeBenchmarkTaskResponse = {
@@ -594,15 +664,60 @@ async function describeBenchmarkTask(request: DescribeBenchmarkTaskRequest): Des
 }
 
 model DescribeBenchmarkTaskReportRequest {
-  clusterId: string(name='ClusterId', position='Path'),
-  taskName: string(name='TaskName', position='Path'),
-  reportType?: string(name='ReportType', position='Query'),
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  taskName: string(name='TaskName', example='benchmark-larec-test-015d', position='Path'),
+  reportType?: string(name='ReportType', example='report', position='Query'),
 }
 
 model DescribeBenchmarkTaskReportResponseBody = {
-  data?: any(name='Data'),
-  reportUrl?: string(name='ReportUrl'),
-  requestId?: string(name='RequestId'),
+  data?: any(name='Data', example='{
+    "TimestampList": ["int64"],
+    "QPSList": ["float32"],
+    "RTList": [
+      {
+        "AVG": "float32",
+        "TP100": "float32",
+        "TP99": "float32",
+        "TP90": "float32",
+        "TP50": "float32",
+        "TP10": "float32"
+      }
+    ],
+    "TrafficList": [
+      {
+        "Send": "float64",
+        "Receive": "float64"
+      }
+    ],
+    "StatusCode": {
+      "200": "uint64",
+      "450": "uint64",
+      "500": "uint64"
+    },
+    "Count": "uint64",
+    "Total": "float64",
+    "MinRT": "float32",
+    "AvgRT": "float32",
+    "MaxRT": "float32",
+    "QPS": "float32",
+    "TotalSend": "float64",
+    "TotalReceive": "float64",
+    "RTDistribution": [
+      {
+        "Latency": "float32",
+        "Percentage": "int"
+      }
+    ],
+    "RTHistogram": [
+      {
+        "Count": "int",
+        "Mark": "float32",
+        "Frequency": "float32"
+      }
+    ]
+  }'),
+  reportUrl?: string(name='ReportUrl', example='http://eas-benchmark.oss-cn-chengdu.aliyuncs.com/summary/benchmark-larec-test-015d-10007.html'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82********'),
 }
 
 model DescribeBenchmarkTaskReportResponse = {
@@ -616,8 +731,8 @@ async function describeBenchmarkTaskReport(request: DescribeBenchmarkTaskReportR
 }
 
 model DescribeGroupRequest {
-  clusterId: string(name='ClusterId', position='Path'),
-  groupName: string(name='GroupName', position='Path'),
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  groupName: string(name='GroupName', example='foo', position='Path'),
 }
 
 model DescribeGroupResponse = {
@@ -631,26 +746,26 @@ async function describeGroup(request: DescribeGroupRequest): DescribeGroupRespon
 }
 
 model DescribeResourceRequest {
-  clusterId: string(name='ClusterId', description='资源组所在的集群ID', position='Path'),
-  resourceId: string(name='ResourceId', description='资源组的ID', position='Path'),
+  clusterId: string(name='ClusterId', description='资源组所在的集群ID', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', description='资源组的ID', example='eas-r-asdasdasd', position='Path'),
 }
 
 model DescribeResourceResponseBody = {
-  clusterId?: string(name='ClusterId'),
-  cpuCount?: int32(name='CpuCount'),
-  createTime?: string(name='CreateTime'),
-  extraData?: string(name='ExtraData'),
-  gpuCount?: int32(name='GpuCount'),
-  instanceCount?: int32(name='InstanceCount'),
-  message?: string(name='Message'),
-  ownerUid?: string(name='OwnerUid'),
-  postPaidInstanceCount?: int32(name='PostPaidInstanceCount'),
-  prePaidInstanceCount?: int32(name='PrePaidInstanceCount'),
-  requestId?: string(name='RequestId'),
-  resourceId?: string(name='ResourceId'),
-  resourceName?: string(name='ResourceName'),
-  status?: string(name='Status'),
-  updateTime?: string(name='UpdateTime'),
+  clusterId?: string(name='ClusterId', example='cn-beijing'),
+  cpuCount?: int32(name='CpuCount', example='16'),
+  createTime?: string(name='CreateTime', example='2020-05-19T14:19:42Z'),
+  extraData?: string(name='ExtraData', example='{"vswitch_id":"vsw-bp17uo6xebcusy****","gpu_share":true,"aux_vswitch_id_list":["vsw-bp13b3pvjap3vxn****","vsw-bp1nls8o5hk8mt8*****"],"security_group_id":"sg-bp1j1z7297hcink*****","vpc_id":"vpc-bp1kjr3rfyhx01*****","destination_cidr":"172.16.0.12/28","role_arn":"acs:ram::1157703270*****:role/AliyunServiceRoleForPaiEas","sls_project":"","sls_logstore":"","sls_status":"ResourceReady","sls_message":"","update_time":""}'),
+  gpuCount?: int32(name='GpuCount', example='1'),
+  instanceCount?: int32(name='InstanceCount', example='4'),
+  message?: string(name='Message', example='Resource is ready'),
+  ownerUid?: string(name='OwnerUid', example='14401087478****'),
+  postPaidInstanceCount?: int32(name='PostPaidInstanceCount', example='3'),
+  prePaidInstanceCount?: int32(name='PrePaidInstanceCount', example='1'),
+  requestId?: string(name='RequestId', example='902976F2-6FAF-5404-8A4D-6CC223***'),
+  resourceId?: string(name='ResourceId', example='eas-r-glkfpsxuw57x1h*****'),
+  resourceName?: string(name='ResourceName', example='my-resouce****'),
+  status?: string(name='Status', example='ResourceReady'),
+  updateTime?: string(name='UpdateTime', example='2021-02-24T11:52:17Z'),
 }
 
 model DescribeResourceResponse = {
@@ -664,17 +779,17 @@ async function describeResource(request: DescribeResourceRequest): DescribeResou
 }
 
 model DescribeResourceDLinkRequest {
-  clusterId: string(name='ClusterId', description='资源组所在的集群ID', position='Path'),
-  resourceId: string(name='ResourceId', description='资源组的ID', position='Path'),
+  clusterId: string(name='ClusterId', description='资源组所在的集群ID', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', description='资源组的ID', example='eas-r-adfabas', position='Path'),
 }
 
 model DescribeResourceDLinkResponseBody = {
   auxVSwitchList?: [ string ](name='AuxVSwitchList', description='已打通直连的副VSwitch ID'),
-  destinationCIDRs?: string(name='DestinationCIDRs', description='要打通的客户端的网段信息，会将该网段加入到服务端的回包路由中，与VSwitchIdList可二选一'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  securityGroupId?: string(name='SecurityGroupId', description='已打通直连的安全组'),
-  vSwitchId?: string(name='VSwitchId', description='已打通直连的主VSwitch ID'),
-  vpcId?: string(name='VpcId', description='已打通直接的Vpc ID'),
+  destinationCIDRs?: string(name='DestinationCIDRs', description='要打通的客户端的网段信息，会将该网段加入到服务端的回包路由中，与VSwitchIdList可二选一', example='72.16.0.0/16'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+  securityGroupId?: string(name='SecurityGroupId', description='已打通直连的安全组', example='sg-bp1j1z7297hcink9d****'),
+  vSwitchId?: string(name='VSwitchId', description='已打通直连的主VSwitch ID', example='vsw-8vbqn2at0kljjxxxx****'),
+  vpcId?: string(name='VpcId', description='已打通直接的Vpc ID', example='vpc-uf66uio7md****'),
 }
 
 model DescribeResourceDLinkResponse = {
@@ -688,16 +803,16 @@ async function describeResourceDLink(request: DescribeResourceDLinkRequest): Des
 }
 
 model DescribeResourceLogRequest {
-  clusterId: string(name='ClusterId', description='资源组所在的集群ID', position='Path'),
-  resourceId: string(name='ResourceId', description='资源组的ID', position='Path'),
+  clusterId: string(name='ClusterId', description='资源组所在的集群ID', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', description='资源组的ID', example='eas-r-asdasdasd', position='Path'),
 }
 
 model DescribeResourceLogResponseBody = {
-  logStore?: string(name='LogStore', description='sls日志库'),
-  message?: string(name='Message', description='sls日志信息'),
-  projectName?: string(name='ProjectName', description='资源组对应的sls日志管理项目'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  status?: string(name='Status', description='资源组状态'),
+  logStore?: string(name='LogStore', description='sls日志库', example='access_log'),
+  message?: string(name='Message', description='sls日志信息', example='Network interfaces are updating'),
+  projectName?: string(name='ProjectName', description='资源组对应的sls日志管理项目', example='eas-r-asdasdasd-sls'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+  status?: string(name='Status', description='资源组状态', example='ResourceReady'),
 }
 
 model DescribeResourceLogResponse = {
@@ -711,8 +826,8 @@ async function describeResourceLog(request: DescribeResourceLogRequest): Describ
 }
 
 model DescribeServiceRequest {
-  clusterId: string(name='ClusterId', position='Path'),
-  serviceName: string(name='ServiceName', position='Path'),
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', example='foo', position='Path'),
 }
 
 model DescribeServiceResponse = {
@@ -726,30 +841,36 @@ async function describeService(request: DescribeServiceRequest): DescribeService
 }
 
 model DescribeServiceAutoScalerRequest {
-  clusterId: string(name='ClusterId', position='Path'),
-  serviceName: string(name='ServiceName', position='Path'),
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', example='echo', position='Path'),
 }
 
 model DescribeServiceAutoScalerResponseBody = {
-  behavior?: map[string]any(name='Behavior'),
+  behavior?: map[string]any(name='Behavior', example='{
+  "behavior": {
+    "scaleDown": {
+      "stabilizationWindowSeconds": 150
+    }
+  }
+}'),
   currentMetrics?: [ 
     {
-      metricName?: string(name='metricName'),
-      service?: string(name='service'),
-      value?: float(name='value'),
+      metricName?: string(name='metricName', example='qps'),
+      service?: string(name='service', example='demo_svc'),
+      value?: float(name='value', example='10'),
     }
   ](name='CurrentMetrics'),
-  maxReplica?: int32(name='MaxReplica', description='服务最大实例数'),
-  minReplica?: int32(name='MinReplica', description='服务最小实例数'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  maxReplica?: int32(name='MaxReplica', description='服务最大实例数', example='8'),
+  minReplica?: int32(name='MinReplica', description='服务最小实例数', example='3'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
   scaleStrategies?: [ 
     {
-      metricName?: string(name='metricName'),
-      service?: string(name='service'),
-      threshold?: float(name='threshold'),
+      metricName?: string(name='metricName', example='qps'),
+      service?: string(name='service', example='demo_svc'),
+      threshold?: float(name='threshold', example='10'),
     }
   ](name='ScaleStrategies'),
-  serviceName?: string(name='ServiceName', description='服务名字'),
+  serviceName?: string(name='ServiceName', description='服务名字', example='foo'),
 }
 
 model DescribeServiceAutoScalerResponse = {
@@ -763,25 +884,25 @@ async function describeServiceAutoScaler(request: DescribeServiceAutoScalerReque
 }
 
 model DescribeServiceCronScalerRequest {
-  clusterId?: string(name='ClusterId', position='Path'),
-  serviceName?: string(name='ServiceName', position='Path'),
+  clusterId?: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  serviceName?: string(name='ServiceName', example='foo', position='Path'),
 }
 
 model DescribeServiceCronScalerResponseBody = {
   excludeDates?: [ string ](name='ExcludeDates'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
   scaleJobs?: [ 
     {
-      createTime?: string(name='CreateTime'),
-      lastProbeTime?: string(name='LastProbeTime'),
-      message?: string(name='Message'),
-      name?: string(name='Name'),
-      schedule?: string(name='Schedule'),
-      state?: string(name='State'),
-      targetSize?: int32(name='TargetSize'),
+      createTime?: string(name='CreateTime', example='2020-06-24T02:11:30Z'),
+      lastProbeTime?: string(name='LastProbeTime', example='2022-02-24T06:31:00Z'),
+      message?: string(name='Message', example='"cron hpa job scale-jobs-0 executed successfully. current replicas:3, desired replicas:2."'),
+      name?: string(name='Name', example='scale-job-1'),
+      schedule?: string(name='Schedule', example='0 18 * * * *'),
+      state?: string(name='State', example='Succeed'),
+      targetSize?: int32(name='TargetSize', example='1'),
     }
   ](name='ScaleJobs'),
-  serviceName?: string(name='ServiceName'),
+  serviceName?: string(name='ServiceName', example='foo'),
 }
 
 model DescribeServiceCronScalerResponse = {
@@ -795,27 +916,27 @@ async function describeServiceCronScaler(request: DescribeServiceCronScalerReque
 }
 
 model DescribeServiceEventRequest {
-  clusterId: string(name='ClusterId', description='服务对应区域', position='Path'),
-  serviceName: string(name='ServiceName', description='服务对应名称', position='Path'),
-  endTime?: string(name='EndTime', description='日志查询终止时刻（默认当前时刻）', position='Query'),
-  pageNum?: string(name='PageNum', description='请求页码（默认1）', position='Query'),
-  pageSize?: string(name='PageSize', description='每页的大小（默认为100）', position='Query'),
-  startTime?: string(name='StartTime', description='日志查询起始时刻（默认7天前）', position='Query'),
+  clusterId: string(name='ClusterId', description='服务对应区域', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='服务对应名称', example='foo', position='Path'),
+  endTime?: string(name='EndTime', description='日志查询终止时刻（默认当前时刻）', example='2006-01-02 15:04:05', position='Query'),
+  pageNum?: string(name='PageNum', description='请求页码（默认1）', example='1', position='Query'),
+  pageSize?: string(name='PageSize', description='每页的大小（默认为100）', example='20', position='Query'),
+  startTime?: string(name='StartTime', description='日志查询起始时刻（默认7天前）', example='2006-01-02 15:04:05', position='Query'),
 }
 
 model DescribeServiceEventResponseBody = {
   events?: [ 
     {
-      message?: string(name='Message'),
-      reason?: string(name='Reason'),
-      time?: string(name='Time'),
-      type?: string(name='Type'),
+      message?: string(name='Message', example='{\\"versionId\\":1,\\"message\\":\\"Stage scale complete\\",\\"availableInstance\\":1,\\"unavailableInstance\\":0}'),
+      reason?: string(name='Reason', example='Updating'),
+      time?: string(name='Time', example='2022-04-09 06:30:00'),
+      type?: string(name='Type', example='Normal'),
     }
   ](name='Events'),
-  pageNum?: long(name='PageNum'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  totalCount?: long(name='TotalCount'),
-  totalPageNum?: long(name='TotalPageNum'),
+  pageNum?: long(name='PageNum', example='1'),
+  requestId?: string(name='RequestId', description='Id of the request', example='3D491C94-6239-5318-B4B4-799D859***'),
+  totalCount?: long(name='TotalCount', example='29'),
+  totalPageNum?: long(name='TotalPageNum', example='12'),
 }
 
 model DescribeServiceEventResponse = {
@@ -829,22 +950,22 @@ async function describeServiceEvent(request: DescribeServiceEventRequest): Descr
 }
 
 model DescribeServiceLogRequest {
-  clusterId: string(name='ClusterId', position='Path'),
-  serviceName: string(name='ServiceName', position='Path'),
-  endTime?: string(name='EndTime', description='查询的结束时间', position='Query'),
-  ip?: string(name='Ip', description='要查询的机器ip', position='Query'),
-  keyword?: string(name='Keyword', description='查询的关键字', position='Query'),
-  pageNum?: long(name='PageNum', description='请求的页码（默认为1）', position='Query'),
-  pageSize?: long(name='PageSize', description='每页的大小（默认为500）', position='Query'),
-  startTime?: string(name='StartTime', description='查询的开始时间', position='Query'),
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', example='echo', position='Path'),
+  endTime?: string(name='EndTime', description='查询的结束时间', example='2006-01-02 15:04:05', position='Query'),
+  ip?: string(name='Ip', description='要查询的机器ip', example='10.0.0.1', position='Query'),
+  keyword?: string(name='Keyword', description='查询的关键字', example='key', position='Query'),
+  pageNum?: long(name='PageNum', description='请求的页码（默认为1）', example='1', position='Query'),
+  pageSize?: long(name='PageSize', description='每页的大小（默认为500）', example='500', position='Query'),
+  startTime?: string(name='StartTime', description='查询的开始时间', example='2006-01-02 15:04:05', position='Query'),
 }
 
 model DescribeServiceLogResponseBody = {
   logs?: [ string ](name='Logs', description='返回的日志信息'),
-  pageNum?: long(name='PageNum', description='当前页码'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  totalCount?: long(name='TotalCount', description='总计数量'),
-  totalPageNum?: long(name='TotalPageNum', description='总计页码'),
+  pageNum?: long(name='PageNum', description='当前页码', example='1'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82********'),
+  totalCount?: long(name='TotalCount', description='总计数量', example='1'),
+  totalPageNum?: long(name='TotalPageNum', description='总计页码', example='500'),
 }
 
 model DescribeServiceLogResponse = {
@@ -858,15 +979,15 @@ async function describeServiceLog(request: DescribeServiceLogRequest): DescribeS
 }
 
 model DescribeServiceMirrorRequest {
-  clusterId: string(name='ClusterId', description='服务所在区域', position='Path'),
-  serviceName: string(name='ServiceName', description='服务名字', position='Path'),
+  clusterId: string(name='ClusterId', description='服务所在区域', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='服务名字', example='foo', position='Path'),
 }
 
 model DescribeServiceMirrorResponseBody = {
-  ratio?: string(name='Ratio', description='比例[0,100]'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  serviceName?: string(name='ServiceName', description='服务名字'),
-  target?: string(name='Target', description='设置流量镜像对服务列表'),
+  ratio?: string(name='Ratio', description='比例[0,100]', example='50'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+  serviceName?: string(name='ServiceName', description='服务名字', example='foo'),
+  target?: string(name='Target', description='设置流量镜像对服务列表', example='foo2,foo3'),
 }
 
 model DescribeServiceMirrorResponse = {
@@ -879,6 +1000,27 @@ async function describeServiceMirror(request: DescribeServiceMirrorRequest): Des
   return @handler.do('RESTFUL', 'DescribeServiceMirror', 'GET', '/api/v2/services/{ClusterId}/{ServiceName}/mirror', 'json', false, 'json', request);
 }
 
+model DevelopServiceRequest {
+  clusterId: string(name='ClusterId', description='集群Id。', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='服务名', example='echo', position='Path'),
+  exit?: string(name='Exit', description='是否退出开发模式', example='true', position='Query'),
+}
+
+model DevelopServiceResponseBody = {
+  message?: string(name='Message', description='执行结果消息', example='Success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+}
+
+model DevelopServiceResponse = {
+  headers: map[string]string(name='headers'),
+  body: DevelopServiceResponseBody(name='body'),
+}
+
+async function developService(request: DevelopServiceRequest): DevelopServiceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DevelopService', 'PUT', '/api/v2/services/{ClusterId}/{ServiceName}/develop', 'json', false, 'json', request);
+}
+
 model ListBenchmarkTaskRequest {
   filter?: string(name='Filter', position='Query'),
   pageNumber?: string(name='PageNumber', position='Query'),
@@ -889,18 +1031,18 @@ model ListBenchmarkTaskRequest {
 model ListBenchmarkTaskResponseBody = {
   pageNumber?: int32(name='PageNumber'),
   pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
   tasks?: [ 
     {
-      availableAgent?: long(name='AvailableAgent'),
-      createTime?: string(name='CreateTime'),
-      message?: string(name='Message'),
-      region?: string(name='Region'),
-      serviceName?: string(name='ServiceName'),
-      status?: string(name='Status'),
-      taskId?: string(name='TaskId'),
-      taskName?: string(name='TaskName'),
-      updateTime?: string(name='UpdateTime'),
+      availableAgent?: long(name='AvailableAgent', example='2'),
+      createTime?: string(name='CreateTime', example='2020-12-04T02:43:15Z'),
+      message?: string(name='Message', example='Benchmark task [benchmark-larec-test-1076] is Running'),
+      region?: string(name='Region', example='cn-shanghai'),
+      serviceName?: string(name='ServiceName', example='test_quota'),
+      status?: string(name='Status', example='Running'),
+      taskId?: string(name='TaskId', example='eas-b-gv4y86uvgt****i'),
+      taskName?: string(name='TaskName', example='benchmark-larec-test-1076'),
+      updateTime?: string(name='UpdateTime', example='2020-06-24T03:11:30Z'),
     }
   ](name='Tasks'),
   totalCount?: int32(name='TotalCount'),
@@ -917,19 +1059,19 @@ async function listBenchmarkTask(request: ListBenchmarkTaskRequest): ListBenchma
 }
 
 model ListGroupsRequest {
-  filter?: string(name='Filter', description='名字过滤', position='Query'),
-  pageNumber?: string(name='PageNumber', description='页码数，默认1', position='Query'),
-  pageSize?: string(name='PageSize', description='每页大小，默认100', position='Query'),
+  filter?: string(name='Filter', description='名字过滤', example='foo', position='Query'),
+  pageNumber?: string(name='PageNumber', description='页码数，默认1', example='1', position='Query'),
+  pageSize?: string(name='PageSize', description='每页大小，默认100', example='20', position='Query'),
 }
 
 model ListGroupsResponseBody = {
   groups?: [
     Group
   ](name='Groups'),
-  pageNumber?: long(name='PageNumber'),
-  pageSize?: long(name='PageSize'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  totalCount?: long(name='TotalCount'),
+  pageNumber?: long(name='PageNumber', example='1'),
+  pageSize?: long(name='PageSize', example='20'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+  totalCount?: long(name='TotalCount', example='5'),
 }
 
 model ListGroupsResponse = {
@@ -943,21 +1085,21 @@ async function listGroups(request: ListGroupsRequest): ListGroupsResponse {
 }
 
 model ListResourceInstanceWorkerRequest {
-  clusterId: string(name='ClusterId', position='Path'),
-  resourceId: string(name='ResourceId', position='Path'),
-  instanceName: string(name='InstanceName', position='Path'),
-  pageNumber?: int32(name='PageNumber', position='Query'),
-  pageSize?: int32(name='PageSize', position='Query'),
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', example='eas-r-adfabas', position='Path'),
+  instanceName: string(name='InstanceName', example='cne10', position='Path'),
+  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', example='20', position='Query'),
 }
 
 model ListResourceInstanceWorkerResponseBody = {
-  pageNumber?: int32(name='PageNumber', description='当前页码'),
-  pageSize?: int32(name='PageSize', description='每页大小'),
+  pageNumber?: int32(name='PageNumber', description='当前页码', example='1'),
+  pageSize?: int32(name='PageSize', description='每页大小', example='20'),
   pods?: [
     ResourceInstanceWorker
   ](name='Pods', description='pod列表'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  totalCount?: int32(name='TotalCount', description='pod总数'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+  totalCount?: int32(name='TotalCount', description='pod总数', example='1'),
 }
 
 model ListResourceInstanceWorkerResponse = {
@@ -971,25 +1113,25 @@ async function listResourceInstanceWorker(request: ListResourceInstanceWorkerReq
 }
 
 model ListResourceInstancesRequest {
-  clusterId: string(name='ClusterId', description='资源组所在的集群ID', position='Path'),
-  resourceId: string(name='ResourceId', description='资源组的ID', position='Path'),
+  clusterId: string(name='ClusterId', description='资源组所在的集群ID', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', description='资源组的ID', example='iot', position='Path'),
   chargeType?: string(name='ChargeType', description='付费类型
 PrePaid预付费
-PostPaid后付费', position='Query'),
+PostPaid后付费', example='PrePaid', position='Query'),
   instanceId?: string(name='InstanceId', position='Query'),
   instanceName?: string(name='InstanceName', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='请求的页码（默认为1）', position='Query'),
-  pageSize?: int32(name='PageSize', description='每页的大小（默认为100）', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='请求的页码（默认为1）', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='每页的大小（默认为100）', example='20', position='Query'),
 }
 
 model ListResourceInstancesResponseBody = {
   instances?: [
     ResourceInstance
   ](name='Instances'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  totalCount?: int32(name='TotalCount'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='20'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+  totalCount?: int32(name='TotalCount', example='2'),
 }
 
 model ListResourceInstancesResponse = {
@@ -1003,20 +1145,20 @@ async function listResourceInstances(request: ListResourceInstancesRequest): Lis
 }
 
 model ListResourceServicesRequest {
-  clusterId: string(name='ClusterId', description='资源组所在的集群ID', position='Path'),
-  resourceId: string(name='ResourceId', description='资源组的ID', position='Path'),
-  pageNumber?: int32(name='PageNumber', description='请求的页码（默认为1）', position='Query'),
-  pageSize?: int32(name='PageSize', description='每页的大小（默认为100）', position='Query'),
+  clusterId: string(name='ClusterId', description='资源组所在的集群ID', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', description='资源组的ID', example='iot', position='Path'),
+  pageNumber?: int32(name='PageNumber', description='请求的页码（默认为1）', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='每页的大小（默认为100）', example='20', position='Query'),
 }
 
 model ListResourceServicesResponseBody = {
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='20'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
   services?: [
     Service
   ](name='Services'),
-  totalCount?: int32(name='TotalCount'),
+  totalCount?: int32(name='TotalCount', example='2'),
 }
 
 model ListResourceServicesResponse = {
@@ -1030,20 +1172,20 @@ async function listResourceServices(request: ListResourceServicesRequest): ListR
 }
 
 model ListResourcesRequest {
-  pageNumber?: int32(name='PageNumber', description='请求的页码（默认为1）', position='Query'),
-  pageSize?: int32(name='PageSize', description='每页的大小（默认为100）', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='请求的页码（默认为1）', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='每页的大小（默认为100）', example='20', position='Query'),
   resourceId?: string(name='ResourceId', position='Query'),
   resourceName?: string(name='ResourceName', position='Query'),
 }
 
 model ListResourcesResponseBody = {
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='20'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
   resources?: [
     Resource
   ](name='Resources'),
-  totalCount?: int32(name='TotalCount'),
+  totalCount?: int32(name='TotalCount', example='1'),
 }
 
 model ListResourcesResponse = {
@@ -1057,20 +1199,20 @@ async function listResources(request: ListResourcesRequest): ListResourcesRespon
 }
 
 model ListServiceInstancesRequest {
-  clusterId: string(name='ClusterId', description='服务所在区域', position='Path'),
-  serviceName: string(name='ServiceName', description='服务名字', position='Path'),
-  pageNumber?: int32(name='PageNumber', description='请求的页码（默认为1）', position='Query'),
-  pageSize?: int32(name='PageSize', description='每页的大小（默认为100）', position='Query'),
+  clusterId: string(name='ClusterId', description='服务所在区域', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='服务名字', example='foo', position='Path'),
+  pageNumber?: int32(name='PageNumber', description='请求的页码（默认为1）', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='每页的大小（默认为100）', example='20', position='Query'),
 }
 
 model ListServiceInstancesResponseBody = {
   instances?: [
     Instance
   ](name='Instances'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId', description='Id of the request'),
-  totalCount?: int32(name='TotalCount'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='20'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+  totalCount?: int32(name='TotalCount', example='1'),
 }
 
 model ListServiceInstancesResponse = {
@@ -1084,24 +1226,24 @@ async function listServiceInstances(request: ListServiceInstancesRequest): ListS
 }
 
 model ListServiceVersionsRequest {
-  clusterId: string(name='ClusterId', description='服务所在区域', position='Path'),
-  serviceName: string(name='ServiceName', description='服务名字', position='Path'),
-  pageNumber?: int32(name='PageNumber', description='请求的页码（默认为1）', position='Query'),
-  pageSize?: int32(name='PageSize', description='每页的大小（默认为100）', position='Query'),
+  clusterId: string(name='ClusterId', description='服务所在区域', example='cn-hangzhou', position='Path'),
+  serviceName: string(name='ServiceName', description='服务名字', example='test_oss', position='Path'),
+  pageNumber?: int32(name='PageNumber', description='请求的页码（默认为1）', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='每页的大小（默认为100）', example='10', position='Query'),
 }
 
 model ListServiceVersionsResponseBody = {
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId'),
-  totalCount?: long(name='TotalCount'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='E089D584-B6F4-50C4-9902-DA2295B7****'),
+  totalCount?: long(name='TotalCount', example='166'),
   versions?: [ 
     {
-      buildTime?: string(name='BuildTime'),
-      imageAvailable?: string(name='ImageAvailable'),
-      imageId?: int32(name='ImageId'),
-      message?: string(name='Message'),
-      serviceRunnable?: string(name='ServiceRunnable'),
+      buildTime?: string(name='BuildTime', example='2022-08-29T22:02:14Z'),
+      imageAvailable?: string(name='ImageAvailable', example='true'),
+      imageId?: int32(name='ImageId', example='4'),
+      message?: string(name='Message', example='Service is Running'),
+      serviceRunnable?: string(name='ServiceRunnable', example='true'),
     }
   ](name='Versions'),
 }
@@ -1117,22 +1259,25 @@ async function listServiceVersions(request: ListServiceVersionsRequest): ListSer
 }
 
 model ListServicesRequest {
-  filter?: string(name='Filter', description='模糊匹配字段（只支持按服务名字模糊匹配）', position='Query'),
-  groupName?: string(name='GroupName', description='服务组名称过滤', position='Query'),
-  order?: string(name='Order', description='排序方式（默认降序）', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='请求的页码（默认为1）', position='Query'),
-  pageSize?: int32(name='PageSize', description='每页的大小（默认为100）', position='Query'),
-  sort?: string(name='Sort', description='排序字段 （时间戳类型默认倒序排序）', position='Query'),
+  filter?: string(name='Filter', description='关键字搜索。', example='foo', position='Query'),
+  groupName?: string(name='GroupName', description='所属的group。', example='foo', position='Query'),
+  label?: map[string]string(name='Label', shrink='json', position='Query'),
+  order?: string(name='Order', description='排序顺序，支持升序或将序。', example='asc', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='页号。', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='每页大小。', example='100', position='Query'),
+  parentServiceUid?: string(name='ParentServiceUid', description='Band类型服务主服务的UID', example='eas-m-baxkc20nsyxxxx', position='Query'),
+  serviceType?: string(name='ServiceType', description='服务的类型，例如Async, OfflineTask和Standard等', example='Async', position='Query'),
+  sort?: string(name='Sort', description='排序字段。', example='CreateTime', position='Query'),
 }
 
 model ListServicesResponseBody = {
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  pageNumber?: int32(name='PageNumber', description='页码。', example='1'),
+  pageSize?: int32(name='PageSize', description='每页显示的服务数。', example='100'),
+  requestId?: string(name='RequestId', description='请求ID。', example='40325405-579C-4D82****'),
   services?: [
     Service
-  ](name='Services'),
-  totalCount?: int32(name='TotalCount'),
+  ](name='Services', description='服务列表。'),
+  totalCount?: int32(name='TotalCount', description='服务总数。', example='2'),
 }
 
 model ListServicesResponse = {
@@ -1146,15 +1291,15 @@ async function listServices(request: ListServicesRequest): ListServicesResponse 
 }
 
 model ReleaseServiceRequest {
-  clusterId: string(name='ClusterId', description='服务所在区域', position='Path'),
-  serviceName: string(name='ServiceName', description='服务名字', position='Path'),
-  trafficState?: string(name='TrafficState', position='Body'),
-  weight?: int32(name='Weight', description='灰度权重，范围 [0, 100]', position='Body'),
+  clusterId: string(name='ClusterId', description='服务所在区域', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='服务名字', example='foo', position='Path'),
+  trafficState?: string(name='TrafficState', example='grouping', position='Body'),
+  weight?: int32(name='Weight', description='灰度权重，范围 [0, 100]', example='100', position='Body'),
 }
 
 model ReleaseServiceResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Releasing service [foo] in region [cn-shanghai] with weight [40], service status: [Running]'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
 }
 
 model ReleaseServiceResponse = {
@@ -1168,13 +1313,13 @@ async function releaseService(request: ReleaseServiceRequest): ReleaseServiceRes
 }
 
 model StartBenchmarkTaskRequest {
-  clusterId: string(name='ClusterId', position='Path'),
-  taskName: string(name='TaskName', position='Path'),
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  taskName: string(name='TaskName', example='benchmark-larec-test-3bc6', position='Path'),
 }
 
 model StartBenchmarkTaskResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Benchmark task [benchmark-larec-test-1076] is Starting'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model StartBenchmarkTaskResponse = {
@@ -1188,13 +1333,13 @@ async function startBenchmarkTask(request: StartBenchmarkTaskRequest): StartBenc
 }
 
 model StartServiceRequest {
-  clusterId: string(name='ClusterId', description='服务所在区域', position='Path'),
-  serviceName: string(name='ServiceName', description='服务名字', position='Path'),
+  clusterId: string(name='ClusterId', description='服务所在区域', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='服务名字', example='foo', position='Path'),
 }
 
 model StartServiceResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Service [foo] in region [cn-shanghai] is starting'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
 }
 
 model StartServiceResponse = {
@@ -1208,13 +1353,13 @@ async function startService(request: StartServiceRequest): StartServiceResponse 
 }
 
 model StopBenchmarkTaskRequest {
-  clusterId: string(name='ClusterId', position='Path'),
-  taskName: string(name='TaskName', position='Path'),
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  taskName: string(name='TaskName', example='benchmark-larec-test-dbe5', position='Path'),
 }
 
 model StopBenchmarkTaskResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Benchmark task [benchmark-larec-test-1076] is Stopping'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model StopBenchmarkTaskResponse = {
@@ -1228,13 +1373,13 @@ async function stopBenchmarkTask(request: StopBenchmarkTaskRequest): StopBenchma
 }
 
 model StopServiceRequest {
-  clusterId: string(name='ClusterId', description='服务所在区域', position='Path'),
-  serviceName: string(name='ServiceName', description='服务名字', position='Path'),
+  clusterId: string(name='ClusterId', description='服务所在区域', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='服务名字', example='foo', position='Path'),
 }
 
 model StopServiceResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Succeed to auto scale service [foo]'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
 }
 
 model StopServiceResponse = {
@@ -1248,14 +1393,18 @@ async function stopService(request: StopServiceRequest): StopServiceResponse {
 }
 
 model UpdateBenchmarkTaskRequest {
-  clusterId: string(name='ClusterId', position='Path'),
-  taskName: string(name='TaskName', position='Path'),
-  body?: string(name='body', position='Body'),
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  taskName: string(name='TaskName', example='benchmark-larec-test-645c', position='Path'),
+  body?: string(name='body', example='{
+    "base":  {
+         "qps": 200
+    }
+}', position='Body'),
 }
 
 model UpdateBenchmarkTaskResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Benchmark task [benchmark-larec-test-1076] is Updating'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82***'),
 }
 
 model UpdateBenchmarkTaskResponse = {
@@ -1269,15 +1418,15 @@ async function updateBenchmarkTask(request: UpdateBenchmarkTaskRequest): UpdateB
 }
 
 model UpdateResourceRequest {
-  clusterId: string(name='ClusterId', description='资源组所在的集群ID', position='Path'),
-  resourceId: string(name='ResourceId', description='资源组的ID', position='Path'),
-  resourceName: string(name='ResourceName', description='新的资源组名称', position='Body'),
+  clusterId: string(name='ClusterId', description='资源组所在的集群ID', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', description='资源组的ID', example='eas-r-asdasdasd', position='Path'),
+  resourceName: string(name='ResourceName', description='新的资源组名称', example='iot', position='Body'),
 }
 
 model UpdateResourceResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
-  resourceId?: string(name='ResourceId'),
-  resourceName?: string(name='ResourceName'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+  resourceId?: string(name='ResourceId', example='eas-r-asdasdasd'),
+  resourceName?: string(name='ResourceName', example='iot'),
 }
 
 model UpdateResourceResponse = {
@@ -1291,17 +1440,17 @@ async function updateResource(request: UpdateResourceRequest): UpdateResourceRes
 }
 
 model UpdateResourceDLinkRequest {
-  clusterId: string(name='ClusterId', description='资源组所在的集群ID', position='Path'),
-  resourceId: string(name='ResourceId', description='资源组的Id', position='Path'),
-  destinationCIDRs?: string(name='DestinationCIDRs', description='要打通的客户端的网段信息，会将该网段加入到服务端的回包路由中，与VSwitchIdList可二选一', position='Body'),
-  securityGroupId: string(name='SecurityGroupId', description='客户端ECS归属的安全组', position='Body'),
-  vSwitchId: string(name='VSwitchId', description='对端的主VSwitchID，会在该vswitch中创建ENI', position='Body'),
+  clusterId: string(name='ClusterId', description='资源组所在的集群ID', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', description='资源组的Id', example='iot', position='Path'),
+  destinationCIDRs?: string(name='DestinationCIDRs', description='要打通的客户端的网段信息，会将该网段加入到服务端的回包路由中，与VSwitchIdList可二选一', example='72.16.0.0/16', position='Body'),
+  securityGroupId: string(name='SecurityGroupId', description='客户端ECS归属的安全组', example='sg-bp149cedsfx2rfspd2d', position='Body'),
+  vSwitchId: string(name='VSwitchId', description='对端的主VSwitchID，会在该vswitch中创建ENI', example='vpc-uf66uio7md****', position='Body'),
   vSwitchIdList?: [ string ](name='VSwitchIdList', description='要打通的客户端的vswitch列表，会将这些vswitch对应的网段加入到服务端的回包路由中', position='Body'),
 }
 
 model UpdateResourceDLinkResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Network interfaces are updating'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
 }
 
 model UpdateResourceDLinkResponse = {
@@ -1315,16 +1464,16 @@ async function updateResourceDLink(request: UpdateResourceDLinkRequest): UpdateR
 }
 
 model UpdateResourceInstanceRequest {
-  clusterId: string(name='ClusterId', description='实例所属集群', position='Path'),
-  resourceId: string(name='ResourceId', description='实例所属资源组Id', position='Path'),
-  instanceId: string(name='InstanceId', description='实例Id', position='Path'),
-  action: string(name='Action', description='更新服务的行为：Cordon, Uncordon, Drain', position='Body'),
+  clusterId: string(name='ClusterId', description='实例所属集群', example='cn-beijing', position='Path'),
+  resourceId: string(name='ResourceId', description='实例所属资源组Id', example='eas-r-asdasdasd', position='Path'),
+  instanceId: string(name='InstanceId', description='实例Id', example='eas-i-asdasdasd', position='Path'),
+  action: string(name='Action', description='更新服务的行为：Cordon, Uncordon, Drain', example='Cordon', position='Body'),
 }
 
 model UpdateResourceInstanceResponseBody = {
-  instanceId?: string(name='InstanceId', description='实例名'),
-  requestId?: string(name='RequestId', description='请求ID'),
-  resourceId?: string(name='ResourceId', description='资源组ID'),
+  instanceId?: string(name='InstanceId', description='实例名', example='eas-i-asdasdasd'),
+  requestId?: string(name='RequestId', description='请求ID', example='40325405-579C-4D82****'),
+  resourceId?: string(name='ResourceId', description='资源组ID', example='eas-r-asdasdasd'),
 }
 
 model UpdateResourceInstanceResponse = {
@@ -1338,14 +1487,14 @@ async function updateResourceInstance(request: UpdateResourceInstanceRequest): U
 }
 
 model UpdateServiceRequest {
-  clusterId?: string(name='ClusterId', position='Path'),
-  serviceName?: string(name='ServiceName', position='Path'),
-  body?: string(name='body', position='Body'),
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  body?: string(name='body', example='{   "name": "foo",   "model_path": "http://path/to/model.tar.gz",   "processor": "tensorflow_cpu",   "metadata": {     "instance": 2,     "memory": 7000,     "cpu": 4   } }', position='Body'),
 }
 
 model UpdateServiceResponseBody = {
-  message?: string(name='Message', description='请求返回消息。'),
-  requestId?: string(name='RequestId', description='请求ID。'),
+  message?: string(name='Message', description='请求返回消息。', example='Succeed to update service [foo] in region [cn-shanghai]'),
+  requestId?: string(name='RequestId', description='请求ID。', example='40325405-579C-4D82****'),
 }
 
 model UpdateServiceResponse = {
@@ -1359,22 +1508,22 @@ async function updateService(request: UpdateServiceRequest): UpdateServiceRespon
 }
 
 model UpdateServiceAutoScalerRequest {
-  clusterId: string(name='ClusterId', position='Path'),
-  serviceName: string(name='ServiceName', position='Path'),
-  max: int32(name='max', description='最大 replica 数，需要大于MinReplica', position='Body'),
-  min: int32(name='min', description='最小 replica 数，需要大于0', position='Body'),
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  max: int32(name='max', description='最大 replica 数，需要大于MinReplica', example='8', position='Body'),
+  min: int32(name='min', description='最小 replica 数，需要大于0', example='2', position='Body'),
   scaleStrategies: [ 
     {
-      metricName: string(name='metricName'),
-      service?: string(name='service'),
-      threshold: float(name='threshold'),
+      metricName: string(name='metricName', example='qps'),
+      service?: string(name='service', example='demo_svc'),
+      threshold: float(name='threshold', example='100'),
     }
   ](name='scaleStrategies', position='Body'),
 }
 
 model UpdateServiceAutoScalerResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Update auto scale for service [foo] successfully'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
 }
 
 model UpdateServiceAutoScalerResponse = {
@@ -1388,21 +1537,21 @@ async function updateServiceAutoScaler(request: UpdateServiceAutoScalerRequest):
 }
 
 model UpdateServiceCronScalerRequest {
-  clusterId: string(name='ClusterId', description='服务所在区域', position='Path'),
-  serviceName: string(name='ServiceName', description='服务名字', position='Path'),
+  clusterId: string(name='ClusterId', description='服务所在区域', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='服务名字', example='foo', position='Path'),
   excludeDates?: [ string ](name='ExcludeDates', description='需要排除的时间点的cron表达式', position='Body'),
   scaleJobs: [ 
     {
-      name?: string(name='Name'),
-      schedule: string(name='Schedule', description='要执行伸缩任务的cron表达式'),
-      targetSize: int32(name='TargetSize', description='执行伸缩任务的目标replica'),
+      name?: string(name='Name', example='scale-job-1'),
+      schedule: string(name='Schedule', description='要执行伸缩任务的cron表达式', example='0 18 * * * *'),
+      targetSize: int32(name='TargetSize', description='执行伸缩任务的目标replica', example='2'),
     }
   ](name='ScaleJobs', description='定时伸缩任务描述', position='Body'),
 }
 
 model UpdateServiceCronScalerResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Update cron scaler for service [foo] successfully'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
 }
 
 model UpdateServiceCronScalerResponse = {
@@ -1415,16 +1564,37 @@ async function updateServiceCronScaler(request: UpdateServiceCronScalerRequest):
   return @handler.do('RESTFUL', 'UpdateServiceCronScaler', 'PUT', '/api/v2/services/{ClusterId}/{ServiceName}/cronscaler', 'json', false, 'json', request);
 }
 
+model UpdateServiceLabelRequest {
+  clusterId: string(name='ClusterId', description='服务所在区域', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='服务名字', example='foo', position='Path'),
+  labels: map[string]string(name='Labels', description='自定义服务标签', position='Body'),
+}
+
+model UpdateServiceLabelResponseBody = {
+  message?: string(name='Message', description='返回信息。', example='Success.'),
+  requestId?: string(name='RequestId', description='请求Id', example='40325405-579C-4D82****'),
+}
+
+model UpdateServiceLabelResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateServiceLabelResponseBody(name='body'),
+}
+
+async function updateServiceLabel(request: UpdateServiceLabelRequest): UpdateServiceLabelResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateServiceLabel', 'PUT', '/api/v2/services/{ClusterId}/{ServiceName}/label', 'json', false, 'json', request);
+}
+
 model UpdateServiceMirrorRequest {
-  clusterId: string(name='ClusterId', description='服务所在区域', position='Path'),
-  serviceName: string(name='ServiceName', description='服务名字', position='Path'),
-  ratio?: int32(name='Ratio', description='比例 [0, 100]', position='Body'),
+  clusterId: string(name='ClusterId', description='服务所在区域', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='服务名字', example='foo', position='Path'),
+  ratio?: int32(name='Ratio', description='比例 [0, 100]', example='30', position='Body'),
   target?: [ string ](name='Target', description='服务实例列表', position='Body'),
 }
 
 model UpdateServiceMirrorResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Traffic mirroring is updating for service [foo] in region [cn-shanghia], ratio [70%]'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82***'),
 }
 
 model UpdateServiceMirrorResponse = {
@@ -1438,14 +1608,14 @@ async function updateServiceMirror(request: UpdateServiceMirrorRequest): UpdateS
 }
 
 model UpdateServiceSafetyLockRequest {
-  clusterId: string(name='ClusterId', position='Path'),
-  serviceName: string(name='ServiceName', position='Path'),
-  lock: string(name='Lock', position='Body'),
+  clusterId: string(name='ClusterId', example='cn-beijing', position='Path'),
+  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  lock: string(name='Lock', example='dangerous', position='Body'),
 }
 
 model UpdateServiceSafetyLockResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='service safety lock updated to dangerous'),
+  requestId?: string(name='RequestId', example='E089D584-B6F4-50C4-9902-DA2295B7****'),
 }
 
 model UpdateServiceSafetyLockResponse = {
@@ -1459,14 +1629,14 @@ async function updateServiceSafetyLock(request: UpdateServiceSafetyLockRequest):
 }
 
 model UpdateServiceVersionRequest {
-  clusterId: string(name='ClusterId', description='服务所在区域', position='Path'),
-  serviceName: string(name='ServiceName', description='服务名字', position='Path'),
-  version: int32(name='Version', position='Body'),
+  clusterId: string(name='ClusterId', description='服务所在区域', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='服务名字', example='echo', position='Path'),
+  version: int32(name='Version', example='1', position='Body'),
 }
 
 model UpdateServiceVersionResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  message?: string(name='Message', example='Service [foo] in region [cn-shanghai] is starting'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
 }
 
 model UpdateServiceVersionResponse = {

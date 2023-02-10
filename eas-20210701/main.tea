@@ -66,9 +66,13 @@ model Instance {
   namespace?: string(name='Namespace'),
   readyProcesses?: int32(name='ReadyProcesses'),
   reason?: string(name='Reason'),
+  resourceType?: string(name='ResourceType', example='PublicResource'),
   restartCount?: int32(name='RestartCount'),
+  role?: string(name='Role', example='Standard'),
   startAt?: string(name='StartAt'),
   status?: string(name='Status'),
+  tenantHostIP?: string(name='TenantHostIP', example='192.168.0.39'),
+  tenantInstanceIP?: string(name='TenantInstanceIP', example='192.168.0.39'),
   totalProcesses?: int32(name='TotalProcesses'),
 }
 
@@ -102,9 +106,11 @@ model ResourceInstance {
   instanceMemory?: string(name='InstanceMemory'),
   instanceName?: string(name='InstanceName'),
   instanceStatus?: string(name='InstanceStatus'),
+  instanceTenantIp?: string(name='InstanceTenantIp'),
   instanceType?: string(name='InstanceType'),
   instanceUsedCpu?: float(name='InstanceUsedCpu'),
-  instanceUsedGpu?: int32(name='InstanceUsedGpu'),
+  instanceUsedGpu?: float(name='InstanceUsedGpu'),
+  instanceUsedGpuMemory?: string(name='InstanceUsedGpuMemory'),
   instanceUsedMemory?: string(name='InstanceUsedMemory'),
   region?: string(name='Region'),
   zone?: string(name='Zone'),
@@ -136,6 +142,12 @@ model Service {
   image?: string(name='Image'),
   internetEndpoint?: string(name='InternetEndpoint'),
   intranetEndpoint?: string(name='IntranetEndpoint'),
+  labels?: [ 
+    {
+      labelKey?: string(name='LabelKey'),
+      labelValue?: string(name='LabelValue'),
+    }
+  ](name='Labels'),
   latestVersion?: int32(name='LatestVersion'),
   memory?: int32(name='Memory'),
   message?: string(name='Message'),
@@ -163,27 +175,71 @@ model Service {
   weight?: int32(name='Weight'),
 }
 
+model CommitServiceResponseBody = {
+  message?: string(name='Message', example='Success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+}
+
+model CommitServiceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CommitServiceResponseBody(name='body'),
+}
+
+async function commitServiceWithOptions(ClusterId: string, ServiceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): CommitServiceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'CommitService',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(ServiceName)}/commit`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function commitService(ClusterId: string, ServiceName: string): CommitServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return commitServiceWithOptions(ClusterId, ServiceName, headers, runtime);
+}
+
 model CreateBenchmarkTaskRequest {
-  body?: string(name='body'),
+  body?: string(name='body', example='{
+    "base": {
+        "duration": 600
+    },
+    "service": {
+        "serviceName": "test_service",
+        "requestToken": "test_token"
+    },
+    "data": {
+        "path": "https://larec-benchmark-cd.oss-cn-chengdu.aliyuncs.com/youbei/sv_dbmtl/data/youbei.warmup.tf.bin",
+        "dataType": "binary"
+    },
+    "optional": {
+       "maxRt": 100
+    }
+}'),
 }
 
 model CreateBenchmarkTaskResponseBody = {
-  message?: string(name='Message'),
-  region?: string(name='Region'),
-  requestId?: string(name='RequestId'),
-  taskName?: string(name='TaskName'),
+  message?: string(name='Message', example='Benchmark  task [foo] is Creating'),
+  region?: string(name='Region', example='cn-shanghai'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82********'),
+  taskName?: string(name='TaskName', example='benchmark-larec-test-1076'),
 }
 
 model CreateBenchmarkTaskResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: CreateBenchmarkTaskResponseBody(name='body'),
-}
-
-async function createBenchmarkTask(request: CreateBenchmarkTaskRequest): CreateBenchmarkTaskResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createBenchmarkTaskWithOptions(request, headers, runtime);
 }
 
 async function createBenchmarkTaskWithOptions(request: CreateBenchmarkTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateBenchmarkTaskResponse {
@@ -206,31 +262,31 @@ async function createBenchmarkTaskWithOptions(request: CreateBenchmarkTaskReques
   return callApi(params, req, runtime);
 }
 
+async function createBenchmarkTask(request: CreateBenchmarkTaskRequest): CreateBenchmarkTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createBenchmarkTaskWithOptions(request, headers, runtime);
+}
+
 model CreateResourceRequest {
-  autoRenewal?: boolean(name='AutoRenewal'),
-  chargeType?: string(name='ChargeType'),
-  ecsInstanceCount?: int32(name='EcsInstanceCount'),
-  ecsInstanceType?: string(name='EcsInstanceType'),
+  autoRenewal?: boolean(name='AutoRenewal', example='false'),
+  chargeType?: string(name='ChargeType', example='PostPaid'),
+  ecsInstanceCount?: int32(name='EcsInstanceCount', example='5'),
+  ecsInstanceType?: string(name='EcsInstanceType', example='ecs.c6.8xlarge'),
 }
 
 model CreateResourceResponseBody = {
-  clusterId?: string(name='ClusterId'),
-  ownerUid?: string(name='OwnerUid'),
-  requestId?: string(name='RequestId'),
-  resourceId?: string(name='ResourceId'),
-  resourceName?: string(name='ResourceName'),
+  clusterId?: string(name='ClusterId', example='cn-shanghai'),
+  ownerUid?: string(name='OwnerUid', example='14401087478****'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  resourceId?: string(name='ResourceId', example='eas-r-h7lcw24dyqztwxxxxxx'),
+  resourceName?: string(name='ResourceName', example='MyResource'),
 }
 
 model CreateResourceResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: CreateResourceResponseBody(name='body'),
-}
-
-async function createResource(request: CreateResourceRequest): CreateResourceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createResourceWithOptions(request, headers, runtime);
 }
 
 async function createResourceWithOptions(request: CreateResourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateResourceResponse {
@@ -267,29 +323,29 @@ async function createResourceWithOptions(request: CreateResourceRequest, headers
   return callApi(params, req, runtime);
 }
 
+async function createResource(request: CreateResourceRequest): CreateResourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createResourceWithOptions(request, headers, runtime);
+}
+
 model CreateResourceInstancesRequest {
-  autoRenewal?: boolean(name='AutoRenewal'),
-  chargeType?: string(name='ChargeType'),
-  ecsInstanceCount?: int32(name='EcsInstanceCount'),
-  ecsInstanceType?: string(name='EcsInstanceType'),
-  userData?: string(name='UserData'),
+  autoRenewal?: boolean(name='AutoRenewal', example='false'),
+  chargeType?: string(name='ChargeType', example='PrePaid'),
+  ecsInstanceCount?: int32(name='EcsInstanceCount', example='5'),
+  ecsInstanceType?: string(name='EcsInstanceType', example='ecs.s6-c1m2.xlarge'),
+  userData?: string(name='UserData', example='x112223333'),
 }
 
 model CreateResourceInstancesResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Create 5 new ecs instance(s) in resource [eas-r-asdasdasd] successfully'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model CreateResourceInstancesResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: CreateResourceInstancesResponseBody(name='body'),
-}
-
-async function createResourceInstances(ClusterId: string, ResourceId: string, request: CreateResourceInstancesRequest): CreateResourceInstancesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createResourceInstancesWithOptions(ClusterId, ResourceId, request, headers, runtime);
 }
 
 async function createResourceInstancesWithOptions(ClusterId: string, ResourceId: string, request: CreateResourceInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateResourceInstancesResponse {
@@ -329,26 +385,26 @@ async function createResourceInstancesWithOptions(ClusterId: string, ResourceId:
   return callApi(params, req, runtime);
 }
 
+async function createResourceInstances(ClusterId: string, ResourceId: string, request: CreateResourceInstancesRequest): CreateResourceInstancesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createResourceInstancesWithOptions(ClusterId, ResourceId, request, headers, runtime);
+}
+
 model CreateResourceLogRequest {
-  logStore?: string(name='LogStore'),
-  projectName?: string(name='ProjectName'),
+  logStore?: string(name='LogStore', example='access_log'),
+  projectName?: string(name='ProjectName', example='eas-r-asdasdasd-sls'),
 }
 
 model CreateResourceLogResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Resource [eas-r-asdasdasd] is deleted.'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model CreateResourceLogResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: CreateResourceLogResponseBody(name='body'),
-}
-
-async function createResourceLog(ClusterId: string, ResourceId: string, request: CreateResourceLogRequest): CreateResourceLogResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createResourceLogWithOptions(ClusterId, ResourceId, request, headers, runtime);
 }
 
 async function createResourceLogWithOptions(ClusterId: string, ResourceId: string, request: CreateResourceLogRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateResourceLogResponse {
@@ -379,18 +435,32 @@ async function createResourceLogWithOptions(ClusterId: string, ResourceId: strin
   return callApi(params, req, runtime);
 }
 
+async function createResourceLog(ClusterId: string, ResourceId: string, request: CreateResourceLogRequest): CreateResourceLogResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createResourceLogWithOptions(ClusterId, ResourceId, request, headers, runtime);
+}
+
 model CreateServiceRequest {
+  develop?: string(name='Develop'),
+  labels?: map[string]string(name='Labels'),
+  body?: string(name='body'),
+}
+
+model CreateServiceShrinkRequest {
+  develop?: string(name='Develop'),
+  labelsShrink?: string(name='Labels'),
   body?: string(name='body'),
 }
 
 model CreateServiceResponseBody = {
-  internetEndpoint?: string(name='InternetEndpoint'),
-  intranetEndpoint?: string(name='IntranetEndpoint'),
-  region?: string(name='Region'),
-  requestId?: string(name='RequestId'),
-  serviceId?: string(name='ServiceId'),
-  serviceName?: string(name='ServiceName'),
-  status?: string(name='Status'),
+  internetEndpoint?: string(name='InternetEndpoint', example='http://pai-eas.vpc.cn-shanghai.****'),
+  intranetEndpoint?: string(name='IntranetEndpoint', example='http://pai-eas.cn-shanghai.****'),
+  region?: string(name='Region', example='cn-shanghai'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  serviceId?: string(name='ServiceId', example='eas-m-aaxxxddf'),
+  serviceName?: string(name='ServiceName', example='yourname'),
+  status?: string(name='Status', example='Creating'),
 }
 
 model CreateServiceResponse = {
@@ -399,16 +469,24 @@ model CreateServiceResponse = {
   body: CreateServiceResponseBody(name='body'),
 }
 
-async function createService(request: CreateServiceRequest): CreateServiceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createServiceWithOptions(request, headers, runtime);
-}
+async function createServiceWithOptions(tmpReq: CreateServiceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateServiceResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateServiceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.labels)) {
+    request.labelsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.labels, 'Labels', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.develop)) {
+    query['Develop'] = request.develop;
+  }
+  if (!Util.isUnset(request.labelsShrink)) {
+    query['Labels'] = request.labelsShrink;
+  }
 
-async function createServiceWithOptions(request: CreateServiceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateServiceResponse {
-  Util.validateModel(request);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
     body = request.body,
   };
   var params = new OpenApi.Params{
@@ -425,33 +503,33 @@ async function createServiceWithOptions(request: CreateServiceRequest, headers: 
   return callApi(params, req, runtime);
 }
 
+async function createService(request: CreateServiceRequest): CreateServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createServiceWithOptions(request, headers, runtime);
+}
+
 model CreateServiceAutoScalerRequest {
-  max?: int32(name='max'),
-  min?: int32(name='min'),
+  max?: int32(name='max', example='8'),
+  min?: int32(name='min', example='2'),
   scaleStrategies?: [ 
     {
-      metricName?: string(name='metricName'),
-      service?: string(name='service'),
-      threshold?: float(name='threshold'),
+      metricName?: string(name='metricName', example='qps'),
+      service?: string(name='service', example='demo_svc'),
+      threshold?: float(name='threshold', example='10'),
     }
   ](name='scaleStrategies'),
 }
 
 model CreateServiceAutoScalerResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Succeed to auto scale service [foo]'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model CreateServiceAutoScalerResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: CreateServiceAutoScalerResponseBody(name='body'),
-}
-
-async function createServiceAutoScaler(ClusterId: string, ServiceName: string, request: CreateServiceAutoScalerRequest): CreateServiceAutoScalerResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createServiceAutoScalerWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
 async function createServiceAutoScalerWithOptions(ClusterId: string, ServiceName: string, request: CreateServiceAutoScalerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateServiceAutoScalerResponse {
@@ -485,32 +563,32 @@ async function createServiceAutoScalerWithOptions(ClusterId: string, ServiceName
   return callApi(params, req, runtime);
 }
 
+async function createServiceAutoScaler(ClusterId: string, ServiceName: string, request: CreateServiceAutoScalerRequest): CreateServiceAutoScalerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createServiceAutoScalerWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
 model CreateServiceCronScalerRequest {
   excludeDates?: [ string ](name='ExcludeDates'),
   scaleJobs?: [ 
     {
-      name?: string(name='Name'),
-      schedule?: string(name='Schedule'),
-      targetSize?: int32(name='TargetSize'),
+      name?: string(name='Name', example='scale-job-1'),
+      schedule?: string(name='Schedule', example='0 18 * * * *'),
+      targetSize?: int32(name='TargetSize', example='1'),
     }
   ](name='ScaleJobs'),
 }
 
 model CreateServiceCronScalerResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Create cron scaler for service [foo] successfully'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model CreateServiceCronScalerResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: CreateServiceCronScalerResponseBody(name='body'),
-}
-
-async function createServiceCronScaler(ClusterId: string, ServiceName: string, request: CreateServiceCronScalerRequest): CreateServiceCronScalerResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createServiceCronScalerWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
 async function createServiceCronScalerWithOptions(ClusterId: string, ServiceName: string, request: CreateServiceCronScalerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateServiceCronScalerResponse {
@@ -541,26 +619,26 @@ async function createServiceCronScalerWithOptions(ClusterId: string, ServiceName
   return callApi(params, req, runtime);
 }
 
+async function createServiceCronScaler(ClusterId: string, ServiceName: string, request: CreateServiceCronScalerRequest): CreateServiceCronScalerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createServiceCronScalerWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
 model CreateServiceMirrorRequest {
-  ratio?: int32(name='Ratio'),
+  ratio?: int32(name='Ratio', example='30'),
   target?: [ string ](name='Target'),
 }
 
 model CreateServiceMirrorResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Traffic mirroring is ON for service [foo] in region [cn-shanghia], ratio [70%]'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82***'),
 }
 
 model CreateServiceMirrorResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: CreateServiceMirrorResponseBody(name='body'),
-}
-
-async function createServiceMirror(ClusterId: string, ServiceName: string, request: CreateServiceMirrorRequest): CreateServiceMirrorResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createServiceMirrorWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
 async function createServiceMirrorWithOptions(ClusterId: string, ServiceName: string, request: CreateServiceMirrorRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateServiceMirrorResponse {
@@ -591,21 +669,21 @@ async function createServiceMirrorWithOptions(ClusterId: string, ServiceName: st
   return callApi(params, req, runtime);
 }
 
+async function createServiceMirror(ClusterId: string, ServiceName: string, request: CreateServiceMirrorRequest): CreateServiceMirrorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createServiceMirrorWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
 model DeleteBenchmarkTaskResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Benchmark task [benchmark-test-service-234c] is Deleting'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model DeleteBenchmarkTaskResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DeleteBenchmarkTaskResponseBody(name='body'),
-}
-
-async function deleteBenchmarkTask(ClusterId: string, TaskName: string): DeleteBenchmarkTaskResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteBenchmarkTaskWithOptions(ClusterId, TaskName, headers, runtime);
 }
 
 async function deleteBenchmarkTaskWithOptions(ClusterId: string, TaskName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteBenchmarkTaskResponse {
@@ -626,21 +704,21 @@ async function deleteBenchmarkTaskWithOptions(ClusterId: string, TaskName: strin
   return callApi(params, req, runtime);
 }
 
+async function deleteBenchmarkTask(ClusterId: string, TaskName: string): DeleteBenchmarkTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteBenchmarkTaskWithOptions(ClusterId, TaskName, headers, runtime);
+}
+
 model DeleteResourceResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Resource [eas-r-asdasdasd] is deleted.'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82-9624-EC2B1779848E'),
 }
 
 model DeleteResourceResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DeleteResourceResponseBody(name='body'),
-}
-
-async function deleteResource(ClusterId: string, ResourceId: string): DeleteResourceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteResourceWithOptions(ClusterId, ResourceId, headers, runtime);
 }
 
 async function deleteResourceWithOptions(ClusterId: string, ResourceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteResourceResponse {
@@ -661,21 +739,21 @@ async function deleteResourceWithOptions(ClusterId: string, ResourceId: string, 
   return callApi(params, req, runtime);
 }
 
+async function deleteResource(ClusterId: string, ResourceId: string): DeleteResourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteResourceWithOptions(ClusterId, ResourceId, headers, runtime);
+}
+
 model DeleteResourceDLinkResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Network interfaces are deleting'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model DeleteResourceDLinkResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DeleteResourceDLinkResponseBody(name='body'),
-}
-
-async function deleteResourceDLink(ClusterId: string, ResourceId: string): DeleteResourceDLinkResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteResourceDLinkWithOptions(ClusterId, ResourceId, headers, runtime);
 }
 
 async function deleteResourceDLinkWithOptions(ClusterId: string, ResourceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteResourceDLinkResponse {
@@ -696,26 +774,26 @@ async function deleteResourceDLinkWithOptions(ClusterId: string, ResourceId: str
   return callApi(params, req, runtime);
 }
 
+async function deleteResourceDLink(ClusterId: string, ResourceId: string): DeleteResourceDLinkResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteResourceDLinkWithOptions(ClusterId, ResourceId, headers, runtime);
+}
+
 model DeleteResourceInstancesRequest {
-  allFailed?: boolean(name='AllFailed'),
-  instanceList?: string(name='InstanceList'),
+  allFailed?: boolean(name='AllFailed', example='true'),
+  instanceList?: string(name='InstanceList', example='eas-i-xxxxxxx,eas-i-xxxxxxx'),
 }
 
 model DeleteResourceInstancesResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Instances eas-i-011227132046,eas-i-011227132046 are deleting'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model DeleteResourceInstancesResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DeleteResourceInstancesResponseBody(name='body'),
-}
-
-async function deleteResourceInstances(ClusterId: string, ResourceId: string, request: DeleteResourceInstancesRequest): DeleteResourceInstancesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteResourceInstancesWithOptions(ClusterId, ResourceId, request, headers, runtime);
 }
 
 async function deleteResourceInstancesWithOptions(ClusterId: string, ResourceId: string, request: DeleteResourceInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteResourceInstancesResponse {
@@ -746,21 +824,21 @@ async function deleteResourceInstancesWithOptions(ClusterId: string, ResourceId:
   return callApi(params, req, runtime);
 }
 
+async function deleteResourceInstances(ClusterId: string, ResourceId: string, request: DeleteResourceInstancesRequest): DeleteResourceInstancesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteResourceInstancesWithOptions(ClusterId, ResourceId, request, headers, runtime);
+}
+
 model DeleteResourceLogResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Log service for resource [eas-r-asdasdasd] is deleting'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model DeleteResourceLogResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DeleteResourceLogResponseBody(name='body'),
-}
-
-async function deleteResourceLog(ClusterId: string, ResourceId: string): DeleteResourceLogResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteResourceLogWithOptions(ClusterId, ResourceId, headers, runtime);
 }
 
 async function deleteResourceLogWithOptions(ClusterId: string, ResourceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteResourceLogResponse {
@@ -781,21 +859,21 @@ async function deleteResourceLogWithOptions(ClusterId: string, ResourceId: strin
   return callApi(params, req, runtime);
 }
 
+async function deleteResourceLog(ClusterId: string, ResourceId: string): DeleteResourceLogResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteResourceLogWithOptions(ClusterId, ResourceId, headers, runtime);
+}
+
 model DeleteServiceResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Service [foo] in region [cn-shanghai] is terminating'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model DeleteServiceResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DeleteServiceResponseBody(name='body'),
-}
-
-async function deleteService(ClusterId: string, ServiceName: string): DeleteServiceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteServiceWithOptions(ClusterId, ServiceName, headers, runtime);
 }
 
 async function deleteServiceWithOptions(ClusterId: string, ServiceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteServiceResponse {
@@ -816,21 +894,21 @@ async function deleteServiceWithOptions(ClusterId: string, ServiceName: string, 
   return callApi(params, req, runtime);
 }
 
+async function deleteService(ClusterId: string, ServiceName: string): DeleteServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteServiceWithOptions(ClusterId, ServiceName, headers, runtime);
+}
+
 model DeleteServiceAutoScalerResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Autoscaler for service [foo] deleted successfully'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model DeleteServiceAutoScalerResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DeleteServiceAutoScalerResponseBody(name='body'),
-}
-
-async function deleteServiceAutoScaler(ClusterId: string, ServiceName: string): DeleteServiceAutoScalerResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteServiceAutoScalerWithOptions(ClusterId, ServiceName, headers, runtime);
 }
 
 async function deleteServiceAutoScalerWithOptions(ClusterId: string, ServiceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteServiceAutoScalerResponse {
@@ -851,21 +929,21 @@ async function deleteServiceAutoScalerWithOptions(ClusterId: string, ServiceName
   return callApi(params, req, runtime);
 }
 
+async function deleteServiceAutoScaler(ClusterId: string, ServiceName: string): DeleteServiceAutoScalerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteServiceAutoScalerWithOptions(ClusterId, ServiceName, headers, runtime);
+}
+
 model DeleteServiceCronScalerResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Cronscaler for service [foo] deleted successfully'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model DeleteServiceCronScalerResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DeleteServiceCronScalerResponseBody(name='body'),
-}
-
-async function deleteServiceCronScaler(ClusterId: string, ServiceName: string): DeleteServiceCronScalerResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteServiceCronScalerWithOptions(ClusterId, ServiceName, headers, runtime);
 }
 
 async function deleteServiceCronScalerWithOptions(ClusterId: string, ServiceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteServiceCronScalerResponse {
@@ -886,25 +964,25 @@ async function deleteServiceCronScalerWithOptions(ClusterId: string, ServiceName
   return callApi(params, req, runtime);
 }
 
+async function deleteServiceCronScaler(ClusterId: string, ServiceName: string): DeleteServiceCronScalerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteServiceCronScalerWithOptions(ClusterId, ServiceName, headers, runtime);
+}
+
 model DeleteServiceInstancesRequest {
-  instanceList?: string(name='InstanceList'),
+  instanceList?: string(name='InstanceList', example='foo-rdsbxxxx,foo-rdsaxxxx'),
 }
 
 model DeleteServiceInstancesResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Instance(s) [foo-rdsb,foo-rdsa]  for service [foo] in region [cn-shanghai] was deleted successfully'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model DeleteServiceInstancesResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DeleteServiceInstancesResponseBody(name='body'),
-}
-
-async function deleteServiceInstances(ClusterId: string, ServiceName: string, request: DeleteServiceInstancesRequest): DeleteServiceInstancesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteServiceInstancesWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
 async function deleteServiceInstancesWithOptions(ClusterId: string, ServiceName: string, request: DeleteServiceInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteServiceInstancesResponse {
@@ -932,21 +1010,76 @@ async function deleteServiceInstancesWithOptions(ClusterId: string, ServiceName:
   return callApi(params, req, runtime);
 }
 
+async function deleteServiceInstances(ClusterId: string, ServiceName: string, request: DeleteServiceInstancesRequest): DeleteServiceInstancesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteServiceInstancesWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
+model DeleteServiceLabelRequest {
+  keys?: [ string ](name='Keys'),
+}
+
+model DeleteServiceLabelShrinkRequest {
+  keysShrink?: string(name='Keys'),
+}
+
+model DeleteServiceLabelResponseBody = {
+  message?: string(name='Message', example='Success'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model DeleteServiceLabelResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DeleteServiceLabelResponseBody(name='body'),
+}
+
+async function deleteServiceLabelWithOptions(ClusterId: string, ServiceName: string, tmpReq: DeleteServiceLabelRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteServiceLabelResponse {
+  Util.validateModel(tmpReq);
+  var request = new DeleteServiceLabelShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.keys)) {
+    request.keysShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.keys, 'Keys', 'simple');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.keysShrink)) {
+    query['Keys'] = request.keysShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteServiceLabel',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(ServiceName)}/label`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deleteServiceLabel(ClusterId: string, ServiceName: string, request: DeleteServiceLabelRequest): DeleteServiceLabelResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteServiceLabelWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
 model DeleteServiceMirrorResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Traffic mirroring is OFF for service [foo] in region [cn-shanghia], ratio [70%]'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82***'),
 }
 
 model DeleteServiceMirrorResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DeleteServiceMirrorResponseBody(name='body'),
-}
-
-async function deleteServiceMirror(ClusterId: string, ServiceName: string): DeleteServiceMirrorResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteServiceMirrorWithOptions(ClusterId, ServiceName, headers, runtime);
 }
 
 async function deleteServiceMirrorWithOptions(ClusterId: string, ServiceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteServiceMirrorResponse {
@@ -967,32 +1100,32 @@ async function deleteServiceMirrorWithOptions(ClusterId: string, ServiceName: st
   return callApi(params, req, runtime);
 }
 
+async function deleteServiceMirror(ClusterId: string, ServiceName: string): DeleteServiceMirrorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteServiceMirrorWithOptions(ClusterId, ServiceName, headers, runtime);
+}
+
 model DescribeBenchmarkTaskResponseBody = {
-  availableAgent?: long(name='AvailableAgent'),
-  callerUid?: string(name='CallerUid'),
-  desiredAgent?: long(name='DesiredAgent'),
-  endpoint?: string(name='Endpoint'),
-  message?: string(name='Message'),
-  parentUid?: string(name='ParentUid'),
-  reason?: string(name='Reason'),
-  requestId?: string(name='RequestId'),
-  serviceName?: string(name='ServiceName'),
-  status?: string(name='Status'),
-  taskId?: string(name='TaskId'),
-  taskName?: string(name='TaskName'),
-  token?: string(name='Token'),
+  availableAgent?: long(name='AvailableAgent', description='实际可用的压测实例个数。', example='4'),
+  callerUid?: string(name='CallerUid', description='调用者的UID。', example='1640133467****'),
+  desiredAgent?: long(name='DesiredAgent', description='预期的压测实例个数。', example='4'),
+  endpoint?: string(name='Endpoint', description='服务对外公开的访问路径。', example='http://15990xxxx.cn-hangzhou.pai-eas.aliyuncs.com/api/predict/xxx'),
+  message?: string(name='Message', description='当前压测任务的运行进度信息。', example='Benchmar task is Running'),
+  parentUid?: string(name='ParentUid', description='资源拥有者的UID。', example='1029728669****'),
+  reason?: string(name='Reason', description='当前压测任务状态产生的原因。', example='RUNNING'),
+  requestId?: string(name='RequestId', description='请求ID。', example='40325405-579C-4D82****'),
+  serviceName?: string(name='ServiceName', description='压测的eas服务名。', example='foo'),
+  status?: string(name='Status', description='压测任务的状态。', example='Running'),
+  taskId?: string(name='TaskId', description='压测任务ID。', example='eas-b-gv4y86u****'),
+  taskName?: string(name='TaskName', description='压测任务名字。', example='benchmark-larec-test-ae70'),
+  token?: string(name='Token', description='访问eas服务的鉴权token。', example='6062787a-9301****'),
 }
 
 model DescribeBenchmarkTaskResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DescribeBenchmarkTaskResponseBody(name='body'),
-}
-
-async function describeBenchmarkTask(ClusterId: string, TaskName: string): DescribeBenchmarkTaskResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeBenchmarkTaskWithOptions(ClusterId, TaskName, headers, runtime);
 }
 
 async function describeBenchmarkTaskWithOptions(ClusterId: string, TaskName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeBenchmarkTaskResponse {
@@ -1013,26 +1146,71 @@ async function describeBenchmarkTaskWithOptions(ClusterId: string, TaskName: str
   return callApi(params, req, runtime);
 }
 
+async function describeBenchmarkTask(ClusterId: string, TaskName: string): DescribeBenchmarkTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeBenchmarkTaskWithOptions(ClusterId, TaskName, headers, runtime);
+}
+
 model DescribeBenchmarkTaskReportRequest {
-  reportType?: string(name='ReportType'),
+  reportType?: string(name='ReportType', example='report'),
 }
 
 model DescribeBenchmarkTaskReportResponseBody = {
-  data?: any(name='Data'),
-  reportUrl?: string(name='ReportUrl'),
-  requestId?: string(name='RequestId'),
+  data?: any(name='Data', example='{
+    "TimestampList": ["int64"],
+    "QPSList": ["float32"],
+    "RTList": [
+      {
+        "AVG": "float32",
+        "TP100": "float32",
+        "TP99": "float32",
+        "TP90": "float32",
+        "TP50": "float32",
+        "TP10": "float32"
+      }
+    ],
+    "TrafficList": [
+      {
+        "Send": "float64",
+        "Receive": "float64"
+      }
+    ],
+    "StatusCode": {
+      "200": "uint64",
+      "450": "uint64",
+      "500": "uint64"
+    },
+    "Count": "uint64",
+    "Total": "float64",
+    "MinRT": "float32",
+    "AvgRT": "float32",
+    "MaxRT": "float32",
+    "QPS": "float32",
+    "TotalSend": "float64",
+    "TotalReceive": "float64",
+    "RTDistribution": [
+      {
+        "Latency": "float32",
+        "Percentage": "int"
+      }
+    ],
+    "RTHistogram": [
+      {
+        "Count": "int",
+        "Mark": "float32",
+        "Frequency": "float32"
+      }
+    ]
+  }'),
+  reportUrl?: string(name='ReportUrl', example='http://eas-benchmark.oss-cn-chengdu.aliyuncs.com/summary/benchmark-larec-test-015d-10007.html'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82********'),
 }
 
 model DescribeBenchmarkTaskReportResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DescribeBenchmarkTaskReportResponseBody(name='body'),
-}
-
-async function describeBenchmarkTaskReport(ClusterId: string, TaskName: string, request: DescribeBenchmarkTaskReportRequest): DescribeBenchmarkTaskReportResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeBenchmarkTaskReportWithOptions(ClusterId, TaskName, request, headers, runtime);
 }
 
 async function describeBenchmarkTaskReportWithOptions(ClusterId: string, TaskName: string, request: DescribeBenchmarkTaskReportRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeBenchmarkTaskReportResponse {
@@ -1060,16 +1238,16 @@ async function describeBenchmarkTaskReportWithOptions(ClusterId: string, TaskNam
   return callApi(params, req, runtime);
 }
 
+async function describeBenchmarkTaskReport(ClusterId: string, TaskName: string, request: DescribeBenchmarkTaskReportRequest): DescribeBenchmarkTaskReportResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeBenchmarkTaskReportWithOptions(ClusterId, TaskName, request, headers, runtime);
+}
+
 model DescribeGroupResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: Group  
-}
-
-async function describeGroup(ClusterId: string, GroupName: string): DescribeGroupResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeGroupWithOptions(ClusterId, GroupName, headers, runtime);
 }
 
 async function describeGroupWithOptions(ClusterId: string, GroupName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeGroupResponse {
@@ -1090,34 +1268,34 @@ async function describeGroupWithOptions(ClusterId: string, GroupName: string, he
   return callApi(params, req, runtime);
 }
 
+async function describeGroup(ClusterId: string, GroupName: string): DescribeGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeGroupWithOptions(ClusterId, GroupName, headers, runtime);
+}
+
 model DescribeResourceResponseBody = {
-  clusterId?: string(name='ClusterId'),
-  cpuCount?: int32(name='CpuCount'),
-  createTime?: string(name='CreateTime'),
-  extraData?: string(name='ExtraData'),
-  gpuCount?: int32(name='GpuCount'),
-  instanceCount?: int32(name='InstanceCount'),
-  message?: string(name='Message'),
-  ownerUid?: string(name='OwnerUid'),
-  postPaidInstanceCount?: int32(name='PostPaidInstanceCount'),
-  prePaidInstanceCount?: int32(name='PrePaidInstanceCount'),
-  requestId?: string(name='RequestId'),
-  resourceId?: string(name='ResourceId'),
-  resourceName?: string(name='ResourceName'),
-  status?: string(name='Status'),
-  updateTime?: string(name='UpdateTime'),
+  clusterId?: string(name='ClusterId', example='cn-beijing'),
+  cpuCount?: int32(name='CpuCount', example='16'),
+  createTime?: string(name='CreateTime', example='2020-05-19T14:19:42Z'),
+  extraData?: string(name='ExtraData', example='{"vswitch_id":"vsw-bp17uo6xebcusy****","gpu_share":true,"aux_vswitch_id_list":["vsw-bp13b3pvjap3vxn****","vsw-bp1nls8o5hk8mt8*****"],"security_group_id":"sg-bp1j1z7297hcink*****","vpc_id":"vpc-bp1kjr3rfyhx01*****","destination_cidr":"172.16.0.12/28","role_arn":"acs:ram::1157703270*****:role/AliyunServiceRoleForPaiEas","sls_project":"","sls_logstore":"","sls_status":"ResourceReady","sls_message":"","update_time":""}'),
+  gpuCount?: int32(name='GpuCount', example='1'),
+  instanceCount?: int32(name='InstanceCount', example='4'),
+  message?: string(name='Message', example='Resource is ready'),
+  ownerUid?: string(name='OwnerUid', example='14401087478****'),
+  postPaidInstanceCount?: int32(name='PostPaidInstanceCount', example='3'),
+  prePaidInstanceCount?: int32(name='PrePaidInstanceCount', example='1'),
+  requestId?: string(name='RequestId', example='902976F2-6FAF-5404-8A4D-6CC223***'),
+  resourceId?: string(name='ResourceId', example='eas-r-glkfpsxuw57x1h*****'),
+  resourceName?: string(name='ResourceName', example='my-resouce****'),
+  status?: string(name='Status', example='ResourceReady'),
+  updateTime?: string(name='UpdateTime', example='2021-02-24T11:52:17Z'),
 }
 
 model DescribeResourceResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DescribeResourceResponseBody(name='body'),
-}
-
-async function describeResource(ClusterId: string, ResourceId: string): DescribeResourceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeResourceWithOptions(ClusterId, ResourceId, headers, runtime);
 }
 
 async function describeResourceWithOptions(ClusterId: string, ResourceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeResourceResponse {
@@ -1138,25 +1316,25 @@ async function describeResourceWithOptions(ClusterId: string, ResourceId: string
   return callApi(params, req, runtime);
 }
 
+async function describeResource(ClusterId: string, ResourceId: string): DescribeResourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeResourceWithOptions(ClusterId, ResourceId, headers, runtime);
+}
+
 model DescribeResourceDLinkResponseBody = {
   auxVSwitchList?: [ string ](name='AuxVSwitchList'),
-  destinationCIDRs?: string(name='DestinationCIDRs'),
-  requestId?: string(name='RequestId'),
-  securityGroupId?: string(name='SecurityGroupId'),
-  vSwitchId?: string(name='VSwitchId'),
-  vpcId?: string(name='VpcId'),
+  destinationCIDRs?: string(name='DestinationCIDRs', example='72.16.0.0/16'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  securityGroupId?: string(name='SecurityGroupId', example='sg-bp1j1z7297hcink9d****'),
+  vSwitchId?: string(name='VSwitchId', example='vsw-8vbqn2at0kljjxxxx****'),
+  vpcId?: string(name='VpcId', example='vpc-uf66uio7md****'),
 }
 
 model DescribeResourceDLinkResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DescribeResourceDLinkResponseBody(name='body'),
-}
-
-async function describeResourceDLink(ClusterId: string, ResourceId: string): DescribeResourceDLinkResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeResourceDLinkWithOptions(ClusterId, ResourceId, headers, runtime);
 }
 
 async function describeResourceDLinkWithOptions(ClusterId: string, ResourceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeResourceDLinkResponse {
@@ -1177,24 +1355,24 @@ async function describeResourceDLinkWithOptions(ClusterId: string, ResourceId: s
   return callApi(params, req, runtime);
 }
 
+async function describeResourceDLink(ClusterId: string, ResourceId: string): DescribeResourceDLinkResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeResourceDLinkWithOptions(ClusterId, ResourceId, headers, runtime);
+}
+
 model DescribeResourceLogResponseBody = {
-  logStore?: string(name='LogStore'),
-  message?: string(name='Message'),
-  projectName?: string(name='ProjectName'),
-  requestId?: string(name='RequestId'),
-  status?: string(name='Status'),
+  logStore?: string(name='LogStore', example='access_log'),
+  message?: string(name='Message', example='Network interfaces are updating'),
+  projectName?: string(name='ProjectName', example='eas-r-asdasdasd-sls'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  status?: string(name='Status', example='ResourceReady'),
 }
 
 model DescribeResourceLogResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DescribeResourceLogResponseBody(name='body'),
-}
-
-async function describeResourceLog(ClusterId: string, ResourceId: string): DescribeResourceLogResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeResourceLogWithOptions(ClusterId, ResourceId, headers, runtime);
 }
 
 async function describeResourceLogWithOptions(ClusterId: string, ResourceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeResourceLogResponse {
@@ -1215,16 +1393,16 @@ async function describeResourceLogWithOptions(ClusterId: string, ResourceId: str
   return callApi(params, req, runtime);
 }
 
+async function describeResourceLog(ClusterId: string, ResourceId: string): DescribeResourceLogResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeResourceLogWithOptions(ClusterId, ResourceId, headers, runtime);
+}
+
 model DescribeServiceResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: Service  
-}
-
-async function describeService(ClusterId: string, ServiceName: string): DescribeServiceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeServiceWithOptions(ClusterId, ServiceName, headers, runtime);
 }
 
 async function describeServiceWithOptions(ClusterId: string, ServiceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeServiceResponse {
@@ -1245,38 +1423,44 @@ async function describeServiceWithOptions(ClusterId: string, ServiceName: string
   return callApi(params, req, runtime);
 }
 
+async function describeService(ClusterId: string, ServiceName: string): DescribeServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeServiceWithOptions(ClusterId, ServiceName, headers, runtime);
+}
+
 model DescribeServiceAutoScalerResponseBody = {
-  behavior?: map[string]any(name='Behavior'),
+  behavior?: map[string]any(name='Behavior', example='{
+  "behavior": {
+    "scaleDown": {
+      "stabilizationWindowSeconds": 150
+    }
+  }
+}'),
   currentMetrics?: [ 
     {
-      metricName?: string(name='metricName'),
-      service?: string(name='service'),
-      value?: float(name='value'),
+      metricName?: string(name='metricName', example='qps'),
+      service?: string(name='service', example='demo_svc'),
+      value?: float(name='value', example='10'),
     }
   ](name='CurrentMetrics'),
-  maxReplica?: int32(name='MaxReplica'),
-  minReplica?: int32(name='MinReplica'),
-  requestId?: string(name='RequestId'),
+  maxReplica?: int32(name='MaxReplica', example='8'),
+  minReplica?: int32(name='MinReplica', example='3'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
   scaleStrategies?: [ 
     {
-      metricName?: string(name='metricName'),
-      service?: string(name='service'),
-      threshold?: float(name='threshold'),
+      metricName?: string(name='metricName', example='qps'),
+      service?: string(name='service', example='demo_svc'),
+      threshold?: float(name='threshold', example='10'),
     }
   ](name='ScaleStrategies'),
-  serviceName?: string(name='ServiceName'),
+  serviceName?: string(name='ServiceName', example='foo'),
 }
 
 model DescribeServiceAutoScalerResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DescribeServiceAutoScalerResponseBody(name='body'),
-}
-
-async function describeServiceAutoScaler(ClusterId: string, ServiceName: string): DescribeServiceAutoScalerResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeServiceAutoScalerWithOptions(ClusterId, ServiceName, headers, runtime);
 }
 
 async function describeServiceAutoScalerWithOptions(ClusterId: string, ServiceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeServiceAutoScalerResponse {
@@ -1297,33 +1481,33 @@ async function describeServiceAutoScalerWithOptions(ClusterId: string, ServiceNa
   return callApi(params, req, runtime);
 }
 
+async function describeServiceAutoScaler(ClusterId: string, ServiceName: string): DescribeServiceAutoScalerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeServiceAutoScalerWithOptions(ClusterId, ServiceName, headers, runtime);
+}
+
 model DescribeServiceCronScalerResponseBody = {
   excludeDates?: [ string ](name='ExcludeDates'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
   scaleJobs?: [ 
     {
-      createTime?: string(name='CreateTime'),
-      lastProbeTime?: string(name='LastProbeTime'),
-      message?: string(name='Message'),
-      name?: string(name='Name'),
-      schedule?: string(name='Schedule'),
-      state?: string(name='State'),
-      targetSize?: int32(name='TargetSize'),
+      createTime?: string(name='CreateTime', example='2020-06-24T02:11:30Z'),
+      lastProbeTime?: string(name='LastProbeTime', example='2022-02-24T06:31:00Z'),
+      message?: string(name='Message', example='"cron hpa job scale-jobs-0 executed successfully. current replicas:3, desired replicas:2."'),
+      name?: string(name='Name', example='scale-job-1'),
+      schedule?: string(name='Schedule', example='0 18 * * * *'),
+      state?: string(name='State', example='Succeed'),
+      targetSize?: int32(name='TargetSize', example='1'),
     }
   ](name='ScaleJobs'),
-  serviceName?: string(name='ServiceName'),
+  serviceName?: string(name='ServiceName', example='foo'),
 }
 
 model DescribeServiceCronScalerResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DescribeServiceCronScalerResponseBody(name='body'),
-}
-
-async function describeServiceCronScaler(ClusterId: string, ServiceName: string): DescribeServiceCronScalerResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeServiceCronScalerWithOptions(ClusterId, ServiceName, headers, runtime);
 }
 
 async function describeServiceCronScalerWithOptions(ClusterId: string, ServiceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeServiceCronScalerResponse {
@@ -1344,38 +1528,38 @@ async function describeServiceCronScalerWithOptions(ClusterId: string, ServiceNa
   return callApi(params, req, runtime);
 }
 
+async function describeServiceCronScaler(ClusterId: string, ServiceName: string): DescribeServiceCronScalerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeServiceCronScalerWithOptions(ClusterId, ServiceName, headers, runtime);
+}
+
 model DescribeServiceEventRequest {
-  endTime?: string(name='EndTime'),
-  pageNum?: string(name='PageNum'),
-  pageSize?: string(name='PageSize'),
-  startTime?: string(name='StartTime'),
+  endTime?: string(name='EndTime', example='2006-01-02 15:04:05'),
+  pageNum?: string(name='PageNum', example='1'),
+  pageSize?: string(name='PageSize', example='20'),
+  startTime?: string(name='StartTime', example='2006-01-02 15:04:05'),
 }
 
 model DescribeServiceEventResponseBody = {
   events?: [ 
     {
-      message?: string(name='Message'),
-      reason?: string(name='Reason'),
-      time?: string(name='Time'),
-      type?: string(name='Type'),
+      message?: string(name='Message', example='{\\"versionId\\":1,\\"message\\":\\"Stage scale complete\\",\\"availableInstance\\":1,\\"unavailableInstance\\":0}'),
+      reason?: string(name='Reason', example='Updating'),
+      time?: string(name='Time', example='2022-04-09 06:30:00'),
+      type?: string(name='Type', example='Normal'),
     }
   ](name='Events'),
-  pageNum?: long(name='PageNum'),
-  requestId?: string(name='RequestId'),
-  totalCount?: long(name='TotalCount'),
-  totalPageNum?: long(name='TotalPageNum'),
+  pageNum?: long(name='PageNum', example='1'),
+  requestId?: string(name='RequestId', example='3D491C94-6239-5318-B4B4-799D859***'),
+  totalCount?: long(name='TotalCount', example='29'),
+  totalPageNum?: long(name='TotalPageNum', example='12'),
 }
 
 model DescribeServiceEventResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DescribeServiceEventResponseBody(name='body'),
-}
-
-async function describeServiceEvent(ClusterId: string, ServiceName: string, request: DescribeServiceEventRequest): DescribeServiceEventResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeServiceEventWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
 async function describeServiceEventWithOptions(ClusterId: string, ServiceName: string, request: DescribeServiceEventRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeServiceEventResponse {
@@ -1412,33 +1596,33 @@ async function describeServiceEventWithOptions(ClusterId: string, ServiceName: s
   return callApi(params, req, runtime);
 }
 
+async function describeServiceEvent(ClusterId: string, ServiceName: string, request: DescribeServiceEventRequest): DescribeServiceEventResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeServiceEventWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
 model DescribeServiceLogRequest {
-  endTime?: string(name='EndTime'),
-  ip?: string(name='Ip'),
-  keyword?: string(name='Keyword'),
-  pageNum?: long(name='PageNum'),
-  pageSize?: long(name='PageSize'),
-  startTime?: string(name='StartTime'),
+  endTime?: string(name='EndTime', example='2006-01-02 15:04:05'),
+  ip?: string(name='Ip', example='10.0.0.1'),
+  keyword?: string(name='Keyword', example='key'),
+  pageNum?: long(name='PageNum', example='1'),
+  pageSize?: long(name='PageSize', example='500'),
+  startTime?: string(name='StartTime', example='2006-01-02 15:04:05'),
 }
 
 model DescribeServiceLogResponseBody = {
   logs?: [ string ](name='Logs'),
-  pageNum?: long(name='PageNum'),
-  requestId?: string(name='RequestId'),
-  totalCount?: long(name='TotalCount'),
-  totalPageNum?: long(name='TotalPageNum'),
+  pageNum?: long(name='PageNum', example='1'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82********'),
+  totalCount?: long(name='TotalCount', example='1'),
+  totalPageNum?: long(name='TotalPageNum', example='500'),
 }
 
 model DescribeServiceLogResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DescribeServiceLogResponseBody(name='body'),
-}
-
-async function describeServiceLog(ClusterId: string, ServiceName: string, request: DescribeServiceLogRequest): DescribeServiceLogResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeServiceLogWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
 async function describeServiceLogWithOptions(ClusterId: string, ServiceName: string, request: DescribeServiceLogRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeServiceLogResponse {
@@ -1481,23 +1665,23 @@ async function describeServiceLogWithOptions(ClusterId: string, ServiceName: str
   return callApi(params, req, runtime);
 }
 
+async function describeServiceLog(ClusterId: string, ServiceName: string, request: DescribeServiceLogRequest): DescribeServiceLogResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeServiceLogWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
 model DescribeServiceMirrorResponseBody = {
-  ratio?: string(name='Ratio'),
-  requestId?: string(name='RequestId'),
-  serviceName?: string(name='ServiceName'),
-  target?: string(name='Target'),
+  ratio?: string(name='Ratio', example='50'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  serviceName?: string(name='ServiceName', example='foo'),
+  target?: string(name='Target', example='foo2,foo3'),
 }
 
 model DescribeServiceMirrorResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DescribeServiceMirrorResponseBody(name='body'),
-}
-
-async function describeServiceMirror(ClusterId: string, ServiceName: string): DescribeServiceMirrorResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return describeServiceMirrorWithOptions(ClusterId, ServiceName, headers, runtime);
 }
 
 async function describeServiceMirrorWithOptions(ClusterId: string, ServiceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeServiceMirrorResponse {
@@ -1518,6 +1702,58 @@ async function describeServiceMirrorWithOptions(ClusterId: string, ServiceName: 
   return callApi(params, req, runtime);
 }
 
+async function describeServiceMirror(ClusterId: string, ServiceName: string): DescribeServiceMirrorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeServiceMirrorWithOptions(ClusterId, ServiceName, headers, runtime);
+}
+
+model DevelopServiceRequest {
+  exit?: string(name='Exit', example='true'),
+}
+
+model DevelopServiceResponseBody = {
+  message?: string(name='Message', example='Success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+}
+
+model DevelopServiceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DevelopServiceResponseBody(name='body'),
+}
+
+async function developServiceWithOptions(ClusterId: string, ServiceName: string, request: DevelopServiceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DevelopServiceResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.exit)) {
+    query['Exit'] = request.exit;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DevelopService',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(ServiceName)}/develop`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function developService(ClusterId: string, ServiceName: string, request: DevelopServiceRequest): DevelopServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return developServiceWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
 model ListBenchmarkTaskRequest {
   filter?: string(name='Filter'),
   pageNumber?: string(name='PageNumber'),
@@ -1528,18 +1764,18 @@ model ListBenchmarkTaskRequest {
 model ListBenchmarkTaskResponseBody = {
   pageNumber?: int32(name='PageNumber'),
   pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
   tasks?: [ 
     {
-      availableAgent?: long(name='AvailableAgent'),
-      createTime?: string(name='CreateTime'),
-      message?: string(name='Message'),
-      region?: string(name='Region'),
-      serviceName?: string(name='ServiceName'),
-      status?: string(name='Status'),
-      taskId?: string(name='TaskId'),
-      taskName?: string(name='TaskName'),
-      updateTime?: string(name='UpdateTime'),
+      availableAgent?: long(name='AvailableAgent', example='2'),
+      createTime?: string(name='CreateTime', example='2020-12-04T02:43:15Z'),
+      message?: string(name='Message', example='Benchmark task [benchmark-larec-test-1076] is Running'),
+      region?: string(name='Region', example='cn-shanghai'),
+      serviceName?: string(name='ServiceName', example='test_quota'),
+      status?: string(name='Status', example='Running'),
+      taskId?: string(name='TaskId', example='eas-b-gv4y86uvgt****i'),
+      taskName?: string(name='TaskName', example='benchmark-larec-test-1076'),
+      updateTime?: string(name='UpdateTime', example='2020-06-24T03:11:30Z'),
     }
   ](name='Tasks'),
   totalCount?: int32(name='TotalCount'),
@@ -1549,12 +1785,6 @@ model ListBenchmarkTaskResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: ListBenchmarkTaskResponseBody(name='body'),
-}
-
-async function listBenchmarkTask(request: ListBenchmarkTaskRequest): ListBenchmarkTaskResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listBenchmarkTaskWithOptions(request, headers, runtime);
 }
 
 async function listBenchmarkTaskWithOptions(request: ListBenchmarkTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListBenchmarkTaskResponse {
@@ -1591,32 +1821,32 @@ async function listBenchmarkTaskWithOptions(request: ListBenchmarkTaskRequest, h
   return callApi(params, req, runtime);
 }
 
+async function listBenchmarkTask(request: ListBenchmarkTaskRequest): ListBenchmarkTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listBenchmarkTaskWithOptions(request, headers, runtime);
+}
+
 model ListGroupsRequest {
-  filter?: string(name='Filter'),
-  pageNumber?: string(name='PageNumber'),
-  pageSize?: string(name='PageSize'),
+  filter?: string(name='Filter', example='foo'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='20'),
 }
 
 model ListGroupsResponseBody = {
   groups?: [
     Group
   ](name='Groups'),
-  pageNumber?: long(name='PageNumber'),
-  pageSize?: long(name='PageSize'),
-  requestId?: string(name='RequestId'),
-  totalCount?: long(name='TotalCount'),
+  pageNumber?: long(name='PageNumber', example='1'),
+  pageSize?: long(name='PageSize', example='20'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+  totalCount?: long(name='TotalCount', example='5'),
 }
 
 model ListGroupsResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: ListGroupsResponseBody(name='body'),
-}
-
-async function listGroups(request: ListGroupsRequest): ListGroupsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listGroupsWithOptions(request, headers, runtime);
 }
 
 async function listGroupsWithOptions(request: ListGroupsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListGroupsResponse {
@@ -1650,31 +1880,31 @@ async function listGroupsWithOptions(request: ListGroupsRequest, headers: map[st
   return callApi(params, req, runtime);
 }
 
+async function listGroups(request: ListGroupsRequest): ListGroupsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listGroupsWithOptions(request, headers, runtime);
+}
+
 model ListResourceInstanceWorkerRequest {
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='20'),
 }
 
 model ListResourceInstanceWorkerResponseBody = {
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='20'),
   pods?: [
     ResourceInstanceWorker
   ](name='Pods'),
-  requestId?: string(name='RequestId'),
-  totalCount?: int32(name='TotalCount'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  totalCount?: int32(name='TotalCount', example='1'),
 }
 
 model ListResourceInstanceWorkerResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: ListResourceInstanceWorkerResponseBody(name='body'),
-}
-
-async function listResourceInstanceWorker(ClusterId: string, ResourceId: string, InstanceName: string, request: ListResourceInstanceWorkerRequest): ListResourceInstanceWorkerResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listResourceInstanceWorkerWithOptions(ClusterId, ResourceId, InstanceName, request, headers, runtime);
 }
 
 async function listResourceInstanceWorkerWithOptions(ClusterId: string, ResourceId: string, InstanceName: string, request: ListResourceInstanceWorkerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListResourceInstanceWorkerResponse {
@@ -1705,34 +1935,34 @@ async function listResourceInstanceWorkerWithOptions(ClusterId: string, Resource
   return callApi(params, req, runtime);
 }
 
+async function listResourceInstanceWorker(ClusterId: string, ResourceId: string, InstanceName: string, request: ListResourceInstanceWorkerRequest): ListResourceInstanceWorkerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listResourceInstanceWorkerWithOptions(ClusterId, ResourceId, InstanceName, request, headers, runtime);
+}
+
 model ListResourceInstancesRequest {
-  chargeType?: string(name='ChargeType'),
+  chargeType?: string(name='ChargeType', example='PrePaid'),
   instanceId?: string(name='InstanceId'),
   instanceName?: string(name='InstanceName'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='20'),
 }
 
 model ListResourceInstancesResponseBody = {
   instances?: [
     ResourceInstance
   ](name='Instances'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId'),
-  totalCount?: int32(name='TotalCount'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='20'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  totalCount?: int32(name='TotalCount', example='2'),
 }
 
 model ListResourceInstancesResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: ListResourceInstancesResponseBody(name='body'),
-}
-
-async function listResourceInstances(ClusterId: string, ResourceId: string, request: ListResourceInstancesRequest): ListResourceInstancesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listResourceInstancesWithOptions(ClusterId, ResourceId, request, headers, runtime);
 }
 
 async function listResourceInstancesWithOptions(ClusterId: string, ResourceId: string, request: ListResourceInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListResourceInstancesResponse {
@@ -1772,31 +2002,31 @@ async function listResourceInstancesWithOptions(ClusterId: string, ResourceId: s
   return callApi(params, req, runtime);
 }
 
+async function listResourceInstances(ClusterId: string, ResourceId: string, request: ListResourceInstancesRequest): ListResourceInstancesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listResourceInstancesWithOptions(ClusterId, ResourceId, request, headers, runtime);
+}
+
 model ListResourceServicesRequest {
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='20'),
 }
 
 model ListResourceServicesResponseBody = {
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='20'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
   services?: [
     Service
   ](name='Services'),
-  totalCount?: int32(name='TotalCount'),
+  totalCount?: int32(name='TotalCount', example='2'),
 }
 
 model ListResourceServicesResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: ListResourceServicesResponseBody(name='body'),
-}
-
-async function listResourceServices(ClusterId: string, ResourceId: string, request: ListResourceServicesRequest): ListResourceServicesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listResourceServicesWithOptions(ClusterId, ResourceId, request, headers, runtime);
 }
 
 async function listResourceServicesWithOptions(ClusterId: string, ResourceId: string, request: ListResourceServicesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListResourceServicesResponse {
@@ -1827,33 +2057,33 @@ async function listResourceServicesWithOptions(ClusterId: string, ResourceId: st
   return callApi(params, req, runtime);
 }
 
+async function listResourceServices(ClusterId: string, ResourceId: string, request: ListResourceServicesRequest): ListResourceServicesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listResourceServicesWithOptions(ClusterId, ResourceId, request, headers, runtime);
+}
+
 model ListResourcesRequest {
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='20'),
   resourceId?: string(name='ResourceId'),
   resourceName?: string(name='ResourceName'),
 }
 
 model ListResourcesResponseBody = {
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='20'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
   resources?: [
     Resource
   ](name='Resources'),
-  totalCount?: int32(name='TotalCount'),
+  totalCount?: int32(name='TotalCount', example='1'),
 }
 
 model ListResourcesResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: ListResourcesResponseBody(name='body'),
-}
-
-async function listResources(request: ListResourcesRequest): ListResourcesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listResourcesWithOptions(request, headers, runtime);
 }
 
 async function listResourcesWithOptions(request: ListResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListResourcesResponse {
@@ -1890,31 +2120,31 @@ async function listResourcesWithOptions(request: ListResourcesRequest, headers: 
   return callApi(params, req, runtime);
 }
 
+async function listResources(request: ListResourcesRequest): ListResourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listResourcesWithOptions(request, headers, runtime);
+}
+
 model ListServiceInstancesRequest {
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='20'),
 }
 
 model ListServiceInstancesResponseBody = {
   instances?: [
     Instance
   ](name='Instances'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId'),
-  totalCount?: int32(name='TotalCount'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='20'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  totalCount?: int32(name='TotalCount', example='1'),
 }
 
 model ListServiceInstancesResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: ListServiceInstancesResponseBody(name='body'),
-}
-
-async function listServiceInstances(ClusterId: string, ServiceName: string, request: ListServiceInstancesRequest): ListServiceInstancesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listServiceInstancesWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
 async function listServiceInstancesWithOptions(ClusterId: string, ServiceName: string, request: ListServiceInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListServiceInstancesResponse {
@@ -1945,23 +2175,29 @@ async function listServiceInstancesWithOptions(ClusterId: string, ServiceName: s
   return callApi(params, req, runtime);
 }
 
+async function listServiceInstances(ClusterId: string, ServiceName: string, request: ListServiceInstancesRequest): ListServiceInstancesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listServiceInstancesWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
 model ListServiceVersionsRequest {
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
 }
 
 model ListServiceVersionsResponseBody = {
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId'),
-  totalCount?: long(name='TotalCount'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='E089D584-B6F4-50C4-9902-DA2295B7****'),
+  totalCount?: long(name='TotalCount', example='166'),
   versions?: [ 
     {
-      buildTime?: string(name='BuildTime'),
-      imageAvailable?: string(name='ImageAvailable'),
-      imageId?: int32(name='ImageId'),
-      message?: string(name='Message'),
-      serviceRunnable?: string(name='ServiceRunnable'),
+      buildTime?: string(name='BuildTime', example='2022-08-29T22:02:14Z'),
+      imageAvailable?: string(name='ImageAvailable', example='true'),
+      imageId?: int32(name='ImageId', example='4'),
+      message?: string(name='Message', example='Service is Running'),
+      serviceRunnable?: string(name='ServiceRunnable', example='true'),
     }
   ](name='Versions'),
 }
@@ -1970,12 +2206,6 @@ model ListServiceVersionsResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: ListServiceVersionsResponseBody(name='body'),
-}
-
-async function listServiceVersions(ClusterId: string, ServiceName: string, request: ListServiceVersionsRequest): ListServiceVersionsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listServiceVersionsWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
 async function listServiceVersionsWithOptions(ClusterId: string, ServiceName: string, request: ListServiceVersionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListServiceVersionsResponse {
@@ -2006,23 +2236,44 @@ async function listServiceVersionsWithOptions(ClusterId: string, ServiceName: st
   return callApi(params, req, runtime);
 }
 
+async function listServiceVersions(ClusterId: string, ServiceName: string, request: ListServiceVersionsRequest): ListServiceVersionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listServiceVersionsWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
 model ListServicesRequest {
-  filter?: string(name='Filter'),
-  groupName?: string(name='GroupName'),
-  order?: string(name='Order'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  sort?: string(name='Sort'),
+  filter?: string(name='Filter', description='关键字搜索。', example='foo'),
+  groupName?: string(name='GroupName', description='所属的group。', example='foo'),
+  label?: map[string]string(name='Label'),
+  order?: string(name='Order', description='排序顺序，支持升序或将序。', example='asc'),
+  pageNumber?: int32(name='PageNumber', description='页号。', example='1'),
+  pageSize?: int32(name='PageSize', description='每页大小。', example='100'),
+  parentServiceUid?: string(name='ParentServiceUid', description='Band类型服务主服务的UID', example='eas-m-baxkc20nsyxxxx'),
+  serviceType?: string(name='ServiceType', description='服务的类型，例如Async, OfflineTask和Standard等', example='Async'),
+  sort?: string(name='Sort', description='排序字段。', example='CreateTime'),
+}
+
+model ListServicesShrinkRequest {
+  filter?: string(name='Filter', description='关键字搜索。', example='foo'),
+  groupName?: string(name='GroupName', description='所属的group。', example='foo'),
+  labelShrink?: string(name='Label'),
+  order?: string(name='Order', description='排序顺序，支持升序或将序。', example='asc'),
+  pageNumber?: int32(name='PageNumber', description='页号。', example='1'),
+  pageSize?: int32(name='PageSize', description='每页大小。', example='100'),
+  parentServiceUid?: string(name='ParentServiceUid', description='Band类型服务主服务的UID', example='eas-m-baxkc20nsyxxxx'),
+  serviceType?: string(name='ServiceType', description='服务的类型，例如Async, OfflineTask和Standard等', example='Async'),
+  sort?: string(name='Sort', description='排序字段。', example='CreateTime'),
 }
 
 model ListServicesResponseBody = {
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId'),
+  pageNumber?: int32(name='PageNumber', description='页码。', example='1'),
+  pageSize?: int32(name='PageSize', description='每页显示的服务数。', example='100'),
+  requestId?: string(name='RequestId', description='请求ID。', example='40325405-579C-4D82****'),
   services?: [
     Service
-  ](name='Services'),
-  totalCount?: int32(name='TotalCount'),
+  ](name='Services', description='服务列表。'),
+  totalCount?: int32(name='TotalCount', description='服务总数。', example='2'),
 }
 
 model ListServicesResponse = {
@@ -2031,20 +2282,22 @@ model ListServicesResponse = {
   body: ListServicesResponseBody(name='body'),
 }
 
-async function listServices(request: ListServicesRequest): ListServicesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listServicesWithOptions(request, headers, runtime);
-}
-
-async function listServicesWithOptions(request: ListServicesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListServicesResponse {
-  Util.validateModel(request);
+async function listServicesWithOptions(tmpReq: ListServicesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListServicesResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListServicesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.label)) {
+    request.labelShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.label, 'Label', 'json');
+  }
   var query : map[string]any = {};
   if (!Util.isUnset(request.filter)) {
     query['Filter'] = request.filter;
   }
   if (!Util.isUnset(request.groupName)) {
     query['GroupName'] = request.groupName;
+  }
+  if (!Util.isUnset(request.labelShrink)) {
+    query['Label'] = request.labelShrink;
   }
   if (!Util.isUnset(request.order)) {
     query['Order'] = request.order;
@@ -2054,6 +2307,12 @@ async function listServicesWithOptions(request: ListServicesRequest, headers: ma
   }
   if (!Util.isUnset(request.pageSize)) {
     query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.parentServiceUid)) {
+    query['ParentServiceUid'] = request.parentServiceUid;
+  }
+  if (!Util.isUnset(request.serviceType)) {
+    query['ServiceType'] = request.serviceType;
   }
   if (!Util.isUnset(request.sort)) {
     query['Sort'] = request.sort;
@@ -2077,26 +2336,26 @@ async function listServicesWithOptions(request: ListServicesRequest, headers: ma
   return callApi(params, req, runtime);
 }
 
+async function listServices(request: ListServicesRequest): ListServicesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listServicesWithOptions(request, headers, runtime);
+}
+
 model ReleaseServiceRequest {
-  trafficState?: string(name='TrafficState'),
-  weight?: int32(name='Weight'),
+  trafficState?: string(name='TrafficState', example='grouping'),
+  weight?: int32(name='Weight', example='100'),
 }
 
 model ReleaseServiceResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Releasing service [foo] in region [cn-shanghai] with weight [40], service status: [Running]'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model ReleaseServiceResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: ReleaseServiceResponseBody(name='body'),
-}
-
-async function releaseService(ClusterId: string, ServiceName: string, request: ReleaseServiceRequest): ReleaseServiceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return releaseServiceWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
 async function releaseServiceWithOptions(ClusterId: string, ServiceName: string, request: ReleaseServiceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ReleaseServiceResponse {
@@ -2127,21 +2386,21 @@ async function releaseServiceWithOptions(ClusterId: string, ServiceName: string,
   return callApi(params, req, runtime);
 }
 
+async function releaseService(ClusterId: string, ServiceName: string, request: ReleaseServiceRequest): ReleaseServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return releaseServiceWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
 model StartBenchmarkTaskResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Benchmark task [benchmark-larec-test-1076] is Starting'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model StartBenchmarkTaskResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: StartBenchmarkTaskResponseBody(name='body'),
-}
-
-async function startBenchmarkTask(ClusterId: string, TaskName: string): StartBenchmarkTaskResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return startBenchmarkTaskWithOptions(ClusterId, TaskName, headers, runtime);
 }
 
 async function startBenchmarkTaskWithOptions(ClusterId: string, TaskName: string, headers: map[string]string, runtime: Util.RuntimeOptions): StartBenchmarkTaskResponse {
@@ -2162,21 +2421,21 @@ async function startBenchmarkTaskWithOptions(ClusterId: string, TaskName: string
   return callApi(params, req, runtime);
 }
 
+async function startBenchmarkTask(ClusterId: string, TaskName: string): StartBenchmarkTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return startBenchmarkTaskWithOptions(ClusterId, TaskName, headers, runtime);
+}
+
 model StartServiceResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Service [foo] in region [cn-shanghai] is starting'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model StartServiceResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: StartServiceResponseBody(name='body'),
-}
-
-async function startService(ClusterId: string, ServiceName: string): StartServiceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return startServiceWithOptions(ClusterId, ServiceName, headers, runtime);
 }
 
 async function startServiceWithOptions(ClusterId: string, ServiceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): StartServiceResponse {
@@ -2197,21 +2456,21 @@ async function startServiceWithOptions(ClusterId: string, ServiceName: string, h
   return callApi(params, req, runtime);
 }
 
+async function startService(ClusterId: string, ServiceName: string): StartServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return startServiceWithOptions(ClusterId, ServiceName, headers, runtime);
+}
+
 model StopBenchmarkTaskResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Benchmark task [benchmark-larec-test-1076] is Stopping'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model StopBenchmarkTaskResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: StopBenchmarkTaskResponseBody(name='body'),
-}
-
-async function stopBenchmarkTask(ClusterId: string, TaskName: string): StopBenchmarkTaskResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return stopBenchmarkTaskWithOptions(ClusterId, TaskName, headers, runtime);
 }
 
 async function stopBenchmarkTaskWithOptions(ClusterId: string, TaskName: string, headers: map[string]string, runtime: Util.RuntimeOptions): StopBenchmarkTaskResponse {
@@ -2232,21 +2491,21 @@ async function stopBenchmarkTaskWithOptions(ClusterId: string, TaskName: string,
   return callApi(params, req, runtime);
 }
 
+async function stopBenchmarkTask(ClusterId: string, TaskName: string): StopBenchmarkTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return stopBenchmarkTaskWithOptions(ClusterId, TaskName, headers, runtime);
+}
+
 model StopServiceResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Succeed to auto scale service [foo]'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model StopServiceResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: StopServiceResponseBody(name='body'),
-}
-
-async function stopService(ClusterId: string, ServiceName: string): StopServiceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return stopServiceWithOptions(ClusterId, ServiceName, headers, runtime);
 }
 
 async function stopServiceWithOptions(ClusterId: string, ServiceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): StopServiceResponse {
@@ -2267,25 +2526,29 @@ async function stopServiceWithOptions(ClusterId: string, ServiceName: string, he
   return callApi(params, req, runtime);
 }
 
+async function stopService(ClusterId: string, ServiceName: string): StopServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return stopServiceWithOptions(ClusterId, ServiceName, headers, runtime);
+}
+
 model UpdateBenchmarkTaskRequest {
-  body?: string(name='body'),
+  body?: string(name='body', example='{
+    "base":  {
+         "qps": 200
+    }
+}'),
 }
 
 model UpdateBenchmarkTaskResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Benchmark task [benchmark-larec-test-1076] is Updating'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82***'),
 }
 
 model UpdateBenchmarkTaskResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: UpdateBenchmarkTaskResponseBody(name='body'),
-}
-
-async function updateBenchmarkTask(ClusterId: string, TaskName: string, request: UpdateBenchmarkTaskRequest): UpdateBenchmarkTaskResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateBenchmarkTaskWithOptions(ClusterId, TaskName, request, headers, runtime);
 }
 
 async function updateBenchmarkTaskWithOptions(ClusterId: string, TaskName: string, request: UpdateBenchmarkTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateBenchmarkTaskResponse {
@@ -2308,26 +2571,26 @@ async function updateBenchmarkTaskWithOptions(ClusterId: string, TaskName: strin
   return callApi(params, req, runtime);
 }
 
+async function updateBenchmarkTask(ClusterId: string, TaskName: string, request: UpdateBenchmarkTaskRequest): UpdateBenchmarkTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateBenchmarkTaskWithOptions(ClusterId, TaskName, request, headers, runtime);
+}
+
 model UpdateResourceRequest {
-  resourceName?: string(name='ResourceName'),
+  resourceName?: string(name='ResourceName', example='iot'),
 }
 
 model UpdateResourceResponseBody = {
-  requestId?: string(name='RequestId'),
-  resourceId?: string(name='ResourceId'),
-  resourceName?: string(name='ResourceName'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  resourceId?: string(name='ResourceId', example='eas-r-asdasdasd'),
+  resourceName?: string(name='ResourceName', example='iot'),
 }
 
 model UpdateResourceResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: UpdateResourceResponseBody(name='body'),
-}
-
-async function updateResource(ClusterId: string, ResourceId: string, request: UpdateResourceRequest): UpdateResourceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateResourceWithOptions(ClusterId, ResourceId, request, headers, runtime);
 }
 
 async function updateResourceWithOptions(ClusterId: string, ResourceId: string, request: UpdateResourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateResourceResponse {
@@ -2355,28 +2618,28 @@ async function updateResourceWithOptions(ClusterId: string, ResourceId: string, 
   return callApi(params, req, runtime);
 }
 
+async function updateResource(ClusterId: string, ResourceId: string, request: UpdateResourceRequest): UpdateResourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateResourceWithOptions(ClusterId, ResourceId, request, headers, runtime);
+}
+
 model UpdateResourceDLinkRequest {
-  destinationCIDRs?: string(name='DestinationCIDRs'),
-  securityGroupId?: string(name='SecurityGroupId'),
-  vSwitchId?: string(name='VSwitchId'),
+  destinationCIDRs?: string(name='DestinationCIDRs', example='72.16.0.0/16'),
+  securityGroupId?: string(name='SecurityGroupId', example='sg-bp149cedsfx2rfspd2d'),
+  vSwitchId?: string(name='VSwitchId', example='vpc-uf66uio7md****'),
   vSwitchIdList?: [ string ](name='VSwitchIdList'),
 }
 
 model UpdateResourceDLinkResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Network interfaces are updating'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model UpdateResourceDLinkResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: UpdateResourceDLinkResponseBody(name='body'),
-}
-
-async function updateResourceDLink(ClusterId: string, ResourceId: string, request: UpdateResourceDLinkRequest): UpdateResourceDLinkResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateResourceDLinkWithOptions(ClusterId, ResourceId, request, headers, runtime);
 }
 
 async function updateResourceDLinkWithOptions(ClusterId: string, ResourceId: string, request: UpdateResourceDLinkRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateResourceDLinkResponse {
@@ -2413,26 +2676,26 @@ async function updateResourceDLinkWithOptions(ClusterId: string, ResourceId: str
   return callApi(params, req, runtime);
 }
 
+async function updateResourceDLink(ClusterId: string, ResourceId: string, request: UpdateResourceDLinkRequest): UpdateResourceDLinkResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateResourceDLinkWithOptions(ClusterId, ResourceId, request, headers, runtime);
+}
+
 model UpdateResourceInstanceRequest {
-  action?: string(name='Action'),
+  action?: string(name='Action', example='Cordon'),
 }
 
 model UpdateResourceInstanceResponseBody = {
-  instanceId?: string(name='InstanceId'),
-  requestId?: string(name='RequestId'),
-  resourceId?: string(name='ResourceId'),
+  instanceId?: string(name='InstanceId', example='eas-i-asdasdasd'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  resourceId?: string(name='ResourceId', example='eas-r-asdasdasd'),
 }
 
 model UpdateResourceInstanceResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: UpdateResourceInstanceResponseBody(name='body'),
-}
-
-async function updateResourceInstance(ClusterId: string, ResourceId: string, InstanceId: string, request: UpdateResourceInstanceRequest): UpdateResourceInstanceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateResourceInstanceWithOptions(ClusterId, ResourceId, InstanceId, request, headers, runtime);
 }
 
 async function updateResourceInstanceWithOptions(ClusterId: string, ResourceId: string, InstanceId: string, request: UpdateResourceInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateResourceInstanceResponse {
@@ -2460,25 +2723,25 @@ async function updateResourceInstanceWithOptions(ClusterId: string, ResourceId: 
   return callApi(params, req, runtime);
 }
 
+async function updateResourceInstance(ClusterId: string, ResourceId: string, InstanceId: string, request: UpdateResourceInstanceRequest): UpdateResourceInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateResourceInstanceWithOptions(ClusterId, ResourceId, InstanceId, request, headers, runtime);
+}
+
 model UpdateServiceRequest {
-  body?: string(name='body'),
+  body?: string(name='body', example='{   "name": "foo",   "model_path": "http://path/to/model.tar.gz",   "processor": "tensorflow_cpu",   "metadata": {     "instance": 2,     "memory": 7000,     "cpu": 4   } }'),
 }
 
 model UpdateServiceResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Succeed to update service [foo] in region [cn-shanghai]'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model UpdateServiceResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: UpdateServiceResponseBody(name='body'),
-}
-
-async function updateService(ClusterId: string, ServiceName: string, request: UpdateServiceRequest): UpdateServiceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateServiceWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
 async function updateServiceWithOptions(ClusterId: string, ServiceName: string, request: UpdateServiceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateServiceResponse {
@@ -2501,33 +2764,33 @@ async function updateServiceWithOptions(ClusterId: string, ServiceName: string, 
   return callApi(params, req, runtime);
 }
 
+async function updateService(ClusterId: string, ServiceName: string, request: UpdateServiceRequest): UpdateServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateServiceWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
 model UpdateServiceAutoScalerRequest {
-  max?: int32(name='max'),
-  min?: int32(name='min'),
+  max?: int32(name='max', example='8'),
+  min?: int32(name='min', example='2'),
   scaleStrategies?: [ 
     {
-      metricName?: string(name='metricName'),
-      service?: string(name='service'),
-      threshold?: float(name='threshold'),
+      metricName?: string(name='metricName', example='qps'),
+      service?: string(name='service', example='demo_svc'),
+      threshold?: float(name='threshold', example='100'),
     }
   ](name='scaleStrategies'),
 }
 
 model UpdateServiceAutoScalerResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Update auto scale for service [foo] successfully'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model UpdateServiceAutoScalerResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: UpdateServiceAutoScalerResponseBody(name='body'),
-}
-
-async function updateServiceAutoScaler(ClusterId: string, ServiceName: string, request: UpdateServiceAutoScalerRequest): UpdateServiceAutoScalerResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateServiceAutoScalerWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
 async function updateServiceAutoScalerWithOptions(ClusterId: string, ServiceName: string, request: UpdateServiceAutoScalerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateServiceAutoScalerResponse {
@@ -2561,32 +2824,32 @@ async function updateServiceAutoScalerWithOptions(ClusterId: string, ServiceName
   return callApi(params, req, runtime);
 }
 
+async function updateServiceAutoScaler(ClusterId: string, ServiceName: string, request: UpdateServiceAutoScalerRequest): UpdateServiceAutoScalerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateServiceAutoScalerWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
 model UpdateServiceCronScalerRequest {
   excludeDates?: [ string ](name='ExcludeDates'),
   scaleJobs?: [ 
     {
-      name?: string(name='Name'),
-      schedule?: string(name='Schedule'),
-      targetSize?: int32(name='TargetSize'),
+      name?: string(name='Name', example='scale-job-1'),
+      schedule?: string(name='Schedule', example='0 18 * * * *'),
+      targetSize?: int32(name='TargetSize', example='2'),
     }
   ](name='ScaleJobs'),
 }
 
 model UpdateServiceCronScalerResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Update cron scaler for service [foo] successfully'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model UpdateServiceCronScalerResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: UpdateServiceCronScalerResponseBody(name='body'),
-}
-
-async function updateServiceCronScaler(ClusterId: string, ServiceName: string, request: UpdateServiceCronScalerRequest): UpdateServiceCronScalerResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateServiceCronScalerWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
 async function updateServiceCronScalerWithOptions(ClusterId: string, ServiceName: string, request: UpdateServiceCronScalerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateServiceCronScalerResponse {
@@ -2617,26 +2880,72 @@ async function updateServiceCronScalerWithOptions(ClusterId: string, ServiceName
   return callApi(params, req, runtime);
 }
 
+async function updateServiceCronScaler(ClusterId: string, ServiceName: string, request: UpdateServiceCronScalerRequest): UpdateServiceCronScalerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateServiceCronScalerWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
+model UpdateServiceLabelRequest {
+  labels?: map[string]string(name='Labels'),
+}
+
+model UpdateServiceLabelResponseBody = {
+  message?: string(name='Message', example='Success.'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model UpdateServiceLabelResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateServiceLabelResponseBody(name='body'),
+}
+
+async function updateServiceLabelWithOptions(ClusterId: string, ServiceName: string, request: UpdateServiceLabelRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateServiceLabelResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.labels)) {
+    body['Labels'] = request.labels;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateServiceLabel',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(ServiceName)}/label`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function updateServiceLabel(ClusterId: string, ServiceName: string, request: UpdateServiceLabelRequest): UpdateServiceLabelResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateServiceLabelWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
 model UpdateServiceMirrorRequest {
-  ratio?: int32(name='Ratio'),
+  ratio?: int32(name='Ratio', example='30'),
   target?: [ string ](name='Target'),
 }
 
 model UpdateServiceMirrorResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Traffic mirroring is updating for service [foo] in region [cn-shanghia], ratio [70%]'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82***'),
 }
 
 model UpdateServiceMirrorResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: UpdateServiceMirrorResponseBody(name='body'),
-}
-
-async function updateServiceMirror(ClusterId: string, ServiceName: string, request: UpdateServiceMirrorRequest): UpdateServiceMirrorResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateServiceMirrorWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
 async function updateServiceMirrorWithOptions(ClusterId: string, ServiceName: string, request: UpdateServiceMirrorRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateServiceMirrorResponse {
@@ -2667,25 +2976,25 @@ async function updateServiceMirrorWithOptions(ClusterId: string, ServiceName: st
   return callApi(params, req, runtime);
 }
 
+async function updateServiceMirror(ClusterId: string, ServiceName: string, request: UpdateServiceMirrorRequest): UpdateServiceMirrorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateServiceMirrorWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
 model UpdateServiceSafetyLockRequest {
-  lock?: string(name='Lock'),
+  lock?: string(name='Lock', example='dangerous'),
 }
 
 model UpdateServiceSafetyLockResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='service safety lock updated to dangerous'),
+  requestId?: string(name='RequestId', example='E089D584-B6F4-50C4-9902-DA2295B7****'),
 }
 
 model UpdateServiceSafetyLockResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: UpdateServiceSafetyLockResponseBody(name='body'),
-}
-
-async function updateServiceSafetyLock(ClusterId: string, ServiceName: string, request: UpdateServiceSafetyLockRequest): UpdateServiceSafetyLockResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateServiceSafetyLockWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
 async function updateServiceSafetyLockWithOptions(ClusterId: string, ServiceName: string, request: UpdateServiceSafetyLockRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateServiceSafetyLockResponse {
@@ -2713,25 +3022,25 @@ async function updateServiceSafetyLockWithOptions(ClusterId: string, ServiceName
   return callApi(params, req, runtime);
 }
 
+async function updateServiceSafetyLock(ClusterId: string, ServiceName: string, request: UpdateServiceSafetyLockRequest): UpdateServiceSafetyLockResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateServiceSafetyLockWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
 model UpdateServiceVersionRequest {
-  version?: int32(name='Version'),
+  version?: int32(name='Version', example='1'),
 }
 
 model UpdateServiceVersionResponseBody = {
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  message?: string(name='Message', example='Service [foo] in region [cn-shanghai] is starting'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model UpdateServiceVersionResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: UpdateServiceVersionResponseBody(name='body'),
-}
-
-async function updateServiceVersion(ClusterId: string, ServiceName: string, request: UpdateServiceVersionRequest): UpdateServiceVersionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateServiceVersionWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
 async function updateServiceVersionWithOptions(ClusterId: string, ServiceName: string, request: UpdateServiceVersionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateServiceVersionResponse {
@@ -2757,5 +3066,11 @@ async function updateServiceVersionWithOptions(ClusterId: string, ServiceName: s
     bodyType = 'json',
   };
   return callApi(params, req, runtime);
+}
+
+async function updateServiceVersion(ClusterId: string, ServiceName: string, request: UpdateServiceVersionRequest): UpdateServiceVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateServiceVersionWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
