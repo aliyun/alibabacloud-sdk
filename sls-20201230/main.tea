@@ -284,13 +284,12 @@ model MachineGroup {
 
 model Project {
   createTime?: string(name='createTime'),
-  description?: string(name='description'),
   lastModifyTime?: string(name='lastModifyTime'),
-  owner?: string(name='owner'),
+  projectDesc?: string(name='projectDesc'),
   projectName?: string(name='projectName'),
+  projectOwner?: string(name='projectOwner'),
+  projectStatus?: string(name='projectStatus'),
   region?: string(name='region'),
-  resourceGroupId?: string(name='resourceGroupId'),
-  status?: string(name='status'),
 }
 
 model Schedule {
@@ -541,21 +540,13 @@ async function createDomain(project: string, request: CreateDomainRequest): Crea
 }
 
 model CreateETLJobRequest {
-  enable?: boolean(name='enable'),
-  functionConfig?: EtlFunctionConfig(name='functionConfig'),
-  functionParameter?: string(name='functionParameter'),
-  jobName?: string(name='jobName'),
-  logConfig?: EtlLogConfig(name='logConfig'),
-  sourceConfig?: EtlSourceConfig(name='sourceConfig'),
-  triggerConfig?: EtlTriggerConfig(name='triggerConfig'),
+  body?: EtlJob(name='body'),
 }
 
 model CreateETLJobResponseBody = {
   code?: int32(name='code'),
-  data?: [  map[string]any ](name='data'),
+  data?: string(name='data'),
   message?: string(name='message'),
-  requestId?: string(name='requestId'),
-  success?: string(name='success'),
 }
 
 model CreateETLJobResponse = {
@@ -568,33 +559,10 @@ async function createETLJobWithOptions(project: string, request: CreateETLJobReq
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.enable)) {
-    body['enable'] = request.enable;
-  }
-  if (!Util.isUnset(request.functionConfig)) {
-    body['functionConfig'] = request.functionConfig;
-  }
-  if (!Util.isUnset(request.functionParameter)) {
-    body['functionParameter'] = request.functionParameter;
-  }
-  if (!Util.isUnset(request.jobName)) {
-    body['jobName'] = request.jobName;
-  }
-  if (!Util.isUnset(request.logConfig)) {
-    body['logConfig'] = request.logConfig;
-  }
-  if (!Util.isUnset(request.sourceConfig)) {
-    body['sourceConfig'] = request.sourceConfig;
-  }
-  if (!Util.isUnset(request.triggerConfig)) {
-    body['triggerConfig'] = request.triggerConfig;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.body),
   };
   var params = new OpenApi.Params{
     action = 'CreateETLJob',
@@ -763,6 +731,101 @@ async function createJob(project: string, request: CreateJobRequest): CreateJobR
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createJobWithOptions(project, request, headers, runtime);
+}
+
+model CreateJobTestRequest {
+  accessKeyId?: string(name='accessKeyId'),
+  accessKeySecret?: string(name='accessKeySecret'),
+  description?: string(name='description'),
+  displayName?: string(name='displayName'),
+  fromTime?: string(name='fromTime'),
+  logstore?: string(name='logstore'),
+  parameters?: string(name='parameters'),
+  projectName?: string(name='projectName'),
+  roleArn?: string(name='roleArn'),
+  script?: string(name='script'),
+  sinks?: [ map[string]string ](name='sinks'),
+  toTime?: string(name='toTime'),
+}
+
+model CreateJobTestResponseBody = {
+  code?: int32(name='code'),
+  data?: string(name='data'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId'),
+}
+
+model CreateJobTestResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateJobTestResponseBody(name='body'),
+}
+
+async function createJobTestWithOptions(request: CreateJobTestRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateJobTestResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.accessKeyId)) {
+    query['accessKeyId'] = request.accessKeyId;
+  }
+  if (!Util.isUnset(request.accessKeySecret)) {
+    query['accessKeySecret'] = request.accessKeySecret;
+  }
+  if (!Util.isUnset(request.description)) {
+    query['description'] = request.description;
+  }
+  if (!Util.isUnset(request.displayName)) {
+    query['displayName'] = request.displayName;
+  }
+  if (!Util.isUnset(request.fromTime)) {
+    query['fromTime'] = request.fromTime;
+  }
+  if (!Util.isUnset(request.logstore)) {
+    query['logstore'] = request.logstore;
+  }
+  if (!Util.isUnset(request.parameters)) {
+    query['parameters'] = request.parameters;
+  }
+  if (!Util.isUnset(request.projectName)) {
+    query['projectName'] = request.projectName;
+  }
+  if (!Util.isUnset(request.projectName)) {
+    query['projectName'] = request.projectName;
+  }
+  if (!Util.isUnset(request.roleArn)) {
+    query['roleArn'] = request.roleArn;
+  }
+  if (!Util.isUnset(request.script)) {
+    query['script'] = request.script;
+  }
+  if (!Util.isUnset(request.sinks)) {
+    query['sinks'] = request.sinks;
+  }
+  if (!Util.isUnset(request.toTime)) {
+    query['toTime'] = request.toTime;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateJobTest',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/jobs`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+async function createJobTest(request: CreateJobTestRequest): CreateJobTestResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createJobTestWithOptions(request, headers, runtime);
 }
 
 model CreateLogStoreRequest {
@@ -1421,7 +1484,7 @@ async function deleteDomain(project: string, domainName: string): DeleteDomainRe
 model DeleteETLJobResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
-  body: string(name='body'),
+  body: any(name='body'),
 }
 
 async function deleteETLJobWithOptions(project: string, etlJobName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteETLJobResponse {
@@ -1440,7 +1503,7 @@ async function deleteETLJobWithOptions(project: string, etlJobName: string, head
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
-    bodyType = 'string',
+    bodyType = 'any',
   };
   return execute(params, req, runtime);
 }
@@ -1515,14 +1578,10 @@ async function deleteIndex(project: string, logstore: string): DeleteIndexRespon
   return deleteIndexWithOptions(project, logstore, headers, runtime);
 }
 
-model DeleteJobResponseBody = {
-  data?: any(name='data'),
-}
-
 model DeleteJobResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
-  body: DeleteJobResponseBody(name='body'),
+  body: any(name='body'),
 }
 
 async function deleteJobWithOptions(project: string, etlJobName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteJobResponse {
@@ -1541,7 +1600,7 @@ async function deleteJobWithOptions(project: string, etlJobName: string, headers
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
-    bodyType = 'json',
+    bodyType = 'any',
   };
   return execute(params, req, runtime);
 }
@@ -1648,17 +1707,25 @@ async function deleteMachineGroup(project: string, machineGroup: string): Delete
   return deleteMachineGroupWithOptions(project, machineGroup, headers, runtime);
 }
 
+model DeleteProjectRequest {
+  project?: string(name='project', example='ali-test-project'),
+}
+
 model DeleteProjectResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
 }
 
-async function deleteProjectWithOptions(project: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteProjectResponse {
-  var hostMap : map[string]string = {};
-  hostMap['project'] = project;
+async function deleteProjectWithOptions(request: DeleteProjectRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteProjectResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.project)) {
+    query['project'] = request.project;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
-    hostMap = hostMap,
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'DeleteProject',
@@ -1674,10 +1741,10 @@ async function deleteProjectWithOptions(project: string, headers: map[string]str
   return execute(params, req, runtime);
 }
 
-async function deleteProject(project: string): DeleteProjectResponse {
+async function deleteProject(request: DeleteProjectRequest): DeleteProjectResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return deleteProjectWithOptions(project, headers, runtime);
+  return deleteProjectWithOptions(request, headers, runtime);
 }
 
 model DeleteProjectPolicyResponse = {
@@ -2100,18 +2167,10 @@ async function getCursorTime(project: string, logstore: string, shardId: string,
   return getCursorTimeWithOptions(project, logstore, shardId, request, headers, runtime);
 }
 
-model GetEtlJobResponseBody = {
-  code?: int32(name='code'),
-  data?: [  map[string]any ](name='data'),
-  message?: string(name='message'),
-  requestId?: string(name='requestId'),
-  success?: string(name='success'),
-}
-
 model GetEtlJobResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
-  body: GetEtlJobResponseBody(name='body'),
+  body: EtlJob  
 }
 
 async function getEtlJobWithOptions(project: string, etlJobName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetEtlJobResponse {
@@ -2289,18 +2348,10 @@ async function getIndex(project: string, logstore: string): GetIndexResponse {
   return getIndexWithOptions(project, logstore, headers, runtime);
 }
 
-model GetJobResponseBody = {
-  code?: int32(name='code'),
-  data?: [ map[string]string ](name='data'),
-  message?: string(name='message'),
-  requestId?: string(name='requestId'),
-  success?: string(name='success'),
-}
-
 model GetJobResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
-  body: GetJobResponseBody(name='body'),
+  body: any(name='body'),
 }
 
 async function getJobWithOptions(project: string, etlJobName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetJobResponse {
@@ -2319,7 +2370,7 @@ async function getJobWithOptions(project: string, etlJobName: string, headers: m
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
-    bodyType = 'json',
+    bodyType = 'any',
   };
   return execute(params, req, runtime);
 }
@@ -2501,18 +2552,26 @@ async function getMachineGroup(project: string, machineGroup: string): GetMachin
   return getMachineGroupWithOptions(project, machineGroup, headers, runtime);
 }
 
+model GetProjectRequest {
+  project?: string(name='project', example='my-project-test'),
+}
+
 model GetProjectResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: Project  
 }
 
-async function getProjectWithOptions(project: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetProjectResponse {
-  var hostMap : map[string]string = {};
-  hostMap['project'] = project;
+async function getProjectWithOptions(request: GetProjectRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetProjectResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.project)) {
+    query['project'] = request.project;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
-    hostMap = hostMap,
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'GetProject',
@@ -2528,10 +2587,10 @@ async function getProjectWithOptions(project: string, headers: map[string]string
   return execute(params, req, runtime);
 }
 
-async function getProject(project: string): GetProjectResponse {
+async function getProject(request: GetProjectRequest): GetProjectResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return getProjectWithOptions(project, headers, runtime);
+  return getProjectWithOptions(request, headers, runtime);
 }
 
 model GetProjectLogsRequest {
@@ -2863,9 +2922,7 @@ async function listDomains(project: string, request: ListDomainsRequest): ListDo
 }
 
 model ListETLJobsResponseBody = {
-  results?: [
-    EtlJob
-  ](name='results'),
+  results?: any(name='results'),
   total?: int32(name='total'),
 }
 
@@ -3199,7 +3256,7 @@ model ListProjectResponse = {
   body: ListProjectResponseBody(name='body'),
 }
 
-async function listProjectWithOptions(resourceGroupId: string, request: ListProjectRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListProjectResponse {
+async function listProjectWithOptions(request: ListProjectRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListProjectResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
   if (!Util.isUnset(request.offset)) {
@@ -3230,10 +3287,10 @@ async function listProjectWithOptions(resourceGroupId: string, request: ListProj
   return execute(params, req, runtime);
 }
 
-async function listProject(resourceGroupId: string, request: ListProjectRequest): ListProjectResponse {
+async function listProject(request: ListProjectRequest): ListProjectResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return listProjectWithOptions(resourceGroupId, request, headers, runtime);
+  return listProjectWithOptions(request, headers, runtime);
 }
 
 model ListSavedSearchRequest {
@@ -3863,13 +3920,7 @@ async function updateConsumerGroup(project: string, logstore: string, consumerGr
 }
 
 model UpdateEtlJobRequest {
-  enable?: boolean(name='enable', example='true'),
-  functionConfig?: EtlFunctionConfig(name='functionConfig'),
-  functionParameter?: string(name='functionParameter'),
-  jobName?: string(name='jobName'),
-  logConfig?: EtlLogConfig(name='logConfig'),
-  sourceConfig?: EtlSourceConfig(name='sourceConfig'),
-  triggerConfig?: EtlTriggerConfig(name='triggerConfig'),
+  body?: EtlJob(name='body'),
 }
 
 model UpdateEtlJobResponseBody = {
@@ -3890,33 +3941,10 @@ async function updateEtlJobWithOptions(project: string, etlJob: string, request:
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.enable)) {
-    body['enable'] = request.enable;
-  }
-  if (!Util.isUnset(request.functionConfig)) {
-    body['functionConfig'] = request.functionConfig;
-  }
-  if (!Util.isUnset(request.functionParameter)) {
-    body['functionParameter'] = request.functionParameter;
-  }
-  if (!Util.isUnset(request.jobName)) {
-    body['jobName'] = request.jobName;
-  }
-  if (!Util.isUnset(request.logConfig)) {
-    body['logConfig'] = request.logConfig;
-  }
-  if (!Util.isUnset(request.sourceConfig)) {
-    body['sourceConfig'] = request.sourceConfig;
-  }
-  if (!Util.isUnset(request.triggerConfig)) {
-    body['triggerConfig'] = request.triggerConfig;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.body),
   };
   var params = new OpenApi.Params{
     action = 'UpdateEtlJob',
@@ -4516,6 +4544,7 @@ async function updateOssShipper(project: string, logstore: string, shipperName: 
 
 model UpdateProjectRequest {
   description?: string(name='description', example='Description of my-project-test'),
+  project?: string(name='project'),
 }
 
 model UpdateProjectResponse = {
@@ -4523,18 +4552,21 @@ model UpdateProjectResponse = {
   statusCode: int32(name='statusCode'),
 }
 
-async function updateProjectWithOptions(project: string, request: UpdateProjectRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateProjectResponse {
+async function updateProjectWithOptions(request: UpdateProjectRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateProjectResponse {
   Util.validateModel(request);
-  var hostMap : map[string]string = {};
-  hostMap['project'] = project;
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.project)) {
+    query['project'] = request.project;
+  }
+
   var body : map[string]any = {};
   if (!Util.isUnset(request.description)) {
     body['description'] = request.description;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
-    hostMap = hostMap,
     headers = headers,
+    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
@@ -4551,10 +4583,10 @@ async function updateProjectWithOptions(project: string, request: UpdateProjectR
   return execute(params, req, runtime);
 }
 
-async function updateProject(project: string, request: UpdateProjectRequest): UpdateProjectResponse {
+async function updateProject(request: UpdateProjectRequest): UpdateProjectResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return updateProjectWithOptions(project, request, headers, runtime);
+  return updateProjectWithOptions(request, headers, runtime);
 }
 
 model UpdateRdsExternalStoreRequest {
