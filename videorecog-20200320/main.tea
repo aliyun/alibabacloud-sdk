@@ -156,6 +156,146 @@ async function detectVideoShotAdvance(request: DetectVideoShotAdvanceRequest, ru
   return detectVideoShotResp;
 }
 
+model EvaluateVideoQualityRequest {
+  mode?: string(name='Mode', example='vqa_plus'),
+  videoUrl?: string(name='VideoUrl', example='http://public-vigen-video.oss-cn-shanghai.aliyuncs.com/Common/xxx/dont_delete/decaption/123.mp4'),
+}
+
+model EvaluateVideoQualityAdvanceRequest {
+  mode?: string(name='Mode', example='vqa_plus'),
+  videoUrlObject?: readable(name='VideoUrl', example='http://public-vigen-video.oss-cn-shanghai.aliyuncs.com/Common/xxx/dont_delete/decaption/123.mp4'),
+}
+
+model EvaluateVideoQualityResponseBody = {
+  data?: {
+    jsonUrl?: string(name='JsonUrl', example='http://vibktprfx-prod-prod-damo-eas-cn-shanghai.oss-cn-shanghai.aliyuncs.com/eas-video-quality-assessment/2023-01-13-10/31%3A08-cVeN9ZQlzIPfGqsa.json?Expires=1673578869&amp;OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRp****&amp;Signature=AiSsOsZ7rYfhf9w3Mxn%2Fq4GKKy****'),
+    pdfUrl?: string(name='PdfUrl', example='http://vibktprfx-prod-prod-damo-eas-cn-shanghai.oss-cn-shanghai.aliyuncs.com/eas-video-quality-assessment/2023-01-13-10/31%3A08-cVeN9ZQlzIPfGqsa.pdf?Expires=1673578869&amp;OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRp****&amp;Signature=xULlZzVuhoYWAXRbp9A4EzzZcS****'),
+    videoQualityInfo?: {
+      blurriness?: float(name='Blurriness', example='0.15'),
+      colorContrast?: float(name='ColorContrast', example='0.55'),
+      colorSaturation?: float(name='ColorSaturation', example='0.17'),
+      colorfulness?: float(name='Colorfulness', example='0.48'),
+      compressiveStrength?: float(name='CompressiveStrength', example='0.25'),
+      luminance?: float(name='Luminance', example='0.51'),
+      mosScore?: float(name='MosScore', example='0.7048'),
+      noiseIntensity?: float(name='NoiseIntensity', example='0.01'),
+    }(name='VideoQualityInfo'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', example='1d33e538-c949-4fcd-83f6-4d57e4b31527'),
+}
+
+model EvaluateVideoQualityResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: EvaluateVideoQualityResponseBody(name='body'),
+}
+
+async function evaluateVideoQualityWithOptions(request: EvaluateVideoQualityRequest, runtime: Util.RuntimeOptions): EvaluateVideoQualityResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.mode)) {
+    body['Mode'] = request.mode;
+  }
+  if (!Util.isUnset(request.videoUrl)) {
+    body['VideoUrl'] = request.videoUrl;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'EvaluateVideoQuality',
+    version = '2020-03-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function evaluateVideoQuality(request: EvaluateVideoQualityRequest): EvaluateVideoQualityResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return evaluateVideoQualityWithOptions(request, runtime);
+}
+
+async function evaluateVideoQualityAdvance(request: EvaluateVideoQualityAdvanceRequest, runtime: Util.RuntimeOptions): EvaluateVideoQualityResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'videorecog',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var evaluateVideoQualityReq = new EvaluateVideoQualityRequest{};
+  OpenApiUtil.convert(request, evaluateVideoQualityReq);
+
+  if(!Util.isUnset(request.videoUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.videoUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    evaluateVideoQualityReq.videoUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var evaluateVideoQualityResp = evaluateVideoQualityWithOptions(evaluateVideoQualityReq, runtime);
+  return evaluateVideoQualityResp;
+}
+
 model GenerateVideoCoverRequest {
   isGif?: boolean(name='IsGif', example='false'),
   videoUrl?: string(name='VideoUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/videorecog/videorecog/videorecog1.mp4'),
