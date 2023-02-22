@@ -1357,6 +1357,135 @@ async function eraseVideoSubtitlesAdvance(request: EraseVideoSubtitlesAdvanceReq
   return eraseVideoSubtitlesResp;
 }
 
+model GenerateHumanAnimeStyleVideoRequest {
+  cartoonStyle?: string(name='CartoonStyle', example='anime'),
+  videoUrl?: string(name='VideoUrl', example='https://viapi-test.oss-cn-shanghai.aliyuncs.com/test/xxx/eas/EvaluateVideoQuality/123.mp4'),
+}
+
+model GenerateHumanAnimeStyleVideoAdvanceRequest {
+  cartoonStyle?: string(name='CartoonStyle', example='anime'),
+  videoUrlObject?: readable(name='VideoUrl', example='https://viapi-test.oss-cn-shanghai.aliyuncs.com/test/xxx/eas/EvaluateVideoQuality/123.mp4'),
+}
+
+model GenerateHumanAnimeStyleVideoResponseBody = {
+  data?: {
+    videoUrl?: string(name='VideoUrl', example='http://vibktprfx-prod-prod-xstream-cn-shanghai.oss-cn-shanghai.aliyuncs.com/xstream-framework/upload_result_video_2023-02-10_09.45.55.mp4?Expires=1675995564&amp;OSSAccessKeyId=LTAI4FoLmvQ9urWXgSR****&amp;Signature=aIXTeM4IU4nARjy3SNA3YGhhqj****'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', example='d21a2afa-4d52-4bca-803b-e65028146603'),
+}
+
+model GenerateHumanAnimeStyleVideoResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GenerateHumanAnimeStyleVideoResponseBody(name='body'),
+}
+
+async function generateHumanAnimeStyleVideoWithOptions(request: GenerateHumanAnimeStyleVideoRequest, runtime: Util.RuntimeOptions): GenerateHumanAnimeStyleVideoResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.cartoonStyle)) {
+    body['CartoonStyle'] = request.cartoonStyle;
+  }
+  if (!Util.isUnset(request.videoUrl)) {
+    body['VideoUrl'] = request.videoUrl;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GenerateHumanAnimeStyleVideo',
+    version = '2020-03-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function generateHumanAnimeStyleVideo(request: GenerateHumanAnimeStyleVideoRequest): GenerateHumanAnimeStyleVideoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return generateHumanAnimeStyleVideoWithOptions(request, runtime);
+}
+
+async function generateHumanAnimeStyleVideoAdvance(request: GenerateHumanAnimeStyleVideoAdvanceRequest, runtime: Util.RuntimeOptions): GenerateHumanAnimeStyleVideoResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'videoenhan',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var generateHumanAnimeStyleVideoReq = new GenerateHumanAnimeStyleVideoRequest{};
+  OpenApiUtil.convert(request, generateHumanAnimeStyleVideoReq);
+
+  if(!Util.isUnset(request.videoUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.videoUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    generateHumanAnimeStyleVideoReq.videoUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var generateHumanAnimeStyleVideoResp = generateHumanAnimeStyleVideoWithOptions(generateHumanAnimeStyleVideoReq, runtime);
+  return generateHumanAnimeStyleVideoResp;
+}
+
 model GenerateVideoRequest {
   duration?: float(name='Duration', example='10'),
   durationAdaption?: boolean(name='DurationAdaption', example='true'),
