@@ -1,0 +1,120 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('nis', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model GetNatTopNRequest {
+  beginTime?: long(name='BeginTime', description='The beginning of the time range to query in milliseconds. If you do not specify **EndTime**, the point in time specified by **BeginTime** is queried.', example='1638239092000'),
+  endTime?: long(name='EndTime', description='The end of the time range to query in milliseconds. The time range specified by **BeginTime** and **EndTime** cannot exceed **86400000** milliseconds (24 hours).', example='1638239093000'),
+  ip?: string(name='Ip', description='Query ranking statistics for a specific IP address. If you specify this parameter, you do not need to specify **TopN** or **OrderBy**.', example='192.168.156.101'),
+  natGatewayId?: string(name='NatGatewayId', description='The ID of the NAT gateway.', example='ngw-sample***'),
+  orderBy?: string(name='OrderBy', description='The metric that is used for real-time SNAT performance ranking. Valid values:
+
+*   **InBps**: inbound data transfer. Unit: bit/s.
+*   **OutBps**: outbound data transfer. Unit: bit/s.
+*   **InPps**: inbound packet forwarding rate. Unit: packets per second.
+*   **OutPps**: outbound packet forwarding rate. Unit: packets per second.
+*   **NewSessionPerSecond**: new connection creation rate. Unit: connections per second.
+*   **ActiveSessionCount**: number of concurrent connections. Unit: connections.', example='InBps'),
+  regionId?: string(name='RegionId', description='The ID of the region in which the NAT gateway is deployed.', example='cn-shanghai'),
+  topN?: int32(name='TopN', description='The number of entries to return for real-time SNAT performance ranking. Valid values: **1 to 100**. Default value: **10**.', example='10'),
+}
+
+model GetNatTopNResponseBody = {
+  isTopNOpen?: boolean(name='IsTopNOpen', description='Indicates whether Network Intelligence Service (NIS) is activated. The NatGatewayTopN parameter returns an empty array when NIS is not activated.
+
+*   **true**: activated
+*   **false**: not activated', example='true'),
+  natGatewayTopN?: [ 
+    {
+      activeSessionCount?: float(name='ActiveSessionCount', description='The number of concurrent connections. Unit: connections.', example='8'),
+      inBps?: float(name='InBps', description='The inbound data transfer. Unit: bit/s.', example='100'),
+      inFlowPerMinute?: float(name='InFlowPerMinute', description='This field is reserved and not in use.', example='10'),
+      inPps?: float(name='InPps', description='The inbound packet forwarding rate. Unit: packets per second.', example='10'),
+      ip?: string(name='Ip', description='The IP address.', example='192.168.156.101'),
+      newSessionPerSecond?: float(name='NewSessionPerSecond', description='The new connection creation rate. Unit: connections per second.', example='2'),
+      outBps?: float(name='OutBps', description='The outbound data transfer. Unit: bit/s.', example='200'),
+      outFlowPerMinute?: float(name='OutFlowPerMinute', description='This field is reserved and not in use.', example='10'),
+      outPps?: float(name='OutPps', description='The outbound packet forwarding rate. Unit: packets per second.', example='20'),
+    }
+  ](name='NatGatewayTopN', description='An array of statistics about real-time SNAT performance ranking.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='77C512B5-12f3-f892-BD94-88A98271C1A0'),
+}
+
+model GetNatTopNResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetNatTopNResponseBody(name='body'),
+}
+
+async function getNatTopNWithOptions(request: GetNatTopNRequest, runtime: Util.RuntimeOptions): GetNatTopNResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.beginTime)) {
+    query['BeginTime'] = request.beginTime;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.ip)) {
+    query['Ip'] = request.ip;
+  }
+  if (!Util.isUnset(request.natGatewayId)) {
+    query['NatGatewayId'] = request.natGatewayId;
+  }
+  if (!Util.isUnset(request.orderBy)) {
+    query['OrderBy'] = request.orderBy;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.topN)) {
+    query['TopN'] = request.topN;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetNatTopN',
+    version = '2021-12-16',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getNatTopN(request: GetNatTopNRequest): GetNatTopNResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getNatTopNWithOptions(request, runtime);
+}
+
