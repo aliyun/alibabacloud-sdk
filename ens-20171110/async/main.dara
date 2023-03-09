@@ -360,6 +360,27 @@ async function authorizeSecurityGroupEgress(request: AuthorizeSecurityGroupEgres
   return @handler.do('RPC', 'AuthorizeSecurityGroupEgress', 'POST', '/', 'json', false, 'json', request);
 }
 
+model CleanDistDataRequest {
+  appId?: string(name='AppId', position='Query'),
+  dataName?: string(name='DataName', position='Query'),
+  dataVersion?: string(name='DataVersion', position='Query'),
+  ensRegionId?: string(name='EnsRegionId', position='Query'),
+}
+
+model CleanDistDataResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model CleanDistDataResponse = {
+  headers: map[string]string(name='headers'),
+  body: CleanDistDataResponseBody(name='body'),
+}
+
+async function cleanDistData(request: CleanDistDataRequest): CleanDistDataResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CleanDistData', 'POST', '/', 'json', false, 'json', request);
+}
+
 model CreateARMServerInstancesRequest {
   amount: int32(name='Amount', description='数量，最大支持10', example='1', minimum=1, maximum=10, position='Query'),
   autoRenew?: boolean(name='AutoRenew', description='是否自动续费，默认为false。', example='false', position='Query'),
@@ -441,7 +462,8 @@ model CreateDiskRequest {
   category: string(name='Category', description='磁盘种类 高效云盘:cloud_efficiency 全闪云盘:cloud_ssd', example='cloud_efficiency', position='Query'),
   ensRegionId: string(name='EnsRegionId', description='节点ID', example='cn-chengdu-telecom', position='Query'),
   instanceChargeType: string(name='InstanceChargeType', description='实例付费方式，取值 PrePaid:预付费，包年包月 PostPaid:按量付费。目前只支持：PostPaid', example='PostPaid', position='Query'),
-  size: string(name='Size', description='磁盘大小,单位GB', example='20', position='Query'),
+  size?: string(name='Size', description='磁盘大小,单位GB', example='20', position='Query'),
+  snapshotId?: string(name='SnapshotId', position='Query'),
 }
 
 model CreateDiskResponseBody = {
@@ -613,8 +635,8 @@ async function createForwardEntry(request: CreateForwardEntryRequest): CreateFor
 model CreateImageRequest {
   deleteAfterImageUpload?: string(name='DeleteAfterImageUpload', example='false', position='Query'),
   imageName: string(name='ImageName', position='Query'),
-  instanceId: string(name='InstanceId', example='i-5rr1bnyrc4tswr8cq3w6y1fjw', position='Query'),
-  product?: string(name='product', example='DAILY_FORECAST_15D', position='Query'),
+  instanceId?: string(name='InstanceId', example='i-5rr1bnyrc4tswr8cq3w6y1fjw', position='Query'),
+  snapshotId?: string(name='SnapshotId', position='Query'),
 }
 
 model CreateImageResponseBody = {
@@ -1111,6 +1133,25 @@ model DeleteDeviceInternetPortResponse = {
 async function deleteDeviceInternetPort(request: DeleteDeviceInternetPortRequest): DeleteDeviceInternetPortResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteDeviceInternetPort', 'GET', '/', 'json', false, 'json', request);
+}
+
+model DeleteDiskRequest {
+  diskId: string(name='DiskId', example='d-5va95bg6i5f44kgkeuazyfcxm', position='Query'),
+}
+
+model DeleteDiskResponseBody = {
+  code?: int32(name='Code', example='0'),
+  requestId?: string(name='RequestId', example='3ABEEB76-1976-55AB-B884-3D65CA6A4743'),
+}
+
+model DeleteDiskResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteDiskResponseBody(name='body'),
+}
+
+async function deleteDisk(request: DeleteDiskRequest): DeleteDiskResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteDisk', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteEnsRouteEntryRequest {
@@ -1763,6 +1804,7 @@ model DescribeDataDistResultRequest {
   appId: string(name='AppId', example='e76f8985-7965-41fc-925b-9648bb6bf650', position='Query'),
   dataNames?: string(name='DataNames', example='cloudgame-shanghai/deploy_app/20220215/1644895216305ACG_M21B-ota-1.1.2-D-0215.0628_V1_0002-pre-weiduan.zip', position='Query'),
   dataVersions?: string(name='DataVersions', example='4885', position='Query'),
+  ensRegionIds?: [ string ](name='EnsRegionIds', shrink='json', position='Query'),
   instanceIds?: string(name='InstanceIds', example='i-7ecpqvkicnchxccozrp,i-6ecpqvkicnchxccozrp', position='Query'),
   maxDate?: string(name='MaxDate', example='2022-02-01', position='Query'),
   minDate?: string(name='MinDate', example='2022-01-02', position='Query'),
@@ -1998,9 +2040,11 @@ model DescribeDisksRequest {
   diskType?: string(name='DiskType', example='PostPayDisk', position='Query'),
   ensRegionId?: string(name='EnsRegionId', example='cn-kunming-telecom', position='Query'),
   ensRegionIds?: string(name='EnsRegionIds', example='["cn-suzhou-telecom","cn-chengdu-telecom"]', position='Query'),
+  instanceId?: string(name='InstanceId', description='云盘所挂载的实列。', position='Query'),
   orderByParams?: string(name='OrderByParams', example='{"EnsRegionId":"desc"}', position='Query'),
   pageNumber?: string(name='PageNumber', example='1', position='Query'),
   pageSize?: string(name='PageSize', example='10', position='Query'),
+  snapshotId?: string(name='SnapshotId', position='Query'),
   status?: string(name='Status', example='Available', position='Query'),
   type?: string(name='Type', example='system', position='Query'),
 }
@@ -2020,6 +2064,7 @@ model DescribeDisksResponseBody = {
       instanceName?: string(name='InstanceName'),
       portable?: boolean(name='Portable', example='true'),
       size?: int32(name='Size', example='20'),
+      snapshotId?: string(name='SnapshotId'),
       status?: string(name='Status', example='Available'),
       type?: string(name='Type', example='1'),
     }
@@ -2102,6 +2147,7 @@ model DescribeEnsEipAddressesRequest {
   associatedInstanceId?: string(name='AssociatedInstanceId', example='lb-5t18quoohsrc3xkf86spmnu77', position='Query'),
   associatedInstanceType?: string(name='AssociatedInstanceType', example='SlbInstance', position='Query'),
   eipAddress?: string(name='EipAddress', description='要查询的EIP的IP地址。  最多支持输入50个EIP的IP地址，IP地址之间用逗号（,）分隔。', example='192.168.0.1', position='Query'),
+  eipName?: string(name='EipName', position='Query'),
   ensRegionId?: string(name='EnsRegionId', description='ENS节点ID', example='cn-chengdu-telecom', position='Query'),
   pageNumber?: int32(name='PageNumber', description='列表的页码，默认值为1。', example='1', position='Query'),
   pageSize?: int32(name='PageSize', description='分页查询时每页的行数，最大值为100，默认值为10。', example='50', maximum=100, position='Query'),
@@ -2777,7 +2823,6 @@ async function describeForwardTableEntries(request: DescribeForwardTableEntriesR
 
 model DescribeImageInfosRequest {
   osType?: string(name='OsType', example='linux', position='Query'),
-  version: string(name='Version', example='2017-11-10', position='Query'),
 }
 
 model DescribeImageInfosResponseBody = {
@@ -2785,6 +2830,7 @@ model DescribeImageInfosResponseBody = {
   images?: {
     image?: [ 
     {
+      computeType?: string(name='ComputeType'),
       description?: string(name='Description', example='centos_6_08_64_20G_alibase_2017****'),
       imageId?: string(name='ImageId', example='centos_6_08_64_20G_alibase_2017****'),
       imageSize?: string(name='ImageSize', example='20'),
@@ -2841,9 +2887,8 @@ model DescribeImagesRequest {
   imageName?: string(name='ImageName', example='centos_6_08_64_20G_a****', position='Query'),
   pageNumber?: string(name='PageNumber', example='1', position='Query'),
   pageSize?: string(name='PageSize', example='50', position='Query'),
+  snapshotId?: string(name='SnapshotId', position='Query'),
   status?: string(name='Status', position='Query'),
-  version: string(name='Version', example='2017-11-10', position='Query'),
-  product?: string(name='product', position='Query'),
 }
 
 model DescribeImagesResponseBody = {
@@ -2858,6 +2903,7 @@ model DescribeImagesResponseBody = {
       imageOwnerAlias?: string(name='ImageOwnerAlias', example='system'),
       imageSize?: string(name='ImageSize', example='40'),
       platform?: string(name='Platform', example='centos'),
+      snapshotId?: string(name='SnapshotId'),
     }
   ](name='Image')
   }(name='Images'),
@@ -4430,6 +4476,7 @@ model DescribeSelfImagesRequest {
   imageName?: string(name='ImageName', description='镜像名称，支持模糊查询。', position='Query'),
   pageNumber?: int32(name='PageNumber', position='Query'),
   pageSize?: int32(name='PageSize', position='Query'),
+  snapshotId?: string(name='SnapshotId', position='Query'),
 }
 
 model DescribeSelfImagesResponseBody = {
@@ -4438,6 +4485,7 @@ model DescribeSelfImagesResponseBody = {
     image?: [ 
     {
       architecture?: string(name='Architecture'),
+      computeType?: string(name='ComputeType'),
       creationTime?: string(name='CreationTime'),
       imageId?: string(name='ImageId'),
       imageName?: string(name='ImageName'),
@@ -4446,6 +4494,7 @@ model DescribeSelfImagesResponseBody = {
       instanceId?: string(name='InstanceId'),
       osVersion?: string(name='OsVersion'),
       platform?: string(name='Platform'),
+      snapshotId?: string(name='SnapshotId'),
       status?: string(name='Status'),
     }
   ](name='Image')
@@ -4792,6 +4841,38 @@ model GetOssStorageAndAccByBucketsResponse = {
 async function getOssStorageAndAccByBuckets(request: GetOssStorageAndAccByBucketsRequest): GetOssStorageAndAccByBucketsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetOssStorageAndAccByBuckets', 'GET', '/', 'json', false, 'json', request);
+}
+
+model GetOssUsageDataRequest {
+  bucket?: string(name='Bucket', example='ens-sink-bucketzyp1656903494', position='Query'),
+  endTime: string(name='EndTime', example='2022-01-12T00:00:00Z', position='Query'),
+  period?: string(name='Period', example='10', position='Query'),
+  startTime: string(name='StartTime', example='2022-01-11T00:00:00Z', position='Query'),
+}
+
+model GetOssUsageDataResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='2A8CCD48-14F9-0309-B957-7B1D74A8119D'),
+  usageList?: [ 
+    {
+      lanRxBw?: long(name='LanRxBw', example='37865147'),
+      lanTxBw?: long(name='LanTxBw', example='22012187890'),
+      point?: long(name='Point', example='144'),
+      pointTs?: string(name='PointTs', example='2022-01-12T00:00:00Z'),
+      storageUsageByte?: long(name='StorageUsageByte', example='85462146217'),
+      wanRxBw?: long(name='WanRxBw', example='542155715'),
+      wanTxBw?: long(name='WanTxBw', example='547126175217'),
+    }
+  ](name='UsageList'),
+}
+
+model GetOssUsageDataResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetOssUsageDataResponseBody(name='body'),
+}
+
+async function getOssUsageData(request: GetOssUsageDataRequest): GetOssUsageDataResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetOssUsageData', 'GET', '/', 'json', false, 'json', request);
 }
 
 model ImportKeyPairRequest {
@@ -5286,41 +5367,6 @@ async function modifyVSwitchAttribute(request: ModifyVSwitchAttributeRequest): M
   return @handler.do('RPC', 'ModifyVSwitchAttribute', 'POST', '/', 'json', false, 'json', request);
 }
 
-model PreCreateEnsServiceRequest {
-  bandwidthType: string(name='BandwidthType', example='95BandwidthByMonth', position='Query'),
-  buyResourcesDetail: string(name='BuyResourcesDetail', position='Query'),
-  dataDiskSize?: string(name='DataDiskSize', example='100', position='Query'),
-  ensServiceName: string(name='EnsServiceName', example='testName', position='Query'),
-  imageId: string(name='ImageId', example='centos_6_09_64_20G_alibase_****', position='Query'),
-  instanceBandwithdLimit: string(name='InstanceBandwithdLimit', example='40', position='Query'),
-  instanceSpec: string(name='InstanceSpec', example='ens.sn1.stiny', position='Query'),
-  keyPairName?: string(name='KeyPairName', example='TestKeyPairName', position='Query'),
-  netLevel: string(name='NetLevel', example='Big', position='Query'),
-  password?: string(name='Password', example='testPassword123', position='Query'),
-  schedulingPriceStrategy?: string(name='SchedulingPriceStrategy', example='PriceLowPriority', position='Query'),
-  schedulingStrategy: string(name='SchedulingStrategy', example='Disperse', position='Query'),
-  systemDiskSize: string(name='SystemDiskSize', example='100', position='Query'),
-  userData?: string(name='UserData', example='#!/bin/sh  echo "Hello World.  The time is now $(date -R)!" | tee /root/output.txt', position='Query'),
-}
-
-model PreCreateEnsServiceResponseBody = {
-  buyResourcesDetail?: string(name='BuyResourcesDetail'),
-  code?: int32(name='Code', example='0'),
-  ensServiceId?: string(name='EnsServiceId', example='ens-20190806****'),
-  netLevel?: string(name='NetLevel', example='Small'),
-  requestId?: string(name='RequestId', example='9AF02B43-2D08-49D3-8AAF-65B9C792ED14'),
-}
-
-model PreCreateEnsServiceResponse = {
-  headers: map[string]string(name='headers'),
-  body: PreCreateEnsServiceResponseBody(name='body'),
-}
-
-async function preCreateEnsService(request: PreCreateEnsServiceRequest): PreCreateEnsServiceResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'PreCreateEnsService', 'POST', '/', 'json', false, 'json', request);
-}
-
 model PushApplicationDataRequest {
   appId: string(name='AppId', example='e76f8985-7965-41fc-925b-9648bb6bf650', position='Query'),
   data: string(name='Data', example='[{\\"name\\":\\"app01\\",       \\"version\\":\\"1.0\\",       \\"size\\":100,\\"archiveType\\":\\"tar.gz\\",       \\"md5\\":\\"\\",       \\"url\\":\\"http://xxxx\\",\\"timeout\\": 1000   },    {       \\"name\\":\\"app02\\",       \\"version\\":\\"1.1\\",       \\"size\\":10,\\"archiveType\\":\\"zip\\",       \\"md5\\":\\"xxxx\\",       \\"url\\":\\"http://xxxxxx\\",\\"timeout\\": 1000   }]', position='Query'),
@@ -5451,6 +5497,24 @@ async function rebootInstances(request: RebootInstancesRequest): RebootInstances
   return @handler.do('RPC', 'RebootInstances', 'POST', '/', 'json', false, 'json', request);
 }
 
+model RecoverAICInstanceRequest {
+  serverId?: string(name='ServerId', example='cas-instance****', position='Query'),
+}
+
+model RecoverAICInstanceResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+}
+
+model RecoverAICInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  body: RecoverAICInstanceResponseBody(name='body'),
+}
+
+async function recoverAICInstance(request: RecoverAICInstanceRequest): RecoverAICInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'RecoverAICInstance', 'GET', '/', 'json', false, 'json', request);
+}
+
 model ReinitInstanceRequest {
   imageId: string(name='ImageId', position='Body'),
   instanceId: string(name='InstanceId', position='Body'),
@@ -5492,6 +5556,24 @@ model ReinitInstancesResponse = {
 async function reinitInstances(request: ReinitInstancesRequest): ReinitInstancesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ReinitInstances', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ReleaseAICInstanceRequest {
+  serverId?: string(name='ServerId', example='cas-instance****', position='Query'),
+}
+
+model ReleaseAICInstanceResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+}
+
+model ReleaseAICInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  body: ReleaseAICInstanceResponseBody(name='body'),
+}
+
+async function releaseAICInstance(request: ReleaseAICInstanceRequest): ReleaseAICInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ReleaseAICInstance', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ReleaseARMServerInstanceRequest {
@@ -5784,6 +5866,25 @@ async function resetDeviceInstance(request: ResetDeviceInstanceRequest): ResetDe
   return @handler.do('RPC', 'ResetDeviceInstance', 'GET', '/', 'json', false, 'json', request);
 }
 
+model ResetDiskRequest {
+  diskId: string(name='DiskId', example='d-bp199lyny9b3****', position='Query'),
+  snapshotId: string(name='SnapshotId', example='sp-bp199lyny9b3****', position='Query'),
+}
+
+model ResetDiskResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
+}
+
+model ResetDiskResponse = {
+  headers: map[string]string(name='headers'),
+  body: ResetDiskResponseBody(name='body'),
+}
+
+async function resetDisk(request: ResetDiskRequest): ResetDiskResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ResetDisk', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ResizeDiskRequest {
   diskId: string(name='DiskId', example='d-5tzm9wnhzlhjzcbtxo465****', position='Query'),
   newSize: string(name='NewSize', example='100', position='Query'),
@@ -5916,6 +6017,7 @@ model RunInstancesRequest {
   netDistrictCode?: string(name='NetDistrictCode', description='地区code', example='350000', position='Query'),
   netWorkId?: string(name='NetWorkId', description='网络id', example='net-id', position='Query'),
   password?: string(name='Password', description='实例密码', example='testPassword', position='Query'),
+  passwordInherit?: boolean(name='PasswordInherit', position='Query'),
   period?: long(name='Period', description='购买资源的时长，单位为：月', example='1-9，12', position='Query'),
   periodUnit?: string(name='PeriodUnit', description='查询云服务器ENS不同计费周期的价格。取值范围：
 Month（默认）：按月计费的价格单位。
