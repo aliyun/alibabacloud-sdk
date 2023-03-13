@@ -128,12 +128,18 @@ model CreateClusterRequest {
       monitorVpcId?: string(name='MonitorVpcId', example='vpc-0jl2x45apm6odc2c10h25'),
       monitorVswitchId?: string(name='MonitorVswitchId', example='vsw-0jl2w3ffbghkss0x2foff'),
       vpdCidr?: string(name='VpdCidr', example='192.168.0.0/16'),
-      vpdSubnets?: {
-        subnetCidr?: string(name='SubnetCidr', example='192.168.1.0/24'),
-        subnetType?: string(name='SubnetType', example='""'),
-        zoneId?: string(name='ZoneId', example='cn-qingdao-c'),
-      }(name='VpdSubnets'),
+      vpdSubnets?: [ 
+        {
+          subnetCidr?: string(name='SubnetCidr'),
+          subnetType?: string(name='SubnetType'),
+          zoneId?: string(name='ZoneId'),
+        }
+      ](name='VpdSubnets'),
     }(name='NewVpdInfo'),
+    vpdInfo?: {
+      vpdId?: string(name='VpdId'),
+      vpdSubnets?: [ string ](name='VpdSubnets'),
+    }(name='VpdInfo'),
   }(name='Networks'),
   nodeGroups?: [ 
     {
@@ -604,12 +610,14 @@ model ExtendClusterRequest {
       ](name='Nodes'),
     }
   ](name='NodeGroups'),
+  vpdSubnets?: [ string ](name='VpdSubnets'),
 }
 
 model ExtendClusterShrinkRequest {
   clusterId?: string(name='ClusterId', example='i15b480fbd2fcdbc2869cd80'),
   ignoreFailedNodeTasks?: boolean(name='IgnoreFailedNodeTasks', example='False'),
   nodeGroupsShrink?: string(name='NodeGroups'),
+  vpdSubnetsShrink?: string(name='VpdSubnets'),
 }
 
 model ExtendClusterResponseBody = {
@@ -630,6 +638,9 @@ async function extendClusterWithOptions(tmpReq: ExtendClusterRequest, runtime: U
   if (!Util.isUnset(tmpReq.nodeGroups)) {
     request.nodeGroupsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.nodeGroups, 'NodeGroups', 'json');
   }
+  if (!Util.isUnset(tmpReq.vpdSubnets)) {
+    request.vpdSubnetsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.vpdSubnets, 'VpdSubnets', 'json');
+  }
   var body : map[string]any = {};
   if (!Util.isUnset(request.clusterId)) {
     body['ClusterId'] = request.clusterId;
@@ -639,6 +650,9 @@ async function extendClusterWithOptions(tmpReq: ExtendClusterRequest, runtime: U
   }
   if (!Util.isUnset(request.nodeGroupsShrink)) {
     body['NodeGroups'] = request.nodeGroupsShrink;
+  }
+  if (!Util.isUnset(request.vpdSubnetsShrink)) {
+    body['VpdSubnets'] = request.vpdSubnetsShrink;
   }
   var req = new OpenApi.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
@@ -666,6 +680,7 @@ model ListClusterNodesRequest {
   clusterId?: string(name='ClusterId', example='i15b480fbd2fcdbc2869cd80'),
   maxResults?: long(name='MaxResults', example='20'),
   nextToken?: string(name='NextToken', example='AAAAAdQ3Z+oPlg49gsr2y8jb6wY='),
+  nodeGroupId?: string(name='NodeGroupId'),
 }
 
 model ListClusterNodesResponseBody = {
@@ -677,12 +692,14 @@ model ListClusterNodesResponseBody = {
       hostname?: string(name='Hostname', example='72432f80-273e-11ed-b57a-acde48001122'),
       imageId?: string(name='ImageId', example='i190297201669099844192'),
       machineType?: string(name='MachineType', example='cn-wulanchabu-b11'),
-      networks?: {
-        bondName?: string(name='BondName', example='Bond0'),
-        ip?: string(name='Ip', example='47.101.88.64'),
-        subnetId?: string(name='SubnetId', example='vsw-wz9pt2ra9t4vlsxacrdwx'),
-        vpdId?: string(name='VpdId', example='vpd-eoiy88ju'),
-      }(name='Networks'),
+      networks?: [ 
+        {
+          bondName?: string(name='BondName'),
+          ip?: string(name='Ip'),
+          subnetId?: string(name='SubnetId'),
+          vpdId?: string(name='VpdId'),
+        }
+      ](name='Networks'),
       nodeGroupId?: string(name='NodeGroupId', example='ng-e9b74f4d450cf18d'),
       nodeGroupName?: string(name='NodeGroupName', example='emr_master'),
       nodeId?: string(name='NodeId', example='e01-cn-2r42tmj4z02'),
@@ -711,6 +728,9 @@ async function listClusterNodesWithOptions(request: ListClusterNodesRequest, run
   }
   if (!Util.isUnset(request.nextToken)) {
     body['NextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.nodeGroupId)) {
+    body['NodeGroupId'] = request.nodeGroupId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
