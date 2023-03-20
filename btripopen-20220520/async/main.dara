@@ -48,6 +48,7 @@ model AccessTokenResponseBody = {
     token?: string(name='token', description='令牌', example='37j76df'),
   }(name='module', description='请看module字段（作废）'),
   requestId?: string(name='requestId', example='407543AF-2BD9-5890-BD92-9D1AB7218B27'),
+  success?: boolean(name='success'),
   traceId?: string(name='traceId', description='traceId', example='21041ce316577904808056433edbb2'),
 }
 
@@ -59,6 +60,40 @@ model AccessTokenResponse = {
 async function accessToken(request: AccessTokenRequest): AccessTokenResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'AccessToken', 'GET', '/btrip-open-auth/v1/access-token/action/take', 'json', false, 'json', request);
+}
+
+model AddInvoiceEntityRequest {
+  entities: [ 
+    {
+      entityId: string(name='entity_id', description='实体id', example='12345'),
+      entityName: string(name='entity_name', description='实体name'),
+      entityType: string(name='entity_type', description='实体类型：1员工，2部门，3角色，4第三方部门', example='1'),
+    }
+  ](name='entities', description='实体列表', shrink='json', position='Body'),
+  thirdPartId: string(name='third_part_id', description='第三方发票id', example='4854821', position='Body'),
+  xAcsBtripCorpToken?: string(name='x-acs-btrip-corp-token', example='feth00jqwls', position='Header'),
+}
+
+model AddInvoiceEntityResponseBody = {
+  code?: string(name='code', example='200'),
+  message?: string(name='message'),
+  module?: {
+    addNum?: int32(name='add_num', example='1'),
+    selectedUserNum?: int32(name='selected_user_num', example='2'),
+  }(name='module'),
+  requestId?: string(name='requestId', description='requestId', example='A5009956-1077-52FB-B520-EA8C7E91D722'),
+  success?: boolean(name='success', example='true'),
+  traceId?: string(name='traceId', description='traceId', example='210f079e16603757182131635d866a'),
+}
+
+model AddInvoiceEntityResponse = {
+  headers: map[string]string(name='headers'),
+  body: AddInvoiceEntityResponseBody(name='body'),
+}
+
+async function addInvoiceEntity(request: AddInvoiceEntityRequest): AddInvoiceEntityResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'AddInvoiceEntity', 'POST', '/invoice/v1/entities', 'json', true, 'form', request);
 }
 
 model AddressGetRequest {
@@ -1426,6 +1461,7 @@ model CorpTokenResponseBody = {
     token?: string(name='token', description='令牌', example='37j76df'),
   }(name='module'),
   requestId?: string(name='requestId', description='pop请求id', example='C61ECFF6-606B-5F66-B81D-D77369043A5F'),
+  success?: boolean(name='success'),
   traceId?: string(name='traceId', description='traceId', example='21041ce316577904808056433edbb2'),
 }
 
@@ -1565,6 +1601,40 @@ model CostCenterSaveResponse = {
 async function costCenterSave(request: CostCenterSaveRequest): CostCenterSaveResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CostCenterSave', 'POST', '/costcenter/v1/save-costcenter', 'json', true, 'form', request);
+}
+
+model DeleteInvoiceEntityRequest {
+  delAll?: boolean(name='del_all', description='删除所有适用人员', example='false', position='Query'),
+  entities?: [ 
+    {
+      entityId?: string(name='entity_id', description='实体id', example='12345'),
+      entityType?: string(name='entity_type', description='实体类型：1员工，2部门，3角色，4第三方部门', example='1'),
+    }
+  ](name='entities', shrink='json', position='Query'),
+  thirdPartId: string(name='third_part_id', description='第三方发票id', example='340049', position='Query'),
+  xAcsBtripCorpToken?: string(name='x-acs-btrip-corp-token', example='feth00jqwls', position='Header'),
+}
+
+model DeleteInvoiceEntityResponseBody = {
+  code?: string(name='code', example='200'),
+  message?: string(name='message'),
+  module?: {
+    removeNum?: int32(name='remove_num', example='1'),
+    selectedUserNum?: int32(name='selected_user_num', example='2'),
+  }(name='module'),
+  requestId?: string(name='requestId', description='requestId', example='A5009956-1077-52FB-B520-EA8C7E91D722'),
+  success?: boolean(name='success', example='true'),
+  traceId?: string(name='traceId', description='traceId', example='21041ce316577904808056433edbb2'),
+}
+
+model DeleteInvoiceEntityResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteInvoiceEntityResponseBody(name='body'),
+}
+
+async function deleteInvoiceEntity(request: DeleteInvoiceEntityRequest): DeleteInvoiceEntityResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteInvoiceEntity', 'DELETE', '/invoice/v1/entities', 'json', false, 'json', request);
 }
 
 model DepartmentSaveRequest {
@@ -2074,7 +2144,7 @@ model FlightItineraryScanQueryRequest {
   billId?: long(name='bill_id', description='账单id', example='123', position='Query'),
   invoiceSubTaskId?: long(name='invoice_sub_task_id', description='发票子任务id', example='456', position='Query'),
   pageNo?: int32(name='page_no', example='1', position='Query'),
-  pageSize?: int32(name='page_size', example='20', position='Query'),
+  pageSize?: int32(name='page_size', example='20', maximum=100, position='Query'),
   xAcsBtripSoCorpToken: string(name='x-acs-btrip-so-corp-token', example='feth00jqwls', position='Header'),
 }
 
@@ -4365,6 +4435,65 @@ async function ieFlightBillSettlementQuery(request: IeFlightBillSettlementQueryR
   return @handler.do('RESTFUL', 'IeFlightBillSettlementQuery', 'GET', '/ie-flight/v1/bill-settlement', 'json', false, 'json', request);
 }
 
+model InsInvoiceScanQueryRequest {
+  billDate?: string(name='bill_date', description='出账日', example='2022-12-01', position='Query'),
+  billId?: long(name='bill_id', description='账单id', example='123', position='Query'),
+  invoiceSubTaskId?: long(name='invoice_sub_task_id', description='发票子任务id', example='456', position='Query'),
+  pageNo?: int32(name='page_no', example='1', position='Query'),
+  pageSize?: int32(name='page_size', example='20', maximum=100, position='Query'),
+  xAcsBtripSoCorpToken?: string(name='x-acs-btrip-so-corp-token', example='feth00jqwls', position='Header'),
+}
+
+model InsInvoiceScanQueryResponseBody = {
+  code?: string(name='code', example='200'),
+  message?: string(name='message'),
+  module?: {
+    items?: [ 
+      {
+        amountWithTax?: string(name='amount_with_tax', description='价税合计金额', example='20'),
+        amountWithoutTax?: string(name='amount_without_tax', description='不含税金额', example='18.87'),
+        billDate?: string(name='bill_date', description='出账日', example='2022-12-01'),
+        costCenter?: string(name='cost_center', description='成本中心'),
+        department?: string(name='department', description='部门'),
+        insuranceCompany?: string(name='insurance_company', description='保险公司'),
+        insuranceOrderId?: string(name='insurance_order_id', description='保单号', example='T123343234242323232'),
+        insuranceType?: string(name='insurance_type', description='险种'),
+        invoiceCode?: string(name='invoice_code', description='发票代码', example='3300111303'),
+        invoiceDay?: string(name='invoice_day', description='开票日期', example='2022-12-01'),
+        invoiceNo?: string(name='invoice_no', description='发票号码', example='24021111'),
+        orderId?: long(name='order_id', description='订单号', example='3137168772101111000'),
+        ossUrl?: string(name='oss_url', description='图片地址，专票已邮寄前为空，普票已开票前为空', example='https://www.testurl.com'),
+        passenger?: string(name='passenger', description='乘机人'),
+        project?: string(name='project', description='项目'),
+        purchaserName?: string(name='purchaser_name', description='购方名称'),
+        purchaserTaxNo?: string(name='purchaser_tax_no', description='购方税号', example='91441111111111111S'),
+        realInvoiceTitle?: string(name='real_invoice_title', description='发票抬头'),
+        sellerName?: string(name='seller_name', description='销方名称'),
+        sellerTaxNo?: string(name='seller_tax_no', description='销方税号', example='91441111111111111N'),
+        taxAmount?: string(name='tax_amount', description='税额', example='1.13'),
+        taxRate?: string(name='tax_rate', description='税率', example='6%'),
+      }
+    ](name='items'),
+    pageNo?: int32(name='page_no', example='1'),
+    pageSize?: int32(name='page_size', example='20'),
+    totalPage?: int32(name='total_page', example='2'),
+    totalSize?: int32(name='total_size', example='30'),
+  }(name='module'),
+  requestId?: string(name='requestId', description='requestId', example='C61ECFF6-606B-5F66-B81D-D77369043A5F'),
+  success?: boolean(name='success', example='true'),
+  traceId?: string(name='traceId', description='traceId', example='210e847f16611516748613869de4f6'),
+}
+
+model InsInvoiceScanQueryResponse = {
+  headers: map[string]string(name='headers'),
+  body: InsInvoiceScanQueryResponseBody(name='body'),
+}
+
+async function insInvoiceScanQuery(request: InsInvoiceScanQueryRequest): InsInvoiceScanQueryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'InsInvoiceScanQuery', 'GET', '/scan/v1/ins-invoice', 'json', false, 'json', request);
+}
+
 model InvoiceAddRequest {
   address?: string(name='address', description='注册地址', example='xxx', position='Body'),
   bankName?: string(name='bank_name', description='开户行', position='Body'),
@@ -5950,7 +6079,7 @@ model TrainTicketScanQueryRequest {
   billId?: long(name='bill_id', description='账单id', example='123', position='Query'),
   invoiceSubTaskId?: long(name='invoice_sub_task_id', description='发票子任务id', example='456', position='Query'),
   pageNo?: int32(name='page_no', example='1', position='Query'),
-  pageSize?: int32(name='page_size', example='20', position='Query'),
+  pageSize?: int32(name='page_size', example='20', maximum=100, position='Query'),
   xAcsBtripSoCorpToken: string(name='x-acs-btrip-so-corp-token', example='feth00jqwls', position='Header'),
 }
 
@@ -6044,7 +6173,7 @@ model VatInvoiceScanQueryRequest {
   billId?: long(name='bill_id', description='账单id', example='123', position='Query'),
   invoiceSubTaskId?: long(name='invoice_sub_task_id', description='发票子任务id', example='456', position='Query'),
   pageNo?: int32(name='page_no', example='1', position='Query'),
-  pageSize?: int32(name='page_size', example='20', position='Query'),
+  pageSize?: int32(name='page_size', example='20', maximum=100, position='Query'),
   xAcsBtripSoCorpToken: string(name='x-acs-btrip-so-corp-token', example='feth00jqwls', position='Header'),
 }
 
