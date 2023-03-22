@@ -882,6 +882,7 @@ model CreateRuleRequest {
         arn?: string(name='Arn', example='acs:mns:cn-hangzhou:123456789098****:/queues/rule-deadletterqueue'),
       }(name='DeadLetterQueue'),
       endpoint?: string(name='Endpoint', example='acs:mns:cn-hangzhou:123456789098****:queues/myqueue'),
+      errorsTolerance?: string(name='ErrorsTolerance'),
       id?: string(name='Id', example='12021'),
       paramList?: [ 
         {
@@ -1023,7 +1024,11 @@ model CreateTargetsRequest {
   ruleName?: string(name='RuleName', example='ssr-send-to-vendor-test01'),
   targets?: [ 
     {
+      deadLetterQueue?: {
+        arn?: string(name='Arn'),
+      }(name='DeadLetterQueue'),
       endpoint?: string(name='Endpoint', example='acs:fc:cn-hangzhou:123456789098****:services/guide.LATEST/functions/HelloFC'),
+      errorsTolerance?: string(name='ErrorsTolerance'),
       id?: string(name='Id', example='target5'),
       paramList?: [ 
         {
@@ -3056,6 +3061,99 @@ async function pauseEventStreamingWithOptions(request: PauseEventStreamingReques
 async function pauseEventStreaming(request: PauseEventStreamingRequest): PauseEventStreamingResponse {
   var runtime = new Util.RuntimeOptions{};
   return pauseEventStreamingWithOptions(request, runtime);
+}
+
+model PutTargetsRequest {
+  eventBusName?: string(name='EventBusName', example='eventTest'),
+  ruleName?: string(name='RuleName', example='ssr-send-to-vendor-test01'),
+  targets?: [ 
+    {
+      deadLetterQueue?: {
+        arn?: string(name='Arn'),
+      }(name='DeadLetterQueue'),
+      endpoint?: string(name='Endpoint', example='acs:fc:cn-hangzhou:123456789098****:services/guide.LATEST/functions/HelloFC'),
+      errorsTolerance?: string(name='ErrorsTolerance', example='ALL'),
+      id?: string(name='Id', example='Mlm123456JHd2RsRoKw'),
+      paramList?: [ 
+        {
+          form?: string(name='Form', example='TEMPLATE'),
+          resourceKey?: string(name='ResourceKey', example='body'),
+          template?: string(name='Template', example='The value of ${key} is ${value}!'),
+          value?: string(name='Value', example='{\\"key\\"=\\"value\\"}'),
+        }
+      ](name='ParamList'),
+      pushRetryStrategy?: string(name='PushRetryStrategy', example='BACKOFFRETRY'),
+      type?: string(name='Type', example='acs.fc.function'),
+    }
+  ](name='Targets'),
+}
+
+model PutTargetsShrinkRequest {
+  eventBusName?: string(name='EventBusName', example='eventTest'),
+  ruleName?: string(name='RuleName', example='ssr-send-to-vendor-test01'),
+  targetsShrink?: string(name='Targets'),
+}
+
+model PutTargetsResponseBody = {
+  code?: string(name='Code', example='Success'),
+  data?: {
+    errorEntries?: [ 
+      {
+        entryId?: string(name='EntryId', example='Mlm123456JHd2RsRoKw'),
+        errorCode?: string(name='ErrorCode', example='EventRuleTargetIdDuplicate'),
+        errorMessage?: string(name='ErrorMessage', example='The id of event target is duplicate!'),
+      }
+    ](name='ErrorEntries'),
+    errorEntriesCount?: int32(name='ErrorEntriesCount', example='0'),
+  }(name='Data'),
+  message?: string(name='Message', example='The event rule not existed!'),
+  requestId?: string(name='RequestId', example='6FB52207-7621-5292-BDF2-A17E2E984160'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model PutTargetsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: PutTargetsResponseBody(name='body'),
+}
+
+async function putTargetsWithOptions(tmpReq: PutTargetsRequest, runtime: Util.RuntimeOptions): PutTargetsResponse {
+  Util.validateModel(tmpReq);
+  var request = new PutTargetsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.targets)) {
+    request.targetsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.targets, 'Targets', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.eventBusName)) {
+    query['EventBusName'] = request.eventBusName;
+  }
+  if (!Util.isUnset(request.ruleName)) {
+    query['RuleName'] = request.ruleName;
+  }
+  if (!Util.isUnset(request.targetsShrink)) {
+    query['Targets'] = request.targetsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'PutTargets',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function putTargets(request: PutTargetsRequest): PutTargetsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return putTargetsWithOptions(request, runtime);
 }
 
 model QueryEventRequest {
