@@ -200,10 +200,44 @@ model ExtraPodSpec {
   ](name='SideCarContainers', description='伴随容器'),
 }
 
+model FreeResourceClusterControlItem {
+  clusterID?: string(name='ClusterID', description='集群ID'),
+  clusterName?: string(name='ClusterName', description='集群名'),
+  crossClusters?: boolean(name='CrossClusters', description='是否允许跨集群超卖'),
+  enableFreeResource?: boolean(name='EnableFreeResource', description='是否打开集群超卖'),
+  freeResourceClusterControlId?: string(name='FreeResourceClusterControlId', description='超卖资源集群控制Id', example='frcc-whateversth'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='创建时间'),
+  gmtModifyTime?: string(name='GmtModifyTime', description='修改时间'),
+  regionID?: string(name='RegionID', description='区域id'),
+}
+
+model FreeResourceDetail {
+  amount?: int32(name='Amount', description='资源数量', example='2'),
+  resourceType?: string(name='ResourceType', description='资源类型', example='CPU'),
+}
+
+model FreeResourceItem {
+  availableNumber?: long(name='AvailableNumber', description='资源数量', example='2'),
+  clusterID?: string(name='ClusterID', description='集群Id'),
+  clusterName?: string(name='ClusterName', description='集群名'),
+  freeResourceId?: string(name='FreeResourceId', description='空闲资源Id', example='freeres-whateversth'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='创建时间', example='2021-01-18T12:52:15Z'),
+  gmtModifyTime?: string(name='GmtModifyTime', description='修改时间', example='2021-01-18T12:52:15Z'),
+  regionID?: string(name='RegionID', description='域Id', example='inner'),
+  resourceType?: string(name='ResourceType', description='资源类型', example='cpu'),
+}
+
 model GPUDetail {
   GPU?: string(name='GPU', description='GPU卡数'),
   GPUType?: string(name='GPUType', description='GPU卡型', example='Tesla-V100-32G'),
   GPUTypeFullName?: string(name='GPUTypeFullName', description='GPU卡型全名', example='nvidia.com/gpu-tesla-v100-sxm2-16gb'),
+}
+
+model ImageConfig {
+  auth?: string(name='Auth', description='镜像仓库认证信息'),
+  dockerRegistry?: string(name='DockerRegistry', description='镜像仓库地址', example='registry.cn-hangzhou.aliyuncs.com'),
+  password?: string(name='Password', description='镜像仓库密码'),
+  username?: string(name='Username', description='镜像仓库用户名'),
 }
 
 model ImageItem {
@@ -224,8 +258,11 @@ model JobDebuggerConfig {
 }
 
 model JobElasticSpec {
+  AIMasterDockerImage?: string(name='AIMasterDockerImage', description='aimaster docker镜像'),
   AIMasterType?: string(name='AIMasterType', description='aimaster角色使用的资源规格'),
+  enableAIMaster?: boolean(name='EnableAIMaster', description='是否打开AIMaster'),
   enableElasticTraining?: boolean(name='EnableElasticTraining', description='打开弹性训练', example='true'),
+  enablePsJobElasticWorker?: boolean(name='EnablePsJobElasticWorker', description='是否开启弹性Worker对于PS作业'),
   maxParallelism?: int32(name='MaxParallelism', description='最大并行度', example='8'),
   minParallelism?: int32(name='MinParallelism', description='最小并行度', example='1'),
 }
@@ -267,6 +304,7 @@ model JobItem {
   resourceName?: string(name='ResourceName', description='作业运行的资源名称', example='my_resource_group'),
   settings?: JobSettings(name='Settings', description='作业额外参数'),
   status?: string(name='Status', description='作业状态', example='Stopped'),
+  subStatus?: string(name='SubStatus', description='作业子状态，如抢占重试状态', example='Restarting'),
   thirdpartyLibDir?: string(name='ThirdpartyLibDir', description='三方库(requirements.txt)文件路径', example='/root/code/'),
   thirdpartyLibs?: [ string ](name='ThirdpartyLibs', description='三方库配置列表'),
   userCommand?: string(name='UserCommand', description='用户命令', example='python /root/code/mnist.py'),
@@ -276,6 +314,7 @@ model JobItem {
 }
 
 model JobSettings {
+  advancedSettings?: map[string]any(name='AdvancedSettings', description='额外高级参数配置'),
   businessUserId?: string(name='BusinessUserId', description='作业关联用户ID', example='166924'),
   caller?: string(name='Caller', description='调用方', example='SilkFlow'),
   enableErrorMonitoringInAIMaster?: boolean(name='EnableErrorMonitoringInAIMaster', description='允许打开作业容错监控', example='false'),
@@ -283,6 +322,7 @@ model JobSettings {
   enableRDMA?: boolean(name='EnableRDMA', description='允许作业使用RDMA', example='true'),
   enableTideResource?: boolean(name='EnableTideResource', description='允许作业使用潮汐资源', example='true'),
   errorMonitoringArgs?: string(name='ErrorMonitoringArgs', description='用户指定容错监控的配置参数，比如指定是否启动基于log hang的检测', example='--enable-log-hang-detection true'),
+  oversoldType?: string(name='OversoldType', description='作业的超卖资源使用方式（不接受/可接受/只接受）', example='AcceptQuotaOverSold'),
   pipelineId?: string(name='PipelineId', description='工作流ID', example='pid-123456'),
   tags?: map[string]string(name='Tags', description='自定义标签'),
 }
@@ -291,6 +331,7 @@ model JobSpec {
   ecsSpec?: string(name='EcsSpec', description='Ecs实例规格', example='ecs.c6.large'),
   extraPodSpec?: ExtraPodSpec(name='ExtraPodSpec', description='额外的Pod配置'),
   image?: string(name='Image', description='镜像', example='registry.cn-hangzhou.aliyuncs.com/pai-dlc/tensorflow-training:1.12.2PAI-cpu-py27-ubuntu16.04'),
+  imageConfig?: ImageConfig(name='ImageConfig', description='私有镜像配置'),
   podCount?: long(name='PodCount', description='实例数量', example='1'),
   resourceConfig?: ResourceConfig(name='ResourceConfig', description='资源配置'),
   type?: string(name='Type', description='类型', example='Worker'),
@@ -481,6 +522,7 @@ async function createJob(request: CreateJobRequest): CreateJobResponse {
 }
 
 model CreateTensorboardRequest {
+  cpu?: long(name='Cpu', position='Body'),
   dataSourceId?: string(name='DataSourceId', description='DataSource Id', example='d-xxxxxxxx', position='Body'),
   dataSourceType?: string(name='DataSourceType', example='oss', position='Body'),
   dataSources?: [
@@ -489,6 +531,7 @@ model CreateTensorboardRequest {
   displayName?: string(name='DisplayName', description='Tensorboard名称', example='tensorboard', position='Body'),
   jobId?: string(name='JobId', description='任务Id', example='dlc-20210126170216-mtl37ge7gkvdz', position='Body'),
   maxRunningTimeMinutes?: long(name='MaxRunningTimeMinutes', description='最长运行时长', example='240', position='Body'),
+  memory?: long(name='Memory', position='Body'),
   options?: string(name='Options', example='{"mountpath":"/root/data/"}', position='Body'),
   sourceId?: string(name='SourceId', example='dlc-xxxxxx', position='Body'),
   sourceType?: string(name='SourceType', example='job', position='Body'),
@@ -516,7 +559,7 @@ async function createTensorboard(request: CreateTensorboardRequest): CreateTenso
 }
 
 model DeleteJobRequest {
-  jobId?: string(name='JobId', description='作业Id', example='dlc*************', position='Path'),
+  jobId: string(name='JobId', description='作业Id', example='dlc*************', position='Path'),
 }
 
 model DeleteJobResponseBody = {
@@ -602,14 +645,18 @@ model GetJobResponseBody = {
           ip?: string(name='Ip', description='Pod Ip', example='10.0.1.3'),
           podId?: string(name='PodId', description='Pod Id', example='Worker'),
           podUid?: string(name='PodUid', description='Pod UId', example='fe846462-af2c-4521-bd6f-96787a57591d'),
+          resourceType?: string(name='ResourceType', description='Pod资源使用类型'),
           status?: string(name='Status', description='Pod状态', example='Failed'),
+          subStatus?: string(name='SubStatus', description='Pod子状态，如抢占状态'),
           type?: string(name='Type', description='Pod类型', example='Worker'),
         }
       ](name='HistoryPods', description='历史Pods'),
       ip?: string(name='Ip', description='Pod Ip', example='10.0.1.2'),
       podId?: string(name='PodId', description='Pod Id', example='Worker'),
       podUid?: string(name='PodUid', description='Pod UId', example='fe846462-af2c-4521-bd6f-96787a57591d'),
+      resourceType?: string(name='ResourceType', description='Pod资源使用类型'),
       status?: string(name='Status', description='Pod状态', example='Running'),
+      subStatus?: string(name='SubStatus', description='Pod子状态，如抢占状态'),
       type?: string(name='Type', description='Pod类型', example='Worker'),
     }
   ](name='Pods', description='作业所以运行Pod列表'),
@@ -619,8 +666,10 @@ model GetJobResponseBody = {
   requestId?: string(name='RequestId', description='请求Id', example='473469C7-AA6F-4DC5-B3DB-xxxxxxxx'),
   resourceId?: string(name='ResourceId', description='作业运行所在的资源组ID', example='r******'),
   resourceLevel?: string(name='ResourceLevel', description='作业运行时使用的资源级别', example='L0'),
+  restartTimes?: string(name='RestartTimes', description='作业已使用的重试次数和最大重试次数', example='0/10'),
   settings?: JobSettings(name='Settings', description='作业额外参数配置'),
   status?: string(name='Status', description='作业状态', example='Stopped'),
+  subStatus?: string(name='SubStatus', description='作业子状态，如抢占重试状态', example='Restarting'),
   thirdpartyLibDir?: string(name='ThirdpartyLibDir', description='三方库(requirements.txt)文件路径', example='/root/code/'),
   thirdpartyLibs?: [ string ](name='ThirdpartyLibs', description='三方库配置列表'),
   userCommand?: string(name='UserCommand', description='用户命令', example='python /root/code/mnist.py'),
@@ -649,7 +698,7 @@ model GetJobEventsRequest {
 model GetJobEventsResponseBody = {
   events?: [ string ](name='Events', description='事件'),
   jobId?: string(name='JobId', description='作业ID', example='dlc-20210126170216-******'),
-  requestId?: int32(name='RequestId', description='请求ID', example='78F6FCE2-278F-4C4A-A6B7-DD8ECEA9C456'),
+  requestId?: string(name='RequestId', description='请求ID', example='78F6FCE2-278F-4C4A-A6B7-DD8ECEA9C456'),
 }
 
 model GetJobEventsResponse = {
