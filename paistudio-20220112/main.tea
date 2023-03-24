@@ -47,6 +47,10 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model AlgorithmSpec {
+  codeDir?: {
+    locationType?: string(name='LocationType'),
+    locationValue?: map[string]any(name='LocationValue'),
+  }(name='CodeDir'),
   command?: [ string ](name='Command'),
   computeResource?: {
     policy?: {
@@ -54,6 +58,9 @@ model AlgorithmSpec {
       version?: string(name='Version'),
     }(name='Policy'),
   }(name='ComputeResource'),
+  customization?: {
+    codeDir?: boolean(name='CodeDir'),
+  }(name='Customization'),
   hyperParameters?: [
     HyperParameterDefinition
   ](name='HyperParameters'),
@@ -83,8 +90,8 @@ model Channel {
 }
 
 model ChannelProperty {
-  name?: string(name='Name'),
-  value?: string(name='Value'),
+  name?: string(name='Name', example='SKlearn'),
+  value?: string(name='Value', example='Framework'),
 }
 
 model GPUInfo {
@@ -114,7 +121,7 @@ model JobViewMetric {
   requestCPU?: int32(name='RequestCPU'),
   requestGPU?: int32(name='RequestGPU'),
   requestMemory?: long(name='RequestMemory'),
-  resourceGroupID?: string(name='ResourceGroupID'),
+  resourceGroupID?: string(name='ResourceGroupID', example='rg17tmvwiokhzaxg'),
   totalCPU?: int32(name='TotalCPU'),
   totalGPU?: int32(name='TotalGPU'),
   totalMemory?: long(name='TotalMemory'),
@@ -129,7 +136,7 @@ model MachineGroup {
   gmtExpiredTime?: string(name='GmtExpiredTime'),
   gmtModifiedTime?: string(name='GmtModifiedTime'),
   gmtStartedTime?: string(name='GmtStartedTime'),
-  machineGroupID?: string(name='MachineGroupID'),
+  machineGroupID?: string(name='MachineGroupID', example='mg1'),
   paymentDuration?: string(name='PaymentDuration'),
   paymentDurationUnit?: string(name='PaymentDurationUnit'),
   paymentType?: string(name='PaymentType'),
@@ -140,40 +147,45 @@ model MachineGroup {
 }
 
 model Metric {
-  time?: long(name='Time'),
-  value?: string(name='Value'),
+  time?: long(name='Time', example='rg17tmvwiokhzaxg'),
+  value?: string(name='Value', example='23000'),
 }
 
 model MetricDefinition {
-  description?: string(name='Description'),
-  name?: string(name='Name'),
-  regex?: string(name='Regex'),
+  description?: string(name='Description', example='train dataset oob score'),
+  name?: string(name='Name', example='train:oob_score'),
+  regex?: string(name='Regex', example='.*train:oob_score=([-+]?[0-9]*\\\\.?[0-9]+(?:[eE][-+]?[0-9]+)?).*'),
 }
 
 model NodeMetric {
   GPUType?: string(name='GPUType'),
   metrics?: [
     Metric
-  ](name='Metrics'),
-  nodeID?: string(name='NodeID'),
+  ](name='Metrics', example='23000'),
+  nodeID?: string(name='NodeID', example='-i121212node'),
 }
 
 model NodeViewMetric {
+  CPUUsageRate?: string(name='CPUUsageRate'),
   createdTime?: string(name='CreatedTime'),
   diskReadRate?: string(name='DiskReadRate'),
   diskWriteRate?: string(name='DiskWriteRate'),
   GPUType?: string(name='GPUType'),
   machineGroupID?: string(name='MachineGroupID'),
+  memoryUsageRate?: string(name='MemoryUsageRate'),
   networkInputRate?: string(name='NetworkInputRate'),
   networkOutputRate?: string(name='NetworkOutputRate'),
-  nodeID?: string(name='NodeID'),
+  nodeID?: string(name='NodeID', example='-i121212node'),
+  nodeStatus?: string(name='NodeStatus'),
   nodeType?: string(name='NodeType'),
   requestCPU?: long(name='RequestCPU'),
   requestGPU?: long(name='RequestGPU'),
   requestMemory?: long(name='RequestMemory'),
+  taskIdMap?: map[string]any(name='TaskIdMap'),
   totalCPU?: long(name='TotalCPU'),
   totalGPU?: long(name='TotalGPU'),
   totalMemory?: long(name='TotalMemory'),
+  totalTasks?: long(name='TotalTasks'),
   userIDs?: [ string ](name='UserIDs'),
   userNumber?: string(name='UserNumber'),
 }
@@ -182,18 +194,18 @@ model ResourceGroup {
   creatorID?: string(name='CreatorID'),
   gmtCreatedTime?: string(name='GmtCreatedTime'),
   gmtModifiedTime?: string(name='GmtModifiedTime'),
-  name?: string(name='Name'),
-  resourceGroupID?: string(name='ResourceGroupID'),
+  name?: string(name='Name', example='RG1'),
+  resourceGroupID?: string(name='ResourceGroupID', example='rg17tmvwiokhzaxg'),
   userVpc?: UserVpc(name='UserVpc'),
-  workspaceID?: string(name='WorkspaceID'),
+  workspaceID?: string(name='WorkspaceID', example='23000'),
 }
 
 model ResourceGroupMetric {
   gpuType?: string(name='GpuType'),
   metrics?: [
     Metric
-  ](name='Metrics'),
-  resourceGroupID?: string(name='ResourceGroupID'),
+  ](name='Metrics', example='23000'),
+  resourceGroupID?: string(name='ResourceGroupID', example='rg17tmvwiokhzaxg'),
 }
 
 model UserViewMetric {
@@ -215,7 +227,7 @@ model UserViewMetric {
   requestCPU?: int32(name='RequestCPU'),
   requestGPU?: int32(name='RequestGPU'),
   requestMemory?: long(name='RequestMemory'),
-  resourceGroupId?: string(name='ResourceGroupId'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg17tmvwiokhzaxg'),
   totalCPU?: int32(name='TotalCPU'),
   totalGPU?: int32(name='TotalGPU'),
   totalMemory?: long(name='TotalMemory'),
@@ -245,12 +257,6 @@ model CreateAlgorithmResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: CreateAlgorithmResponseBody(name='body'),
-}
-
-async function createAlgorithm(request: CreateAlgorithmRequest): CreateAlgorithmResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createAlgorithmWithOptions(request, headers, runtime);
 }
 
 async function createAlgorithmWithOptions(request: CreateAlgorithmRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateAlgorithmResponse {
@@ -284,6 +290,12 @@ async function createAlgorithmWithOptions(request: CreateAlgorithmRequest, heade
   return callApi(params, req, runtime);
 }
 
+async function createAlgorithm(request: CreateAlgorithmRequest): CreateAlgorithmResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createAlgorithmWithOptions(request, headers, runtime);
+}
+
 model CreateAlgorithmVersionRequest {
   algorithmSpec?: AlgorithmSpec(name='AlgorithmSpec'),
 }
@@ -301,12 +313,6 @@ model CreateAlgorithmVersionResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: CreateAlgorithmVersionResponseBody(name='body'),
-}
-
-async function createAlgorithmVersion(AlgorithmId: string, AlgorithmVersion: string, request: CreateAlgorithmVersionRequest): CreateAlgorithmVersionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createAlgorithmVersionWithOptions(AlgorithmId, AlgorithmVersion, request, headers, runtime);
 }
 
 async function createAlgorithmVersionWithOptions(AlgorithmId: string, AlgorithmVersion: string, tmpReq: CreateAlgorithmVersionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateAlgorithmVersionResponse {
@@ -339,6 +345,12 @@ async function createAlgorithmVersionWithOptions(AlgorithmId: string, AlgorithmV
   return callApi(params, req, runtime);
 }
 
+async function createAlgorithmVersion(AlgorithmId: string, AlgorithmVersion: string, request: CreateAlgorithmVersionRequest): CreateAlgorithmVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createAlgorithmVersionWithOptions(AlgorithmId, AlgorithmVersion, request, headers, runtime);
+}
+
 model CreateResourceGroupRequest {
   description?: string(name='Description'),
   name?: string(name='Name'),
@@ -354,12 +366,6 @@ model CreateResourceGroupResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: CreateResourceGroupResponseBody(name='body'),
-}
-
-async function createResourceGroup(request: CreateResourceGroupRequest): CreateResourceGroupResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createResourceGroupWithOptions(request, headers, runtime);
 }
 
 async function createResourceGroupWithOptions(request: CreateResourceGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateResourceGroupResponse {
@@ -393,10 +399,21 @@ async function createResourceGroupWithOptions(request: CreateResourceGroupReques
   return callApi(params, req, runtime);
 }
 
+async function createResourceGroup(request: CreateResourceGroupRequest): CreateResourceGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createResourceGroupWithOptions(request, headers, runtime);
+}
+
 model CreateTrainingJobRequest {
   algorithmName?: string(name='AlgorithmName'),
   algorithmProvider?: string(name='AlgorithmProvider'),
+  algorithmSpec?: AlgorithmSpec(name='AlgorithmSpec'),
   algorithmVersion?: string(name='AlgorithmVersion'),
+  codeDir?: {
+    locationType?: string(name='LocationType'),
+    locationValue?: map[string]any(name='LocationValue'),
+  }(name='CodeDir'),
   computeResource?: {
     ecsCount?: long(name='EcsCount'),
     ecsSpec?: string(name='EcsSpec'),
@@ -446,12 +463,6 @@ model CreateTrainingJobResponse = {
   body: CreateTrainingJobResponseBody(name='body'),
 }
 
-async function createTrainingJob(request: CreateTrainingJobRequest): CreateTrainingJobResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createTrainingJobWithOptions(request, headers, runtime);
-}
-
 async function createTrainingJobWithOptions(request: CreateTrainingJobRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateTrainingJobResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
@@ -461,8 +472,14 @@ async function createTrainingJobWithOptions(request: CreateTrainingJobRequest, h
   if (!Util.isUnset(request.algorithmProvider)) {
     body['AlgorithmProvider'] = request.algorithmProvider;
   }
+  if (!Util.isUnset(request.algorithmSpec)) {
+    body['AlgorithmSpec'] = request.algorithmSpec;
+  }
   if (!Util.isUnset(request.algorithmVersion)) {
     body['AlgorithmVersion'] = request.algorithmVersion;
+  }
+  if (!Util.isUnset(request.codeDir)) {
+    body['CodeDir'] = request.codeDir;
   }
   if (!Util.isUnset(request.computeResource)) {
     body['ComputeResource'] = request.computeResource;
@@ -510,6 +527,12 @@ async function createTrainingJobWithOptions(request: CreateTrainingJobRequest, h
   return callApi(params, req, runtime);
 }
 
+async function createTrainingJob(request: CreateTrainingJobRequest): CreateTrainingJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createTrainingJobWithOptions(request, headers, runtime);
+}
+
 model DeleteMachineGroupResponseBody = {
   machineGroupID?: string(name='MachineGroupID'),
   requestId?: string(name='RequestId'),
@@ -519,12 +542,6 @@ model DeleteMachineGroupResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DeleteMachineGroupResponseBody(name='body'),
-}
-
-async function deleteMachineGroup(MachineGroupID: string): DeleteMachineGroupResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteMachineGroupWithOptions(MachineGroupID, headers, runtime);
 }
 
 async function deleteMachineGroupWithOptions(MachineGroupID: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteMachineGroupResponse {
@@ -545,6 +562,12 @@ async function deleteMachineGroupWithOptions(MachineGroupID: string, headers: ma
   return callApi(params, req, runtime);
 }
 
+async function deleteMachineGroup(MachineGroupID: string): DeleteMachineGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteMachineGroupWithOptions(MachineGroupID, headers, runtime);
+}
+
 model DeleteResourceGroupResponseBody = {
   requestId?: string(name='RequestId'),
   resourceGroupID?: string(name='ResourceGroupID'),
@@ -554,12 +577,6 @@ model DeleteResourceGroupResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DeleteResourceGroupResponseBody(name='body'),
-}
-
-async function deleteResourceGroup(ResourceGroupID: string): DeleteResourceGroupResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteResourceGroupWithOptions(ResourceGroupID, headers, runtime);
 }
 
 async function deleteResourceGroupWithOptions(ResourceGroupID: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteResourceGroupResponse {
@@ -580,6 +597,12 @@ async function deleteResourceGroupWithOptions(ResourceGroupID: string, headers: 
   return callApi(params, req, runtime);
 }
 
+async function deleteResourceGroup(ResourceGroupID: string): DeleteResourceGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteResourceGroupWithOptions(ResourceGroupID, headers, runtime);
+}
+
 model DeleteResourceGroupMachineGroupResponseBody = {
   machineGroupID?: string(name='MachineGroupID'),
   requestId?: string(name='RequestId'),
@@ -589,12 +612,6 @@ model DeleteResourceGroupMachineGroupResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: DeleteResourceGroupMachineGroupResponseBody(name='body'),
-}
-
-async function deleteResourceGroupMachineGroup(MachineGroupID: string, ResourceGroupID: string): DeleteResourceGroupMachineGroupResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteResourceGroupMachineGroupWithOptions(MachineGroupID, ResourceGroupID, headers, runtime);
 }
 
 async function deleteResourceGroupMachineGroupWithOptions(MachineGroupID: string, ResourceGroupID: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteResourceGroupMachineGroupResponse {
@@ -613,6 +630,12 @@ async function deleteResourceGroupMachineGroupWithOptions(MachineGroupID: string
     bodyType = 'json',
   };
   return callApi(params, req, runtime);
+}
+
+async function deleteResourceGroupMachineGroup(MachineGroupID: string, ResourceGroupID: string): DeleteResourceGroupMachineGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteResourceGroupMachineGroupWithOptions(MachineGroupID, ResourceGroupID, headers, runtime);
 }
 
 model GetAlgorithmResponseBody = {
@@ -634,12 +657,6 @@ model GetAlgorithmResponse = {
   body: GetAlgorithmResponseBody(name='body'),
 }
 
-async function getAlgorithm(AlgorithmId: string): GetAlgorithmResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getAlgorithmWithOptions(AlgorithmId, headers, runtime);
-}
-
 async function getAlgorithmWithOptions(AlgorithmId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetAlgorithmResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
@@ -656,6 +673,12 @@ async function getAlgorithmWithOptions(AlgorithmId: string, headers: map[string]
     bodyType = 'json',
   };
   return callApi(params, req, runtime);
+}
+
+async function getAlgorithm(AlgorithmId: string): GetAlgorithmResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getAlgorithmWithOptions(AlgorithmId, headers, runtime);
 }
 
 model GetAlgorithmVersionResponseBody = {
@@ -676,12 +699,6 @@ model GetAlgorithmVersionResponse = {
   body: GetAlgorithmVersionResponseBody(name='body'),
 }
 
-async function getAlgorithmVersion(AlgorithmId: string, AlgorithmVersion: string): GetAlgorithmVersionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getAlgorithmVersionWithOptions(AlgorithmId, AlgorithmVersion, headers, runtime);
-}
-
 async function getAlgorithmVersionWithOptions(AlgorithmId: string, AlgorithmVersion: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetAlgorithmVersionResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
@@ -698,6 +715,12 @@ async function getAlgorithmVersionWithOptions(AlgorithmId: string, AlgorithmVers
     bodyType = 'json',
   };
   return callApi(params, req, runtime);
+}
+
+async function getAlgorithmVersion(AlgorithmId: string, AlgorithmVersion: string): GetAlgorithmVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getAlgorithmVersionWithOptions(AlgorithmId, AlgorithmVersion, headers, runtime);
 }
 
 model GetMachineGroupResponseBody = {
@@ -724,12 +747,6 @@ model GetMachineGroupResponse = {
   body: GetMachineGroupResponseBody(name='body'),
 }
 
-async function getMachineGroup(MachineGroupID: string): GetMachineGroupResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getMachineGroupWithOptions(MachineGroupID, headers, runtime);
-}
-
 async function getMachineGroupWithOptions(MachineGroupID: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetMachineGroupResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
@@ -746,6 +763,12 @@ async function getMachineGroupWithOptions(MachineGroupID: string, headers: map[s
     bodyType = 'json',
   };
   return callApi(params, req, runtime);
+}
+
+async function getMachineGroup(MachineGroupID: string): GetMachineGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getMachineGroupWithOptions(MachineGroupID, headers, runtime);
 }
 
 model GetNodeMetricsRequest {
@@ -768,12 +791,6 @@ model GetNodeMetricsResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: GetNodeMetricsResponseBody(name='body'),
-}
-
-async function getNodeMetrics(ResourceGroupID: string, MetricType: string, request: GetNodeMetricsRequest): GetNodeMetricsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getNodeMetricsWithOptions(ResourceGroupID, MetricType, request, headers, runtime);
 }
 
 async function getNodeMetricsWithOptions(ResourceGroupID: string, MetricType: string, request: GetNodeMetricsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetNodeMetricsResponse {
@@ -813,6 +830,12 @@ async function getNodeMetricsWithOptions(ResourceGroupID: string, MetricType: st
   return callApi(params, req, runtime);
 }
 
+async function getNodeMetrics(ResourceGroupID: string, MetricType: string, request: GetNodeMetricsRequest): GetNodeMetricsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getNodeMetricsWithOptions(ResourceGroupID, MetricType, request, headers, runtime);
+}
+
 model GetResourceGroupResponseBody = {
   creatorID?: string(name='CreatorID'),
   gmtCreatedTime?: string(name='GmtCreatedTime'),
@@ -828,12 +851,6 @@ model GetResourceGroupResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: GetResourceGroupResponseBody(name='body'),
-}
-
-async function getResourceGroup(ResourceGroupID: string): GetResourceGroupResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getResourceGroupWithOptions(ResourceGroupID, headers, runtime);
 }
 
 async function getResourceGroupWithOptions(ResourceGroupID: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetResourceGroupResponse {
@@ -852,6 +869,12 @@ async function getResourceGroupWithOptions(ResourceGroupID: string, headers: map
     bodyType = 'json',
   };
   return callApi(params, req, runtime);
+}
+
+async function getResourceGroup(ResourceGroupID: string): GetResourceGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getResourceGroupWithOptions(ResourceGroupID, headers, runtime);
 }
 
 model GetResourceGroupMachineGroupResponseBody = {
@@ -880,12 +903,6 @@ model GetResourceGroupMachineGroupResponse = {
   body: GetResourceGroupMachineGroupResponseBody(name='body'),
 }
 
-async function getResourceGroupMachineGroup(MachineGroupID: string, ResourceGroupID: string): GetResourceGroupMachineGroupResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getResourceGroupMachineGroupWithOptions(MachineGroupID, ResourceGroupID, headers, runtime);
-}
-
 async function getResourceGroupMachineGroupWithOptions(MachineGroupID: string, ResourceGroupID: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetResourceGroupMachineGroupResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
@@ -902,6 +919,12 @@ async function getResourceGroupMachineGroupWithOptions(MachineGroupID: string, R
     bodyType = 'json',
   };
   return callApi(params, req, runtime);
+}
+
+async function getResourceGroupMachineGroup(MachineGroupID: string, ResourceGroupID: string): GetResourceGroupMachineGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getResourceGroupMachineGroupWithOptions(MachineGroupID, ResourceGroupID, headers, runtime);
 }
 
 model GetResourceGroupRequestRequest {
@@ -922,12 +945,6 @@ model GetResourceGroupRequestResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: GetResourceGroupRequestResponseBody(name='body'),
-}
-
-async function getResourceGroupRequest(request: GetResourceGroupRequestRequest): GetResourceGroupRequestResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getResourceGroupRequestWithOptions(request, headers, runtime);
 }
 
 async function getResourceGroupRequestWithOptions(request: GetResourceGroupRequestRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetResourceGroupRequestResponse {
@@ -958,6 +975,12 @@ async function getResourceGroupRequestWithOptions(request: GetResourceGroupReque
   return callApi(params, req, runtime);
 }
 
+async function getResourceGroupRequest(request: GetResourceGroupRequestRequest): GetResourceGroupRequestResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getResourceGroupRequestWithOptions(request, headers, runtime);
+}
+
 model GetResourceGroupTotalRequest {
   resourceGroupID?: string(name='ResourceGroupID'),
 }
@@ -975,12 +998,6 @@ model GetResourceGroupTotalResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: GetResourceGroupTotalResponseBody(name='body'),
-}
-
-async function getResourceGroupTotal(request: GetResourceGroupTotalRequest): GetResourceGroupTotalResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getResourceGroupTotalWithOptions(request, headers, runtime);
 }
 
 async function getResourceGroupTotalWithOptions(request: GetResourceGroupTotalRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetResourceGroupTotalResponse {
@@ -1006,6 +1023,12 @@ async function getResourceGroupTotalWithOptions(request: GetResourceGroupTotalRe
     bodyType = 'json',
   };
   return callApi(params, req, runtime);
+}
+
+async function getResourceGroupTotal(request: GetResourceGroupTotalRequest): GetResourceGroupTotalResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getResourceGroupTotalWithOptions(request, headers, runtime);
 }
 
 model GetTrainingJobResponseBody = {
@@ -1089,12 +1112,6 @@ model GetTrainingJobResponse = {
   body: GetTrainingJobResponseBody(name='body'),
 }
 
-async function getTrainingJob(TrainingJobId: string): GetTrainingJobResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getTrainingJobWithOptions(TrainingJobId, headers, runtime);
-}
-
 async function getTrainingJobWithOptions(TrainingJobId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetTrainingJobResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
@@ -1111,6 +1128,12 @@ async function getTrainingJobWithOptions(TrainingJobId: string, headers: map[str
     bodyType = 'json',
   };
   return callApi(params, req, runtime);
+}
+
+async function getTrainingJob(TrainingJobId: string): GetTrainingJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getTrainingJobWithOptions(TrainingJobId, headers, runtime);
 }
 
 model GetUserViewMetricsRequest {
@@ -1136,12 +1159,6 @@ model GetUserViewMetricsResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: GetUserViewMetricsResponseBody(name='body'),
-}
-
-async function getUserViewMetrics(ResourceGroupID: string, request: GetUserViewMetricsRequest): GetUserViewMetricsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getUserViewMetricsWithOptions(ResourceGroupID, request, headers, runtime);
 }
 
 async function getUserViewMetricsWithOptions(ResourceGroupID: string, request: GetUserViewMetricsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetUserViewMetricsResponse {
@@ -1187,6 +1204,12 @@ async function getUserViewMetricsWithOptions(ResourceGroupID: string, request: G
   return callApi(params, req, runtime);
 }
 
+async function getUserViewMetrics(ResourceGroupID: string, request: GetUserViewMetricsRequest): GetUserViewMetricsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getUserViewMetricsWithOptions(ResourceGroupID, request, headers, runtime);
+}
+
 model ListAlgorithmVersionsRequest {
   pageNumber?: long(name='PageNumber'),
   pageSize?: long(name='PageSize'),
@@ -1215,12 +1238,6 @@ model ListAlgorithmVersionsResponse = {
   body: ListAlgorithmVersionsResponseBody(name='body'),
 }
 
-async function listAlgorithmVersions(AlgorithmId: string, request: ListAlgorithmVersionsRequest): ListAlgorithmVersionsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listAlgorithmVersionsWithOptions(AlgorithmId, request, headers, runtime);
-}
-
 async function listAlgorithmVersionsWithOptions(AlgorithmId: string, request: ListAlgorithmVersionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListAlgorithmVersionsResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
@@ -1247,6 +1264,12 @@ async function listAlgorithmVersionsWithOptions(AlgorithmId: string, request: Li
     bodyType = 'json',
   };
   return callApi(params, req, runtime);
+}
+
+async function listAlgorithmVersions(AlgorithmId: string, request: ListAlgorithmVersionsRequest): ListAlgorithmVersionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listAlgorithmVersionsWithOptions(AlgorithmId, request, headers, runtime);
 }
 
 model ListAlgorithmsRequest {
@@ -1279,12 +1302,6 @@ model ListAlgorithmsResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: ListAlgorithmsResponseBody(name='body'),
-}
-
-async function listAlgorithms(request: ListAlgorithmsRequest): ListAlgorithmsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listAlgorithmsWithOptions(request, headers, runtime);
 }
 
 async function listAlgorithmsWithOptions(request: ListAlgorithmsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListAlgorithmsResponse {
@@ -1327,6 +1344,12 @@ async function listAlgorithmsWithOptions(request: ListAlgorithmsRequest, headers
   return callApi(params, req, runtime);
 }
 
+async function listAlgorithms(request: ListAlgorithmsRequest): ListAlgorithmsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listAlgorithmsWithOptions(request, headers, runtime);
+}
+
 model ListResourceGroupMachineGroupsRequest {
   creatorID?: string(name='CreatorID'),
   ecsSpec?: string(name='EcsSpec'),
@@ -1353,12 +1376,6 @@ model ListResourceGroupMachineGroupsResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: ListResourceGroupMachineGroupsResponseBody(name='body'),
-}
-
-async function listResourceGroupMachineGroups(ResourceGroupID: string, request: ListResourceGroupMachineGroupsRequest): ListResourceGroupMachineGroupsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listResourceGroupMachineGroupsWithOptions(ResourceGroupID, request, headers, runtime);
 }
 
 async function listResourceGroupMachineGroupsWithOptions(ResourceGroupID: string, request: ListResourceGroupMachineGroupsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListResourceGroupMachineGroupsResponse {
@@ -1416,34 +1433,34 @@ async function listResourceGroupMachineGroupsWithOptions(ResourceGroupID: string
   return callApi(params, req, runtime);
 }
 
+async function listResourceGroupMachineGroups(ResourceGroupID: string, request: ListResourceGroupMachineGroupsRequest): ListResourceGroupMachineGroupsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listResourceGroupMachineGroupsWithOptions(ResourceGroupID, request, headers, runtime);
+}
+
 model ListResourceGroupsRequest {
-  name?: string(name='Name'),
-  order?: string(name='Order'),
-  pageNumber?: long(name='PageNumber'),
-  pageSize?: long(name='PageSize'),
+  name?: string(name='Name', example='RG1'),
+  order?: string(name='Order', example='desc'),
+  pageNumber?: long(name='PageNumber', example='2'),
+  pageSize?: long(name='PageSize', example='10'),
   showAll?: boolean(name='ShowAll'),
-  sortBy?: string(name='SortBy'),
-  status?: string(name='Status'),
+  sortBy?: string(name='SortBy', example='DisplayName'),
+  status?: string(name='Status', example='Creating'),
 }
 
 model ListResourceGroupsResponseBody = {
   requestId?: string(name='RequestId'),
   resourceGroups?: [
     ResourceGroup
-  ](name='ResourceGroups'),
-  totalCount?: long(name='TotalCount'),
+  ](name='ResourceGroups', example='RG1'),
+  totalCount?: long(name='TotalCount', example='2'),
 }
 
 model ListResourceGroupsResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: ListResourceGroupsResponseBody(name='body'),
-}
-
-async function listResourceGroups(request: ListResourceGroupsRequest): ListResourceGroupsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listResourceGroupsWithOptions(request, headers, runtime);
 }
 
 async function listResourceGroupsWithOptions(request: ListResourceGroupsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListResourceGroupsResponse {
@@ -1489,11 +1506,17 @@ async function listResourceGroupsWithOptions(request: ListResourceGroupsRequest,
   return callApi(params, req, runtime);
 }
 
+async function listResourceGroups(request: ListResourceGroupsRequest): ListResourceGroupsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listResourceGroupsWithOptions(request, headers, runtime);
+}
+
 model ListTrainingJobLogsRequest {
-  endTime?: string(name='EndTime'),
-  pageNumber?: long(name='PageNumber'),
-  pageSize?: long(name='PageSize'),
-  startTime?: string(name='StartTime'),
+  endTime?: string(name='EndTime', example='2020-11-08T16:00:00Z'),
+  pageNumber?: long(name='PageNumber', example='1'),
+  pageSize?: long(name='PageSize', example='100'),
+  startTime?: string(name='StartTime', example='2020-11-08T16:00:00Z'),
   workerId?: string(name='WorkerId'),
 }
 
@@ -1507,12 +1530,6 @@ model ListTrainingJobLogsResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: ListTrainingJobLogsResponseBody(name='body'),
-}
-
-async function listTrainingJobLogs(TrainingJobId: string, request: ListTrainingJobLogsRequest): ListTrainingJobLogsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listTrainingJobLogsWithOptions(TrainingJobId, request, headers, runtime);
 }
 
 async function listTrainingJobLogsWithOptions(TrainingJobId: string, request: ListTrainingJobLogsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTrainingJobLogsResponse {
@@ -1552,13 +1569,19 @@ async function listTrainingJobLogsWithOptions(TrainingJobId: string, request: Li
   return callApi(params, req, runtime);
 }
 
+async function listTrainingJobLogs(TrainingJobId: string, request: ListTrainingJobLogsRequest): ListTrainingJobLogsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listTrainingJobLogsWithOptions(TrainingJobId, request, headers, runtime);
+}
+
 model ListTrainingJobMetricsRequest {
-  endTime?: string(name='EndTime'),
+  endTime?: string(name='EndTime', example='2020-11-08T16:00:00Z'),
   name?: string(name='Name'),
   order?: string(name='Order'),
-  pageNumber?: long(name='PageNumber'),
-  pageSize?: long(name='PageSize'),
-  startTime?: string(name='StartTime'),
+  pageNumber?: long(name='PageNumber', example='1'),
+  pageSize?: long(name='PageSize', example='100'),
+  startTime?: string(name='StartTime', example='2020-11-08T16:00:00Z'),
 }
 
 model ListTrainingJobMetricsResponseBody = {
@@ -1576,12 +1599,6 @@ model ListTrainingJobMetricsResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: ListTrainingJobMetricsResponseBody(name='body'),
-}
-
-async function listTrainingJobMetrics(TrainingJobId: string, request: ListTrainingJobMetricsRequest): ListTrainingJobMetricsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listTrainingJobMetricsWithOptions(TrainingJobId, request, headers, runtime);
 }
 
 async function listTrainingJobMetricsWithOptions(TrainingJobId: string, request: ListTrainingJobMetricsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTrainingJobMetricsResponse {
@@ -1624,12 +1641,42 @@ async function listTrainingJobMetricsWithOptions(TrainingJobId: string, request:
   return callApi(params, req, runtime);
 }
 
+async function listTrainingJobMetrics(TrainingJobId: string, request: ListTrainingJobMetricsRequest): ListTrainingJobMetricsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listTrainingJobMetricsWithOptions(TrainingJobId, request, headers, runtime);
+}
+
 model ListTrainingJobsRequest {
+  algorithmName?: string(name='AlgorithmName'),
+  algorithmProvider?: string(name='AlgorithmProvider'),
+  endTime?: string(name='EndTime'),
+  isTempAlgo?: boolean(name='IsTempAlgo'),
+  labels?: map[string]any(name='Labels'),
   order?: string(name='Order'),
   pageNumber?: long(name='PageNumber'),
   pageSize?: long(name='PageSize'),
   sortBy?: string(name='SortBy'),
+  startTime?: string(name='StartTime'),
   status?: string(name='Status'),
+  trainingJobId?: string(name='TrainingJobId'),
+  trainingJobName?: string(name='TrainingJobName'),
+  workspaceId?: string(name='WorkspaceId'),
+}
+
+model ListTrainingJobsShrinkRequest {
+  algorithmName?: string(name='AlgorithmName'),
+  algorithmProvider?: string(name='AlgorithmProvider'),
+  endTime?: string(name='EndTime'),
+  isTempAlgo?: boolean(name='IsTempAlgo'),
+  labelsShrink?: string(name='Labels'),
+  order?: string(name='Order'),
+  pageNumber?: long(name='PageNumber'),
+  pageSize?: long(name='PageSize'),
+  sortBy?: string(name='SortBy'),
+  startTime?: string(name='StartTime'),
+  status?: string(name='Status'),
+  trainingJobId?: string(name='TrainingJobId'),
   trainingJobName?: string(name='TrainingJobName'),
   workspaceId?: string(name='WorkspaceId'),
 }
@@ -1704,15 +1751,29 @@ model ListTrainingJobsResponse = {
   body: ListTrainingJobsResponseBody(name='body'),
 }
 
-async function listTrainingJobs(request: ListTrainingJobsRequest): ListTrainingJobsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listTrainingJobsWithOptions(request, headers, runtime);
-}
-
-async function listTrainingJobsWithOptions(request: ListTrainingJobsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTrainingJobsResponse {
-  Util.validateModel(request);
+async function listTrainingJobsWithOptions(tmpReq: ListTrainingJobsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTrainingJobsResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListTrainingJobsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.labels)) {
+    request.labelsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.labels, 'Labels', 'json');
+  }
   var query : map[string]any = {};
+  if (!Util.isUnset(request.algorithmName)) {
+    query['AlgorithmName'] = request.algorithmName;
+  }
+  if (!Util.isUnset(request.algorithmProvider)) {
+    query['AlgorithmProvider'] = request.algorithmProvider;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.isTempAlgo)) {
+    query['IsTempAlgo'] = request.isTempAlgo;
+  }
+  if (!Util.isUnset(request.labelsShrink)) {
+    query['Labels'] = request.labelsShrink;
+  }
   if (!Util.isUnset(request.order)) {
     query['Order'] = request.order;
   }
@@ -1725,8 +1786,14 @@ async function listTrainingJobsWithOptions(request: ListTrainingJobsRequest, hea
   if (!Util.isUnset(request.sortBy)) {
     query['SortBy'] = request.sortBy;
   }
+  if (!Util.isUnset(request.startTime)) {
+    query['StartTime'] = request.startTime;
+  }
   if (!Util.isUnset(request.status)) {
     query['Status'] = request.status;
+  }
+  if (!Util.isUnset(request.trainingJobId)) {
+    query['TrainingJobId'] = request.trainingJobId;
   }
   if (!Util.isUnset(request.trainingJobName)) {
     query['TrainingJobName'] = request.trainingJobName;
@@ -1753,6 +1820,12 @@ async function listTrainingJobsWithOptions(request: ListTrainingJobsRequest, hea
   return callApi(params, req, runtime);
 }
 
+async function listTrainingJobs(request: ListTrainingJobsRequest): ListTrainingJobsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listTrainingJobsWithOptions(request, headers, runtime);
+}
+
 model StopTrainingJobResponseBody = {
   requestId?: string(name='RequestId'),
 }
@@ -1761,12 +1834,6 @@ model StopTrainingJobResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: StopTrainingJobResponseBody(name='body'),
-}
-
-async function stopTrainingJob(TrainingJobId: string): StopTrainingJobResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return stopTrainingJobWithOptions(TrainingJobId, headers, runtime);
 }
 
 async function stopTrainingJobWithOptions(TrainingJobId: string, headers: map[string]string, runtime: Util.RuntimeOptions): StopTrainingJobResponse {
@@ -1787,6 +1854,12 @@ async function stopTrainingJobWithOptions(TrainingJobId: string, headers: map[st
   return callApi(params, req, runtime);
 }
 
+async function stopTrainingJob(TrainingJobId: string): StopTrainingJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return stopTrainingJobWithOptions(TrainingJobId, headers, runtime);
+}
+
 model UpdateAlgorithmRequest {
   algorithmDescription?: string(name='AlgorithmDescription'),
 }
@@ -1800,12 +1873,6 @@ model UpdateAlgorithmResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: UpdateAlgorithmResponseBody(name='body'),
-}
-
-async function updateAlgorithm(AlgorithmId: string, request: UpdateAlgorithmRequest): UpdateAlgorithmResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateAlgorithmWithOptions(AlgorithmId, request, headers, runtime);
 }
 
 async function updateAlgorithmWithOptions(AlgorithmId: string, request: UpdateAlgorithmRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateAlgorithmResponse {
@@ -1833,6 +1900,12 @@ async function updateAlgorithmWithOptions(AlgorithmId: string, request: UpdateAl
   return callApi(params, req, runtime);
 }
 
+async function updateAlgorithm(AlgorithmId: string, request: UpdateAlgorithmRequest): UpdateAlgorithmResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateAlgorithmWithOptions(AlgorithmId, request, headers, runtime);
+}
+
 model UpdateAlgorithmVersionRequest {
   algorithmSpec?: AlgorithmSpec(name='AlgorithmSpec'),
 }
@@ -1850,12 +1923,6 @@ model UpdateAlgorithmVersionResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: UpdateAlgorithmVersionResponseBody(name='body'),
-}
-
-async function updateAlgorithmVersion(AlgorithmId: string, AlgorithmVersion: string, request: UpdateAlgorithmVersionRequest): UpdateAlgorithmVersionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateAlgorithmVersionWithOptions(AlgorithmId, AlgorithmVersion, request, headers, runtime);
 }
 
 async function updateAlgorithmVersionWithOptions(AlgorithmId: string, AlgorithmVersion: string, tmpReq: UpdateAlgorithmVersionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateAlgorithmVersionResponse {
@@ -1888,6 +1955,12 @@ async function updateAlgorithmVersionWithOptions(AlgorithmId: string, AlgorithmV
   return callApi(params, req, runtime);
 }
 
+async function updateAlgorithmVersion(AlgorithmId: string, AlgorithmVersion: string, request: UpdateAlgorithmVersionRequest): UpdateAlgorithmVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateAlgorithmVersionWithOptions(AlgorithmId, AlgorithmVersion, request, headers, runtime);
+}
+
 model UpdateResourceGroupRequest {
   unbind?: boolean(name='Unbind'),
   userVpc?: UserVpc(name='UserVpc'),
@@ -1902,12 +1975,6 @@ model UpdateResourceGroupResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: UpdateResourceGroupResponseBody(name='body'),
-}
-
-async function updateResourceGroup(ResourceGroupID: string, request: UpdateResourceGroupRequest): UpdateResourceGroupResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateResourceGroupWithOptions(ResourceGroupID, request, headers, runtime);
 }
 
 async function updateResourceGroupWithOptions(ResourceGroupID: string, request: UpdateResourceGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateResourceGroupResponse {
@@ -1938,6 +2005,12 @@ async function updateResourceGroupWithOptions(ResourceGroupID: string, request: 
   return callApi(params, req, runtime);
 }
 
+async function updateResourceGroup(ResourceGroupID: string, request: UpdateResourceGroupRequest): UpdateResourceGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateResourceGroupWithOptions(ResourceGroupID, request, headers, runtime);
+}
+
 model UpdateTrainingJobLabelsRequest {
   labels?: [ 
     {
@@ -1955,12 +2028,6 @@ model UpdateTrainingJobLabelsResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
   body: UpdateTrainingJobLabelsResponseBody(name='body'),
-}
-
-async function updateTrainingJobLabels(TrainingJobId: string, request: UpdateTrainingJobLabelsRequest): UpdateTrainingJobLabelsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateTrainingJobLabelsWithOptions(TrainingJobId, request, headers, runtime);
 }
 
 async function updateTrainingJobLabelsWithOptions(TrainingJobId: string, request: UpdateTrainingJobLabelsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateTrainingJobLabelsResponse {
@@ -1986,5 +2053,11 @@ async function updateTrainingJobLabelsWithOptions(TrainingJobId: string, request
     bodyType = 'json',
   };
   return callApi(params, req, runtime);
+}
+
+async function updateTrainingJobLabels(TrainingJobId: string, request: UpdateTrainingJobLabelsRequest): UpdateTrainingJobLabelsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateTrainingJobLabelsWithOptions(TrainingJobId, request, headers, runtime);
 }
 
