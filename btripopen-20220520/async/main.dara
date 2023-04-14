@@ -1603,6 +1603,34 @@ async function costCenterSave(request: CostCenterSaveRequest): CostCenterSaveRes
   return @handler.do('RESTFUL', 'CostCenterSave', 'POST', '/costcenter/v1/save-costcenter', 'json', true, 'form', request);
 }
 
+model CreateSubCorpRequest {
+  outerCorpId: string(name='outer_corp_id', description='三方企业id', example='corp123', position='Body'),
+  outerCorpName: string(name='outer_corp_name', description='三方企业名称', position='Body'),
+  userId: string(name='user_id', description='用户id', example='123', position='Body'),
+  xAcsBtripCorpToken?: string(name='x-acs-btrip-corp-token', example='feth00jqwls', position='Header'),
+}
+
+model CreateSubCorpResponseBody = {
+  code?: string(name='code', example='0'),
+  message?: string(name='message'),
+  module?: {
+    subCorpId?: string(name='sub_corp_id', example='btrip123'),
+  }(name='module'),
+  requestId?: string(name='requestId', example='B72B39C8-32DE-558D-AD1C-D53F11F6ADFE'),
+  success?: boolean(name='success', example='true'),
+  traceId?: string(name='traceId', example='21041ce316577904808056433edbb2'),
+}
+
+model CreateSubCorpResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateSubCorpResponseBody(name='body'),
+}
+
+async function createSubCorp(request: CreateSubCorpRequest): CreateSubCorpResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateSubCorp', 'POST', '/sub_corps/v1/corps', 'json', true, 'form', request);
+}
+
 model DeleteInvoiceEntityRequest {
   delAll?: boolean(name='del_all', description='删除所有适用人员', example='false', position='Query'),
   entities?: [ 
@@ -2154,23 +2182,45 @@ model FlightItineraryScanQueryResponseBody = {
   module?: {
     items?: [ 
       {
+        agentCode?: string(name='agent_code', description='销售单位代号'),
         billDate?: string(name='bill_date', description='出账日', example='2022-12-01'),
         build?: string(name='build', description='基建', example='50'),
         costCenter?: string(name='cost_center', description='成本中心'),
         department?: string(name='department', description='部门'),
+        flights?: [ 
+          {
+            arrivalStation?: string(name='arrival_station', description='航班至'),
+            cabinClass?: string(name='cabin_class', description='座位等级'),
+            carrier?: string(name='carrier', description='承运人'),
+            departureStation?: string(name='departure_station', description='航班从'),
+            flightDate?: string(name='flight_date', description='日期'),
+            flightNumber?: string(name='flight_number', description='航班号'),
+            flightTime?: string(name='flight_time', description='时间'),
+            freeBaggageAllowance?: string(name='free_baggage_allowance', description='免费行李'),
+            index?: string(name='index', description='行号'),
+            seatClass?: string(name='seat_class', description='客票级别'),
+            validFromDate?: string(name='valid_from_date', description='客票生效日期'),
+            validToDate?: string(name='valid_to_date', description='有效截止日期'),
+          }
+        ](name='flights', description='机票行程明细'),
         fuelSurcharge?: string(name='fuel_surcharge', description='燃油', example='120'),
+        id?: string(name='id', description='UK'),
         insurance?: string(name='insurance', description='保险', example='0'),
         invoiceTitle?: string(name='invoice_title', description='发票抬头'),
+        issueCompany?: string(name='issue_company', description='填开单位'),
+        issueDate?: string(name='issue_date', description='填开日期'),
         itineraryNum?: string(name='itinerary_num', description='行程单号', example='6666666666'),
         orderId?: long(name='order_id', description='商旅订单号', example='4801105714092'),
         ossUrl?: string(name='oss_url', description='图片下载url', example='https://www.testurl.com'),
         passengerName?: string(name='passenger_name', description='旅客姓名'),
         project?: string(name='project', description='项目'),
+        promptMessage?: string(name='prompt_message', description='提示信息'),
         taxAmount?: string(name='tax_amount', description='税额', example='108.17'),
         taxRate?: string(name='tax_rate', description='税率', example='9%'),
         ticketNo?: string(name='ticket_no', description='票号', example='784-1111111111'),
         ticketPrice?: string(name='ticket_price', description='票价', example='1190'),
         totalPrice?: string(name='total_price', description='总金额', example='1360'),
+        validationCode?: string(name='validation_code', description='验证码'),
       }
     ](name='items'),
     pageNo?: int32(name='page_no', example='1'),
@@ -4005,6 +4055,69 @@ async function flightSearchList(request: FlightSearchListRequest): FlightSearchL
   return @handler.do('RESTFUL', 'FlightSearchList', 'GET', '/huge/dtb-flight/v1/flight/action/search-list', 'json', false, 'json', request);
 }
 
+model GroupDepartSaveRequest {
+  deptName: string(name='dept_name', description='部门名称', position='Body'),
+  managerIds?: string(name='manager_ids', description='部门主管ID列表', position='Body'),
+  outerDeptId: string(name='outer_dept_id', description='三方部门ID', example='001', position='Body'),
+  outerDeptPid?: string(name='outer_dept_pid', description='三方父级部门ID', example='002', position='Body'),
+  status: int32(name='status', description='部门状态，0生效；1失效', example='0', position='Body'),
+  subCorpIdList: [ string ](name='sub_corp_id_list', shrink='json', position='Body'),
+  xAcsBtripCorpToken?: string(name='x-acs-btrip-corp-token', example='feth00jqwls', position='Header'),
+}
+
+model GroupDepartSaveResponseBody = {
+  code?: string(name='code', example='0'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId', example='407543AF-2BD9-5890-BD92-9D1AB7218B27'),
+  success?: boolean(name='success', example='true'),
+  traceId?: string(name='traceId', example='210e847f16611516748613869de4f6'),
+}
+
+model GroupDepartSaveResponse = {
+  headers: map[string]string(name='headers'),
+  body: GroupDepartSaveResponseBody(name='body'),
+}
+
+async function groupDepartSave(request: GroupDepartSaveRequest): GroupDepartSaveResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GroupDepartSave', 'POST', '/sub_corps/v1/departs', 'json', true, 'form', request);
+}
+
+model GroupUserSaveRequest {
+  jobNo?: string(name='job_no', description='工号', example='1001', position='Body'),
+  leaveStatus: int32(name='leave_status', description='离职状态（0 在职 1 离职）', example='0', position='Body'),
+  phone?: string(name='phone', example='18000000000', position='Body'),
+  realNameEn?: string(name='real_name_en', description='员工名称EN', example='ce/shi', position='Body'),
+  subCorpIdList: [ 
+    {
+      departIds: [ string ](name='depart_ids', description='部门Id集合'),
+      managerUserId?: string(name='manager_user_id', description='直属主管id', example='123'),
+      subCorpId: string(name='sub_corp_id', description='子企业ID', example='btrip123'),
+    }
+  ](name='sub_corp_id_list', description='归属企业列表', shrink='json', position='Body'),
+  userId: string(name='user_id', description='员工ID', example='123', position='Body'),
+  userName: string(name='user_name', description='员工名称', position='Body'),
+  xAcsBtripCorpToken?: string(name='x-acs-btrip-corp-token', example='feth00jqwls', position='Header'),
+}
+
+model GroupUserSaveResponseBody = {
+  code?: string(name='code', example='0'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId', example='C61ECFF6-606B-5F66-B81D-D77369043A5F'),
+  success?: boolean(name='success', example='true'),
+  traceId?: string(name='traceId', example='21041ce316577904808056433edbb2'),
+}
+
+model GroupUserSaveResponse = {
+  headers: map[string]string(name='headers'),
+  body: GroupUserSaveResponseBody(name='body'),
+}
+
+async function groupUserSave(request: GroupUserSaveRequest): GroupUserSaveResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GroupUserSave', 'POST', '/sub_corps/v1/users', 'json', true, 'form', request);
+}
+
 model HotelBillSettlementQueryRequest {
   pageNo: int32(name='page_no', description='分页页数（第几页）', example='1', position='Query'),
   pageSize: int32(name='page_size', description='分页数量（每页多少条）', example='50', position='Query'),
@@ -4470,12 +4583,10 @@ model HotelOrderDetailInfoResponseBody = {
     }(name='cancel_info', description='退订信息'),
     checkIn?: string(name='check_in', description='入住日期', example='2022-05-15T22:27Z'),
     checkOut?: string(name='check_out', description='离店日期', example='2022-05-15T22:27Z'),
-    code?: string(name='code', description='状态码', example='0'),
     confirmOrderTime?: string(name='confirm_order_time', description='确认订单时间', example='2000-00-00 00:00:00'),
     contractName?: string(name='contract_name', description='联系人姓名'),
     contractTel?: string(name='contract_tel', description='联系人电话', example='12316261873'),
     createOrderTime?: string(name='create_order_time', description='创单时间', example='2020-01-21'),
-    desc?: string(name='desc', description='状态描述', example='close alarm, chiji id 53268'),
     earlyArrivalTime?: string(name='early_arrival_time', description='最早到达时间', example='2000-00-00 00:00:00'),
     earlyDeparture?: boolean(name='early_departure', description='是否提前离店', example='true'),
     guestCount?: int32(name='guest_count', description='入住人数量', example='2'),
@@ -7001,6 +7112,7 @@ model TrainTicketScanQueryResponseBody = {
         depStation?: string(name='dep_station', description='出发站'),
         depTime?: string(name='dep_time', description='发车时间', example='2023-01-12 10:00:00'),
         department?: string(name='department', description='部门'),
+        id?: string(name='id'),
         invoiceTitle?: string(name='invoice_title', description='发票抬头'),
         orderId?: long(name='order_id', description='商旅订单号', example='3137168772101111000'),
         ossUrl?: string(name='oss_url', description='下载地址', example='https://www.testurl.com'),
@@ -7091,20 +7203,47 @@ model VatInvoiceScanQueryResponseBody = {
         amountWithTax?: string(name='amount_with_tax', description='价税合计金额', example='20'),
         amountWithoutTax?: string(name='amount_without_tax', description='不含税金额', example='18.87'),
         billDate?: string(name='bill_date', description='出账日', example='2022-12-01'),
+        checkCode?: string(name='check_code'),
+        drawer?: string(name='drawer'),
+        id?: string(name='id'),
         invoiceCode?: string(name='invoice_code', description='发票代码', example='3300111303'),
         invoiceDay?: string(name='invoice_day', description='开票日期', example='2022-12-01'),
         invoiceDetail?: string(name='invoice_detail', description='开票详情'),
+        invoiceDetails?: [ 
+          {
+            amount?: string(name='amount'),
+            index?: string(name='index', description='行号'),
+            itemName?: string(name='item_name'),
+            quantity?: string(name='quantity'),
+            specification?: string(name='specification'),
+            tax?: string(name='tax'),
+            taxRate?: string(name='tax_rate'),
+            unit?: string(name='unit'),
+            unitPrice?: string(name='unit_price'),
+          }
+        ](name='invoice_details'),
+        invoiceLocation?: string(name='invoice_location'),
         invoiceNo?: string(name='invoice_no', description='发票号码', example='24021111'),
         invoiceSubTaskId?: long(name='invoice_sub_task_id', description='发票子任务id', example='123'),
         invoiceType?: int32(name='invoice_type', description='发票类型', example='2'),
         invoiceTypeDesc?: string(name='invoice_type_desc', description='发票类型描述'),
         ossUrl?: string(name='oss_url', description='图片地址，专票已邮寄前为空，普票已开票前为空', example='https://www.testurl.com'),
+        passwordArea?: string(name='password_area'),
+        purchaserBankAccountInfo?: string(name='purchaser_bank_account_info'),
+        purchaserContactInfo?: string(name='purchaser_contact_info'),
         purchaserName?: string(name='purchaser_name', description='购方名称'),
         purchaserTaxNo?: string(name='purchaser_tax_no', description='购方税号', example='91441111111111111S'),
+        recipient?: string(name='recipient'),
+        remarks?: string(name='remarks'),
+        reviewer?: string(name='reviewer'),
+        sellerBankAccountInfo?: string(name='seller_bank_account_info'),
+        sellerContactInfo?: string(name='seller_contact_info'),
         sellerName?: string(name='seller_name', description='销方名称'),
         sellerTaxNo?: string(name='seller_tax_no', description='销方税号', example='91441111111111111N'),
+        smartCheckCode?: string(name='smart_check_code'),
         taxAmount?: string(name='tax_amount', description='税额', example='1.13'),
         taxRate?: string(name='tax_rate', description='税率', example='6%'),
+        totalAmountInWords?: string(name='total_amount_in_words'),
       }
     ](name='items'),
     pageNo?: int32(name='page_no', example='1'),
