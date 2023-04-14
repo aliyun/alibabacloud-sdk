@@ -122,6 +122,10 @@ model File {
   fileExtension?: string(name='file_extension'),
   fileId?: string(name='file_id'),
   hidden?: boolean(name='hidden'),
+  investigationInfo?: {
+    status?: long(name='status'),
+    suggestion?: string(name='suggestion'),
+  }(name='investigation_info'),
   labels?: string(name='labels'),
   localCreatedAt?: string(name='local_created_at'),
   localModifiedAt?: string(name='local_modified_at'),
@@ -188,6 +192,20 @@ model ImageTag {
   name?: string(name='name'),
 }
 
+model InvestigationInfo {
+  status?: long(name='status'),
+  suggestion?: string(name='suggestion'),
+  videoDetail?: {
+    blockFrames?: [ 
+      {
+        label?: string(name='label'),
+        offset?: long(name='offset'),
+        rate?: double(name='rate'),
+      }
+    ](name='block_frames'),
+  }(name='video_detail'),
+}
+
 model JWTPayload {
   aud?: string(name='aud'),
   autoCreate?: boolean(name='auto_create'),
@@ -235,12 +253,13 @@ model ShareLink {
   driveId?: string(name='drive_id'),
   expiration?: string(name='expiration'),
   expired?: boolean(name='expired'),
-  fileIdList?: string(name='file_id_list'),
+  fileIdList?: [ string ](name='file_id_list'),
   previewCount?: long(name='preview_count'),
   previewLimit?: long(name='preview_limit'),
   reportCount?: long(name='report_count'),
   saveCount?: long(name='save_count'),
   saveLimit?: long(name='save_limit'),
+  shareAllFiles?: boolean(name='share_all_files'),
   shareId?: string(name='share_id'),
   shareName?: string(name='share_name'),
   sharePwd?: string(name='share_pwd'),
@@ -682,6 +701,8 @@ model CopyFileRequest {
   autoRename?: boolean(name='auto_rename', example='true'),
   driveId?: string(name='drive_id', example='1'),
   fileId?: string(name='file_id', example='4221bf6e6ab43c255edc4463bf3a6f5f5d317406'),
+  shareId?: string(name='share_id'),
+  toDriveId?: string(name='to_drive_id'),
   toParentFileId?: string(name='to_parent_file_id', example='6520943DC261'),
 }
 
@@ -709,6 +730,12 @@ async function copyFileWithOptions(request: CopyFileRequest, headers: map[string
   }
   if (!Util.isUnset(request.fileId)) {
     body['file_id'] = request.fileId;
+  }
+  if (!Util.isUnset(request.shareId)) {
+    body['share_id'] = request.shareId;
+  }
+  if (!Util.isUnset(request.toDriveId)) {
+    body['to_drive_id'] = request.toDriveId;
   }
   if (!Util.isUnset(request.toParentFileId)) {
     body['to_parent_file_id'] = request.toParentFileId;
@@ -1084,6 +1111,7 @@ model CreateShareLinkRequest {
   fileIdList?: [ string ](name='file_id_list', example='["520b217f13adf4fc24f2191991b1664ce045b393"]'),
   previewLimit?: long(name='preview_limit', example='100'),
   saveLimit?: long(name='save_limit', example='100'),
+  shareAllFiles?: boolean(name='share_all_files'),
   shareName?: string(name='share_name'),
   sharePwd?: string(name='share_pwd', example='abcF123x'),
   userId?: string(name='user_id', example='u123'),
@@ -1127,6 +1155,9 @@ async function createShareLinkWithOptions(request: CreateShareLinkRequest, heade
   }
   if (!Util.isUnset(request.saveLimit)) {
     body['save_limit'] = request.saveLimit;
+  }
+  if (!Util.isUnset(request.shareAllFiles)) {
+    body['share_all_files'] = request.shareAllFiles;
   }
   if (!Util.isUnset(request.shareName)) {
     body['share_name'] = request.shareName;
@@ -1263,6 +1294,60 @@ async function createUser(request: CreateUserRequest): CreateUserResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createUserWithOptions(request, headers, runtime);
+}
+
+model CsiGetFileInfoRequest {
+  driveId?: string(name='drive_id', example='1'),
+  fileId?: string(name='file_id', example='9520943DC264'),
+  urlExpireSec?: int32(name='url_expire_sec', example='100'),
+}
+
+model CsiGetFileInfoResponseBody = {
+  investigationInfo?: InvestigationInfo(name='investigation_info'),
+  url?: string(name='url', example='https://data.aliyunpds.com/hz22%2F5d5b986facbec311ef844c25954f96821497b383%2F5d5b986f955410dd991646bb87c6b4e899eff525?Expires=xxx&OSSAccessKeyId=xxx&Signature=xxx'),
+}
+
+model CsiGetFileInfoResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CsiGetFileInfoResponseBody(name='body'),
+}
+
+async function csiGetFileInfoWithOptions(request: CsiGetFileInfoRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CsiGetFileInfoResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.driveId)) {
+    body['drive_id'] = request.driveId;
+  }
+  if (!Util.isUnset(request.fileId)) {
+    body['file_id'] = request.fileId;
+  }
+  if (!Util.isUnset(request.urlExpireSec)) {
+    body['url_expire_sec'] = request.urlExpireSec;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CsiGetFileInfo',
+    version = '2022-03-01',
+    protocol = 'HTTPS',
+    pathname = `/v2/csi/get_file_info`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+async function csiGetFileInfo(request: CsiGetFileInfoRequest): CsiGetFileInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return csiGetFileInfoWithOptions(request, headers, runtime);
 }
 
 model DeleteDomainRequest {
@@ -1579,6 +1664,7 @@ model DownloadFileRequest {
   fileId?: string(name='file_id', example='9520943DC264'),
   imageThumbnailProcess?: string(name='image_thumbnail_process', example='image/resize,m_fill,h_128,w_128,limit_0'),
   officeThumbnailProcess?: string(name='office_thumbnail_process', example='image/resize,w_200'),
+  shareId?: string(name='share_id'),
   videoThumbnailProcess?: string(name='video_thumbnail_process', example='video/snapshot,t_7000,f_jpg,w_800,h_600,m_fast'),
 }
 
@@ -1601,6 +1687,9 @@ async function downloadFileWithOptions(request: DownloadFileRequest, headers: ma
   }
   if (!Util.isUnset(request.officeThumbnailProcess)) {
     body['office_thumbnail_process'] = request.officeThumbnailProcess;
+  }
+  if (!Util.isUnset(request.shareId)) {
+    body['share_id'] = request.shareId;
   }
   if (!Util.isUnset(request.videoThumbnailProcess)) {
     body['video_thumbnail_process'] = request.videoThumbnailProcess;
@@ -2028,6 +2117,7 @@ model GetDownloadUrlRequest {
   expireSec?: int32(name='expire_sec', example='100'),
   fileId?: string(name='file_id', example='9520943DC264'),
   fileName?: string(name='file_name', example='1.txt'),
+  shareId?: string(name='share_id'),
 }
 
 model GetDownloadUrlResponseBody = {
@@ -2061,6 +2151,9 @@ async function getDownloadUrlWithOptions(request: GetDownloadUrlRequest, headers
   }
   if (!Util.isUnset(request.fileName)) {
     body['file_name'] = request.fileName;
+  }
+  if (!Util.isUnset(request.shareId)) {
+    body['share_id'] = request.shareId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2132,6 +2225,7 @@ model GetFileRequest {
   driveId?: string(name='drive_id', example='1'),
   fields?: string(name='fields', example='*'),
   fileId?: string(name='file_id', example='9520943DC264'),
+  shareId?: string(name='share_id'),
   urlExpireSec?: int32(name='url_expire_sec', example='100'),
 }
 
@@ -2152,6 +2246,9 @@ async function getFileWithOptions(request: GetFileRequest, headers: map[string]s
   }
   if (!Util.isUnset(request.fileId)) {
     body['file_id'] = request.fileId;
+  }
+  if (!Util.isUnset(request.shareId)) {
+    body['share_id'] = request.shareId;
   }
   if (!Util.isUnset(request.urlExpireSec)) {
     body['url_expire_sec'] = request.urlExpireSec;
@@ -2854,6 +2951,51 @@ async function importUser(request: ImportUserRequest): ImportUserResponse {
   return importUserWithOptions(request, headers, runtime);
 }
 
+model InvestigateFileRequest {
+  driveFileIds?: [ 
+    {
+      driveId?: string(name='drive_id', example='1'),
+      fileId?: string(name='file_id', example='9520943DC264'),
+    }
+  ](name='drive_file_ids'),
+}
+
+model InvestigateFileResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function investigateFileWithOptions(request: InvestigateFileRequest, headers: map[string]string, runtime: Util.RuntimeOptions): InvestigateFileResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.driveFileIds)) {
+    body['drive_file_ids'] = request.driveFileIds;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'InvestigateFile',
+    version = '2022-03-01',
+    protocol = 'HTTPS',
+    pathname = `/v2/csi/investigate_file`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+async function investigateFile(request: InvestigateFileRequest): InvestigateFileResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return investigateFileWithOptions(request, headers, runtime);
+}
+
 model LinkAccountRequest {
   extra?: string(name='extra', example='86'),
   identity?: string(name='identity', example='130***'),
@@ -3221,6 +3363,7 @@ model ListFileRequest {
   orderBy?: string(name='order_by', example='updated_at'),
   orderDirection?: string(name='order_direction', example='ASC'),
   parentFileId?: string(name='parent_file_id', example='root'),
+  shareId?: string(name='share_id'),
   status?: string(name='status', example='available'),
   type?: string(name='type', example='file'),
 }
@@ -3264,6 +3407,9 @@ async function listFileWithOptions(request: ListFileRequest, headers: map[string
   }
   if (!Util.isUnset(request.parentFileId)) {
     body['parent_file_id'] = request.parentFileId;
+  }
+  if (!Util.isUnset(request.shareId)) {
+    body['share_id'] = request.shareId;
   }
   if (!Util.isUnset(request.status)) {
     body['status'] = request.status;
@@ -4919,6 +5065,7 @@ model UpdateDriveRequest {
   description?: string(name='description'),
   driveId?: string(name='drive_id', example='1'),
   driveName?: string(name='drive_name', example='my_drive'),
+  owner?: string(name='owner'),
   status?: string(name='status', example='enabled'),
   totalSize?: long(name='total_size', example='10240'),
 }
@@ -4940,6 +5087,9 @@ async function updateDriveWithOptions(request: UpdateDriveRequest, headers: map[
   }
   if (!Util.isUnset(request.driveName)) {
     body['drive_name'] = request.driveName;
+  }
+  if (!Util.isUnset(request.owner)) {
+    body['owner'] = request.owner;
   }
   if (!Util.isUnset(request.status)) {
     body['status'] = request.status;
