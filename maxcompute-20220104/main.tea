@@ -84,73 +84,79 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
-model CreateQuotaRequest {
-  nickname?: string(name='Nickname'),
-  parameters?: {
-    adhocCU?: long(name='AdhocCU'),
-    elasticCU?: long(name='ElasticCU'),
-    enablePreemptiveScheduling?: string(name='EnablePreemptiveScheduling'),
-    enablePriority?: string(name='EnablePriority'),
-    maxCU?: long(name='MaxCU'),
-    minCU?: long(name='MinCU'),
-    singleJobCULimit?: long(name='SingleJobCULimit'),
-  }(name='Parameters'),
-  tag?: string(name='Tag'),
-  type?: string(name='Type'),
-  region?: string(name='region'),
-  tenantId?: string(name='tenantId'),
+model CreatePackageRequest {
+  body?: string(name='body', example='{
+"name": "test_packege", 
+    "resourceList": { 
+        "table": [
+            {
+                "name": "table_name",
+                "actions": [
+                    "Describe",
+                    "Select"
+                ]
+            },
+            {
+                "name": "table_name",
+                "actions": [
+                    "Describe",
+                    "Select"
+                ]
+            }
+        ],
+        "resource": [
+            {
+                "name": "",
+                "actions": []
+            },
+            {
+                "name": "",
+                "actions": []
+            }
+        ],
+        "function": [
+            {
+                "name": "",
+                "actions": []
+            },
+            {
+                "name": "",
+                "actions": []
+            }
+        ]
+    }
+}'),
+  isInstall?: boolean(name='isInstall', example='false'),
 }
 
-model CreateQuotaResponseBody = {
-  requestId?: string(name='requestId', description='Id of the request'),
+model CreatePackageResponseBody = {
+  data?: string(name='data', example='success'),
+  requestId?: string(name='requestId', example='0bc3b4ab16684833172127321e2c25'),
 }
 
-model CreateQuotaResponse = {
+model CreatePackageResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
-  body: CreateQuotaResponseBody(name='body'),
+  body: CreatePackageResponseBody(name='body'),
 }
 
-async function createQuota(request: CreateQuotaRequest): CreateQuotaResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createQuotaWithOptions(request, headers, runtime);
-}
-
-async function createQuotaWithOptions(request: CreateQuotaRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateQuotaResponse {
+async function createPackageWithOptions(projectName: string, request: CreatePackageRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreatePackageResponse {
   Util.validateModel(request);
-  var query : map[string]any= {};
-  if (!Util.isUnset(request.region)) {
-    query['region'] = request.region;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    query['tenantId'] = request.tenantId;
-  }
-
-  var body : map[string]any= {};
-  if (!Util.isUnset(request.nickname)) {
-    body['Nickname'] = request.nickname;
-  }
-  if (!Util.isUnset(request.parameters)) {
-    body['Parameters'] = request.parameters;
-  }
-  if (!Util.isUnset(request.tag)) {
-    body['Tag'] = request.tag;
-  }
-  if (!Util.isUnset(request.type)) {
-    body['Type'] = request.type;
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.isInstall)) {
+    query['isInstall'] = request.isInstall;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(body),
+    body = request.body,
   };
   var params = new OpenApi.Params{
-    action = 'CreateQuota',
+    action = 'CreatePackage',
     version = '2022-01-04',
     protocol = 'HTTPS',
-    pathname = `/api/v1/quotas`,
+    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/packages`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
@@ -160,31 +166,217 @@ async function createQuotaWithOptions(request: CreateQuotaRequest, headers: map[
   return callApi(params, req, runtime);
 }
 
-model DeleteQuotaRequest {
-  region?: string(name='region'),
-  tenantId?: string(name='tenantId'),
-}
-
-model DeleteQuotaResponseBody = {
-  requestId?: string(name='requestId', description='Id of the request'),
-}
-
-model DeleteQuotaResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: DeleteQuotaResponseBody(name='body'),
-}
-
-async function deleteQuota(nickname: string, request: DeleteQuotaRequest): DeleteQuotaResponse {
+async function createPackage(projectName: string, request: CreatePackageRequest): CreatePackageResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return deleteQuotaWithOptions(nickname, request, headers, runtime);
+  return createPackageWithOptions(projectName, request, headers, runtime);
 }
 
-async function deleteQuotaWithOptions(nickname: string, request: DeleteQuotaRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteQuotaResponse {
+model CreateProjectRequest {
+  body?: string(name='body'),
+}
+
+model CreateProjectResponseBody = {
+  data?: string(name='data', example='success'),
+  requestId?: string(name='requestId', example='0b87b7a316654730544735643e9200'),
+}
+
+model CreateProjectResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateProjectResponseBody(name='body'),
+}
+
+async function createProjectWithOptions(request: CreateProjectRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateProjectResponse {
   Util.validateModel(request);
-  nickname = OpenApiUtil.getEncodeParam(nickname);
-  var query : map[string]any= {};
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = request.body,
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateProject',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/projects`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createProject(request: CreateProjectRequest): CreateProjectResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createProjectWithOptions(request, headers, runtime);
+}
+
+model CreateQuotaPlanRequest {
+  body?: string(name='body'),
+  region?: string(name='region', example='cn-beijing'),
+  tenantId?: string(name='tenantId', example='228451885265153'),
+}
+
+model CreateQuotaPlanResponseBody = {
+  data?: string(name='data', example='success'),
+  requestId?: string(name='requestId', example='0bc3b4b016674434996033675e71ee'),
+}
+
+model CreateQuotaPlanResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateQuotaPlanResponseBody(name='body'),
+}
+
+async function createQuotaPlanWithOptions(nickname: string, request: CreateQuotaPlanRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateQuotaPlanResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.region)) {
+    query['region'] = request.region;
+  }
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = request.body,
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateQuotaPlan',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}/plans`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createQuotaPlan(nickname: string, request: CreateQuotaPlanRequest): CreateQuotaPlanResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createQuotaPlanWithOptions(nickname, request, headers, runtime);
+}
+
+model CreateQuotaScheduleRequest {
+  body?: string(name='body'),
+  region?: string(name='region', example='cn-chengdu'),
+  tenantId?: string(name='tenantId', example='407137536592384'),
+}
+
+model CreateQuotaScheduleResponseBody = {
+  data?: string(name='data', example='success'),
+  requestId?: string(name='requestId', example='0be3e0b716671885050924814e3623'),
+}
+
+model CreateQuotaScheduleResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateQuotaScheduleResponseBody(name='body'),
+}
+
+async function createQuotaScheduleWithOptions(nickname: string, request: CreateQuotaScheduleRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateQuotaScheduleResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.region)) {
+    query['region'] = request.region;
+  }
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = request.body,
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateQuotaSchedule',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}/schedule`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createQuotaSchedule(nickname: string, request: CreateQuotaScheduleRequest): CreateQuotaScheduleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createQuotaScheduleWithOptions(nickname, request, headers, runtime);
+}
+
+model CreateRoleRequest {
+  body?: string(name='body'),
+}
+
+model CreateRoleResponseBody = {
+  data?: string(name='data', example='success'),
+  requestId?: string(name='requestId', example='0b87b7e716665825896565060e87a4'),
+}
+
+model CreateRoleResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateRoleResponseBody(name='body'),
+}
+
+async function createRoleWithOptions(projectName: string, request: CreateRoleRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateRoleResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = request.body,
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateRole',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/roles`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createRole(projectName: string, request: CreateRoleRequest): CreateRoleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createRoleWithOptions(projectName, request, headers, runtime);
+}
+
+model DeleteQuotaPlanRequest {
+  region?: string(name='region', example='cn-hangzhou'),
+  tenantId?: string(name='tenantId', example='416441016836866'),
+}
+
+model DeleteQuotaPlanResponseBody = {
+  data?: string(name='data', example='success'),
+  requestId?: string(name='requestId', example='0b57ff7616612271051086500ea3ce'),
+}
+
+model DeleteQuotaPlanResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DeleteQuotaPlanResponseBody(name='body'),
+}
+
+async function deleteQuotaPlanWithOptions(nickname: string, planName: string, request: DeleteQuotaPlanRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteQuotaPlanResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
   if (!Util.isUnset(request.region)) {
     query['region'] = request.region;
   }
@@ -197,10 +389,10 @@ async function deleteQuotaWithOptions(nickname: string, request: DeleteQuotaRequ
     query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
-    action = 'DeleteQuota',
+    action = 'DeleteQuotaPlan',
     version = '2022-01-04',
     protocol = 'HTTPS',
-    pathname = `/api/v1/quotas/${nickname}`,
+    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}/plans/${OpenApiUtil.getEncodeParam(planName)}`,
     method = 'DELETE',
     authType = 'AK',
     style = 'ROA',
@@ -210,53 +402,333 @@ async function deleteQuotaWithOptions(nickname: string, request: DeleteQuotaRequ
   return callApi(params, req, runtime);
 }
 
+async function deleteQuotaPlan(nickname: string, planName: string, request: DeleteQuotaPlanRequest): DeleteQuotaPlanResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteQuotaPlanWithOptions(nickname, planName, request, headers, runtime);
+}
+
+model GetPackageRequest {
+  sourceProject?: string(name='sourceProject', example='projectB'),
+}
+
+model GetPackageResponseBody = {
+  data?: {
+    allowedProjectList?: [ 
+      {
+        label?: string(name='label', example='2'),
+        project?: string(name='project', example='proejctB'),
+      }
+    ](name='allowedProjectList'),
+    resourceList?: {
+      function?: [ 
+        {
+          actions?: [ string ](name='actions'),
+          name?: string(name='name', example='function_1'),
+        }
+      ](name='function'),
+      resource?: [ 
+        {
+          actions?: [ string ](name='actions'),
+          name?: string(name='name', example='res_1'),
+        }
+      ](name='resource'),
+      table?: [ 
+        {
+          actions?: [ string ](name='actions'),
+          name?: string(name='name', example='dim_odps'),
+        }
+      ](name='table'),
+    }(name='resourceList'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='0b57ff8316614119858417939e3e54'),
+}
+
+model GetPackageResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetPackageResponseBody(name='body'),
+}
+
+async function getPackageWithOptions(projectName: string, packageName: string, request: GetPackageRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetPackageResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.sourceProject)) {
+    query['sourceProject'] = request.sourceProject;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetPackage',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/packages/${OpenApiUtil.getEncodeParam(packageName)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getPackage(projectName: string, packageName: string, request: GetPackageRequest): GetPackageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getPackageWithOptions(projectName, packageName, request, headers, runtime);
+}
+
+model GetProjectResponseBody = {
+  data?: {
+    comment?: string(name='comment'),
+    costStorage?: string(name='costStorage', example='16489027'),
+    defaultQuota?: string(name='defaultQuota', example='quota_a'),
+    ipWhiteList?: {
+      ipList?: string(name='ipList', example='10.88.111.3'),
+      vpcIpList?: string(name='vpcIpList', example='10.88.111.3'),
+    }(name='ipWhiteList'),
+    name?: string(name='name', example='odps_project'),
+    owner?: string(name='owner', example='1565950907343451'),
+    productType?: string(name='productType'),
+    properties?: {
+      allowFullScan?: boolean(name='allowFullScan', example='false'),
+      elderTunnelQuota?: string(name='elderTunnelQuota'),
+      enableDecimal2?: boolean(name='enableDecimal2', example='true'),
+      enableTunnelQuotaRoute?: boolean(name='enableTunnelQuotaRoute', example='true'),
+      encryption?: {
+        algorithm?: string(name='algorithm', example='SHA1'),
+        enable?: boolean(name='enable', example='true'),
+        key?: string(name='key', example='dafault'),
+      }(name='encryption'),
+      retentionDays?: long(name='retentionDays', example='1'),
+      sqlMeteringMax?: string(name='sqlMeteringMax', example='1500'),
+      tableLifecycle?: {
+        type?: string(name='type', example='optional'),
+        value?: string(name='value', example='37231'),
+      }(name='tableLifecycle'),
+      timezone?: string(name='timezone', example='Asia/Shanghai'),
+      tunnelQuota?: string(name='tunnelQuota', example='Quota'),
+      typeSystem?: string(name='typeSystem', example='2.0'),
+    }(name='properties'),
+    saleTag?: {
+      resourceId?: string(name='resourceId'),
+      resourceType?: string(name='resourceType'),
+    }(name='saleTag'),
+    securityProperties?: {
+      enableDownloadPrivilege?: boolean(name='enableDownloadPrivilege', example='false'),
+      labelSecurity?: boolean(name='labelSecurity', example='false'),
+      objectCreatorHasAccessPermission?: boolean(name='objectCreatorHasAccessPermission', example='true'),
+      objectCreatorHasGrantPermission?: boolean(name='objectCreatorHasGrantPermission', example='true'),
+      projectProtection?: {
+        exceptionPolicy?: string(name='exceptionPolicy', example='{
+    "Version": "1",
+    "Statement":
+    [{
+        "Effect":"Allow",
+        "Principal":"<Principal>",
+        "Action":["odps:<Action1>[, <Action2>, ...]"],
+        "Resource":"acs:odps:*:<Resource>",
+        "Condition":{
+            "StringEquals": {
+                "odps:TaskType":["<Tasktype>"]
+            }
+        }
+    }]
+    }'),
+        protected?: boolean(name='protected', example='true'),
+      }(name='projectProtection'),
+      usingAcl?: boolean(name='usingAcl', example='true'),
+      usingPolicy?: boolean(name='usingPolicy', example='true'),
+    }(name='securityProperties'),
+    status?: string(name='status', example='AVAILABLE'),
+    type?: string(name='type', example='managed'),
+  }(name='data'),
+  httpCode?: int32(name='httpCode'),
+  requestId?: string(name='requestId', example='0b87b7b316643495896551555e855b'),
+}
+
+model GetProjectResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetProjectResponseBody(name='body'),
+}
+
+async function getProjectWithOptions(projectName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetProjectResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetProject',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getProject(projectName: string): GetProjectResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getProjectWithOptions(projectName, headers, runtime);
+}
+
 model GetQuotaRequest {
-  mock?: boolean(name='mock'),
-  region?: string(name='region'),
-  tenantId?: string(name='tenantId'),
+  akProven?: string(name='AkProven', example='null'),
+  mock?: boolean(name='mock', example='false'),
+  region?: string(name='region', example='cn-chengdu'),
+  tenantId?: string(name='tenantId', example='520539530998273'),
 }
 
 model GetQuotaResponseBody = {
   billingPolicy?: {
-    billingMethod?: string(name='billingMethod', description='"PAYASYOUGO" 表示后付费'),
-    odpsSpecCode?: string(name='odpsSpecCode'),
+    billingMethod?: string(name='billingMethod', example='subscription'),
+    odpsSpecCode?: string(name='odpsSpecCode', example='OdpsStandard'),
+    orderId?: string(name='orderId', example='45245678'),
   }(name='billingPolicy'),
-  cluster?: string(name='cluster'),
-  createTime?: long(name='createTime'),
-  creatorId?: string(name='creatorId'),
-  id?: string(name='id'),
-  name?: string(name='name'),
-  nickName?: string(name='nickName'),
+  cluster?: string(name='cluster', example='AT-120N'),
+  createTime?: long(name='createTime', example='2022-09-06T02:14:44Z'),
+  creatorId?: string(name='creatorId', example='672863518'),
+  data?: {
+    billingPolicy?: {
+      billingMethod?: string(name='billingMethod', example='subscription'),
+      odpsSpecCode?: string(name='odpsSpecCode', example='OdpsStandard'),
+      orderId?: string(name='orderId', example='45245678'),
+    }(name='billingPolicy'),
+    cluster?: string(name='cluster', example='AT-120N'),
+    createTime?: long(name='createTime', example='2022-09-06T02:14:44Z'),
+    creatorId?: string(name='creatorId', example='672863518'),
+    groupName?: string(name='groupName'),
+    id?: string(name='id', description='quota ID', example='0'),
+    name?: string(name='name', example='quota_a'),
+    nickName?: string(name='nickName', example='quota_nickname'),
+    parameter?: map[string]any(name='parameter'),
+    parentId?: string(name='parentId', example='null'),
+    regionId?: string(name='regionId', example='cn-beijing'),
+    saleTag?: {
+      resourceIds?: [ string ](name='resourceIds'),
+      resourceType?: string(name='resourceType'),
+    }(name='saleTag'),
+    scheduleInfo?: {
+      currPlan?: string(name='currPlan', example='planA'),
+      currTime?: string(name='currTime', example='0800'),
+      nextPlan?: string(name='nextPlan', example='planB'),
+      nextTime?: string(name='nextTime', example='1700'),
+      oncePlan?: string(name='oncePlan', example='planC'),
+      onceTime?: string(name='onceTime', example='1500'),
+      operatorName?: string(name='operatorName', example='userA'),
+    }(name='scheduleInfo'),
+    status?: string(name='status', example='ON'),
+    subQuotaInfoList?: [ 
+      {
+        billingPolicy?: {
+          billingMethod?: string(name='billingMethod', example='subscription'),
+          odpsSpecCode?: string(name='odpsSpecCode', example='OdpsStandard'),
+          orderId?: string(name='orderId', example='45245678'),
+        }(name='billingPolicy'),
+        cluster?: string(name='cluster', example='AT-120N'),
+        createTime?: long(name='createTime', example='2022-09-06T02:14:44Z'),
+        creatorId?: string(name='creatorId', example='672863518'),
+        groupName?: string(name='groupName'),
+        id?: string(name='id', example='1000048'),
+        name?: string(name='name', example='subquotaA'),
+        nickName?: string(name='nickName', example='subquotaA'),
+        parameter?: map[string]any(name='parameter'),
+        parentId?: string(name='parentId', example='0'),
+        regionId?: string(name='regionId', example='cn-beijing'),
+        saleTag?: {
+          resourceIds?: [ string ](name='resourceIds'),
+          resourceType?: string(name='resourceType'),
+        }(name='saleTag'),
+        scheduleInfo?: {
+          currPlan?: string(name='currPlan', example='planA'),
+          currTime?: string(name='currTime', example='0800'),
+          nextPlan?: string(name='nextPlan', example='planB'),
+          nextTime?: string(name='nextTime', example='1700'),
+          oncePlan?: string(name='oncePlan', example='planC'),
+          onceTime?: string(name='onceTime', example='1500'),
+          operatorName?: string(name='operatorName', example='userA'),
+        }(name='scheduleInfo'),
+        status?: string(name='status', example='ON'),
+        tag?: string(name='tag', example='abc'),
+        tenantId?: string(name='tenantId', example='478403690625249'),
+        type?: string(name='type', example='FUXI_ONLINE'),
+        version?: string(name='version', example='1'),
+      }
+    ](name='subQuotaInfoList'),
+    tag?: string(name='tag', example='abc'),
+    tenantId?: string(name='tenantId', example='478403690625249'),
+    type?: string(name='type', example='FUXI_ONLINE'),
+    version?: string(name='version', example='1'),
+  }(name='data'),
+  id?: string(name='id', description='quota ID', example='0'),
+  name?: string(name='name', example='quota_a'),
+  nickName?: string(name='nickName', example='quota_nickname'),
   parameter?: map[string]any(name='parameter'),
-  parentId?: string(name='parentId'),
-  regionId?: string(name='regionId'),
-  status?: string(name='status'),
+  parentId?: string(name='parentId', example='null'),
+  regionId?: string(name='regionId', example='cn-beijing'),
+  requestId?: string(name='requestId', example='0b87b7a316654730544735643e9200'),
+  saleTag?: {
+    resourceIds?: [ string ](name='resourceIds'),
+    resourceType?: string(name='resourceType'),
+  }(name='saleTag'),
+  scheduleInfo?: {
+    currPlan?: string(name='currPlan', example='planA'),
+    currTime?: string(name='currTime', example='0800'),
+    nextPlan?: string(name='nextPlan', example='planB'),
+    nextTime?: string(name='nextTime', example='1700'),
+    oncePlan?: string(name='oncePlan', example='planC'),
+    onceTime?: string(name='onceTime', example='1500'),
+    operatorName?: string(name='operatorName', example='userA'),
+  }(name='scheduleInfo'),
+  status?: string(name='status', example='ON'),
   subQuotaInfoList?: [ 
     {
       billingPolicy?: {
-        billingMethod?: string(name='billingMethod', description='"PAYASYOUGO" 表示后付费'),
-        odpsSpecCode?: string(name='odpsSpecCode'),
+        billingMethod?: string(name='billingMethod', example='subscription'),
+        odpsSpecCode?: string(name='odpsSpecCode', example='OdpsStandard'),
+        orderId?: string(name='orderId', example='45245678'),
       }(name='billingPolicy'),
-      cluster?: string(name='cluster'),
-      createTime?: long(name='createTime'),
-      creatorId?: string(name='creatorId'),
-      id?: string(name='id'),
-      name?: string(name='name'),
-      nickName?: string(name='nickName'),
+      cluster?: string(name='cluster', example='AT-120N'),
+      createTime?: long(name='createTime', example='2022-09-06T02:14:44Z'),
+      creatorId?: string(name='creatorId', example='672863518'),
+      id?: string(name='id', example='1000048'),
+      name?: string(name='name', example='subquotaA'),
+      nickName?: string(name='nickName', example='subquotaA'),
       parameter?: map[string]any(name='parameter'),
-      parentId?: string(name='parentId'),
-      regionId?: string(name='regionId'),
-      status?: string(name='status'),
-      tag?: string(name='tag'),
-      tenantId?: string(name='tenantId'),
-      type?: string(name='type', description='对应控制集群的resourceSystemType字段'),
-      version?: string(name='version'),
+      parentId?: string(name='parentId', example='0'),
+      regionId?: string(name='regionId', example='cn-beijing'),
+      saleTag?: {
+        resourceIds?: [ string ](name='resourceIds'),
+        resourceType?: string(name='resourceType'),
+      }(name='saleTag'),
+      scheduleInfo?: {
+        currPlan?: string(name='currPlan', example='planA'),
+        currTime?: string(name='currTime', example='0800'),
+        nextPlan?: string(name='nextPlan', example='planB'),
+        nextTime?: string(name='nextTime', example='1700'),
+        oncePlan?: string(name='oncePlan', example='planC'),
+        onceTime?: string(name='onceTime', example='1500'),
+        operatorName?: string(name='operatorName', example='userA'),
+      }(name='scheduleInfo'),
+      status?: string(name='status', example='ON'),
+      tag?: string(name='tag', example='abc'),
+      tenantId?: string(name='tenantId', example='478403690625249'),
+      type?: string(name='type', example='FUXI_ONLINE'),
+      version?: string(name='version', example='1'),
     }
   ](name='subQuotaInfoList'),
-  tag?: string(name='tag'),
-  tenantId?: string(name='tenantId'),
-  type?: string(name='type', description='对应控制集群的resourceSystemType字段'),
-  version?: string(name='version'),
+  tag?: string(name='tag', example='abc'),
+  tenantId?: string(name='tenantId', example='478403690625249'),
+  type?: string(name='type', example='FUXI_ONLINE'),
+  version?: string(name='version', example='1'),
 }
 
 model GetQuotaResponse = {
@@ -265,16 +737,12 @@ model GetQuotaResponse = {
   body: GetQuotaResponseBody(name='body'),
 }
 
-async function getQuota(nickname: string, request: GetQuotaRequest): GetQuotaResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getQuotaWithOptions(nickname, request, headers, runtime);
-}
-
 async function getQuotaWithOptions(nickname: string, request: GetQuotaRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetQuotaResponse {
   Util.validateModel(request);
-  nickname = OpenApiUtil.getEncodeParam(nickname);
-  var query : map[string]any= {};
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.akProven)) {
+    query['AkProven'] = request.akProven;
+  }
   if (!Util.isUnset(request.mock)) {
     query['mock'] = request.mock;
   }
@@ -293,7 +761,7 @@ async function getQuotaWithOptions(nickname: string, request: GetQuotaRequest, h
     action = 'GetQuota',
     version = '2022-01-04',
     protocol = 'HTTPS',
-    pathname = `/api/v1/quotas/${nickname}`,
+    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -303,62 +771,888 @@ async function getQuotaWithOptions(nickname: string, request: GetQuotaRequest, h
   return callApi(params, req, runtime);
 }
 
-model ListQuotasRequest {
-  billingType?: string(name='billingType'),
-  marker?: string(name='marker'),
-  maxItem?: long(name='maxItem'),
-  productId?: string(name='productId'),
-  region?: string(name='region'),
-  tenantId?: string(name='tenantId'),
+async function getQuota(nickname: string, request: GetQuotaRequest): GetQuotaResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getQuotaWithOptions(nickname, request, headers, runtime);
 }
 
-model ListQuotasResponseBody = {
-  marker?: string(name='marker'),
-  maxItem?: long(name='maxItem'),
-  quotaInfoList?: [ 
-    {
+model GetQuotaPlanRequest {
+  region?: string(name='region', example='cn-beijing'),
+  tenantId?: string(name='tenantId', example='483212237127906'),
+}
+
+model GetQuotaPlanResponseBody = {
+  data?: {
+    createTime?: string(name='createTime', example='2022-05-16T06:07:45Z'),
+    name?: string(name='name', example='planA'),
+    quota?: {
       billingPolicy?: {
-        billingMethod?: string(name='billingMethod', description='"PAYASYOUGO" 表示后付费'),
-        odpsSpecCode?: string(name='odpsSpecCode'),
+        billingMethod?: string(name='billingMethod', example='subscription'),
+        odpsSpecCode?: string(name='odpsSpecCode', example='OdpsStandard'),
+        orderId?: string(name='orderId', example='45245678'),
       }(name='billingPolicy'),
-      cluster?: string(name='cluster'),
-      createTime?: long(name='createTime'),
-      creatorId?: string(name='creatorId'),
-      id?: string(name='id'),
-      name?: string(name='name'),
-      nickName?: string(name='nickName'),
+      cluster?: string(name='cluster', example='AT-120N'),
+      createTime?: long(name='createTime', example='2022-09-06T02:14:44Z'),
+      creatorId?: string(name='creatorId', example='672863518'),
+      id?: string(name='id', description='quota ID', example='0'),
+      name?: string(name='name', example='quota_a'),
+      nickName?: string(name='nickName', example='quota_nickname'),
       parameter?: map[string]any(name='parameter'),
-      parentId?: string(name='parentId'),
-      regionId?: string(name='regionId'),
-      status?: string(name='status'),
+      parentId?: string(name='parentId', example='null'),
+      regionId?: string(name='regionId', example='cn-beijing'),
+      scheduleInfo?: {
+        currPlan?: string(name='currPlan', example='planA'),
+        currTime?: string(name='currTime', example='0800'),
+        nextPlan?: string(name='nextPlan', example='planB'),
+        nextTime?: string(name='nextTime', example='1700'),
+        oncePlan?: string(name='oncePlan', example='planC'),
+        onceTime?: string(name='onceTime', example='1500'),
+        operatorName?: string(name='operatorName', example='userA'),
+      }(name='scheduleInfo'),
+      status?: string(name='status', example='ON'),
       subQuotaInfoList?: [ 
         {
           billingPolicy?: {
-            billingMethod?: string(name='billingMethod', description='"PAYASYOUGO" 表示后付费'),
-            odpsSpecCode?: string(name='odpsSpecCode'),
+            billingMethod?: string(name='billingMethod', example='subscription'),
+            odpsSpecCode?: string(name='odpsSpecCode', example='OdpsStandard'),
+            orderId?: string(name='orderId', example='45245678'),
           }(name='billingPolicy'),
-          cluster?: string(name='cluster'),
-          createTime?: long(name='createTime'),
-          creatorId?: string(name='creatorId'),
-          id?: string(name='id'),
-          name?: string(name='name'),
-          nickName?: string(name='nickName'),
+          cluster?: string(name='cluster', example='AT-120N'),
+          createTime?: long(name='createTime', example='2022-09-06T02:14:44Z'),
+          creatorId?: string(name='creatorId', example='672863518'),
+          id?: string(name='id', example='1000048'),
+          name?: string(name='name', example='subquotaA'),
+          nickName?: string(name='nickName', example='subquotaA'),
           parameter?: map[string]any(name='parameter'),
-          parentId?: string(name='parentId'),
-          regionId?: string(name='regionId'),
-          status?: string(name='status'),
-          tag?: string(name='tag'),
-          tenantId?: string(name='tenantId'),
-          type?: string(name='type', description='对应控制集群的resourceSystemType字段'),
-          version?: string(name='version'),
+          parentId?: string(name='parentId', example='0'),
+          regionId?: string(name='regionId', example='cn-beijing'),
+          scheduleInfo?: {
+            currPlan?: string(name='currPlan', example='planA'),
+            currTime?: string(name='currTime', example='0800'),
+            nextPlan?: string(name='nextPlan', example='planB'),
+            nextTime?: string(name='nextTime', example='1700'),
+            oncePlan?: string(name='oncePlan', example='planC'),
+            onceTime?: string(name='onceTime', example='1500'),
+            operatorName?: string(name='operatorName', example='userA'),
+          }(name='scheduleInfo'),
+          status?: string(name='status', example='ON'),
+          tag?: string(name='tag', example='abc'),
+          tenantId?: string(name='tenantId', example='478403690625249'),
+          type?: string(name='type', example='FUXI_ONLINE'),
+          version?: string(name='version', example='1'),
         }
       ](name='subQuotaInfoList'),
-      tag?: string(name='tag'),
-      tenantId?: string(name='tenantId'),
-      type?: string(name='type', description='对应控制集群的resourceSystemType字段'),
-      version?: string(name='version'),
+      tag?: string(name='tag', example='abc'),
+      tenantId?: string(name='tenantId', example='478403690625249'),
+      type?: string(name='type', example='FUXI_ONLINE'),
+      version?: string(name='version', example='1'),
+    }(name='quota'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='0be3e0aa16667684362147582e038f'),
+}
+
+model GetQuotaPlanResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetQuotaPlanResponseBody(name='body'),
+}
+
+async function getQuotaPlanWithOptions(nickname: string, planName: string, request: GetQuotaPlanRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetQuotaPlanResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.region)) {
+    query['region'] = request.region;
+  }
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetQuotaPlan',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}/plans/${OpenApiUtil.getEncodeParam(planName)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getQuotaPlan(nickname: string, planName: string, request: GetQuotaPlanRequest): GetQuotaPlanResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getQuotaPlanWithOptions(nickname, planName, request, headers, runtime);
+}
+
+model GetQuotaScheduleRequest {
+  region?: string(name='region', example='cn-beijing'),
+  tenantId?: string(name='tenantId', example='478403690625249'),
+}
+
+model GetQuotaScheduleResponseBody = {
+  data?: [ 
+    {
+      condition?: {
+        after?: string(name='after', example='2022-04-25T04:23:04Z'),
+        at?: string(name='at', example='0900'),
+      }(name='condition'),
+      id?: string(name='id', example='63'),
+      operator?: string(name='operator', example='userA'),
+      plan?: string(name='plan', example='planA'),
+      type?: string(name='type', example='once'),
+    }
+  ](name='data'),
+  requestId?: string(name='requestId', example='0bc059b716696296266308790e0d3e'),
+}
+
+model GetQuotaScheduleResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetQuotaScheduleResponseBody(name='body'),
+}
+
+async function getQuotaScheduleWithOptions(nickname: string, request: GetQuotaScheduleRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetQuotaScheduleResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.region)) {
+    query['region'] = request.region;
+  }
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetQuotaSchedule',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}/schedule`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getQuotaSchedule(nickname: string, request: GetQuotaScheduleRequest): GetQuotaScheduleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getQuotaScheduleWithOptions(nickname, request, headers, runtime);
+}
+
+model GetRoleAclResponseBody = {
+  data?: {
+    function?: [ 
+      {
+        actions?: [ string ](name='actions'),
+        name?: string(name='name', example='functionA'),
+      }
+    ](name='function'),
+    instance?: [ 
+      {
+        actions?: [ string ](name='actions'),
+        name?: string(name='name', example='instanceA'),
+      }
+    ](name='instance'),
+    package?: [ 
+      {
+        actions?: [ string ](name='actions'),
+        name?: string(name='name', example='packageA'),
+      }
+    ](name='package', description='Package'),
+    project?: [ 
+      {
+        actions?: [ string ](name='actions'),
+        name?: string(name='name', example='projectA'),
+      }
+    ](name='project'),
+    resource?: [ 
+      {
+        actions?: [ string ](name='actions'),
+        name?: string(name='name', example='resourceA'),
+      }
+    ](name='resource'),
+    table?: [ 
+      {
+        actions?: [ string ](name='actions'),
+        name?: string(name='name', example='tableA'),
+      }
+    ](name='table'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='0a06dc0916696898838762018e9564'),
+}
+
+model GetRoleAclResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetRoleAclResponseBody(name='body'),
+}
+
+async function getRoleAclWithOptions(projectName: string, roleName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetRoleAclResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetRoleAcl',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/roles/${OpenApiUtil.getEncodeParam(roleName)}/roleAcl`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getRoleAcl(projectName: string, roleName: string): GetRoleAclResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getRoleAclWithOptions(projectName, roleName, headers, runtime);
+}
+
+model GetRoleAclOnObjectRequest {
+  objectName?: string(name='objectName', example='tableA'),
+  objectType?: string(name='objectType', example='table'),
+}
+
+model GetRoleAclOnObjectResponseBody = {
+  data?: {
+    actions?: [ string ](name='actions'),
+    name?: string(name='name', example='tableA'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='0bc1366d16686529650188023ef87f'),
+}
+
+model GetRoleAclOnObjectResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetRoleAclOnObjectResponseBody(name='body'),
+}
+
+async function getRoleAclOnObjectWithOptions(projectName: string, roleName: string, request: GetRoleAclOnObjectRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetRoleAclOnObjectResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.objectName)) {
+    query['objectName'] = request.objectName;
+  }
+  if (!Util.isUnset(request.objectType)) {
+    query['objectType'] = request.objectType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetRoleAclOnObject',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/roles/${OpenApiUtil.getEncodeParam(roleName)}/acl`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getRoleAclOnObject(projectName: string, roleName: string, request: GetRoleAclOnObjectRequest): GetRoleAclOnObjectResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getRoleAclOnObjectWithOptions(projectName, roleName, request, headers, runtime);
+}
+
+model GetRolePolicyResponseBody = {
+  data?: string(name='data', example='{
+      "Statement": [
+            {
+                  "Action": [
+                        "odps:*"
+                  ],
+                  "Effect": "Allow",
+                  "Resource": [
+                        "acs:odps:*:projects/{projectname}/authorization/packages"
+                  ]
+            }
+      ],
+      "Version": "1"
+}'),
+  requestId?: string(name='requestId', example='0bc1eeed16675342848904412e08dd'),
+}
+
+model GetRolePolicyResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetRolePolicyResponseBody(name='body'),
+}
+
+async function getRolePolicyWithOptions(projectName: string, roleName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetRolePolicyResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetRolePolicy',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/roles/${OpenApiUtil.getEncodeParam(roleName)}/policy`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getRolePolicy(projectName: string, roleName: string): GetRolePolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getRolePolicyWithOptions(projectName, roleName, headers, runtime);
+}
+
+model GetTrustedProjectsResponseBody = {
+  data?: [ string ](name='data'),
+  requestId?: string(name='requestId', example='0bc0590416675329272834336e4387'),
+}
+
+model GetTrustedProjectsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetTrustedProjectsResponseBody(name='body'),
+}
+
+async function getTrustedProjectsWithOptions(projectName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetTrustedProjectsResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetTrustedProjects',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/trustedProjects`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getTrustedProjects(projectName: string): GetTrustedProjectsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getTrustedProjectsWithOptions(projectName, headers, runtime);
+}
+
+model ListFunctionsRequest {
+  marker?: string(name='marker', example='c2Vuc2l0aXZlX2RhdGFfc2Nhbl90ZXN0MSE='),
+  maxItem?: int32(name='maxItem', example='10'),
+  prefix?: string(name='prefix', example='wosai_'),
+}
+
+model ListFunctionsResponseBody = {
+  data?: {
+    functions?: [ 
+      {
+        class?: string(name='class', example='abc'),
+        creationTime?: long(name='creationTime', example='1664505167000'),
+        name?: string(name='name', example='getdate'),
+        owner?: string(name='owner', example='odpsowner'),
+        resources?: string(name='resources', example='[]'),
+        schema?: string(name='schema', example='abc'),
+      }
+    ](name='functions'),
+    marker?: string(name='marker', example='c2Vuc2l0aXZlX2RhdGFfc2Nhbl90ZXN0MSE='),
+    maxItem?: int32(name='maxItem', example='10'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='0be3e0b716671885050924814e3623'),
+}
+
+model ListFunctionsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListFunctionsResponseBody(name='body'),
+}
+
+async function listFunctionsWithOptions(projectName: string, request: ListFunctionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListFunctionsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.marker)) {
+    query['marker'] = request.marker;
+  }
+  if (!Util.isUnset(request.maxItem)) {
+    query['maxItem'] = request.maxItem;
+  }
+  if (!Util.isUnset(request.prefix)) {
+    query['prefix'] = request.prefix;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListFunctions',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/functions`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listFunctions(projectName: string, request: ListFunctionsRequest): ListFunctionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listFunctionsWithOptions(projectName, request, headers, runtime);
+}
+
+model ListPackagesResponseBody = {
+  data?: {
+    createdPackages?: [ 
+      {
+        createTime?: long(name='createTime', example='2022-08-02T02:30:34Z'),
+        name?: string(name='name', example='packageA'),
+      }
+    ](name='createdPackages'),
+    installedPackages?: [ 
+      {
+        installTime?: long(name='installTime', example='2022-09-02T02:30:34Z'),
+        name?: string(name='name', example='packageB'),
+        sourceProject?: string(name='sourceProject', example='projectB'),
+        status?: string(name='status', example='OK'),
+      }
+    ](name='installedPackages'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='0bc3b4aa16677927210252786e4cb6'),
+}
+
+model ListPackagesResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListPackagesResponseBody(name='body'),
+}
+
+async function listPackagesWithOptions(projectName: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListPackagesResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ListPackages',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/packages`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listPackages(projectName: string): ListPackagesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listPackagesWithOptions(projectName, headers, runtime);
+}
+
+model ListProjectUsersResponseBody = {
+  data?: {
+    users?: [ 
+      {
+        name?: string(name='name', example='userA'),
+      }
+    ](name='users'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='0b87b7b316643495896551555e855b'),
+}
+
+model ListProjectUsersResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListProjectUsersResponseBody(name='body'),
+}
+
+async function listProjectUsersWithOptions(projectName: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListProjectUsersResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ListProjectUsers',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/users`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listProjectUsers(projectName: string): ListProjectUsersResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listProjectUsersWithOptions(projectName, headers, runtime);
+}
+
+model ListProjectsRequest {
+  marker?: string(name='marker', example='cHlvZHBzX3VkZl8xMDExNV8xNDU3NDI4NDkzKg=='),
+  maxItem?: int32(name='maxItem', example='10'),
+  prefix?: string(name='prefix', example='a'),
+  quotaName?: string(name='quotaName'),
+  quotaNickName?: string(name='quotaNickName', example='quotaA'),
+  region?: string(name='region', example='cn-beijing'),
+  saleTags?: string(name='saleTags'),
+  tenantId?: string(name='tenantId', example='549532154333697'),
+}
+
+model ListProjectsResponseBody = {
+  data?: {
+    nextToken?: string(name='NextToken'),
+    marker?: string(name='marker', example='cHlvZHBzX3VkZl8xMDExNV8xNDU3NDI4NDkzKg=='),
+    maxItem?: int32(name='maxItem', example='10'),
+    projects?: [ 
+      {
+        tags?: [ 
+          {
+            tagKey?: string(name='TagKey'),
+            tagValue?: string(name='TagValue'),
+          }
+        ](name='Tags'),
+        comment?: string(name='comment'),
+        costStorage?: string(name='costStorage', example='16489027'),
+        defaultQuota?: string(name='defaultQuota', example='quotaA'),
+        ipWhiteList?: {
+          ipList?: string(name='ipList', example='10.88.111.3'),
+          vpcIpList?: string(name='vpcIpList', example='10.88.111.3'),
+        }(name='ipWhiteList'),
+        name?: string(name='name', example='odps_project'),
+        owner?: string(name='owner', example='1139815775606813'),
+        properties?: {
+          allowFullScan?: boolean(name='allowFullScan', example='false'),
+          elderTunnelQuota?: string(name='elderTunnelQuota'),
+          enableDecimal2?: boolean(name='enableDecimal2', example='true'),
+          enableTunnelQuotaRoute?: boolean(name='enableTunnelQuotaRoute', example='true'),
+          encryption?: {
+            algorithm?: string(name='algorithm', example='SHA1'),
+            enable?: boolean(name='enable', example='true'),
+            key?: string(name='key', example='dafault'),
+          }(name='encryption'),
+          retentionDays?: long(name='retentionDays', example='1'),
+          sqlMeteringMax?: string(name='sqlMeteringMax', example='1500'),
+          tableLifecycle?: {
+            type?: string(name='type', example='optional'),
+            value?: string(name='value', example='37231'),
+          }(name='tableLifecycle'),
+          timezone?: string(name='timezone', example='Asia/Shanghai'),
+          tunnelQuota?: string(name='tunnelQuota', example='quota_tunnel'),
+          typeSystem?: string(name='typeSystem', example='2'),
+        }(name='properties'),
+        saleTag?: {
+          resourceId?: string(name='resourceId'),
+          resourceType?: string(name='resourceType'),
+        }(name='saleTag'),
+        securityProperties?: {
+          enableDownloadPrivilege?: boolean(name='enableDownloadPrivilege', example='false'),
+          labelSecurity?: boolean(name='labelSecurity', example='false'),
+          objectCreatorHasAccessPermission?: boolean(name='objectCreatorHasAccessPermission', example='true'),
+          objectCreatorHasGrantPermission?: boolean(name='objectCreatorHasGrantPermission', example='true'),
+          projectProtection?: {
+            exceptionPolicy?: string(name='exceptionPolicy', example='{
+      "Version": "1",
+      "Statement": [
+            {
+                  "Effect": "Allow",
+                  "Principal": "",
+                  "Action": [
+                        "odps:[, , ...]"
+                  ],
+                  "Resource": "acs:odps:*:",
+                  "Condition": {
+                        "StringEquals": {
+                              "odps:TaskType": [
+                                    ""
+                              ]
+                        }
+                  }
+            }
+      ]
+}'),
+            protected?: boolean(name='protected', example='true'),
+          }(name='projectProtection'),
+          usingAcl?: boolean(name='usingAcl', example='true'),
+          usingPolicy?: boolean(name='usingPolicy', example='true'),
+        }(name='securityProperties'),
+        status?: string(name='status', example='AVAILABLE'),
+        type?: string(name='type', example='managed'),
+      }
+    ](name='projects'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='0b16399216671970335563173e2340'),
+}
+
+model ListProjectsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListProjectsResponseBody(name='body'),
+}
+
+async function listProjectsWithOptions(request: ListProjectsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListProjectsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.marker)) {
+    query['marker'] = request.marker;
+  }
+  if (!Util.isUnset(request.maxItem)) {
+    query['maxItem'] = request.maxItem;
+  }
+  if (!Util.isUnset(request.prefix)) {
+    query['prefix'] = request.prefix;
+  }
+  if (!Util.isUnset(request.quotaName)) {
+    query['quotaName'] = request.quotaName;
+  }
+  if (!Util.isUnset(request.quotaNickName)) {
+    query['quotaNickName'] = request.quotaNickName;
+  }
+  if (!Util.isUnset(request.region)) {
+    query['region'] = request.region;
+  }
+  if (!Util.isUnset(request.saleTags)) {
+    query['saleTags'] = request.saleTags;
+  }
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListProjects',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/projects`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listProjects(request: ListProjectsRequest): ListProjectsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listProjectsWithOptions(request, headers, runtime);
+}
+
+model ListQuotasRequest {
+  billingType?: string(name='billingType', example='subscription'),
+  marker?: string(name='marker', example='cHlvZHBzX3VkZl8xMDExNV8xNDU3NDI4NDkzKg=='),
+  maxItem?: long(name='maxItem', example='100'),
+  productId?: string(name='productId', example='ODPS'),
+  region?: string(name='region', example='cn-beijing'),
+  saleTags?: string(name='saleTags'),
+  tenantId?: string(name='tenantId', example='280747109771520'),
+}
+
+model ListQuotasResponseBody = {
+  nextToken?: string(name='NextToken'),
+  data?: {
+    nextToken?: string(name='NextToken'),
+    marker?: string(name='marker', example='cHlvZHBzX3VkZl8xMDExNV8xNDU3NDI4NDkzKg=='),
+    maxItem?: long(name='maxItem', example='10'),
+    quotaInfoList?: [ 
+      {
+        tags?: [ 
+          {
+            tagKey?: string(name='TagKey'),
+            tagValue?: string(name='TagValue'),
+          }
+        ](name='Tags'),
+        billingPolicy?: {
+          billingMethod?: string(name='billingMethod', example='subscription'),
+          odpsSpecCode?: string(name='odpsSpecCode', example='OdpsStandard'),
+          orderId?: string(name='orderId', example='45245678'),
+        }(name='billingPolicy'),
+        cluster?: string(name='cluster', example='AT-120N'),
+        createTime?: long(name='createTime', example='2022-09-06T02:14:44Z'),
+        creatorId?: string(name='creatorId', example='672863518'),
+        groupName?: string(name='groupName'),
+        id?: string(name='id', description='quota id', example='0'),
+        name?: string(name='name', example='quota_a'),
+        nickName?: string(name='nickName', example='quota_nickname'),
+        parameter?: map[string]any(name='parameter'),
+        parentId?: string(name='parentId', example='null'),
+        regionId?: string(name='regionId', example='cn-beijing'),
+        saleTag?: {
+          resourceIds?: [ string ](name='resourceIds'),
+          resourceType?: string(name='resourceType'),
+        }(name='saleTag'),
+        scheduleInfo?: {
+          currPlan?: string(name='currPlan', example='planA'),
+          currTime?: string(name='currTime', example='0800'),
+          nextPlan?: string(name='nextPlan', example='planB'),
+          nextTime?: string(name='nextTime', example='1700'),
+          oncePlan?: string(name='oncePlan', example='planC'),
+          onceTime?: string(name='onceTime', example='1500'),
+          operatorName?: string(name='operatorName', example='userA'),
+        }(name='scheduleInfo'),
+        status?: string(name='status', example='ON'),
+        subQuotaInfoList?: [ 
+          {
+            billingPolicy?: {
+              billingMethod?: string(name='billingMethod', example='subscription'),
+              odpsSpecCode?: string(name='odpsSpecCode', example='OdpsStandard'),
+              orderId?: string(name='orderId', example='45245678'),
+            }(name='billingPolicy'),
+            cluster?: string(name='cluster', example='AT-120N'),
+            createTime?: long(name='createTime', example='2022-09-06T02:14:44Z'),
+            creatorId?: string(name='creatorId', example='672863518'),
+            groupName?: string(name='groupName'),
+            id?: string(name='id', example='1000048'),
+            name?: string(name='name', example='subquotaA'),
+            nickName?: string(name='nickName', example='subquotaA'),
+            parameter?: map[string]any(name='parameter'),
+            parentId?: string(name='parentId', example='0'),
+            regionId?: string(name='regionId', example='cn-beijing'),
+            saleTag?: {
+              resourceIds?: [ string ](name='resourceIds'),
+              resourceType?: string(name='resourceType'),
+            }(name='saleTag'),
+            scheduleInfo?: {
+              currPlan?: string(name='currPlan', example='planA'),
+              currTime?: string(name='currTime', example='0800'),
+              nextPlan?: string(name='nextPlan', example='planB'),
+              nextTime?: string(name='nextTime', example='1700'),
+              oncePlan?: string(name='oncePlan', example='planC'),
+              onceTime?: string(name='onceTime', example='1500'),
+              operatorName?: string(name='operatorName', example='userA'),
+            }(name='scheduleInfo'),
+            status?: string(name='status', example='ON'),
+            tag?: string(name='tag', example='abc'),
+            tenantId?: string(name='tenantId', example='280747109771520'),
+            type?: string(name='type', example='FUXI_ONLINE'),
+            version?: string(name='version', example='1'),
+          }
+        ](name='subQuotaInfoList'),
+        tag?: string(name='tag', example='abc'),
+        tenantId?: string(name='tenantId', example='280747109771520'),
+        type?: string(name='type', example='FUXI_ONLINE'),
+        version?: string(name='version', example='1'),
+      }
+    ](name='quotaInfoList'),
+  }(name='data'),
+  marker?: string(name='marker', example='cHlvZHBzX3VkZl8xMDExNV8xNDU3NDI4NDkzKg=='),
+  maxItem?: long(name='maxItem', example='10'),
+  quotaInfoList?: [ 
+    {
+      tags?: [ 
+        {
+          tagKey?: string(name='TagKey'),
+          tagValue?: string(name='TagValue'),
+        }
+      ](name='Tags'),
+      billingPolicy?: {
+        billingMethod?: string(name='billingMethod', example='subscription'),
+        odpsSpecCode?: string(name='odpsSpecCode', example='OdpsStandard'),
+        orderId?: string(name='orderId', example='45245678'),
+      }(name='billingPolicy'),
+      cluster?: string(name='cluster', example='AT-120N'),
+      createTime?: long(name='createTime', example='2022-09-06T02:14:44Z'),
+      creatorId?: string(name='creatorId', example='672863518'),
+      groupName?: string(name='groupName'),
+      id?: string(name='id', description='quota ID', example='0'),
+      name?: string(name='name', example='quota_a'),
+      nickName?: string(name='nickName', example='quota_nickname'),
+      parameter?: map[string]any(name='parameter'),
+      parentId?: string(name='parentId', example='null'),
+      regionId?: string(name='regionId', example='cn-beijing'),
+      saleTag?: {
+        resourceIds?: [ string ](name='resourceIds'),
+        resourceType?: string(name='resourceType'),
+      }(name='saleTag'),
+      scheduleInfo?: {
+        currPlan?: string(name='currPlan', example='planA'),
+        currTime?: string(name='currTime', example='0800'),
+        nextPlan?: string(name='nextPlan', example='planB'),
+        nextTime?: string(name='nextTime', example='1700'),
+        oncePlan?: string(name='oncePlan', example='planC'),
+        onceTime?: string(name='onceTime', example='1500'),
+        operatorName?: string(name='operatorName', example='userA'),
+      }(name='scheduleInfo'),
+      status?: string(name='status', example='ON'),
+      subQuotaInfoList?: [ 
+        {
+          billingPolicy?: {
+            billingMethod?: string(name='billingMethod', example='subscription'),
+            odpsSpecCode?: string(name='odpsSpecCode', example='OdpsStandard'),
+            orderId?: string(name='orderId', example='45245678'),
+          }(name='billingPolicy'),
+          cluster?: string(name='cluster', example='AT-120N'),
+          createTime?: long(name='createTime', example='2022-09-06T02:14:44Z'),
+          creatorId?: string(name='creatorId', example='672863518'),
+          groupName?: string(name='groupName'),
+          id?: string(name='id', example='1000048'),
+          name?: string(name='name', example='subquotaA'),
+          nickName?: string(name='nickName', example='subquotaA'),
+          parameter?: map[string]any(name='parameter'),
+          parentId?: string(name='parentId', example='0'),
+          regionId?: string(name='regionId', example='cn-beijing'),
+          saleTag?: {
+            resourceIds?: [ string ](name='resourceIds'),
+            resourceType?: string(name='resourceType'),
+          }(name='saleTag'),
+          scheduleInfo?: {
+            currPlan?: string(name='currPlan', example='planA'),
+            currTime?: string(name='currTime', example='0800'),
+            nextPlan?: string(name='nextPlan', example='planB'),
+            nextTime?: string(name='nextTime', example='1700'),
+            oncePlan?: string(name='oncePlan', example='planC'),
+            onceTime?: string(name='onceTime', example='1500'),
+            operatorName?: string(name='operatorName', example='userA'),
+          }(name='scheduleInfo'),
+          status?: string(name='status', example='ON'),
+          tag?: string(name='tag', example='abc'),
+          tenantId?: string(name='tenantId', example='280747109771520'),
+          type?: string(name='type', example='FUXI_ONLINE'),
+          version?: string(name='version', example='1'),
+        }
+      ](name='subQuotaInfoList'),
+      tag?: string(name='tag', example='abc'),
+      tenantId?: string(name='tenantId', example='280747109771520'),
+      type?: string(name='type', example='FUXI_ONLINE'),
+      version?: string(name='version', example='1'),
     }
   ](name='quotaInfoList'),
+  requestId?: string(name='requestId', example='0bc12e6f16677875480593081d2956'),
 }
 
 model ListQuotasResponse = {
@@ -367,15 +1661,9 @@ model ListQuotasResponse = {
   body: ListQuotasResponseBody(name='body'),
 }
 
-async function listQuotas(request: ListQuotasRequest): ListQuotasResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listQuotasWithOptions(request, headers, runtime);
-}
-
 async function listQuotasWithOptions(request: ListQuotasRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListQuotasResponse {
   Util.validateModel(request);
-  var query : map[string]any= {};
+  var query : map[string]any = {};
   if (!Util.isUnset(request.billingType)) {
     query['billingType'] = request.billingType;
   }
@@ -390,6 +1678,9 @@ async function listQuotasWithOptions(request: ListQuotasRequest, headers: map[st
   }
   if (!Util.isUnset(request.region)) {
     query['region'] = request.region;
+  }
+  if (!Util.isUnset(request.saleTags)) {
+    query['saleTags'] = request.saleTags;
   }
   if (!Util.isUnset(request.tenantId)) {
     query['tenantId'] = request.tenantId;
@@ -413,28 +1704,100 @@ async function listQuotasWithOptions(request: ListQuotasRequest, headers: map[st
   return callApi(params, req, runtime);
 }
 
-model UpdateQuotaRequest {
-  body?: string(name='body'),
-  region?: string(name='region'),
-  tenantId?: string(name='tenantId'),
-}
-
-model UpdateQuotaResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: string(name='body'),
-}
-
-async function updateQuota(nickname: string, request: UpdateQuotaRequest): UpdateQuotaResponse {
+async function listQuotas(request: ListQuotasRequest): ListQuotasResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return updateQuotaWithOptions(nickname, request, headers, runtime);
+  return listQuotasWithOptions(request, headers, runtime);
 }
 
-async function updateQuotaWithOptions(nickname: string, request: UpdateQuotaRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateQuotaResponse {
+model ListQuotasPlansRequest {
+  region?: string(name='region', example='cn-beijing'),
+  tenantId?: string(name='tenantId', example='478403690625249'),
+}
+
+model ListQuotasPlansResponseBody = {
+  data?: {
+    planList?: [ 
+      {
+        createTime?: string(name='createTime', example='2022-05-16T06:07:45Z'),
+        name?: string(name='name', example='planA'),
+        quota?: {
+          billingPolicy?: {
+            billingMethod?: string(name='billingMethod', example='subscription'),
+            odpsSpecCode?: string(name='odpsSpecCode', example='OdpsStandard'),
+            orderId?: string(name='orderId', example='45245678'),
+          }(name='billingPolicy'),
+          cluster?: string(name='cluster', example='AT-120N'),
+          createTime?: long(name='createTime', example='2022-09-06T02:14:44Z'),
+          creatorId?: string(name='creatorId', example='672863518'),
+          id?: string(name='id', description='quota ID', example='0'),
+          name?: string(name='name', example='quota_a'),
+          nickName?: string(name='nickName', example='quota_nickname'),
+          parameter?: map[string]any(name='parameter'),
+          parentId?: string(name='parentId', example='null'),
+          regionId?: string(name='regionId', example='cn-beijing'),
+          scheduleInfo?: {
+            currPlan?: string(name='currPlan', example='planA'),
+            currTime?: string(name='currTime', example='0800'),
+            nextPlan?: string(name='nextPlan', example='planB'),
+            nextTime?: string(name='nextTime', example='1700'),
+            oncePlan?: string(name='oncePlan', example='planC'),
+            onceTime?: string(name='onceTime', example='1500'),
+            operatorName?: string(name='operatorName', example='userA'),
+          }(name='scheduleInfo'),
+          status?: string(name='status', example='ON'),
+          subQuotaInfoList?: [ 
+            {
+              billingPolicy?: {
+                billingMethod?: string(name='billingMethod', example='subscription'),
+                odpsSpecCode?: string(name='odpsSpecCode', example='OdpsStandard'),
+                orderId?: string(name='orderId', example='45245678'),
+              }(name='billingPolicy'),
+              cluster?: string(name='cluster', example='AT-120N'),
+              createTime?: long(name='createTime', example='2022-09-06T02:14:44Z'),
+              creatorId?: string(name='creatorId', example='672863518'),
+              id?: string(name='id', example='1000048'),
+              name?: string(name='name', example='subquotaA'),
+              nickName?: string(name='nickName', example='subquotaA'),
+              parameter?: map[string]any(name='parameter'),
+              parentId?: string(name='parentId', example='0'),
+              regionId?: string(name='regionId', example='cn-beijing'),
+              scheduleInfo?: {
+                currPlan?: string(name='currPlan', example='planA'),
+                currTime?: string(name='currTime', example='0800'),
+                nextPlan?: string(name='nextPlan', example='planB'),
+                nextTime?: string(name='nextTime', example='1700'),
+                oncePlan?: string(name='oncePlan', example='planC'),
+                onceTime?: string(name='onceTime', example='1500'),
+                operatorName?: string(name='operatorName', example='userA'),
+              }(name='scheduleInfo'),
+              status?: string(name='status', example='ON'),
+              tag?: string(name='tag', example='abc'),
+              tenantId?: string(name='tenantId', example='478403690625249'),
+              type?: string(name='type', example='FUXI_ONLINE'),
+              version?: string(name='version', example='1'),
+            }
+          ](name='subQuotaInfoList'),
+          tag?: string(name='tag', example='abc'),
+          tenantId?: string(name='tenantId', example='478403690625249'),
+          type?: string(name='type', example='FUXI_ONLINE'),
+          version?: string(name='version', example='1'),
+        }(name='quota'),
+      }
+    ](name='planList'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='0be3e0bd16661643917136451ebf55'),
+}
+
+model ListQuotasPlansResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListQuotasPlansResponseBody(name='body'),
+}
+
+async function listQuotasPlansWithOptions(nickname: string, request: ListQuotasPlansRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListQuotasPlansResponse {
   Util.validateModel(request);
-  nickname = OpenApiUtil.getEncodeParam(nickname);
-  var query : map[string]any= {};
+  var query : map[string]any = {};
   if (!Util.isUnset(request.region)) {
     query['region'] = request.region;
   }
@@ -444,6 +1807,629 @@ async function updateQuotaWithOptions(nickname: string, request: UpdateQuotaRequ
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListQuotasPlans',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}/plans`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listQuotasPlans(nickname: string, request: ListQuotasPlansRequest): ListQuotasPlansResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listQuotasPlansWithOptions(nickname, request, headers, runtime);
+}
+
+model ListResourcesRequest {
+  marker?: string(name='marker', example='cHlvZHBzX3VkZl8xMDExNV8xNDU3NDI4NDkzKg=='),
+  maxItem?: int32(name='maxItem', example='10'),
+  name?: string(name='name', example='res'),
+}
+
+model ListResourcesResponseBody = {
+  data?: {
+    marker?: string(name='marker', example='ZmN0X21vbnRoX3Rhb2Jhb19pbmRleCE='),
+    maxItem?: int32(name='maxItem', example='10'),
+    resources?: [ 
+      {
+        creationTime?: long(name='creationTime', example='2022-01-29T03:34:09Z'),
+        name?: string(name='name', example='res_1'),
+        owner?: string(name='owner', example='1265860483008101'),
+        schema?: string(name='schema', example='schemaA'),
+        type?: string(name='type', example='file'),
+      }
+    ](name='resources'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='0bc3b4ae16685836687916212e7850'),
+}
+
+model ListResourcesResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListResourcesResponseBody(name='body'),
+}
+
+async function listResourcesWithOptions(projectName: string, request: ListResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListResourcesResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.marker)) {
+    query['marker'] = request.marker;
+  }
+  if (!Util.isUnset(request.maxItem)) {
+    query['maxItem'] = request.maxItem;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['name'] = request.name;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListResources',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/resources`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listResources(projectName: string, request: ListResourcesRequest): ListResourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listResourcesWithOptions(projectName, request, headers, runtime);
+}
+
+model ListRolesResponseBody = {
+  data?: {
+    roles?: [ 
+      {
+        acl?: {
+          function?: [ 
+            {
+              actions?: [ string ](name='actions'),
+              name?: string(name='name', example='functionA'),
+            }
+          ](name='function'),
+          instance?: [ 
+            {
+              actions?: [ string ](name='actions'),
+              name?: string(name='name', example='instanceA'),
+            }
+          ](name='instance'),
+          package?: [ 
+            {
+              actions?: [ string ](name='actions'),
+              name?: string(name='name', example='packageA'),
+            }
+          ](name='package', description='Package'),
+          project?: [ 
+            {
+              actions?: [ string ](name='actions'),
+              name?: string(name='name', example='projectA'),
+            }
+          ](name='project'),
+          resource?: [ 
+            {
+              actions?: [ string ](name='actions'),
+              name?: string(name='name', example='resourceA'),
+            }
+          ](name='resource'),
+          table?: [ 
+            {
+              actions?: [ string ](name='actions'),
+              name?: string(name='name', example='tableA'),
+            }
+          ](name='table'),
+        }(name='acl'),
+        name?: string(name='name', example='roleA'),
+        policy?: string(name='policy', example='{
+      "Statement": [
+            {
+                  "Action": [
+                        "odps:*"
+                  ],
+                  "Effect": "Allow",
+                  "Resource": [
+                        "acs:odps:*:projects/{projectname}/authorization/packages"
+                  ]
+            }
+      ],
+      "Version": "1"
+}'),
+        type?: string(name='type', example='admin'),
+      }
+    ](name='roles'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='0a06dfe716686526652451361e80ae'),
+}
+
+model ListRolesResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListRolesResponseBody(name='body'),
+}
+
+async function listRolesWithOptions(projectName: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListRolesResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ListRoles',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/roles`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listRoles(projectName: string): ListRolesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listRolesWithOptions(projectName, headers, runtime);
+}
+
+model ListTablesRequest {
+  marker?: string(name='marker', example='Y29tbWlzc2lvbl9leHRlcm5hbF91cmdlXzFfd3Ih'),
+  maxItem?: int32(name='maxItem', example='10'),
+  prefix?: string(name='prefix', example='a'),
+  type?: string(name='type', example='internal'),
+}
+
+model ListTablesResponseBody = {
+  data?: {
+    marker?: string(name='marker', example='cHlvZHBzX3VkZl8xMDExNV8xNDU3NDI4NDkzKg=='),
+    maxItem?: int32(name='maxItem', example='10'),
+    tables?: [ 
+      {
+        creationTime?: long(name='creationTime', example='2022-01-17T07:07:47Z'),
+        name?: string(name='name', example='dim_odps'),
+        owner?: string(name='owner', example='1887853961230110'),
+        schema?: string(name='schema', example='default'),
+        type?: string(name='type', example='internal'),
+      }
+    ](name='tables'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='0a06dd4516687375802853481ec9fd'),
+}
+
+model ListTablesResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListTablesResponseBody(name='body'),
+}
+
+async function listTablesWithOptions(projectName: string, request: ListTablesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTablesResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.marker)) {
+    query['marker'] = request.marker;
+  }
+  if (!Util.isUnset(request.maxItem)) {
+    query['maxItem'] = request.maxItem;
+  }
+  if (!Util.isUnset(request.prefix)) {
+    query['prefix'] = request.prefix;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListTables',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/tables`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listTables(projectName: string, request: ListTablesRequest): ListTablesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listTablesWithOptions(projectName, request, headers, runtime);
+}
+
+model ListUsersRequest {
+  pageNumber?: int32(name='pageNumber', example='1'),
+  pageSize?: int32(name='pageSize', example='10'),
+}
+
+model ListUsersResponseBody = {
+  data?: {
+    pageNumber?: int32(name='pageNumber', example='2'),
+    pageSize?: int32(name='pageSize', example='10'),
+    totalCount?: int32(name='totalCount', example='64'),
+    users?: [ 
+      {
+        accountId?: string(name='accountId', example='167835629082'),
+        accountName?: string(name='accountName', example='Bob@'),
+        accountType?: string(name='accountType', example='ALIYUN'),
+        displayName?: string(name='displayName', example='Bob'),
+        tenantId?: string(name='tenantId', example='1567253789'),
+      }
+    ](name='users'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='0a06dd4816687424611405643e3730'),
+}
+
+model ListUsersResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListUsersResponseBody(name='body'),
+}
+
+async function listUsersWithOptions(request: ListUsersRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListUsersResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListUsers',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/users`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listUsers(request: ListUsersRequest): ListUsersResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listUsersWithOptions(request, headers, runtime);
+}
+
+model ListUsersByRoleResponseBody = {
+  data?: {
+    users?: [ 
+      {
+        name?: string(name='name', example='ALIYUN${account_name}'),
+      }
+    ](name='users'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='0be3e0bb16654558425251398e27a9'),
+}
+
+model ListUsersByRoleResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListUsersByRoleResponseBody(name='body'),
+}
+
+async function listUsersByRoleWithOptions(projectName: string, roleName: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListUsersByRoleResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ListUsersByRole',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/roles/${OpenApiUtil.getEncodeParam(roleName)}/users`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listUsersByRole(projectName: string, roleName: string): ListUsersByRoleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listUsersByRoleWithOptions(projectName, roleName, headers, runtime);
+}
+
+model UpdatePackageRequest {
+  body?: string(name='body', example='{
+    "add": {
+        "allowedProjectList": [
+            {
+                "label": "2",
+                "project": "project_name"
+            }
+        ],
+        "resourceList": {
+            "table": [
+                {
+                    "name": "table_name",
+                    "actions": [
+                        "Describe",
+                        "Select"
+                    ]
+                },
+                {
+                    "name": "table_name",
+                    "actions": [
+                        "Describe",
+                        "Select"
+                    ]
+                }
+            ],
+            "resource": [
+                {
+                    "name": "",
+                    "actions": []
+                },
+                {
+                    "name": "",
+                    "actions": []
+                }
+            ],
+            "function": [
+                {
+                    "name": "",
+                    "actions": []
+                },
+                {
+                    "name": "",
+                    "actions": []
+                }
+            ]
+        }
+    },
+    "remove": {
+        "allowedProjectList": [
+            {
+                "project": "project_name"
+            },
+            {
+                "project": "project_2"
+            }
+        ],
+        "resourceList": {
+            "table": [
+                {
+                    "name": "table_name"
+                },
+                {
+                    "name": "table_name"
+                }
+            ],
+            "resource": [
+                {
+                    "name": ""
+                },
+                {
+                    "name": ""
+                }
+            ],
+            "function": [
+                {
+                    "name": ""
+                },
+                {
+                    "name": ""
+                }
+            ]
+        }
+    }
+}'),
+}
+
+model UpdatePackageResponseBody = {
+  data?: string(name='data', example='success'),
+  requestId?: string(name='requestId', example='0bc1ec4016697018733156991e0888'),
+}
+
+model UpdatePackageResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdatePackageResponseBody(name='body'),
+}
+
+async function updatePackageWithOptions(projectName: string, packageName: string, request: UpdatePackageRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdatePackageResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = request.body,
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdatePackage',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/packages/${OpenApiUtil.getEncodeParam(packageName)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function updatePackage(projectName: string, packageName: string, request: UpdatePackageRequest): UpdatePackageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updatePackageWithOptions(projectName, packageName, request, headers, runtime);
+}
+
+model UpdateProjectIpWhiteListRequest {
+  body?: string(name='body'),
+}
+
+model UpdateProjectIpWhiteListResponseBody = {
+  data?: string(name='data', example='success'),
+  requestId?: string(name='requestId', example='0bc12e4316675560945192024e1044'),
+}
+
+model UpdateProjectIpWhiteListResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateProjectIpWhiteListResponseBody(name='body'),
+}
+
+async function updateProjectIpWhiteListWithOptions(projectName: string, request: UpdateProjectIpWhiteListRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateProjectIpWhiteListResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = request.body,
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateProjectIpWhiteList',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/ipWhiteList`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function updateProjectIpWhiteList(projectName: string, request: UpdateProjectIpWhiteListRequest): UpdateProjectIpWhiteListResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateProjectIpWhiteListWithOptions(projectName, request, headers, runtime);
+}
+
+model UpdateQuotaHeaders {
+  commonHeaders?: map[string]string,
+  akProven?: string(name='AkProven', example='null'),
+}
+
+model UpdateQuotaRequest {
+  body?: string(name='body', example='{
+    "id": "0",
+    "name": "a",
+    "nickName": "VIRTUAL",
+    "type": "",
+    "status": "ON",
+    "tenantId": "10001",
+    "regionId": "cn-hangzhou",
+    "parentId": "0",
+    "cluster": "AT-ODPS-TEST3",
+    "version":"",
+    "billingPolicy": {
+        "odpsSpecCode": "",
+        "billingMethod": "subscription"
+    },
+    "parameter": {
+        "minCU": 40,
+        "maxCU": 40,
+        "adhocCU": 0,
+        "elasticMinCU": 40,
+        "elasticMaxCU": 40,
+        "enablePreemptiveScheduling": false,
+        "forceReservedMin":true,
+        "enablePriority":false,
+        "singleJobCULimit":100,
+        "adhocQuotaBeginTimeInSec": 1345,
+        "adhocQuotaEndTimeInSec": 1234,
+        "ignoreAdhocQuota":false
+    },
+    "subQuotaInfoList": [
+        {
+            "id": "1000048",
+            "nickName": "WlmFuxiSecondaryOnlineQuotaTest",
+            "name": "WlmFuxiSecondaryOnlineQuotaTest",
+            "type": "FUXI_ONLINE",
+            "status": "ON",
+            "tenantId": "10001",
+            "regionId": "cn-hangzhou",
+            "parentId": "0",
+            "cluster": "AT-ODPS-TEST3",
+            "version":"",
+            "billingPolicy": {
+                "odpsSpecCode": "",
+                "billingMethod": "subscription"
+            },
+            "parameter": {
+                "minCU": 40,
+                "maxCU": 40,
+                "adhocCU": 0,
+                "elasticMinCU": 40,
+                "elasticMaxCU": 40,
+                "enablePreemptiveScheduling": false,
+                "forceReservedMin":true,
+                "enablePriority":false,
+                "singleJobCULimit":100,
+                "adhocQuotaBeginTimeInSec": 1345,
+                "adhocQuotaEndTimeInSec": 1234,
+                "ignoreAdhocQuota":false
+            }
+        }
+    ]
+}'),
+  region?: string(name='region', example='cn-shanghai'),
+  tenantId?: string(name='tenantId', example='196871833188896'),
+}
+
+model UpdateQuotaResponseBody = {
+  data?: string(name='data', example='success'),
+  requestId?: string(name='requestId', example='0bc12e6a16679892465424670db3eb'),
+}
+
+model UpdateQuotaResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateQuotaResponseBody(name='body'),
+}
+
+async function updateQuotaWithOptions(nickname: string, request: UpdateQuotaRequest, headers: UpdateQuotaHeaders, runtime: Util.RuntimeOptions): UpdateQuotaResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.region)) {
+    query['region'] = request.region;
+  }
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.akProven)) {
+    realHeaders['AkProven'] = Util.toJSONString(headers.akProven);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
     query = OpenApiUtil.query(query),
     body = request.body,
   };
@@ -451,38 +2437,42 @@ async function updateQuotaWithOptions(nickname: string, request: UpdateQuotaRequ
     action = 'UpdateQuota',
     version = '2022-01-04',
     protocol = 'HTTPS',
-    pathname = `/api/v1/quotas/${nickname}`,
+    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
-    bodyType = 'string',
+    bodyType = 'json',
   };
   return callApi(params, req, runtime);
 }
 
-model UpdateSubQuotasRequest {
-  body?: string(name='body'),
-  region?: string(name='region'),
-  tenantId?: string(name='tenantId'),
+async function updateQuota(nickname: string, request: UpdateQuotaRequest): UpdateQuotaResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new UpdateQuotaHeaders{};
+  return updateQuotaWithOptions(nickname, request, headers, runtime);
 }
 
-model UpdateSubQuotasResponse = {
+model UpdateQuotaPlanRequest {
+  body?: string(name='body'),
+  region?: string(name='region', example='cn-hangzhou'),
+  tenantId?: string(name='tenantId', example='478403690625249'),
+}
+
+model UpdateQuotaPlanResponseBody = {
+  data?: string(name='data', example='success'),
+  requestId?: string(name='requestId', example='0a06dfe516688379832875789e2c65'),
+}
+
+model UpdateQuotaPlanResponse = {
   headers: map[string]string(name='headers'),
   statusCode: int32(name='statusCode'),
-  body: string(name='body'),
+  body: UpdateQuotaPlanResponseBody(name='body'),
 }
 
-async function updateSubQuotas(nickname: string, request: UpdateSubQuotasRequest): UpdateSubQuotasResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateSubQuotasWithOptions(nickname, request, headers, runtime);
-}
-
-async function updateSubQuotasWithOptions(nickname: string, request: UpdateSubQuotasRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateSubQuotasResponse {
+async function updateQuotaPlanWithOptions(nickname: string, planName: string, request: UpdateQuotaPlanRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateQuotaPlanResponse {
   Util.validateModel(request);
-  nickname = OpenApiUtil.getEncodeParam(nickname);
-  var query : map[string]any= {};
+  var query : map[string]any = {};
   if (!Util.isUnset(request.region)) {
     query['region'] = request.region;
   }
@@ -496,16 +2486,74 @@ async function updateSubQuotasWithOptions(nickname: string, request: UpdateSubQu
     body = request.body,
   };
   var params = new OpenApi.Params{
-    action = 'UpdateSubQuotas',
+    action = 'UpdateQuotaPlan',
     version = '2022-01-04',
     protocol = 'HTTPS',
-    pathname = `/api/v1/quotas/${nickname}/subquotas`,
+    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}/plans/${OpenApiUtil.getEncodeParam(planName)}`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
-    bodyType = 'string',
+    bodyType = 'json',
   };
   return callApi(params, req, runtime);
+}
+
+async function updateQuotaPlan(nickname: string, planName: string, request: UpdateQuotaPlanRequest): UpdateQuotaPlanResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateQuotaPlanWithOptions(nickname, planName, request, headers, runtime);
+}
+
+model UpdateQuotaScheduleRequest {
+  body?: string(name='body'),
+  region?: string(name='region', example='cn-chengdu'),
+  tenantId?: string(name='tenantId', example='478403690625249'),
+}
+
+model UpdateQuotaScheduleResponseBody = {
+  data?: string(name='data', example='success'),
+  requestId?: string(name='requestId', example='0a06dfe516691014920015940e1c9d'),
+}
+
+model UpdateQuotaScheduleResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateQuotaScheduleResponseBody(name='body'),
+}
+
+async function updateQuotaScheduleWithOptions(nickname: string, request: UpdateQuotaScheduleRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateQuotaScheduleResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.region)) {
+    query['region'] = request.region;
+  }
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = request.body,
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateQuotaSchedule',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}/schedule`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function updateQuotaSchedule(nickname: string, request: UpdateQuotaScheduleRequest): UpdateQuotaScheduleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateQuotaScheduleWithOptions(nickname, request, headers, runtime);
 }
 
