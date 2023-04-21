@@ -204,13 +204,13 @@ model MachineGroup {
 
 model Project {
   createTime?: string(name='createTime', description='创建时间'),
+  description: string(name='description', description='描述'),
   lastModifyTime?: string(name='lastModifyTime', description='最后更新时间'),
-  projectDesc: string(name='projectDesc', description='描述'),
+  owner?: string(name='owner', description='project owner'),
   projectName: string(name='projectName', description='Project名称'),
-  projectOwner?: string(name='projectOwner', description='owner'),
-  projectStatus?: string(name='projectStatus', description='状态'),
   region?: string(name='region', description='所在区域'),
   resourceGroupId?: string(name='resourceGroupId', description='资源组Id'),
+  status?: string(name='status', description='状态'),
 }
 
 model Shard {
@@ -249,6 +249,24 @@ model ChangeResourceGroupResponse = {
 async function changeResourceGroup(request: ChangeResourceGroupRequest): ChangeResourceGroupResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ChangeResourceGroup', 'PUT', '/resourcegroup', 'none', false, 'json', request);
+}
+
+model ConsumerGroupHeartBeatRequest {
+  project: string(name='project', position='Host'),
+  logstore: string(name='logstore', example='ali-test-logstore', position='Path'),
+  consumerGroup: string(name='consumerGroup', example='consumer_group_test', position='Path'),
+  body: [ int32 ](name='body', position='Body'),
+  consumer: string(name='consumer', example='consumer_1', position='Query'),
+}
+
+model ConsumerGroupHeartBeatResponse = {
+  headers: map[string]string(name='headers'),
+  body: [ int32 ](name='body'),
+}
+
+async function consumerGroupHeartBeat(request: ConsumerGroupHeartBeatRequest): ConsumerGroupHeartBeatResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ConsumerGroupHeartBeat', 'POST', '/logstores/{logstore}/consumergroups/{consumerGroup}?type=heartbeat', 'json', false, 'json', request);
 }
 
 model CreateConsumerGroupRequest {
@@ -474,9 +492,9 @@ json 格式
 }'),
       format: string(name='format', description='支持 json、csv、parquet 三种', example='parquet'),
     }(name='storage', description='存储格式配置。'),
-    timeZone?: string(name='timeZone', description='时区，默认取值为空字符串。可取值的格式为 +8 、-6 等。', example='+8'),
+    timeZone?: string(name='timeZone', description='时区，默认取值为空字符串。可取值的格式为 +8000 等。', example='+8'),
   }(name='targetConfiguration', position='Body'),
-  targetType: string(name='targetType', description='投递目标的类型，这里固定为 odps。', example='odps', position='Body'),
+  targetType: string(name='targetType', description='投递目标的类型，这里固定为 oss。', example='odps', position='Body'),
 }
 
 model CreateOssShipperResponse = {
@@ -512,7 +530,7 @@ model CreateRdsExternalStoreRequest {
     instanceId?: string(name='instance-id', description='RDS MySQL实例ID。', example='i-bp1b6c719dfa08exf****'),
     password: string(name='password', description='RDS MySQL实例中账号对应的密码。', example='sfdsfldsfksfls****'),
     port: string(name='port', description='RDS MySQL实例的内网或者外网端口。', example='3306'),
-    region: string(name='region', description='RDS MySQL实例所在地域，目前仅支持cn-qingdao、cn-beijing、cn-hangzhou。', example='cn-qingdao'),
+    region: string(name='region', description='RDS MySQL实例所在地域。', example='cn-qingdao'),
     table: string(name='table', description='RDS MySQL实例的数据库表名称。', example='join_meta'),
     username: string(name='username', description='RDS MySQL实例中的账号名称。', example='root'),
     vpcId?: string(name='vpc-id', description='RDS MySQL实例所属的VPC ID。', example='vpc-bp1aevy8sofi8mh1q****'),
@@ -1015,7 +1033,7 @@ async function getMachineGroup(request: GetMachineGroupRequest): GetMachineGroup
 }
 
 model GetProjectRequest {
-  project: string(name='project', example='my-project-test', position='Query'),
+  project: string(name='project', example='my-project-test', position='Host'),
 }
 
 model GetProjectResponse = {
@@ -1256,6 +1274,7 @@ async function listMachines(request: ListMachinesRequest): ListMachinesResponse 
 }
 
 model ListProjectRequest {
+  resourceGroupId?: string(name='resourceGroupId', position='Path'),
   offset?: int32(name='offset', example='0', position='Query'),
   projectName?: string(name='projectName', example='ali-test-project', position='Query'),
   size?: int32(name='size', description='默认值为 500。', example='10', position='Query'),
