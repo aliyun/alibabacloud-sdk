@@ -58,6 +58,13 @@ model AddressGroup {
   name?: string(name='name'),
 }
 
+model BenefitPkgDeliveryInfo {
+  amount?: long(name='amount'),
+  createdAt?: string(name='created_at'),
+  expireTime?: string(name='expire_time'),
+  isPermanent?: boolean(name='is_permanent'),
+}
+
 model Domain {
   createdAt?: string(name='created_at'),
   description?: string(name='description'),
@@ -174,6 +181,22 @@ model Group {
 model Identity {
   identityId?: string(name='identity_id'),
   identityType?: string(name='identity_type', example='IT_User'),
+}
+
+model IdentityToBenefitPkgMapping {
+  benefitPkgComputationRule?: string(name='benefit_pkg_computation_rule'),
+  benefitPkgId?: string(name='benefit_pkg_id'),
+  benefitPkgName?: string(name='benefit_pkg_name'),
+  benefitPkgOwnerId?: string(name='benefit_pkg_owner_id'),
+  benefitPkgPriority?: long(name='benefit_pkg_priority'),
+  benefitPkgType?: string(name='benefit_pkg_type'),
+  createdAt?: string(name='created_at'),
+  deliveryInfoList?: [
+    BenefitPkgDeliveryInfo
+  ](name='delivery_info_list'),
+  identityId?: string(name='identity_id'),
+  identityType?: string(name='identity_type'),
+  updatedAt?: string(name='updated_at'),
 }
 
 model ImageMediaMetadata {
@@ -701,8 +724,8 @@ model CopyFileRequest {
   autoRename?: boolean(name='auto_rename', example='true'),
   driveId?: string(name='drive_id', example='1'),
   fileId?: string(name='file_id', example='4221bf6e6ab43c255edc4463bf3a6f5f5d317406'),
-  shareId?: string(name='share_id'),
-  toDriveId?: string(name='to_drive_id'),
+  shareId?: string(name='share_id', example='7JQX1FswpQ8'),
+  toDriveId?: string(name='to_drive_id', example='1'),
   toParentFileId?: string(name='to_parent_file_id', example='6520943DC261'),
 }
 
@@ -835,7 +858,7 @@ model CreateDriveRequest {
   description?: string(name='description'),
   driveName?: string(name='drive_name', example='my_drive'),
   driveType?: string(name='drive_type', example='normal'),
-  owner?: string(name='owner', example='userid1'),
+  owner?: string(name='owner'),
   ownerType?: string(name='owner_type', example='user'),
   status?: string(name='status', example='enabled'),
   totalSize?: long(name='total_size', example='1024'),
@@ -1100,6 +1123,62 @@ async function createGroup(request: CreateGroupRequest): CreateGroupResponse {
   return createGroupWithOptions(request, headers, runtime);
 }
 
+model CreateIdentityToBenefitPkgMappingRequest {
+  amount?: long(name='amount', example='1'),
+  benefitPkgId?: string(name='benefit_pkg_id', example='40cb7794c9294'),
+  expireTime?: long(name='expire_time', example='1633167071000'),
+  identityId?: string(name='identity_id', example='user123'),
+  identityType?: string(name='identity_type', example='user'),
+}
+
+model CreateIdentityToBenefitPkgMappingResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function createIdentityToBenefitPkgMappingWithOptions(request: CreateIdentityToBenefitPkgMappingRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateIdentityToBenefitPkgMappingResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.amount)) {
+    body['amount'] = request.amount;
+  }
+  if (!Util.isUnset(request.benefitPkgId)) {
+    body['benefit_pkg_id'] = request.benefitPkgId;
+  }
+  if (!Util.isUnset(request.expireTime)) {
+    body['expire_time'] = request.expireTime;
+  }
+  if (!Util.isUnset(request.identityId)) {
+    body['identity_id'] = request.identityId;
+  }
+  if (!Util.isUnset(request.identityType)) {
+    body['identity_type'] = request.identityType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateIdentityToBenefitPkgMapping',
+    version = '2022-03-01',
+    protocol = 'HTTPS',
+    pathname = `/v2/benefit/identity_to_benefit_pkg_mapping/create`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+async function createIdentityToBenefitPkgMapping(request: CreateIdentityToBenefitPkgMappingRequest): CreateIdentityToBenefitPkgMappingResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createIdentityToBenefitPkgMappingWithOptions(request, headers, runtime);
+}
+
 model CreateShareLinkRequest {
   description?: string(name='description'),
   disableDownload?: boolean(name='disable_download', example='false'),
@@ -1111,7 +1190,7 @@ model CreateShareLinkRequest {
   fileIdList?: [ string ](name='file_id_list', example='["520b217f13adf4fc24f2191991b1664ce045b393"]'),
   previewLimit?: long(name='preview_limit', example='100'),
   saveLimit?: long(name='save_limit', example='100'),
-  shareAllFiles?: boolean(name='share_all_files'),
+  shareAllFiles?: boolean(name='share_all_files', example='true'),
   shareName?: string(name='share_name'),
   sharePwd?: string(name='share_pwd', example='abcF123x'),
   userId?: string(name='user_id', example='u123'),
@@ -1664,7 +1743,7 @@ model DownloadFileRequest {
   fileId?: string(name='file_id', example='9520943DC264'),
   imageThumbnailProcess?: string(name='image_thumbnail_process', example='image/resize,m_fill,h_128,w_128,limit_0'),
   officeThumbnailProcess?: string(name='office_thumbnail_process', example='image/resize,w_200'),
-  shareId?: string(name='share_id'),
+  shareId?: string(name='share_id', example='7JQX1FswpQ8'),
   videoThumbnailProcess?: string(name='video_thumbnail_process', example='video/snapshot,t_7000,f_jpg,w_800,h_600,m_fast'),
 }
 
@@ -1876,7 +1955,7 @@ model FilePutUserTagsRequest {
 }
 
 model FilePutUserTagsResponseBody = {
-  fileId?: string(name='file_id', description='file id', example='9520943DC264'),
+  fileId?: string(name='file_id', example='9520943DC264'),
 }
 
 model FilePutUserTagsResponse = {
@@ -1923,14 +2002,40 @@ async function filePutUserTags(request: FilePutUserTagsRequest): FilePutUserTags
 }
 
 model FileRemovePermissionRequest {
-  driveId?: string(name='drive_id'),
-  fileId?: string(name='file_id'),
+  driveId?: string(name='drive_id', description='空间id', example='1'),
+  fileId?: string(name='file_id', description='文件id', example='4221bf6e6ab43c255edc4463bf3a6f5f5d317406'),
   memberList?: [ 
     {
-      identity?: Identity(name='identity'),
-      roleId?: string(name='role_id'),
+      identity?: Identity(name='identity', description='可授权对象，表示一个用户或者一个群组'),
+      roleId?: string(name='role_id', description='目前支持两种方式设置权限，一种是通过指定角色设置权限，另一种是自定义操作权限，此字段用于指定角色设置权限，与action\\_list互斥，当两个字段同时设置时，以此字段为准
+
+目前支持：
+
+SystemFileOwner（文件协同）
+
+SystemFileDownloader（下载者）
+
+SystemFileEditor（编辑者）
+
+SystemFileEditorWithoutDelete（无删除编辑者）
+
+SystemFileEditorWithoutShareLink（无分享编辑者）
+
+SystemFileMetaViewer（可见列表）
+
+SystemFileUploader（上传者）、SystemFileUploaderAndDownloader（上传/下载者）
+
+SystemFileDownloaderWithShareLink（下载/分享者）
+
+SystemFileUploaderAndDownloaderWithShareLink（上传/下载/分享者）
+
+SystemFileUploaderAndViewer（预览/上传者）
+
+SystemFileUploaderWithShareLink（上传/分享者）
+
+SystemFileViewer（预览者）', example='SystemFileDownloader'),
     }
-  ](name='member_list'),
+  ](name='member_list', description='共享的用户对象集合'),
 }
 
 model FileRemovePermissionResponse = {
@@ -2117,7 +2222,7 @@ model GetDownloadUrlRequest {
   expireSec?: int32(name='expire_sec', example='100'),
   fileId?: string(name='file_id', example='9520943DC264'),
   fileName?: string(name='file_name', example='1.txt'),
-  shareId?: string(name='share_id'),
+  shareId?: string(name='share_id', example='7JQX1FswpQ8'),
 }
 
 model GetDownloadUrlResponseBody = {
@@ -2225,7 +2330,7 @@ model GetFileRequest {
   driveId?: string(name='drive_id', example='1'),
   fields?: string(name='fields', example='*'),
   fileId?: string(name='file_id', example='9520943DC264'),
-  shareId?: string(name='share_id'),
+  shareId?: string(name='share_id', example='7JQX1FswpQ8'),
   urlExpireSec?: int32(name='url_expire_sec', example='100'),
 }
 
@@ -2319,8 +2424,57 @@ async function getGroup(request: GetGroupRequest): GetGroupResponse {
   return getGroupWithOptions(request, headers, runtime);
 }
 
+model GetIdentityToBenefitPkgMappingRequest {
+  benefitPkgId?: string(name='benefit_pkg_id', example='40cb7794c9294'),
+  identityId?: string(name='identity_id', example='user123'),
+  identityType?: string(name='identity_type', example='user'),
+}
+
+model GetIdentityToBenefitPkgMappingResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: IdentityToBenefitPkgMapping  
+}
+
+async function getIdentityToBenefitPkgMappingWithOptions(request: GetIdentityToBenefitPkgMappingRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetIdentityToBenefitPkgMappingResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.benefitPkgId)) {
+    body['benefit_pkg_id'] = request.benefitPkgId;
+  }
+  if (!Util.isUnset(request.identityId)) {
+    body['identity_id'] = request.identityId;
+  }
+  if (!Util.isUnset(request.identityType)) {
+    body['identity_type'] = request.identityType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetIdentityToBenefitPkgMapping',
+    version = '2022-03-01',
+    protocol = 'HTTPS',
+    pathname = `/v2/benefit/identity_to_benefit_pkg_mapping/get`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+async function getIdentityToBenefitPkgMapping(request: GetIdentityToBenefitPkgMappingRequest): GetIdentityToBenefitPkgMappingResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getIdentityToBenefitPkgMappingWithOptions(request, headers, runtime);
+}
+
 model GetLinkInfoRequest {
-  extra?: string(name='extra', example='86'),
+  extra?: string(name='extra'),
   identity?: string(name='identity', example='130***'),
   type?: string(name='type', example='mobile'),
 }
@@ -2638,9 +2792,9 @@ model GetUploadUrlRequest {
     {
       parallelSha1Ctx?: {
         h?: [ long ](name='h'),
-        partOffset?: long(name='part_offset'),
+        partOffset?: long(name='part_offset', example='10240'),
       }(name='parallel_sha1_ctx'),
-      partNumber?: int32(name='part_number'),
+      partNumber?: int32(name='part_number', example='1'),
     }
   ](name='part_info_list'),
   shareId?: string(name='share_id', example='7JQX1FswpQ8'),
@@ -2755,7 +2909,8 @@ model GetVideoPreviewPlayInfoRequest {
   getWithoutUrl?: boolean(name='get_without_url', example='true'),
   shareId?: string(name='share_id', example='7JQX1FswpQ8'),
   templateId?: string(name='template_id', example='264_480p'),
-  urlExpireSec?: long(name='url_expire_sec'),
+  urlExpireSec?: long(name='url_expire_sec', description='url超时时间，单位：秒。
+默认15分钟，最大4小时。', example='3600'),
 }
 
 model GetVideoPreviewPlayInfoResponseBody = {
@@ -2998,8 +3153,8 @@ async function investigateFile(request: InvestigateFileRequest): InvestigateFile
 
 model LinkAccountRequest {
   extra?: string(name='extra', example='86'),
-  identity?: string(name='identity', example='130***'),
-  type?: string(name='type', example='mobile'),
+  identity?: string(name='identity'),
+  type?: string(name='type'),
   userId?: string(name='user_id', example='xxx'),
 }
 
@@ -3363,7 +3518,7 @@ model ListFileRequest {
   orderBy?: string(name='order_by', example='updated_at'),
   orderDirection?: string(name='order_direction', example='ASC'),
   parentFileId?: string(name='parent_file_id', example='root'),
-  shareId?: string(name='share_id'),
+  shareId?: string(name='share_id', example='7JQX1FswpQ8'),
   status?: string(name='status', example='available'),
   type?: string(name='type', example='file'),
 }
@@ -3558,6 +3713,61 @@ async function listGroupMember(domainId: string, request: ListGroupMemberRequest
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return listGroupMemberWithOptions(domainId, request, headers, runtime);
+}
+
+model ListIdentityToBenefitPkgMappingRequest {
+  identityId?: string(name='identity_id', example='user123'),
+  identityType?: string(name='identity_type', example='user'),
+  includeExpired?: boolean(name='include_expired', example='false'),
+}
+
+model ListIdentityToBenefitPkgMappingResponseBody = {
+  items?: [
+    IdentityToBenefitPkgMapping
+  ](name='items'),
+}
+
+model ListIdentityToBenefitPkgMappingResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListIdentityToBenefitPkgMappingResponseBody(name='body'),
+}
+
+async function listIdentityToBenefitPkgMappingWithOptions(request: ListIdentityToBenefitPkgMappingRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListIdentityToBenefitPkgMappingResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.identityId)) {
+    body['identity_id'] = request.identityId;
+  }
+  if (!Util.isUnset(request.identityType)) {
+    body['identity_type'] = request.identityType;
+  }
+  if (!Util.isUnset(request.includeExpired)) {
+    body['include_expired'] = request.includeExpired;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListIdentityToBenefitPkgMapping',
+    version = '2022-03-01',
+    protocol = 'HTTPS',
+    pathname = `/v2/benefit/identity_to_benefit_pkg_mapping/list`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+async function listIdentityToBenefitPkgMapping(request: ListIdentityToBenefitPkgMappingRequest): ListIdentityToBenefitPkgMappingResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listIdentityToBenefitPkgMappingWithOptions(request, headers, runtime);
 }
 
 model ListMyDrivesRequest {
@@ -4204,7 +4414,7 @@ async function parseKeywords(request: ParseKeywordsRequest): ParseKeywordsRespon
 
 model RemoveFaceGroupFileRequest {
   driveId?: string(name='drive_id', example='123'),
-  faceGroupId?: string(name='face_group_id'),
+  faceGroupId?: string(name='face_group_id', example='Cluster-abc'),
   fileId?: string(name='file_id', example='abcd'),
 }
 
@@ -5065,7 +5275,8 @@ model UpdateDriveRequest {
   description?: string(name='description'),
   driveId?: string(name='drive_id', example='1'),
   driveName?: string(name='drive_name', example='my_drive'),
-  owner?: string(name='owner'),
+  owner?: string(name='owner', description='归属者
+注意，当前只允许通过 ak 来修改个人 drive 的所有者。', example='user1'),
   status?: string(name='status', example='enabled'),
   totalSize?: long(name='total_size', example='10240'),
 }
@@ -5304,6 +5515,62 @@ async function updateGroup(request: UpdateGroupRequest): UpdateGroupResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateGroupWithOptions(request, headers, runtime);
+}
+
+model UpdateIdentityToBenefitPkgMappingRequest {
+  amount?: long(name='amount', example='1'),
+  benefitPkgId?: string(name='benefit_pkg_id', example='40cb7794c9294'),
+  expireTime?: long(name='expire_time', example='1633167071000'),
+  identityId?: string(name='identity_id', example='user123'),
+  identityType?: string(name='identity_type', example='user'),
+}
+
+model UpdateIdentityToBenefitPkgMappingResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+}
+
+async function updateIdentityToBenefitPkgMappingWithOptions(request: UpdateIdentityToBenefitPkgMappingRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateIdentityToBenefitPkgMappingResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.amount)) {
+    body['amount'] = request.amount;
+  }
+  if (!Util.isUnset(request.benefitPkgId)) {
+    body['benefit_pkg_id'] = request.benefitPkgId;
+  }
+  if (!Util.isUnset(request.expireTime)) {
+    body['expire_time'] = request.expireTime;
+  }
+  if (!Util.isUnset(request.identityId)) {
+    body['identity_id'] = request.identityId;
+  }
+  if (!Util.isUnset(request.identityType)) {
+    body['identity_type'] = request.identityType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateIdentityToBenefitPkgMapping',
+    version = '2022-03-01',
+    protocol = 'HTTPS',
+    pathname = `/v2/benefit/identity_to_benefit_pkg_mapping/update`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+async function updateIdentityToBenefitPkgMapping(request: UpdateIdentityToBenefitPkgMappingRequest): UpdateIdentityToBenefitPkgMappingResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateIdentityToBenefitPkgMappingWithOptions(request, headers, runtime);
 }
 
 model UpdateRevisionRequest {
