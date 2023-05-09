@@ -108,49 +108,58 @@ model CreateAppInstanceGroupRequest {
   chargeResourceMode: string(name='ChargeResourceMode', example='Node', position='Body'),
   chargeType: string(name='ChargeType', example='PrePaid', position='Body'),
   network?: {
+    ipExpireMinutes?: int32(name='IpExpireMinutes', example='60', minimum=60),
     routes?: [ 
       {
-        destination?: string(name='Destination'),
-        mode?: string(name='Mode'),
+        destination?: string(name='Destination', example='139.196.XX.XX/32'),
+        mode?: string(name='Mode', example='Shared'),
       }
     ](name='Routes'),
-    strategyType?: string(name='StrategyType'),
+    strategyType?: string(name='StrategyType', example='Shared'),
   }(name='Network', shrink='json', position='Body'),
   nodePool?: {
-    maxScalingAmount?: int32(name='MaxScalingAmount'),
+    maxScalingAmount?: int32(name='MaxScalingAmount', example='10'),
     nodeAmount?: int32(name='NodeAmount', example='1'),
     nodeCapacity?: int32(name='NodeCapacity', example='2'),
-    nodeInstanceType?: string(name='NodeInstanceType', example='appstreaming.vgpu.4c8g.2g'),
+    nodeInstanceType?: string(name='NodeInstanceType'),
     recurrenceSchedules?: [ 
       {
-        recurrenceType?: string(name='RecurrenceType'),
+        recurrenceType?: string(name='RecurrenceType', example='weekly'),
         recurrenceValues?: [ int32 ](name='RecurrenceValues'),
         timerPeriods?: [ 
           {
-            amount?: int32(name='Amount'),
-            endTime?: string(name='EndTime'),
-            startTime?: string(name='StartTime'),
+            amount?: int32(name='Amount', example='2'),
+            endTime?: string(name='EndTime', example='15:00'),
+            startTime?: string(name='StartTime', example='12:00'),
           }
         ](name='TimerPeriods'),
       }
     ](name='RecurrenceSchedules'),
-    scalingDownAfterIdleMinutes?: int32(name='ScalingDownAfterIdleMinutes'),
-    scalingStep?: int32(name='ScalingStep'),
-    scalingUsageThreshold?: string(name='ScalingUsageThreshold'),
-    strategyDisableDate?: string(name='StrategyDisableDate'),
-    strategyEnableDate?: string(name='StrategyEnableDate'),
-    strategyType?: string(name='StrategyType'),
-    warmUp?: boolean(name='WarmUp'),
+    scalingDownAfterIdleMinutes?: int32(name='ScalingDownAfterIdleMinutes', example='5'),
+    scalingStep?: int32(name='ScalingStep', example='2'),
+    scalingUsageThreshold?: string(name='ScalingUsageThreshold', example='85'),
+    strategyDisableDate?: string(name='StrategyDisableDate', example='2022-09-08'),
+    strategyEnableDate?: string(name='StrategyEnableDate', example='2022-08-01'),
+    strategyType?: string(name='StrategyType', example='NODE_FIXED'),
+    warmUp?: boolean(name='WarmUp', example='false'),
   }(name='NodePool', shrink='json', position='Body'),
   period: int32(name='Period', example='1', position='Body'),
-  periodUnit: string(name='PeriodUnit', example='Day', position='Body'),
-  preOpenAppId?: string(name='PreOpenAppId', position='Body'),
+  periodUnit: string(name='PeriodUnit', position='Body'),
+  preOpenAppId?: string(name='PreOpenAppId', example='cag-b2ron*******', position='Body'),
   productType: string(name='ProductType', example='CloudApp', position='Body'),
   promotionId?: string(name='PromotionId', example='17440009****', position='Body'),
   runtimePolicy?: {
-    sessionType?: string(name='SessionType'),
+    debugMode?: string(name='DebugMode'),
+    sessionType?: string(name='SessionType', description='会话类型。', example='NORMAL'),
   }(name='RuntimePolicy', shrink='json', position='Body'),
+  securityPolicy?: {
+    resetAfterUnbind?: boolean(name='ResetAfterUnbind', example='true'),
+    skipUserAuthCheck?: boolean(name='SkipUserAuthCheck'),
+  }(name='SecurityPolicy', shrink='json', position='Body'),
   sessionTimeout: int32(name='SessionTimeout', example='15', maximum=300, position='Body'),
+  storagePolicy?: {
+    storageTypeList?: [ string ](name='StorageTypeList'),
+  }(name='StoragePolicy', shrink='json', position='Body'),
   userInfo?: {
     type?: string(name='Type', example='Simple'),
   }(name='UserInfo', shrink='json', position='Body'),
@@ -163,7 +172,7 @@ model CreateAppInstanceGroupResponseBody = {
     nodePoolId?: string(name='NodePoolId', example='rg-ew7va2g1wl3vm****'),
     orderId?: string(name='OrderId', example='12345****'),
   }(name='AppInstanceGroupModel'),
-  requestId?: string(name='RequestId', description='Id of the request', example='41730F59-EEF0-53E8-9692-2E82E6721D46'),
+  requestId?: string(name='RequestId', description='Id of the request'),
 }
 
 model CreateAppInstanceGroupResponse = {
@@ -174,6 +183,27 @@ model CreateAppInstanceGroupResponse = {
 async function createAppInstanceGroup(request: CreateAppInstanceGroupRequest): CreateAppInstanceGroupResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateAppInstanceGroup', 'POST', '/', 'json', true, 'form', request);
+}
+
+model CreateImageFromAppInstanceGroupRequest {
+  appCenterImageName: string(name='AppCenterImageName', example='test_name', position='Body'),
+  appInstanceGroupId: string(name='AppInstanceGroupId', example='aig-9ciijz60n4xsv****', position='Body'),
+  productType: string(name='ProductType', example='CloudApp', position='Body'),
+}
+
+model CreateImageFromAppInstanceGroupResponseBody = {
+  imageId?: string(name='ImageId', example='img-bp13mu****'),
+  requestId?: string(name='RequestId', description='Id of the request', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+}
+
+model CreateImageFromAppInstanceGroupResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateImageFromAppInstanceGroupResponseBody(name='body'),
+}
+
+async function createImageFromAppInstanceGroup(request: CreateImageFromAppInstanceGroupRequest): CreateImageFromAppInstanceGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateImageFromAppInstanceGroup', 'POST', '/', 'json', true, 'form', request);
 }
 
 model DeleteAppInstanceGroupRequest {
@@ -290,6 +320,7 @@ model GetAppInstanceGroupResponseBody = {
     regionId?: string(name='RegionId', example='cn-hangzhou'),
     resourceStatus?: string(name='ResourceStatus', example='AVAILABLE'),
     sessionTimeout?: string(name='SessionTimeout', example='15'),
+    skipUserAuthCheck?: boolean(name='SkipUserAuthCheck'),
     specId?: string(name='SpecId', example='spec-8o18t8uc31qib0****'),
     status?: string(name='Status', example='PUBLISHED'),
   }(name='AppInstanceGroupModels', description='AppInstanceGroupModels'),
@@ -339,6 +370,31 @@ async function getConnectionTicket(request: GetConnectionTicketRequest): GetConn
   return @handler.do('RPC', 'GetConnectionTicket', 'POST', '/', 'json', true, 'form', request);
 }
 
+model GetDebugAppInstanceRequest {
+  appInstanceGroupId: string(name='AppInstanceGroupId', example='aig-9ciijz60n4xsv****', position='Body'),
+  productType: string(name='ProductType', example='CloudApp', position='Body'),
+}
+
+model GetDebugAppInstanceResponseBody = {
+  appId?: string(name='AppId'),
+  appInstanceGroupId?: string(name='AppInstanceGroupId', example='aig-9ciijz60n4xsv****'),
+  appInstanceId?: string(name='AppInstanceId', example='ai-7ybdeiyoeh5e****'),
+  appVersion?: string(name='AppVersion', example='1.1'),
+  authCode?: string(name='AuthCode', example='e4e169bea1cc48e8afac53**********'),
+  requestId?: string(name='RequestId', description='Id of the request', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+  userId?: string(name='UserId'),
+}
+
+model GetDebugAppInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetDebugAppInstanceResponseBody(name='body'),
+}
+
+async function getDebugAppInstance(request: GetDebugAppInstanceRequest): GetDebugAppInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetDebugAppInstance', 'POST', '/', 'json', true, 'form', request);
+}
+
 model GetOtaTaskByTaskIdRequest {
   taskId: string(name='TaskId', description='ota任务id', example='ota-be7jzm29wrrz5****', position='Body'),
 }
@@ -368,7 +424,7 @@ model GetResourcePriceRequest {
   chargeType: string(name='ChargeType', example='PrePaid', position='Query'),
   nodeInstanceType: string(name='NodeInstanceType', example='appstreaming.vgpu.4c8g.2g', position='Query'),
   period: long(name='Period', example='1', position='Query'),
-  periodUnit: string(name='PeriodUnit', example='Day', position='Query'),
+  periodUnit: string(name='PeriodUnit', position='Query'),
   productType: string(name='ProductType', example='CloudApp', position='Query'),
 }
 
@@ -456,36 +512,36 @@ async function getResourceRenewPrice(request: GetResourceRenewPriceRequest): Get
 }
 
 model ListAppInstanceGroupRequest {
-  appCenterImageId?: string(name='AppCenterImageId', description='应用中心镜像ID', position='Query'),
+  appCenterImageId?: string(name='AppCenterImageId', description='应用中心镜像ID', example='img-8z4nztpaqvay4****', position='Query'),
   appInstanceGroupId?: string(name='AppInstanceGroupId', example='aig-9ciijz60n4xsv****', position='Query'),
   appInstanceGroupName?: string(name='AppInstanceGroupName', position='Query'),
-  nodeInstanceType?: string(name='NodeInstanceType', position='Query'),
+  nodeInstanceType?: string(name='NodeInstanceType', example='appstreaming.vgpu.4c8g.2g', position='Query'),
   pageNumber?: int32(name='PageNumber', example='1', position='Query'),
   pageSize?: int32(name='PageSize', example='10', minimum=1, maximum=100, position='Query'),
   productType: string(name='ProductType', example='CloudApp', position='Query'),
-  regionId?: string(name='RegionId', description='地域ID', position='Query'),
+  regionId?: string(name='RegionId', description='地域ID', example='cn-hangzhou', position='Query'),
   status?: [ string ](name='Status', position='Body'),
 }
 
 model ListAppInstanceGroupResponseBody = {
   appInstanceGroupModels?: [ 
     {
-      amount?: int32(name='Amount', example='1'),
+      amount?: int32(name='Amount'),
       appCenterImageId?: string(name='AppCenterImageId', example='img-8z4nztpaqvay4****'),
       appInstanceGroupId?: string(name='AppInstanceGroupId', example='aig-9ciijz60n4xsv****'),
       appInstanceGroupName?: string(name='AppInstanceGroupName'),
       appInstanceType?: string(name='AppInstanceType', example='__dynamic__'),
-      appPolicyId?: string(name='AppPolicyId'),
+      appPolicyId?: string(name='AppPolicyId', description='策略ID。', example='pg-g3k5wa2ms2****'),
       apps?: [ 
         {
-          appIcon?: string(name='AppIcon'),
+          appIcon?: string(name='AppIcon', description='应用图标。', example='https://app-center-icon-****.png'),
           appId?: string(name='AppId', example='ca-i87mycyn419nu****'),
           appName?: string(name='AppName'),
-          appVersion?: string(name='AppVersion'),
-          appVersionName?: string(name='AppVersionName'),
+          appVersion?: string(name='AppVersion', description='应用版本。', example='1.0.0'),
+          appVersionName?: string(name='AppVersionName', description='应用版本名称。', example='初始版本'),
         }
       ](name='Apps'),
-      chargeResourceMode?: string(name='ChargeResourceMode'),
+      chargeResourceMode?: string(name='ChargeResourceMode', description='售卖模式。', example='Node'),
       chargeType?: string(name='ChargeType', example='PrePaid'),
       expiredTime?: string(name='ExpiredTime', example='2022-04-27T16:00:00.000+00:00'),
       gmtCreate?: string(name='GmtCreate', example='2022-04-26T15:06:16.000+00:00'),
@@ -501,13 +557,13 @@ model ListAppInstanceGroupResponseBody = {
           nodeUsed?: int32(name='NodeUsed', example='1'),
           recurrenceSchedules?: [ 
             {
-              recurrenceType?: string(name='RecurrenceType'),
+              recurrenceType?: string(name='RecurrenceType', example='Weekly'),
               recurrenceValues?: [ int32 ](name='RecurrenceValues'),
               timerPeriods?: [ 
                 {
-                  amount?: int32(name='Amount'),
-                  endTime?: string(name='EndTime'),
-                  startTime?: string(name='StartTime'),
+                  amount?: int32(name='Amount', example='5'),
+                  endTime?: string(name='EndTime', example='11:00'),
+                  startTime?: string(name='StartTime', example='09:30'),
                 }
               ](name='TimerPeriods'),
             }
@@ -517,10 +573,10 @@ model ListAppInstanceGroupResponseBody = {
           scalingNodeUsed?: int32(name='ScalingNodeUsed', example='4'),
           scalingStep?: int32(name='ScalingStep', example='2'),
           scalingUsageThreshold?: string(name='ScalingUsageThreshold', example='85'),
-          strategyDisableDate?: string(name='StrategyDisableDate'),
-          strategyEnableDate?: string(name='StrategyEnableDate'),
+          strategyDisableDate?: string(name='StrategyDisableDate', example='2022-09-08'),
+          strategyEnableDate?: string(name='StrategyEnableDate', example='2022-08-01'),
           strategyType?: string(name='StrategyType', example='NODE_FIXED'),
-          warmUp?: boolean(name='WarmUp'),
+          warmUp?: boolean(name='WarmUp', example='false'),
         }
       ](name='NodePool'),
       osType?: string(name='OsType', description='系统类型', example='Windows'),
@@ -531,8 +587,9 @@ model ListAppInstanceGroupResponseBody = {
       }(name='OtaInfo'),
       productType?: string(name='ProductType', example='CloudApp'),
       regionId?: string(name='RegionId', example='cn-hangzhou'),
-      resourceStatus?: string(name='ResourceStatus'),
+      resourceStatus?: string(name='ResourceStatus', example='AVAILABLE'),
       sessionTimeout?: string(name='SessionTimeout', example='15'),
+      skipUserAuthCheck?: boolean(name='SkipUserAuthCheck'),
       specId?: string(name='SpecId', example='spec-8o18t8uc31qib0****'),
       status?: string(name='Status', example='PUBLISHED'),
     }
@@ -556,6 +613,8 @@ async function listAppInstanceGroup(request: ListAppInstanceGroupRequest): ListA
 model ListAppInstancesRequest {
   appInstanceGroupId: string(name='AppInstanceGroupId', example='aig-4p5f8tj16yb8b****', position='Query'),
   appInstanceId?: string(name='AppInstanceId', example='ai-azn3kmwruh1vl****', position='Query'),
+  appInstanceIdList?: [ string ](name='AppInstanceIdList', position='Body'),
+  includeDeleted?: boolean(name='IncludeDeleted', position='Query'),
   pageNumber?: int32(name='PageNumber', example='1', minimum=1, position='Query'),
   pageSize?: int32(name='PageSize', example='20', minimum=1, maximum=100, position='Query'),
   status?: [ string ](name='Status', position='Body'),
@@ -566,6 +625,10 @@ model ListAppInstancesResponseBody = {
     {
       appInstanceGroupId?: string(name='AppInstanceGroupId', example='aig-dk8p95irqfst9****'),
       appInstanceId?: string(name='AppInstanceId', example='ai-8dl7dzchklmka****'),
+      bindInfo?: {
+        endUserId?: string(name='EndUserId'),
+        usageDuration?: long(name='UsageDuration'),
+      }(name='BindInfo'),
       gmtCreate?: string(name='GmtCreate', example='2023-03-07T20:29:19.000+08:00'),
       gmtModified?: string(name='GmtModified', example='2023-03-07T20:29:19.000+08:00'),
       mainEthPublicIp?: string(name='MainEthPublicIp', example='10.13.13.211'),
@@ -590,10 +653,10 @@ async function listAppInstances(request: ListAppInstancesRequest): ListAppInstan
 }
 
 model ListNodeInstanceTypeRequest {
-  bizRegionId?: string(name='BizRegionId', position='Query'),
-  language?: string(name='Language', position='Query'),
-  nodeInstanceType?: string(name='NodeInstanceType', position='Query'),
-  osType?: string(name='OsType', position='Query'),
+  bizRegionId?: string(name='BizRegionId', description='资源所属的地域ID。关于支持的地域详情，请参见[使用限制](~~426036~~)。', example='cn-hangzhou', position='Query'),
+  language?: string(name='Language', description='语言类型。', example='zh-CN', position='Query'),
+  nodeInstanceType?: string(name='NodeInstanceType', example='appstreaming.vgpu.4c8g.2g', position='Query'),
+  osType?: string(name='OsType', description='支持的操作系统类型。', example='Windows', position='Query'),
   pageNumber: int32(name='PageNumber', example='1', position='Query'),
   pageSize: int32(name='PageSize', example='10', minimum=1, maximum=100, position='Query'),
   productType: string(name='ProductType', example='CloudApp', position='Query'),
@@ -604,17 +667,23 @@ model ListNodeInstanceTypeResponseBody = {
     {
       cpu?: string(name='Cpu', example='4'),
       gpu?: string(name='Gpu', example='2'),
-      gpuMemory?: long(name='GpuMemory'),
-      maxCapacity?: int32(name='MaxCapacity'),
+      gpuMemory?: long(name='GpuMemory', description='显卡内存大小，单位为MB。', example='8192'),
+      maxCapacity?: int32(name='MaxCapacity', description='最大并发会话数，即单个资源可同时连接的会话数。如果同时连接的会话数过多，可能导致应用的使用体验下降。取值范围因资源规格不同而不同。各资源规格对应的取值范围分别是：
+
+- appstreaming.general.4c8g：1\\~2；
+- appstreaming.general.8c16g：1\\~4；
+- appstreaming.vgpu.8c16g.4g：1\\~4；
+- appstreaming.vgpu.8c31g.16g：1\\~4；
+- appstreaming.vgpu.14c93g.12g：1\\~6；', example='4'),
       memory?: long(name='Memory', example='8192'),
       nodeInstanceType?: string(name='NodeInstanceType', example='appstreaming.vgpu.4c8g.2g'),
       nodeInstanceTypeFamily?: string(name='NodeInstanceTypeFamily', example='appstreaming.vgpu'),
-      nodeTypeName?: string(name='NodeTypeName'),
+      nodeTypeName?: string(name='NodeTypeName', description='资源规格名称。', example='无影-通用型_4核8G'),
     }
   ](name='NodeInstanceTypeModels'),
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', description='Id of the request', example='B6D88508-51D4-5105-8B3F-201EEE374B30'),
+  requestId?: string(name='RequestId', description='Id of the request'),
   totalCount?: int32(name='TotalCount', example='6'),
 }
 
@@ -672,7 +741,7 @@ model ListRegionsResponseBody = {
       regionId?: string(name='regionId'),
     }
   ](name='RegionModels'),
-  requestId?: string(name='RequestId', description='Id of the request', example='BB825037-D0E2-574E-A45F-2886D70C7CFF'),
+  requestId?: string(name='RequestId', description='Id of the request'),
 }
 
 model ListRegionsResponse = {
@@ -734,7 +803,14 @@ model ModifyAppInstanceGroupAttributeRequest {
     nodePoolId?: string(name='NodePoolId', example='rg-ew7va2g1wl3vm****'),
   }(name='NodePool', shrink='json', position='Query'),
   productType: string(name='ProductType', example='CloudApp', position='Query'),
+  securityPolicy?: {
+    resetAfterUnbind?: boolean(name='ResetAfterUnbind'),
+    skipUserAuthCheck?: boolean(name='SkipUserAuthCheck'),
+  }(name='SecurityPolicy', shrink='json', position='Body'),
   sessionTimeout?: int32(name='SessionTimeout', example='15', maximum=300, position='Query'),
+  storagePolicy?: {
+    storageTypeList?: [ string ](name='StorageTypeList'),
+  }(name='StoragePolicy', shrink='json', position='Body'),
 }
 
 model ModifyAppInstanceGroupAttributeResponseBody = {
@@ -750,7 +826,7 @@ model ModifyAppInstanceGroupAttributeResponse = {
 
 async function modifyAppInstanceGroupAttribute(request: ModifyAppInstanceGroupAttributeRequest): ModifyAppInstanceGroupAttributeResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ModifyAppInstanceGroupAttribute', 'POST', '/', 'json', false, 'json', request);
+  return @handler.do('RPC', 'ModifyAppInstanceGroupAttribute', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ModifyNodePoolAttributeRequest {
@@ -758,30 +834,40 @@ model ModifyNodePoolAttributeRequest {
   nodeCapacity?: int32(name='NodeCapacity', description='按资源售卖的，单个节点允许运行的应用实例数', example='2', position='Body'),
   nodePoolStrategy?: {
     maxScalingAmount?: int32(name='MaxScalingAmount', description='最大弹性数量', example='10'),
-    nodeAmount?: int32(name='NodeAmount'),
+    nodeAmount?: int32(name='NodeAmount', description='购买资源的数量。取值范围：1~100。
+
+> 
+- 若为包年包月资源，则该参数不可修改。
+- 若为按量付费资源，则当弹性模式（`StrategyType`）为固定数量（`NODE_FIXED`）或自动扩缩容（`NODE_SCALING_BY_USAGE`）时该参数可修改。', example='1'),
     recurrenceSchedules?: [ 
       {
-        recurrenceType?: string(name='RecurrenceType'),
-        recurrenceValues?: [ int32 ](name='RecurrenceValues'),
+        recurrenceType?: string(name='RecurrenceType', description='策略执行周期的类型。必须同时指定`RecurrenceType`和`RecurrenceValues`。', example='weekly'),
+        recurrenceValues?: [ int32 ](name='RecurrenceValues', description='策略执行周期的数值列表。'),
         timerPeriods?: [ 
           {
-            amount?: int32(name='Amount'),
-            endTime?: string(name='EndTime'),
-            startTime?: string(name='StartTime'),
+            amount?: int32(name='Amount', description='资源数量。', example='2'),
+            endTime?: string(name='EndTime', description='结束时间。格式为HH:mm。', example='15:00'),
+            startTime?: string(name='StartTime', description='开始时间。格式为HH:mm。', example='12:00'),
           }
-        ](name='TimerPeriods'),
+        ](name='TimerPeriods', description='策略执行周期的时间段列表。时间段设置要求：
+
+- 最多可添加3个时间段。
+- 时间段之间不重叠。
+- 时间段之间的间隔大于或等于5分钟。
+- 单个时间段的时长大于或等于15分钟。
+- 所有时间段累计不跨天。'),
       }
-    ](name='RecurrenceSchedules'),
+    ](name='RecurrenceSchedules', description='策略执行周期列表。`StrategyType`（弹性模式）设为`NODE_SCALING_BY_SCHEDULE`（定时扩缩容）时，该字段必填。'),
     scalingDownAfterIdleMinutes?: int32(name='ScalingDownAfterIdleMinutes', description='资源回收时间', example='5'),
     scalingStep?: int32(name='ScalingStep', description='弹性扩容步长', example='2'),
     scalingUsageThreshold?: string(name='ScalingUsageThreshold', description='触发弹性扩容的会话百分比', example='85'),
-    strategyDisableDate?: string(name='StrategyDisableDate'),
-    strategyEnableDate?: string(name='StrategyEnableDate'),
-    strategyType?: string(name='StrategyType', description='策略类型，默认为NODE_FIXED', example='NODE_SCALING_BY_USAGE'),
-    warmUp?: boolean(name='WarmUp'),
+    strategyDisableDate?: string(name='StrategyDisableDate', description='策略失效日期。格式为：yyyy-MM-dd。失效日期与生效日期的间隔必须介于7天到1年之间（含7天和1年）。`StrategyType`（弹性模式）设为`NODE_SCALING_BY_SCHEDULE`（定时扩缩容）时，该字段必填。', example='2023-01-19'),
+    strategyEnableDate?: string(name='StrategyEnableDate', description='策略生效日期。格式为：yyyy-MM-dd。该日期必须大于或等于当前日期。`StrategyType`（弹性模式）设为`NODE_SCALING_BY_SCHEDULE`（定时扩缩容）时，该字段必填。', example='2023-01-05'),
+    strategyType?: string(name='StrategyType', description='策略类型，默认为NODE_FIXED'),
+    warmUp?: boolean(name='WarmUp', description='是否开启资源预热策略。`StrategyType`（弹性模式）设为`NODE_SCALING_BY_SCHEDULE`（定时扩缩容）时，该字段必填。', example='false'),
   }(name='NodePoolStrategy', description='节点池策略', shrink='json', position='Body'),
   poolId?: string(name='PoolId', description='资源组id', example='rg-ew7va2g1wl3vm****', position='Body'),
-  productType?: string(name='ProductType', description='产品类型', position='Body'),
+  productType?: string(name='ProductType', description='产品类型。', example='CloudApp', position='Body'),
 }
 
 model ModifyNodePoolAttributeResponseBody = {
@@ -844,7 +930,7 @@ model RenewAppInstanceGroupRequest {
   appInstanceGroupId: string(name='AppInstanceGroupId', example='aig-9ciijz60n4xsv****', position='Query'),
   autoPay?: boolean(name='AutoPay', example='false', position='Query'),
   period: int32(name='Period', example='1', position='Query'),
-  periodUnit: string(name='PeriodUnit', example='Day', position='Query'),
+  periodUnit: string(name='PeriodUnit', position='Query'),
   productType: string(name='ProductType', example='CloudApp', position='Query'),
   promotionId?: string(name='PromotionId', example='17440009****', position='Query'),
 }
