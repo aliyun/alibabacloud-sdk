@@ -36,6 +36,7 @@ model ApproveFotaUpdateRequest {
   loginToken?: string(name='LoginToken', example='v18390c954ce59e2915ef16663205371721e0db9a46179ac89249a203320459523cb54ad08efe324784dd0eba25950****'),
   regionId?: string(name='RegionId', example='cn-hangzhou'),
   sessionId?: string(name='SessionId', example='4771b873-c757-4893-973c-7f5beejh****'),
+  uuid?: string(name='Uuid'),
 }
 
 model ApproveFotaUpdateResponseBody = {
@@ -68,6 +69,9 @@ async function approveFotaUpdateWithOptions(request: ApproveFotaUpdateRequest, r
   }
   if (!Util.isUnset(request.sessionId)) {
     query['SessionId'] = request.sessionId;
+  }
+  if (!Util.isUnset(request.uuid)) {
+    query['Uuid'] = request.uuid;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -355,7 +359,8 @@ model DescribeGlobalDesktopsRequest {
   desktopName?: string(name='DesktopName', example='DesktopTest'),
   desktopStatus?: string(name='DesktopStatus', example='Running'),
   directoryId?: string(name='DirectoryId', example='cn-hangzhou+dir-880841****'),
-  keyword?: string(name='Keyword'),
+  keyword?: string(name='Keyword', description='关键字。支持模糊搜索桌面ID、云桌面名称和终端用户自定义的桌面名称。', example='ecd'),
+  loginRegionId?: string(name='LoginRegionId', example='cn-hangzhou'),
   loginToken?: string(name='LoginToken', example='v147c9114a180489f89691663893169****'),
   maxResults?: int32(name='MaxResults', example='500'),
   nextToken?: string(name='NextToken', example='eyJkZWZhdWx0IjpbIjk2MjEy****'),
@@ -375,10 +380,20 @@ model DescribeGlobalDesktopsResponseBody = {
       chargeType?: string(name='ChargeType', example='PostPaid'),
       clients?: [ 
         {
-          clientType?: string(name='ClientType'),
-          status?: string(name='Status'),
+          clientType?: string(name='ClientType', description='客户端类型，取值：
+
+- macos：Mac客户端
+- ios：IOS客户端
+- android：Android客户端
+- html5：Web客户端
+- windows：Windows客户端
+- linux：Linux客户端', example='windows'),
+          status?: string(name='Status', description='客户端状态，取值：
+
+- ON：允许登录
+- OFF：不允许登录', example='ON'),
         }
-      ](name='Clients'),
+      ](name='Clients', description='支持的客户端信息'),
       connectionStatus?: string(name='ConnectionStatus', example='Disconnected'),
       cpu?: int32(name='Cpu', example='2'),
       creationTime?: string(name='CreationTime', example='2020-11-06T08:28Z'),
@@ -388,11 +403,11 @@ model DescribeGlobalDesktopsResponseBody = {
       desktopStatus?: string(name='DesktopStatus', example='Running'),
       desktopTimers?: [ 
         {
-          cronExpression?: string(name='CronExpression'),
-          enforce?: boolean(name='Enforce'),
-          interval?: int32(name='Interval'),
-          resetType?: string(name='ResetType'),
-          timerType?: string(name='TimerType'),
+          cronExpression?: string(name='CronExpression', example='0 0 0 ? * 1'),
+          enforce?: boolean(name='Enforce', example='false'),
+          interval?: int32(name='Interval', example='60'),
+          resetType?: string(name='ResetType', example='RESET_TYPE_BOTH'),
+          timerType?: string(name='TimerType', example='NoConnectShutdown'),
         }
       ](name='DesktopTimers'),
       desktopType?: string(name='DesktopType', example='ecd.basic.large'),
@@ -436,6 +451,7 @@ model DescribeGlobalDesktopsResponseBody = {
           establishmentTime?: string(name='EstablishmentTime', example='2021-03-07T08:23Z'),
         }
       ](name='Sessions'),
+      supportHibernation?: boolean(name='SupportHibernation', example='true'),
       userCustomName?: string(name='UserCustomName', example='testDesktop'),
     }
   ](name='Desktops'),
@@ -472,6 +488,9 @@ async function describeGlobalDesktopsWithOptions(request: DescribeGlobalDesktops
   }
   if (!Util.isUnset(request.keyword)) {
     query['Keyword'] = request.keyword;
+  }
+  if (!Util.isUnset(request.loginRegionId)) {
+    query['LoginRegionId'] = request.loginRegionId;
   }
   if (!Util.isUnset(request.loginToken)) {
     query['LoginToken'] = request.loginToken;
@@ -538,11 +557,11 @@ model DescribeOfficeSitesResponseBody = {
   officeSites?: [ 
     {
       desktopAccessType?: string(name='DesktopAccessType', example='VPC'),
-      desktopVpcEndpoint?: string(name='DesktopVpcEndpoint'),
+      desktopVpcEndpoint?: string(name='DesktopVpcEndpoint', example='http://ep-bp1s2vmbj55r5rzc****.epsrv-bp1pcfhpwvlpny01****.cn-hangzhou.privatelink.aliyuncs.com'),
       officeSiteId?: string(name='OfficeSiteId', example='cn-hangzhou+dir-363353****'),
       officeSiteType?: string(name='OfficeSiteType', example='SIMPLE'),
       providerId?: string(name='ProviderId', example='268****'),
-      ssoServiceUrl?: string(name='SsoServiceUrl'),
+      ssoServiceUrl?: string(name='SsoServiceUrl', example='https://eds-cn-shanghai-67****'),
     }
   ](name='OfficeSites'),
   requestId?: string(name='RequestId', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
@@ -860,62 +879,42 @@ async function getCloudDriveServiceMountToken(request: GetCloudDriveServiceMount
 }
 
 model GetLoginTokenRequest {
-  authenticationCode?: string(name='AuthenticationCode', description='The verification code that is generated by the virtual MFA device. This parameter is required if you set `CurrentStage` to `MFAVerify`.', example='47****'),
-  clientId?: string(name='ClientId', description='The ID of the Alibaba Cloud Workspace client. The system generates a unique ID for each client.', example='f4a0dc8e-1702-4728-9a60-95b27a35****'),
-  clientOS?: string(name='ClientOS', description='The OS that the client runs.', example='Windows_NT 10.0.18363 x64'),
-  clientType?: string(name='ClientType', description='The OS type of the Alibaba Cloud Workspace client.', example='WINDOWS'),
-  clientVersion?: string(name='ClientVersion', description='The version of the client. When you use an Alibaba Cloud Workspace client, you can view the client version in the **About** dialog box on the client logon page.', example='2.1.0-R-20210731.151756'),
-  currentStage?: string(name='CurrentStage', description='The logon authentication stage. Valid values:
-
-*   `ADPassword`: the stage to verify the identity of the Active Directory (AD) user. You must specify the value when the system verifies the identity of a convenience account or an AD account.
-*   `MFABind`: the stage to bind a virtual MFA device.
-*   `MFAVerify`: the verification code that is generated by the virtual MFA device.
-*   `TokenVerify`: the stage to perform two-factor authentication for the client.
-*   `ChangePassword`: the stage to change the password of the user.', example='ADPassword'),
-  directoryId?: string(name='DirectoryId', description='The ID of the workspace. The parameter is the same as the `OfficeSiteId` parameter. We recommend that you use `OfficeSiteId` instead of `DirectoryId`. You can specify a value for either the `DirectoryId` parameter or the `OfficeSiteId` parameter, but not both.', example='cn-hangzhou+dir-885351****'),
-  endUserId?: string(name='EndUserId', description='The name of the convenience user or the AD user. This parameter is required if you set `CurrentStage` to `ADPassword`.', example='alice'),
-  keepAlive?: boolean(name='KeepAlive', description='Specifies whether to keep the user logged on to the client. Default value: null.', example='false'),
-  keepAliveToken?: string(name='KeepAliveToken', description='The token that is used to keep the user logged on to the client. After the user logs on to the client and KeepAlive is set to true, the `KeepAliveToken` is returned. You can call the `GetLoginToken` operation within the valid duration``, and set `CurrentStage` to `VerifyKeepAlive` to obtain the logon token (LoginToken). This parameter is required if you set `CurrentStage` to `VerifyKeepAlive```.', example='hide'),
-  newPassword?: string(name='NewPassword', description='The new password. This parameter is required if you set `CurrentStage` to `ChangePassword`.', example='NewPassword'),
-  officeSiteId?: string(name='OfficeSiteId', description='The ID of the workspace.', example='cn-hangzhou+dir-885351****'),
-  oldPassword?: string(name='OldPassword', description='The current password. This parameter is required if you set `CurrentStage` to `ChangePassword`.', example='OldPassword'),
-  password?: string(name='Password', description='The password of the convenience user or the AD user. This parameter is required if you set `CurrentStage` to `ADPassword`.', example='Password1234'),
-  regionId?: string(name='RegionId', description='The ID of the region. You can call the DescribeRegions operation to query the most recent region list.', example='cn-hangzhou'),
-  sessionId?: string(name='SessionId', description='The ID of the session.
-
-*   If the virtual multi-factor authentication (MFA) device is not bound or two-factor authentication is not enabled for the client, you do not need to specify a value for `SessionId`.
-*   If the virtual MFA device is not bound or two-factor authentication is enabled for the client, you must specify a value for `SessionId` to verify the user identity after you specify a value for `ADPassword`. The value of the `SessionId` parameter is returned only if the CurrentStage parameter is set to `ADPassword` when you call the `GetLoginToken` operation.', example='cd45e873-650d-4d70-acb9-f996187a****'),
-  tokenCode?: string(name='TokenCode', description='If two-factor authentication is enabled in the Elastic Desktop Service (EDS) console and the system detects that the identity of the logon user may have security risks, the system sends a verification code for two-factor authentication to the email address of the user. This parameter is required if you set `CurrentStage` to `TokenVerify`.', example='63****'),
-  uuid?: string(name='Uuid', description='The unique identifier of the client. When you use an Alibaba Cloud Workspace client, you can view the client version in the **About** dialog box on the client logon page.', example='C78CA9E99315687575DD2844C1F3****'),
+  authenticationCode?: string(name='AuthenticationCode', example='47****'),
+  clientId?: string(name='ClientId', example='f4a0dc8e-1702-4728-9a60-95b27a35****'),
+  clientOS?: string(name='ClientOS', example='Windows_NT 10.0.18363 x64'),
+  clientType?: string(name='ClientType', example='WINDOWS'),
+  clientVersion?: string(name='ClientVersion', example='2.1.0-R-20210731.151756'),
+  currentStage?: string(name='CurrentStage', example='ADPassword'),
+  directoryId?: string(name='DirectoryId', example='cn-hangzhou+dir-885351****'),
+  endUserId?: string(name='EndUserId', example='alice'),
+  keepAlive?: boolean(name='KeepAlive', example='false'),
+  keepAliveToken?: string(name='KeepAliveToken', example='hide'),
+  newPassword?: string(name='NewPassword', example='NewPassword'),
+  officeSiteId?: string(name='OfficeSiteId', example='cn-hangzhou+dir-885351****'),
+  oldPassword?: string(name='OldPassword', example='OldPassword'),
+  password?: string(name='Password', example='Password1234'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  sessionId?: string(name='SessionId', example='cd45e873-650d-4d70-acb9-f996187a****'),
+  tokenCode?: string(name='TokenCode', example='63****'),
+  uuid?: string(name='Uuid', example='C78CA9E99315687575DD2844C1F3****'),
 }
 
 model GetLoginTokenResponseBody = {
-  email?: string(name='Email', description='The email address of the user. The system returns the email address in the return value of the LoginToken parameter after the user logs on to the client.
-
-*   For a convenience user, the return value is the email address specified when the administrator creates the convenience user.
-*   For an AD user, the return value is in the following format: `Username@Name of the AD domain`.', example='alice'),
-  endUserId?: string(name='EndUserId', description='The account of the convenience user or the AD user.', example='alice'),
-  industry?: string(name='Industry', description='> This is a parameter only for internal use.', example='edu'),
-  keepAliveToken?: string(name='KeepAliveToken', description='The token used to keep the user logged on. After the user logs on to the client and select the Keep Logon option, `KeepAliveToken` is returned when you call the operation. If the user does not select the Keep Logon option, null is returned.', example='006YwvYMsesWWsDBZnVB+Wq9AvJDVIqOY3YCktvtb7+KxMb3ClnNlV8+l/knhZYrXUmeP06IzkjF+IgcZ3vZKOyMprDyFHjCy1r27FRE/U7+geWCl8iQ+yF8GaCRHfJEkC2+ROs93HkT4tfHxyY1J8W7O7ZQGUC/cdCvm+cCP6FIy73IUuPuVR6PcKYXIpEZPW'),
-  label?: string(name='Label', description='The attribute of the convenience user. For an AD user, null is returned.', example='test:wuying'),
-  loginToken?: string(name='LoginToken', description='The logon token.', example='v18101ac6a9e69c66b04a163031680463660b4b216cd758f34b60b9ad6a7c7f7334b83dd8f75eef4209c68f9f1080b****'),
-  nextStage?: string(name='NextStage', description='The next stage that is expected to enter. For example, if the administrator enables MFA authentication in the EDS console, `MFAVerify` is returned after the username and password pass the authentication (after you set CurrentStage to `ADPassword` stage). This indicates that the MFA authentication is required.
-
-> For more information about each authentication stage, see the parameter description of the request parameter `CurrentStage`.', example='MFAVerify'),
-  phone?: string(name='Phone', description='Enter the mobile number of the convenience user. For an AD user, null is returned.', example='1381111****'),
-  props?: map[string]string(name='Props', description='> This is a parameter only for internal use.'),
-  qrCodePng?: string(name='QrCodePng', description='The QR code that is generated when the virtual MFA device is bound. The value is encoded in Base64. This parameter can be empty. This parameter is required only when the CurrentStage parameter is set to `MFABind`.
-
-> For more information about each authentication stage, see the parameter description of the request parameter `CurrentStage`.', example='5OCLLKKOJU5HPBX66H3QCTWY******'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
-  secret?: string(name='Secret', description='The key that is generated when you bind the virtual MFA device. This parameter is required when the CurrentStage parameter is set to `MFABind`.
-
-> For more information about each authentication stage, see the parameter description of the request parameter `CurrentStage`.', example='5OCLLKKOJU5HPBX66H3QCTWYI7MH****'),
-  sessionId?: string(name='SessionId', description='The ID of the session. The ID is returned the first time you call the `GetLoginToken` operation in the session. If MFA is required, you must specify this parameter in subsequent stages.
-
-> For more information about each authentication stage, see the parameter description of the request parameter `CurrentStage`.', example='d6ec166d-ab93-4286-bf7f-a18bb929****'),
-  tenantId?: long(name='TenantId', description='The ID of the Alibaba Cloud account. The ID is used for hardware client authentication.', example='166353906220****'),
-  windowDisplayMode?: string(name='WindowDisplayMode', description='This is a parameter only for internal use.', example='mode'),
+  email?: string(name='Email', example='alice'),
+  endUserId?: string(name='EndUserId', example='alice'),
+  industry?: string(name='Industry', example='edu'),
+  keepAliveToken?: string(name='KeepAliveToken', example='006YwvYMsesWWsDBZnVB+Wq9AvJDVIqOY3YCktvtb7+KxMb3ClnNlV8+l/knhZYrXUmeP06IzkjF+IgcZ3vZKOyMprDyFHjCy1r27FRE/U7+geWCl8iQ+yF8GaCRHfJEkC2+ROs93HkT4tfHxyY1J8W7O7ZQGUC/cdCvm+cCP6FIy73IUuPuVR6PcKYXIpEZPW'),
+  label?: string(name='Label', example='test:wuying'),
+  loginToken?: string(name='LoginToken', example='v18101ac6a9e69c66b04a163031680463660b4b216cd758f34b60b9ad6a7c7f7334b83dd8f75eef4209c68f9f1080b****'),
+  nextStage?: string(name='NextStage', example='MFAVerify'),
+  phone?: string(name='Phone', example='1381111****'),
+  props?: map[string]string(name='Props'),
+  qrCodePng?: string(name='QrCodePng', example='5OCLLKKOJU5HPBX66H3QCTWY******'),
+  requestId?: string(name='RequestId', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+  secret?: string(name='Secret', example='5OCLLKKOJU5HPBX66H3QCTWYI7MH****'),
+  sessionId?: string(name='SessionId', example='d6ec166d-ab93-4286-bf7f-a18bb929****'),
+  tenantId?: long(name='TenantId', example='166353906220****'),
+  windowDisplayMode?: string(name='WindowDisplayMode', example='mode'),
 }
 
 model GetLoginTokenResponse = {
@@ -1057,18 +1056,18 @@ async function isKeepAlive(request: IsKeepAliveRequest): IsKeepAliveResponse {
 }
 
 model RebootDesktopsRequest {
-  clientId?: string(name='ClientId', description='The ID of the client.', example='f4a0dc8e-1702-4728-9a60-95b27a35****'),
+  clientId?: string(name='ClientId', description='The ID of the request.', example='f4a0dc8e-1702-4728-9a60-95b27a35****'),
   clientOS?: string(name='ClientOS', description='The OS used by the client.', example='Windows_NT 10.0.18363 x64'),
-  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the value, but make sure that the value is unique among different requests. The token can only contain ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure the idempotence of a request](~~25693~~).', example='40401e62-5caf-4508-8de7-bf98af12****'),
-  clientVersion?: string(name='ClientVersion', description='The version of the client.', example='2.1.0-R-20210731.151756'),
-  desktopId?: [ string ](name='DesktopId', description='The IDs of the cloud desktops. You can specify 1 to 20 cloud desktop IDs.', example='ecd-7w78ozhjcwa3u****'),
-  loginToken?: string(name='LoginToken', description='The logon credential.', example='v18101ac6a9e69c66b04a163031680463660b4b216cd758f34b60b9ad6a7c7f7334b83dd8f75eef4209c68f9f1080b****'),
-  regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
-  sessionId?: string(name='SessionId', description='The ID of the session.', example='cd45e873-650d-4d70-acb9-f996187a****'),
+  clientToken?: string(name='ClientToken', example='40401e62-5caf-4508-8de7-bf98af12****'),
+  clientVersion?: string(name='ClientVersion', description='RebootDesktops', example='2.1.0-R-20210731.151756'),
+  desktopId?: [ string ](name='DesktopId', example='ecd-7w78ozhjcwa3u****'),
+  loginToken?: string(name='LoginToken', description='The ID of cloud desktop N. You can specify one or more IDs of cloud desktops. Valid values of N: 1 to 20.', example='v18101ac6a9e69c66b04a163031680463660b4b216cd758f34b60b9ad6a7c7f7334b83dd8f75eef4209c68f9f1080b****'),
+  regionId?: string(name='RegionId', description='The logon credential.', example='cn-hangzhou'),
+  sessionId?: string(name='SessionId', description='The operation that you want to perform. Set the value to RebootDesktops.', example='cd45e873-650d-4d70-acb9-f996187a****'),
 }
 
 model RebootDesktopsResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+  requestId?: string(name='RequestId', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
 }
 
 model RebootDesktopsResponse = {
@@ -1127,18 +1126,18 @@ async function rebootDesktops(request: RebootDesktopsRequest): RebootDesktopsRes
 }
 
 model RefreshLoginTokenRequest {
-  clientId?: string(name='ClientId', description='The ID of the Alibaba Cloud Workspace client. The ID is unique.', example='f4a0dc8e-1702-4728-9a60-95b27a35****'),
-  directoryId?: string(name='DirectoryId', description='> This parameter is not available to the public.', example='cn-hangzhou+dir-jedbpr4sl9l37****'),
-  endUserId?: string(name='EndUserId', description='The name of the end user.', example='alice'),
-  loginToken?: string(name='LoginToken', description='The logon token.', example='v18101ac6a9e69c66b04a163031680463660b4b216cd758f34b60b9ad6a7c7f7334b83dd8f75eef4209c68f9f1080b****'),
-  officeSiteId?: string(name='OfficeSiteId', description='The ID of the workspace.', example='cn-shanghai+dir-238191****'),
-  regionId?: string(name='RegionId', description='The ID of the region. You can call the [DescribeRegions](~~196646~~) operation to query the most recent region list.', example='cn-hangzhou'),
-  sessionId?: string(name='SessionId', description='The ID of the session.', example='cd45e873-650d-4d70-acb9-f996187a****'),
+  clientId?: string(name='ClientId', example='f4a0dc8e-1702-4728-9a60-95b27a35****'),
+  directoryId?: string(name='DirectoryId', example='cn-hangzhou+dir-jedbpr4sl9l37****'),
+  endUserId?: string(name='EndUserId', example='alice'),
+  loginToken?: string(name='LoginToken', example='v18101ac6a9e69c66b04a163031680463660b4b216cd758f34b60b9ad6a7c7f7334b83dd8f75eef4209c68f9f1080b****'),
+  officeSiteId?: string(name='OfficeSiteId', example='cn-shanghai+dir-238191****'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  sessionId?: string(name='SessionId', example='cd45e873-650d-4d70-acb9-f996187a****'),
 }
 
 model RefreshLoginTokenResponseBody = {
-  loginToken?: string(name='LoginToken', description='The logon token.', example='v1c27bab6c205b2fdfac916434306375722776d6aa89e30b7836d18c95ade9137f0f5ac4325260782184e96ee2b3f0****'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+  loginToken?: string(name='LoginToken', example='v1c27bab6c205b2fdfac916434306375722776d6aa89e30b7836d18c95ade9137f0f5ac4325260782184e96ee2b3f0****'),
+  requestId?: string(name='RequestId', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
 }
 
 model RefreshLoginTokenResponse = {
@@ -1147,13 +1146,6 @@ model RefreshLoginTokenResponse = {
   body: RefreshLoginTokenResponseBody(name='body'),
 }
 
-/**
-  * The validity period of a logon token is 15 minutes. If an end user does not exit a client in 15 minutes, the logon token for the client must be refreshed. You can call this operation to refresh the client token.
-  *
-  * @param request RefreshLoginTokenRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return RefreshLoginTokenResponse
- */
 async function refreshLoginTokenWithOptions(request: RefreshLoginTokenRequest, runtime: Util.RuntimeOptions): RefreshLoginTokenResponse {
   Util.validateModel(request);
   var query = {};
@@ -1195,12 +1187,6 @@ async function refreshLoginTokenWithOptions(request: RefreshLoginTokenRequest, r
   return callApi(params, req, runtime);
 }
 
-/**
-  * The validity period of a logon token is 15 minutes. If an end user does not exit a client in 15 minutes, the logon token for the client must be refreshed. You can call this operation to refresh the client token.
-  *
-  * @param request RefreshLoginTokenRequest
-  * @return RefreshLoginTokenResponse
- */
 async function refreshLoginToken(request: RefreshLoginTokenRequest): RefreshLoginTokenResponse {
   var runtime = new Util.RuntimeOptions{};
   return refreshLoginTokenWithOptions(request, runtime);
@@ -1609,18 +1595,18 @@ async function setFingerPrintTemplateDescription(request: SetFingerPrintTemplate
 }
 
 model StartDesktopsRequest {
-  clientId?: string(name='ClientId', description='The ID of the client.', example='f4a0dc8e-1702-4728-9a60-95b27a35****'),
+  clientId?: string(name='ClientId', description='The ID of the request.', example='f4a0dc8e-1702-4728-9a60-95b27a35****'),
   clientOS?: string(name='ClientOS', description='The OS used by the client.', example='Windows_NT 10.0.18363 x64'),
-  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the value, but make sure that the value is unique among different requests. The token can only contain ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure the idempotence of a request](~~25693~~).', example='21e7be12-aa4f-4389-b3e1-82f4a1b5****'),
-  clientVersion?: string(name='ClientVersion', description='The version of the client.', example='2.1.0-R-20210731.151756'),
-  desktopId?: [ string ](name='DesktopId', description='The IDs of the cloud desktops. You can specify 1 to 20 cloud desktop IDs.', example='ecd-cg27ufmapab08****'),
-  loginToken?: string(name='LoginToken', description='The logon credential.', example='v18101ac6a9e69c66b04a163031680463660b4b216cd758f34b60b9ad6a7c7f7334b83dd8f75eef4209c68f9f1080b****'),
-  regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
-  sessionId?: string(name='SessionId', description='The ID of the session.', example='cd45e873-650d-4d70-acb9-f996187a****'),
+  clientToken?: string(name='ClientToken', example='21e7be12-aa4f-4389-b3e1-82f4a1b5****'),
+  clientVersion?: string(name='ClientVersion', description='StartDesktops', example='2.1.0-R-20210731.151756'),
+  desktopId?: [ string ](name='DesktopId', example='ecd-cg27ufmapab08****'),
+  loginToken?: string(name='LoginToken', description='The ID of cloud desktop N. You can specify one or more IDs of cloud desktops. Valid values of N: 1 to 20.', example='v18101ac6a9e69c66b04a163031680463660b4b216cd758f34b60b9ad6a7c7f7334b83dd8f75eef4209c68f9f1080b****'),
+  regionId?: string(name='RegionId', description='The logon credential.', example='cn-hangzhou'),
+  sessionId?: string(name='SessionId', description='The operation that you want to perform. Set the value to StartDesktops.', example='cd45e873-650d-4d70-acb9-f996187a****'),
 }
 
 model StartDesktopsResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+  requestId?: string(name='RequestId', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
 }
 
 model StartDesktopsResponse = {
@@ -1630,8 +1616,7 @@ model StartDesktopsResponse = {
 }
 
 /**
-  * ## Description
-  * If the call is successful, the cloud desktops enter the Running state.
+  * The ID of the client.
   *
   * @param request StartDesktopsRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -1682,8 +1667,7 @@ async function startDesktopsWithOptions(request: StartDesktopsRequest, runtime: 
 }
 
 /**
-  * ## Description
-  * If the call is successful, the cloud desktops enter the Running state.
+  * The ID of the client.
   *
   * @param request StartDesktopsRequest
   * @return StartDesktopsResponse
@@ -1698,6 +1682,7 @@ model StartRecordContentRequest {
   clientOS?: string(name='ClientOS'),
   clientVersion?: string(name='ClientVersion'),
   desktopId?: string(name='DesktopId'),
+  filePath?: string(name='FilePath'),
   loginToken?: string(name='LoginToken'),
   regionId?: string(name='RegionId'),
   sessionId?: string(name='SessionId'),
@@ -1727,6 +1712,9 @@ async function startRecordContentWithOptions(request: StartRecordContentRequest,
   }
   if (!Util.isUnset(request.desktopId)) {
     query['DesktopId'] = request.desktopId;
+  }
+  if (!Util.isUnset(request.filePath)) {
+    query['FilePath'] = request.filePath;
   }
   if (!Util.isUnset(request.loginToken)) {
     query['LoginToken'] = request.loginToken;
@@ -1760,18 +1748,18 @@ async function startRecordContent(request: StartRecordContentRequest): StartReco
 }
 
 model StopDesktopsRequest {
-  clientId?: string(name='ClientId', description='The ID of the client.', example='f4a0dc8e-1702-4728-9a60-95b27a35****'),
-  clientOS?: string(name='ClientOS', description='The OS used by the client.', example='Windows_NT 10.0.18363 x64'),
-  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the value, but make sure that the value is unique among different requests. The token can only contain ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure the idempotence of a request](~~25693~~).', example='6ce412a8-399f-49f9-9518-66ee028a****'),
-  clientVersion?: string(name='ClientVersion', description='The version of the client.', example='2.1.0-R-20210731.151756'),
-  desktopId?: [ string ](name='DesktopId', description='The IDs of cloud desktops. You can specify most at 20 IDs of cloud desktops.', example='ecd-7w78ozhjcwa3u****'),
-  loginToken?: string(name='LoginToken', description='The logon credential.', example='v18101ac6a9e69c66b04a163031680463660b4b216cd758f34b60b9ad6a7c7f7334b83dd8f75eef4209c68f9f1080b****'),
-  regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
-  sessionId?: string(name='SessionId', description='The ID of the session.', example='cd45e873-650d-4d70-acb9-f996187a****'),
+  clientId?: string(name='ClientId', description='The logon credential.', example='f4a0dc8e-1702-4728-9a60-95b27a35****'),
+  clientOS?: string(name='ClientOS', description='The ID of cloud desktop N. You can specify one or more IDs of cloud desktops. Valid values of N: 1 to 20.', example='Windows_NT 10.0.18363 x64'),
+  clientToken?: string(name='ClientToken', example='6ce412a8-399f-49f9-9518-66ee028a****'),
+  clientVersion?: string(name='ClientVersion', description='The OS used by the client.', example='2.1.0-R-20210731.151756'),
+  desktopId?: [ string ](name='DesktopId', example='ecd-7w78ozhjcwa3u****'),
+  loginToken?: string(name='LoginToken', description='The operation that you want to perform. Set the value to StopDesktops.', example='v18101ac6a9e69c66b04a163031680463660b4b216cd758f34b60b9ad6a7c7f7334b83dd8f75eef4209c68f9f1080b****'),
+  regionId?: string(name='RegionId', description='The ID of the session.', example='cn-hangzhou'),
+  sessionId?: string(name='SessionId', description='The ID of the request.', example='cd45e873-650d-4d70-acb9-f996187a****'),
 }
 
 model StopDesktopsResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+  requestId?: string(name='RequestId', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
 }
 
 model StopDesktopsResponse = {
@@ -1781,8 +1769,7 @@ model StopDesktopsResponse = {
 }
 
 /**
-  * ## Description
-  * The cloud desktops that you want to stop by calling this operation must be in the Running state. If the call is successful, the cloud desktops enter the Stopped state.
+  * The ID of the region.
   *
   * @param request StopDesktopsRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -1833,8 +1820,7 @@ async function stopDesktopsWithOptions(request: StopDesktopsRequest, runtime: Ut
 }
 
 /**
-  * ## Description
-  * The cloud desktops that you want to stop by calling this operation must be in the Running state. If the call is successful, the cloud desktops enter the Stopped state.
+  * The ID of the region.
   *
   * @param request StopDesktopsRequest
   * @return StopDesktopsResponse
