@@ -1944,15 +1944,17 @@ async function executeScript(request: ExecuteScriptRequest): ExecuteScriptRespon
 
 model ExecuteStructSyncRequest {
   regionId?: string(name='RegionId', position='Host'),
-  orderId: long(name='OrderId', example='112345', minimum=1, maximum=9223372036854775807, position='Query'),
-  tid?: long(name='Tid', example='1', minimum=1, maximum=9223372036854775807, position='Query'),
+  orderId: long(name='OrderId', description='The ID of the ticket.', example='112345', minimum=1, maximum=9223372036854775807, position='Query'),
+  tid?: long(name='Tid', description='The ID of the tenant.
+
+> To view the tenant ID, move the pointer over the profile picture in the upper-right corner of the Data Management (DMS) console. For more information, see [Manage DMS tenants](~~181330~~).', example='1', minimum=1, maximum=9223372036854775807, position='Query'),
 }
 
 model ExecuteStructSyncResponseBody = {
-  errorCode?: string(name='ErrorCode', example='UnknownError'),
-  errorMessage?: string(name='ErrorMessage', example='UnknownError'),
-  requestId?: string(name='RequestId', description='Id of the request', example='4E1D2B4D-3E53-4ABC-999D-1D2520B3471A'),
-  success?: boolean(name='Success', example='true'),
+  errorCode?: string(name='ErrorCode', description='The error code.', example='UnknownError'),
+  errorMessage?: string(name='ErrorMessage', description='The error message.', example='UnknownError'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='4E1D2B4D-3E53-4ABC-999D-1D2520B3471A'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model ExecuteStructSyncResponse = {
@@ -1960,6 +1962,11 @@ model ExecuteStructSyncResponse = {
   body: ExecuteStructSyncResponseBody(name='body'),
 }
 
+/**
+  * If the security rules of an instance indicate that a ticket must be approved before you perform schema synchronization, you can call the [SubmitStructSyncOrderApproval](~~206166~~) operation to submit the ticket for approval.
+  * >  You can call the [GetStructSyncJobDetail](~~206160~~) operation to query whether you need to submit a ticket for approval.
+  *
+ */
 async function executeStructSync(request: ExecuteStructSyncRequest): ExecuteStructSyncResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ExecuteStructSync', 'POST', '/', 'json', false, 'json', request);
@@ -3809,39 +3816,41 @@ async function getStructSyncJobAnalyzeResult(request: GetStructSyncJobAnalyzeRes
 
 model GetStructSyncJobDetailRequest {
   regionId?: string(name='RegionId', position='Host'),
-  orderId: long(name='OrderId', description='The total number of tables.', example='4324321', minimum=1, maximum=9223372036854775807, position='Query'),
-  tid?: long(name='Tid', description='The error message that is returned.', example='1', minimum=1, maximum=9223372036854775807, position='Query'),
+  orderId: long(name='OrderId', description='The ticket ID.', example='4324321', minimum=1, maximum=9223372036854775807, position='Query'),
+  tid?: long(name='Tid', description='The tenant ID.
+
+> To view the tenant ID, move the pointer over the profile picture in the upper-right corner of the Data Management (DMS) console. For more information, see [Manage DMS tenants](~~181330~~).', example='1', minimum=1, maximum=9223372036854775807, position='Query'),
 }
 
 model GetStructSyncJobDetailResponseBody = {
-  errorCode?: string(name='ErrorCode', description='The description of the task.', example='UnknownError'),
-  errorMessage?: string(name='ErrorMessage', description='The ID of the ticket.', example='UnknownError'),
-  requestId?: string(name='RequestId', description='The status of the task. Valid values:
+  errorCode?: string(name='ErrorCode', description='The error code.', example='UnknownError'),
+  errorMessage?: string(name='ErrorMessage', description='The error message.', example='UnknownError'),
+  requestId?: string(name='RequestId', description='The request ID.', example='48602B78-0DDF-414C-8688-70CAB6070115'),
+  structSyncJobDetail?: {
+    DBTaskGroupId?: long(name='DBTaskGroupId', description='The ID of the SQL task group.', example='12345'),
+    executeCount?: long(name='ExecuteCount', description='The number of SQL statements that have been executed.', example='1'),
+    jobStatus?: string(name='JobStatus', description='The status of the task. Valid values:
 
 *   **NEW**: The task was created.
 *   **COMPARING**: The schemas of tables were being compared.
 *   **COMPARE_BREAK**: The schema comparison was interrupted.
-*   **COMPARE_FINISH**: The schema comparison was complete.
-*   **NOT_SCRIPTS**: The schema comparison was complete. No scripts were available.
+*   **COMPARE_FINISH**: The comparison was finished.
+*   **NOT_SCRIPTS**: The comparison was finished but no executable script was available.
 *   **SUBMITED_DBTASK**: The task was submitted.
 *   **DBTASK_SUCCESS**: The task was complete.
-*   **SUBMITED_WORKFLOW**: The ticket was submitted for approval.
-*   **WORKFLOW_SUCCESS**: The ticket was approved.', example='48602B78-0DDF-414C-8688-70CAB6070115'),
-  structSyncJobDetail?: {
-    DBTaskGroupId?: long(name='DBTaskGroupId', example='12345'),
-    executeCount?: long(name='ExecuteCount', example='1'),
-    jobStatus?: string(name='JobStatus', description='The number of SQL statements that have been executed.', example='DBTASK_SUCCESS'),
-    message?: string(name='Message', description='The details of the schema synchronization task.', example='test'),
-    securityRule?: string(name='SecurityRule', example='WITHOUT_APPROVE'),
-    sqlCount?: long(name='SqlCount', description='The number of tables that have been analyzed.', example='1'),
-    tableAnalyzed?: long(name='TableAnalyzed', description='The type of security rule. Valid values:
+*   **SUBMITED_WORKFLOW**: The ticket was submitted.
+*   **WORKFLOW_SUCCESS**: The ticket was approved.', example='DBTASK_SUCCESS'),
+    message?: string(name='Message', description='The description of the task.', example='test'),
+    securityRule?: string(name='SecurityRule', description='The type of security rule. Valid values:
 
-*   **CANNOT_SYNC**: The schema synchronization is not allowed.
+*   **CANNOT_SYNC**: Synchronization cannot be performed.
 *   **WITH_APPROVE**: The schema synchronization can be performed after the ticket is approved. You can call the [SubmitStructSyncOrderApproval](~~206166~~) operation to submit the ticket for approval.
-*   **WITHOUT_APPROVE**: The schema synchronization can be performed without approval.', example='2'),
-    tableCount?: long(name='TableCount', description='The ID of the request.', example='2'),
-  }(name='StructSyncJobDetail', description='1'),
-  success?: boolean(name='Success', description='The total number of SQL statements.', example='true'),
+*   **WITHOUT_APPROVE**: The schema synchronization can be performed without approval.', example='WITHOUT_APPROVE'),
+    sqlCount?: long(name='SqlCount', description='The total number of SQL statements.', example='1'),
+    tableAnalyzed?: long(name='TableAnalyzed', description='The number of tables that have been analyzed.', example='2'),
+    tableCount?: long(name='TableCount', description='The total number of tables.', example='2'),
+  }(name='StructSyncJobDetail', description='The details of the schema synchronization task.'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model GetStructSyncJobDetailResponse = {
@@ -7859,6 +7868,30 @@ async function setOwners(request: SetOwnersRequest): SetOwnersResponse {
   return @handler.do('RPC', 'SetOwners', 'POST', '/', 'json', false, 'json', request);
 }
 
+model SkipDataCorrectRowCheckRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  orderId: long(name='OrderId', example='420****', minimum=1, maximum=9223372036854775807, position='Query'),
+  reason: string(name='Reason', position='Query'),
+  tid?: long(name='Tid', example='3***', minimum=1, maximum=9223372036854775807, position='Query'),
+}
+
+model SkipDataCorrectRowCheckResponseBody = {
+  errorCode?: string(name='ErrorCode', example='UnknownError'),
+  errorMessage?: string(name='ErrorMessage', example='UnknownError'),
+  requestId?: string(name='RequestId', description='Id of the request', example='7FAD400F-7A5C-4193-8F9A-39D86C4F0231'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model SkipDataCorrectRowCheckResponse = {
+  headers: map[string]string(name='headers'),
+  body: SkipDataCorrectRowCheckResponseBody(name='body'),
+}
+
+async function skipDataCorrectRowCheck(request: SkipDataCorrectRowCheckRequest): SkipDataCorrectRowCheckResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SkipDataCorrectRowCheck', 'POST', '/', 'json', false, 'json', request);
+}
+
 model StopTaskFlowInstanceRequest {
   regionId?: string(name='RegionId', position='Host'),
   dagId: long(name='DagId', description='The ID of the task flow. You can call the [ListTaskFlow](~~424565~~) or [ListLhTaskFlowAndScenario](~~426672~~) operation to query the task flow ID.', example='7***', position='Query'),
@@ -8276,22 +8309,27 @@ async function updateTaskFlowCooperators(request: UpdateTaskFlowCooperatorsReque
 
 model UpdateTaskFlowEdgesRequest {
   regionId?: string(name='RegionId', position='Host'),
-  dagId: long(name='DagId', description='$.parameters[3].schema.example', example='15***', position='Query'),
+  dagId: long(name='DagId', description='The task flow ID. You can call the [ListTaskFlow](~~424565~~) or [ListLhTaskFlowAndScenario](~~426672~~) operation to query the task flow ID.', example='15***', position='Query'),
   edges: [ 
     {
-      id: long(name='Id', description='$.parameters[2].schema.description', example='24***'),
-      nodeEnd: long(name='NodeEnd', description='$.parameters[2].schema.example', example='44***'),
-      nodeFrom: long(name='NodeFrom', description='$.parameters[2].schema.enumValueTitles', example='44***'),
+      id: long(name='Id', description='The ID of the task flow edge.', example='24***'),
+      nodeEnd: long(name='NodeEnd', description='The ID of the end node of the edge.', example='44***'),
+      nodeFrom: long(name='NodeFrom', description='The ID of the start node of the edge.', example='44***'),
     }
-  ](name='Edges', description='$.parameters[3].schema.enumValueTitles', shrink='json', position='Query'),
-  tid?: long(name='Tid', description='$.parameters[3].schema.description', example='3***', minimum=1, maximum=9223372036854775807, position='Query'),
+  ](name='Edges', description='The list of updated task flow edges.', shrink='json', position='Query'),
+  tid?: long(name='Tid', description='The tenant ID.
+
+> To view the tenant ID, move the pointer over the profile picture in the upper-right corner of the Data Management (DMS) console. For more information, see [Manage DMS tenants](~~181330~~).', example='3***', minimum=1, maximum=9223372036854775807, position='Query'),
 }
 
 model UpdateTaskFlowEdgesResponseBody = {
-  errorCode?: string(name='ErrorCode', description='UpdateTaskFlowEdges', example='UnknownError'),
-  errorMessage?: string(name='ErrorMessage', description='WB01220505', example='UnknownError'),
-  requestId?: string(name='RequestId', description='Updates the start and end nodes of specified edges of a specified task flow at a time.', example='93FC1AE1-EC54-52B1-B146-650180FB82E8'),
-  success?: boolean(name='Success', example='true'),
+  errorCode?: string(name='ErrorCode', description='The error code.', example='UnknownError'),
+  errorMessage?: string(name='ErrorMessage', description='The error message returned if the request failed.', example='UnknownError'),
+  requestId?: string(name='RequestId', description='The request ID.', example='93FC1AE1-EC54-52B1-B146-650180FB82E8'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   **true**
+*   **false**', example='true'),
 }
 
 model UpdateTaskFlowEdgesResponse = {
@@ -8300,9 +8338,11 @@ model UpdateTaskFlowEdgesResponse = {
 }
 
 /**
-  * Indicates whether the request was successful. Valid values:
-  * *   **true**: The request was successful.
-  * *   **false**: The request failed.
+  * ###
+  * The edges can be updated only when the following conditions are met:
+  * 1.  The specified edge exists in the directed acyclic graph (DAG) of the task flow specified by DagId.
+  * 2.  The specified edge nodes exist in the DAG of the task flow specified by DagId.
+  * 3.  After the update, rings do not exist in the DAG.
   *
  */
 async function updateTaskFlowEdges(request: UpdateTaskFlowEdgesRequest): UpdateTaskFlowEdgesResponse {
