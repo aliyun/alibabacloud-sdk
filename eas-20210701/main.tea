@@ -45,6 +45,20 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model ContainerInfo {
+  currentReaon?: string(name='CurrentReaon'),
+  currentStatus?: string(name='CurrentStatus'),
+  currentTimestamp?: string(name='CurrentTimestamp'),
+  image?: string(name='Image'),
+  lastReason?: string(name='LastReason'),
+  lastStatus?: string(name='LastStatus'),
+  lastTimestamp?: string(name='LastTimestamp'),
+  name?: string(name='Name'),
+  port?: int32(name='Port'),
+  ready?: boolean(name='Ready'),
+  restartCount?: int32(name='RestartCount'),
+}
+
 model Group {
   accessToken?: string(name='AccessToken'),
   clusterId?: string(name='ClusterId'),
@@ -57,13 +71,16 @@ model Group {
 }
 
 model Instance {
+  currentAmount?: float(name='CurrentAmount', example='0.444'),
   hostIP?: string(name='HostIP'),
   hostName?: string(name='HostName'),
   innerIP?: string(name='InnerIP'),
   instanceName?: string(name='InstanceName'),
   instancePort?: int32(name='InstancePort'),
+  isSpot?: boolean(name='IsSpot', example='false'),
   lastState?: [  map[string]any ](name='LastState'),
   namespace?: string(name='Namespace'),
+  originalAmount?: float(name='OriginalAmount', example='2.2'),
   readyProcesses?: int32(name='ReadyProcesses'),
   reason?: string(name='Reason'),
   resourceType?: string(name='ResourceType', example='PublicResource'),
@@ -106,6 +123,7 @@ model ResourceInstance {
   instanceMemory?: string(name='InstanceMemory'),
   instanceName?: string(name='InstanceName'),
   instanceStatus?: string(name='InstanceStatus'),
+  instanceSystemDiskSize?: int32(name='InstanceSystemDiskSize'),
   instanceTenantIp?: string(name='InstanceTenantIp'),
   instanceType?: string(name='InstanceType'),
   instanceUsedCpu?: float(name='InstanceUsedCpu'),
@@ -113,6 +131,7 @@ model ResourceInstance {
   instanceUsedGpuMemory?: string(name='InstanceUsedGpuMemory'),
   instanceUsedMemory?: string(name='InstanceUsedMemory'),
   region?: string(name='Region'),
+  resourceId?: string(name='ResourceId'),
   zone?: string(name='Zone'),
 }
 
@@ -177,7 +196,7 @@ model Service {
 
 model CommitServiceResponseBody = {
   message?: string(name='Message', example='Success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model CommitServiceResponse = {
@@ -273,10 +292,13 @@ model CreateResourceRequest {
   chargeType?: string(name='ChargeType', example='PostPaid'),
   ecsInstanceCount?: int32(name='EcsInstanceCount', example='5'),
   ecsInstanceType?: string(name='EcsInstanceType', example='ecs.c6.8xlarge'),
+  systemDiskSize?: int32(name='SystemDiskSize', example='200'),
+  zone?: string(name='Zone', example='cn-shanghai-f'),
 }
 
 model CreateResourceResponseBody = {
   clusterId?: string(name='ClusterId', example='cn-shanghai'),
+  instanceIds?: [ string ](name='InstanceIds'),
   ownerUid?: string(name='OwnerUid', example='14401087478****'),
   requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
   resourceId?: string(name='ResourceId', example='eas-r-h7lcw24dyqztwxxxxxx'),
@@ -303,6 +325,12 @@ async function createResourceWithOptions(request: CreateResourceRequest, headers
   }
   if (!Util.isUnset(request.ecsInstanceType)) {
     body['EcsInstanceType'] = request.ecsInstanceType;
+  }
+  if (!Util.isUnset(request.systemDiskSize)) {
+    body['SystemDiskSize'] = request.systemDiskSize;
+  }
+  if (!Util.isUnset(request.zone)) {
+    body['Zone'] = request.zone;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -334,10 +362,13 @@ model CreateResourceInstancesRequest {
   chargeType?: string(name='ChargeType', example='PrePaid'),
   ecsInstanceCount?: int32(name='EcsInstanceCount', example='5'),
   ecsInstanceType?: string(name='EcsInstanceType', example='ecs.s6-c1m2.xlarge'),
+  systemDiskSize?: int32(name='SystemDiskSize', example='200'),
   userData?: string(name='UserData', example='x112223333'),
+  zone?: string(name='Zone', example='cn-shanghai-f'),
 }
 
 model CreateResourceInstancesResponseBody = {
+  instanceIds?: [ string ](name='InstanceIds'),
   message?: string(name='Message', example='Create 5 new ecs instance(s) in resource [eas-r-asdasdasd] successfully'),
   requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
@@ -363,8 +394,14 @@ async function createResourceInstancesWithOptions(ClusterId: string, ResourceId:
   if (!Util.isUnset(request.ecsInstanceType)) {
     body['EcsInstanceType'] = request.ecsInstanceType;
   }
+  if (!Util.isUnset(request.systemDiskSize)) {
+    body['SystemDiskSize'] = request.systemDiskSize;
+  }
   if (!Util.isUnset(request.userData)) {
     body['UserData'] = request.userData;
+  }
+  if (!Util.isUnset(request.zone)) {
+    body['Zone'] = request.zone;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -442,13 +479,13 @@ async function createResourceLog(ClusterId: string, ResourceId: string, request:
 }
 
 model CreateServiceRequest {
-  develop?: string(name='Develop'),
+  develop?: string(name='Develop', example='true'),
   labels?: map[string]string(name='Labels'),
   body?: string(name='body'),
 }
 
 model CreateServiceShrinkRequest {
-  develop?: string(name='Develop'),
+  develop?: string(name='Develop', example='true'),
   labelsShrink?: string(name='Labels'),
   body?: string(name='body'),
 }
@@ -510,11 +547,23 @@ async function createService(request: CreateServiceRequest): CreateServiceRespon
 }
 
 model CreateServiceAutoScalerRequest {
+  behavior?: {
+    onZero?: {
+      scaleDownGracePeriodSeconds?: int32(name='scaleDownGracePeriodSeconds', example='600'),
+      scaleUpActivationReplicas?: int32(name='scaleUpActivationReplicas', example='1'),
+    }(name='onZero'),
+    scaleDown?: {
+      stabilizationWindowSeconds?: int32(name='stabilizationWindowSeconds', example='300'),
+    }(name='scaleDown'),
+    scaleUp?: {
+      stabilizationWindowSeconds?: int32(name='stabilizationWindowSeconds', example='0'),
+    }(name='scaleUp'),
+  }(name='behavior'),
   max?: int32(name='max', example='8'),
   min?: int32(name='min', example='2'),
   scaleStrategies?: [ 
     {
-      metricName?: string(name='metricName', example='qps'),
+      metricName?: string(name='metricName'),
       service?: string(name='service', example='demo_svc'),
       threshold?: float(name='threshold', example='10'),
     }
@@ -535,6 +584,9 @@ model CreateServiceAutoScalerResponse = {
 async function createServiceAutoScalerWithOptions(ClusterId: string, ServiceName: string, request: CreateServiceAutoScalerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateServiceAutoScalerResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
+  if (!Util.isUnset(request.behavior)) {
+    body['behavior'] = request.behavior;
+  }
   if (!Util.isUnset(request.max)) {
     body['max'] = request.max;
   }
@@ -1025,7 +1077,7 @@ model DeleteServiceLabelShrinkRequest {
 }
 
 model DeleteServiceLabelResponseBody = {
-  message?: string(name='Message', example='Success'),
+  message?: string(name='Message'),
   requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
@@ -1107,19 +1159,19 @@ async function deleteServiceMirror(ClusterId: string, ServiceName: string): Dele
 }
 
 model DescribeBenchmarkTaskResponseBody = {
-  availableAgent?: long(name='AvailableAgent', description='实际可用的压测实例个数。', example='4'),
-  callerUid?: string(name='CallerUid', description='调用者的UID。', example='1640133467****'),
+  availableAgent?: long(name='AvailableAgent', example='4'),
+  callerUid?: string(name='CallerUid', description='压测任务的状态。', example='1640133467****'),
   desiredAgent?: long(name='DesiredAgent', description='预期的压测实例个数。', example='4'),
-  endpoint?: string(name='Endpoint', description='服务对外公开的访问路径。', example='http://15990xxxx.cn-hangzhou.pai-eas.aliyuncs.com/api/predict/xxx'),
-  message?: string(name='Message', description='当前压测任务的运行进度信息。', example='Benchmar task is Running'),
-  parentUid?: string(name='ParentUid', description='资源拥有者的UID。', example='1029728669****'),
-  reason?: string(name='Reason', description='当前压测任务状态产生的原因。', example='RUNNING'),
+  endpoint?: string(name='Endpoint'),
+  message?: string(name='Message', example='Benchmar task is Running'),
+  parentUid?: string(name='ParentUid', example='1029728669****'),
+  reason?: string(name='Reason', example='RUNNING'),
   requestId?: string(name='RequestId', description='请求ID。', example='40325405-579C-4D82****'),
-  serviceName?: string(name='ServiceName', description='压测的eas服务名。', example='foo'),
-  status?: string(name='Status', description='压测任务的状态。', example='Running'),
+  serviceName?: string(name='ServiceName', description='访问eas服务的鉴权token。', example='foo'),
+  status?: string(name='Status', example='Running'),
   taskId?: string(name='TaskId', description='压测任务ID。', example='eas-b-gv4y86u****'),
-  taskName?: string(name='TaskName', description='压测任务名字。', example='benchmark-larec-test-ae70'),
-  token?: string(name='Token', description='访问eas服务的鉴权token。', example='6062787a-9301****'),
+  taskName?: string(name='TaskName', description='当前压测任务状态产生的原因。', example='benchmark-larec-test-ae70'),
+  token?: string(name='Token', description='资源拥有者的UID。', example='6062787a-9301****'),
 }
 
 model DescribeBenchmarkTaskResponse = {
@@ -1449,7 +1501,7 @@ model DescribeServiceAutoScalerResponseBody = {
   requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
   scaleStrategies?: [ 
     {
-      metricName?: string(name='metricName', example='qps'),
+      metricName?: string(name='metricName'),
       service?: string(name='service', example='demo_svc'),
       threshold?: float(name='threshold', example='10'),
     }
@@ -1536,6 +1588,8 @@ async function describeServiceCronScaler(ClusterId: string, ServiceName: string)
 
 model DescribeServiceEventRequest {
   endTime?: string(name='EndTime', example='2006-01-02 15:04:05'),
+  eventType?: string(name='EventType', example='Normal'),
+  instanceName?: string(name='InstanceName', example='echo-test-784xxxx85d-hhnd8'),
   pageNum?: string(name='PageNum', example='1'),
   pageSize?: string(name='PageSize', example='20'),
   startTime?: string(name='StartTime', example='2006-01-02 15:04:05'),
@@ -1567,6 +1621,12 @@ async function describeServiceEventWithOptions(ClusterId: string, ServiceName: s
   var query : map[string]any = {};
   if (!Util.isUnset(request.endTime)) {
     query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.eventType)) {
+    query['EventType'] = request.eventType;
+  }
+  if (!Util.isUnset(request.instanceName)) {
+    query['InstanceName'] = request.instanceName;
   }
   if (!Util.isUnset(request.pageNum)) {
     query['PageNum'] = request.pageNum;
@@ -1603,11 +1663,14 @@ async function describeServiceEvent(ClusterId: string, ServiceName: string, requ
 }
 
 model DescribeServiceLogRequest {
+  containerName?: string(name='ContainerName', description='服务实例的容器名称。', example='worker0'),
   endTime?: string(name='EndTime', example='2006-01-02 15:04:05'),
+  instanceName?: string(name='InstanceName', example='echo-da290ac8-7fckm'),
   ip?: string(name='Ip', example='10.0.0.1'),
   keyword?: string(name='Keyword', example='key'),
   pageNum?: long(name='PageNum', example='1'),
   pageSize?: long(name='PageSize', example='500'),
+  previous?: boolean(name='Previous', example='true'),
   startTime?: string(name='StartTime', example='2006-01-02 15:04:05'),
 }
 
@@ -1628,8 +1691,14 @@ model DescribeServiceLogResponse = {
 async function describeServiceLogWithOptions(ClusterId: string, ServiceName: string, request: DescribeServiceLogRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeServiceLogResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
+  if (!Util.isUnset(request.containerName)) {
+    query['ContainerName'] = request.containerName;
+  }
   if (!Util.isUnset(request.endTime)) {
     query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.instanceName)) {
+    query['InstanceName'] = request.instanceName;
   }
   if (!Util.isUnset(request.ip)) {
     query['Ip'] = request.ip;
@@ -1642,6 +1711,9 @@ async function describeServiceLogWithOptions(ClusterId: string, ServiceName: str
   }
   if (!Util.isUnset(request.pageSize)) {
     query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.previous)) {
+    query['Previous'] = request.previous;
   }
   if (!Util.isUnset(request.startTime)) {
     query['StartTime'] = request.startTime;
@@ -1714,7 +1786,7 @@ model DevelopServiceRequest {
 
 model DevelopServiceResponseBody = {
   message?: string(name='Message', example='Success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
 model DevelopServiceResponse = {
@@ -1755,15 +1827,15 @@ async function developService(ClusterId: string, ServiceName: string, request: D
 }
 
 model ListBenchmarkTaskRequest {
-  filter?: string(name='Filter'),
-  pageNumber?: string(name='PageNumber'),
-  pageSize?: string(name='PageSize'),
-  serviceName?: string(name='ServiceName'),
+  filter?: string(name='Filter', example='test_bench'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='10'),
+  serviceName?: string(name='ServiceName', example='test_bench_srv'),
 }
 
 model ListBenchmarkTaskResponseBody = {
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='20'),
   requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
   tasks?: [ 
     {
@@ -1778,7 +1850,7 @@ model ListBenchmarkTaskResponseBody = {
       updateTime?: string(name='UpdateTime', example='2020-06-24T03:11:30Z'),
     }
   ](name='Tasks'),
-  totalCount?: int32(name='TotalCount'),
+  totalCount?: int32(name='TotalCount', example='2'),
 }
 
 model ListBenchmarkTaskResponse = {
@@ -1839,7 +1911,7 @@ model ListGroupsResponseBody = {
   ](name='Groups'),
   pageNumber?: long(name='PageNumber', example='1'),
   pageSize?: long(name='PageSize', example='20'),
-  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
   totalCount?: long(name='TotalCount', example='5'),
 }
 
@@ -1943,10 +2015,15 @@ async function listResourceInstanceWorker(ClusterId: string, ResourceId: string,
 
 model ListResourceInstancesRequest {
   chargeType?: string(name='ChargeType', example='PrePaid'),
-  instanceId?: string(name='InstanceId'),
-  instanceName?: string(name='InstanceName'),
+  filter?: string(name='Filter'),
+  instanceIP?: string(name='InstanceIP'),
+  instanceId?: string(name='InstanceId', example='i-bp1jd6x3uotsv****'),
+  instanceName?: string(name='InstanceName', example='e-xxxx***'),
+  instanceStatus?: string(name='InstanceStatus'),
+  order?: string(name='Order'),
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='20'),
+  sort?: string(name='Sort'),
 }
 
 model ListResourceInstancesResponseBody = {
@@ -1971,17 +2048,32 @@ async function listResourceInstancesWithOptions(ClusterId: string, ResourceId: s
   if (!Util.isUnset(request.chargeType)) {
     query['ChargeType'] = request.chargeType;
   }
+  if (!Util.isUnset(request.filter)) {
+    query['Filter'] = request.filter;
+  }
+  if (!Util.isUnset(request.instanceIP)) {
+    query['InstanceIP'] = request.instanceIP;
+  }
   if (!Util.isUnset(request.instanceId)) {
     query['InstanceId'] = request.instanceId;
   }
   if (!Util.isUnset(request.instanceName)) {
     query['InstanceName'] = request.instanceName;
   }
+  if (!Util.isUnset(request.instanceStatus)) {
+    query['InstanceStatus'] = request.instanceStatus;
+  }
+  if (!Util.isUnset(request.order)) {
+    query['Order'] = request.order;
+  }
   if (!Util.isUnset(request.pageNumber)) {
     query['PageNumber'] = request.pageNumber;
   }
   if (!Util.isUnset(request.pageSize)) {
     query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.sort)) {
+    query['Sort'] = request.sort;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2066,8 +2158,8 @@ async function listResourceServices(ClusterId: string, ResourceId: string, reque
 model ListResourcesRequest {
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='20'),
-  resourceId?: string(name='ResourceId'),
-  resourceName?: string(name='ResourceName'),
+  resourceId?: string(name='ResourceId', example='eas-r-h7lcw24dyqztwxxxxxx'),
+  resourceName?: string(name='ResourceName', example='MyResource'),
 }
 
 model ListResourcesResponseBody = {
@@ -2127,8 +2219,19 @@ async function listResources(request: ListResourcesRequest): ListResourcesRespon
 }
 
 model ListServiceInstancesRequest {
+  filter?: string(name='Filter'),
+  hostIP?: string(name='HostIP'),
+  instanceIP?: string(name='InstanceIP'),
+  instanceName?: string(name='InstanceName'),
+  instanceStatus?: string(name='InstanceStatus'),
+  instanceType?: string(name='InstanceType'),
+  isSpot?: boolean(name='IsSpot'),
+  order?: string(name='Order'),
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='20'),
+  resourceType?: string(name='ResourceType'),
+  role?: string(name='Role'),
+  sort?: string(name='Sort'),
 }
 
 model ListServiceInstancesResponseBody = {
@@ -2150,11 +2253,44 @@ model ListServiceInstancesResponse = {
 async function listServiceInstancesWithOptions(ClusterId: string, ServiceName: string, request: ListServiceInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListServiceInstancesResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
+  if (!Util.isUnset(request.filter)) {
+    query['Filter'] = request.filter;
+  }
+  if (!Util.isUnset(request.hostIP)) {
+    query['HostIP'] = request.hostIP;
+  }
+  if (!Util.isUnset(request.instanceIP)) {
+    query['InstanceIP'] = request.instanceIP;
+  }
+  if (!Util.isUnset(request.instanceName)) {
+    query['InstanceName'] = request.instanceName;
+  }
+  if (!Util.isUnset(request.instanceStatus)) {
+    query['InstanceStatus'] = request.instanceStatus;
+  }
+  if (!Util.isUnset(request.instanceType)) {
+    query['InstanceType'] = request.instanceType;
+  }
+  if (!Util.isUnset(request.isSpot)) {
+    query['IsSpot'] = request.isSpot;
+  }
+  if (!Util.isUnset(request.order)) {
+    query['Order'] = request.order;
+  }
   if (!Util.isUnset(request.pageNumber)) {
     query['PageNumber'] = request.pageNumber;
   }
   if (!Util.isUnset(request.pageSize)) {
     query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query['ResourceType'] = request.resourceType;
+  }
+  if (!Util.isUnset(request.role)) {
+    query['Role'] = request.role;
+  }
+  if (!Util.isUnset(request.sort)) {
+    query['Sort'] = request.sort;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2243,32 +2379,148 @@ async function listServiceVersions(ClusterId: string, ServiceName: string, reque
 }
 
 model ListServicesRequest {
-  filter?: string(name='Filter', description='关键字搜索。', example='foo'),
-  groupName?: string(name='GroupName', description='所属的group。', example='foo'),
+  filter?: string(name='Filter', description='{
+  "RequestId": "40325405-579C-4D82-9624-EC2B1779848E",
+  "Services": [
+    {
+      "ServiceId": "200516454695942578",
+      "ServiceName": "vipserver",
+      "ParentUid": "1628454689805075",
+      "CallerUid": "eas",
+      "CurrentVersion": 1,
+      "Cpu": 1,
+      "Gpu": 0,
+      "Memory": 900,
+      "Image": "registry.cn-zhangjiakou.aliyuncs.com/eas/ndisearch_v1_inner_zhangbei:v0.0.3-20200302145109",
+      "Resource": "seccontent_inner_2080ti_5",
+      "Namespace": "vipserver",
+      "CreateTime": "2019-10-25T10:37:53Z",
+      "UpdateTime": "2019-10-30T16:50:59Z",
+      "TotalInstance": 1,
+      "RunningInstance": 1,
+      "PendingInstance": 0,
+      "LatestVersion": 1,
+      "Status": "Running",
+      "Reason": "RUNNING",
+      "Message": "Service is now scaling",
+      "AccessToken": "",
+      "Weight": 0
+    },
+    {
+      "ServiceId": 97097,
+      "ServiceName": "a1",
+      "CallerUid": "eas",
+      "CurrentVersion": 1,
+      "Cpu": 1,
+      "Gpu": 0,
+      "Memory": 900,
+      "Image": "registry.cn-hangzhou.aliyuncs.com/eas/pi_imemb_tb:v0.0.1-20191023130701",
+      "Resource": "seccontent_inner_b",
+      "Namespace": "a1",
+      "CreateTime": "2020-05-26T18:03:11Z",
+      "UpdateTime": "2020-05-26T18:03:11Z",
+      "TotalInstance": 1,
+      "RunningInstance": 0,
+      "PendingInstance": 1,
+      "LatestVersion": 1,
+      "Status": "Failed",
+      "Reason": "FAILED",
+      "Message": "the server could not find the requested resource (post services.meta.k8s.io)",
+      "AccessToken": "regression_test_token",
+      "Weight": 0
+    }
+  ],
+  "PageNumber": 1,
+  "PageSize": 2,
+  "TotalCount": 2
+}', example='foo'),
+  groupName?: string(name='GroupName', example='foo'),
   label?: map[string]string(name='Label'),
-  order?: string(name='Order', description='排序顺序，支持升序或将序。', example='asc'),
-  pageNumber?: int32(name='PageNumber', description='页号。', example='1'),
-  pageSize?: int32(name='PageSize', description='每页大小。', example='100'),
-  parentServiceUid?: string(name='ParentServiceUid', description='Band类型服务主服务的UID', example='eas-m-baxkc20nsyxxxx'),
-  serviceType?: string(name='ServiceType', description='服务的类型，例如Async, OfflineTask和Standard等', example='Async'),
-  sort?: string(name='Sort', description='排序字段。', example='CreateTime'),
+  order?: string(name='Order', description='所属的group。', example='asc'),
+  pageNumber?: int32(name='PageNumber', description='376577', example='1'),
+  pageSize?: int32(name='PageSize', example='100'),
+  parentServiceUid?: string(name='ParentServiceUid'),
+  resourceName?: string(name='ResourceName', description='服务所属的资源组名称或ID。', example='eas-r-hd0qwy8cxxxx'),
+  serviceName?: string(name='ServiceName', description='服务名。', example='echo_test'),
+  serviceStatus?: string(name='ServiceStatus', description='服务运行的状态。', example='Running'),
+  serviceType?: string(name='ServiceType'),
+  serviceUid?: string(name='ServiceUid', example='eas-m-c9iw3yitxxxx'),
+  sort?: string(name='Sort', description='服务的类型定义。', example='CreateTime'),
 }
 
 model ListServicesShrinkRequest {
-  filter?: string(name='Filter', description='关键字搜索。', example='foo'),
-  groupName?: string(name='GroupName', description='所属的group。', example='foo'),
+  filter?: string(name='Filter', description='{
+  "RequestId": "40325405-579C-4D82-9624-EC2B1779848E",
+  "Services": [
+    {
+      "ServiceId": "200516454695942578",
+      "ServiceName": "vipserver",
+      "ParentUid": "1628454689805075",
+      "CallerUid": "eas",
+      "CurrentVersion": 1,
+      "Cpu": 1,
+      "Gpu": 0,
+      "Memory": 900,
+      "Image": "registry.cn-zhangjiakou.aliyuncs.com/eas/ndisearch_v1_inner_zhangbei:v0.0.3-20200302145109",
+      "Resource": "seccontent_inner_2080ti_5",
+      "Namespace": "vipserver",
+      "CreateTime": "2019-10-25T10:37:53Z",
+      "UpdateTime": "2019-10-30T16:50:59Z",
+      "TotalInstance": 1,
+      "RunningInstance": 1,
+      "PendingInstance": 0,
+      "LatestVersion": 1,
+      "Status": "Running",
+      "Reason": "RUNNING",
+      "Message": "Service is now scaling",
+      "AccessToken": "",
+      "Weight": 0
+    },
+    {
+      "ServiceId": 97097,
+      "ServiceName": "a1",
+      "CallerUid": "eas",
+      "CurrentVersion": 1,
+      "Cpu": 1,
+      "Gpu": 0,
+      "Memory": 900,
+      "Image": "registry.cn-hangzhou.aliyuncs.com/eas/pi_imemb_tb:v0.0.1-20191023130701",
+      "Resource": "seccontent_inner_b",
+      "Namespace": "a1",
+      "CreateTime": "2020-05-26T18:03:11Z",
+      "UpdateTime": "2020-05-26T18:03:11Z",
+      "TotalInstance": 1,
+      "RunningInstance": 0,
+      "PendingInstance": 1,
+      "LatestVersion": 1,
+      "Status": "Failed",
+      "Reason": "FAILED",
+      "Message": "the server could not find the requested resource (post services.meta.k8s.io)",
+      "AccessToken": "regression_test_token",
+      "Weight": 0
+    }
+  ],
+  "PageNumber": 1,
+  "PageSize": 2,
+  "TotalCount": 2
+}', example='foo'),
+  groupName?: string(name='GroupName', example='foo'),
   labelShrink?: string(name='Label'),
-  order?: string(name='Order', description='排序顺序，支持升序或将序。', example='asc'),
-  pageNumber?: int32(name='PageNumber', description='页号。', example='1'),
-  pageSize?: int32(name='PageSize', description='每页大小。', example='100'),
-  parentServiceUid?: string(name='ParentServiceUid', description='Band类型服务主服务的UID', example='eas-m-baxkc20nsyxxxx'),
-  serviceType?: string(name='ServiceType', description='服务的类型，例如Async, OfflineTask和Standard等', example='Async'),
-  sort?: string(name='Sort', description='排序字段。', example='CreateTime'),
+  order?: string(name='Order', description='所属的group。', example='asc'),
+  pageNumber?: int32(name='PageNumber', description='376577', example='1'),
+  pageSize?: int32(name='PageSize', example='100'),
+  parentServiceUid?: string(name='ParentServiceUid'),
+  resourceName?: string(name='ResourceName', description='服务所属的资源组名称或ID。', example='eas-r-hd0qwy8cxxxx'),
+  serviceName?: string(name='ServiceName', description='服务名。', example='echo_test'),
+  serviceStatus?: string(name='ServiceStatus', description='服务运行的状态。', example='Running'),
+  serviceType?: string(name='ServiceType'),
+  serviceUid?: string(name='ServiceUid', example='eas-m-c9iw3yitxxxx'),
+  sort?: string(name='Sort', description='服务的类型定义。', example='CreateTime'),
 }
 
 model ListServicesResponseBody = {
-  pageNumber?: int32(name='PageNumber', description='页码。', example='1'),
-  pageSize?: int32(name='PageSize', description='每页显示的服务数。', example='100'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='100'),
   requestId?: string(name='RequestId', description='请求ID。', example='40325405-579C-4D82****'),
   services?: [
     Service
@@ -2311,8 +2563,20 @@ async function listServicesWithOptions(tmpReq: ListServicesRequest, headers: map
   if (!Util.isUnset(request.parentServiceUid)) {
     query['ParentServiceUid'] = request.parentServiceUid;
   }
+  if (!Util.isUnset(request.resourceName)) {
+    query['ResourceName'] = request.resourceName;
+  }
+  if (!Util.isUnset(request.serviceName)) {
+    query['ServiceName'] = request.serviceName;
+  }
+  if (!Util.isUnset(request.serviceStatus)) {
+    query['ServiceStatus'] = request.serviceStatus;
+  }
   if (!Util.isUnset(request.serviceType)) {
     query['ServiceType'] = request.serviceType;
+  }
+  if (!Util.isUnset(request.serviceUid)) {
+    query['ServiceUid'] = request.serviceUid;
   }
   if (!Util.isUnset(request.sort)) {
     query['Sort'] = request.sort;
@@ -2771,6 +3035,18 @@ async function updateService(ClusterId: string, ServiceName: string, request: Up
 }
 
 model UpdateServiceAutoScalerRequest {
+  behavior?: {
+    onZero?: {
+      scaleDownGracePeriodSeconds?: int32(name='scaleDownGracePeriodSeconds', example='600'),
+      scaleUpActivationReplicas?: int32(name='scaleUpActivationReplicas', example='1'),
+    }(name='onZero'),
+    scaleDown?: {
+      stabilizationWindowSeconds?: int32(name='stabilizationWindowSeconds', example='300'),
+    }(name='scaleDown'),
+    scaleUp?: {
+      stabilizationWindowSeconds?: int32(name='stabilizationWindowSeconds', example='0'),
+    }(name='scaleUp'),
+  }(name='behavior'),
   max?: int32(name='max', example='8'),
   min?: int32(name='min', example='2'),
   scaleStrategies?: [ 
@@ -2796,6 +3072,9 @@ model UpdateServiceAutoScalerResponse = {
 async function updateServiceAutoScalerWithOptions(ClusterId: string, ServiceName: string, request: UpdateServiceAutoScalerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateServiceAutoScalerResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
+  if (!Util.isUnset(request.behavior)) {
+    body['behavior'] = request.behavior;
+  }
   if (!Util.isUnset(request.max)) {
     body['max'] = request.max;
   }
@@ -2891,7 +3170,7 @@ model UpdateServiceLabelRequest {
 }
 
 model UpdateServiceLabelResponseBody = {
-  message?: string(name='Message', example='Success.'),
+  message?: string(name='Message'),
   requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
 }
 
