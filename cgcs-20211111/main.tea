@@ -198,8 +198,8 @@ async function createAdaptation(request: CreateAdaptationRequest): CreateAdaptat
 model CreateAppRequest {
   appName?: string(name='AppName', example='example'),
   appType?: string(name='AppType', example='end_game'),
-  streamingAppId?: string(name='StreamingAppId'),
-  streamingSolution?: string(name='StreamingSolution'),
+  streamingAppId?: string(name='StreamingAppId', example='47d0bd4d-8815-48a2-b783-6cbba89d****'),
+  streamingSolution?: string(name='StreamingSolution', example='self-have-streaming'),
 }
 
 model CreateAppResponseBody = {
@@ -964,8 +964,8 @@ model GetAppResponseBody = {
   gmtCreate?: string(name='GmtCreate', example='2022-04-06 02:00:00'),
   gmtModified?: string(name='GmtModified', example='2022-04-06 02:00:00'),
   requestId?: string(name='RequestId', example='46329898-489C-4E63-9BA1-C1DA5C5D0986'),
-  streamingAppId?: string(name='StreamingAppId'),
-  streamingSolution?: string(name='StreamingSolution'),
+  streamingAppId?: string(name='StreamingAppId', example='47d0bd4d-8815-48a2-b783-6cbba89d****'),
+  streamingSolution?: string(name='StreamingSolution', example='self-have-streaming'),
   versionAdaptNum?: long(name='VersionAdaptNum', example='10'),
   versionTotalNum?: long(name='VersionTotalNum', example='28'),
 }
@@ -1014,14 +1014,14 @@ model GetAppCcuResponseBody = {
   detailList?: [ 
     {
       appId?: string(name='AppId', example='13027****'),
-      appVersion?: string(name='AppVersion'),
+      appVersion?: string(name='AppVersion', example='35067****'),
       ccu?: string(name='Ccu', example='100'),
       districtId?: string(name='DistrictId', example='huadong'),
       projectId?: string(name='ProjectId', example='d9a8****'),
     }
   ](name='DetailList'),
   requestId?: string(name='RequestId', example='46329898-489C-4E63-9BA1-C1DA5C5D0986'),
-  timestamp?: string(name='Timestamp', example='1658327517'),
+  timestamp?: string(name='Timestamp'),
 }
 
 model GetAppCcuResponse = {
@@ -1064,9 +1064,9 @@ model GetAppSessionResponseBody = {
   appId?: string(name='AppId', example='13027XXXX'),
   appVersion?: string(name='AppVersion', example='35067XXXX'),
   bizInfo?: {
-    startTime?: string(name='StartTime'),
-    stopTime?: string(name='StopTime'),
-  }(name='BizInfo'),
+    startTime?: string(name='StartTime', description='会话启动时间', example='2022-07-20 17:58:51'),
+    stopTime?: string(name='StopTime', description='会话停止时间', example='2022-07-20 17:58:57'),
+  }(name='BizInfo', description='业务特定的信息，如会话启动/停止时间。'),
   customSessionId?: string(name='CustomSessionId', example='1ADE0XXXX'),
   platformSessionId?: string(name='PlatformSessionId', example='100XXXX'),
   requestId?: string(name='RequestId', example='46329898-489C-4E63-9BA1-C1DA5C5D0986'),
@@ -1179,7 +1179,7 @@ model GetCapacityResponseBody = {
       appId?: string(name='AppId', example='13027****'),
       appVersion?: string(name='AppVersion', example='35067****'),
       districtId?: string(name='DistrictId', example='huadong'),
-      projectId?: string(name='ProjectId'),
+      projectId?: string(name='ProjectId', example='d9a8****'),
       sessionCapacity?: int32(name='SessionCapacity', example='2'),
     }
   ](name='Capacities'),
@@ -1422,6 +1422,7 @@ model ListAppSessionsRequest {
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='20'),
   platformSessionIds?: [ string ](name='PlatformSessionIds'),
+  projectId?: string(name='ProjectId'),
 }
 
 model ListAppSessionsResponseBody = {
@@ -1435,6 +1436,7 @@ model ListAppSessionsResponseBody = {
       }(name='BizInfo'),
       customSessionId?: string(name='CustomSessionId', example='1ADE0XXXX'),
       platformSessionId?: string(name='PlatformSessionId', example='100XXXX'),
+      projectId?: string(name='ProjectId'),
       status?: string(name='Status', example='running'),
     }
   ](name='AppSessions'),
@@ -1467,6 +1469,9 @@ async function listAppSessionsWithOptions(request: ListAppSessionsRequest, runti
   }
   if (!Util.isUnset(request.platformSessionIds)) {
     query['PlatformSessionIds'] = request.platformSessionIds;
+  }
+  if (!Util.isUnset(request.projectId)) {
+    query['ProjectId'] = request.projectId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1914,5 +1919,58 @@ async function stopAppSessionBatchWithOptions(tmpReq: StopAppSessionBatchRequest
 async function stopAppSessionBatch(request: StopAppSessionBatchRequest): StopAppSessionBatchResponse {
   var runtime = new Util.RuntimeOptions{};
   return stopAppSessionBatchWithOptions(request, runtime);
+}
+
+model UpdateSessionBizStatusRequest {
+  bizStatus?: string(name='BizStatus'),
+  platformSessionId?: string(name='PlatformSessionId'),
+}
+
+model UpdateSessionBizStatusResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    customSessionId?: string(name='CustomSessionId'),
+    platformSessionId?: string(name='PlatformSessionId'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model UpdateSessionBizStatusResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateSessionBizStatusResponseBody(name='body'),
+}
+
+async function updateSessionBizStatusWithOptions(request: UpdateSessionBizStatusRequest, runtime: Util.RuntimeOptions): UpdateSessionBizStatusResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.bizStatus)) {
+    query['BizStatus'] = request.bizStatus;
+  }
+  if (!Util.isUnset(request.platformSessionId)) {
+    query['PlatformSessionId'] = request.platformSessionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateSessionBizStatus',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function updateSessionBizStatus(request: UpdateSessionBizStatusRequest): UpdateSessionBizStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateSessionBizStatusWithOptions(request, runtime);
 }
 
