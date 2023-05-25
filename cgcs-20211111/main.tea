@@ -251,15 +251,15 @@ async function createApp(request: CreateAppRequest): CreateAppResponse {
 }
 
 model CreateAppSessionRequest {
-  adapterFileId?: string(name='AdapterFileId'),
+  adapterFileId?: string(name='AdapterFileId', description='适配文件ID。此功能灰度开放，如未约定使用请勿传入。', example='501716211209548966XXXX'),
   appId?: string(name='AppId', example='13027XXXX'),
   appVersion?: string(name='AppVersion', example='35067XXXX'),
   clientIp?: string(name='ClientIp', example='192.168.XXX.XXX'),
   customSessionId?: string(name='CustomSessionId', example='1ADE0XXXX'),
   customUserId?: string(name='CustomUserId', example='2YEF0XXXX'),
-  districtId?: string(name='DistrictId'),
-  enablePostpaid?: boolean(name='EnablePostpaid'),
-  projectId?: string(name='ProjectId'),
+  districtId?: string(name='DistrictId', example='huadong'),
+  enablePostpaid?: boolean(name='EnablePostpaid', example='false'),
+  projectId?: string(name='ProjectId', description='项目ID。如果已将应用关联到项目，创建会话时需填写正确的项目ID。', example='d9a8****'),
   startParameters?: [ 
     {
       key?: string(name='Key', example='startArgument'),
@@ -272,7 +272,7 @@ model CreateAppSessionRequest {
       value?: string(name='Value', example='OE0usD+APXXXX'),
     }
   ](name='SystemInfo'),
-  timeout?: long(name='Timeout'),
+  timeout?: long(name='Timeout', example='1800'),
 }
 
 model CreateAppSessionResponseBody = {
@@ -1422,7 +1422,7 @@ model ListAppSessionsRequest {
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='20'),
   platformSessionIds?: [ string ](name='PlatformSessionIds'),
-  projectId?: string(name='ProjectId'),
+  projectId?: string(name='ProjectId', example='d9a8****'),
 }
 
 model ListAppSessionsResponseBody = {
@@ -1431,12 +1431,12 @@ model ListAppSessionsResponseBody = {
       appId?: string(name='AppId', example='13027XXXX'),
       appVersion?: string(name='AppVersion', example='35067XXXX'),
       bizInfo?: {
-        startTime?: string(name='StartTime'),
-        stopTime?: string(name='StopTime'),
-      }(name='BizInfo'),
+        startTime?: string(name='StartTime', description='会话启动时间', example='2022-07-20 17:58:51'),
+        stopTime?: string(name='StopTime', description='会话停止时间', example='2022-07-20 17:58:57'),
+      }(name='BizInfo', description='业务特定的信息，如会话启动/停止时间。'),
       customSessionId?: string(name='CustomSessionId', example='1ADE0XXXX'),
       platformSessionId?: string(name='PlatformSessionId', example='100XXXX'),
-      projectId?: string(name='ProjectId'),
+      projectId?: string(name='ProjectId', example='d9a8****'),
       status?: string(name='Status', example='running'),
     }
   ](name='AppSessions'),
@@ -1757,21 +1757,68 @@ async function releaseCapacityByBatch(request: ReleaseCapacityByBatchRequest): R
   return releaseCapacityByBatchWithOptions(request, runtime);
 }
 
+model SendBizCocChangeCallbackRequest {
+  platformSessionId?: string(name='PlatformSessionId'),
+  result?: boolean(name='Result'),
+}
+
+model SendBizCocChangeCallbackResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model SendBizCocChangeCallbackResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: SendBizCocChangeCallbackResponseBody(name='body'),
+}
+
+async function sendBizCocChangeCallbackWithOptions(request: SendBizCocChangeCallbackRequest, runtime: Util.RuntimeOptions): SendBizCocChangeCallbackResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.platformSessionId)) {
+    query['PlatformSessionId'] = request.platformSessionId;
+  }
+  if (!Util.isUnset(request.result)) {
+    query['Result'] = request.result;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'SendBizCocChangeCallback',
+    version = '2021-11-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function sendBizCocChangeCallback(request: SendBizCocChangeCallbackRequest): SendBizCocChangeCallbackResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return sendBizCocChangeCallbackWithOptions(request, runtime);
+}
+
 model StopAppSessionRequest {
   customSessionId?: string(name='CustomSessionId', example='1ADE0XXXX'),
   platformSessionId?: string(name='PlatformSessionId', example='100XXXX'),
   stopParam?: [ 
     {
-      key?: string(name='Key'),
-      value?: any(name='Value'),
+      key?: string(name='Key', description='目前支持的枚举值包括：
+- reason：停止原因。', example='reason'),
+      value?: any(name='Value', description='key对应的取值。', example='exampleValue'),
     }
-  ](name='StopParam'),
+  ](name='StopParam', description='停止容器参数。此参数将透传到Agent。'),
 }
 
 model StopAppSessionShrinkRequest {
   customSessionId?: string(name='CustomSessionId', example='1ADE0XXXX'),
   platformSessionId?: string(name='PlatformSessionId', example='100XXXX'),
-  stopParamShrink?: string(name='StopParam'),
+  stopParamShrink?: string(name='StopParam', description='停止容器参数。此参数将透传到Agent。'),
 }
 
 model StopAppSessionResponseBody = {
