@@ -261,11 +261,19 @@ model JobDebuggerConfig {
 model JobElasticSpec {
   AIMasterDockerImage?: string(name='AIMasterDockerImage'),
   AIMasterType?: string(name='AIMasterType'),
+  EDPMaxParallelism?: int32(name='EDPMaxParallelism', example='16'),
+  EDPMinParallelism?: int32(name='EDPMinParallelism', example='8'),
+  elasticStrategy?: string(name='ElasticStrategy'),
   enableAIMaster?: boolean(name='EnableAIMaster'),
+  enableEDP?: boolean(name='EnableEDP', example='true'),
   enableElasticTraining?: boolean(name='EnableElasticTraining', example='true'),
+  enablePsJobElasticPS?: boolean(name='EnablePsJobElasticPS', example='true'),
   enablePsJobElasticWorker?: boolean(name='EnablePsJobElasticWorker'),
+  enablePsResourceEstimate?: boolean(name='EnablePsResourceEstimate', example='true'),
   maxParallelism?: int32(name='MaxParallelism', example='8'),
   minParallelism?: int32(name='MinParallelism', example='1'),
+  PSMaxParallelism?: int32(name='PSMaxParallelism', example='10'),
+  PSMinParallelism?: int32(name='PSMinParallelism', example='4'),
 }
 
 model JobItem {
@@ -354,6 +362,20 @@ model NodeMetric {
     Metric
   ](name='Metrics'),
   nodeName?: string(name='NodeName', example='asi_xxx'),
+}
+
+model PodItem {
+  gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
+  gmtFinishTime?: string(name='GmtFinishTime', example='2021-01-12T15:36:05Z'),
+  gmtStartTime?: string(name='GmtStartTime', example='2021-01-12T14:36:05Z'),
+  historyPods?: [
+    PodItem
+  ](name='HistoryPods'),
+  ip?: string(name='Ip', example='10.0.1.2'),
+  podId?: string(name='PodId', example='dlc-20210126170216-mtl37ge7gkvdz-worker-0'),
+  podUid?: string(name='PodUid', example='fe846462-af2c-4521-bd6f-96787a57591d'),
+  status?: string(name='Status', example='Stopped'),
+  type?: string(name='Type', example='Worker'),
 }
 
 model PodMetric {
@@ -494,7 +516,7 @@ model CreateJobRequest {
   priority?: int32(name='Priority', example='8'),
   resourceId?: string(name='ResourceId', example='rs-xxx'),
   settings?: JobSettings(name='Settings'),
-  successPolicy?: string(name='SuccessPolicy'),
+  successPolicy?: string(name='SuccessPolicy', example='AllWorkers'),
   thirdpartyLibDir?: string(name='ThirdpartyLibDir', example='/root/code/'),
   thirdpartyLibs?: [ string ](name='ThirdpartyLibs'),
   userCommand?: string(name='UserCommand', example='python /root/code/mnist.py'),
@@ -604,16 +626,16 @@ async function createJob(request: CreateJobRequest): CreateJobResponse {
 }
 
 model CreateTensorboardRequest {
-  cpu?: long(name='Cpu'),
+  cpu?: long(name='Cpu', example='1'),
   dataSourceId?: string(name='DataSourceId', example='d-xxxxxxxx'),
-  dataSourceType?: string(name='DataSourceType', example='oss'),
+  dataSourceType?: string(name='DataSourceType'),
   dataSources?: [
     DataSourceItem
   ](name='DataSources'),
   displayName?: string(name='DisplayName', example='tensorboard'),
   jobId?: string(name='JobId', example='dlc-20210126170216-mtl37ge7gkvdz'),
   maxRunningTimeMinutes?: long(name='MaxRunningTimeMinutes', example='240'),
-  memory?: long(name='Memory'),
+  memory?: long(name='Memory', example='1000'),
   options?: string(name='Options', example='{"mountpath":"/root/data/"}'),
   sourceId?: string(name='SourceId', example='dlc-xxxxxx'),
   sourceType?: string(name='SourceType', example='job'),
@@ -624,10 +646,10 @@ model CreateTensorboardRequest {
 }
 
 model CreateTensorboardResponseBody = {
-  dataSourceId?: string(name='DataSourceId', description='DataSourceId', example='ds-20210126170216-xxxxxxxx'),
+  dataSourceId?: string(name='DataSourceId', example='ds-20210126170216-xxxxxxxx'),
   jobId?: string(name='JobId', example='dlc-20210126170216-xxxxxxxx'),
   requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  tensorboardId?: string(name='TensorboardId', description='Tensorboard id', example='tbxxxxxxxx'),
+  tensorboardId?: string(name='TensorboardId', example='tbxxxxxxxx'),
 }
 
 model CreateTensorboardResponse = {
@@ -750,7 +772,7 @@ model DeleteTensorboardRequest {
 
 model DeleteTensorboardResponseBody = {
   requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  tensorboardId?: string(name='TensorboardId', description='Tensorboad Id', example='tensorboard-20210114104214-vf9lowjt3pso'),
+  tensorboardId?: string(name='TensorboardId', example='tensorboard-20210114104214-vf9lowjt3pso'),
 }
 
 model DeleteTensorboardResponse = {
@@ -788,6 +810,10 @@ async function deleteTensorboard(TensorboardId: string, request: DeleteTensorboa
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteTensorboardWithOptions(TensorboardId, request, headers, runtime);
+}
+
+model GetJobRequest {
+  needDetail?: boolean(name='NeedDetail', example='true'),
 }
 
 model GetJobResponseBody = {
@@ -831,21 +857,21 @@ model GetJobResponseBody = {
           gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
           gmtFinishTime?: string(name='GmtFinishTime', example='2021-01-12T14:36:01Z'),
           gmtStartTime?: string(name='GmtStartTime', example='2021-01-12T14:36:01Z'),
-          ip?: string(name='Ip', description='Pod Ip', example='10.0.1.3'),
-          podId?: string(name='PodId', description='Pod Id', example='Worker'),
-          podUid?: string(name='PodUid', description='Pod UId', example='fe846462-af2c-4521-bd6f-96787a57591d'),
-          resourceType?: string(name='ResourceType'),
+          ip?: string(name='Ip', example='10.0.1.3'),
+          podId?: string(name='PodId', example='Worker'),
+          podUid?: string(name='PodUid', example='fe846462-af2c-4521-bd6f-96787a57591d'),
+          resourceType?: string(name='ResourceType', example='Normal'),
           status?: string(name='Status', example='Failed'),
-          subStatus?: string(name='SubStatus'),
+          subStatus?: string(name='SubStatus', example='Normal'),
           type?: string(name='Type', example='Worker'),
         }
       ](name='HistoryPods'),
       ip?: string(name='Ip', example='10.0.1.2'),
       podId?: string(name='PodId', example='Worker'),
-      podUid?: string(name='PodUid', description='Pod UId', example='fe846462-af2c-4521-bd6f-96787a57591d'),
-      resourceType?: string(name='ResourceType'),
+      podUid?: string(name='PodUid', example='fe846462-af2c-4521-bd6f-96787a57591d'),
+      resourceType?: string(name='ResourceType', example='Normal'),
       status?: string(name='Status', example='Running'),
-      subStatus?: string(name='SubStatus'),
+      subStatus?: string(name='SubStatus', example='Normal'),
       type?: string(name='Type', example='Worker'),
     }
   ](name='Pods'),
@@ -873,9 +899,16 @@ model GetJobResponse = {
   body: GetJobResponseBody(name='body'),
 }
 
-async function getJobWithOptions(JobId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetJobResponse {
+async function getJobWithOptions(JobId: string, request: GetJobRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetJobResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.needDetail)) {
+    query['NeedDetail'] = request.needDetail;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'GetJob',
@@ -891,10 +924,10 @@ async function getJobWithOptions(JobId: string, headers: map[string]string, runt
   return callApi(params, req, runtime);
 }
 
-async function getJob(JobId: string): GetJobResponse {
+async function getJob(JobId: string, request: GetJobRequest): GetJobResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return getJobWithOptions(JobId, headers, runtime);
+  return getJobWithOptions(JobId, request, headers, runtime);
 }
 
 model GetJobEventsRequest {
@@ -1082,7 +1115,7 @@ model GetPodLogsRequest {
   downloadToFile?: boolean(name='DownloadToFile', example='true'),
   endTime?: string(name='EndTime', example='2020-11-08T17:00:00Z'),
   maxLines?: int32(name='MaxLines', example='100'),
-  podUid?: string(name='PodUid'),
+  podUid?: string(name='PodUid', example='fe846462-af2c-4521-bd6f-96787a57****'),
   startTime?: string(name='StartTime', example='2020-11-08T16:00:00Z'),
 }
 
@@ -1144,7 +1177,7 @@ async function getPodLogs(JobId: string, PodId: string, request: GetPodLogsReque
 }
 
 model GetTensorboardRequest {
-  jodId?: string(name='JodId', description='JodId', example='dlc-xxxxxxxx'),
+  jodId?: string(name='JodId', example='dlc-xxxxxxxx'),
   workspaceId?: string(name='WorkspaceId', example='46099'),
 }
 
@@ -1254,45 +1287,45 @@ async function listEcsSpecs(request: ListEcsSpecsRequest): ListEcsSpecsResponse 
 }
 
 model ListJobsRequest {
-  businessUserId?: string(name='BusinessUserId', example='166924'),
-  caller?: string(name='Caller', example='SilkFlow'),
+  businessUserId?: string(name='BusinessUserId', example='16****'),
+  caller?: string(name='Caller', example='local'),
   displayName?: string(name='DisplayName', example='tf-mnist-test'),
   endTime?: string(name='EndTime', example='2020-11-09T14:45:00Z'),
-  fromAllWorkspaces?: boolean(name='FromAllWorkspaces'),
-  jobId?: string(name='JobId'),
+  fromAllWorkspaces?: boolean(name='FromAllWorkspaces', example='false'),
+  jobId?: string(name='JobId', example='dlc********'),
   jobType?: string(name='JobType', example='TFJob'),
   order?: string(name='Order', example='desc'),
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='50'),
-  pipelineId?: string(name='PipelineId', example='pid-123456'),
-  resourceId?: string(name='ResourceId', example='dlc-quota'),
+  pipelineId?: string(name='PipelineId', example='flow-*******'),
+  resourceId?: string(name='ResourceId', example='r*****'),
   showOwn?: boolean(name='ShowOwn', example='true'),
   sortBy?: string(name='SortBy', example='GmtCreateTime'),
   startTime?: string(name='StartTime', example='2020-11-08T16:00:00Z'),
   status?: string(name='Status', example='Running'),
   tags?: map[string]string(name='Tags'),
-  workspaceId?: string(name='WorkspaceId', example='380'),
+  workspaceId?: string(name='WorkspaceId', example='1****'),
 }
 
 model ListJobsShrinkRequest {
-  businessUserId?: string(name='BusinessUserId', example='166924'),
-  caller?: string(name='Caller', example='SilkFlow'),
+  businessUserId?: string(name='BusinessUserId', example='16****'),
+  caller?: string(name='Caller', example='local'),
   displayName?: string(name='DisplayName', example='tf-mnist-test'),
   endTime?: string(name='EndTime', example='2020-11-09T14:45:00Z'),
-  fromAllWorkspaces?: boolean(name='FromAllWorkspaces'),
-  jobId?: string(name='JobId'),
+  fromAllWorkspaces?: boolean(name='FromAllWorkspaces', example='false'),
+  jobId?: string(name='JobId', example='dlc********'),
   jobType?: string(name='JobType', example='TFJob'),
   order?: string(name='Order', example='desc'),
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='50'),
-  pipelineId?: string(name='PipelineId', example='pid-123456'),
-  resourceId?: string(name='ResourceId', example='dlc-quota'),
+  pipelineId?: string(name='PipelineId', example='flow-*******'),
+  resourceId?: string(name='ResourceId', example='r*****'),
   showOwn?: boolean(name='ShowOwn', example='true'),
   sortBy?: string(name='SortBy', example='GmtCreateTime'),
   startTime?: string(name='StartTime', example='2020-11-08T16:00:00Z'),
   status?: string(name='Status', example='Running'),
   tagsShrink?: string(name='Tags'),
-  workspaceId?: string(name='WorkspaceId', example='380'),
+  workspaceId?: string(name='WorkspaceId', example='1****'),
 }
 
 model ListJobsResponseBody = {
@@ -1399,7 +1432,7 @@ async function listJobs(request: ListJobsRequest): ListJobsResponse {
 model ListTensorboardsRequest {
   displayName?: string(name='DisplayName', example='TestTensorboard'),
   endTime?: string(name='EndTime', example='2020-11-09T14:45:00Z'),
-  jobId?: string(name='JobId', description='JobId', example='dlc-xxx'),
+  jobId?: string(name='JobId', example='dlc-xxx'),
   order?: string(name='Order', example='desc'),
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='50'),
@@ -1408,7 +1441,7 @@ model ListTensorboardsRequest {
   sourceType?: string(name='SourceType', example='job'),
   startTime?: string(name='StartTime', example='2020-11-08T16:00:00Z'),
   status?: string(name='Status', example='Running'),
-  tensorboardId?: string(name='TensorboardId', description='TensorboardId', example='tensorboard-xxx'),
+  tensorboardId?: string(name='TensorboardId', example='tensorboard-xxx'),
   verbose?: boolean(name='Verbose', example='true'),
   workspaceId?: string(name='WorkspaceId', example='380'),
 }
@@ -1503,7 +1536,7 @@ model StartTensorboardRequest {
 
 model StartTensorboardResponseBody = {
   requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  tensorboardId?: string(name='TensorboardId', description='Tensorboad Id', example='tensorboard-20210114104214-vf9lowjt3pso'),
+  tensorboardId?: string(name='TensorboardId', example='tensorboard-20210114104214-vf9lowjt3pso'),
 }
 
 model StartTensorboardResponse = {
@@ -1584,7 +1617,7 @@ model StopTensorboardRequest {
 
 model StopTensorboardResponseBody = {
   requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  tensorboardId?: string(name='TensorboardId', description='Tensorboad Id', example='tensorboard-20210114104214-xxxxxxxx'),
+  tensorboardId?: string(name='TensorboardId', example='tensorboard-20210114104214-xxxxxxxx'),
 }
 
 model StopTensorboardResponse = {
@@ -1677,7 +1710,7 @@ model UpdateTensorboardRequest {
 
 model UpdateTensorboardResponseBody = {
   requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  tensorboardId?: string(name='TensorboardId', description='Tensorboad Id', example='tensorboard-20210114104214-xxxxxxxx'),
+  tensorboardId?: string(name='TensorboardId', example='tensorboard-20210114104214-xxxxxxxx'),
 }
 
 model UpdateTensorboardResponse = {

@@ -260,11 +260,19 @@ model JobDebuggerConfig {
 model JobElasticSpec {
   AIMasterDockerImage?: string(name='AIMasterDockerImage', description='aimaster docker镜像'),
   AIMasterType?: string(name='AIMasterType', description='aimaster角色使用的资源规格'),
+  EDPMaxParallelism?: int32(name='EDPMaxParallelism', description='EDP最大并行度', example='16'),
+  EDPMinParallelism?: int32(name='EDPMinParallelism', description='EDP最小并行度', example='8'),
+  elasticStrategy?: string(name='ElasticStrategy', description='弹性训练策略'),
   enableAIMaster?: boolean(name='EnableAIMaster', description='是否打开AIMaster'),
+  enableEDP?: boolean(name='EnableEDP', description='是否打开EDP', example='true'),
   enableElasticTraining?: boolean(name='EnableElasticTraining', description='打开弹性训练', example='true'),
+  enablePsJobElasticPS?: boolean(name='EnablePsJobElasticPS', description='是否打开弹性PS功能', example='true'),
   enablePsJobElasticWorker?: boolean(name='EnablePsJobElasticWorker', description='是否开启弹性Worker对于PS作业'),
+  enablePsResourceEstimate?: boolean(name='EnablePsResourceEstimate', description='是否打开PS资源预估', example='true'),
   maxParallelism?: int32(name='MaxParallelism', description='最大并行度', example='8'),
   minParallelism?: int32(name='MinParallelism', description='最小并行度', example='1'),
+  PSMaxParallelism?: int32(name='PSMaxParallelism', description='PS最大并行度', example='10'),
+  PSMinParallelism?: int32(name='PSMinParallelism', description='PS最小并行度', example='4'),
 }
 
 model JobItem {
@@ -353,6 +361,20 @@ model NodeMetric {
     Metric
   ](name='Metrics', description='监控指标样本序列'),
   nodeName?: string(name='NodeName', description='节点名称', example='asi_xxx'),
+}
+
+model PodItem {
+  gmtCreateTime?: string(name='GmtCreateTime', description='Pod创建时间（UTC）', example='2021-01-12T14:36:01Z'),
+  gmtFinishTime?: string(name='GmtFinishTime', description='Pod结束时间（UTC）', example='2021-01-12T15:36:05Z'),
+  gmtStartTime?: string(name='GmtStartTime', description='Pod启动时间（UTC）', example='2021-01-12T14:36:05Z'),
+  historyPods?: [
+    PodItem
+  ](name='HistoryPods', description='历史Pods'),
+  ip?: string(name='Ip', description='Pod Ip', example='10.0.1.2'),
+  podId?: string(name='PodId', description='Pod Id', example='dlc-20210126170216-mtl37ge7gkvdz-worker-0'),
+  podUid?: string(name='PodUid', description='Pod Uid', example='fe846462-af2c-4521-bd6f-96787a57591d'),
+  status?: string(name='Status', description='Pod状态', example='Stopped'),
+  type?: string(name='Type', description='Pod类型', example='Worker'),
 }
 
 model PodMetric {
@@ -493,7 +515,7 @@ model CreateJobRequest {
   priority?: int32(name='Priority', description='作业优先级', example='8', position='Body'),
   resourceId?: string(name='ResourceId', description='资源组编号', example='rs-xxx', position='Body'),
   settings?: JobSettings(name='Settings', position='Body'),
-  successPolicy?: string(name='SuccessPolicy', position='Body'),
+  successPolicy?: string(name='SuccessPolicy', example='AllWorkers', position='Body'),
   thirdpartyLibDir?: string(name='ThirdpartyLibDir', description='三方库(requirements.txt)文件路径', example='/root/code/', position='Body'),
   thirdpartyLibs?: [ string ](name='ThirdpartyLibs', description='三方库配置列表', position='Body'),
   userCommand: string(name='UserCommand', description='作业命令', example='python /root/code/mnist.py', position='Body'),
@@ -522,16 +544,16 @@ async function createJob(request: CreateJobRequest): CreateJobResponse {
 }
 
 model CreateTensorboardRequest {
-  cpu?: long(name='Cpu', position='Body'),
+  cpu?: long(name='Cpu', example='1', position='Body'),
   dataSourceId?: string(name='DataSourceId', description='DataSource Id', example='d-xxxxxxxx', position='Body'),
-  dataSourceType?: string(name='DataSourceType', example='oss', position='Body'),
+  dataSourceType?: string(name='DataSourceType', position='Body'),
   dataSources?: [
     DataSourceItem
   ](name='DataSources', position='Body'),
   displayName?: string(name='DisplayName', description='Tensorboard名称', example='tensorboard', position='Body'),
   jobId?: string(name='JobId', description='任务Id', example='dlc-20210126170216-mtl37ge7gkvdz', position='Body'),
   maxRunningTimeMinutes?: long(name='MaxRunningTimeMinutes', description='最长运行时长', example='240', position='Body'),
-  memory?: long(name='Memory', position='Body'),
+  memory?: long(name='Memory', example='1000', position='Body'),
   options?: string(name='Options', example='{"mountpath":"/root/data/"}', position='Body'),
   sourceId?: string(name='SourceId', example='dlc-xxxxxx', position='Body'),
   sourceType?: string(name='SourceType', example='job', position='Body'),
@@ -599,6 +621,7 @@ async function deleteTensorboard(request: DeleteTensorboardRequest): DeleteTenso
 
 model GetJobRequest {
   jobId: string(name='JobId', description='作业Id', example='dlc*******', minLength=1, maxLength=256, position='Path'),
+  needDetail?: boolean(name='NeedDetail', description='是否返回作业详情信息，默认为true', example='true', position='Query'),
 }
 
 model GetJobResponseBody = {
@@ -645,18 +668,18 @@ model GetJobResponseBody = {
           ip?: string(name='Ip', description='Pod Ip', example='10.0.1.3'),
           podId?: string(name='PodId', description='Pod Id', example='Worker'),
           podUid?: string(name='PodUid', description='Pod UId', example='fe846462-af2c-4521-bd6f-96787a57591d'),
-          resourceType?: string(name='ResourceType', description='Pod资源使用类型'),
+          resourceType?: string(name='ResourceType', description='Pod资源使用类型', example='Normal'),
           status?: string(name='Status', description='Pod状态', example='Failed'),
-          subStatus?: string(name='SubStatus', description='Pod子状态，如抢占状态'),
+          subStatus?: string(name='SubStatus', description='Pod子状态，如抢占状态', example='Normal'),
           type?: string(name='Type', description='Pod类型', example='Worker'),
         }
       ](name='HistoryPods', description='历史Pods'),
       ip?: string(name='Ip', description='Pod Ip', example='10.0.1.2'),
       podId?: string(name='PodId', description='Pod Id', example='Worker'),
       podUid?: string(name='PodUid', description='Pod UId', example='fe846462-af2c-4521-bd6f-96787a57591d'),
-      resourceType?: string(name='ResourceType', description='Pod资源使用类型'),
+      resourceType?: string(name='ResourceType', description='Pod资源使用类型', example='Normal'),
       status?: string(name='Status', description='Pod状态', example='Running'),
-      subStatus?: string(name='SubStatus', description='Pod子状态，如抢占状态'),
+      subStatus?: string(name='SubStatus', description='Pod子状态，如抢占状态', example='Normal'),
       type?: string(name='Type', description='Pod类型', example='Worker'),
     }
   ](name='Pods', description='作业所以运行Pod列表'),
@@ -771,7 +794,7 @@ model GetPodLogsRequest {
   downloadToFile?: boolean(name='DownloadToFile', description='是否下载日志文件，默认：false。', example='true', position='Query'),
   endTime?: string(name='EndTime', description='查询的截止时间，默认值：当前。', example='2020-11-08T17:00:00Z', position='Query'),
   maxLines?: int32(name='MaxLines', description='返回的日志的最大行数，默认值：2000。', example='100', position='Query'),
-  podUid?: string(name='PodUid', position='Query'),
+  podUid?: string(name='PodUid', example='fe846462-af2c-4521-bd6f-96787a57****', position='Query'),
   startTime?: string(name='StartTime', description='查询的起始时间，默认值：7天前。', example='2020-11-08T16:00:00Z', position='Query'),
 }
 
@@ -836,24 +859,24 @@ async function listEcsSpecs(request: ListEcsSpecsRequest): ListEcsSpecsResponse 
 }
 
 model ListJobsRequest {
-  businessUserId?: string(name='BusinessUserId', description='作业关联用户ID', example='166924', position='Query'),
-  caller?: string(name='Caller', description='调用方', example='SilkFlow', position='Query'),
+  businessUserId?: string(name='BusinessUserId', description='作业关联用户ID', example='16****', position='Query'),
+  caller?: string(name='Caller', description='调用方', example='local', position='Query'),
   displayName?: string(name='DisplayName', description='作业显示名称，支持模糊查询', example='tf-mnist-test', maxLength=1024, position='Query'),
   endTime?: string(name='EndTime', description='截止时间', example='2020-11-09T14:45:00Z', position='Query'),
-  fromAllWorkspaces?: boolean(name='FromAllWorkspaces', position='Query'),
-  jobId?: string(name='JobId', position='Query'),
+  fromAllWorkspaces?: boolean(name='FromAllWorkspaces', example='false', position='Query'),
+  jobId?: string(name='JobId', example='dlc********', position='Query'),
   jobType?: string(name='JobType', description='作业类型', example='TFJob', maxLength=32, position='Query'),
   order?: string(name='Order', description='排序顺序', example='desc', position='Query'),
   pageNumber?: int32(name='PageNumber', description='当前页', example='1', minimum=1, maximum=1000, position='Query'),
   pageSize?: int32(name='PageSize', description='每页返回的作业数', example='50', minimum=1, maximum=100, position='Query'),
-  pipelineId?: string(name='PipelineId', description='工作流ID', example='pid-123456', position='Query'),
-  resourceId?: string(name='ResourceId', description='资源组ID', example='dlc-quota', position='Query'),
+  pipelineId?: string(name='PipelineId', description='工作流ID', example='flow-*******', position='Query'),
+  resourceId?: string(name='ResourceId', description='资源组ID', example='r*****', position='Query'),
   showOwn?: boolean(name='ShowOwn', description='是否只返回当前登录者所提交的作业', example='true', position='Query'),
   sortBy?: string(name='SortBy', description='按返回字段排序', example='GmtCreateTime', position='Query'),
   startTime?: string(name='StartTime', description='起始时间', example='2020-11-08T16:00:00Z', position='Query'),
   status?: string(name='Status', description='作业状态', example='Running', maxLength=32, position='Query'),
   tags?: map[string]string(name='Tags', description='自定义标签', shrink='json', position='Query'),
-  workspaceId?: string(name='WorkspaceId', description='工作空间ID', example='380', position='Query'),
+  workspaceId?: string(name='WorkspaceId', description='工作空间ID', example='1****', position='Query'),
 }
 
 model ListJobsResponseBody = {
