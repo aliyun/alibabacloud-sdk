@@ -219,12 +219,12 @@ model IndexKeysValue = {
 }
 
 model KeysValue = {
-  caseSensitive?: boolean(name='caseSensitive'),
-  chn?: boolean(name='chn'),
+  caseSensitive?: boolean(name='caseSensitive', example='false'),
+  chn?: boolean(name='chn', example='false'),
   type?: string(name='type', example='text'),
-  alias?: string(name='alias'),
+  alias?: string(name='alias', example='myAlias'),
   token?: [ string ](name='token'),
-  docValue?: boolean(name='doc_value'),
+  docValue?: boolean(name='doc_value', example='false'),
 }
 
 model ApplyConfigToMachineGroupResponse = {
@@ -1755,7 +1755,7 @@ async function getExternalStore(project: string, externalStoreName: string): Get
 
 model GetHistogramsRequest {
   from?: long(name='from', example='1409529600'),
-  query?: string(name='query', example='* | with_pack_meta'),
+  query?: string(name='query', example='error'),
   to?: long(name='to', example='1409569200'),
   topic?: string(name='topic', example='topic'),
 }
@@ -2004,6 +2004,120 @@ async function getLogs(project: string, logstore: string, request: GetLogsReques
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getLogsWithOptions(project, logstore, request, headers, runtime);
+}
+
+model GetLogsV2Headers {
+  commonHeaders?: map[string]string,
+  acceptEncoding?: string(name='Accept-Encoding', example='lz4'),
+}
+
+model GetLogsV2Request {
+  forward?: boolean(name='forward'),
+  from?: int32(name='from', example='1627268185'),
+  line?: long(name='line', example='100'),
+  offset?: long(name='offset', example='0'),
+  powerSql?: boolean(name='powerSql'),
+  query?: string(name='query', example='status: 401 | SELECT remote_addr,COUNT(*) as pv GROUP by remote_addr ORDER by pv desc limit 5'),
+  reverse?: boolean(name='reverse'),
+  session?: string(name='session'),
+  shard?: int32(name='shard'),
+  to?: int32(name='to', example='1627268185'),
+  topic?: string(name='topic', example='topic'),
+}
+
+model GetLogsV2ResponseBody = {
+  data?: [ map[string]string ](name='data'),
+  meta?: {
+    aggQuery?: string(name='aggQuery'),
+    count?: int32(name='count'),
+    elapsedMillisecond?: long(name='elapsedMillisecond'),
+    hasSQL?: boolean(name='hasSQL'),
+    isAccurate?: boolean(name='isAccurate'),
+    keys?: [ string ](name='keys'),
+    processedBytes?: long(name='processedBytes'),
+    processedRows?: int32(name='processedRows'),
+    progress?: string(name='progress'),
+    telementryType?: string(name='telementryType'),
+    terms?: [  map[string]any ](name='terms'),
+    whereQuery?: string(name='whereQuery'),
+  }(name='meta'),
+}
+
+model GetLogsV2Response = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetLogsV2ResponseBody(name='body'),
+}
+
+async function getLogsV2WithOptions(project: string, logstore: string, request: GetLogsV2Request, headers: GetLogsV2Headers, runtime: Util.RuntimeOptions): GetLogsV2Response {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.forward)) {
+    body['forward'] = request.forward;
+  }
+  if (!Util.isUnset(request.from)) {
+    body['from'] = request.from;
+  }
+  if (!Util.isUnset(request.line)) {
+    body['line'] = request.line;
+  }
+  if (!Util.isUnset(request.offset)) {
+    body['offset'] = request.offset;
+  }
+  if (!Util.isUnset(request.powerSql)) {
+    body['powerSql'] = request.powerSql;
+  }
+  if (!Util.isUnset(request.query)) {
+    body['query'] = request.query;
+  }
+  if (!Util.isUnset(request.reverse)) {
+    body['reverse'] = request.reverse;
+  }
+  if (!Util.isUnset(request.session)) {
+    body['session'] = request.session;
+  }
+  if (!Util.isUnset(request.shard)) {
+    body['shard'] = request.shard;
+  }
+  if (!Util.isUnset(request.to)) {
+    body['to'] = request.to;
+  }
+  if (!Util.isUnset(request.topic)) {
+    body['topic'] = request.topic;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.acceptEncoding)) {
+    realHeaders['Accept-Encoding'] = Util.toJSONString(headers.acceptEncoding);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetLogsV2',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/logstores/${logstore}/logs`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+async function getLogsV2(project: string, logstore: string, request: GetLogsV2Request): GetLogsV2Response {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new GetLogsV2Headers{};
+  return getLogsV2WithOptions(project, logstore, request, headers, runtime);
 }
 
 model GetMachineGroupResponse = {
@@ -3515,7 +3629,7 @@ async function updateMachineGroup(project: string, groupName: string, request: U
 
 model UpdateMachineGroupMachineRequest {
   action?: string(name='action', example='add'),
-  body?: [ string ](name='body', example='add'),
+  body?: [ string ](name='body'),
 }
 
 model UpdateMachineGroupMachineResponse = {
