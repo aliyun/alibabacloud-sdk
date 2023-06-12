@@ -193,9 +193,11 @@ model CreatePrivateAccessPolicyRequest {
   policyAction?: string(name='PolicyAction', example='Allow'),
   priority?: int32(name='Priority', example='1'),
   status?: string(name='Status', example='Enabled'),
-  tagIds?: [ string ](name='TagIds'),
+  tagIds?: [ string ](name='TagIds', description='内网访问标签ID集合。最多可输入100个内网访问标签ID。当**ApplicationType**为**Tag时**，必填。和**ApplicationIds**互斥。'),
   userGroupIds?: [ string ](name='UserGroupIds'),
-  userGroupMode?: string(name='UserGroupMode'),
+  userGroupMode?: string(name='UserGroupMode', description='内网访问策略的用户组类型。取值：
+- **Normal**：普通用户组。
+- **Custom**：自定义用户组。', example='Normal'),
 }
 
 model CreatePrivateAccessPolicyShrinkRequest {
@@ -207,9 +209,11 @@ model CreatePrivateAccessPolicyShrinkRequest {
   policyAction?: string(name='PolicyAction', example='Allow'),
   priority?: int32(name='Priority', example='1'),
   status?: string(name='Status', example='Enabled'),
-  tagIdsShrink?: string(name='TagIds'),
+  tagIdsShrink?: string(name='TagIds', description='内网访问标签ID集合。最多可输入100个内网访问标签ID。当**ApplicationType**为**Tag时**，必填。和**ApplicationIds**互斥。'),
   userGroupIdsShrink?: string(name='UserGroupIds'),
-  userGroupMode?: string(name='UserGroupMode'),
+  userGroupMode?: string(name='UserGroupMode', description='内网访问策略的用户组类型。取值：
+- **Normal**：普通用户组。
+- **Custom**：自定义用户组。', example='Normal'),
 }
 
 model CreatePrivateAccessPolicyResponseBody = {
@@ -355,12 +359,6 @@ model CreateUserGroupRequest {
   name?: string(name='Name', example='user_group_name'),
 }
 
-model CreateUserGroupShrinkRequest {
-  attributesShrink?: string(name='Attributes'),
-  description?: string(name='Description'),
-  name?: string(name='Name', example='user_group_name'),
-}
-
 model CreateUserGroupResponseBody = {
   requestId?: string(name='RequestId', example='102350E7-1A20-58F5-9D63-ABEA820AE6E1'),
   userGroupId?: string(name='UserGroupId', example='usergroup-6f1ef2fc56b6****'),
@@ -372,16 +370,12 @@ model CreateUserGroupResponse = {
   body: CreateUserGroupResponseBody(name='body'),
 }
 
-async function createUserGroupWithOptions(tmpReq: CreateUserGroupRequest, runtime: Util.RuntimeOptions): CreateUserGroupResponse {
-  Util.validateModel(tmpReq);
-  var request = new CreateUserGroupShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.attributes)) {
-    request.attributesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.attributes, 'Attributes', 'json');
-  }
+async function createUserGroupWithOptions(request: CreateUserGroupRequest, runtime: Util.RuntimeOptions): CreateUserGroupResponse {
+  Util.validateModel(request);
   var body : map[string]any = {};
-  if (!Util.isUnset(request.attributesShrink)) {
-    body['Attributes'] = request.attributesShrink;
+  var bodyFlat : map[string]any = {};
+  if (!Util.isUnset(request.attributes)) {
+    bodyFlat['Attributes'] = request.attributes;
   }
   if (!Util.isUnset(request.description)) {
     body['Description'] = request.description;
@@ -389,6 +383,11 @@ async function createUserGroupWithOptions(tmpReq: CreateUserGroupRequest, runtim
   if (!Util.isUnset(request.name)) {
     body['Name'] = request.name;
   }
+  body = {
+    ...body,
+    ...OpenApiUtil.query(bodyFlat),
+  };
+
   var req = new OpenApi.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
@@ -702,9 +701,9 @@ model GetPrivateAccessPolicyResponseBody = {
     createTime?: string(name='CreateTime', example='2021-07-29 11:26:02'),
     customUserAttributes?: [ 
       {
-        idpId?: int32(name='IdpId'),
-        relation?: string(name='Relation'),
-        userGroupType?: string(name='UserGroupType'),
+        idpId?: int32(name='IdpId', example='12'),
+        relation?: string(name='Relation', example='Equal'),
+        userGroupType?: string(name='UserGroupType', example='department'),
         value?: string(name='Value'),
       }
     ](name='CustomUserAttributes'),
@@ -716,7 +715,7 @@ model GetPrivateAccessPolicyResponseBody = {
     status?: string(name='Status', example='Enabled'),
     tagIds?: [ string ](name='TagIds'),
     userGroupIds?: [ string ](name='UserGroupIds'),
-    userGroupMode?: string(name='UserGroupMode'),
+    userGroupMode?: string(name='UserGroupMode', example='Normal'),
   }(name='Policy'),
   requestId?: string(name='RequestId', example='7E9D7ACD-53D5-56EF-A913-79D148D06299'),
 }
@@ -753,7 +752,7 @@ async function getPrivateAccessPolicy(request: GetPrivateAccessPolicyRequest): G
 }
 
 model GetUserGroupRequest {
-  userGroupId?: string(name='UserGroupId', example='usergroup-6f1ef2fc56b6ab59'),
+  userGroupId?: string(name='UserGroupId'),
 }
 
 model GetUserGroupResponseBody = {
@@ -769,8 +768,8 @@ model GetUserGroupResponseBody = {
     ](name='Attributes'),
     createTime?: string(name='CreateTime', example='2022-10-10 11:39:22'),
     description?: string(name='Description'),
-    name?: string(name='Name'),
-    userGroupId?: string(name='UserGroupId', example='usergroup-6f1ef2fc56b6ab59'),
+    name?: string(name='Name', example='user_group_name'),
+    userGroupId?: string(name='UserGroupId'),
   }(name='UserGroup'),
 }
 
@@ -809,10 +808,6 @@ model ListApplicationsForPrivateAccessPolicyRequest {
   policyIds?: [ string ](name='PolicyIds'),
 }
 
-model ListApplicationsForPrivateAccessPolicyShrinkRequest {
-  policyIdsShrink?: string(name='PolicyIds'),
-}
-
 model ListApplicationsForPrivateAccessPolicyResponseBody = {
   polices?: [ 
     {
@@ -820,7 +815,7 @@ model ListApplicationsForPrivateAccessPolicyResponseBody = {
         {
           addresses?: [ string ](name='Addresses'),
           applicationId?: string(name='ApplicationId', example='pa-application-7a9243dd02f4****'),
-          createTime?: string(name='CreateTime'),
+          createTime?: string(name='CreateTime', example='2022-09-27 18:10:25'),
           description?: string(name='Description'),
           name?: string(name='Name', example='application_name'),
           portRanges?: [ 
@@ -845,13 +840,8 @@ model ListApplicationsForPrivateAccessPolicyResponse = {
   body: ListApplicationsForPrivateAccessPolicyResponseBody(name='body'),
 }
 
-async function listApplicationsForPrivateAccessPolicyWithOptions(tmpReq: ListApplicationsForPrivateAccessPolicyRequest, runtime: Util.RuntimeOptions): ListApplicationsForPrivateAccessPolicyResponse {
-  Util.validateModel(tmpReq);
-  var request = new ListApplicationsForPrivateAccessPolicyShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.policyIds)) {
-    request.policyIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.policyIds, 'PolicyIds', 'json');
-  }
+async function listApplicationsForPrivateAccessPolicyWithOptions(request: ListApplicationsForPrivateAccessPolicyRequest, runtime: Util.RuntimeOptions): ListApplicationsForPrivateAccessPolicyResponse {
+  Util.validateModel(request);
   var query = OpenApiUtil.query(Util.toMap(request));
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -879,10 +869,6 @@ model ListApplicationsForPrivateAccessTagRequest {
   tagIds?: [ string ](name='TagIds'),
 }
 
-model ListApplicationsForPrivateAccessTagShrinkRequest {
-  tagIdsShrink?: string(name='TagIds'),
-}
-
 model ListApplicationsForPrivateAccessTagResponseBody = {
   requestId?: string(name='RequestId', example='B608C6AE-623D-55C4-9454-601B88AE937E'),
   tags?: [ 
@@ -891,7 +877,7 @@ model ListApplicationsForPrivateAccessTagResponseBody = {
         {
           addresses?: [ string ](name='Addresses'),
           applicationId?: string(name='ApplicationId', example='pa-application-7a9243dd02f4****'),
-          createTime?: string(name='CreateTime'),
+          createTime?: string(name='CreateTime', description='内网访问应用创建时间。', example='2022-09-27 18:10:25'),
           description?: string(name='Description'),
           name?: string(name='Name', example='private_access_application_name'),
           portRanges?: [ 
@@ -915,13 +901,8 @@ model ListApplicationsForPrivateAccessTagResponse = {
   body: ListApplicationsForPrivateAccessTagResponseBody(name='body'),
 }
 
-async function listApplicationsForPrivateAccessTagWithOptions(tmpReq: ListApplicationsForPrivateAccessTagRequest, runtime: Util.RuntimeOptions): ListApplicationsForPrivateAccessTagResponse {
-  Util.validateModel(tmpReq);
-  var request = new ListApplicationsForPrivateAccessTagShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.tagIds)) {
-    request.tagIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tagIds, 'TagIds', 'json');
-  }
+async function listApplicationsForPrivateAccessTagWithOptions(request: ListApplicationsForPrivateAccessTagRequest, runtime: Util.RuntimeOptions): ListApplicationsForPrivateAccessTagResponse {
+  Util.validateModel(request);
   var query = OpenApiUtil.query(Util.toMap(request));
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -950,13 +931,8 @@ model ListConnectorsRequest {
   currentPage?: int32(name='CurrentPage', example='1'),
   name?: string(name='Name', example='connector_name'),
   pageSize?: int32(name='PageSize', example='10'),
-}
-
-model ListConnectorsShrinkRequest {
-  connectorIdsShrink?: string(name='ConnectorIds'),
-  currentPage?: int32(name='CurrentPage', example='1'),
-  name?: string(name='Name', example='connector_name'),
-  pageSize?: int32(name='PageSize', example='10'),
+  status?: string(name='Status'),
+  switchStatus?: string(name='SwitchStatus'),
 }
 
 model ListConnectorsResponseBody = {
@@ -990,13 +966,8 @@ model ListConnectorsResponse = {
   body: ListConnectorsResponseBody(name='body'),
 }
 
-async function listConnectorsWithOptions(tmpReq: ListConnectorsRequest, runtime: Util.RuntimeOptions): ListConnectorsResponse {
-  Util.validateModel(tmpReq);
-  var request = new ListConnectorsShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.connectorIds)) {
-    request.connectorIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.connectorIds, 'ConnectorIds', 'json');
-  }
+async function listConnectorsWithOptions(request: ListConnectorsRequest, runtime: Util.RuntimeOptions): ListConnectorsResponse {
+  Util.validateModel(request);
   var query = OpenApiUtil.query(Util.toMap(request));
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1024,10 +995,6 @@ model ListPolicesForPrivateAccessApplicationRequest {
   applicationIds?: [ string ](name='ApplicationIds'),
 }
 
-model ListPolicesForPrivateAccessApplicationShrinkRequest {
-  applicationIdsShrink?: string(name='ApplicationIds'),
-}
-
 model ListPolicesForPrivateAccessApplicationResponseBody = {
   applications?: [ 
     {
@@ -1038,9 +1005,9 @@ model ListPolicesForPrivateAccessApplicationResponseBody = {
           createTime?: string(name='CreateTime', example='2022-09-27 18:10:25'),
           customUserAttributes?: [ 
             {
-              idpId?: int32(name='IdpId'),
-              relation?: string(name='Relation'),
-              userGroupType?: string(name='UserGroupType'),
+              idpId?: int32(name='IdpId', example='12'),
+              relation?: string(name='Relation', example='Equal'),
+              userGroupType?: string(name='UserGroupType', example='department'),
               value?: string(name='Value'),
             }
           ](name='CustomUserAttributes'),
@@ -1064,13 +1031,8 @@ model ListPolicesForPrivateAccessApplicationResponse = {
   body: ListPolicesForPrivateAccessApplicationResponseBody(name='body'),
 }
 
-async function listPolicesForPrivateAccessApplicationWithOptions(tmpReq: ListPolicesForPrivateAccessApplicationRequest, runtime: Util.RuntimeOptions): ListPolicesForPrivateAccessApplicationResponse {
-  Util.validateModel(tmpReq);
-  var request = new ListPolicesForPrivateAccessApplicationShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.applicationIds)) {
-    request.applicationIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.applicationIds, 'ApplicationIds', 'json');
-  }
+async function listPolicesForPrivateAccessApplicationWithOptions(request: ListPolicesForPrivateAccessApplicationRequest, runtime: Util.RuntimeOptions): ListPolicesForPrivateAccessApplicationResponse {
+  Util.validateModel(request);
   var query = OpenApiUtil.query(Util.toMap(request));
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1098,10 +1060,6 @@ model ListPolicesForPrivateAccessTagRequest {
   tagIds?: [ string ](name='TagIds'),
 }
 
-model ListPolicesForPrivateAccessTagShrinkRequest {
-  tagIdsShrink?: string(name='TagIds'),
-}
-
 model ListPolicesForPrivateAccessTagResponseBody = {
   requestId?: string(name='RequestId', example='4D169859-A4F2-5EC8-853B-8447787C0D8A'),
   tags?: [ 
@@ -1109,15 +1067,25 @@ model ListPolicesForPrivateAccessTagResponseBody = {
       polices?: [ 
         {
           applicationType?: string(name='ApplicationType', example='Application'),
-          createTime?: string(name='CreateTime'),
+          createTime?: string(name='CreateTime', description='内网访问策略创建时间。', example='2023-02-21 14:10:16'),
           customUserAttributes?: [ 
             {
-              idpId?: int32(name='IdpId'),
-              relation?: string(name='Relation'),
-              userGroupType?: string(name='UserGroupType'),
-              value?: string(name='Value'),
+              idpId?: int32(name='IdpId', description='用户组的身份源ID。当自定义用户组类型为**department**时，存在该值。', example='12'),
+              relation?: string(name='Relation', description='用户组的关系。取值：
+- **Equal**：等于。
+- **Unequal**：不等于。', example='Equal'),
+              userGroupType?: string(name='UserGroupType', description='用户组的类型。取值：
+- **username**：用户名。
+- **department**：部门。
+- **email**：邮箱。
+- **telephone**：手机。', example='department'),
+              value?: string(name='Value', description='用户组属性的值。
+- 当用户组类型为**username**时，表示用户名的值。长度为1~128个字符，支持中文和大小写英文字母，可包含数字、半角句号（.）、下划线（_）和短划线（-）。
+- 当用户组类型为**department**时，表示部门的值。如：OU=部门1,OU=SASE钉钉。
+- 当用户组类型为**email**时，表示邮箱的值。如：username@example.com。
+- 当用户组类型为**telephone**时，表示手机的值。如：13900001234。', example='OU=部门1,OU=SASE钉钉'),
             }
-          ](name='CustomUserAttributes'),
+          ](name='CustomUserAttributes', description='自定义用户组属性集合。多个自定义用户组属性之间是或的关系，按照合集生效。'),
           description?: string(name='Description'),
           name?: string(name='Name', example='private_access_policy_name'),
           policyAction?: string(name='PolicyAction', example='Allow'),
@@ -1138,13 +1106,8 @@ model ListPolicesForPrivateAccessTagResponse = {
   body: ListPolicesForPrivateAccessTagResponseBody(name='body'),
 }
 
-async function listPolicesForPrivateAccessTagWithOptions(tmpReq: ListPolicesForPrivateAccessTagRequest, runtime: Util.RuntimeOptions): ListPolicesForPrivateAccessTagResponse {
-  Util.validateModel(tmpReq);
-  var request = new ListPolicesForPrivateAccessTagShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.tagIds)) {
-    request.tagIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tagIds, 'TagIds', 'json');
-  }
+async function listPolicesForPrivateAccessTagWithOptions(request: ListPolicesForPrivateAccessTagRequest, runtime: Util.RuntimeOptions): ListPolicesForPrivateAccessTagResponse {
+  Util.validateModel(request);
   var query = OpenApiUtil.query(Util.toMap(request));
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1172,10 +1135,6 @@ model ListPolicesForUserGroupRequest {
   userGroupIds?: [ string ](name='UserGroupIds'),
 }
 
-model ListPolicesForUserGroupShrinkRequest {
-  userGroupIdsShrink?: string(name='UserGroupIds'),
-}
-
 model ListPolicesForUserGroupResponseBody = {
   requestId?: string(name='RequestId', example='5F04DFBD-3F48-5F70-AE72-474026670128'),
   userGroups?: [ 
@@ -1198,13 +1157,8 @@ model ListPolicesForUserGroupResponse = {
   body: ListPolicesForUserGroupResponseBody(name='body'),
 }
 
-async function listPolicesForUserGroupWithOptions(tmpReq: ListPolicesForUserGroupRequest, runtime: Util.RuntimeOptions): ListPolicesForUserGroupResponse {
-  Util.validateModel(tmpReq);
-  var request = new ListPolicesForUserGroupShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.userGroupIds)) {
-    request.userGroupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.userGroupIds, 'UserGroupIds', 'json');
-  }
+async function listPolicesForUserGroupWithOptions(request: ListPolicesForUserGroupRequest, runtime: Util.RuntimeOptions): ListPolicesForUserGroupResponse {
+  Util.validateModel(request);
   var query = OpenApiUtil.query(Util.toMap(request));
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1231,17 +1185,6 @@ async function listPolicesForUserGroup(request: ListPolicesForUserGroupRequest):
 model ListPrivateAccessApplicationsRequest {
   address?: string(name='Address', example='192.168.0.0/16'),
   applicationIds?: [ string ](name='ApplicationIds'),
-  currentPage?: int32(name='CurrentPage', example='1'),
-  name?: string(name='Name', example='private_access_application_name'),
-  pageSize?: int32(name='PageSize', example='10'),
-  policyId?: string(name='PolicyId', example='pa-policy-54a7838a48bf****'),
-  status?: string(name='Status', example='Enabled'),
-  tagId?: string(name='TagId', example='tag-d3f64e8bdd4a****'),
-}
-
-model ListPrivateAccessApplicationsShrinkRequest {
-  address?: string(name='Address', example='192.168.0.0/16'),
-  applicationIdsShrink?: string(name='ApplicationIds'),
   currentPage?: int32(name='CurrentPage', example='1'),
   name?: string(name='Name', example='private_access_application_name'),
   pageSize?: int32(name='PageSize', example='10'),
@@ -1280,13 +1223,8 @@ model ListPrivateAccessApplicationsResponse = {
   body: ListPrivateAccessApplicationsResponseBody(name='body'),
 }
 
-async function listPrivateAccessApplicationsWithOptions(tmpReq: ListPrivateAccessApplicationsRequest, runtime: Util.RuntimeOptions): ListPrivateAccessApplicationsResponse {
-  Util.validateModel(tmpReq);
-  var request = new ListPrivateAccessApplicationsShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.applicationIds)) {
-    request.applicationIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.applicationIds, 'ApplicationIds', 'json');
-  }
+async function listPrivateAccessApplicationsWithOptions(request: ListPrivateAccessApplicationsRequest, runtime: Util.RuntimeOptions): ListPrivateAccessApplicationsResponse {
+  Util.validateModel(request);
   var query = OpenApiUtil.query(Util.toMap(request));
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1319,19 +1257,9 @@ model ListPrivateAccessPolicesRequest {
   policyIds?: [ string ](name='PolicyIds'),
   status?: string(name='Status', example='Enabled'),
   tagId?: string(name='TagId', example='tag-c0cb77857a99****'),
-  userGroupId?: string(name='UserGroupId'),
-}
-
-model ListPrivateAccessPolicesShrinkRequest {
-  applicationId?: string(name='ApplicationId', example='pa-application-e12860ef6c48****'),
-  currentPage?: int32(name='CurrentPage', example='1'),
-  name?: string(name='Name', example='private_access_policy_name'),
-  pageSize?: int32(name='PageSize', example='10'),
-  policyAction?: string(name='PolicyAction', example='Allow'),
-  policyIdsShrink?: string(name='PolicyIds'),
-  status?: string(name='Status', example='Enabled'),
-  tagId?: string(name='TagId', example='tag-c0cb77857a99****'),
-  userGroupId?: string(name='UserGroupId'),
+  userGroupId?: string(name='UserGroupId', description='用户组ID。取值来源：
+- [ListUserGroups](~~ListUserGroups~~)：批量查询用户组。
+- [CreateUserGroup](~~CreateUserGroup~~)：创建用户组。', example='usergroup-6f1ef2fc56b6****'),
 }
 
 model ListPrivateAccessPolicesResponseBody = {
@@ -1342,9 +1270,9 @@ model ListPrivateAccessPolicesResponseBody = {
       createTime?: string(name='CreateTime', example='2022-07-10 15:50:23'),
       customUserAttributes?: [ 
         {
-          idpId?: int32(name='IdpId'),
-          relation?: string(name='Relation'),
-          userGroupType?: string(name='UserGroupType'),
+          idpId?: int32(name='IdpId', example='12'),
+          relation?: string(name='Relation', example='Equal'),
+          userGroupType?: string(name='UserGroupType', example='department'),
           value?: string(name='Value'),
         }
       ](name='CustomUserAttributes'),
@@ -1356,7 +1284,7 @@ model ListPrivateAccessPolicesResponseBody = {
       status?: string(name='Status', example='Enabled'),
       tagIds?: [ string ](name='TagIds'),
       userGroupIds?: [ string ](name='UserGroupIds'),
-      userGroupMode?: string(name='UserGroupMode'),
+      userGroupMode?: string(name='UserGroupMode', example='Normal'),
     }
   ](name='Polices'),
   requestId?: string(name='RequestId', example='748CFDC7-1EB6-5B8B-9405-DA76ED5BB60D'),
@@ -1369,13 +1297,8 @@ model ListPrivateAccessPolicesResponse = {
   body: ListPrivateAccessPolicesResponseBody(name='body'),
 }
 
-async function listPrivateAccessPolicesWithOptions(tmpReq: ListPrivateAccessPolicesRequest, runtime: Util.RuntimeOptions): ListPrivateAccessPolicesResponse {
-  Util.validateModel(tmpReq);
-  var request = new ListPrivateAccessPolicesShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.policyIds)) {
-    request.policyIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.policyIds, 'PolicyIds', 'json');
-  }
+async function listPrivateAccessPolicesWithOptions(request: ListPrivateAccessPolicesRequest, runtime: Util.RuntimeOptions): ListPrivateAccessPolicesResponse {
+  Util.validateModel(request);
   var query = OpenApiUtil.query(Util.toMap(request));
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1408,15 +1331,6 @@ model ListPrivateAccessTagsRequest {
   tagIds?: [ string ](name='TagIds'),
 }
 
-model ListPrivateAccessTagsShrinkRequest {
-  applicationId?: string(name='ApplicationId', example='pa-application-e12860ef6c48****'),
-  currentPage?: int32(name='CurrentPage', example='1'),
-  name?: string(name='Name', example='tag_name'),
-  pageSize?: int32(name='PageSize', example='10'),
-  policyId?: string(name='PolicyId', example='pa-policy-54a7838a48bf****'),
-  tagIdsShrink?: string(name='TagIds'),
-}
-
 model ListPrivateAccessTagsResponseBody = {
   requestId?: string(name='RequestId', example='54C1D236-CDB9-586C-B44D-AFDCEA195545'),
   tags?: [ 
@@ -1439,13 +1353,8 @@ model ListPrivateAccessTagsResponse = {
   body: ListPrivateAccessTagsResponseBody(name='body'),
 }
 
-async function listPrivateAccessTagsWithOptions(tmpReq: ListPrivateAccessTagsRequest, runtime: Util.RuntimeOptions): ListPrivateAccessTagsResponse {
-  Util.validateModel(tmpReq);
-  var request = new ListPrivateAccessTagsShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.tagIds)) {
-    request.tagIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tagIds, 'TagIds', 'json');
-  }
+async function listPrivateAccessTagsWithOptions(request: ListPrivateAccessTagsRequest, runtime: Util.RuntimeOptions): ListPrivateAccessTagsResponse {
+  Util.validateModel(request);
   var query = OpenApiUtil.query(Util.toMap(request));
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1473,17 +1382,13 @@ model ListTagsForPrivateAccessApplicationRequest {
   applicationIds?: [ string ](name='ApplicationIds'),
 }
 
-model ListTagsForPrivateAccessApplicationShrinkRequest {
-  applicationIdsShrink?: string(name='ApplicationIds'),
-}
-
 model ListTagsForPrivateAccessApplicationResponseBody = {
   applications?: [ 
     {
       applicationId?: string(name='ApplicationId', example='pa-application-7a4445897856****'),
       tags?: [ 
         {
-          createTime?: string(name='CreateTime'),
+          createTime?: string(name='CreateTime', example='2022-07-01 16:05:26'),
           description?: string(name='Description'),
           name?: string(name='Name', example='tag_name'),
           tagId?: string(name='TagId', example='tag-c0cb77857a99****'),
@@ -1501,13 +1406,8 @@ model ListTagsForPrivateAccessApplicationResponse = {
   body: ListTagsForPrivateAccessApplicationResponseBody(name='body'),
 }
 
-async function listTagsForPrivateAccessApplicationWithOptions(tmpReq: ListTagsForPrivateAccessApplicationRequest, runtime: Util.RuntimeOptions): ListTagsForPrivateAccessApplicationResponse {
-  Util.validateModel(tmpReq);
-  var request = new ListTagsForPrivateAccessApplicationShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.applicationIds)) {
-    request.applicationIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.applicationIds, 'ApplicationIds', 'json');
-  }
+async function listTagsForPrivateAccessApplicationWithOptions(request: ListTagsForPrivateAccessApplicationRequest, runtime: Util.RuntimeOptions): ListTagsForPrivateAccessApplicationResponse {
+  Util.validateModel(request);
   var query = OpenApiUtil.query(Util.toMap(request));
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1535,17 +1435,13 @@ model ListTagsForPrivateAccessPolicyRequest {
   policyIds?: [ string ](name='PolicyIds'),
 }
 
-model ListTagsForPrivateAccessPolicyShrinkRequest {
-  policyIdsShrink?: string(name='PolicyIds'),
-}
-
 model ListTagsForPrivateAccessPolicyResponseBody = {
   polices?: [ 
     {
       policyId?: string(name='PolicyId', example='pa-policy-1b0d0e8b4bcf****'),
       tags?: [ 
         {
-          createTime?: string(name='CreateTime'),
+          createTime?: string(name='CreateTime', description='内网访问标签创建时间。', example='2023-02-21 14:10:16'),
           description?: string(name='Description'),
           name?: string(name='Name', example='tag_name'),
           tagId?: string(name='TagId', example='tag-d3f64e8bdd4a****'),
@@ -1563,13 +1459,8 @@ model ListTagsForPrivateAccessPolicyResponse = {
   body: ListTagsForPrivateAccessPolicyResponseBody(name='body'),
 }
 
-async function listTagsForPrivateAccessPolicyWithOptions(tmpReq: ListTagsForPrivateAccessPolicyRequest, runtime: Util.RuntimeOptions): ListTagsForPrivateAccessPolicyResponse {
-  Util.validateModel(tmpReq);
-  var request = new ListTagsForPrivateAccessPolicyShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.policyIds)) {
-    request.policyIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.policyIds, 'PolicyIds', 'json');
-  }
+async function listTagsForPrivateAccessPolicyWithOptions(request: ListTagsForPrivateAccessPolicyRequest, runtime: Util.RuntimeOptions): ListTagsForPrivateAccessPolicyResponse {
+  Util.validateModel(request);
   var query = OpenApiUtil.query(Util.toMap(request));
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1596,19 +1487,10 @@ async function listTagsForPrivateAccessPolicy(request: ListTagsForPrivateAccessP
 model ListUserGroupsRequest {
   attributeValue?: string(name='AttributeValue', example='username'),
   currentPage?: int32(name='CurrentPage', example='1'),
-  name?: string(name='Name'),
+  name?: string(name='Name', description='用户组名称。长度为1~128个字符，支持中文和大小写英文字母，可包含数字、半角句号（.）、下划线（_）和短划线（-）。', example='user_group_name'),
   PAPolicyId?: string(name='PAPolicyId', example='pa-policy-54a7838a48bf****'),
   pageSize?: int32(name='PageSize', example='10'),
   userGroupIds?: [ string ](name='UserGroupIds'),
-}
-
-model ListUserGroupsShrinkRequest {
-  attributeValue?: string(name='AttributeValue', example='username'),
-  currentPage?: int32(name='CurrentPage', example='1'),
-  name?: string(name='Name'),
-  PAPolicyId?: string(name='PAPolicyId', example='pa-policy-54a7838a48bf****'),
-  pageSize?: int32(name='PageSize', example='10'),
-  userGroupIdsShrink?: string(name='UserGroupIds'),
 }
 
 model ListUserGroupsResponseBody = {
@@ -1638,13 +1520,8 @@ model ListUserGroupsResponse = {
   body: ListUserGroupsResponseBody(name='body'),
 }
 
-async function listUserGroupsWithOptions(tmpReq: ListUserGroupsRequest, runtime: Util.RuntimeOptions): ListUserGroupsResponse {
-  Util.validateModel(tmpReq);
-  var request = new ListUserGroupsShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.userGroupIds)) {
-    request.userGroupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.userGroupIds, 'UserGroupIds', 'json');
-  }
+async function listUserGroupsWithOptions(request: ListUserGroupsRequest, runtime: Util.RuntimeOptions): ListUserGroupsResponse {
+  Util.validateModel(request);
   var query = OpenApiUtil.query(Util.toMap(request));
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1672,10 +1549,6 @@ model ListUserGroupsForPrivateAccessPolicyRequest {
   policyIds?: [ string ](name='PolicyIds'),
 }
 
-model ListUserGroupsForPrivateAccessPolicyShrinkRequest {
-  policyIdsShrink?: string(name='PolicyIds'),
-}
-
 model ListUserGroupsForPrivateAccessPolicyResponseBody = {
   polices?: [ 
     {
@@ -1690,7 +1563,7 @@ model ListUserGroupsForPrivateAccessPolicyResponseBody = {
               value?: string(name='Value'),
             }
           ](name='Attributes'),
-          createTime?: string(name='CreateTime'),
+          createTime?: string(name='CreateTime', description='用户组创建时间。', example='2022-09-27 18:10:25'),
           description?: string(name='Description'),
           name?: string(name='Name', example='user_group_name'),
           userGroupId?: string(name='UserGroupId', example='usergroup-6f1ef2fc56b6****'),
@@ -1707,13 +1580,8 @@ model ListUserGroupsForPrivateAccessPolicyResponse = {
   body: ListUserGroupsForPrivateAccessPolicyResponseBody(name='body'),
 }
 
-async function listUserGroupsForPrivateAccessPolicyWithOptions(tmpReq: ListUserGroupsForPrivateAccessPolicyRequest, runtime: Util.RuntimeOptions): ListUserGroupsForPrivateAccessPolicyResponse {
-  Util.validateModel(tmpReq);
-  var request = new ListUserGroupsForPrivateAccessPolicyShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.policyIds)) {
-    request.policyIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.policyIds, 'PolicyIds', 'json');
-  }
+async function listUserGroupsForPrivateAccessPolicyWithOptions(request: ListUserGroupsForPrivateAccessPolicyRequest, runtime: Util.RuntimeOptions): ListUserGroupsForPrivateAccessPolicyResponse {
+  Util.validateModel(request);
   var query = OpenApiUtil.query(Util.toMap(request));
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1851,9 +1719,11 @@ model UpdatePrivateAccessPolicyRequest {
   policyId?: string(name='PolicyId', example='pa-policy-63b2f1844b86****'),
   priority?: int32(name='Priority', example='1'),
   status?: string(name='Status', example='Enabled'),
-  tagIds?: [ string ](name='TagIds'),
+  tagIds?: [ string ](name='TagIds', description='内网访问标签ID集合。一条策略最多支持100个内网访问标签ID。'),
   userGroupIds?: [ string ](name='UserGroupIds'),
-  userGroupMode?: string(name='UserGroupMode'),
+  userGroupMode?: string(name='UserGroupMode', description='内网访问策略的用户组类型。取值：
+- **Normal**：普通用户组。
+- **Custom**：自定义用户组。', example='Normal'),
 }
 
 model UpdatePrivateAccessPolicyShrinkRequest {
@@ -1866,9 +1736,11 @@ model UpdatePrivateAccessPolicyShrinkRequest {
   policyId?: string(name='PolicyId', example='pa-policy-63b2f1844b86****'),
   priority?: int32(name='Priority', example='1'),
   status?: string(name='Status', example='Enabled'),
-  tagIdsShrink?: string(name='TagIds'),
+  tagIdsShrink?: string(name='TagIds', description='内网访问标签ID集合。一条策略最多支持100个内网访问标签ID。'),
   userGroupIdsShrink?: string(name='UserGroupIds'),
-  userGroupMode?: string(name='UserGroupMode'),
+  userGroupMode?: string(name='UserGroupMode', description='内网访问策略的用户组类型。取值：
+- **Normal**：普通用户组。
+- **Custom**：自定义用户组。', example='Normal'),
 }
 
 model UpdatePrivateAccessPolicyResponseBody = {
@@ -1970,13 +1842,6 @@ model UpdateUserGroupRequest {
   userGroupId?: string(name='UserGroupId', example='usergroup-6f1ef2fc56b6****'),
 }
 
-model UpdateUserGroupShrinkRequest {
-  attributesShrink?: string(name='Attributes'),
-  description?: string(name='Description'),
-  modifyType?: string(name='ModifyType', example='Cover'),
-  userGroupId?: string(name='UserGroupId', example='usergroup-6f1ef2fc56b6****'),
-}
-
 model UpdateUserGroupResponseBody = {
   requestId?: string(name='RequestId', example='FD724DBC-CD76-5235-BF76-59C51B73296D'),
 }
@@ -1987,16 +1852,12 @@ model UpdateUserGroupResponse = {
   body: UpdateUserGroupResponseBody(name='body'),
 }
 
-async function updateUserGroupWithOptions(tmpReq: UpdateUserGroupRequest, runtime: Util.RuntimeOptions): UpdateUserGroupResponse {
-  Util.validateModel(tmpReq);
-  var request = new UpdateUserGroupShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.attributes)) {
-    request.attributesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.attributes, 'Attributes', 'json');
-  }
+async function updateUserGroupWithOptions(request: UpdateUserGroupRequest, runtime: Util.RuntimeOptions): UpdateUserGroupResponse {
+  Util.validateModel(request);
   var body : map[string]any = {};
-  if (!Util.isUnset(request.attributesShrink)) {
-    body['Attributes'] = request.attributesShrink;
+  var bodyFlat : map[string]any = {};
+  if (!Util.isUnset(request.attributes)) {
+    bodyFlat['Attributes'] = request.attributes;
   }
   if (!Util.isUnset(request.description)) {
     body['Description'] = request.description;
@@ -2007,6 +1868,11 @@ async function updateUserGroupWithOptions(tmpReq: UpdateUserGroupRequest, runtim
   if (!Util.isUnset(request.userGroupId)) {
     body['UserGroupId'] = request.userGroupId;
   }
+  body = {
+    ...body,
+    ...OpenApiUtil.query(bodyFlat),
+  };
+
   var req = new OpenApi.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
