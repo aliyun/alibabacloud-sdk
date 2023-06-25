@@ -1806,21 +1806,23 @@ async function deleteChangeSet(request: DeleteChangeSetRequest): DeleteChangeSet
 
 model DeleteStackRequest {
   deleteOptions?: [ string ](name='DeleteOptions'),
-  ramRoleName?: string(name='RamRoleName', description='The name of resource N that you want to retain.', example='test-role'),
-  regionId?: string(name='RegionId', description='The name of resource N that you want to retain.', example='cn-hangzhou'),
-  retainAllResources?: boolean(name='RetainAllResources', description='The name of the RAM role. Resource Orchestration Service (ROS) assumes the RAM role to create the stack and uses credentials of the role to call the APIs of Alibaba Cloud services.
+  ramRoleName?: string(name='RamRoleName', description='The name of the RAM role. Resource Orchestration Service (ROS) assumes the RAM role to create the stack and uses the credentials of the role to call the APIs of Alibaba Cloud services.\\
+ROS assumes the role to perform operations on the stack. If you have permissions to perform operations on the stack but do not have permissions to use the RAM role, ROS still assumes the RAM role. You must make sure that the least privileges are granted to the RAM role.\\
+If you leave this parameter empty when you call the DeleteStack operation, ROS cannot assume the existing RAM role that is associated with the stack. If you want ROS to assume a RAM role, you must specify this parameter. If no RAM roles are available, ROS uses a temporary credential that is generated from the credentials of your account.\\
+The name of the RAM role can be up to 64 bytes in length.', example='test-role'),
+  regionId?: string(name='RegionId', description='The region ID of the stack. You can call the [DescribeRegions](~~131035~~) operation to query the most recent region list.', example='cn-hangzhou'),
+  retainAllResources?: boolean(name='RetainAllResources', description='Specifies whether to retain all resources in the stack.
 
-ROS assumes the RAM role to perform operations on the stack. If you have permissions to perform operations on the stack but do not have permissions to use the RAM role, ROS still assumes the RAM role. You must make sure that the least privileges are granted to the role.
+Valid values:
 
-If you leave this parameter empty when you call the DeleteStack operation, ROS cannot assume the existing RAM role that is associated with the stack. If you want ROS to assume a RAM role, you must specify this parameter. If no role is available for ROS to assume, ROS uses a temporary credential that is generated from the credentials of your account.
-
-The name of the RAM role can be up to 64 bytes in length.', example='false'),
-  retainResources?: [ string ](name='RetainResources', description='The ID of the request.', example='WebServer'),
-  stackId?: string(name='StackId', description='The region ID of the stack. You can call the [DescribeRegions](~~131035~~) operation to query the most recent region list.', example='4a6c9851-3b0f-4f5f-b4ca-a14bf691****'),
+*   true
+*   false (default)', example='false'),
+  retainResources?: [ string ](name='RetainResources', description='The resources that you want to retain.', example='WebServer'),
+  stackId?: string(name='StackId', description='The ID of the stack.', example='4a6c9851-3b0f-4f5f-b4ca-a14bf691****'),
 }
 
 model DeleteStackResponseBody = {
-  requestId?: string(name='RequestId', example='B288A0BE-D927-4888-B0F7-B35EF84B6E6F'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='B288A0BE-D927-4888-B0F7-B35EF84B6E6F'),
 }
 
 model DeleteStackResponse = {
@@ -2752,6 +2754,7 @@ You can call the [DescribeRegions](~~131035~~) operation to query the most recen
   templateScratchId?: string(name='TemplateScratchId', description='The ID of the scenario.
 
 For more information about how to query the IDs of scenarios, see [ListTemplateScratches](~~363050~~).', example='ts-aa9c62feab844a6b****'),
+  templateType?: string(name='TemplateType'),
 }
 
 model GenerateTemplateByScratchResponseBody = {
@@ -2794,6 +2797,9 @@ async function generateTemplateByScratchWithOptions(request: GenerateTemplateByS
   }
   if (!Util.isUnset(request.templateScratchId)) {
     query['TemplateScratchId'] = request.templateScratchId;
+  }
+  if (!Util.isUnset(request.templateType)) {
+    query['TemplateType'] = request.templateType;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -2862,6 +2868,7 @@ model GenerateTemplatePolicyResponseBody = {
     statement?: [ 
       {
         action?: [ string ](name='Action', description='The operations that are performed on the specified resource.'),
+        condition?: map[string]any(name='Condition'),
         effect?: string(name='Effect', description='The effect of the statement. Valid values:
 
 *   Allow
@@ -3048,24 +3055,36 @@ async function getChangeSet(request: GetChangeSetRequest): GetChangeSetResponse 
 }
 
 model GetFeatureDetailsRequest {
-  feature?: string(name='Feature', description='The resource types that support the scenario feature.', example='Terraform'),
-  regionId?: string(name='RegionId', description='The resource types that support the system tag `acs:ros:stackId`.', example='cn-hangzhou'),
+  feature?: string(name='Feature', description='The one or more features that you want to query. Valid values:
+
+*   Terraform: the Terraform hosting feature.
+*   ResourceCleaner: the resource cleaner feature. You can use ALIYUN::ROS::ResourceCleaner to create a resource cleaner.
+*   TemplateScratch: the scenario feature.
+*   All: all features that are supported by ROS.', example='Terraform'),
+  regionId?: string(name='RegionId', description='The region ID of the stack. You can call the [DescribeRegions](~~131035~~) operation to query the most recent region list.', example='cn-hangzhou'),
 }
 
 model GetFeatureDetailsResponseBody = {
   driftDetection?: {
     supportedResourceTypes?: [ string ](name='SupportedResourceTypes'),
   }(name='DriftDetection'),
-  requestId?: string(name='RequestId', description='The resource types that support the system tag `acs:ros:stackId`.', example='EBF833DA-D0E2-52BE-92E2-59CA56BE834E'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='EBF833DA-D0E2-52BE-92E2-59CA56BE834E'),
   resourceCleaner?: {
     supportedResourceTypes?: [ 
       {
-        resourceType?: string(name='ResourceType', example='ECS:Instance'),
-        sideEffects?: [ string ](name='SideEffects'),
-        supportedFilters?: [ string ](name='SupportedFilters'),
+        resourceType?: string(name='ResourceType', description='The resource type that can be cleaned up.', example='ECS:Instance'),
+        sideEffects?: [ string ](name='SideEffects', description='The names of the side effects. The StopInstance value indicates that an instance that is related to the specified resource is stopped.'),
+        supportedFilters?: [ string ](name='SupportedFilters', description='The filters that are used to filter resources. Valid values:
+
+*   RegionId: the ID of the region.
+*   ResourceId: the ID of the resource.
+*   ResourceName: the name of the resource.
+*   Tags: the tags of the resource.
+*   ResourceGroupId: the ID of the resource group.
+*   DeletionProtection: the deletion protection feature.'),
       }
-    ](name='SupportedResourceTypes'),
-  }(name='ResourceCleaner', description='The names of properties that are supported by the resource type.'),
+    ](name='SupportedResourceTypes', description='The resource types that can be cleaned up.'),
+  }(name='ResourceCleaner', description='Details of the resource cleaner feature.'),
   resourceImport?: {
     supportedResourceTypes?: [ 
       {
@@ -3077,59 +3096,58 @@ model GetFeatureDetailsResponseBody = {
   templateParameterConstraints?: {
     supportedResourceTypes?: [ 
       {
-        properties?: [ string ](name='Properties'),
-        resourceType?: string(name='ResourceType', example='ALIYUN::ECS::Disk'),
+        properties?: [ string ](name='Properties', description='The names of properties that are supported by the resource type.'),
+        resourceType?: string(name='ResourceType', description='The resource type.', example='ALIYUN::ECS::Disk'),
       }
-    ](name='SupportedResourceTypes'),
-  }(name='TemplateParameterConstraints'),
+    ](name='SupportedResourceTypes', description='The resource types that support the template parameter constraint feature.'),
+  }(name='TemplateParameterConstraints', description='Details of the template parameter constraint feature.'),
   templateScratch?: {
     supportedResourceTypes?: [ 
       {
-        resourceType?: string(name='ResourceType', description='Details of the template parameter constraint feature.', example='ALIYUN::ECS::Disk'),
-        sourceResourceGroupSupported?: boolean(name='SourceResourceGroupSupported', description='The resource type.', example='true'),
-        sourceResourcesSupported?: boolean(name='SourceResourcesSupported', description='The resource types that support the template parameter constraint feature.', example='true'),
-        sourceSupported?: boolean(name='SourceSupported', description='The names of properties that are supported by the resource type.', example='true'),
-        sourceTagSupported?: boolean(name='SourceTagSupported', description='The resource types that support the template parameter constraint feature.', example='true'),
+        resourceType?: string(name='ResourceType', description='The resource type.', example='ALIYUN::ECS::Disk'),
+        sourceResourceGroupSupported?: boolean(name='SourceResourceGroupSupported', description='Indicates whether the resource scope can be specified by resource group. Valid values:
+
+- true
+- false', example='true'),
+        sourceResourcesSupported?: boolean(name='SourceResourcesSupported', description='Indicates whether the resource scope can be specified by tag, resource group, or resource. Valid values:
+
+- true
+- false', example='true'),
+        sourceSupported?: boolean(name='SourceSupported', description='Indicates whether the resource scope can be specified by resource. Valid values:
+
+- true
+- false', example='true'),
+        sourceTagSupported?: boolean(name='SourceTagSupported', description='Indicates whether the resource scope can be specified by tag. Valid values:
+
+- true
+- false', example='true'),
       }
-    ](name='SupportedResourceTypes', description='The names of the side effects. The StopInstance value indicates that an instance that is related to the specified resource is stopped.'),
-  }(name='TemplateScratch', description='The names of the side effects. The StopInstance value indicates that an instance that is related to the specified resource is stopped.'),
+    ](name='SupportedResourceTypes', description='The resource types that support the scenario feature.'),
+  }(name='TemplateScratch', description='Details of the scenario feature.'),
   terraform?: {
     supportedResourceTypes?: {
-      customTag?: [ string ](name='CustomTag', description='Indicates whether the resource scope can be specified by tag, resource group, or resource. Valid values:
-
-- true
-- false'),
-      estimateCost?: [ string ](name='EstimateCost', description='Indicates whether the resource scope can be specified by resource group. Valid values:
-
-- true
-- false'),
-      resourceGroup?: [ string ](name='ResourceGroup', description='Details of the resource cleaner feature.'),
+      customTag?: [ string ](name='CustomTag', description='The resource types that support the custom tag feature.'),
+      estimateCost?: [ string ](name='EstimateCost', description='The resource types that support the price inquiry feature.'),
+      resourceGroup?: [ string ](name='ResourceGroup', description='The resource types that support the resource group feature.'),
       stackOperationRisk?: {
-        deleteStack?: [ string ](name='DeleteStack', description='The filters that are used to filter resources. Valid values:
-
-*   RegionId: the ID of the region.
-*   ResourceId: the ID of the resource.
-*   ResourceName: the name of the resource.
-*   Tags: the tags of the resource.
-*   ResourceGroupId: the ID of the resource group.
-*   DeletionProtection: the deletion protection feature.'),
-      }(name='StackOperationRisk', description='The resource type that can be cleaned up.'),
-      systemTag?: [ string ](name='SystemTag', description='The resource types that support the scenario feature.'),
+        deleteStack?: [ string ](name='DeleteStack', description='The resource types that support the risk check performed to detect risks caused by a stack deletion operation.'),
+      }(name='StackOperationRisk', description='The resource type that support the risk check feature.'),
+      systemTag?: [ string ](name='SystemTag', description='The resource types that support the system tag `acs:ros:stackId`.'),
     }(name='SupportedResourceTypes', description='The resource types that support the scenario feature.'),
     supportedVersions?: [ 
       {
         providerVersions?: [ 
           {
-            providerName?: string(name='ProviderName', description='The resource types that support the price inquiry feature.', example='alicloud'),
-            supportedVersions?: [ string ](name='SupportedVersions', description='The resource types that support the resource group feature.'),
+            providerName?: string(name='ProviderName', description='The name of the provider.', example='alicloud'),
+            supportedVersions?: [ string ](name='SupportedVersions', description='The versions of the provider.'),
           }
-        ](name='ProviderVersions', description='The resource types that support the price inquiry feature.'),
-        terraformVersion?: string(name='TerraformVersion', description='The resource type that support the risk check feature.', example='1.0.11'),
-        transform?: string(name='Transform', description='The resource types that support the risk check performed to detect risks caused by a stack deletion operation.', example='Aliyun::Terraform-v1.0'),
-        updateAllowedTransforms?: [ string ](name='UpdateAllowedTransforms', description='The resource types that support the risk check performed to detect risks caused by a stack deletion operation.'),
+        ](name='ProviderVersions', description='The names and versions of the providers that correspond to the Terraform versions.'),
+        terraformVersion?: string(name='TerraformVersion', description='The Terraform version.', example='1.0.11'),
+        transform?: string(name='Transform', description='The Terraform version that is supported by ROS. The parameter value is the same as the value of the Transform parameter in a Terraform template.', example='Aliyun::Terraform-v1.0'),
+        updateAllowedTransforms?: [ string ](name='UpdateAllowedTransforms', description='The versions to which Terraform can be updated in ROS.'),
       }
-    ](name='SupportedVersions', description='The resource types that support the custom tag feature.'),
-  }(name='Terraform', description='The resource types that support the custom tag feature.'),
+    ](name='SupportedVersions', description='The Terraform versions.'),
+  }(name='Terraform', description='Details of the Terraform hosting feature.'),
 }
 
 model GetFeatureDetailsResponse = {
@@ -3139,7 +3157,9 @@ model GetFeatureDetailsResponse = {
 }
 
 /**
-  * The Terraform version that is supported by ROS. The parameter value is the same as the value of the Transform parameter in a Terraform template.
+  * You can call this operation to query the Terraform hosting, resource cleaner, and scenario features.
+  * This topic provides an example on how to query the details of features supported by ROS in the China (Hangzhou) region. The details include Terraform versions, provider versions, and supported resource types.
+  * >  In the Examples section, only part of the sample code is provided.
   *
   * @param request GetFeatureDetailsRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -3172,7 +3192,9 @@ async function getFeatureDetailsWithOptions(request: GetFeatureDetailsRequest, r
 }
 
 /**
-  * The Terraform version that is supported by ROS. The parameter value is the same as the value of the Transform parameter in a Terraform template.
+  * You can call this operation to query the Terraform hosting, resource cleaner, and scenario features.
+  * This topic provides an example on how to query the details of features supported by ROS in the China (Hangzhou) region. The details include Terraform versions, provider versions, and supported resource types.
+  * >  In the Examples section, only part of the sample code is provided.
   *
   * @param request GetFeatureDetailsRequest
   * @return GetFeatureDetailsResponse
@@ -4671,8 +4693,8 @@ You can call the [DescribeRegions](~~131035~~) operation to query the most recen
   regionId?: string(name='RegionId', description='The ID of the template. This parameter applies to shared and private templates.
 
 >  You must specify only one of the following parameters: TemplateBody, TemplateURL, TemplateId, and TemplateScratchId.', example='cn-hangzhou'),
-  stackId?: string(name='StackId'),
-  templateBody?: string(name='TemplateBody', description='The version of the template. This parameter takes effect only when the TemplateId parameter is specified.', example='The parameters.'),
+  stackId?: string(name='StackId', example='c754d2a4-28f1-46df-b557-9586173a****'),
+  templateBody?: string(name='TemplateBody'),
   templateId?: string(name='TemplateId', description='The value of parameter N.
 
 Maximum value of N: 200.
@@ -4730,9 +4752,6 @@ async function getTemplateEstimateCostWithOptions(request: GetTemplateEstimateCo
   if (!Util.isUnset(request.stackId)) {
     query['StackId'] = request.stackId;
   }
-  if (!Util.isUnset(request.templateBody)) {
-    query['TemplateBody'] = request.templateBody;
-  }
   if (!Util.isUnset(request.templateId)) {
     query['TemplateId'] = request.templateId;
   }
@@ -4748,8 +4767,13 @@ async function getTemplateEstimateCostWithOptions(request: GetTemplateEstimateCo
   if (!Util.isUnset(request.templateVersion)) {
     query['TemplateVersion'] = request.templateVersion;
   }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.templateBody)) {
+    body['TemplateBody'] = request.templateBody;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
     action = 'GetTemplateEstimateCost',
@@ -4800,11 +4824,7 @@ For more information, see [Ensure idempotence](~~134212~~).', example='123e4567-
 
 You can call the [DescribeRegions](~~131035~~) operation to query the most recent region list.', example='cn-hangzhou'),
   stackId?: string(name='StackId', description='The ID of the stack.', example='c754d2a4-28f1-46df-b557-9586173a****'),
-  templateBody?: string(name='TemplateBody', description='The structure that contains the template body.
-
-The template body must be 1 to 524,288 bytes in length. If the length of the template body exceeds the upper limit, we recommend that you add parameters to the HTTP POST request body to prevent request failures caused by excessively long URLs.
-
->  You must specify only one of the following parameters: TemplateBody, TemplateURL, and TemplateId.', example='{"Parameters":{"ZoneInfo":{"Type": "String"},"InstanceType": {"Type": "String"}},"ROSTemplateFormatVersion": "2015-09-01","Resources":{"ECS":{"Properties":{"ZoneId":{"Ref": "ZoneInfo"},"InstanceType": {"Ref": "InstanceType"}},"Type": "ALIYUN::ECS::Instance"}}}'),
+  templateBody?: string(name='TemplateBody'),
   templateId?: string(name='TemplateId', description='The ID of the template. This parameter applies to shared and private templates.
 
 >  You must specify only one of the following parameters: TemplateBody, TemplateURL, and TemplateId.', example='5ecd1e10-b0e9-4389-a565-e4c15efc****'),
@@ -4840,11 +4860,7 @@ For more information, see [Ensure idempotence](~~134212~~).', example='123e4567-
 
 You can call the [DescribeRegions](~~131035~~) operation to query the most recent region list.', example='cn-hangzhou'),
   stackId?: string(name='StackId', description='The ID of the stack.', example='c754d2a4-28f1-46df-b557-9586173a****'),
-  templateBody?: string(name='TemplateBody', description='The structure that contains the template body.
-
-The template body must be 1 to 524,288 bytes in length. If the length of the template body exceeds the upper limit, we recommend that you add parameters to the HTTP POST request body to prevent request failures caused by excessively long URLs.
-
->  You must specify only one of the following parameters: TemplateBody, TemplateURL, and TemplateId.', example='{"Parameters":{"ZoneInfo":{"Type": "String"},"InstanceType": {"Type": "String"}},"ROSTemplateFormatVersion": "2015-09-01","Resources":{"ECS":{"Properties":{"ZoneId":{"Ref": "ZoneInfo"},"InstanceType": {"Ref": "InstanceType"}},"Type": "ALIYUN::ECS::Instance"}}}'),
+  templateBody?: string(name='TemplateBody'),
   templateId?: string(name='TemplateId', description='The ID of the template. This parameter applies to shared and private templates.
 
 >  You must specify only one of the following parameters: TemplateBody, TemplateURL, and TemplateId.', example='5ecd1e10-b0e9-4389-a565-e4c15efc****'),
@@ -4883,6 +4899,14 @@ model GetTemplateParameterConstraintsResponseBody = {
 You can call the [ListResourceTypes](~~133957~~) operation to query the resource type.', example='ALIYUN::ECS::InstanceGroup'),
         }
       ](name='NotSupportResources', description='The unsupported resources in the template.'),
+      originalConstraints?: [ 
+        {
+          allowedValues?: [ any ](name='AllowedValues'),
+          propertyName?: string(name='PropertyName'),
+          resourceName?: string(name='ResourceName'),
+          resourceType?: string(name='ResourceType'),
+        }
+      ](name='OriginalConstraints'),
       parameterKey?: string(name='ParameterKey', description='The name of the parameter.', example='ZoneInfo'),
       queryErrors?: [ 
         {
@@ -4940,9 +4964,6 @@ async function getTemplateParameterConstraintsWithOptions(tmpReq: GetTemplatePar
   if (!Util.isUnset(request.stackId)) {
     query['StackId'] = request.stackId;
   }
-  if (!Util.isUnset(request.templateBody)) {
-    query['TemplateBody'] = request.templateBody;
-  }
   if (!Util.isUnset(request.templateId)) {
     query['TemplateId'] = request.templateId;
   }
@@ -4952,8 +4973,13 @@ async function getTemplateParameterConstraintsWithOptions(tmpReq: GetTemplatePar
   if (!Util.isUnset(request.templateVersion)) {
     query['TemplateVersion'] = request.templateVersion;
   }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.templateBody)) {
+    body['TemplateBody'] = request.templateBody;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
     action = 'GetTemplateParameterConstraints',
@@ -6217,67 +6243,68 @@ async function listStackInstances(request: ListStackInstancesRequest): ListStack
 }
 
 model ListStackOperationRisksRequest {
-  clientToken?: string(name='ClientToken', description='The resource N that you want to retain in the stack.', example='123e4567-e89b-12d3-a456-42665544****'),
-  operationType?: string(name='OperationType', description='Specifies whether to retain all resources in the stack.
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can be up to 64 characters in length, and can contain letters, digits, hyphens (-), and underscores (\\_). For more information, see [How to ensure idempotence](~~134212~~).', example='123e4567-e89b-12d3-a456-42665544****'),
+  operationType?: string(name='OperationType', description='The type of the operation of which you want to detect risks. Valid values:
 
-Default value: false. Valid values:
-
-*   true
-*   false
-
->  This parameter takes effect when the OperationType parameter is set to DeleteStack.', example='DeleteStack'),
-  ramRoleName?: string(name='RamRoleName', description='The resource N that you want to retain in the stack.', example='test-role'),
-  regionId?: string(name='RegionId', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the value, but you must make sure that the value is unique among different requests.
-
-The token can be up to 64 characters in length, and can contain letters, digits, hyphens (-), and underscores (\\_).
-
-For more information, see [Ensure idempotence](~~134212~~).', example='cn-hangzhou'),
-  retainAllResources?: boolean(name='RetainAllResources', description='The structure that contains the template body. The template body must be 1 to 524,288 bytes in length. If the length of the template body exceeds the upper limit, we recommend that you add parameters to the HTTP POST request body to prevent request failures caused by excessively long URLs.
-
->  You must specify only one of the following parameters: TemplateBody, TemplateURL, TemplateId, and TemplateScratchId.', example='false'),
-  retainResources?: [ string ](name='RetainResources', description='The URL of the file that contains the template body. The URL must point to a template that is located on an HTTP or HTTPS web server or in an Object Storage Service (OSS) bucket, such as oss://ros/stack-policy/demo or oss://ros/stack-policy/demo?RegionId=cn-hangzhou. The template body can be up to 524,288 bytes in length. If you do not specify the region ID of the OSS bucket, the value of the RegionId parameter is used.
-
->  You must specify only one of the following parameters: TemplateBody, TemplateURL, TemplateId, and TemplateScratchId.', example='WebServer'),
-  stackId?: string(name='StackId', description='The name of the RAM role.
+*   DeleteStack: detects high risks that may arise in resources when you delete a stack.
+*   CreateStack: detects the missing permissions when you fail to create a stack.', example='DeleteStack'),
+  ramRoleName?: string(name='RamRoleName', description='The name of the RAM role.
 
 *   If you specify a RAM role, ROS creates stacks based on the permissions that are granted to the RAM role and uses the credentials of the RAM role to call the API operations of Alibaba Cloud services.
 *   If you do not specify a RAM role, ROS creates stacks based on the permissions of your Alibaba Cloud account.
 
-The name of the RAM role can be up to 64 bytes in length.', example='4a6c9851-3b0f-4f5f-b4ca-a14bf691****'),
-  templateBody?: string(name='TemplateBody', description='The version of the template.
+The name of the RAM role can be up to 64 bytes in length.', example='test-role'),
+  regionId?: string(name='RegionId', description='The region ID of the stack. You can call the [DescribeRegions](~~131035~~) operation to query the most recent region list.', example='cn-hangzhou'),
+  retainAllResources?: boolean(name='RetainAllResources', description='Specifies whether to retain all resources in the stack. Valid values:
 
->  This parameter takes effect only when the TemplateId parameter is specified.', example='{"ROSTemplateFormatVersion":"2015-09-01"}'),
-  templateId?: string(name='TemplateId', description='The resources that are at risk.', example='5ecd1e10-b0e9-4389-a565-e4c15efc****'),
-  templateURL?: string(name='TemplateURL', description='The ID of the request.', example='oss://ros-template/demo'),
-  templateVersion?: string(name='TemplateVersion', description='The logical ID of the resource. The logical ID is the resource name that is defined in the template.', example='v1'),
+*   true
+*   false (default)
+
+> This parameter takes effect only if you set OperationType to DeleteStack.', example='false'),
+  retainResources?: [ string ](name='RetainResources', description='The list of resources to retain.
+
+> This parameter takes effect only if you set OperationType to DeleteStack.', example='WebServer'),
+  stackId?: string(name='StackId', description='The ID of the stack.', example='4a6c9851-3b0f-4f5f-b4ca-a14bf691****'),
+  templateBody?: string(name='TemplateBody', description='The template body. The template body must be 1 to 524,288 bytes in length. If the length of the template body exceeds the upper limit, we recommend that you add parameters to the HTTP POST request body to prevent request failures caused by excessively long URLs.
+
+> You must specify one of TemplateBody, TemplateURL, TemplateId, and TemplateScratchId.', example='{"ROSTemplateFormatVersion":"2015-09-01"}'),
+  templateId?: string(name='TemplateId', description='The ID of the template. This parameter applies to shared and private templates.
+
+> You must specify one of TemplateBody, TemplateURL, TemplateId, and TemplateScratchId.', example='5ecd1e10-b0e9-4389-a565-e4c15efc****'),
+  templateURL?: string(name='TemplateURL', description='The URL of the file that contains the template body. The URL must point to a template that is located on an HTTP or HTTPS web server or in an Object Storage Service (OSS) bucket, such as oss://ros/stack-policy/demo and oss://ros/stack-policy/demo?RegionId=cn-hangzhou. The template body can be up to 524,288 bytes in length. If you do not specify RegionId in the URL, the region ID of the stack is used.
+
+> You must specify one of TemplateBody, TemplateURL, TemplateId, and TemplateScratchId.', example='oss://ros-template/demo'),
+  templateVersion?: string(name='TemplateVersion', description='The version of the template.
+
+> This parameter takes effect only if you specify TemplateId.', example='v1'),
 }
 
 model ListStackOperationRisksResponseBody = {
-  missingPolicyActions?: [ string ](name='MissingPolicyActions'),
-  requestId?: string(name='RequestId', description='The physical ID of the resource. The physical ID is the actual ID of the resource.', example='72108E7A-E874-4A5E-B22C-A61E94AD12CD'),
+  missingPolicyActions?: [ string ](name='MissingPolicyActions', description='The operations on which the permissions are not granted to the Alibaba Cloud account of the caller.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='72108E7A-E874-4A5E-B22C-A61E94AD12CD'),
   riskResources?: [ 
     {
-      code?: string(name='Code', description='The reason for the risk.', example='NoPermission'),
-      logicalResourceId?: string(name='LogicalResourceId', description='The resource type.', example='MySG'),
-      message?: string(name='Message', description='The operations on which the permissions are not granted to the Alibaba Cloud account of the caller.', example='You are not authorized to complete this action.'),
-      physicalResourceId?: string(name='PhysicalResourceId', description='The error code that is returned when the risk detection fails.
+      code?: string(name='Code', description='The error code that is returned when the risk detection fails.
 
->  This parameter is not returned if the risk detection is successful.', example='sg-bp1dpioafqphedg9****'),
-      reason?: string(name='Reason', example='There are some ECS instances (i-bp18el96s4wq635e****) depending on the security group.'),
-      requestId?: string(name='RequestId', description='The error message that is returned when the risk detection fails.
+>  This parameter is not returned if the risk detection is successful.', example='NoPermission'),
+      logicalResourceId?: string(name='LogicalResourceId', description='The logical ID of the resource. The logical ID is the resource name that is defined in the template.', example='MySG'),
+      message?: string(name='Message', description='The error message that is returned when the risk detection fails.
+
+>  This parameter is not returned if the risk detection is successful.', example='You are not authorized to complete this action.'),
+      physicalResourceId?: string(name='PhysicalResourceId', description='The physical ID of the resource. The physical ID is the actual ID of the resource.', example='sg-bp1dpioafqphedg9****'),
+      reason?: string(name='Reason', description='The cause of the risk.', example='There are some ECS instances (i-bp18el96s4wq635e****) depending on the security group.'),
+      requestId?: string(name='RequestId', description='The ID of the request when the risk detection fails.
 
 >  This parameter is not returned if the risk detection is successful.', example='DF4296CF-F45F-4845-A72B-BE617601DB25'),
-      resourceType?: string(name='ResourceType', description='The type of the risk. Valid values:
+      resourceType?: string(name='ResourceType', description='The type of the resource.', example='ALIYUN::ECS::SecurityGroup'),
+      riskType?: string(name='RiskType', description='The type of the risk. Valid values:
 
 *   Referenced: The resource is referenced by other resources.
 *   MaybeReferenced: The resource may be referenced by other resources.
 *   AdditionalRiskCheckRequired: An additional risk detection is required for a nested stack.
-*   OperationIgnored: The operation does not take effect for the resource.', example='ALIYUN::ECS::SecurityGroup'),
-      riskType?: string(name='RiskType', description='The operations on which the permissions are not granted to the Alibaba Cloud account of the caller.', example='Referenced'),
+*   OperationIgnored: The operation does not take effect for the resource.', example='Referenced'),
     }
-  ](name='RiskResources', description='The ID of the request when the risk detection fails.
-
->  This parameter is not returned if the risk detection is successful.'),
+  ](name='RiskResources', description='The resources that are at risk.'),
 }
 
 model ListStackOperationRisksResponse = {
@@ -6287,7 +6314,9 @@ model ListStackOperationRisksResponse = {
 }
 
 /**
-  * The ID of the stack.
+  * The ListStackOperationRisks operation is suitable for the following scenarios:
+  * *   You want to detect high risks that may arise in resources when you delete a stack that contains the resources, and query the cause of each risk in a resource.
+  * *   When you create a stack, the creation may fail. In this case, you can call this operation to check which types of permissions that are required to create stacks are missing.
   *
   * @param request ListStackOperationRisksRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -6347,7 +6376,9 @@ async function listStackOperationRisksWithOptions(request: ListStackOperationRis
 }
 
 /**
-  * The ID of the stack.
+  * The ListStackOperationRisks operation is suitable for the following scenarios:
+  * *   You want to detect high risks that may arise in resources when you delete a stack that contains the resources, and query the cause of each risk in a resource.
+  * *   When you create a stack, the creation may fail. In this case, you can call this operation to check which types of permissions that are required to create stacks are missing.
   *
   * @param request ListStackOperationRisksRequest
   * @return ListStackOperationRisksResponse
