@@ -463,7 +463,7 @@ model AddPrivateRegistryRequest {
   registryHostIp?: string(name='RegistryHostIp', description='The IP address of the image repository.', example='114.55.**.**'),
   registryRegionId?: string(name='RegistryRegionId', description='The ID of the region.
 
-> You can call the [ListImageRegistryRegions](~~ListImageRegistryRegions~~) operation to query the IDs of supported regions.', example='cn-hangzhou'),
+> You can call the [ListImageRegistryRegion](~~ListImageRegistryRegion~~) operation to query the IDs of supported regions.', example='cn-hangzhou'),
   registryType?: string(name='RegistryType', description='The type of the private image repository. Valid values:
 
 *   **harbor**
@@ -1082,6 +1082,7 @@ async function cancelOnceTask(request: CancelOnceTaskRequest): CancelOnceTaskRes
 }
 
 model ChangeCheckConfigRequest {
+  cycleDays?: [ int32 ](name='CycleDays'),
   endTime?: int32(name='EndTime', description='The end time of the check. The value specifies a point in time in a day. The time period that is specified by the start time and end time must be one of the following time periods:
 
 *   **00:00 to 06:00:** If you set the StartTime parameter to 0, you must set the EndTime parameter to 6.
@@ -1108,6 +1109,9 @@ model ChangeCheckConfigResponse = {
 async function changeCheckConfigWithOptions(request: ChangeCheckConfigRequest, runtime: Util.RuntimeOptions): ChangeCheckConfigResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.cycleDays)) {
+    query['CycleDays'] = request.cycleDays;
+  }
   if (!Util.isUnset(request.endTime)) {
     query['EndTime'] = request.endTime;
   }
@@ -1431,6 +1435,56 @@ async function confirmVirusEventsWithOptions(request: ConfirmVirusEventsRequest,
 async function confirmVirusEvents(request: ConfirmVirusEventsRequest): ConfirmVirusEventsResponse {
   var runtime = new Util.RuntimeOptions{};
   return confirmVirusEventsWithOptions(request, runtime);
+}
+
+model CreateAgentlessScanTaskRequest {
+  autoDeleteDays?: int32(name='AutoDeleteDays', example='1'),
+  targetType?: int32(name='TargetType', example='2'),
+  uuidList?: [ string ](name='UuidList'),
+}
+
+model CreateAgentlessScanTaskResponseBody = {
+  requestId?: string(name='RequestId', example='E90DE229-9FC6-58F6-BF4B-03AD6179****'),
+}
+
+model CreateAgentlessScanTaskResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateAgentlessScanTaskResponseBody(name='body'),
+}
+
+async function createAgentlessScanTaskWithOptions(request: CreateAgentlessScanTaskRequest, runtime: Util.RuntimeOptions): CreateAgentlessScanTaskResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.autoDeleteDays)) {
+    query['AutoDeleteDays'] = request.autoDeleteDays;
+  }
+  if (!Util.isUnset(request.targetType)) {
+    query['TargetType'] = request.targetType;
+  }
+  if (!Util.isUnset(request.uuidList)) {
+    query['UuidList'] = request.uuidList;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateAgentlessScanTask',
+    version = '2018-12-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createAgentlessScanTask(request: CreateAgentlessScanTaskRequest): CreateAgentlessScanTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createAgentlessScanTaskWithOptions(request, runtime);
 }
 
 model CreateAntiBruteForceRuleRequest {
@@ -2911,17 +2965,37 @@ async function createOrUpdateAssetGroup(request: CreateOrUpdateAssetGroupRequest
 }
 
 model CreateOrUpdateDingTalkRequest {
-  configList?: string(name='ConfigList', example='[{"type":"sas_analysis_online-sas-operation-log-sas-event-suspicious","configItemList":[{"key":"item_level","valueList":["all"]},{"key":"event_type","valueList":["all"]}]}]'),
-  dingTalkLang?: string(name='DingTalkLang', example='zh'),
-  groupIdList?: string(name='GroupIdList', example='["10417151"]'),
-  id?: long(name='Id', example='1589'),
-  intervalTime?: long(name='IntervalTime', example='0'),
-  ruleActionName?: string(name='RuleActionName', example='testNotify'),
-  sendUrl?: string(name='SendUrl', example='https://oapi.dingtalk.com/robot/send?access_token=XXX'),
+  configList?: string(name='ConfigList', description='The alerts for which you want the chatbot to send notifications. The value is a JSON array that contains the following fields:
+
+*   **type**: the types of alerts. The valid values are listed in the "Additional description of parameters" section in this topic.
+
+*   **configItemList**: the list of check items. The value is a JSON array that contains the following fields:
+
+    *   **key**: the key of the check item.
+    *   **valueList**: the values of the check item. The value of valueList is a JSON array.
+
+> For more information about the value of this parameter, see the "Addition description of parameters" section in this topic.', example='[{"type":"sas_analysis_online-sas-operation-log-sas-event-suspicious","configItemList":[{"key":"item_level","valueList":["all"]},{"key":"event_type","valueList":["all"]}]}]'),
+  dingTalkLang?: string(name='DingTalkLang', description='The language of the notifications. Valid values:
+
+*   **zh**: Chinese
+*   **en**: English', example='zh'),
+  groupIdList?: string(name='GroupIdList', description='The IDs of asset groups for which you want the chatbot to send notifications. The value is a JSON array.
+
+> You can call the [DescribeGroupStruct](~~DescribeGroupStruct~~) operation to query the IDs of asset groups.', example='["10417151"]'),
+  id?: long(name='Id', description='The ID of the chatbot.
+
+> You can call the [DescribeDingTalk](~~DescribeDingTalk~~) operation to query the IDs of chatbots.', example='1589'),
+  intervalTime?: long(name='IntervalTime', description='The time interval at which the chatbot sends notifications.
+
+> The value **0** indicates unlimited.', example='0'),
+  ruleActionName?: string(name='RuleActionName', description='The name of the chatbot.
+
+> The name of a chatbot must be 2 to 64 characters in length.', example='testNotify'),
+  sendUrl?: string(name='SendUrl', description='The webhook URL.', example='https://oapi.dingtalk.com/robot/send?access_token=XXX'),
 }
 
 model CreateOrUpdateDingTalkResponseBody = {
-  requestId?: string(name='RequestId', example='76975B7A-34DC-5CB6-9538-91700D4F112E'),
+  requestId?: string(name='RequestId', description='The request ID.', example='76975B7A-34DC-5CB6-9538-91700D4F112E'),
 }
 
 model CreateOrUpdateDingTalkResponse = {
@@ -3113,6 +3187,48 @@ async function createServiceLinkedRoleWithOptions(request: CreateServiceLinkedRo
 async function createServiceLinkedRole(request: CreateServiceLinkedRoleRequest): CreateServiceLinkedRoleResponse {
   var runtime = new Util.RuntimeOptions{};
   return createServiceLinkedRoleWithOptions(request, runtime);
+}
+
+model CreateServiceTrailRequest {
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+}
+
+model CreateServiceTrailResponseBody = {
+  requestId?: string(name='RequestId', example='A4EB8B1C-1DEC-5E18-BCD0-D1BBB3936FA7'),
+}
+
+model CreateServiceTrailResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateServiceTrailResponseBody(name='body'),
+}
+
+async function createServiceTrailWithOptions(request: CreateServiceTrailRequest, runtime: Util.RuntimeOptions): CreateServiceTrailResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateServiceTrail',
+    version = '2018-12-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createServiceTrail(request: CreateServiceTrailRequest): CreateServiceTrailResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createServiceTrailWithOptions(request, runtime);
 }
 
 model CreateSimilarSecurityEventsQueryTaskRequest {
@@ -3639,7 +3755,7 @@ model DeleteBackupPolicyMachineRequest {
 >  You can call the [DescribeBackupPolicies](~~DescribeBackupPolicies~~) operation to query the versions of anti-ransomware policies.', example='2.0.0'),
   uuid?: string(name='Uuid', description='The UUID of the server to which the anti-ransomware policy is applied.
 
->  You must specify at least one of the `UuidList` and `Uuid` parameters.', example='D0D6E6E4-CB8C-4897-B852-46AEFDA0****'),
+>  You must specify at least one of the `UuidList` and `Uuid` parameters.', example='083036e9-8411-4a9d-83af-9acbd****'),
   uuidList?: [ string ](name='UuidList', description='The UUIDs of the servers to which the anti-ransomware policy is applied.
 
 >  You must specify at least one of the `UuidList` and `Uuid` parameters.'),
@@ -4413,6 +4529,48 @@ async function deleteSecurityEventMarkMissList(request: DeleteSecurityEventMarkM
   return deleteSecurityEventMarkMissListWithOptions(request, runtime);
 }
 
+model DeleteServiceTrailRequest {
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+}
+
+model DeleteServiceTrailResponseBody = {
+  requestId?: string(name='RequestId', example='20456DD5-5CBF-5015-9173-12CA4246B***'),
+}
+
+model DeleteServiceTrailResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DeleteServiceTrailResponseBody(name='body'),
+}
+
+async function deleteServiceTrailWithOptions(request: DeleteServiceTrailRequest, runtime: Util.RuntimeOptions): DeleteServiceTrailResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteServiceTrail',
+    version = '2018-12-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deleteServiceTrail(request: DeleteServiceTrailRequest): DeleteServiceTrailResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteServiceTrailWithOptions(request, runtime);
+}
+
 model DeleteStrategyRequest {
   id?: string(name='Id', description='The ID of the baseline check policy that you want to delete.', example='1404656'),
   lang?: string(name='Lang', description='The language of the content within the request and response. Default value: **zh**. Valid values:
@@ -4984,10 +5142,10 @@ model DescribeAffectedMaliciousFileImagesRequest {
   pod?: string(name='Pod', description='The pod.', example='22222-7xsqq'),
   repoId?: string(name='RepoId', description='The ID of the image repository.
 
->  You can call the [ListRepository](~~ListRepository~~) operation to query the IDs of image repositories from the value of the **RepoId** response parameter.', example='crr-vridcl4****'),
+>  You can call the [ListRepository](~~451339~~) operation to query the IDs of image repositories from the value of the **RepoId** response parameter.', example='crr-vridcl4****'),
   repoInstanceId?: string(name='RepoInstanceId', description='The ID of the container image.
 
->  You can call the [ListRepository](~~ListRepository~~) operation to query the IDs of container images from the value of the **InstanceId** response parameter.', example='cri-datvailb****'),
+>  You can call the [ListRepository](~~451339~~) operation to query the IDs of container images from the value of the **InstanceId** response parameter.', example='cri-datvailb****'),
   repoName?: string(name='RepoName', description='The name of the image repository.
 
 >  Fuzzy match is supported.', example='centos'),
@@ -7416,7 +7574,9 @@ model DescribeCheckWarningSummaryRequest {
 *   **namespace**: the namespace', example='namespace'),
   containerFieldValue?: string(name='ContainerFieldValue', description='The value of the container field.', example='c819391d2d520485fa3e81e2dc2ea****'),
   currentPage?: int32(name='CurrentPage', description='The number of the page to return.', example='1'),
-  groupId?: long(name='GroupId', example='123'),
+  groupId?: long(name='GroupId', description='The ID of the asset group.
+
+> You can call the [DescribeAllGroups](~~DescribeAllGroups~~) operation to query the IDs of asset groups.', example='123'),
   lang?: string(name='Lang', description='The language of the content within the request and the response. Valid values:
 
 *   **zh**: Chinese
@@ -7460,7 +7620,10 @@ model DescribeCheckWarningSummaryResponseBody = {
 
 *   **true**: yes
 *   **false**: no', example='false'),
-      containerRisk?: boolean(name='ContainerRisk', example='false'),
+      containerRisk?: boolean(name='ContainerRisk', description='Indicates  whether the risk item is a container runtime risk item. Valid values:
+
+*   **true**: yes
+*   **false**: no', example='false'),
       databaseRisk?: boolean(name='DatabaseRisk', description='Indicates whether the risk item is a database risk item. Valid values:
 
 *   **true**: yes
@@ -9204,6 +9367,8 @@ model DescribeContainerInstancesResponseBody = {
       clusterName?: string(name='ClusterName', description='The name of the cluster.', example='test'),
       containerId?: string(name='ContainerId', description='The ID of the container.', example='48a6d9a92435a13ad573372c3f3c63b7e04d106458141df9f92155709d****'),
       createTimestamp?: long(name='CreateTimestamp', description='The timestamp when the cluster was created. Unit: milliseconds.', example='1670368337000'),
+      exposed?: int32(name='Exposed'),
+      exposedDetail?: string(name='ExposedDetail'),
       hcCount?: int32(name='HcCount', description='The number of baseline risks.', example='1'),
       hcStatus?: string(name='HcStatus', description='Indicates whether baseline risks are detected. Valid values:
 
@@ -10931,7 +11096,7 @@ model DescribeFieldStatisticsResponseBody = {
   groupedFields?: {
     aliYunInstanceCount?: int32(name='AliYunInstanceCount', description='The number of assets that are deployed on Alibaba Cloud.', example='100'),
     awsInstanceCount?: int32(name='AwsInstanceCount', description='The number of third-party cloud servers.', example='100'),
-    azureInstanceCount?: int32(name='AzureInstanceCount'),
+    azureInstanceCount?: int32(name='AzureInstanceCount', description='The number of third-party cloud servers.', example='5'),
     exposedInstanceCount?: int32(name='ExposedInstanceCount', description='The number of exposed servers.', example='1'),
     generalAssetCount?: int32(name='GeneralAssetCount', description='The number of assets whose importance is common.', example='10'),
     groupCount?: int32(name='GroupCount', description='The number of server groups.', example='20'),
@@ -11379,43 +11544,87 @@ async function describeGroupedInstances(request: DescribeGroupedInstancesRequest
 }
 
 model DescribeGroupedMaliciousFilesRequest {
-  clusterId?: string(name='ClusterId', example='c556c8133b5ad4378b7fc533ddbda****'),
-  currentPage?: int32(name='CurrentPage', example='1'),
-  fuzzyMaliciousName?: string(name='FuzzyMaliciousName', example='Mining'),
-  imageDigest?: string(name='ImageDigest', example='6a5e103187b31a94592a47a5858617f7****'),
-  imageLayer?: string(name='ImageLayer', example='27213ad375b53628dd152a5ca****'),
-  imageTag?: string(name='ImageTag', example='0.2'),
-  lang?: string(name='Lang', example='zh'),
-  levels?: string(name='Levels', example='serious'),
-  maliciousMd5?: string(name='MaliciousMd5', example='d836968041f7683b5459****'),
-  pageSize?: string(name='PageSize', example='20'),
-  repoId?: string(name='RepoId', example='crr-vridcl4****'),
-  repoInstanceId?: string(name='RepoInstanceId', example='cri-datvailb****'),
-  repoName?: string(name='RepoName', example='centos'),
-  repoNamespace?: string(name='RepoNamespace', example='hanghai-namespace'),
-  repoRegionId?: string(name='RepoRegionId', example='cn-shanghai'),
-  scanRange?: [ string ](name='ScanRange'),
+  clusterId?: string(name='ClusterId', description='The cluster ID of the container on which the malicious image sample is detected.', example='c556c8133b5ad4378b7fc533ddbda****'),
+  currentPage?: int32(name='CurrentPage', description='The number of the page to return. Pages start from page **1**. Default value: **1**.', example='1'),
+  fuzzyMaliciousName?: string(name='FuzzyMaliciousName', description='The name of the malicious image sample that you want to query.
+
+>  Fuzzy match is supported.', example='Mining'),
+  imageDigest?: string(name='ImageDigest', description='The image digest.', example='6a5e103187b31a94592a47a5858617f7****'),
+  imageLayer?: string(name='ImageLayer', description='The image layer.', example='27213ad375b53628dd152a5ca****'),
+  imageTag?: string(name='ImageTag', description='The image tag.', example='0.2'),
+  lang?: string(name='Lang', description='The language of the content within the request and response. Default value: **zh**. Valid values:
+
+*   **zh**: Chinese
+*   **en**: English', example='zh'),
+  levels?: string(name='Levels', description='The severity of the malicious image sample that you want to query. You can enter multiple severities. Separate the severities with commas (,). Valid values:
+
+*   **serious**
+*   **suspicious**
+*   **remind**', example='serious'),
+  maliciousMd5?: string(name='MaliciousMd5', description='The MD5 hash value of the malicious image sample.', example='d836968041f7683b5459****'),
+  pageSize?: string(name='PageSize', description='The number of entries to return on each page. Default value: **20**.', example='20'),
+  repoId?: string(name='RepoId', description='The ID of the image repository.
+
+>  You can call the [ListRepository](~~145293~~) operation to query the IDs of image repositories from the value of the **RepoId** response parameter.', example='crr-vridcl4****'),
+  repoInstanceId?: string(name='RepoInstanceId', description='The ID of the container image.
+
+>  You can call the [ListRepository](~~145293~~) operation to query the IDs of container images from the value of the **InstanceId** response parameter.', example='cri-datvailb****'),
+  repoName?: string(name='RepoName', description='The name of the image repository.
+
+>  Fuzzy match is supported.', example='centos'),
+  repoNamespace?: string(name='RepoNamespace', description='The namespace to which the image repository belongs.
+
+>  Fuzzy match is supported.', example='hanghai-namespace'),
+  repoRegionId?: string(name='RepoRegionId', description='The region ID of the image repository. Valid values:
+
+*   **cn-beijing**: China (Beijing)
+*   **cn-zhangjiakou**: China (Zhangjiakou)
+*   **cn-hangzhou**: China (Hangzhou)
+*   **cn-shanghai**: China (Shanghai)
+*   **cn-shenzhen**: China (Shenzhen)
+*   **cn-hongkong**: China (Hong Kong)
+*   **ap-southeast-1**: Singapore
+*   **ap-southeast-5**: Indonesia (Jakarta)
+*   **us-east-1**: US (Virginia)
+*   **us-west-1**: US (Silicon Valley)
+*   **eu-central-1**: Germany (Frankfurt)
+*   **eu-west-1**: UK (London)
+*   **ap-south-1**: India (Mumbai)', example='cn-shanghai'),
+  scanRange?: [ string ](name='ScanRange', description='The types of the assets that you want to scan.'),
 }
 
 model DescribeGroupedMaliciousFilesResponseBody = {
   groupedMaliciousFileResponse?: [ 
     {
-      firstScanTimestamp?: long(name='FirstScanTimestamp', example='1594907349000'),
-      imageCount?: long(name='ImageCount', example='3'),
-      latestScanTimestamp?: long(name='LatestScanTimestamp', example='1596533942000'),
-      level?: string(name='Level', example='serious'),
-      maliciousMd5?: string(name='MaliciousMd5', example='d836968041f7683b5459****'),
-      maliciousName?: string(name='MaliciousName', example='testFile'),
-      status?: int32(name='Status', example='0'),
+      firstScanTimestamp?: long(name='FirstScanTimestamp', description='The timestamp when the first scan was performed. Unit: milliseconds.', example='1594907349000'),
+      imageCount?: long(name='ImageCount', description='The number of affected images.', example='3'),
+      latestScanTimestamp?: long(name='LatestScanTimestamp', description='The timestamp when the last scan was performed. Unit: milliseconds.', example='1596533942000'),
+      level?: string(name='Level', description='The severity of the malicious image sample. Valid values:
+
+*   **serious**
+*   **suspicious**
+*   **remind**', example='serious'),
+      maliciousMd5?: string(name='MaliciousMd5', description='The MD5 hash value of the malicious image sample.', example='d836968041f7683b5459****'),
+      maliciousName?: string(name='MaliciousName', description='The name of the malicious image sample.', example='testFile'),
+      status?: int32(name='Status', description='The handling status of the malicious image sample. Valid values:
+
+*   **0**: unhandled
+*   **1**: handled
+*   **2**: verifying
+*   **3**: added to the whitelist', example='0'),
     }
-  ](name='GroupedMaliciousFileResponse'),
+  ](name='GroupedMaliciousFileResponse', description='The severity of the malicious image sample. Valid values:
+
+*   **serious**
+*   **suspicious**
+*   **remind**'),
   pageInfo?: {
-    count?: int32(name='Count', example='2'),
-    currentPage?: int32(name='CurrentPage', example='1'),
-    pageSize?: int32(name='PageSize', example='20'),
-    totalCount?: int32(name='TotalCount', example='2'),
-  }(name='PageInfo'),
-  requestId?: string(name='RequestId', example='8045E03E-6D91-4C53-9F22-5A1B84BB29D9'),
+    count?: int32(name='Count', description='The number of entries returned on the current page.', example='2'),
+    currentPage?: int32(name='CurrentPage', description='The page number of the returned page.', example='1'),
+    pageSize?: int32(name='PageSize', description='The number of entries returned per page. Default value: **20**.', example='20'),
+    totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='2'),
+  }(name='PageInfo', description='The pagination information.'),
+  requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='8045E03E-6D91-4C53-9F22-5A1B84BB29D9'),
 }
 
 model DescribeGroupedMaliciousFilesResponse = {
@@ -11788,13 +11997,16 @@ async function describeHcExportInfo(request: DescribeHcExportInfoRequest): Descr
 }
 
 model DescribeHoneyPotAuthRequest {
-  lang?: string(name='Lang', example='zh'),
+  lang?: string(name='Lang', description='The language of the content within the request and response. Valid values:
+
+*   **zh**: Chinese
+*   **en**: English', example='zh'),
 }
 
 model DescribeHoneyPotAuthResponseBody = {
-  honeyPotAuthCount?: long(name='HoneyPotAuthCount', example='10'),
-  honeyPotCount?: int32(name='HoneyPotCount', example='4'),
-  requestId?: string(name='RequestId', example='0F5023B6-9C1F-459F-ACCC-8B4636804037'),
+  honeyPotAuthCount?: long(name='HoneyPotAuthCount', description='The total quota.', example='10'),
+  honeyPotCount?: int32(name='HoneyPotCount', description='The quota that is consumed.', example='4'),
+  requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='0F5023B6-9C1F-459F-ACCC-8B4636804037'),
 }
 
 model DescribeHoneyPotAuthResponse = {
@@ -12438,18 +12650,29 @@ async function describeImageBaselineStrategy(request: DescribeImageBaselineStrat
 }
 
 model DescribeImageCriteriaRequest {
-  value?: string(name='Value', example='525'),
+  value?: string(name='Value', description='The keyword that you specify for fuzzy search when you query the image.
+
+> The value of this parameter can be an image ID, image tag, image instance ID, image repository name, image repository ID, image repository namespace, image region, image digest, or image repository type.', example='525'),
 }
 
 model DescribeImageCriteriaResponseBody = {
   criteriaList?: [ 
     {
-      name?: string(name='Name', example='vulStatus'),
-      type?: string(name='Type', example='input'),
-      values?: string(name='Values', example='NO,YES'),
+      name?: string(name='Name', description='The name of the search condition.
+- **tag**: the tag of the image
+- **digest**: the digest of the image
+- **vulStatus**: the status of the vulnerability
+- **alarmStatus**: the status of the alert
+- **riskStatus**: the status of the risk
+- **registryType**: the type of the image repository', example='vulStatus'),
+      type?: string(name='Type', description='The type of the search condition. Valid values:
+- **input**: The search condition needs to be specified.
+- **select**: The search condition is an option that can be selected from the drop-down list.', example='input'),
+      values?: string(name='Values', description='The values of the search condition. This parameter is returned only if the value of Type is select.
+> If the value of **Type** is **input**, the value of this parameter is an empty string.', example='NO,YES'),
     }
-  ](name='CriteriaList'),
-  requestId?: string(name='RequestId', example='24A20733-10A0-4AF6-BE6B-E3322413BB68'),
+  ](name='CriteriaList', description='The list of the search conditions.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='24A20733-10A0-4AF6-BE6B-E3322413BB68'),
 }
 
 model DescribeImageCriteriaResponse = {
@@ -12832,7 +13055,7 @@ model DescribeImageInstancesRequest {
     *   **OR**: The search conditions use a logical **OR**.
     *   **AND**: The search conditions use a logical **AND**.
 
-> You can call the [DescribeImageCriteria](~~DescribeImageCriteria~~) operation to query the supported search conditions.', example='[{"name":"instanceId","value":"390100182","logicalExp":"AND"}]'),
+> You can call the [DescribeImageCriteria](~~471822~~) operation to query the supported search conditions.', example='[{"name":"instanceId","value":"390100182","logicalExp":"AND"}]'),
   currentPage?: int32(name='CurrentPage', description='The number of the page to return. Pages start from page **1**. Default value: **1**.', example='1'),
   logicalExp?: string(name='LogicalExp', description='The logical relationship that you want to use to evaluate multiple search conditions. Valid values:
 
@@ -13063,7 +13286,7 @@ model DescribeImageListBySensitiveFileRequest {
   pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Default value: 20.', example='20'),
   repoInstanceId?: string(name='RepoInstanceId', description='The ID of the container image.
 
-> You can call the [ListRepository](~~ListRepository~~) operation to query the IDs of container images from the value of the InstanceId response parameter.', example='i-qewqrqcsadf****'),
+> You can call the [ListRepository](~~451339~~) operation to query the IDs of container images from the value of the InstanceId response parameter.', example='i-qewqrqcsadf****'),
   repoName?: string(name='RepoName', description='The name of the image repository.
 
 > Fuzzy match is supported.', example='harbor-image-v001'),
@@ -13204,7 +13427,7 @@ model DescribeImageListBySensitiveFileShrinkRequest {
   pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Default value: 20.', example='20'),
   repoInstanceId?: string(name='RepoInstanceId', description='The ID of the container image.
 
-> You can call the [ListRepository](~~ListRepository~~) operation to query the IDs of container images from the value of the InstanceId response parameter.', example='i-qewqrqcsadf****'),
+> You can call the [ListRepository](~~451339~~) operation to query the IDs of container images from the value of the InstanceId response parameter.', example='i-qewqrqcsadf****'),
   repoName?: string(name='RepoName', description='The name of the image repository.
 
 > Fuzzy match is supported.', example='harbor-image-v001'),
@@ -13476,10 +13699,10 @@ model DescribeImageListWithBaselineNameResponseBody = {
       imageSize?: int32(name='ImageSize', description='The size of the image.', example='157408623'),
       imageUpdate?: long(name='ImageUpdate', description='The timestamp when the image was updated. Unit: milliseconds.', example='1636974116000'),
       instanceId?: string(name='InstanceId', description='The ID of the image instance.', example='cri-a595qp31knh9****'),
-      instanceName?: string(name='InstanceName'),
-      internetIp?: string(name='InternetIp'),
-      intranetIp?: string(name='IntranetIp'),
-      lastScanTime?: long(name='LastScanTime'),
+      instanceName?: string(name='InstanceName', description='The instance name of the server.', example='pre.mongo-196'),
+      internetIp?: string(name='InternetIp', description='The public IP address of the server.', example='47.96.XX.XX'),
+      intranetIp?: string(name='IntranetIp', description='The private IP address of the server.', example='172.16.XX.XX'),
+      lastScanTime?: long(name='LastScanTime', description='The timestamp when the last baseline check was performed. Unit: milliseconds.', example='1649814050000'),
       lowRiskImage?: int32(name='LowRiskImage', description='The number of images on which **low** baseline risks are detected.', example='0'),
       middleRiskImage?: int32(name='MiddleRiskImage', description='The number of images on which **medium** baseline risks are detected.', example='0'),
       namespace?: string(name='Namespace', description='The namespace.', example='test-002'),
@@ -13495,13 +13718,16 @@ model DescribeImageListWithBaselineNameResponseBody = {
 *   **YES**
 *   **NO**', example='YES'),
       tag?: string(name='Tag', description='The version of the image.', example='v1'),
-      targetId?: string(name='TargetId'),
-      targetName?: string(name='TargetName'),
-      targetType?: string(name='TargetType'),
+      targetId?: string(name='TargetId', description='The ID of the asset on which the baseline check is performed.', example='m-bp17m0pc0xprzbwo****'),
+      targetName?: string(name='TargetName', description='The name of the asset on which the baseline check is performed.', example='spod'),
+      targetType?: string(name='TargetType', description='The type of the asset on which the baseline check is performed. Valid values:
+
+- ECS_IMAGE: image
+- ECS_SNAPSHOT: snapshot', example='ECS_IMAGE'),
       totalItemCount?: int32(name='TotalItemCount', description='The total number of risk items that are detected on the image by using the baseline.', example='3'),
       uuid?: string(name='Uuid', description='The UUID of the image.', example='f58681174f944623345379e23b7b****'),
     }
-  ](name='ImageInfos', description='An array that consists of the images returned.'),
+  ](name='ImageInfos', description='The timestamp when the last baseline check was performed. Unit: milliseconds.'),
   pageInfo?: {
     count?: int32(name='Count', description='The number of the images returned on the current page.', example='1'),
     currentPage?: int32(name='CurrentPage', description='The page number of the returned page. Default value: **1**.', example='1'),
@@ -18536,7 +18762,7 @@ model DescribeRiskCheckResultRequest {
 *   **6**: basic security protection
 
 > If you do not specify this parameter, all types of check items are queried.', example='1'),
-  itemIds?: [ string ](name='ItemIds', example='1'),
+  itemIds?: [ string ](name='ItemIds', description='The ID of the check item. For more information about the check item, see the check item table in the "Response parameters" section of this topic.', example='1'),
   lang?: string(name='Lang', description='The language of the content within the request and response. Default value: **zh**. Valid values:
 
 *   **zh**: Chinese
@@ -19542,6 +19768,99 @@ async function describeSecurityCheckScheduleConfigWithOptions(request: DescribeS
 async function describeSecurityCheckScheduleConfig(request: DescribeSecurityCheckScheduleConfigRequest): DescribeSecurityCheckScheduleConfigResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeSecurityCheckScheduleConfigWithOptions(request, runtime);
+}
+
+model DescribeSecurityEventMarkMissListRequest {
+  currentPage?: int32(name='CurrentPage', description='The number of the page to return. Default value: **1**.', example='1'),
+  eventName?: string(name='EventName', description='The name of the alert event. The value indicates a subtype.', example='Login with unusual location'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: **20**.', example='20'),
+  remark?: string(name='Remark', description='The condition that is used to query alert events by asset. You can enter an IP address, a public IP address, an internal IP address, or an asset name for fuzzy match.', example='192.168.XX.XX'),
+  resourceOwnerId?: long(name='ResourceOwnerId'),
+  sourceIp?: string(name='SourceIp', description='The source IP address of the request.', example='125.210.XX.XX'),
+}
+
+model DescribeSecurityEventMarkMissListResponseBody = {
+  list?: [ 
+    {
+      aliUid?: long(name='AliUid', description='The user ID.', example='176618589410****'),
+      eventName?: string(name='EventName', description='The name of the alert event. The value indicates a subtype.', example='Login with unusual location'),
+      eventNameOriginal?: string(name='EventNameOriginal', description='The name of the alert event. The value indicates a type.', example='login_common_location'),
+      eventType?: string(name='EventType', description='The subtype of the alert event.', example='Unusual Logon'),
+      eventTypeOriginal?: string(name='EventTypeOriginal', description='The type of the alert event.', example='login_common_location'),
+      field?: string(name='Field', description='The field that is used in the whitelist rule.', example='type'),
+      fieldValue?: string(name='FieldValue', description='The value of the field.', example='root'),
+      filedAliasName?: string(name='FiledAliasName', description='The alias of the field.', example='Logon Time'),
+      id?: long(name='Id', description='The ID of the rule.', example='104037'),
+      instanceId?: string(name='InstanceId', description='The instance ID of the server.', example='rm-bp1e8t4q15sr3****'),
+      instanceName?: string(name='InstanceName', description='The instance name of the asset.', example='sql-test-001'),
+      internetIp?: string(name='InternetIp', description='The public IP address of the server.', example='8.210.XX.XX'),
+      intranetIp?: string(name='IntranetIp', description='The private IP address of the server.', example='172.25.XX.XX'),
+      operate?: string(name='Operate', description='The operator. Valid values:
+
+- **contains**: contains
+- **notContains**: does not contain
+- **strEqual**: equals
+- **strNotEqual**: does not equal
+- **regex**: regular expression', example='contains'),
+      uuid?: string(name='Uuid', description='The UUID of the asset.', example='49e25e0f-bb51-4a5a-a1b3-13a4ddaa****'),
+    }
+  ](name='List', description='The ID of the rule.'),
+  pageInfo?: {
+    count?: int32(name='Count', description='The number of entries returned on the current page.', example='9'),
+    currentPage?: int32(name='CurrentPage', description='The page number.', example='1'),
+    pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: **20**.', example='20'),
+    totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='200'),
+  }(name='PageInfo', description='The pagination information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='24A20733-10A0-4AF6-BE6B-E3322413BB68'),
+}
+
+model DescribeSecurityEventMarkMissListResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DescribeSecurityEventMarkMissListResponseBody(name='body'),
+}
+
+async function describeSecurityEventMarkMissListWithOptions(request: DescribeSecurityEventMarkMissListRequest, runtime: Util.RuntimeOptions): DescribeSecurityEventMarkMissListResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.currentPage)) {
+    query['CurrentPage'] = request.currentPage;
+  }
+  if (!Util.isUnset(request.eventName)) {
+    query['EventName'] = request.eventName;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.remark)) {
+    query['Remark'] = request.remark;
+  }
+  if (!Util.isUnset(request.resourceOwnerId)) {
+    query['ResourceOwnerId'] = request.resourceOwnerId;
+  }
+  if (!Util.isUnset(request.sourceIp)) {
+    query['SourceIp'] = request.sourceIp;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeSecurityEventMarkMissList',
+    version = '2018-12-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function describeSecurityEventMarkMissList(request: DescribeSecurityEventMarkMissListRequest): DescribeSecurityEventMarkMissListResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeSecurityEventMarkMissListWithOptions(request, runtime);
 }
 
 model DescribeSecurityEventOperationStatusRequest {
@@ -22579,7 +22898,7 @@ async function describeVendorList(): DescribeVendorListResponse {
 model DescribeVersionConfigRequest {
   resourceDirectoryAccountId?: string(name='ResourceDirectoryAccountId', description='The ID of the Alibaba Cloud account that uses Security Center.
 
-> You can call the [GetUser](~~28681~~) operation to query the IDs of Alibaba Cloud accounts.', example='127608589417****'),
+>  You can call the [GetUser](~~28681~~) operation to query the IDs of Alibaba Cloud accounts.', example='127608589417****'),
   sourceIp?: string(name='SourceIp', description='The source IP address of the request.', example='192.0.XX.XX'),
 }
 
@@ -22594,7 +22913,7 @@ model DescribeVersionConfigResponseBody = {
 *   **2**: yes', example='2'),
   appWhiteListAuthCount?: long(name='AppWhiteListAuthCount', description='The quota for the application whitelist feature.
 
-> The quantity of servers that are allowed by the quota is deducted by one each time you apply an application whitelist to a server. After you enable the application whitelist feature, the quota is 20 by default.', example='20'),
+>  The quantity of servers that are allowed by the quota is deducted by one each time you apply an application whitelist to a server. After you enable the application whitelist feature, the quota is 20 by default.', example='20'),
   assetLevel?: int32(name='AssetLevel', description='The quota for servers that can be protected.', example='30'),
   highestVersion?: int32(name='HighestVersion', description='The most advanced edition that is used. Valid values:
 
@@ -22605,7 +22924,7 @@ model DescribeVersionConfigResponseBody = {
 *   **7**: Ultimate edition
 *   **10**: Value-added Plan edition
 
-> If you purchase the Multi-version edition of Security Center, the value indicates the most advanced edition that is used in the Multi-version edition. If you do not purchase the Multi-version edition of Security Center, the value indicates the edition of Security Center.', example='1'),
+>  If you purchase the Multi-version edition of Security Center, the value indicates the most advanced edition that is used in the Multi-version edition. If you do not purchase the Multi-version edition of Security Center, the value indicates the edition of Security Center.', example='1'),
   honeypotCapacity?: long(name='HoneypotCapacity', description='The number of honeypots.', example='20'),
   imageScanCapacity?: long(name='ImageScanCapacity', description='The quota for the container image scan feature.', example='8954'),
   instanceId?: string(name='InstanceId', description='The ID of purchased Security Center.', example='sas-vg6hafdsafs****'),
@@ -22613,10 +22932,10 @@ model DescribeVersionConfigResponseBody = {
 
 *   **true**: yes
 *   **false**: no', example='true'),
-  isNewMultiVersion?: boolean(name='IsNewMultiVersion', description='Indicates whether Security Center runs the latest version of the Multi-version edition.
+  isNewMultiVersion?: boolean(name='IsNewMultiVersion', description='Indicates whether Security Center runs the latest version of the Multi-version edition. Valid values:
 
-*   **true**: yes
-*   **false**: no', example='true'),
+*   **true**
+*   **false**', example='true'),
   isOverBalance?: boolean(name='IsOverBalance', description='Indicates whether the number of existing servers exceeds the purchased quota. Valid values:
 
 *   **false**: no
@@ -22631,9 +22950,9 @@ model DescribeVersionConfigResponseBody = {
   openTime?: long(name='OpenTime', description='The timestamp when Security Center is purchased. Unit: milliseconds.', example='1657244824669'),
   releaseTime?: long(name='ReleaseTime', description='The timestamp when Security Center is released. Unit: milliseconds. The value of this parameter is seven days after Security Center expires.
 
-> If you do not renew the subscription within seven days after the expiration date, the Value-added Plan, Anti-virus, Advanced, or Enterprise edition is downgraded to the Basic edition. In this case, you can no longer view the existing configurations or statistics such as DDoS alerts. You must purchase the Anti-virus, Advanced, or Enterprise edition to continue using relevant features. For more information, see [Purchase Security Center](~~42308~~).', example='1625846400000'),
-  requestId?: string(name='RequestId', description='The request ID.', example='C2DC96D2-DD2E-49D9-A28E-85590475DF55'),
-  sasLog?: int32(name='SasLog', description='Indicates whether the log analysis feature is purchased. Valid values:
+> If you do not renew the subscription within seven days after the expiration date, the Value-added Plan, Basic Anti-Virus, Advanced, or Enterprise edition is downgraded to the Basic edition. In this case, you can no longer view the existing configurations or statistics such as DDoS alerts. You must purchase the Anti-virus, Advanced, or Enterprise edition to continue using relevant features. For more information, see [Purchase Security Center](~~42308~~).', example='1625846400000'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='C2DC96D2-DD2E-49D9-A28E-85590475DF55'),
+  sasLog?: int32(name='SasLog', description='Indicates whether log analysis is purchased. Valid values:
 
 *   **0**: no
 *   **1**: yes', example='1'),
@@ -22643,7 +22962,7 @@ model DescribeVersionConfigResponseBody = {
 *   **1**: yes', example='0'),
   slsCapacity?: long(name='SlsCapacity', description='The log storage capacity that you purchase. Unit: GB. Valid values: 0 to 200000.', example='10240'),
   threatAnalysisCapacity?: long(name='ThreatAnalysisCapacity', description='The purchased log storage capacity for threat analysis. Unit: GB.', example='25'),
-  userDefinedAlarms?: int32(name='UserDefinedAlarms', description='Indicates whether the custom alerting feature is enabled. Valid values:
+  userDefinedAlarms?: int32(name='UserDefinedAlarms', description='Indicates whether the custom alert feature is enabled. Valid values:
 
 *   **0**: no
 *   **2**: yes', example='0'),
@@ -22661,9 +22980,9 @@ model DescribeVersionConfigResponseBody = {
 
 *   **0**: no
 *   **1**: yes', example='0'),
-  webLockAuthCount?: long(name='WebLockAuthCount', description='The quota for the web tamper proofing feature. The quantity of servers that are allowed by the quota is deducted by one each time you enable the web tamper proofing feature for a server. Valid values: 0 to N.
+  webLockAuthCount?: long(name='WebLockAuthCount', description='The quota for the web tamper proofing feature. The quantity of servers that are allowed by the quota is deducted by one each time a server is protected by the web tamper proofing feature. Valid values: 0 to N.
 
-> N indicates the number of servers that you own.', example='0'),
+>  N indicates the number of servers that you own.', example='0'),
 }
 
 model DescribeVersionConfigResponse = {
@@ -22704,18 +23023,26 @@ async function describeVersionConfig(request: DescribeVersionConfigRequest): Des
 }
 
 model DescribeVpcHoneyPotCriteriaRequest {
-  lang?: string(name='Lang', example='zh'),
+  lang?: string(name='Lang', description='The language of the content within the request and response. Default value: **zh**. Valid values:
+
+*   **zh**: Chinese
+*   **en**: English', example='zh'),
 }
 
 model DescribeVpcHoneyPotCriteriaResponseBody = {
   criteriaList?: [ 
     {
-      name?: string(name='Name', example='vpcRegionId'),
-      type?: string(name='Type', example='select'),
-      values?: string(name='Values', example='ap-southeast-2,eu-west-1'),
+      name?: string(name='Name', description='The name of the search condition.', example='vpcRegionId'),
+      type?: string(name='Type', description='The type of the search condition. Valid values:
+
+*   **input**: You must manually enter the search condition.
+*   **select**: You must select a search condition from the **Values** drop-down list.', example='select'),
+      values?: string(name='Values', description='The values of the search condition. This parameter is returned only if the value of **Type** is **select**.
+
+> If the value of **Type** is **input**, the value of this parameter is an empty string.', example='ap-southeast-2,eu-west-1'),
     }
-  ](name='CriteriaList'),
-  requestId?: string(name='RequestId', example='FCE38ADB-7361-4212-AD87-A4514E4DF925'),
+  ](name='CriteriaList', description='An array that consists of the search conditions.'),
+  requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='FCE38ADB-7361-4212-AD87-A4514E4DF925'),
 }
 
 model DescribeVpcHoneyPotCriteriaResponse = {
@@ -23091,12 +23418,14 @@ async function describeVulConfig(request: DescribeVulConfigRequest): DescribeVul
 }
 
 model DescribeVulDetailsRequest {
-  aliasName?: string(name='AliasName', description='The name in the **vulnerability introduction**.', example='RHSA-2019:3197-Important: sudo security update'),
+  aliasName?: string(name='AliasName', description='The vulnerability announcement.', example='RHSA-2019:3197-Important: sudo security update'),
   lang?: string(name='Lang', description='The language of the content within the request and response. Valid values:
 
 *   **zh**: Chinese
 *   **en**: English', example='zh'),
-  name?: string(name='Name', description='The name of the vulnerability.', example='SCA:ACSV-2020-052801'),
+  name?: string(name='Name', description='The name of the vulnerability.
+
+> You can call the [DescribeGroupedVul](~~DescribeGroupedVul~~) or [DescribeVulList](~~DescribeVulList~~) operation to query the names of vulnerabilities.', example='SCA:ACSV-2020-052801'),
   type?: string(name='Type', description='The type of the vulnerability. Valid values:
 
 *   **cve**: Linux software vulnerability
@@ -23117,7 +23446,7 @@ model DescribeVulDetailsResponseBody = {
           demoVideoUrl?: string(name='DemoVideoUrl', description='The URL of the demo video for the vulnerability.', example='https://example.com'),
           description?: string(name='Description', description='The description of the vulnerability type.', example='Remote code execution'),
         }
-      ](name='Classifys', description='An array that consists of vulnerability types.'),
+      ](name='Classifys', description='The vulnerability types.'),
       cnvdId?: string(name='CnvdId', description='The China National Vulnerability Database (CNVD) ID.', example='CNVD-2019-9167'),
       complexity?: string(name='Complexity', description='The difficulty level of exploiting the vulnerability. Valid values:
 
@@ -23129,9 +23458,15 @@ Check whether the fastjson version currently running on the system is in the aff
       cveId?: string(name='CveId', description='The Common Vulnerabilities and Exposures (CVE) ID.', example='CVE-2019-9167'),
       cvssScore?: string(name='CvssScore', description='The Common Vulnerability Scoring System (CVSS) score of the vulnerability in the Alibaba Cloud vulnerability library.', example='10.0'),
       cvssVector?: string(name='CvssVector', description='The vector that is used to calculate the CVSS score.', example='AV:N/AC:L/Au:N/C:C/I:C/A:C'),
-      instanceName?: string(name='InstanceName', description='The name of the server.', example='sql-test-001'),
-      internetIp?: string(name='InternetIp', description='The public IP address of the server.', example='47.114.XX.XX'),
-      intranetIp?: string(name='IntranetIp', description='The private IP address of the server.', example='172.19.XX.XX'),
+      instanceName?: string(name='InstanceName', description='The instance name of the server.
+
+> This parameter is deprecated. You can call the [DescribeVulList](~~DescribeVulList~~) operation to query the instances that are affected by vulnerabilities.', example='sql-test-001'),
+      internetIp?: string(name='InternetIp', description='The public IP address of the server.
+
+> This parameter is deprecated. You can call the [DescribeVulList](~~DescribeVulList~~) operation to query the instances that are affected by vulnerabilities.', example='47.114.XX.XX'),
+      intranetIp?: string(name='IntranetIp', description='The private IP address of the server.
+
+> This parameter is deprecated. You can call the [DescribeVulList](~~DescribeVulList~~) operation to query the instances that are affected by vulnerabilities.', example='172.19.XX.XX'),
       poc?: string(name='Poc', description='The POC content.', example='NewDomain.html
 The x and y values will need to be changed accordingly
 <html>
@@ -23195,7 +23530,7 @@ The x and y values will need to be changed accordingly
 *   **medium**
 *   **low**', example='serious'),
     }
-  ](name='Cves', description='An array that consists of the details about the vulnerability.'),
+  ](name='Cves', description='The details of the vulnerability.'),
   requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='EDA40EA3-6265-5900-AD99-C83E4F109CA8'),
 }
 
@@ -26059,6 +26394,42 @@ async function generateOnceTask(request: GenerateOnceTaskRequest): GenerateOnceT
   return generateOnceTaskWithOptions(request, runtime);
 }
 
+model GetAgentlessTaskCountResponseBody = {
+  lastTaskTime?: long(name='LastTaskTime', example='1682577532318'),
+  maliciousFile?: int32(name='MaliciousFile', example='1'),
+  requestId?: string(name='RequestId', example='D03DD0FD-6041-5107-AC00-383E28F1****'),
+  riskMachine?: int32(name='RiskMachine', example='1'),
+  scanMachine?: int32(name='ScanMachine', example='1'),
+  vulnerability?: int32(name='Vulnerability', example='1'),
+}
+
+model GetAgentlessTaskCountResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetAgentlessTaskCountResponseBody(name='body'),
+}
+
+async function getAgentlessTaskCountWithOptions(runtime: Util.RuntimeOptions): GetAgentlessTaskCountResponse {
+  var req = new OpenApi.OpenApiRequest{};
+  var params = new OpenApi.Params{
+    action = 'GetAgentlessTaskCount',
+    version = '2018-12-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getAgentlessTaskCount(): GetAgentlessTaskCountResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAgentlessTaskCountWithOptions(runtime);
+}
+
 model GetAlarmMachineCountRequest {
   from?: string(name='From', description='The ID of the request source. Set the value to sas.', example='sas'),
 }
@@ -26960,6 +27331,113 @@ async function getCheckSummary(request: GetCheckSummaryRequest): GetCheckSummary
   return getCheckSummaryWithOptions(request, runtime);
 }
 
+model GetClientRatioStatisticRequest {
+  statisticTypes?: [ string ](name='StatisticTypes'),
+  timeEnd?: long(name='TimeEnd', example='1686412799999'),
+  timeStart?: long(name='TimeStart', example='1671382800000'),
+}
+
+model GetClientRatioStatisticResponseBody = {
+  clientInstallRatio?: {
+    currentItems?: [ 
+      {
+        items?: [ 
+          {
+            assetTotalCount?: int32(name='AssetTotalCount', example='100'),
+            calculateTime?: long(name='CalculateTime', example='1687759630045'),
+            installRatio?: double(name='InstallRatio', example='70.00'),
+            installedAssetCount?: int32(name='InstalledAssetCount', example='70'),
+          }
+        ](name='Items'),
+        vendor?: long(name='Vendor', example='0'),
+      }
+    ](name='CurrentItems'),
+    historyItems?: [ 
+      {
+        items?: [ 
+          {
+            assetTotalCount?: int32(name='AssetTotalCount', example='100'),
+            calculateTime?: long(name='CalculateTime', example='1687759630045'),
+            installRatio?: double(name='InstallRatio', example='80.00'),
+            installedAssetCount?: int32(name='InstalledAssetCount', example='80'),
+          }
+        ](name='Items'),
+        vendor?: long(name='Vendor', example='3'),
+      }
+    ](name='HistoryItems'),
+  }(name='ClientInstallRatio'),
+  clientOnlineRatio?: {
+    currentItems?: [ 
+      {
+        items?: [ 
+          {
+            assetInstallCount?: int32(name='AssetInstallCount', example='50'),
+            calculateTime?: long(name='CalculateTime', example='1687759630045'),
+            onlineAssetCount?: int32(name='OnlineAssetCount', example='10'),
+            onlineRatio?: double(name='OnlineRatio', example='20.00'),
+          }
+        ](name='Items'),
+        vendor?: long(name='Vendor', example='3'),
+      }
+    ](name='CurrentItems'),
+    historyItems?: [ 
+      {
+        items?: [ 
+          {
+            assetInstallCount?: int32(name='AssetInstallCount', example='50'),
+            calculateTime?: long(name='CalculateTime', example='1687759630045'),
+            onlineAssetCount?: int32(name='OnlineAssetCount', example='20'),
+            onlineRatio?: double(name='OnlineRatio', example='40.00'),
+          }
+        ](name='Items'),
+        vendor?: long(name='Vendor', example='7'),
+      }
+    ](name='HistoryItems'),
+  }(name='ClientOnlineRatio'),
+  dates?: [ long ](name='Dates'),
+  requestId?: string(name='RequestId', example='A4EB8B1C-1DEC-5E18-BCD0-D1BBB3936FA7'),
+}
+
+model GetClientRatioStatisticResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetClientRatioStatisticResponseBody(name='body'),
+}
+
+async function getClientRatioStatisticWithOptions(request: GetClientRatioStatisticRequest, runtime: Util.RuntimeOptions): GetClientRatioStatisticResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.statisticTypes)) {
+    query['StatisticTypes'] = request.statisticTypes;
+  }
+  if (!Util.isUnset(request.timeEnd)) {
+    query['TimeEnd'] = request.timeEnd;
+  }
+  if (!Util.isUnset(request.timeStart)) {
+    query['TimeStart'] = request.timeStart;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetClientRatioStatistic',
+    version = '2018-12-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getClientRatioStatistic(request: GetClientRatioStatisticRequest): GetClientRatioStatisticResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getClientRatioStatisticWithOptions(request, runtime);
+}
+
 model GetClientUserDefineRuleRequest {
   id?: long(name='Id', description='The ID of the custom defense rule.', example='200****'),
 }
@@ -27695,7 +28173,10 @@ async function getFileDetectResult(request: GetFileDetectResultRequest): GetFile
 }
 
 model GetHoneypotNodeRequest {
-  lang?: string(name='Lang'),
+  lang?: string(name='Lang', description='The language of the content within the request and response. Valid values:
+
+*   **zh**: Chinese
+*   **en**: English', example='zh'),
   nodeId?: string(name='NodeId', description='The ID of the management node.
 
 > You can call the [ListHoneypotNode](~~ListHoneypotNode~~) operation to query the IDs of management nodes.', example='d3dd3864-4e02-4abd-8b6a-8f5f6fec4715'),
@@ -28554,6 +29035,53 @@ async function getRulesCount(): GetRulesCountResponse {
   return getRulesCountWithOptions(runtime);
 }
 
+model GetServiceTrailRequest {
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+}
+
+model GetServiceTrailResponseBody = {
+  requestId?: string(name='RequestId', example='C699E4E4-F2F4-58FC-A949-457FFE59****'),
+  serviceTrail?: {
+    config?: string(name='Config', example='on'),
+    createTime?: long(name='CreateTime', example='1687250241000'),
+    updateTime?: long(name='UpdateTime', example='1687250241000'),
+  }(name='ServiceTrail'),
+}
+
+model GetServiceTrailResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetServiceTrailResponseBody(name='body'),
+}
+
+async function getServiceTrailWithOptions(request: GetServiceTrailRequest, runtime: Util.RuntimeOptions): GetServiceTrailResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetServiceTrail',
+    version = '2018-12-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getServiceTrail(request: GetServiceTrailRequest): GetServiceTrailResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getServiceTrailWithOptions(request, runtime);
+}
+
 model GetSuspiciousStatisticsRequest {
   groupIdList?: string(name='GroupIdList', description='The ID of the asset group. Separate multiple IDs with commas (,).
 
@@ -29359,6 +29887,310 @@ async function joinWebLockProcessWhiteList(request: JoinWebLockProcessWhiteListR
   return joinWebLockProcessWhiteListWithOptions(request, runtime);
 }
 
+model ListAgentlessRegionResponseBody = {
+  regionList?: [ string ](name='RegionList'),
+  requestId?: string(name='RequestId', example='7E0618A9-D5EF-4220-9471-C42B5E92****'),
+}
+
+model ListAgentlessRegionResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListAgentlessRegionResponseBody(name='body'),
+}
+
+async function listAgentlessRegionWithOptions(runtime: Util.RuntimeOptions): ListAgentlessRegionResponse {
+  var req = new OpenApi.OpenApiRequest{};
+  var params = new OpenApi.Params{
+    action = 'ListAgentlessRegion',
+    version = '2018-12-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listAgentlessRegion(): ListAgentlessRegionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listAgentlessRegionWithOptions(runtime);
+}
+
+model ListAgentlessRelateMaliciousRequest {
+  currentPage?: int32(name='CurrentPage', example='1'),
+  eventId?: long(name='EventId', example='80****'),
+  pageSize?: string(name='PageSize', example='20'),
+}
+
+model ListAgentlessRelateMaliciousResponseBody = {
+  list?: [ 
+    {
+      filePath?: string(name='FilePath', example='/root/logs/arms/tracelogs/log****'),
+      firstScanTimestamp?: long(name='FirstScanTimestamp', example='168257753****'),
+      instanceName?: string(name='InstanceName', example='sql-test-0****'),
+      internetIp?: string(name='InternetIp', example='8.210.XX.XX'),
+      intranetIp?: string(name='IntranetIp', example='172.25.XX.XX'),
+      latestScanTimestamp?: long(name='LatestScanTimestamp', example='168257753****'),
+      uuid?: string(name='Uuid', example='49e25e0f-bb51-4a5a-a1b3-13a4ddaa****'),
+    }
+  ](name='List'),
+  pageInfo?: {
+    count?: int32(name='Count', example='2'),
+    currentPage?: int32(name='CurrentPage', example='1'),
+    pageSize?: int32(name='PageSize', example='20'),
+    totalCount?: int32(name='TotalCount', example='197'),
+  }(name='PageInfo'),
+  requestId?: string(name='RequestId', example='FCA270CC-24C8-5DA1-9184-20F2605C****'),
+}
+
+model ListAgentlessRelateMaliciousResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListAgentlessRelateMaliciousResponseBody(name='body'),
+}
+
+async function listAgentlessRelateMaliciousWithOptions(request: ListAgentlessRelateMaliciousRequest, runtime: Util.RuntimeOptions): ListAgentlessRelateMaliciousResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.currentPage)) {
+    query['CurrentPage'] = request.currentPage;
+  }
+  if (!Util.isUnset(request.eventId)) {
+    query['EventId'] = request.eventId;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListAgentlessRelateMalicious',
+    version = '2018-12-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listAgentlessRelateMalicious(request: ListAgentlessRelateMaliciousRequest): ListAgentlessRelateMaliciousResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listAgentlessRelateMaliciousWithOptions(request, runtime);
+}
+
+model ListAgentlessRiskUuidRequest {
+  currentPage?: int32(name='CurrentPage', example='1'),
+  internetIp?: string(name='InternetIp', example='1.1.XX.XX'),
+  intranetIp?: string(name='IntranetIp', example='172.26.XX.XX'),
+  machineName?: string(name='MachineName', example='oracle-win-001****'),
+  pageSize?: int32(name='PageSize', example='10'),
+  risk?: boolean(name='Risk', example='true'),
+  targetName?: string(name='TargetName', example='source-test-obj-0****'),
+}
+
+model ListAgentlessRiskUuidResponseBody = {
+  list?: [ 
+    {
+      baselineCount?: int32(name='BaselineCount', example='1'),
+      instanceName?: string(name='InstanceName', example='sql-test-0****'),
+      internetIp?: string(name='InternetIp', example='8.210.XX.XX'),
+      intranetIp?: string(name='IntranetIp', example='172.25.XX.XX'),
+      maliciousCount?: int32(name='MaliciousCount', example='1'),
+      scanTime?: long(name='ScanTime', example='168257753****'),
+      targetId?: string(name='TargetId', example='30****'),
+      targetName?: string(name='TargetName', example='test****'),
+      uuid?: string(name='Uuid', example='49e25e0f-bb51-4a5a-a1b3-13a4ddaa****'),
+      vulCount?: int32(name='VulCount', example='1'),
+    }
+  ](name='List'),
+  pageInfo?: {
+    currentPage?: int32(name='CurrentPage', example='1'),
+    pageSize?: int32(name='PageSize', example='20'),
+    totalCount?: int32(name='TotalCount', example='69'),
+  }(name='PageInfo'),
+  requestId?: string(name='RequestId', example='05AE6B16-741A-5A75-9BF0-BC747DD9****'),
+}
+
+model ListAgentlessRiskUuidResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListAgentlessRiskUuidResponseBody(name='body'),
+}
+
+async function listAgentlessRiskUuidWithOptions(request: ListAgentlessRiskUuidRequest, runtime: Util.RuntimeOptions): ListAgentlessRiskUuidResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.currentPage)) {
+    query['CurrentPage'] = request.currentPage;
+  }
+  if (!Util.isUnset(request.internetIp)) {
+    query['InternetIp'] = request.internetIp;
+  }
+  if (!Util.isUnset(request.intranetIp)) {
+    query['IntranetIp'] = request.intranetIp;
+  }
+  if (!Util.isUnset(request.machineName)) {
+    query['MachineName'] = request.machineName;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.risk)) {
+    query['Risk'] = request.risk;
+  }
+  if (!Util.isUnset(request.targetName)) {
+    query['TargetName'] = request.targetName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListAgentlessRiskUuid',
+    version = '2018-12-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listAgentlessRiskUuid(request: ListAgentlessRiskUuidRequest): ListAgentlessRiskUuidResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listAgentlessRiskUuidWithOptions(request, runtime);
+}
+
+model ListAgentlessTaskRequest {
+  currentPage?: int32(name='CurrentPage', example='1'),
+  endTime?: long(name='EndTime', example='1635575219000'),
+  internetIp?: string(name='InternetIp', example='1.1.XX.XX'),
+  intranetIp?: string(name='IntranetIp', example='172.26.XX.XX'),
+  lang?: string(name='Lang', example='zh'),
+  machineName?: string(name='MachineName', example='oracle-win-001****'),
+  pageSize?: int32(name='PageSize', example='20'),
+  rootTask?: boolean(name='RootTask', example='false'),
+  rootTaskId?: string(name='RootTaskId', example='12c27343861610c5db3f7a2573b4****'),
+  startTime?: long(name='StartTime', example='1651290987000'),
+  status?: int32(name='Status', example='2'),
+  targetName?: string(name='TargetName', example='source-test-obj-0****'),
+  targetType?: int32(name='TargetType', example='1'),
+  taskId?: string(name='TaskId', example='d7b2acf8d362742123e4a84e1bf8****'),
+  uuid?: string(name='Uuid', example='e4af3620-6895-4e2f-a641-a9d8fb53****'),
+}
+
+model ListAgentlessTaskResponseBody = {
+  list?: [ 
+    {
+      endTime?: long(name='EndTime', example='1678895999999'),
+      instanceName?: string(name='InstanceName', example='sql-test-0****'),
+      internetIp?: string(name='InternetIp', example='8.210.XX.XX'),
+      intranetIp?: string(name='IntranetIp', example='172.25.XX.XX'),
+      progress?: int32(name='Progress', example='60'),
+      result?: string(name='Result', example='True'),
+      startTime?: long(name='StartTime', example='1672741657897'),
+      status?: int32(name='Status', example='1'),
+      targetName?: string(name='TargetName', example='hkdevt****'),
+      targetType?: int32(name='TargetType', example='2'),
+      taskId?: string(name='TaskId', example='1538****'),
+      taskName?: string(name='TaskName', example='AGENTLESS_SCAN'),
+      uuid?: string(name='Uuid', example='49e25e0f-bb51-4a5a-a1b3-13a4ddaa****'),
+    }
+  ](name='List'),
+  pageInfo?: {
+    currentPage?: int32(name='CurrentPage', example='1'),
+    pageSize?: int32(name='PageSize', example='20'),
+    totalCount?: int32(name='TotalCount', example='55'),
+  }(name='PageInfo'),
+  requestId?: string(name='RequestId', example='1A975D03-5F49-5354-B2CB-3918D5DA****'),
+}
+
+model ListAgentlessTaskResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListAgentlessTaskResponseBody(name='body'),
+}
+
+async function listAgentlessTaskWithOptions(request: ListAgentlessTaskRequest, runtime: Util.RuntimeOptions): ListAgentlessTaskResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.currentPage)) {
+    query['CurrentPage'] = request.currentPage;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.internetIp)) {
+    query['InternetIp'] = request.internetIp;
+  }
+  if (!Util.isUnset(request.intranetIp)) {
+    query['IntranetIp'] = request.intranetIp;
+  }
+  if (!Util.isUnset(request.lang)) {
+    query['Lang'] = request.lang;
+  }
+  if (!Util.isUnset(request.machineName)) {
+    query['MachineName'] = request.machineName;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.rootTask)) {
+    query['RootTask'] = request.rootTask;
+  }
+  if (!Util.isUnset(request.rootTaskId)) {
+    query['RootTaskId'] = request.rootTaskId;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['StartTime'] = request.startTime;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['Status'] = request.status;
+  }
+  if (!Util.isUnset(request.targetName)) {
+    query['TargetName'] = request.targetName;
+  }
+  if (!Util.isUnset(request.targetType)) {
+    query['TargetType'] = request.targetType;
+  }
+  if (!Util.isUnset(request.taskId)) {
+    query['TaskId'] = request.taskId;
+  }
+  if (!Util.isUnset(request.uuid)) {
+    query['Uuid'] = request.uuid;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListAgentlessTask',
+    version = '2018-12-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listAgentlessTask(request: ListAgentlessTaskRequest): ListAgentlessTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listAgentlessTaskWithOptions(request, runtime);
+}
+
 model ListAssetSelectionSelectedTargetRequest {
   selectionKey?: string(name='SelectionKey', example='2e6ab33d-4e00-4581-ac16-0dd1f9ad****'),
   targetList?: [ string ](name='TargetList'),
@@ -29695,9 +30527,7 @@ model ListCheckItemWarningMachineRequest {
 > We recommend that you do not leave this parameter empty.', example='20'),
   remark?: string(name='Remark', description='The keyword that is used to query servers in fuzzy match mode.', example='225'),
   riskType?: string(name='RiskType', description='The type of the check item.', example='cis'),
-  status?: int32(name='Status', description='The status of the check item.
-
-> Valid values:
+  status?: int32(name='Status', description='The status of the check item. Valid values:
 
 *   1: failed
 
@@ -29725,8 +30555,8 @@ model ListCheckItemWarningMachineResponseBody = {
 
 *   **true**: Security Center is authorized to scan the asset.
 *   **false**: Security Center is not authorized to scan the asset.', example='true'),
-      containerId?: string(name='ContainerId', example='48a6d9a92435a13ad573372c3f3c63b7e04d106458141df9f9215570********'),
-      containerName?: string(name='ContainerName', example='step-build-ui-build'),
+      containerId?: string(name='ContainerId', description='The ID of the container.', example='48a6d9a92435a13ad573372c3f3c63b7e04d106458141df9f9215570********'),
+      containerName?: string(name='ContainerName', description='The name of the container.', example='step-build-ui-build'),
       fixList?: [ 
         {
           riskId?: long(name='RiskId', description='The ID of the baseline.', example='72'),
@@ -29743,9 +30573,7 @@ model ListCheckItemWarningMachineResponseBody = {
 *   **false**: No ports on the server are accessible over the Internet.', example='true'),
       prompt?: string(name='Prompt', description='The prompt for the risk item.', example='There is a weak password (username/password): root/he*****34'),
       regionId?: string(name='RegionId', description='The region ID of the asset.', example='cn-hangzhou'),
-      status?: int32(name='Status', description='The status of the check item.
-
-> Valid values:
+      status?: int32(name='Status', description='The status of the check item. Valid values:
 
 *   1: failed
 
@@ -35458,7 +36286,8 @@ model ModifyStrategyRequest {
 *   **18**: The baseline check starts within the time range from 18:00 to 24:00.
 
 >  This parameter is deprecated.', example='18'),
-  endTime?: string(name='EndTime', description='The time when the baseline check based on the baseline check policy ends.', example='05:00:00'),
+  endTime?: string(name='EndTime', description='The time when the baseline check based on the baseline check policy ends. 
+Format is hh:mm:ss.', example='05:00:00'),
   id?: string(name='Id', description='The ID of the baseline check policy.', example='245'),
   name?: string(name='Name', description='The new name of the baseline check policy.', example='testStrategy'),
   riskCustomParams?: string(name='RiskCustomParams', description='The custom configurations of the baseline. The value of this parameter is in the JSON format and contains the following fields:
@@ -35479,7 +36308,7 @@ model ModifyStrategyRequest {
             *   **value**: the value of the parameter.', example='[{"typeName":"hc_centos_6_custom","checkDetails":[{"checkId":4,"rules":[{"ruleId":"pass_min_days_login_defs.must.cus","paramList":[{"paramName":"range_val","value":"7"}]}]}]}]'),
   riskSubTypeName?: string(name='RiskSubTypeName', description='The subtype of the baselines. You can call the [DescribeRiskType](~~DescribeRiskType~~) operation to query the subtypes of baselines.', example='hc_exploit_redis'),
   sourceIp?: string(name='SourceIp', description='The source IP address of the request.', example='192.168.X.X'),
-  startTime?: string(name='StartTime', description='The time when the baseline check based on the baseline check policy starts.', example='00:01:00'),
+  startTime?: string(name='StartTime', description='The time when the baseline check based on the baseline check policy starts. Format is hh:mm:ss.', example='00:01:00'),
   targetType?: string(name='TargetType', description='The method that is used to apply the baseline check policy. Valid values:
 
 *   **groupId**: asset groups
@@ -38594,7 +39423,7 @@ async function queryPreCheckDatabase(request: QueryPreCheckDatabaseRequest): Que
 model RebootMachineRequest {
   uuid?: string(name='Uuid', description='The UUID of the server that you want to restart.
 
->  You can call the [DescribeCloudCenterInstances](~~describecloudcenterinstances~~) operation to query the UUIDs of servers.', example='7151f27e-1d51-4e98-a540-8936a****'),
+>  You can call the [DescribeCloudCenterInstances](~~DescribeCloudCenterInstances~~) operation to query the UUIDs of servers.', example='7151f27e-1d51-4e98-a540-8936a****'),
 }
 
 model RebootMachineResponseBody = {
