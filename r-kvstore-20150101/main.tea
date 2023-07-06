@@ -84,6 +84,7 @@ model AddShardingNodeRequest {
 > The default value is **true**.', example='false'),
   businessInfo?: string(name='BusinessInfo', description='The business information. This is an additional parameter.', example='000000000'),
   couponNo?: string(name='CouponNo', description='The ID of the coupon.', example='youhuiquan_promotion_option_id_for_blank'),
+  forceTrans?: boolean(name='ForceTrans'),
   instanceId?: string(name='InstanceId', description='The ID of the instance.', example='r-bp1zxszhcgatnx****'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
@@ -128,6 +129,9 @@ async function addShardingNodeWithOptions(request: AddShardingNodeRequest, runti
   }
   if (!Util.isUnset(request.couponNo)) {
     query['CouponNo'] = request.couponNo;
+  }
+  if (!Util.isUnset(request.forceTrans)) {
+    query['ForceTrans'] = request.forceTrans;
   }
   if (!Util.isUnset(request.instanceId)) {
     query['InstanceId'] = request.instanceId;
@@ -877,6 +881,7 @@ model CreateInstanceRequest {
 
 *   **PrePaid**: subscription
 *   **PostPaid**: pay-as-you-go', example='PostPaid'),
+  connectionStringPrefix?: string(name='ConnectionStringPrefix'),
   couponNo?: string(name='CouponNo', description='The coupon code. Default value: `youhuiquan_promotion_option_id_for_blank`.', example='youhuiquan_promotion_option_id_for_blank'),
   dedicatedHostGroupId?: string(name='DedicatedHostGroupId', description='The ID of the dedicated cluster. This parameter is required if you create an instance in a dedicated cluster.', example='dhg-uv4fnk6r7zff****'),
   dryRun?: boolean(name='DryRun', description='Specifies whether to perform a dry run. Default value: false. Valid values:
@@ -897,7 +902,7 @@ model CreateInstanceRequest {
 
 *   This parameter is available only on the China site (aliyun.com).', example='false'),
   globalInstanceId?: string(name='GlobalInstanceId', description='The ID of the distributed instance. This parameter is available only on the China site (aliyun.com).', example='gr-bp14rkqrhac****'),
-  globalSecurityGroupIds?: string(name='GlobalSecurityGroupIds'),
+  globalSecurityGroupIds?: string(name='GlobalSecurityGroupIds', description='The global IP whitelist template for the instance. Multiple IP whitelist templates should be separated by English commas (,) and cannot be duplicated.', example='g-zsldxfiwjmti0kcm****'),
   instanceClass?: string(name='InstanceClass', description='The instance type of the instance. Example: redis.master.small.default. A redis.master.small.default instance is a 1 GB standard master-replica instance of the Community Edition that uses local disks. For more information, see [Overview](~~26350~~).
 
 > You must specify at least one of the **Capacity** and **InstanceClass** parameters when you call this operation.', example='redis.master.small.default'),
@@ -1028,6 +1033,9 @@ async function createInstanceWithOptions(request: CreateInstanceRequest, runtime
   }
   if (!Util.isUnset(request.chargeType)) {
     query['ChargeType'] = request.chargeType;
+  }
+  if (!Util.isUnset(request.connectionStringPrefix)) {
+    query['ConnectionStringPrefix'] = request.connectionStringPrefix;
   }
   if (!Util.isUnset(request.couponNo)) {
     query['CouponNo'] = request.couponNo;
@@ -1744,6 +1752,7 @@ async function deleteInstance(request: DeleteInstanceRequest): DeleteInstanceRes
 }
 
 model DeleteShardingNodeRequest {
+  forceTrans?: boolean(name='ForceTrans'),
   instanceId?: string(name='InstanceId', description='The ID of the instance.', example='r-bp1zxszhcgatnx****'),
   nodeId?: string(name='NodeId', description='The ID of the data shard that you want to remove. You can specify multiple IDs at a time. Separate multiple IDs with commas (,).
 
@@ -1782,6 +1791,9 @@ model DeleteShardingNodeResponse = {
 async function deleteShardingNodeWithOptions(request: DeleteShardingNodeRequest, runtime: Util.RuntimeOptions): DeleteShardingNodeResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.forceTrans)) {
+    query['ForceTrans'] = request.forceTrans;
+  }
   if (!Util.isUnset(request.instanceId)) {
     query['InstanceId'] = request.instanceId;
   }
@@ -3006,9 +3018,11 @@ async function describeCacheAnalysisReportList(request: DescribeCacheAnalysisRep
 }
 
 model DescribeClusterMemberInfoRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the replica set on the node.', example='r-bp1zxszhcgatnx****'),
+  instanceId?: string(name='InstanceId', description='The ID of the ApsaraDB for Redis instance. You can call the [DescribeInstances](~~60933~~) operation to query instance IDs.', example='r-bp1zxszhcgatnx****'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   securityToken?: string(name='SecurityToken'),
@@ -3017,31 +3031,35 @@ model DescribeClusterMemberInfoRequest {
 model DescribeClusterMemberInfoResponseBody = {
   clusterChildren?: [ 
     {
-      bandWidth?: long(name='BandWidth', description='The major version of the node.', example='96'),
-      binlogRetentionDays?: int32(name='BinlogRetentionDays', description='The maximum number of connections supported by the data node.', example='7'),
-      bizType?: string(name='BizType', description='The data nodes in the cluster instance.', example='ALIYUN'),
+      bandWidth?: long(name='BandWidth', description='The maximum bandwidth of the node. Unit: MB/s.
+
+> This parameter is returned only if the return value of **Service** is **redis**, which indicates a data node.', example='96'),
+      binlogRetentionDays?: int32(name='BinlogRetentionDays', description='The retention period of binlogs.', example='7'),
+      bizType?: string(name='BizType', description='The type of workload. The return value is **ALIYUN**.', example='ALIYUN'),
       capacity?: long(name='Capacity', description='The maximum memory capacity per data node. Unit: MB.
 
->  This parameter is returned only if the return value of the **Service** parameter is **redis**, which indicates a data node.', example='1024'),
-      classCode?: string(name='ClassCode', description='The name of the node.', example='redis.shard.small.ce'),
-      connections?: long(name='Connections', description='The ID of the request.', example='20000'),
-      currentBandWidth?: long(name='CurrentBandWidth', description='The maximum bandwidth of the data node. Unit: MB/s.
+> This parameter is returned only if the return value of **Service** is **redis**, which indicates a data node.', example='1024'),
+      classCode?: string(name='ClassCode', description='The specifications of the data node. For more information, see [Community Edition instances that use cloud disks](~~164477~~).', example='redis.shard.small.ce'),
+      connections?: long(name='Connections', description='The maximum number of connections supported by the data node.', example='20000'),
+      currentBandWidth?: long(name='CurrentBandWidth', description='The current bandwidth of the node, which consists of the default bandwidth and the increased bandwidth. Unit: MB/s.
 
->  This parameter is returned only if the return value of the **Service** parameter is **redis**, which indicates a data node.', example='100'),
-      diskSizeMB?: int32(name='DiskSizeMB', description='The retention period of binlogs.', example='4096'),
-      id?: long(name='Id', example='501791111'),
-      name?: string(name='Name', example='r-bp1zxszhcgatnx****-db-0'),
-      replicaSize?: int32(name='ReplicaSize', example='0'),
-      resourceGroupName?: string(name='ResourceGroupName', description='The type of the node. Valid values:
+> This parameter is returned only if the instance is created in a dedicated cluster.', example='100'),
+      diskSizeMB?: int32(name='DiskSizeMB', description='The storage capacity of the [enhanced SSD (ESSD)](~~122389~~) that is used by the data node. Unit: MB.
 
-*   **redis**: indicates a data node.
-*   **configServer**: indicates the ConfigServer node.', example='GLOBAL_ZHANGJIAKOU_A'),
-      service?: string(name='Service', description='The name of the resource group to which the node belongs.', example='redis'),
-      serviceVersion?: string(name='ServiceVersion', example='5.0'),
-      userId?: string(name='UserId', description='The ID of the ApsaraDB for Redis instance. You can call the [DescribeInstances](~~60933~~) operation to query instance IDs.', example='2****_176498472570****'),
+> The ESSD is used only to store system operating data, such as Persistent Memory (PMEM). It is not used as a medium to write and read data.', example='4096'),
+      id?: long(name='Id', description='The ID of the replica set in the node.', example='501791111'),
+      name?: string(name='Name', description='The name of the data node.', example='r-bp1zxszhcgatnx****-db-0'),
+      replicaSize?: int32(name='ReplicaSize', description='The number of replica nodes.', example='0'),
+      resourceGroupName?: string(name='ResourceGroupName', description='The name of the resource group to which the node belongs.', example='GLOBAL_ZHANGJIAKOU_A'),
+      service?: string(name='Service', description='The node type. Valid values:
+
+*   **redis**: data node
+*   **redis_cs**: config server', example='redis'),
+      serviceVersion?: string(name='ServiceVersion', description='The major version of the node.', example='5.0'),
+      userId?: string(name='UserId', description='The ID of the user.', example='2****_176498472570****'),
     }
-  ](name='ClusterChildren', description='The operation that you want to perform. Set the value to **DescribeClusterMemberInfo**.'),
-  requestId?: string(name='RequestId', description='The type of workload. The return value is **ALIYUN**.', example='2D9F3768-EDA9-4811-943E-42C8006E****'),
+  ](name='ClusterChildren', description='Details of nodes in the cluster instance.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='2D9F3768-EDA9-4811-943E-42C8006E****'),
 }
 
 model DescribeClusterMemberInfoResponse = {
@@ -3051,8 +3069,7 @@ model DescribeClusterMemberInfoResponse = {
 }
 
 /**
-  * The storage capacity of the [enhanced solid-state disk (ESSD)](~~122389~~) that is mounted to the data node. Unit: MB.
-  * >  The ESSD is used only to store system operating data, such as persistent data. It is not used as a medium to write and read data.
+  * > This API operation is applicable only to ApsaraDB for Redis instances that use [cloud disks](~~188068~~) and the [cluster architecture](~~52228~~).
   *
   * @param request DescribeClusterMemberInfoRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -3069,6 +3086,12 @@ async function describeClusterMemberInfoWithOptions(request: DescribeClusterMemb
   }
   if (!Util.isUnset(request.ownerId)) {
     query['OwnerId'] = request.ownerId;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
   }
   if (!Util.isUnset(request.resourceOwnerAccount)) {
     query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
@@ -3097,8 +3120,7 @@ async function describeClusterMemberInfoWithOptions(request: DescribeClusterMemb
 }
 
 /**
-  * The storage capacity of the [enhanced solid-state disk (ESSD)](~~122389~~) that is mounted to the data node. Unit: MB.
-  * >  The ESSD is used only to store system operating data, such as persistent data. It is not used as a medium to write and read data.
+  * > This API operation is applicable only to ApsaraDB for Redis instances that use [cloud disks](~~188068~~) and the [cluster architecture](~~52228~~).
   *
   * @param request DescribeClusterMemberInfoRequest
   * @return DescribeClusterMemberInfoResponse
@@ -3957,8 +3979,133 @@ async function describeHistoryMonitorValues(request: DescribeHistoryMonitorValue
   return describeHistoryMonitorValuesWithOptions(request, runtime);
 }
 
+model DescribeHistoryTasksRequest {
+  fromExecTime?: int32(name='FromExecTime', example='0'),
+  fromStartTime?: string(name='FromStartTime', example='2022-01-02T11:31:03Z'),
+  instanceId?: string(name='InstanceId', example='r-uf62br2491p5l****'),
+  instanceType?: string(name='InstanceType', example='Instance'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  regionId?: string(name='RegionId', example='cn-beijing'),
+  resourceOwnerAccount?: long(name='ResourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId'),
+  securityToken?: string(name='SecurityToken'),
+  status?: string(name='Status', example='Scheduled'),
+  taskId?: string(name='TaskId', example='t-83br18hloy3faf****'),
+  taskType?: string(name='TaskType', example='ModifyInsSpec'),
+  toExecTime?: int32(name='ToExecTime', example='0'),
+  toStartTime?: string(name='ToStartTime', example='2022-03-02T11:31:03Z'),
+}
+
+model DescribeHistoryTasksResponseBody = {
+  items?: [ 
+    {
+      actionInfo?: string(name='ActionInfo', example='{\\"steps\\":[{\\"action_info\\":{\\"Waiting\\":[\\"modifySwitchTime\\"]},\\"step_name\\":\\"exec_task\\"}]}'),
+      callerSource?: string(name='CallerSource', example='141345906006****'),
+      callerUid?: string(name='CallerUid', example='User'),
+      currentStepName?: string(name='CurrentStepName', example='exec_task'),
+      dbType?: string(name='DbType', example='redis'),
+      endTime?: string(name='EndTime', example='2022-02-03T12:06:17Z'),
+      instanceId?: string(name='InstanceId', example='r-bp1zxszhcgatnx****'),
+      instanceName?: string(name='InstanceName', example='dba-tair-test-qcloud'),
+      instanceType?: string(name='InstanceType', example='Instance'),
+      product?: string(name='Product', example='kvstore'),
+      progress?: float(name='Progress', example='79.0'),
+      reasonCode?: string(name='ReasonCode'),
+      regionId?: string(name='RegionId', example='cn-shanghai'),
+      remainTime?: int32(name='RemainTime', example='1000'),
+      startTime?: string(name='StartTime', example='2022-02-03T11:31:03Z'),
+      status?: int32(name='Status', example='Running'),
+      taskDetail?: string(name='TaskDetail', example='{\\"callerUid\\":\\"test\\"}'),
+      taskId?: string(name='TaskId', example='t-83br18hloy3faf****'),
+      taskType?: string(name='TaskType', example='ModifyInsSpec'),
+      uid?: string(name='Uid', example='141345906006****'),
+    }
+  ](name='Items'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='5D622714-AEDD-4609-9167-F5DDD3D1****'),
+  totalCount?: int32(name='TotalCount', example='5'),
+}
+
+model DescribeHistoryTasksResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DescribeHistoryTasksResponseBody(name='body'),
+}
+
+async function describeHistoryTasksWithOptions(request: DescribeHistoryTasksRequest, runtime: Util.RuntimeOptions): DescribeHistoryTasksResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.fromExecTime)) {
+    query['FromExecTime'] = request.fromExecTime;
+  }
+  if (!Util.isUnset(request.fromStartTime)) {
+    query['FromStartTime'] = request.fromStartTime;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.instanceType)) {
+    query['InstanceType'] = request.instanceType;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.resourceOwnerAccount)) {
+    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
+  }
+  if (!Util.isUnset(request.resourceOwnerId)) {
+    query['ResourceOwnerId'] = request.resourceOwnerId;
+  }
+  if (!Util.isUnset(request.securityToken)) {
+    query['SecurityToken'] = request.securityToken;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['Status'] = request.status;
+  }
+  if (!Util.isUnset(request.taskId)) {
+    query['TaskId'] = request.taskId;
+  }
+  if (!Util.isUnset(request.taskType)) {
+    query['TaskType'] = request.taskType;
+  }
+  if (!Util.isUnset(request.toExecTime)) {
+    query['ToExecTime'] = request.toExecTime;
+  }
+  if (!Util.isUnset(request.toStartTime)) {
+    query['ToStartTime'] = request.toStartTime;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeHistoryTasks',
+    version = '2015-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function describeHistoryTasks(request: DescribeHistoryTasksRequest): DescribeHistoryTasksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeHistoryTasksWithOptions(request, runtime);
+}
+
 model DescribeInstanceAttributeRequest {
-  instanceId?: string(name='InstanceId', description='The number of read-only nodes. This parameter is available only for read/write splitting instances that use cloud disks.', example='r-bp1zxszhcgatnx****'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance.', example='r-bp1zxszhcgatnx****'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
@@ -3970,87 +4117,49 @@ model DescribeInstanceAttributeResponseBody = {
   instances?: {
     DBInstanceAttribute?: [ 
     {
-      architectureType?: string(name='ArchitectureType', description='The node type. Valid values:
+      architectureType?: string(name='ArchitectureType', description='The architecture of the instance. Valid values:
 
-*   **double**: The instance contains a master node and a replica node.
-*   **single**: The instance contains only a master node. This node type is phrased out.', example='standard'),
-      auditLogRetention?: string(name='AuditLogRetention', description='The ID of the replica node.', example='15'),
-      availabilityValue?: string(name='AvailabilityValue', description='The ID of the instance', example='100%'),
-      backupLogStartTime?: string(name='BackupLogStartTime', description='Indicates whether the release protection feature is enabled for the instance. Valid values:
-
-*   **true**: yes
-*   **false**: no', example='2021-07-06T05:49:55Z'),
-      bandwidth?: long(name='Bandwidth', description='Details of the tags.', example='10'),
-      capacity?: long(name='Capacity', description='The ID of the instance.', example='1024'),
-      chargeType?: string(name='ChargeType', description='The service port of the instance.', example='PostPaid'),
-      cloudType?: string(name='CloudType', description='The ID of the request.', example='cloudbox'),
-      config?: string(name='Config', description='The architecture of the instance. Valid values:
-
-*   **cluster**: The instance is a cluster instance.
-*   **standard**: The instance is a standard instance.
-*   **rwsplit**: The instance is a read/write splitting instance.', example='{\\"EvictionPolicy\\":\\"volatile-lru\\",\\"hash-max-ziplist-entries\\":512,\\"zset-max-ziplist-entries\\":128,\\"zset-max-ziplist-value\\":64,\\"set-max-intset-entries\\":512,\\"hash-max-ziplist-value\\":64}'),
-      connectionDomain?: string(name='ConnectionDomain', description='The time when the subscription instance expires. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='r-bp1d72gwl41z7f****.redis.rds.aliyuncs.com'),
-      connections?: long(name='Connections', description='The ID of the resource group to which the instance belongs.', example='10000'),
-      createTime?: string(name='CreateTime', description='The ID of the virtual private cloud (VPC).', example='2019-03-06T10:42:03Z'),
-      endTime?: string(name='EndTime', description='The ID of the instance that is deployed in the VPC.', example='2019-04-06T10:42:03Z'),
-      engine?: string(name='Engine', description='The value of the tag.', example='Redis'),
-      engineVersion?: string(name='EngineVersion', description='The edition of the instance. Valid values:
-
-*   **Tair**
-*   **Redis**
-*   **Memcache**', example='4.0'),
-      globalInstanceId?: string(name='GlobalInstanceId', description='Indicates whether your Alibaba Cloud account has pending orders for renewal and configuration change. Valid values:
-
-*   **true**: yes
-*   **false**: no', example='gr-bp14rkqrhac****'),
-      hasRenewChangeOrder?: string(name='HasRenewChangeOrder', description='The number of shards. This parameter is available only for ApsaraDB for Redis instances that are purchased on the China site (aliyun.com).', example='false'),
-      instanceClass?: string(name='InstanceClass', description='The deployment type of the instance. Valid values:
-
-*   **singlezone**: The instance is deployed in a single zone.
-*   **doublezone**: The instance is deployed in two zones in the same region.', example='redis.master.small.default'),
-      instanceId?: string(name='InstanceId', description='The ID of the secondary zone.
-
->  This parameter is returned only if the instance is deployed in two zones.', example='r-bp1d72gwl41z7f****'),
-      instanceName?: string(name='InstanceName', description='The bandwidth of the instance. Unit: Mbit/s.', example='apitest'),
-      instanceReleaseProtection?: boolean(name='InstanceReleaseProtection', description='The end time of the maintenance window. The time is in the *HH:mmZ* format. The time is displayed in UTC.', example='false'),
-      instanceStatus?: string(name='InstanceStatus', description='If the instance is a cloud-disk cluster instance, this parameter indicates the instance type of shards. The InstanceClass parameter indicates a virtual instance type.
-
->  To query the instance fees of this instance type, you can call the [DescribePrice](~~95612~~) operation and specify the return value of this parameter.', example='Normal'),
-      instanceType?: string(name='InstanceType', description='The earliest point in time to which you can restore data. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.
+*   **cluster**: cluster architecture
+*   **standard**: standard architecture
+*   **rwsplit**: read/write splitting architecture', example='standard'),
+      auditLogRetention?: string(name='AuditLogRetention', description='The retention period of audit logs. Unit: days. A value of 0 indicates that the audit log feature is disabled. For more information about how to enable the audit log feature, see [Enable the new audit log feature](~~102015~~).', example='15'),
+      availabilityValue?: string(name='AvailabilityValue', description='The availability metric of the current month.', example='100%'),
+      backupLogStartTime?: string(name='BackupLogStartTime', description='The earliest point in time to which you can restore data. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.
 
 > 
-*   This parameter is returned only if the [data flashback](~~148479~~) feature is enabled for the instance.
-*   When you call the [RestoreInstance](~~61083~~) operation to implement data flashback, you can obtain the earliest point in time for data flashback from the return value of this parameter and set the **RestoreTime** parameter to this point in time.', example='Redis'),
-      isOrderCompleted?: boolean(name='IsOrderCompleted', description='实例订单是否完成，用于判断变配订单是否到达终态，返回值：
-* **true**：变配已完成，或进行未变配。
-* **false**：变配中。', example='true'),
-      isRds?: boolean(name='IsRds', description='The database engine of the instance. The return value is **Redis**.', example='true'),
-      isSupportTDE?: boolean(name='IsSupportTDE', description='实例是否支持开启透明数据加密TDE（Transparent Data Encryption）功能，返回值：
-* **true**：支持，仅本地盘版[内存型](~~443827~~)实例支持。
-* **false**：不支持。', example='true'),
-      maintainEndTime?: string(name='MaintainEndTime', description='The IP address whitelist of the instance.', example='22:00Z'),
-      maintainStartTime?: string(name='MaintainStartTime', description='Details of the instance.', example='18:00Z'),
-      networkType?: string(name='NetworkType', description='The database engine version of the instance. Valid values: **2.8**, **4.0**, and **5.0**.', example='CLASSIC'),
-      nodeType?: string(name='NodeType', description='Indicates whether the instance is managed by ApsaraDB RDS. Valid values:
 
-*   **true**: yes
-*   **false**: no', example='double'),
-      packageType?: string(name='PackageType', description='The region ID of the instance.', example='standard'),
-      port?: long(name='Port', description='The parameter configurations of the instance in the JSON format. For more information, see [Modify the parameters of an ApsaraDB for Redis instance](~~43885~~).', example='6379'),
-      privateIp?: string(name='PrivateIp', description='The private IP address of the instance.
+*   This parameter is returned only when the data flashback feature is enabled for the instance. For more information, see [Use data flashback to restore data by point in time](~~148479~~).
 
->  This parameter is not returned if the instance is deployed in the classic network.', example='172.16.49.***'),
-      QPS?: long(name='QPS', description='The zone ID of the instance.', example='100000'),
-      readOnlyCount?: int32(name='ReadOnlyCount', description='The ID of the distributed instance to which the instance belongs.
+*   When you call the [RestoreInstance](~~61083~~) operation to implement data flashback, you can obtain the earliest point in time for data flashback from the return value of this parameter and set the **RestoreTime** parameter to this point in time.', example='2021-07-06T05:49:55Z'),
+      bandwidth?: long(name='Bandwidth', description='The bandwidth of the instance. Unit: Mbit/s.', example='10'),
+      capacity?: long(name='Capacity', description='The storage capacity of the instance. Unit: MB.', example='1024'),
+      chargeType?: string(name='ChargeType', description='The billing method of the instance. Valid values:
 
->  This parameter is returned only if the instance is a child instance of the distributed instance.', example='5'),
-      realInstanceClass?: string(name='RealInstanceClass', description='The plan type of the instance. Valid values:
+*   **PrePaid**: subscription
+*   **PostPaid**: pay-as-you-go', example='PostPaid'),
+      cloudType?: string(name='CloudType', description='This parameter is returned only when the instance is in a cloud box.', example='cloudbox'),
+      config?: string(name='Config', description='The parameter settings of the instance in the JSON format. For more information, see [Modify the parameters of an ApsaraDB for Redis instance](~~43885~~).', example='{\\"EvictionPolicy\\":\\"volatile-lru\\",\\"hash-max-ziplist-entries\\":512,\\"zset-max-ziplist-entries\\":128,\\"zset-max-ziplist-value\\":64,\\"set-max-intset-entries\\":512,\\"hash-max-ziplist-value\\":64}'),
+      connectionDomain?: string(name='ConnectionDomain', description='The internal endpoint of the instance.', example='r-bp1d72gwl41z7f****.redis.rds.aliyuncs.com'),
+      connections?: long(name='Connections', description='The maximum number of connections supported by the instance.', example='10000'),
+      createTime?: string(name='CreateTime', description='The time when the instance was created. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.', example='2019-03-06T10:42:03Z'),
+      endTime?: string(name='EndTime', description='The time when the subscription instance expires. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2019-04-06T10:42:03Z'),
+      engine?: string(name='Engine', description='The database engine of the instance. The return value is **Redis**.', example='Redis'),
+      engineVersion?: string(name='EngineVersion', description='The database engine version of the instance. Valid values: **2.8**, **4.0**, **5.0**, and **6.0**.', example='4.0'),
+      globalInstanceId?: string(name='GlobalInstanceId', description='The ID of the distributed instance to which the instance belongs.
 
-*   **standard**: standard plan.
-*   **customized**: custom plan. This plan type is phased out.', example='tair.rdb.with.proxy.1g'),
-      regionId?: string(name='RegionId', description='This parameter is returned only if the instance is in a cloud box.', example='cn-hangzhou'),
-      replicaId?: string(name='ReplicaId', description='The retention period of audit logs. Unit: days. A value of 0 indicates that the audit log feature is disabled. For more information about how to enable the audit log feature, see [Enable the new audit log feature](~~102015~~).', example='bls-awxxxxxxxxxxxxx'),
-      replicationMode?: string(name='ReplicationMode', description='The state of the instance. Valid values:
+> This parameter is returned only when the instance is a child instance of a distributed instance.', example='gr-bp14rkqrhac****'),
+      hasRenewChangeOrder?: string(name='HasRenewChangeOrder', description='Indicates whether your Alibaba Cloud account has pending orders for renewal and configuration change. Valid values:
+
+*   **true**: Your Alibaba Cloud account has pending orders.
+*   **false**: Your Alibaba Cloud account does not have pending orders.', example='false'),
+      instanceClass?: string(name='InstanceClass', description='The instance type of the instance. For more information, see [Instance types](~~107984~~).', example='redis.master.small.default'),
+      instanceId?: string(name='InstanceId', description='The ID of the instance.', example='r-bp1d72gwl41z7f****'),
+      instanceName?: string(name='InstanceName', description='The name of the instance.', example='apitest'),
+      instanceReleaseProtection?: boolean(name='InstanceReleaseProtection', description='Indicates whether the release protection feature is enabled for the instance. Valid values:
+
+*   **true**: Release protection is enabled.
+*   **false**: Release protection is disabled.', example='false'),
+      instanceStatus?: string(name='InstanceStatus', description='The state of the instance. Valid values:
 
 *   **Normal**: The instance is normal.
 *   **Creating**: The instance is being created.
@@ -4066,43 +4175,88 @@ model DescribeInstanceAttributeResponseBody = {
 *   **MinorVersionUpgrading**: The minor version of the instance is being updated.
 *   **NetworkModifying**: The network type of the instance is being changed.
 *   **SSLModifying**: The SSL certificate of the instance is being changed.
-*   **MajorVersionUpgrading**: The major version of the instance is being upgraded. The instance remains available during the upgrade.
+*   **MajorVersionUpgrading**: The major version of the instance is being upgraded. The instance remains accessible during the upgrade.
 
->  For more information about instance states, see [Instance states and impacts](~~200740~~).', example='master-slave'),
-      resourceGroupId?: string(name='ResourceGroupId', description='The storage capacity of the instance. Unit: MB.', example='rg-acfmyiu4ekp****'),
-      secondaryZoneId?: string(name='SecondaryZoneId', description='The key of the tag.', example='cn-hongkong-h'),
-      securityIPList?: string(name='SecurityIPList', description='The instance type of the instance. For more information, see [Instance types](~~107984~~).', example='127.0.0.1'),
-      shardCount?: int32(name='ShardCount', description='The name of the instance.', example='2'),
+> For more information about instance states, see [Instance states and impacts](~~200740~~).', example='Normal'),
+      instanceType?: string(name='InstanceType', description='The database engine of the instance. Valid values:
+
+*   **Tair**
+*   **Redis**
+*   **Memcache**', example='Redis'),
+      isOrderCompleted?: boolean(name='IsOrderCompleted', description='Whether the instance order has been completed is used to determine whether the modify instance specifications order has reached its final state. The return value is:
+
+* **true**: The modify instance specifications operation has been completed or has not been made.
+
+* **false**: Changing specifications, the order is not yet completed.', example='true'),
+      isRds?: boolean(name='IsRds', description='Indicates whether the instance is managed by ApsaraDB RDS. Valid values:
+
+*   **true**: The instance is managed by ApsaraDB RDS.
+*   **false**: The instance is not managed by ApsaraDB RDS.', example='true'),
+      isSupportTDE?: boolean(name='IsSupportTDE', description='Does the instance support enabling transparent data encryption (TDE) function? Return value:
+
+* **true**: Supported, only supported for local disk, memory type Tair instance version. 
+* **false**: Not Supported.', example='true'),
+      maintainEndTime?: string(name='MaintainEndTime', description='The end time of the maintenance window. The time is in the *HH:mmZ* format. The time is displayed in UTC.', example='22:00Z'),
+      maintainStartTime?: string(name='MaintainStartTime', description='The start time of the maintenance window. The time is in the *HH:mmZ* format. The time is displayed in UTC.', example='18:00Z'),
+      networkType?: string(name='NetworkType', description='The network type of the instance. Valid values:
+
+*   **CLASSIC**: classic network
+*   **VPC**: VPC', example='CLASSIC'),
+      nodeType?: string(name='NodeType', description='The node type. Valid values:
+
+*   **double**: The instance contains a master node and a replica node.
+*   **single**: The instance contains only a master node. This node type is phrased out.', example='double'),
+      packageType?: string(name='PackageType', description='The plan type of the instance. Valid values:
+
+*   **standard**: standard plan.
+*   **customized**: custom plan. This plan type is phased out.', example='standard'),
+      port?: long(name='Port', description='The port number of the instance.', example='6379'),
+      privateIp?: string(name='PrivateIp', description='The private IP address of the instance.
+
+> This parameter is not returned when the instance is deployed in the classic network.', example='172.16.49.***'),
+      QPS?: long(name='QPS', description='The expected maximum queries per second (QPS).', example='100000'),
+      readOnlyCount?: int32(name='ReadOnlyCount', description='The number of read-only nodes. This parameter is available only for read/write splitting instances that use cloud disks.', example='5'),
+      realInstanceClass?: string(name='RealInstanceClass', description='If the instance is a cluster instance that uses cloud disks, this parameter indicates the instance type of each shard. In this case, the InstanceClass parameter indicates a virtual instance type.
+
+> To query the costs of this instance type, specify the returned instance type for this parameter for the [DescribePrice](~~95612~~) operation and call the operation.', example='tair.rdb.with.proxy.1g'),
+      regionId?: string(name='RegionId', description='The region ID of the instance.', example='cn-hangzhou'),
+      replicaId?: string(name='ReplicaId', description='The ID of the node.', example='bls-awxxxxxxxxxxxxx'),
+      replicationMode?: string(name='ReplicationMode', description='The architecture of the instance. Valid values:
+
+*   **master-slave**: standard master-replica architecture.
+*   **cluster**: cluster architecture, which includes read/write splitting instances and cluster instances.', example='master-slave'),
+      resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs.', example='rg-acfmyiu4ekp****'),
+      secondaryZoneId?: string(name='SecondaryZoneId', description='The ID of the secondary zone.
+
+> This parameter is returned only when the instance has a secondary zone ID.', example='cn-hongkong-h'),
+      securityIPList?: string(name='SecurityIPList', description='The IP addresses contained in a whitelist of the instance.', example='127.0.0.1'),
+      shardCount?: int32(name='ShardCount', description='The number of shards. This parameter is available only for instances that are purchased on the China site (aliyun.com).
+
+This parameter is returned only when the instance is a [cluster instance](~~52228~~) that uses cloud disks.', example='2'),
       tags?: {
         tag?: [ 
         {
-          key?: string(name='Key', description='Queries the details of an ApsaraDB for Redis instance.', example='tagkey'),
-          value?: string(name='Value', description='DescribeInstanceAttribute', example='tagvalue'),
+          key?: string(name='Key', description='The key of the tag.', example='tagkey'),
+          value?: string(name='Value', description='The value of the tag.', example='tagvalue'),
         }
       ](name='Tag')
-      }(name='Tags', description='The billing method of the instance. Valid values:
-
-*   **PrePaid**: subscription
-*   **PostPaid**: pay-as-you-go'),
-      vSwitchId?: string(name='VSwitchId', description='The network type of the instance. Valid values:
-
-*   **CLASSIC**: classic network
-*   **VPC**: VPC', example='vsw-bp1e7clcw529l773d****'),
+      }(name='Tags', description='Details of the tags.'),
+      vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-bp1e7clcw529l773d****'),
       vpcAuthMode?: string(name='VpcAuthMode', description='The VPC authentication mode. Valid values:
 
 *   **Open**: enables password authentication.
 *   **Close**: disables password authentication and enables password-free access. For more information, see [Enable password-free access](~~85168~~).', example='Open'),
-      vpcCloudInstanceId?: string(name='VpcCloudInstanceId', description='The ID of the vSwitch to which the instance is connected.', example='r-bp1d72gwl41z7f****'),
-      vpcId?: string(name='VpcId', description='The internal endpoint of the instance.', example='vpc-bp1nme44gek34slfc****'),
-      zoneId?: string(name='ZoneId', description='The architecture of the instance replica. Valid values:
+      vpcCloudInstanceId?: string(name='VpcCloudInstanceId', description='The ID of the VPC.', example='r-bp1d72gwl41z7f****'),
+      vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC).', example='vpc-bp1nme44gek34slfc****'),
+      zoneId?: string(name='ZoneId', description='The zone ID of the instance.', example='cn-hongkong-b'),
+      zoneType?: string(name='ZoneType', description='The deployment type of the instance. Valid values:
 
-*   **master-slave**: standard master-replica architecture.
-*   **cluster**: cluster architecture, which includes the read/write splitting instances and cluster instances.', example='cn-hongkong-b'),
-      zoneType?: string(name='ZoneType', description='The time when the instance was created. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.', example='singlezone'),
+*   **singlezone**: The instance is deployed in a single zone.
+*   **doublezone**: The instance is deployed in two zones of the same region.', example='singlezone'),
     }
   ](name='DBInstanceAttribute')
-  }(name='Instances', description='The operation that you want to perform. Set the value to **DescribeInstanceAttribute**.'),
-  requestId?: string(name='RequestId', description='The maximum number of connections supported by the instance.', example='CA40C261-EB72-4EDA-AC57-958722162595'),
+  }(name='Instances', description='Details of the instances.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='CA40C261-EB72-4EDA-AC57-958722162595'),
 }
 
 model DescribeInstanceAttributeResponse = {
@@ -4327,7 +4481,7 @@ async function describeInstanceConfig(request: DescribeInstanceConfigRequest): D
 }
 
 model DescribeInstanceSSLRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the request.', example='r-bp1zxszhcgatnx****'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance.', example='r-bp1zxszhcgatnx****'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
@@ -4336,12 +4490,15 @@ model DescribeInstanceSSLRequest {
 }
 
 model DescribeInstanceSSLResponseBody = {
-  certCommonName?: string(name='CertCommonName', example='r-bp1zxszhcgatnx****.redis.rds.aliyuncs.com'),
-  certDownloadURL?: string(name='CertDownloadURL'),
-  instanceId?: string(name='InstanceId', description='The operation that you want to perform. Set the value to **DescribeInstanceSSL**.', example='r-bp1zxszhcgatnx****'),
-  requestId?: string(name='RequestId', description='The expiration time of the SSL certificate.', example='02260F96-913E-4655-9BA5-A3651CAF****'),
-  SSLEnabled?: string(name='SSLEnabled', description='The ID of the instance.', example='Enable'),
-  SSLExpiredTime?: string(name='SSLExpiredTime', example='2020-08-05T09:05:53Z'),
+  certCommonName?: string(name='CertCommonName', description='The common name of the SSL certificate, which is the domain name for which you want to apply for the SSL certificate. The default value is the internal endpoint of the instance.', example='r-bp1zxszhcgatnx****.redis.rds.aliyuncs.com'),
+  certDownloadURL?: string(name='CertDownloadURL', description='Download URL for CA certificate.', example='https://apsaradb-public.oss-ap-sout****-1.aliy****.com/ApsaraDB-CA-Chain.zip'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance.', example='r-bp1zxszhcgatnx****'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='02260F96-913E-4655-9BA5-A3651CAF****'),
+  SSLEnabled?: string(name='SSLEnabled', description='Indicates whether SSL encryption is enabled. Valid values:
+
+*   **Enable**: SSL encryption is enabled.
+*   **Disable**: SSL encryption is disabled.', example='Enable'),
+  SSLExpiredTime?: string(name='SSLExpiredTime', description='The expiration time of the SSL certificate.', example='2020-08-05T09:05:53Z'),
 }
 
 model DescribeInstanceSSLResponse = {
@@ -4351,7 +4508,11 @@ model DescribeInstanceSSLResponse = {
 }
 
 /**
-  * The common name of the SSL certificate, which is the domain name for which you want to apply for the SSL certificate. The default value is the internal endpoint of the instance.
+  * SSL encryption is supported for ApsaraDB for Redis 2.8 standard master-replica instances, ApsaraDB for Redis 2.8 master-replica cluster instances, and ApsaraDB for Redis 4.0 master-replica cluster instances. You can enable SSL encryption to enhance data transmission security.
+  * You can use one of the following methods to enable or disable SSL encryption or update the SSL certificate for an ApsaraDB for Redis instance:
+  * *   Call the [ModifyInstanceSSL](~~96194~~) operation.
+  * *   Enable or disable SSL encryption or update the SSL certificate in the ApsaraDB for Redis console. For more information, see [Configure SSL encryption](~~84898~~).
+  * > After SSL encryption is enabled, the instance may respond slower.
   *
   * @param request DescribeInstanceSSLRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -4396,7 +4557,11 @@ async function describeInstanceSSLWithOptions(request: DescribeInstanceSSLReques
 }
 
 /**
-  * The common name of the SSL certificate, which is the domain name for which you want to apply for the SSL certificate. The default value is the internal endpoint of the instance.
+  * SSL encryption is supported for ApsaraDB for Redis 2.8 standard master-replica instances, ApsaraDB for Redis 2.8 master-replica cluster instances, and ApsaraDB for Redis 4.0 master-replica cluster instances. You can enable SSL encryption to enhance data transmission security.
+  * You can use one of the following methods to enable or disable SSL encryption or update the SSL certificate for an ApsaraDB for Redis instance:
+  * *   Call the [ModifyInstanceSSL](~~96194~~) operation.
+  * *   Enable or disable SSL encryption or update the SSL certificate in the ApsaraDB for Redis console. For more information, see [Configure SSL encryption](~~84898~~).
+  * > After SSL encryption is enabled, the instance may respond slower.
   *
   * @param request DescribeInstanceSSLRequest
   * @return DescribeInstanceSSLResponse
@@ -4483,37 +4648,33 @@ async function describeInstanceTDEStatus(request: DescribeInstanceTDEStatusReque
 }
 
 model DescribeInstancesRequest {
-  architectureType?: string(name='ArchitectureType', description='The ID of the region.', example='standard'),
-  chargeType?: string(name='ChargeType', description='The connection mode of the instance. Valid values:
+  architectureType?: string(name='ArchitectureType', description='The architecture of the instance. Valid values:
 
-*   **Standard**: standard mode
-*   **Safe**: proxy mode', example='PostPaid'),
-  editionType?: string(name='EditionType', description='The username that is used to connect to the instance. By default, the username that is named after the instance ID is returned.', example='Enterprise'),
-  engineVersion?: string(name='EngineVersion', description='The database engine of the instance. Valid values:
+*   **cluster**: cluster architecture
+*   **standard**: standard architecture
+*   **rwsplit**: read/write splitting architecture', example='standard'),
+  chargeType?: string(name='ChargeType', description='The billing method of the instance. Valid values:
 
-*   **Tair**
-*   **Redis**
-*   **Memcache**', example='4.0'),
-  expired?: string(name='Expired', description='The database engine type of the instance. Valid values:
-
-*   **Tair**
-*   **Redis**
-*   **Memcache**', example='false'),
-  globalInstance?: boolean(name='GlobalInstance', description='The details of the tags.', example='true'),
-  instanceClass?: string(name='InstanceClass', description='The database engine version of the instance. Valid values: **2.8**, **4.0**, and **5.0**.', example='redis.master.small.default'),
-  instanceIds?: string(name='InstanceIds', description='The node type. Valid values:
-
-*   **double**: The instance contains a master node and a replica node.
-*   **single**: The instance contains only a master node. This node type is phrased out.', example='r-bp1zxszhcgatnx****'),
-  instanceStatus?: string(name='InstanceStatus', description='The edition of the instance. Valid values:
+*   **PrePaid**: subscription
+*   **PostPaid**: pay-as-you-go', example='PostPaid'),
+  editionType?: string(name='EditionType', description='The edition of the instance. Valid values:
 
 *   **Community**: Community Edition
-*   **Enterprise**: Enhance Edition (Tair)', example='Normal'),
-  instanceType?: string(name='InstanceType', description='The key of the tag.', example='Redis'),
-  networkType?: string(name='NetworkType', description='The ID of the instance.', example='CLASSIC'),
-  ownerAccount?: string(name='OwnerAccount'),
-  ownerId?: long(name='OwnerId'),
-  pageNumber?: int32(name='PageNumber', description='The state of the instance. Valid values:
+*   **Enterprise**: Enhance Edition (Tair)', example='Enterprise'),
+  engineVersion?: string(name='EngineVersion', description='The database engine version of the instance. Valid values: **2.8**, **4.0**, **5.0**, and **6.0**.', example='4.0'),
+  expired?: string(name='Expired', description='Specifies whether the instance has expired. Valid values:
+
+*   **true**: The instance has expired.
+*   **false**: The instance has not expired.', example='false'),
+  globalInstance?: boolean(name='GlobalInstance', description='Specifies whether to return the child instances of distributed instances. Valid values:
+
+*   **true**: Only child instances are returned.
+*   **false**: Child instances are not returned.', example='true'),
+  instanceClass?: string(name='InstanceClass', description='The instance type of the instance. For more information, see [Instance types](~~107984~~).', example='redis.master.small.default'),
+  instanceIds?: string(name='InstanceIds', description='The ID of the instance.
+
+> If you specify multiple instance IDs, separate these IDs with commas (,).', example='r-bp1zxszhcgatnx****'),
+  instanceStatus?: string(name='InstanceStatus', description='The state of the instance. Valid values:
 
 *   **Normal**: The instance is normal.
 *   **Creating**: The instance is being created.
@@ -4521,7 +4682,7 @@ model DescribeInstancesRequest {
 *   **Inactive**: The instance is disabled.
 *   **Flushing**: The instance is being released.
 *   **Released**: The instance is released.
-*   **Transforming**: The billing method of the instance is changing.
+*   **Transforming**: The billing method of the instance is being changed.
 *   **Unavailable**: The instance is suspended.
 *   **Error**: The instance failed to be created.
 *   **Migrating**: The instance is being migrated.
@@ -4529,77 +4690,89 @@ model DescribeInstancesRequest {
 *   **MinorVersionUpgrading**: The minor version of the instance is being updated.
 *   **NetworkModifying**: The network type of the instance is being changed.
 *   **SSLModifying**: The SSL certificate of the instance is being changed.
-*   **MajorVersionUpgrading**: The major version of the instance is being upgraded. The instance remains available during the upgrade.
+*   **MajorVersionUpgrading**: The major version of the instance is being upgraded. The instance remains accessible during the upgrade.
 
->  For more information about instance states, see [Instance states and impacts](~~200740~~).', example='1'),
-  pageSize?: int32(name='PageSize', description='The parameter configurations of the instance. For more information, see [Modify parameters of an instance](~~43885~~).', example='10'),
+> For more information about instance states, see [Instance states and impacts](~~200740~~).', example='Normal'),
+  instanceType?: string(name='InstanceType', description='The database engine of the instance. Valid values:
+
+*   **Tair**
+*   **Redis**
+*   **Memcache**', example='Redis'),
+  networkType?: string(name='NetworkType', description='The network type of the instance. Valid values:
+
+*   **CLASSIC**: classic network
+*   **VPC**: Virtual Private Cloud (VPC)', example='CLASSIC'),
+  ownerAccount?: string(name='OwnerAccount'),
+  ownerId?: long(name='OwnerId'),
+  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Pages start from page **1**. Default value: **1**.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Maximum value: **50**. Default value: **10**.', example='10'),
   privateIp?: string(name='PrivateIp', description='The private IP address of the instance.', example='172.16.49.***'),
-  regionId?: string(name='RegionId', description='The service port of the instance.', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the vSwitch to which the instance is connected.', example='rg-acfmyiu4ekp****'),
+  regionId?: string(name='RegionId', description='The region ID of the instance.
+
+> When you call this operation and specify the **Tag** parameter, you must also specify this parameter.', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs.
+
+> You can query resource group IDs by using the ApsaraDB for Redis console or by calling the [ListResourceGroups](~~158855~~) operation. For more information, see [View basic information of a resource group](~~151181~~).', example='rg-acfmyiu4ekp****'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  searchKey?: string(name='SearchKey', description='The number of entries to return on each page. Maximum value: **50**. Default value: **10**.', example='apitest'),
+  searchKey?: string(name='SearchKey', description='The keyword used for fuzzy search. The keyword can be based on an instance name or an instance ID.', example='apitest'),
   securityToken?: string(name='SecurityToken'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The number of entries returned per page.', example='Specifies whether the instance has expired. Valid values:
+      key?: string(name='Key', description='The key of the tag. A tag is a key-value pair.
 
-*   **true**: The cluster has expired.
-*   **false**: The cluster has not expired.'),
-      value?: string(name='Value', description='The instance type.', example='The name of the instance.'),
+> A maximum of five key-value pairs can be specified at a time.', example='Storage type'),
+      value?: string(name='Value', description='The value of the tag. A tag is a key-value pair.', example='Local disk'),
     }
-  ](name='Tag', description='The bandwidth of the instance. Unit: MB/s.'),
-  vSwitchId?: string(name='VSwitchId', description='The keyword used for fuzzy search. The keyword can be based on an instance name or an instance ID.', example='vsw-bp1e7clcw529l773d****'),
-  vpcId?: string(name='VpcId', description='The ID of the instance.
-
->  If you specify multiple instance IDs, separate the instance IDs with commas (,).', example='vpc-bp1nme44gek34slfc****'),
-  zoneId?: string(name='ZoneId', description='The architecture of the instance. Default value: NULL. Valid values:
-
-*   **cluster**: cluster architecture
-*   **standard**: standard architecture
-*   **rwsplit**: read/write splitting architecture
-*   **NULL**: The instance can be a cluster instance, standard instance, or read/write splitting instance.', example='cn-hongkong-b'),
+  ](name='Tag', description='The tags of the instance.'),
+  vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-bp1e7clcw529l773d****'),
+  vpcId?: string(name='VpcId', description='The ID of the VPC.', example='vpc-bp1nme44gek34slfc****'),
+  zoneId?: string(name='ZoneId', description='The zone ID of the instance.', example='cn-hongkong-b'),
 }
 
 model DescribeInstancesResponseBody = {
   instances?: {
     KVStoreInstance?: [ 
     {
-      architectureType?: string(name='ArchitectureType', description='The ID of the VPC.', example='cluster'),
-      bandwidth?: long(name='Bandwidth', description='The zone ID of the instance.', example='96'),
-      capacity?: long(name='Capacity', description='The value of tag N of the instance.', example='4096'),
-      chargeType?: string(name='ChargeType', description='The time when the instance was deleted.', example='PostPaid'),
-      cloudType?: string(name='CloudType', example='cloudbox'),
-      config?: string(name='Config', description='The ID of the vSwitch to which the instance is connected.', example='{\\"maxmemory-policy\\":\\"volatile-lfu\\",\\"EvictionPolicy\\":\\"volatile-lru\\",\\"hash-max-ziplist-entries\\":512,\\"zset-max-ziplist-entries\\":128,\\"zset-max-ziplist-value\\":64,\\"set-max-intset-entries\\":512,\\"hash-max-ziplist-value\\":64,\\"#no_loose_disabled-commands\\":\\"flushall,flushdb\\",\\"lazyfree-lazy-eviction\\":\\"yes\\"}'),
-      connectionDomain?: string(name='ConnectionDomain', description='The number of data shards in the instance.
+      architectureType?: string(name='ArchitectureType', description='The architecture of the instance. Default value: NULL. Valid values:
 
->  This parameter is returned only if the instance is a cluster instance that uses cloud disks.', example='r-bp1zxszhcgatnx****.redis.rds.aliyuncs.com'),
-      connectionMode?: string(name='ConnectionMode', description='The network type of the instance. Valid values:
-
-*   **CLASSIC**: classic network
-*   **VPC**: VPC', example='Standard'),
-      connections?: long(name='Connections', example='20000'),
-      createTime?: string(name='CreateTime', description='The ID of the secondary zone.
-
->  If multiple zones are returned for **ZoneId** such as cn-hangzhou-MAZ10(h,i), this parameter is ignored.', example='2018-11-07T08:49:00Z'),
-      destroyTime?: string(name='DestroyTime', example='2019-04-28T10:03:01Z'),
-      editionType?: string(name='EditionType', example='Enterprise'),
-      endTime?: string(name='EndTime', example='2019-06-13T16:00:00Z'),
-      engineVersion?: string(name='EngineVersion', description='Indicates whether the instance is managed by ApsaraDB RDS. Valid values:
-
-*   **true**: yes
-*   **false**: no', example='4.0'),
-      globalInstanceId?: string(name='GlobalInstanceId', description='The value of the tag.', example='gr-bp14rkqrhac****'),
-      hasRenewChangeOrder?: boolean(name='HasRenewChangeOrder', example='false'),
-      instanceClass?: string(name='InstanceClass', description='The billing method of the instance. Valid values:
+*   **cluster**: The instance is a cluster instance.
+*   **standard**: The instance is a standard instance.
+*   **rwsplit**: The instance is a read/write splitting instance.
+*   **NULL**: The instance can be a cluster, standard, or read/write splitting instance.', example='cluster'),
+      bandwidth?: long(name='Bandwidth', description='The bandwidth of the instance. Unit: Mbit/s.', example='96'),
+      capacity?: long(name='Capacity', description='The storage capacity of the instance. Unit: MB.', example='4096'),
+      chargeType?: string(name='ChargeType', description='The billing method of the instance. Valid values:
 
 *   **PrePaid**: subscription
-*   **PostPaid**: pay-as-you-go', example='redis.logic.sharding.2g.2db.0rodb.4proxy.default'),
-      instanceId?: string(name='InstanceId', example='r-bp1zxszhcgatnx****'),
-      instanceName?: string(name='InstanceName', description='The storage capacity of the instance. Unit: MB.', example='apitest'),
-      instanceStatus?: string(name='InstanceStatus', example='Normal'),
-      instanceType?: string(name='InstanceType', example='Redis'),
-      isRds?: boolean(name='IsRds', description='The state of the instance. Valid values:
+*   **PostPaid**: pay-as-you-go', example='PostPaid'),
+      cloudType?: string(name='CloudType', description='This parameter is returned only when the instance is in a cloud box.', example='cloudbox'),
+      config?: string(name='Config', description='The parameter configurations of the instance. For more information, see [Modify parameters of an instance](~~43885~~).', example='{\\"maxmemory-policy\\":\\"volatile-lfu\\",\\"EvictionPolicy\\":\\"volatile-lru\\",\\"hash-max-ziplist-entries\\":512,\\"zset-max-ziplist-entries\\":128,\\"zset-max-ziplist-value\\":64,\\"set-max-intset-entries\\":512,\\"hash-max-ziplist-value\\":64,\\"#no_loose_disabled-commands\\":\\"flushall,flushdb\\",\\"lazyfree-lazy-eviction\\":\\"yes\\"}'),
+      connectionDomain?: string(name='ConnectionDomain', description='The internal endpoint of the instance.', example='r-bp1zxszhcgatnx****.redis.rds.aliyuncs.com'),
+      connectionMode?: string(name='ConnectionMode', description='The connection mode of the instance. Valid values:
+
+*   **Standard**: standard mode
+*   **Safe**: proxy mode', example='Standard'),
+      connections?: long(name='Connections', description='The maximum number of connections supported by the instance.', example='20000'),
+      createTime?: string(name='CreateTime', description='The time when the instance was created.', example='2018-11-07T08:49:00Z'),
+      destroyTime?: string(name='DestroyTime', description='The time when the instance was deleted.', example='2019-04-28T10:03:01Z'),
+      editionType?: string(name='EditionType', description='The edition of the instance. Valid values:
+
+*   **Community**: Community Edition
+*   **Enterprise**: Enhance Edition (Tair)', example='Enterprise'),
+      endTime?: string(name='EndTime', description='The time when the subscription instance expires.', example='2019-06-13T16:00:00Z'),
+      engineVersion?: string(name='EngineVersion', description='The database engine version of the instance. Valid values: **2.8**, **4.0**, **5.0**, and **6.0**.', example='4.0'),
+      globalInstanceId?: string(name='GlobalInstanceId', description='The ID of the distributed instance.
+
+> This parameter is returned only when the instance is a child instance of a distributed instance.', example='gr-bp14rkqrhac****'),
+      hasRenewChangeOrder?: boolean(name='HasRenewChangeOrder', description='Indicates whether your Alibaba Cloud account has pending orders for renewal and configuration change. Valid values:
+
+*   **true**: Your Alibaba Cloud account has pending orders for renewal and configuration change.
+*   **false**: Your Alibaba Cloud account does not have pending orders for renewal and configuration change.', example='false'),
+      instanceClass?: string(name='InstanceClass', description='The instance class of the instance.', example='redis.logic.sharding.2g.2db.0rodb.4proxy.default'),
+      instanceId?: string(name='InstanceId', description='The ID of the instance.', example='r-bp1zxszhcgatnx****'),
+      instanceName?: string(name='InstanceName', description='The name of the instance.', example='apitest'),
+      instanceStatus?: string(name='InstanceStatus', description='The state of the instance. Valid values:
 
 *   **Normal**: The instance is normal.
 *   **Creating**: The instance is being created.
@@ -4607,7 +4780,7 @@ model DescribeInstancesResponseBody = {
 *   **Inactive**: The instance is disabled.
 *   **Flushing**: The instance is being released.
 *   **Released**: The instance is released.
-*   **Transforming**: The billing method of the instance is changing.
+*   **Transforming**: The billing method of the instance is being changed.
 *   **Unavailable**: The instance is suspended.
 *   **Error**: The instance failed to be created.
 *   **Migrating**: The instance is being migrated.
@@ -4615,56 +4788,62 @@ model DescribeInstancesResponseBody = {
 *   **MinorVersionUpgrading**: The minor version of the instance is being updated.
 *   **NetworkModifying**: The network type of the instance is being changed.
 *   **SSLModifying**: The SSL certificate of the instance is being changed.
-*   **MajorVersionUpgrading**: The major version of the instance is being upgraded. The instance remains available during the upgrade.', example='true'),
-      networkType?: string(name='NetworkType', description='This parameter is returned only if the instance is in a cloud box.', example='CLASSIC'),
-      nodeType?: string(name='NodeType', example='double'),
-      packageType?: string(name='PackageType', description='The ID of the resource group to which the instance belongs.', example='standard'),
-      port?: long(name='Port', description='The instance type. For more information, see [Instance types](~~107984~~).', example='6379'),
-      privateIp?: string(name='PrivateIp', description='The plan type. Valid values:
+*   **MajorVersionUpgrading**: The major version of the instance is being upgraded. The instance remains accessible during the upgrade.', example='Normal'),
+      instanceType?: string(name='InstanceType', description='The database engine of the instance. Valid values:
+
+*   **Tair**
+*   **Redis**
+*   **Memcache**', example='Redis'),
+      isRds?: boolean(name='IsRds', description='Indicates whether the instance is managed by ApsaraDB RDS. Valid values:
+
+*   **true**: The instance is managed by ApsaraDB RDS.
+*   **false**: The instance is not managed by ApsaraDB RDS.', example='true'),
+      networkType?: string(name='NetworkType', description='The network type of the instance. Valid values:
+
+*   **CLASSIC**: classic network
+*   **VPC**: VPC', example='CLASSIC'),
+      nodeType?: string(name='NodeType', description='The node type. Valid values:
+
+*   **double**: The instance contains a master node and a replica node.
+*   **single**: The instance contains only a master node. This node type is phrased out.', example='double'),
+      packageType?: string(name='PackageType', description='The plan type of the instance. Valid values:
 
 *   **standard**: standard plan
-*   **customized**: custom plan', example='172.16.49.***'),
-      QPS?: long(name='QPS', description='The ID of the request.', example='100000'),
-      regionId?: string(name='RegionId', example='cn-hangzhou'),
-      replacateId?: string(name='ReplacateId', description='The architecture of the instance. Valid values:
+*   **customized**: custom plan', example='standard'),
+      port?: long(name='Port', description='The port number of the instance.', example='6379'),
+      privateIp?: string(name='PrivateIp', description='The private IP address of the instance.
 
-*   **cluster**: cluster architecture
-*   **standard**: standard architecture
-*   **rwsplit**: read/write splitting architecture', example='grr-bp11381ebc16****'),
-      resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmyiu4ekp****'),
-      secondaryZoneId?: string(name='SecondaryZoneId', description='Specifies whether to return the child instances of distributed instances. Valid values:
+> This parameter is not returned when the instance is deployed in the classic network.', example='172.16.49.***'),
+      QPS?: long(name='QPS', description='The expected maximum queries per second (QPS).', example='100000'),
+      regionId?: string(name='RegionId', description='The region ID of the instance.', example='cn-hangzhou'),
+      replacateId?: string(name='ReplacateId', description='The logical ID of the replica instance.', example='grr-bp11381ebc16****'),
+      resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs.', example='rg-acfmyiu4ekp****'),
+      secondaryZoneId?: string(name='SecondaryZoneId', description='The ID of the secondary zone.
 
-*   **true**: Only child instances are returned.
-*   **false**: Child instances are not returned.', example='cn-hangzhou-h'),
-      shardClass?: string(name='ShardClass', example='redis.shard.small.ce'),
-      shardCount?: int32(name='ShardCount', description='The ID of the resource group to which the instance belongs.
+> If multiple zones are returned for **ZoneId** such as cn-hangzhou-MAZ10(h,i), this parameter is ignored.', example='cn-hangzhou-h'),
+      shardClass?: string(name='ShardClass', description='The shard class for the instance.', example='redis.shard.small.ce'),
+      shardCount?: int32(name='ShardCount', description='The number of data shards in the instance.
 
->  You can query resource group IDs by using the ApsaraDB for Redis console or by calling the [ListResourceGroups](~~158855~~) operation. For more information, see [View basic information of a resource group](~~151181~~).', example='3'),
+> This parameter is returned only when the instance is a cluster instance that uses cloud disks.', example='3'),
       tags?: {
         tag?: [ 
         {
-          key?: string(name='Key', example='key1'),
-          value?: string(name='Value', example='value1'),
+          key?: string(name='Key', description='The key of the tag.', example='key1'),
+          value?: string(name='Value', description='The value of the tag.', example='value1'),
         }
       ](name='Tag')
-      }(name='Tags'),
-      userName?: string(name='UserName', description='The page number of the returned page.', example='r-bp1zxszhcgatnx****'),
-      vSwitchId?: string(name='VSwitchId', example='vsw-bp1e7clcw529l773d****'),
-      vpcId?: string(name='VpcId', description='The database engine version of the instance. Valid values: **2.8**, **4.0**, and **5.0**.', example='vpc-bp1nme44gek34slfc****'),
-      zoneId?: string(name='ZoneId', example='cn-hangzhou-b'),
+      }(name='Tags', description='Details of the tags.'),
+      userName?: string(name='UserName', description='The username that is used to connect to the instance. By default, the username that is named after the instance ID is returned.', example='r-bp1zxszhcgatnx****'),
+      vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-bp1e7clcw529l773d****'),
+      vpcId?: string(name='VpcId', description='The ID of the VPC.', example='vpc-bp1nme44gek34slfc****'),
+      zoneId?: string(name='ZoneId', description='The zone ID of the instance.', example='cn-hangzhou-b'),
     }
   ](name='KVStoreInstance')
-  }(name='Instances', description='The network type of the instance. Valid values:
-
-*   **CLASSIC**: classic network
-*   **VPC**: Virtual Private Cloud (VPC)'),
-  pageNumber?: int32(name='PageNumber', description='Indicates whether your Alibaba Cloud account has pending orders for renewal and configuration change. Valid values:
-
-*   **true**: yes
-*   **false**: no', example='1'),
-  pageSize?: int32(name='PageSize', description='The zone ID of the instance.', example='30'),
-  requestId?: string(name='RequestId', description='The total number of instances that were queried.', example='1E83311F-0EE4-4922-A3BF-730B312B****'),
-  totalCount?: int32(name='TotalCount', description='The time when the instance was created.', example='1'),
+  }(name='Instances', description='Details of the instances.'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='30'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='1E83311F-0EE4-4922-A3BF-730B312B****'),
+  totalCount?: int32(name='TotalCount', description='The total number of instances.', example='1'),
 }
 
 model DescribeInstancesResponse = {
@@ -4893,7 +5072,8 @@ model DescribeInstancesOverviewResponseBody = {
 > This parameter is not returned when the instance is deployed in the classic network.', example='172.16.49.***'),
       regionId?: string(name='RegionId', description='The region ID of the instance.', example='cn-hangzhou'),
       resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs.', example='rg-acfmyiu4ekp****'),
-      secondaryZoneId?: string(name='SecondaryZoneId'),
+      secondaryZoneId?: string(name='SecondaryZoneId', description='Instance\\"s secondary zone id.
+> This parameter is only returned when the instance has a secondary zone ID.', example='cn-hangzhou-g'),
       vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch to which the instance is connected.', example='vsw-bp1e7clcw529l773d****'),
       vpcId?: string(name='VpcId', description='The ID of the VPC.', example='vpc-bp1nme44gek34slfc****'),
       zoneId?: string(name='ZoneId', description='The zone ID of the instance.', example='cn-hangzhou-b'),
@@ -5013,27 +5193,33 @@ async function describeInstancesOverview(request: DescribeInstancesOverviewReque
 }
 
 model DescribeIntranetAttributeRequest {
-  instanceId?: string(name='InstanceId', description='r-bp1zxszhcgatnx****', example='r-bp1zxszhcgatnx****'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance.', example='r-bp1zxszhcgatnx****'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs.', example='rg-acfmyiu4ekp****'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmyiu4ekp****'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   securityToken?: string(name='SecurityToken'),
 }
 
 model DescribeIntranetAttributeResponseBody = {
-  autoRenewal?: boolean(name='AutoRenewal', description='The internal bandwidth of the instance. Unit: MB/s.', example='true'),
-  bandwidthExpireTime?: string(name='BandwidthExpireTime', description='Indicates whether auto-renewal is enabled for the extra internal bandwidth that you purchased. Valid values:
+  autoRenewal?: boolean(name='AutoRenewal', description='Indicates whether auto-renewal is enabled for the extra internal bandwidth that you purchased. Valid values:
 
 *   **true**: Auto-renewal is enabled.
 *   **false**: Auto-renewal is disabled.
 
->  If no extra internal bandwidth is purchased, this parameter is not returned.', example='2021-03-06T16:00:00Z'),
+> If no extra internal bandwidth is purchased, this parameter is not returned.', example='true'),
+  bandwidthExpireTime?: string(name='BandwidthExpireTime', description='The time when the extra internal bandwidth that you purchased expires. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.
+
+> If no extra internal bandwidth is purchased, this parameter is not returned.', example='2021-03-06T16:00:00Z'),
   bandwidthPrePaid?: string(name='BandwidthPrePaid'),
-  expireTime?: string(name='ExpireTime', description='The operation that you want to perform. Set the value to **DescribeIntranetAttribute**.', example='0'),
-  hasPrePaidBandWidthOrderRunning?: boolean(name='HasPrePaidBandWidthOrderRunning'),
-  intranetBandwidth?: int32(name='IntranetBandwidth', example='102'),
+  expireTime?: string(name='ExpireTime', description='The time when the extra internal bandwidth that you purchased for temporary use expires. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.
+
+> If no extra internal bandwidth for temporary use is purchased or the extra internal bandwidth that you purchased for temporary use has expired, **0** is returned for this parameter.', example='0'),
+  hasPrePaidBandWidthOrderRunning?: boolean(name='HasPrePaidBandWidthOrderRunning', description='Does the instance have unexpired prepaid bandwidth package, value:
+- true
+- false', example='true'),
+  intranetBandwidth?: int32(name='IntranetBandwidth', description='The current internal bandwidth of the instance. Unit: Mbit/s.', example='102'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='25D42CC3-FBA1-4AEC-BCE2-B8DD3137****'),
 }
 
@@ -5044,7 +5230,7 @@ model DescribeIntranetAttributeResponse = {
 }
 
 /**
-  * rg-acfmyiu4ekp****
+  * You can call the [EnableAdditionalBandwidth](~~206173~~) operation to increase the internal bandwidth of an instance.
   *
   * @param request DescribeIntranetAttributeRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -5092,7 +5278,7 @@ async function describeIntranetAttributeWithOptions(request: DescribeIntranetAtt
 }
 
 /**
-  * rg-acfmyiu4ekp****
+  * You can call the [EnableAdditionalBandwidth](~~206173~~) operation to increase the internal bandwidth of an instance.
   *
   * @param request DescribeIntranetAttributeRequest
   * @return DescribeIntranetAttributeResponse
@@ -5282,30 +5468,32 @@ async function describeMonitorItems(request: DescribeMonitorItemsRequest): Descr
 }
 
 model DescribeParameterModificationHistoryRequest {
-  endTime?: string(name='EndTime', example='2022-09-05T09:49:27Z'),
-  instanceId?: string(name='InstanceId', description='The operation that you want to perform. Set the value to **DescribeParameterModificationHistory**.', example='r-bp1zxszhcgatnx****'),
-  nodeId?: string(name='NodeId', description='The name of the parameter.', example='r-bp1xxxxxxxxxxxxx-db-0'),
+  endTime?: string(name='EndTime', description='The end of the time range to query. The end time must be later than the start time. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.', example='2022-09-05T09:49:27Z'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance. You can call the [DescribeInstances](~~60933~~) operation to query the ID of the instance.', example='r-bp1zxszhcgatnx****'),
+  nodeId?: string(name='NodeId', description='The ID of the node.
+
+> You can set this parameter to query the parameter settings of the specified node in a cluster instance.', example='r-bp1xxxxxxxxxxxxx-db-0'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  parameterName?: string(name='ParameterName', example='script_check_enable'),
+  parameterName?: string(name='ParameterName', description='The name of the parameter.', example='script_check_enable'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   securityToken?: string(name='SecurityToken'),
-  startTime?: string(name='StartTime', description='The name of the parameter.', example='2022-09-05T08:49:27Z'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.', example='2022-09-05T08:49:27Z'),
 }
 
 model DescribeParameterModificationHistoryResponseBody = {
   historicalParameters?: {
     historicalParameter?: [ 
     {
-      modifyTime?: string(name='ModifyTime', example='2022-09-05T09:56:10Z'),
-      newParameterValue?: string(name='NewParameterValue', example='0'),
-      oldParameterValue?: string(name='OldParameterValue', example='-2'),
-      parameterName?: string(name='ParameterName', example='script_check_enable'),
+      modifyTime?: string(name='ModifyTime', description='The time when the parameter was modified. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2022-09-05T09:56:10Z'),
+      newParameterValue?: string(name='NewParameterValue', description='The parameter value after modification.', example='0'),
+      oldParameterValue?: string(name='OldParameterValue', description='The parameter value before modification.', example='-2'),
+      parameterName?: string(name='ParameterName', description='The name of the parameter.', example='script_check_enable'),
     }
   ](name='HistoricalParameter')
-  }(name='HistoricalParameters'),
-  requestId?: string(name='RequestId', example='963C20F0-7CE1-4591-AAF3-6F3CD1CE****'),
+  }(name='HistoricalParameters', description='Details of the parameter modification records.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='963C20F0-7CE1-4591-AAF3-6F3CD1CE****'),
 }
 
 model DescribeParameterModificationHistoryResponse = {
@@ -6655,7 +6843,10 @@ model EnableAdditionalBandwidthRequest {
 
 > * You call the [DescribeRoleZoneInfo](~~190794~~) operation to query the default bandwidth that is supported by an instance type. In the response, the default bandwidth is indicated by the **DefaultBandWidth** parameter. For more information about instance types, see [Overview](~~26350~~).
 > * If you specify multiple data shard IDs in the **NodeId** parameter, you must specify the amount of bandwidth that you want to purchase for each specified data shard in the Bandwidth parameter. The bandwidth values that you specify in the Bandwidth parameter must be in the same sequence as the data shard IDs that you specify in the NodeId parameter. In addition, you must separate the bandwidth values with commas (,).', example='20'),
-  chargeType?: string(name='ChargeType'),
+  chargeType?: string(name='ChargeType', description='The billing method of the bandwidth instance. Default value: PostPaid. Valid values:
+
+- PrePaid: subscription
+- PostPaid: pay-as-you-go', example='PostPaid'),
   couponNo?: string(name='CouponNo', description='The coupon ID.', example='youhuiquan_promotion_option_id_for_blank'),
   instanceId?: string(name='InstanceId', description='The ID of the instance. You can call the [DescribeInstances](~~60933~~) operation to query the IDs of instances.', example='r-bp1zxszhcgatnx****'),
   nodeId?: string(name='NodeId', description='The ID of the data shard for which you want to purchase a specific amount of bandwidth. You can call the [DescribeLogicInstanceTopology](~~94665~~) operation to query the IDs of the data shards in an instance. If you specify multiple data shard IDs, separate the data shard IDs with commas (,). You can also set this parameter to **All**, which specifies all the data shards of the instance.
@@ -8470,6 +8661,7 @@ model ModifyInstanceSpecRequest {
   clientToken?: string(name='ClientToken', example='ETnLKlblzczshOTUbOCz****'),
   couponNo?: string(name='CouponNo', example='youhuiquan_promotion_option_id_for_blank'),
   effectiveTime?: string(name='EffectiveTime', example='Immediately'),
+  forceTrans?: boolean(name='ForceTrans'),
   forceUpgrade?: boolean(name='ForceUpgrade', example='true'),
   instanceClass?: string(name='InstanceClass', example='redis.master.small.default'),
   instanceId?: string(name='InstanceId', description='ModifyInstanceSpec', example='r-bp1zxszhcgatnx****'),
@@ -8521,6 +8713,9 @@ async function modifyInstanceSpecWithOptions(request: ModifyInstanceSpecRequest,
   }
   if (!Util.isUnset(request.effectiveTime)) {
     query['EffectiveTime'] = request.effectiveTime;
+  }
+  if (!Util.isUnset(request.forceTrans)) {
+    query['ForceTrans'] = request.forceTrans;
   }
   if (!Util.isUnset(request.forceUpgrade)) {
     query['ForceUpgrade'] = request.forceUpgrade;
@@ -9461,33 +9656,35 @@ async function renewAdditionalBandwidth(request: RenewAdditionalBandwidthRequest
 }
 
 model RenewInstanceRequest {
-  autoPay?: boolean(name='AutoPay', description='The end time of the order.', example='true'),
-  businessInfo?: string(name='BusinessInfo', description='The ID of the instance.', example='000000000'),
-  capacity?: string(name='Capacity', description='The ID of the event or the business information.', example='1024'),
-  clientToken?: string(name='ClientToken', description='The ID of the request.', example='0.6823317918435086'),
-  couponNo?: string(name='CouponNo', description='The renewal period of the instance. Unit: months. Valid values: **1**, **2**, **3**, **4**, **5**, **6**, **7**, **8**, **9**, **12**, **24**, and **36**.', example='youhuiquan_promotion_option_id_for_blank'),
-  fromApp?: string(name='FromApp', description='Specifies the request source. The default value is **OpenAPI** and cannot be changed.', example='OpenAPI'),
-  instanceClass?: string(name='InstanceClass', description='The operation that you want to perform. Set the value to **RenewInstance**.', example='redis.master.small.default'),
-  instanceId?: string(name='InstanceId', description='The instance type code. For more information, see [Instance specifications overview](~~26350~~). You can set this parameter to change specifications of an instance when you renew the instance.
+  autoPay?: boolean(name='AutoPay', description='Specifies whether to enable automatic payment. Default value: true. Valid values:
 
->  To change the specifications when you renew the instance, you must set at least one of the following parameters: `Capacity` and `InstanceClass`.', example='r-bp1zxszhcgatnx****'),
-  ownerAccount?: string(name='OwnerAccount'),
-  ownerId?: long(name='OwnerId'),
-  period?: long(name='Period', description='Specifies whether to enable automatic payment for the instance. Valid values:
-
-*   **true**: enables automatic payment. This is the default value.
+*   **true**: enables automatic payment.
 *   **false**: disables automatic payment.
 
-If you select false, you must choose **Expenses** > **Renewal Management** in the top navigation bar. In the left-side navigation pane, click **Orders**. Find the specified order and pay for it.', example='6'),
+If you select false, you must choose **Expenses** > **Renewal Management** in the top navigation bar. In the left-side navigation pane, click **Orders**. Find the specified order and pay for it.', example='true'),
+  businessInfo?: string(name='BusinessInfo', description='The ID of the promotional event or business information.', example='000000000'),
+  capacity?: string(name='Capacity', description='The storage capacity of the instance. Unit: MB. When you renew the instance, you can specify this parameter to change specifications of the instance.
+
+> To change the specifications when you renew the instance, you must specify at least one of the `Capacity` and `InstanceClass` parameters.', example='1024'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the value, but you must make sure that it is unique among different requests. The token is case-sensitive. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='TF-ModifyInstanceSpec-1686645570-7dac7257-4a14-4811-939c-51a282f'),
+  couponNo?: string(name='CouponNo', description='The coupon code. Default value: `youhuiquan_promotion_option_id_for_blank`.', example='youhuiquan_promotion_option_id_for_blank'),
+  fromApp?: string(name='FromApp', description='The source of the request. The default value is **OpenAPI** and cannot be changed.', example='OpenAPI'),
+  instanceClass?: string(name='InstanceClass', description='The instance type code. For more information, see [Instance specifications overview](~~26350~~). When you renew the instance, you can specify this parameter to change specifications of the instance.
+
+> To change the specifications when you renew the instance, you must specify at least one of the `Capacity` and `InstanceClass` parameters.', example='redis.master.small.default'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance.', example='r-bp1zxszhcgatnx****'),
+  ownerAccount?: string(name='OwnerAccount'),
+  ownerId?: long(name='OwnerId'),
+  period?: long(name='Period', description='The renewal period. Valid values: **1**, 2, 3, 4, 5, 6, 7, 8, **9**, **12**, **24**, and **36**. Unit: months.', example='6'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   securityToken?: string(name='SecurityToken'),
 }
 
 model RenewInstanceResponseBody = {
-  endTime?: string(name='EndTime', example='2019-02-19T00:00:00Z'),
-  orderId?: string(name='OrderId', example='111111111111111'),
-  requestId?: string(name='RequestId', example='2222245-222A-4155-9349-E22222****'),
+  endTime?: string(name='EndTime', description='The end time of the order.', example='2019-02-19T00:00:00Z'),
+  orderId?: string(name='OrderId', description='The ID of the order.', example='111111111111111'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='2222245-222A-4155-9349-E22222****'),
 }
 
 model RenewInstanceResponse = {
@@ -9497,7 +9694,7 @@ model RenewInstanceResponse = {
 }
 
 /**
-  * The ID of the order.
+  * This operation is applicable only to subscription instances.
   *
   * @param request RenewInstanceRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -9566,7 +9763,7 @@ async function renewInstanceWithOptions(request: RenewInstanceRequest, runtime: 
 }
 
 /**
-  * The ID of the order.
+  * This operation is applicable only to subscription instances.
   *
   * @param request RenewInstanceRequest
   * @return RenewInstanceResponse
