@@ -124,7 +124,7 @@ model UsersDetailsVO {
 }
 
 model AddDesensitizationRuleRequest {
-  functionParams?: [ map[string]string ](name='FunctionParams'),
+  functionParams?: [ map[string]string ](name='FunctionParams', description='Algorithm parameters.'),
   functionType?: string(name='FunctionType', description='The type of the masking algorithm.', example='MD5'),
   ruleDescription?: string(name='RuleDescription', description='The description of the rule.'),
   ruleName?: string(name='RuleName', description='The name of the rule.'),
@@ -383,8 +383,8 @@ model AddTaskFlowEdgesRequest {
   dagId?: long(name='DagId', description='The ID of the task flow. You can call the [ListTaskFlow](~~424565~~) or [ListLhTaskFlowAndScenario](~~426672~~) operation to query the task flow ID.', example='15***'),
   edges?: [ 
     {
-      nodeEnd?: long(name='NodeEnd', description='The error code returned if the request failed.', example='44***'),
-      nodeFrom?: long(name='NodeFrom', description='The ID of the request. You can use the ID to query logs and troubleshoot issues.', example='44***'),
+      nodeEnd?: long(name='NodeEnd', description='The ID of the node where the end node of the edge is located.', example='44***'),
+      nodeFrom?: long(name='NodeFrom', description='The ID of the node where the start node of the edge is located.', example='44***'),
     }
   ](name='Edges', description='The list of edges of the task flow.'),
   tid?: long(name='Tid', description='The ID of the tenant.
@@ -403,11 +403,14 @@ model AddTaskFlowEdgesShrinkRequest {
 model AddTaskFlowEdgesResponseBody = {
   edgeIds?: {
     edgeId?: [ long ](name='EdgeId')
-  }(name='EdgeIds'),
-  errorCode?: string(name='ErrorCode', description='AddTaskFlowEdges', example='UnknownError'),
-  errorMessage?: string(name='ErrorMessage', example='UnknownError'),
-  requestId?: string(name='RequestId', description='Adds directed edges for an existing task node.', example='E5EE2B9E-2F95-57FA-B284-CB441CEE49D6'),
-  success?: boolean(name='Success', example='true'),
+  }(name='EdgeIds', description='The list of task flow edge IDs.'),
+  errorCode?: string(name='ErrorCode', description='The error code returned if the request failed.', example='UnknownError'),
+  errorMessage?: string(name='ErrorMessage', description='The error message returned if the request failed.', example='UnknownError'),
+  requestId?: string(name='RequestId', description='The ID of the request. You can use the ID to query logs and troubleshoot issues.', example='E5EE2B9E-2F95-57FA-B284-CB441CEE49D6'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   **true**: The request was successful.
+*   **false**: The request failed.', example='true'),
 }
 
 model AddTaskFlowEdgesResponse = {
@@ -417,7 +420,9 @@ model AddTaskFlowEdgesResponse = {
 }
 
 /**
-  * The ID of the node where the end node of the edge is located.
+  * When you add directed edges for a task node, take note of the following limits:
+  * 1. The endpoints of the specified edge exist in the Directed Acyclic Graph (DAG) of the task flow specified by DagId.
+  * 2. After a backward edge is added, the DAG does not contain loops.
   *
   * @param tmpReq AddTaskFlowEdgesRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -458,7 +463,9 @@ async function addTaskFlowEdgesWithOptions(tmpReq: AddTaskFlowEdgesRequest, runt
 }
 
 /**
-  * The ID of the node where the end node of the edge is located.
+  * When you add directed edges for a task node, take note of the following limits:
+  * 1. The endpoints of the specified edge exist in the Directed Acyclic Graph (DAG) of the task flow specified by DagId.
+  * 2. After a backward edge is added, the DAG does not contain loops.
   *
   * @param request AddTaskFlowEdgesRequest
   * @return AddTaskFlowEdgesResponse
@@ -548,12 +555,16 @@ async function analyzeSQLLineage(request: AnalyzeSQLLineageRequest): AnalyzeSQLL
 }
 
 model ApproveOrderRequest {
+  approvalNodeId?: long(name='ApprovalNodeId'),
+  approvalNodePos?: string(name='ApprovalNodePos'),
   approvalType?: string(name='ApprovalType', description='The action that you want to perform on the ticket. Valid values:
 
 *   AGREE: approve
 *   CANCEL: cancel
 *   REJECT: reject', example='agree'),
   comment?: string(name='Comment', description='The description of the ticket.', example='test'),
+  newApprover?: long(name='NewApprover'),
+  oldApprover?: long(name='OldApprover'),
   tid?: long(name='Tid', description='The ID of the tenant. You can call the [GetUserActiveTenant](~~198073~~) operation to obtain the tenant ID.', example='-1'),
   workflowInstanceId?: long(name='WorkflowInstanceId', description='The ID of the approval process. You can call the [GetOrderBaseInfo](~~144642~~) operation to obtain the ID of the approval process.', example='1234'),
 }
@@ -577,11 +588,23 @@ model ApproveOrderResponse = {
 async function approveOrderWithOptions(request: ApproveOrderRequest, runtime: Util.RuntimeOptions): ApproveOrderResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.approvalNodeId)) {
+    query['ApprovalNodeId'] = request.approvalNodeId;
+  }
+  if (!Util.isUnset(request.approvalNodePos)) {
+    query['ApprovalNodePos'] = request.approvalNodePos;
+  }
   if (!Util.isUnset(request.approvalType)) {
     query['ApprovalType'] = request.approvalType;
   }
   if (!Util.isUnset(request.comment)) {
     query['Comment'] = request.comment;
+  }
+  if (!Util.isUnset(request.newApprover)) {
+    query['NewApprover'] = request.newApprover;
+  }
+  if (!Util.isUnset(request.oldApprover)) {
+    query['OldApprover'] = request.oldApprover;
   }
   if (!Util.isUnset(request.tid)) {
     query['Tid'] = request.tid;
@@ -620,7 +643,7 @@ model BackFillRequest {
   backFillDateBegin?: string(name='BackFillDateBegin', description='The start date of the date range for the data to be backfilled. This parameter is required if you specify a date range for data backfill.', example='2022-01-14'),
   backFillDateEnd?: string(name='BackFillDateEnd', description='The end date of the date range for the data to be backfilled. This parameter is required if you specify a date range for data backfill.', example='2022-09-29'),
   dagId?: long(name='DagId', description='The ID of the task flow. You can call the [ListTaskFlow](~~424565~~) or [ListLhTaskFlowAndScenario](~~426672~~) operation to query the task flow ID.', example='15***'),
-  filterNodeIds?: [ long ](name='FilterNodeIds'),
+  filterNodeIds?: [ long ](name='FilterNodeIds', description='Filter condition, which specifies the list of node IDs in the task flow that do not need to supplement data.'),
   historyDagId?: long(name='HistoryDagId', description='The ID of the historical task flow.', example='16***'),
   interval?: int32(name='Interval', description='The interval at which data backfill is performed. Unit: hours. Minimum value: 1. Default value: 24.', example='24'),
   isTriggerSubTree?: boolean(name='IsTriggerSubTree', description='Specifies whether to run descendant nodes. Default value: true.', example='true'),
@@ -639,7 +662,7 @@ model BackFillShrinkRequest {
   backFillDateBegin?: string(name='BackFillDateBegin', description='The start date of the date range for the data to be backfilled. This parameter is required if you specify a date range for data backfill.', example='2022-01-14'),
   backFillDateEnd?: string(name='BackFillDateEnd', description='The end date of the date range for the data to be backfilled. This parameter is required if you specify a date range for data backfill.', example='2022-09-29'),
   dagId?: long(name='DagId', description='The ID of the task flow. You can call the [ListTaskFlow](~~424565~~) or [ListLhTaskFlowAndScenario](~~426672~~) operation to query the task flow ID.', example='15***'),
-  filterNodeIdsShrink?: string(name='FilterNodeIds'),
+  filterNodeIdsShrink?: string(name='FilterNodeIds', description='Filter condition, which specifies the list of node IDs in the task flow that do not need to supplement data.'),
   historyDagId?: long(name='HistoryDagId', description='The ID of the historical task flow.', example='16***'),
   interval?: int32(name='Interval', description='The interval at which data backfill is performed. Unit: hours. Minimum value: 1. Default value: 24.', example='24'),
   isTriggerSubTree?: boolean(name='IsTriggerSubTree', description='Specifies whether to run descendant nodes. Default value: true.', example='true'),
@@ -650,7 +673,7 @@ model BackFillShrinkRequest {
 }
 
 model BackFillResponseBody = {
-  dagInstanceId?: long(name='DagInstanceId'),
+  dagInstanceId?: long(name='DagInstanceId', example='47****'),
   errorCode?: string(name='ErrorCode', description='The error code returned if the request failed.', example='UnknownError'),
   errorMessage?: string(name='ErrorMessage', description='The error message returned if the request failed.', example='UnknownError'),
   nodeId?: long(name='NodeId', description='The ID of the node.', example='43****'),
@@ -3839,18 +3862,20 @@ async function deleteTaskFlowEdgesByCondition(request: DeleteTaskFlowEdgesByCond
 }
 
 model DeleteUserRequest {
-  tid?: long(name='Tid', description='The tenant ID.
+  tid?: long(name='Tid', description='The ID of the tenant. 
 
-> To view the tenant ID, log on to the DMS console and move the pointer over the profile picture in the upper-right corner. For more information, see [Manage DMS tenants](~~181330~~).', example='-1'),
+>  To view the ID of the tenant, move the pointer over the profile picture in the upper-right corner of the DMS console. For more information, see the "View information about the current tenant" section of the [Manage DMS tenants](https://www.alibabacloud.com/help/en/data-management-service/latest/manage-dms-tenants) topic.', example='-1'),
   uid?: string(name='Uid', description='The unique ID (UID) of Alibaba Cloud account to delete.', example='12345'),
 }
 
 model DeleteUserResponseBody = {
   errorCode?: string(name='ErrorCode', description='The error code.', example='403'),
   errorMessage?: string(name='ErrorMessage', description='The error message.', example='The specified user not exists.'),
-  requestId?: string(name='RequestId', description='The request ID.', example='34E01EDD-6A16-4CF0-9541-C644D1BE01AA'),
-  success?: boolean(name='Success', description='*   **true**: The account was deleted.
-*   **false**: The account failed to be deleted.', example='true'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='34E01EDD-6A16-4CF0-9541-C644D1BE01AA'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   **true**: The request was successful.
+*   **false**: The request failed.', example='true'),
 }
 
 model DeleteUserResponse = {
@@ -3860,8 +3885,8 @@ model DeleteUserResponse = {
 }
 
 /**
-  * This operation corresponds to the feature of deleting a user on the Users page in the Data Management (DMS) console. An administrator of DMS Enterprise can call this operation to delete an Alibaba Cloud account that is no longer used in DMS Enterprise. After an Alibaba Cloud account is deleted, the permissions that are granted to the Alibaba Cloud account are revoked. The data owner configurations and database administrator (DBA) configurations are disabled.
-  * > This operation only removes the relationship between an Alibaba Cloud account and DMS Enterprise. The Alibaba Cloud account is not deleted. After you delete an Alibaba Cloud account, you cannot use this account to log on to DMS Enterprise until the account is recreated.
+  * The effect of deleting a user by calling this operation is the same as that of deleting a user by choosing System Management > User Management in the DMS Enterprise console. The administrator of DMS Enterprise can call this operation to delete a user that is no longer used from DMS Enterprise. After the user is deleted, the data source permission, data owner configuration, and database administrator (DBA) configuration of the corresponding Alibaba Cloud account or Resource Access Management (RAM) user are revoked and become invalid.
+  * >  This operation only removes the association of the Alibaba Cloud account or RAM user with DMS Enterprise of the enterprise, rather than actually deleting the Alibaba Cloud account or RAM user. After the user is deleted, the Alibaba Cloud account or RAM user cannot log on to DMS Enterprise, unless the user is added to DMS Enterprise again.
   *
   * @param request DeleteUserRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -3894,8 +3919,8 @@ async function deleteUserWithOptions(request: DeleteUserRequest, runtime: Util.R
 }
 
 /**
-  * This operation corresponds to the feature of deleting a user on the Users page in the Data Management (DMS) console. An administrator of DMS Enterprise can call this operation to delete an Alibaba Cloud account that is no longer used in DMS Enterprise. After an Alibaba Cloud account is deleted, the permissions that are granted to the Alibaba Cloud account are revoked. The data owner configurations and database administrator (DBA) configurations are disabled.
-  * > This operation only removes the relationship between an Alibaba Cloud account and DMS Enterprise. The Alibaba Cloud account is not deleted. After you delete an Alibaba Cloud account, you cannot use this account to log on to DMS Enterprise until the account is recreated.
+  * The effect of deleting a user by calling this operation is the same as that of deleting a user by choosing System Management > User Management in the DMS Enterprise console. The administrator of DMS Enterprise can call this operation to delete a user that is no longer used from DMS Enterprise. After the user is deleted, the data source permission, data owner configuration, and database administrator (DBA) configuration of the corresponding Alibaba Cloud account or Resource Access Management (RAM) user are revoked and become invalid.
+  * >  This operation only removes the association of the Alibaba Cloud account or RAM user with DMS Enterprise of the enterprise, rather than actually deleting the Alibaba Cloud account or RAM user. After the user is deleted, the Alibaba Cloud account or RAM user cannot log on to DMS Enterprise, unless the user is added to DMS Enterprise again.
   *
   * @param request DeleteUserRequest
   * @return DeleteUserResponse
@@ -5131,6 +5156,7 @@ model GetDataArchiveOrderDetailResponseBody = {
       }(name='NextFireTimeResult'),
       pageIndex?: long(name='PageIndex', example='10'),
       pageSize?: long(name='PageSize', example='20'),
+      tempTableNameMap?: map[string]any(name='TempTableNameMap'),
     }(name='PluginExtraData'),
     pluginParam?: {
       archiveMethod?: string(name='ArchiveMethod', example='inner_oss'),
@@ -5614,8 +5640,8 @@ model GetDataCronClearConfigResponseBody = {
 
 *   0: disables automatic execution
 *   A number greater than 0: enables automatic execution. The number specifies the number of times that cleanup operations must be performed before the OPTIMIZE TABLE statement is automatically executed.', example='0'),
-  }(name='DataCronClearConfig'),
-  errorCode?: string(name='ErrorCode', example='UnknownError'),
+  }(name='DataCronClearConfig', description='Data configuration.'),
+  errorCode?: string(name='ErrorCode', description='The error code.', example='UnknownError'),
   errorMessage?: string(name='ErrorMessage', description='The error message returned if the request failed.', example='UnknownError'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='283C461F-11D8-48AA-B695-DF092DA32AF3'),
   success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
@@ -6259,7 +6285,7 @@ model GetDatabaseResponseBody = {
 *   **pet**: stress testing environment
 *   **stag**: STAG environment', example='product'),
     host?: string(name='Host', description='The endpoint that is used to connect to the database.', example='192.168.XX.XX'),
-    instanceAlias?: string(name='InstanceAlias', example='test'),
+    instanceAlias?: string(name='InstanceAlias', description='The alias of the instance.', example='test'),
     instanceId?: string(name='InstanceId', description='The ID of the instance.', example='149****'),
     ownerIdList?: {
       ownerIds?: [ string ](name='OwnerIds')
@@ -6473,7 +6499,11 @@ model GetInstanceResponseBody = {
     port?: int32(name='Port', description='The port number that is used to connect to the database instance.', example='5432'),
     queryTimeout?: int32(name='QueryTimeout', description='The timeout period for querying data in the database instance.', example='7200'),
     safeRuleId?: string(name='SafeRuleId', description='The ID of the security rule set for the database instance.', example='3****'),
-    sellSitd?: string(name='SellSitd', example='false'),
+    sellSitd?: string(name='SellSitd', description='Whether sensitive data protection is enabled.  Valid values:
+
+- **true**: Enable.
+
+- **false**: Close.', example='false'),
     sid?: string(name='Sid', description='The SID of the database instance.', example='test'),
     standardGroup?: {
       groupMode?: string(name='GroupMode', description='The type of the control mode. Valid values:
@@ -7077,7 +7107,7 @@ async function getOnlineDDLProgress(request: GetOnlineDDLProgressRequest): GetOn
 }
 
 model GetOpLogRequest {
-  databaseName?: string(name='DatabaseName', example='dmstest@rm-bp1qb97d4b****.mysql.rds.aliyuncs.com:3306【poc_dev】'),
+  databaseName?: string(name='DatabaseName', description='DatabaseName.', example='dmstest@rm-bp1qb97d4b****.mysql.rds.aliyuncs.com:3306[poc_dev]'),
   endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the yyyy-MM-DD HH:mm:ss format.', example='2022-03-29 10:00:00'),
   module?: string(name='Module', description='The functional module for which you want to query operation logs. If you do not specify this parameter, operation logs for all functional modules are returned. Valid values:
 
@@ -7113,7 +7143,7 @@ model GetOpLogRequest {
 *   100', example='30'),
   startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the yyyy-MM-DD HH:mm:ss format.', example='2022-03-23 10:00:00'),
   tid?: long(name='Tid', description='The ID of the tenant. You can call the [GetUserActiveTenant](~~198073~~) or [ListUserTenants](~~198074~~) operation to query the tenant ID.', example='3***'),
-  userNick?: string(name='UserNick', example='test_name'),
+  userNick?: string(name='UserNick', description='UserNick.', example='test_name'),
 }
 
 model GetOpLogResponseBody = {
@@ -12139,7 +12169,7 @@ model ListSQLReviewOriginSQLResponseBody = {
 *   **TABLEINDEXSUGGEST**: We recommend that you use SQL statements that use indexes.', example='{"POTENTIAL_ISSUE":1,"SUGGEST_IMPROVE":1}'),
       SQLContent?: string(name='SQLContent', description='The SQL statement.', example='select id from table_name'),
       SQLId?: long(name='SQLId', description='The ID of the SQL statement.', example='1111'),
-      SQLName?: string(name='SQLName', example='getByPk'),
+      SQLName?: string(name='SQLName', description='SQLName.', example='getByPk'),
       SQLReviewQueryKey?: string(name='SQLReviewQueryKey', description='The key that is used to query the details of optimization suggestions. You can call the [GetSQLReviewOptimizeDetail](https://icms.alibaba-inc.com/content/dms/doc?l=1\\&m=61777\\&n=2712723\\&spm) operation to query the details of optimization suggestions based on the key.', example='a57e54ec5433475ea3082d882fdb89c5'),
       sqlHash?: string(name='SqlHash', description='The MD5 hash value of the SQL statement.', example='95adb6e77a0884d9e50232cb8c5c969d'),
       statusDesc?: string(name='StatusDesc', description='The description of the review status.'),
@@ -12918,7 +12948,7 @@ model ListTaskFlowCooperatorsResponseBody = {
       email?: string(name='Email', description='The email address of the user.', example='test@XX.com'),
       loginName?: string(name='LoginName', description='The username.', example='name'),
       nickName?: string(name='NickName', description='The alias of the user.', example='name'),
-      userId?: string(name='UserId', description='用户ID。', example='123'),
+      userId?: string(name='UserId', description='userId.', example='123'),
     }
   ](name='Cooperator')
   }(name='CooperatorList', description='The users that are involved in the task flow.'),
@@ -13062,13 +13092,29 @@ model ListTaskFlowInstanceRequest {
   pageSize?: int32(name='PageSize', description='The number of entries to return on each page.', example='20'),
   startTimeBegin?: string(name='StartTimeBegin', description='The beginning of the time range to query the execution records of the task flow. Specify the time in the yyyy-MM-DD format.', example='2022-01-07'),
   startTimeEnd?: string(name='StartTimeEnd', description='The end of the time range to query the execution records of the task flow. Specify the time in the yyyy-MM-DD format.', example='2022-04-08'),
-  status?: int32(name='Status'),
+  status?: int32(name='Status', description='The running status of the task node. Valid values:
+
+- **0**: Waiting for scheduling
+
+- **1**: Running
+
+- **2**: Suspend
+
+- **3**: Failed to run
+
+- **4**: Run successfully
+
+- **5**: Completed', example='3'),
   tid?: long(name='Tid', description='The ID of the tenant. You can call the [GetUserActiveTenant](~~198073~~) or [ListUserTenants](~~198074~~) operation to obtain the tenant ID.', example='3***'),
   triggerType?: int32(name='TriggerType', description='The mode in which the task flow is triggered. Valid values:
 
 *   **0**: The task flow is automatically triggered based on periodic scheduling.
 *   **1**: The task flow is manually triggered.', example='1'),
-  useBizDate?: boolean(name='UseBizDate'),
+  useBizDate?: boolean(name='UseBizDate', description='Adjust filter conditions:
+
+- true: StartTimeBegin and StartTimeEnd are the time range for filtering services.
+
+- false: StartTimeBegin and StartTimeEnd are the time range for the task to run.', example='true'),
 }
 
 model ListTaskFlowInstanceResponseBody = {
@@ -13078,7 +13124,7 @@ model ListTaskFlowInstanceResponseBody = {
       businessTime?: string(name='BusinessTime', description='The business time of the task flow. The time is displayed in the yyyy-MM-DD HH:mm:ss format.', example='2021-11-10 14:37:26'),
       dagId?: string(name='DagId', description='The ID of the task flow.', example='7***'),
       dagName?: string(name='DagName', description='The name of the task flow.', example='Spark_SQL_test'),
-      dagVersion?: string(name='DagVersion', example='[]'),
+      dagVersion?: string(name='DagVersion', description='The version of the task flow.', example='[]'),
       endTime?: string(name='EndTime', description='The time when the execution of the task flow was complete. The time is displayed in the yyyy-MM-DD HH:mm:ss format.', example='2021-11-11 14:38:57'),
       historyDagId?: long(name='HistoryDagId', description='The ID of the previously published version of the task flow.', example='2****'),
       id?: long(name='Id', description='The ID of the execution record.', example='9234'),
@@ -13096,7 +13142,7 @@ model ListTaskFlowInstanceResponseBody = {
 
 *   **0**: The task flow is automatically triggered based on periodic scheduling.
 *   **1**: The task flow is manually triggered.', example='1'),
-      startTime?: string(name='startTime'),
+      startTime?: string(name='startTime', description='The time when the execution of the task flow was start. The time is displayed in the yyyy-MM-DD HH:mm:ss format.', example='2021-11-11 14:35:57'),
     }
   ](name='DAGInstance')
   }(name='DAGInstanceList', description='The information about the execution records returned.'),
@@ -13231,10 +13277,10 @@ async function listTaskFlowTimeVariables(request: ListTaskFlowTimeVariablesReque
 }
 
 model ListTaskFlowsByPageRequest {
-  dagIdList?: [ long ](name='DagIdList'),
+  dagIdList?: [ long ](name='DagIdList', description='Filter condition, task flow ID list.'),
   pageIndex?: int32(name='PageIndex', description='The number of the page to return.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries to return on each page.', example='20'),
-  scenarioId?: long(name='ScenarioId'),
+  scenarioId?: long(name='ScenarioId', description='Filter condition, application scenario ID.', example='12***'),
   searchKey?: string(name='SearchKey', description='The keyword that is used to search for task flow names.', example='Test node'),
   tid?: long(name='Tid', description='The ID of the tenant.
 
@@ -13242,10 +13288,10 @@ model ListTaskFlowsByPageRequest {
 }
 
 model ListTaskFlowsByPageShrinkRequest {
-  dagIdListShrink?: string(name='DagIdList'),
+  dagIdListShrink?: string(name='DagIdList', description='Filter condition, task flow ID list.'),
   pageIndex?: int32(name='PageIndex', description='The number of the page to return.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries to return on each page.', example='20'),
-  scenarioId?: long(name='ScenarioId'),
+  scenarioId?: long(name='ScenarioId', description='Filter condition, application scenario ID.', example='12***'),
   searchKey?: string(name='SearchKey', description='The keyword that is used to search for task flow names.', example='Test node'),
   tid?: long(name='Tid', description='The ID of the tenant.
 
@@ -13265,13 +13311,17 @@ model ListTaskFlowsByPageResponseBody = {
     {
       creatorId?: string(name='CreatorId', description='The ID of the user who created the task flow.', example='51****'),
       creatorNickName?: string(name='CreatorNickName', description='The username of the user who created the task flow.', example='Creator_NickName'),
-      cronBeginDate?: string(name='CronBeginDate'),
-      cronEndDate?: string(name='CronEndDate'),
-      cronStr?: string(name='CronStr'),
-      cronSwitch?: boolean(name='CronSwitch'),
-      cronType?: int32(name='CronType'),
+      cronBeginDate?: string(name='CronBeginDate', description='The start time of scheduled scheduling. The task flow is not scheduled before this point in time.', example='1970-01-01'),
+      cronEndDate?: string(name='CronEndDate', description='The end time of scheduled scheduling. The task flow is not scheduled after this point in time.', example='2023-01-01'),
+      cronStr?: string(name='CronStr', description='Scheduled Cron.', example='0 0 1 * * ? *'),
+      cronSwitch?: boolean(name='CronSwitch', description='Whether to enable scheduled scheduling.', example='false'),
+      cronType?: int32(name='CronType', description='Scheduling cycle type. Valid values:
+- **2**: Hourly scheduling
+- **3**: Daily scheduling
+- **4**: Weekly scheduling
+- **5**: Monthly scheduling', example='2'),
       dagName?: string(name='DagName', description='The name of the task flow.', example='poc_task_test'),
-      dagOwnerId?: string(name='DagOwnerId'),
+      dagOwnerId?: string(name='DagOwnerId', description='The user ID of the task flow owner.', example='12***89'),
       dagOwnerNickName?: string(name='DagOwnerNickName', description='The username of the owner of the task flow.', example='Owner_NickName'),
       deployId?: long(name='DeployId', description='The ID of the last deployment record of the task flow.', example='65***'),
       description?: string(name='Description', description='The description of the task flow.', example='test'),
@@ -13282,15 +13332,17 @@ model ListTaskFlowsByPageResponseBody = {
 *   **1**: scheduling disabled
 *   **2**: waiting to be scheduled', example='0'),
       latestInstanceTime?: string(name='LatestInstanceTime', description='The time when the last execution record was created.', example='2022-04-13'),
-      scenarioId?: string(name='ScenarioId'),
-      scheduleParam?: string(name='ScheduleParam'),
+      scenarioId?: string(name='ScenarioId', description='The ID of the application scenario.', example='1245'),
+      scheduleParam?: string(name='ScheduleParam', description='Event scheduling configuration, JSON string format.', example='{\\"triggerType\\":\\"1\\",\\"specificTime\\":\\"2022-11-15 11:59\\"}'),
       status?: int32(name='Status', description='The status of the task flow. Valid values:
 
 *   **0**: invalid
 *   **1**: scheduling disabled
 *   **2**: waiting to be scheduled', example='1'),
-      timeZoneId?: string(name='TimeZoneId'),
-      triggerType?: int32(name='TriggerType'),
+      timeZoneId?: string(name='TimeZoneId', description='Time zone setting. Default value: East 8(Asia/Shanghai).', example='Asia/Shanghai'),
+      triggerType?: int32(name='TriggerType', description='The trigger type. Valid values:
+- **0**: Periodic scheduling
+- **1**: Run manually', example='0'),
     }
   ](name='TaskFlow')
   }(name='TaskFlowList', description='The details of the returned task flows.'),
@@ -17642,7 +17694,7 @@ model UpdateUserRequest {
   maxExecuteCount?: long(name='MaxExecuteCount', description='The maximum number of queries that can be performed each day.', example='1000'),
   maxResultCount?: long(name='MaxResultCount', description='The maximum number of rows that can be queried each day.', example='1000'),
   mobile?: string(name='Mobile', description='The DingTalk ID or mobile number of the user.', example='188xxxxxxxx'),
-  roleNames?: string(name='RoleNames', description='The roles that the user assumes. For more information about the valid values, see the Request parameters section in the [RegisterUser](~~141565~~) topic.', example='ADMIN,DBA'),
+  roleNames?: string(name='RoleNames', description='The roles that the user assumes. For more information about the valid values, see the Request parameters section in the [UpdateUser](~~465812~~) topic.', example='ADMIN,DBA'),
   tid?: long(name='Tid', description='The ID of the tenant.
 
 > : To view the ID of the tenant, log on to the Data Management (DMS) console and move the pointer over the profile picture in the upper-right corner. For more information, see [Manage DMS tenants](~~181330~~).', example='-1'),
