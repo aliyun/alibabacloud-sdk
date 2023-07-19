@@ -2299,15 +2299,21 @@ async function listCustomImages(request: ListCustomImagesRequest): ListCustomIma
 }
 
 model ListDisksRequest {
-  diskIds?: string(name='DiskIds', description='The IDs of the disks. The value can be a JSON array that consists of up to 100 disk IDs. Separate the disk IDs with commas (,).', example='["d-bp14wq0149cpp2x****", "d-bp14wq0149cpp2y****"]'),
-  diskType?: string(name='DiskType'),
+  diskIds?: string(name='DiskIds', description='The IDs of the disks. The value can be a JSON array that consists of up to 100 disk IDs. Separate multiple disk IDs with commas (,).', example='["d-bp14wq0149cpp2x****", "d-bp14wq0149cpp2y****"]'),
+  diskType?: string(name='DiskType', description='磁盘类型。可能值：
+
+- System：系统盘
+
+- Data：数据盘
+
+默认全量查询', example='system'),
   instanceId?: string(name='InstanceId', description='The ID of the simple application server.', example='2ad1ae67295445f598017499dc****'),
-  pageNumber?: int32(name='PageNumber', description='The number of the page to return.
+  pageNumber?: int32(name='PageNumber', description='The page number.
 
 Default value: 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page.
+  pageSize?: int32(name='PageSize', description='The number of entries per page.
 
-Maximum value: 100.
+Valid values: 1 to 100.
 
 Default value: 10.', example='10'),
   regionId?: string(name='RegionId', description='The region ID of the simple application server.', example='cn-hangzhou'),
@@ -2330,9 +2336,9 @@ model ListDisksResponseBody = {
 *   System: system disk
 *   Data: data disk', example='System'),
       instanceId?: string(name='InstanceId', description='The ID of the simple application server to which the disk is attached.', example='2ad1ae67295445f598017499dc****'),
-      instanceName?: string(name='InstanceName'),
+      instanceName?: string(name='InstanceName', description='轻量应用服务器名称。', example='myInstance'),
       regionId?: string(name='RegionId', description='The region ID of the server.', example='cn-hangzhou'),
-      remark?: string(name='Remark'),
+      remark?: string(name='Remark', description='磁盘备注。', example='remark'),
       size?: int32(name='Size', description='The size of the disk. Unit: GB.', example='50'),
       status?: string(name='Status', description='The status of the disk. Valid values:
 
@@ -2343,11 +2349,11 @@ model ListDisksResponseBody = {
 *   Attaching: The disk is being attached.
 *   Detaching: The disk is being detached.', example='In_use'),
     }
-  ](name='Disks', description='Details about the disks.'),
-  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10'),
+  ](name='Disks', description='The region ID of the disks.'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
   requestId?: string(name='RequestId', description='The request ID.', example='20758A-585D-4A41-A9B2-28DA8F4F534F'),
-  totalCount?: int32(name='TotalCount', description='The total number of disks.', example='1'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='1'),
 }
 
 model ListDisksResponse = {
@@ -2357,9 +2363,8 @@ model ListDisksResponse = {
 }
 
 /**
+  * ## Usage notes
   * You can specify multiple request parameters such as `InstanceId` and `DiskIds`. Specified parameters have logical AND relations. Only the specified parameters are included in the filter conditions.
-  * ## QPS limits
-  * You can call this API operation up to 10 times per minute per account. Requests that exceed this limit are dropped and you will experience service interruptions. We recommend that you take note of this limit when you call this operation. For more information, see [QPS limits](/help/en/simple-application-server/latest/qps-limit-1).
   *
   * @param request ListDisksRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -2404,9 +2409,8 @@ async function listDisksWithOptions(request: ListDisksRequest, runtime: Util.Run
 }
 
 /**
+  * ## Usage notes
   * You can specify multiple request parameters such as `InstanceId` and `DiskIds`. Specified parameters have logical AND relations. Only the specified parameters are included in the filter conditions.
-  * ## QPS limits
-  * You can call this API operation up to 10 times per minute per account. Requests that exceed this limit are dropped and you will experience service interruptions. We recommend that you take note of this limit when you call this operation. For more information, see [QPS limits](/help/en/simple-application-server/latest/qps-limit-1).
   *
   * @param request ListDisksRequest
   * @return ListDisksResponse
@@ -2766,6 +2770,7 @@ Default value: 10.', example='10'),
 
 >  If you specify both `InstanceIds` and `PublicIpAddresses`, make sure that each specified ID and its corresponding public IP address belong to the same simple application server. Otherwise, an empty result is returned.', example='["42.1.**.**", "42.2.**.**"]'),
   regionId?: string(name='RegionId', description='The region ID of the simple application servers.', example='cn-hangzhou'),
+  status?: string(name='Status'),
 }
 
 model ListInstancesResponseBody = {
@@ -2864,6 +2869,9 @@ async function listInstancesWithOptions(request: ListInstancesRequest, runtime: 
   }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['Status'] = request.status;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -3115,31 +3123,31 @@ async function listRegions(): ListRegionsResponse {
 }
 
 model ListSnapshotsRequest {
-  diskId?: string(name='DiskId', description='The ID of the source disk.', example='d-bp14wq0149cpp2xy****'),
+  diskId?: string(name='DiskId', description='The disk ID.', example='d-bp14wq0149cpp2xy****'),
   instanceId?: string(name='InstanceId', description='The ID of the simple application server.', example='2ad1ae67295445f598017499dc****'),
-  pageNumber?: int32(name='PageNumber', description='The number of the page to return.
+  pageNumber?: int32(name='PageNumber', description='The page number.
 
 Default value: 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Maximum value: 100.
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 1 to 100.
 
 Default value: 10.', example='10'),
-  regionId?: string(name='RegionId', description='The region ID of the simple application server.', example='cn-hangzhou'),
-  snapshotIds?: string(name='SnapshotIds', description='The IDs of the snapshots. The value can be a JSON array that consists of up to 100 snapshot IDs. Separate the snapshot IDs with commas (,).', example='["s-bp16oazlsold4dks****", "s-bp16oazlsold4abc****"]'),
-  sourceDiskType?: string(name='SourceDiskType'),
+  regionId?: string(name='RegionId', description='The region ID of the simple application server that corresponds to the snapshots.', example='cn-hangzhou'),
+  snapshotIds?: string(name='SnapshotIds', description='The snapshot IDs. The value can be a JSON array that consists of up to 100 snapshot IDs. Separate multiple snapshot IDs with commas (,).', example='["s-bp16oazlsold4dks****", "s-bp16oazlsold4abc****"]'),
+  sourceDiskType?: string(name='SourceDiskType', example='Data'),
 }
 
 model ListSnapshotsResponseBody = {
-  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='20758A-585D-4A41-A9B2-28DA8F4F534F'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='20758A-585D-4A41-A9B2-28DA8F4F534F'),
   snapshots?: [ 
     {
       creationTime?: string(name='CreationTime', description='The time when the snapshot was created. The time follows the [ISO 8601](~~25696~~) standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2021-03-09T07:12:49Z'),
-      instanceId?: string(name='InstanceId'),
+      instanceId?: string(name='InstanceId', example='2ad1ae67295445f598017499dc****'),
       progress?: string(name='Progress', description='The progress of snapshot creation.', example='100%'),
       regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
       remark?: string(name='Remark', description='The remarks of the snapshot.', example='test-Remark'),
-      rollbackTime?: string(name='RollbackTime'),
+      rollbackTime?: string(name='RollbackTime', example='2021-03-09T07:12:49Z'),
       snapshotId?: string(name='SnapshotId', description='The ID of the snapshot.', example='s-bp16oazlsold4dks****'),
       snapshotName?: string(name='SnapshotName', description='The name of the snapshot.', example='test-SnapshotName'),
       sourceDiskId?: string(name='SourceDiskId', description='The ID of the source disk. This parameter has a value even after the source disk is released.', example='d-bp14wq0149cpp2xy****'),
@@ -3153,8 +3161,8 @@ model ListSnapshotsResponseBody = {
 *   Accomplished: The snapshot is created.
 *   Failed: The snapshot failed to be created.', example='Accomplished'),
     }
-  ](name='Snapshots', description='Details about the snapshots.'),
-  totalCount?: int32(name='TotalCount', description='The total number of snapshots.', example='1'),
+  ](name='Snapshots', description='The region ID of the simple application server.'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='1'),
 }
 
 model ListSnapshotsResponse = {
@@ -3164,9 +3172,10 @@ model ListSnapshotsResponse = {
 }
 
 /**
-  * You can specify multiple request parameters such as `InstanceId`, `DiskId`, and `SnapshotIds` to be queried. Specified parameters have logical AND relations. Only the specified parameters are included in the filter conditions.
-  * ## QPS limits
-  * The queries per second (QPS) limit for a single user for the API operation is 10 calls per minute. If the number of calls to the API operation per minute exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation. For more information, see [QPS limit](/help/en/simple-application-server/latest/qps-limit-1).
+  * ## Description
+  * You can configure multiple request parameters such as `InstanceId`, `DiskId`, and `SnapshotIds` to query snapshots. Configured parameters have logical AND relations. Only the configured parameters are included in the filter conditions.
+  * ### QPS limits
+  * You can call this API operation up to 10 times per minute per account. Requests that exceed this limit are dropped and you may experience service interruptions. We recommend that you take note of this limit when you call this operation. For more information, see [QPS limits](~~347607~~).
   *
   * @param request ListSnapshotsRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -3214,9 +3223,10 @@ async function listSnapshotsWithOptions(request: ListSnapshotsRequest, runtime: 
 }
 
 /**
-  * You can specify multiple request parameters such as `InstanceId`, `DiskId`, and `SnapshotIds` to be queried. Specified parameters have logical AND relations. Only the specified parameters are included in the filter conditions.
-  * ## QPS limits
-  * The queries per second (QPS) limit for a single user for the API operation is 10 calls per minute. If the number of calls to the API operation per minute exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation. For more information, see [QPS limit](/help/en/simple-application-server/latest/qps-limit-1).
+  * ## Description
+  * You can configure multiple request parameters such as `InstanceId`, `DiskId`, and `SnapshotIds` to query snapshots. Configured parameters have logical AND relations. Only the configured parameters are included in the filter conditions.
+  * ### QPS limits
+  * You can call this API operation up to 10 times per minute per account. Requests that exceed this limit are dropped and you may experience service interruptions. We recommend that you take note of this limit when you call this operation. For more information, see [QPS limits](~~347607~~).
   *
   * @param request ListSnapshotsRequest
   * @return ListSnapshotsResponse
@@ -4510,6 +4520,55 @@ async function startInstancesWithOptions(request: StartInstancesRequest, runtime
 async function startInstances(request: StartInstancesRequest): StartInstancesResponse {
   var runtime = new Util.RuntimeOptions{};
   return startInstancesWithOptions(request, runtime);
+}
+
+model StartTerminalSessionRequest {
+  instanceId?: string(name='InstanceId', example='ace0706b2ac4454d984295a94213****'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+}
+
+model StartTerminalSessionResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='20758A-585D-4A41-A9B2-28DA8F4F****'),
+  securityToken?: string(name='SecurityToken', example='token-xxxaaz'),
+  sessionId?: string(name='SessionId', example='ffb90b6e-b18a-4a33-88cf-86fb88****'),
+  webSocketUrl?: string(name='WebSocketUrl', example='wss://xxxx'),
+}
+
+model StartTerminalSessionResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: StartTerminalSessionResponseBody(name='body'),
+}
+
+async function startTerminalSessionWithOptions(request: StartTerminalSessionRequest, runtime: Util.RuntimeOptions): StartTerminalSessionResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'StartTerminalSession',
+    version = '2020-06-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function startTerminalSession(request: StartTerminalSessionRequest): StartTerminalSessionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return startTerminalSessionWithOptions(request, runtime);
 }
 
 model StopDatabaseInstanceRequest {
