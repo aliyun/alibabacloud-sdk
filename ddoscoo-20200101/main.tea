@@ -160,9 +160,11 @@ model AssociateWebCertRequest {
   certId?: int32(name='CertId', description='The ID of the certificate that you want to associate. If the certificate that you want to associate has been issued in Certificate Management Service, you can specify the certificate ID to associate the certificate.
 
 > If you specify the certificate ID, you do not need to specify a value for the **CertName**, **Cert**, and **Key** parameters.', example='2404693'),
+  certIdentifier?: string(name='CertIdentifier'),
   certName?: string(name='CertName', description='The name of the certificate that you want to associate. This parameter must be used together with the **Cert** and **Key** parameters.
 
 > If you specify a value for the **CertName**, **Cert**, and **Key** parameters, you do not need to specify a value for the **CertId** parameter.', example='example-cert'),
+  certRegion?: string(name='CertRegion'),
   domain?: string(name='Domain', description='The domain name of the website.
 
 > A forwarding rule must be configured for the domain name. You can call the [DescribeDomains](~~91724~~) operation to query all domain names.', example='www.aliyun.com'),
@@ -191,8 +193,14 @@ async function associateWebCertWithOptions(request: AssociateWebCertRequest, run
   if (!Util.isUnset(request.certId)) {
     query['CertId'] = request.certId;
   }
+  if (!Util.isUnset(request.certIdentifier)) {
+    query['CertIdentifier'] = request.certIdentifier;
+  }
   if (!Util.isUnset(request.certName)) {
     query['CertName'] = request.certName;
+  }
+  if (!Util.isUnset(request.certRegion)) {
+    query['CertRegion'] = request.certRegion;
   }
   if (!Util.isUnset(request.domain)) {
     query['Domain'] = request.domain;
@@ -363,12 +371,14 @@ async function configL7RsPolicy(request: ConfigL7RsPolicyRequest): ConfigL7RsPol
 }
 
 model ConfigLayer4RealLimitRequest {
-  instanceId?: string(name='InstanceId', example='ddoscoo-cn-XXXXX'),
-  limitValue?: long(name='LimitValue', example='0'),
+  instanceId?: string(name='InstanceId', description='The ID of the Anti-DDoS Pro or Anti-DDoS Premium instance.
+
+> You can call the [DescribeInstanceIds](~~157459~~) operation to query the IDs of all instances.', example='ddoscoo-cn-XXXXX'),
+  limitValue?: long(name='LimitValue', description='Specifies the threshold of the clean bandwidth. Valid values: 0 to 15360. The value 0 indicates that rate limiting is never triggered. Unit: Mbit/s', example='0'),
 }
 
 model ConfigLayer4RealLimitResponseBody = {
-  requestId?: string(name='RequestId', example='CFCF71BD-680E-5A20-8847-174CEC62E67D'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='CFCF71BD-680E-5A20-8847-174CEC62E67D'),
 }
 
 model ConfigLayer4RealLimitResponse = {
@@ -1257,17 +1267,52 @@ async function createSceneDefensePolicy(request: CreateSceneDefensePolicyRequest
 }
 
 model CreateSchedulerRuleRequest {
-  param?: string(name='Param', example='{"ParamType":"cdn","ParamData":{"Domain":"example.aliyundoc.com","Cname":"demo.aliyundoc.com","AccessQps":100,"UpstreamQps":100}}'),
-  resourceGroupId?: string(name='ResourceGroupId', example='default'),
-  ruleName?: string(name='RuleName', example='testrule'),
-  ruleType?: int32(name='RuleType', example='2'),
-  rules?: string(name='Rules', example='[{"Type":"A", "Value":"1.1.XX.XX", "Priority":80,"ValueType":2, "RegionId":"cn-hangzhou" },{"Type":"A", "Value":"203.199.XX.XX", "Priority":80,"ValueType":1}]'),
+  param?: string(name='Param', description='The details of the CDN interaction rule. This parameter is a JSON string. The following list describes the fields in the value of the parameter:
+
+*   **ParamType**: the type of the scheduling rule. This field is required and must be of the string type. Set the value to **cdn**. This indicates that you want to modify a CDN interaction rule.
+
+*   **ParamData**: the values of parameters that you want to modify for the CDN interaction rule. This field is required and must be of the map type. ParamData contains the following parameters:
+
+    *   **Domain**: the accelerated domain in CDN. This parameter is required and must be of the string type.
+    *   **Cname**: the CNAME that is assigned to the accelerated domain. This parameter is required and must be of the string type.
+    *   **AccessQps**: the queries per second (QPS) threshold that is used to switch service traffic to Anti-DDoS Pro or Anti-DDoS Premium. This parameter is required and must be of the integer type.
+    *   **UpstreamQps**: the QPS threshold that is used to switch service traffic to CDN. This parameter is optional and must be of the integer type.', example='{"ParamType":"cdn","ParamData":{"Domain":"example.aliyundoc.com","Cname":"demo.aliyundoc.com","AccessQps":100,"UpstreamQps":100}}'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs in Resource Management. This parameter is empty by default, which indicates that the instance belongs to the default resource group.', example='default'),
+  ruleName?: string(name='RuleName', description='The name of the rule.', example='testrule'),
+  ruleType?: int32(name='RuleType', description='The type of the custom defense rule. Valid values:
+
+*   **2**: tiered protection
+*   **3**: network acceleration
+*   **5**: CDN interaction
+*   **6**: cloud service interaction', example='2'),
+  rules?: string(name='Rules', description='The details of the scheduling rule. This parameter is a JSON string. The following list describes the fields in the value of the parameter:
+
+*   **Type**: the address type of the interaction resource that you want to use in the scheduling rule. This field is required and must be of the string type. Valid values:
+
+    *   **A**: IP address
+    *   **CNAME**: domain name
+
+*   **Value**: the address of the interaction resource that you want to use in the scheduling rule. This field is required and must be of the string type.
+
+*   **Priority**: the priority of the scheduling rule. This field is required and must be of the integer type. Valid values: **0** to **100**. A larger value indicates a higher priority.
+
+*   **ValueType**: the type of the interaction resource that you want to use in the scheduling rule. This field is required and must be of the integer type. Valid values:
+
+    *   **1**: the IP address of the Anti-DDoS Pro or Anti-DDoS Premium instance
+    *   **2**: the IP address of the interaction resource in the tiered protection scenario
+    *   **3**: the IP address that is used to accelerate access in the network acceleration scenario
+    *   **5**: the domain name that is configured in Alibaba Cloud CDN (CDN) in the CDN interaction scenario
+    *   **6** the IP address of the interaction resource in the cloud service interaction scenario
+
+*   **RegionId**: the region where the interaction resource is deployed. This parameter must be specified when **ValueType** is set to **2**. The value must be of the string type.', example='[{"Type":"A", "Value":"1.1.XX.XX", "Priority":80,"ValueType":2, "RegionId":"cn-hangzhou" },{"Type":"A", "Value":"203.199.XX.XX", "Priority":80,"ValueType":1}]'),
 }
 
 model CreateSchedulerRuleResponseBody = {
-  cname?: string(name='Cname', example='48k7b372gpl4****.aliyunddos0001.com'),
-  requestId?: string(name='RequestId', example='8DFB602D-1AAC-46C4-90F2-C84086E7A6E4'),
-  ruleName?: string(name='RuleName', example='testrule'),
+  cname?: string(name='Cname', description='The CNAME that is assigned by Sec-Traffic Manager for the scheduling rule.
+
+> To enable the scheduling rule, you must map the domain name of the service to the CNAME.', example='48k7b372gpl4****.aliyunddos0001.com'),
+  requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='8DFB602D-1AAC-46C4-90F2-C84086E7A6E4'),
+  ruleName?: string(name='RuleName', description='The name of the rule.', example='testrule'),
 }
 
 model CreateSchedulerRuleResponse = {
@@ -2847,6 +2892,7 @@ model DescribeCertsRequest {
 model DescribeCertsResponseBody = {
   certs?: [ 
     {
+      certIdentifier?: string(name='CertIdentifier'),
       common?: string(name='Common', description='The domain name that is associated with the certificate.', example='www.aliyun.com'),
       domainRelated?: boolean(name='DomainRelated', description='Indicates whether the certificate is associated with the domain name. Valid values:
 
@@ -4062,15 +4108,15 @@ model DescribeDomainResourceResponseBody = {
   totalCount?: long(name='TotalCount', description='The total number of forwarding rules.', example='1'),
   webRules?: [ 
     {
-      blackList?: [ string ](name='BlackList', description='An array consisting of the IP addresses that are included in the blacklist of the domain name.'),
+      blackList?: [ string ](name='BlackList', description='The IP addresses that are included in the blacklist of the domain name.'),
       ccEnabled?: boolean(name='CcEnabled', description='Indicates whether the Frequency Control policy is enabled. Valid values:
 
-*   **true**: yes
-*   **false**: no', example='true'),
+*   **true**
+*   **false**', example='true'),
       ccRuleEnabled?: boolean(name='CcRuleEnabled', description='Indicates whether the Custom Rule switch of the Frequency Control policy is turned on. Valid values:
 
-*   **true**: yes
-*   **false**: no', example='true'),
+*   **true**
+*   **false**', example='true'),
       ccTemplate?: string(name='CcTemplate', description='The mode of the Frequency Control policy. Valid values:
 
 *   **default**: the Normal mode
@@ -4079,38 +4125,41 @@ model DescribeDomainResourceResponseBody = {
 *   **gf_sos_verify**: the Super Strict mode', example='default'),
       certName?: string(name='CertName', description='The name of the SSL certificate used by the domain name.', example='49944XX.pem'),
       cname?: string(name='Cname', description='The CNAME provided by the instance to which the domain name is added.', example='0ekb69x3j9wvXXXX.aliyunddosXXXX.com'),
-      customCiphers?: [ string ](name='CustomCiphers', description='An array that consists of custom cipher suites.'),
+      customCiphers?: [ string ](name='CustomCiphers', description='The custom cipher suites.'),
       domain?: string(name='Domain', description='The domain name of the website.', example='www.example.com'),
       http2Enable?: boolean(name='Http2Enable', description='Indicates whether Enable HTTP/2 is turned on. Valid values:
 
-*   **true**: yes
-*   **false**: no', example='false'),
+*   **true**
+*   **false**', example='false'),
       http2HttpsEnable?: boolean(name='Http2HttpsEnable', description='Indicates whether Enforce HTTPS Routing is turned on. Valid values:
 
-*   **true**: yes
-*   **false**: no', example='false'),
+*   **true**
+*   **false**', example='false'),
       https2HttpEnable?: boolean(name='Https2HttpEnable', description='Indicates whether Enable HTTP is turned on. Valid values:
 
-*   **true**: yes
-*   **false**: no', example='false'),
+*   **true**
+*   **false**', example='false'),
       httpsExt?: string(name='HttpsExt', description='The advanced HTTPS settings. This parameter takes effect only when the value of the **ProxyType** parameter includes **https**. The value is a string that consists of a JSON struct. The JSON struct contains the following fields:
 
 *   **Http2https**: indicates whether the feature of redirecting HTTP requests to HTTPS requests is enabled. Data type: integer. Valid values: **0** and **1**. The value 0 indicates that the feature is disabled. The value 1 indicates that the feature is enabled.
 *   **Https2http**: indicates whether the feature of redirecting HTTPS requests to HTTP requests is enabled. Data type: integer. Valid values: **0** and **1**. The value 0 indicates that the feature is disabled. The value 1 indicates that the feature is enabled.
 *   **Http2**: indicates whether HTTP/2 is supported. Data type: integer. Valid values: **0** and **1**. The value 0 indicates that HTTP/2 is not supported. The value 1 indicates that HTTP/2 is supported.', example='{"Https2http":0,"Http2":0,"Http2https":0}'),
-      instanceIds?: [ string ](name='InstanceIds', description='An array consisting of the IDs of the instances to which the domain name is added.'),
-      policyMode?: string(name='PolicyMode', description='The scheduling algorithm for back-to-origin traffic. Valid values:
+      instanceIds?: [ string ](name='InstanceIds', description='The IDs of the instances to which the domain name is added.'),
+      ocspEnabled?: boolean(name='OcspEnabled', description='Indicates whether the Online Certificate Status Protocol (OCSP) feature is enabled. Valid values:
+- **true**: yes
+- **false**: no', example='false'),
+      policyMode?: string(name='PolicyMode', description='The load balancing algorithm for back-to-origin traffic. Valid values:
 
 *   **ip_hash**: the IP hash algorithm. This algorithm is used to redirect the requests from the same IP address to the same origin server.
 *   **rr**: the round-robin algorithm. This algorithm is used to redirect requests to origin servers in turn.
 *   **least_time**: the least response time algorithm. This algorithm is used to minimize the latency when requests are forwarded from Anti-DDoS Pro or Anti-DDoS Premium instances to origin servers based on the intelligent DNS resolution feature.', example='ip_hash'),
       proxyEnabled?: boolean(name='ProxyEnabled', description='Indicates whether the instance forwards the traffic that is destined for the website. Valid values:
 
-*   **true**: yes
+*   **true**: Anti-DDoS Pro or Anti-DDoS Premium forwards the traffic that is destined for the website.
 *   **false**: no', example='true'),
       proxyTypes?: [ 
         {
-          proxyPorts?: [ string ](name='ProxyPorts', description='An array that consists of the port numbers.'),
+          proxyPorts?: [ string ](name='ProxyPorts', description='The port numbers.'),
           proxyType?: string(name='ProxyType', description='The type of the protocol. Valid values:
 
 *   **http**
@@ -4118,10 +4167,10 @@ model DescribeDomainResourceResponseBody = {
 *   **websocket**
 *   **websockets**', example='http'),
         }
-      ](name='ProxyTypes', description='An array that consists of the details of the protocol type and port number.'),
+      ](name='ProxyTypes', description='The details about the protocol type and port number.'),
       punishReason?: int32(name='PunishReason', description='The reason why the domain name is invalid. Valid values:
 
-*   **1**: No ICP filing is completed for the domain name.
+*   **1**: No Content Provider (ICP) filing is completed for the domain name.
 *   **2**: The business for which you registered the domain name does not meet regulatory requirements.
 
 If the two reasons are both involved, the value **2** is returned.', example='1'),
@@ -4129,15 +4178,15 @@ If the two reasons are both involved, the value **2** is returned.', example='1'
 
 *   **true**: The domain name is invalid. You can view the specific reasons from the **PunishReason** parameter.
 *   **false**: The domain name is valid.', example='false'),
-      realServers?: [ string ](name='RealServers', description='An array that consists of the addresses of the origin servers.'),
+      realServers?: [ string ](name='RealServers', description='The addresses of origin servers.'),
       rsType?: int32(name='RsType', description='The address type of the origin server. Valid values:
 
 *   **0**: IP address
 *   **1**: domain name', example='0'),
       ssl13Enabled?: boolean(name='Ssl13Enabled', description='Indicates whether TLS 1.3 is supported. Valid values:
 
-*   **true**: yes
-*   **false**: no', example='false'),
+*   **true**
+*   **false**', example='false'),
       sslCiphers?: string(name='SslCiphers', description='The type of the cipher suite. Valid values:
 
 *   **default**: custom cipher suite
@@ -4148,9 +4197,9 @@ If the two reasons are both involved, the value **2** is returned.', example='1'
 *   **tls1.0**: TLS 1.0 or later
 *   **tls1.1**: TLS 1.1 or later
 *   **tls1.2**: TLS 1.2 or later', example='tls1.0'),
-      whiteList?: [ string ](name='WhiteList', description='An array consisting of the IP addresses that are included in the whitelist of the domain name.'),
+      whiteList?: [ string ](name='WhiteList', description='The IP addresses that are included in the whitelist of the domain name.'),
     }
-  ](name='WebRules', description='An array that consists of the configurations of the forwarding rule.'),
+  ](name='WebRules', description='The configurations of the forwarding rule.'),
 }
 
 model DescribeDomainResourceResponse = {
@@ -4219,17 +4268,26 @@ async function describeDomainResource(request: DescribeDomainResourceRequest): D
 }
 
 model DescribeDomainSecurityProfileRequest {
-  domain?: string(name='Domain', example='example.aliyundoc.com'),
+  domain?: string(name='Domain', description='The domain name of the website.
+
+> A forwarding rule must be configured for the domain name. You can call the [DescribeDomains](~~91724~~) operation to query all domain names.', example='example.aliyundoc.com'),
 }
 
 model DescribeDomainSecurityProfileResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.'),
   result?: [ 
     {
-      globalEnable?: boolean(name='GlobalEnable', example='true'),
-      globalMode?: string(name='GlobalMode', example='default'),
+      globalEnable?: boolean(name='GlobalEnable', description='Indicates whether the global mitigation policy is enabled. Valid values:
+
+*   **true**
+*   **false**', example='true'),
+      globalMode?: string(name='GlobalMode', description='The mode of the global mitigation policy. Valid values:
+
+*   **weak**: the Low mode
+*   **default**: the Normal mode
+*   **hard**: the Strict mode', example='default'),
     }
-  ](name='Result'),
+  ](name='Result', description='The returned results.'),
 }
 
 model DescribeDomainSecurityProfileResponse = {
@@ -4339,34 +4397,43 @@ async function describeDomainStatusCodeCount(request: DescribeDomainStatusCodeCo
 }
 
 model DescribeDomainStatusCodeListRequest {
-  domain?: string(name='Domain'),
-  endTime?: long(name='EndTime', example='1583683200'),
-  interval?: long(name='Interval', example='1000'),
-  queryType?: string(name='QueryType'),
-  resourceGroupId?: string(name='ResourceGroupId'),
-  startTime?: long(name='StartTime', example='1582992000'),
+  domain?: string(name='Domain', description='The domain name of the website. If you do not specify this parameter, the statistics on response status codes of all domain names are queried.
+
+> A forwarding rule must be configured for the domain name. You can call the [DescribeDomains](~~91724~~) operation to query all domain names.', example='www.aliyun.com'),
+  endTime?: long(name='EndTime', description='The end of the time range to query. The value is a UNIX timestamp. Unit: seconds.
+
+> This UNIX timestamp must indicate a point in time that is accurate to the minute.', example='1583683200'),
+  interval?: long(name='Interval', description='The interval for returning data. Unit: seconds.', example='1000'),
+  queryType?: string(name='QueryType', description='The source of the statistics. Valid values:
+
+*   **gf**: Anti-DDoS Pro or Anti-DDoS Premium
+*   **upstrem**: origin server', example='gf'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs in Resource Management. This parameter is empty by default, which indicates that the instance belongs to the default resource group.', example='default'),
+  startTime?: long(name='StartTime', description='The start time of the event. The value is a UNIX timestamp. Unit: seconds.
+
+> This UNIX timestamp must indicate a point in time that is accurate to the minute.', example='1582992000'),
 }
 
 model DescribeDomainStatusCodeListResponseBody = {
-  requestId?: string(name='RequestId', example='3B63C0DD-8AC5-44B2-95D6-064CA9296B9C'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='3B63C0DD-8AC5-44B2-95D6-064CA9296B9C'),
   statusCodeList?: [ 
     {
-      index?: int32(name='Index', example='0'),
-      status200?: long(name='Status200', example='15520'),
-      status2XX?: long(name='Status2XX', example='15520'),
-      status3XX?: long(name='Status3XX', example='0'),
-      status403?: long(name='Status403', example='0'),
-      status404?: long(name='Status404', example='0'),
-      status405?: long(name='Status405', example='0'),
-      status4XX?: long(name='Status4XX', example='4486'),
-      status501?: long(name='Status501', example='0'),
-      status502?: long(name='Status502', example='0'),
-      status503?: long(name='Status503', example='0'),
-      status504?: long(name='Status504', example='0'),
-      status5XX?: long(name='Status5XX', example='0'),
-      time?: long(name='Time', example='1582992000'),
+      index?: int32(name='Index', description='The index number of the returned data.', example='0'),
+      status200?: long(name='Status200', description='The number of 200 status codes.', example='15520'),
+      status2XX?: long(name='Status2XX', description='The number of 2xx status codes.', example='15520'),
+      status3XX?: long(name='Status3XX', description='The number of 3xx status codes.', example='0'),
+      status403?: long(name='Status403', description='The number of 403 status codes.', example='0'),
+      status404?: long(name='Status404', description='The number of 404 status codes.', example='0'),
+      status405?: long(name='Status405', description='The number of 405 status codes.', example='0'),
+      status4XX?: long(name='Status4XX', description='The number of 4xx status codes.', example='4486'),
+      status501?: long(name='Status501', description='The number of 501 status codes.', example='0'),
+      status502?: long(name='Status502', description='The number of 502 status codes.', example='0'),
+      status503?: long(name='Status503', description='The number of 503 status codes.', example='0'),
+      status504?: long(name='Status504', description='The number of 504 status codes.', example='0'),
+      status5XX?: long(name='Status5XX', description='The number of 5xx status codes.', example='0'),
+      time?: long(name='Time', description='The time when the data was collected. The value is a UNIX timestamp. Unit: seconds.', example='1582992000'),
     }
-  ](name='StatusCodeList'),
+  ](name='StatusCodeList', description='The statistics on response status codes.'),
 }
 
 model DescribeDomainStatusCodeListResponse = {
@@ -4863,16 +4930,18 @@ async function describeElasticBandwidthSpec(request: DescribeElasticBandwidthSpe
 }
 
 model DescribeHeadersRequest {
-  domain?: string(name='Domain', example='example.aliyundoc.com'),
-  resourceGroupId?: string(name='ResourceGroupId', example='rg-aek3cmuvpia****'),
+  domain?: string(name='Domain', description='The domain name that you want to query.
+
+> You can call the [DescribeDomains](~~91724~~) operation to query all the domain names that are added to Anti-DDoS Pro or Anti-DDoS Premium.', example='example.aliyundoc.com'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs in Resource Management. This parameter is empty by default, which indicates that the instance belongs to the default resource group.', example='rg-aek3cmuvpia****'),
 }
 
 model DescribeHeadersResponseBody = {
   customHeader?: {
-    domain?: string(name='Domain', example='example.aliyundoc.com'),
-    headers?: string(name='Headers', example='{"X-Forwarded-ClientSrcPort":"","header1":"hLeLele"}'),
-  }(name='CustomHeader'),
-  requestId?: string(name='RequestId', example='48BC7BA5-69BE-5C31-A080-AFF2431AE48D'),
+    domain?: string(name='Domain', description='The domain name of the website.', example='example.aliyundoc.com'),
+    headers?: string(name='Headers', description='The header of the response.', example='{"X-Forwarded-ClientSrcPort":"","header1":"hLeLele"}'),
+  }(name='CustomHeader', description='The information about the custom header.'),
+  requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='48BC7BA5-69BE-5C31-A080-AFF2431AE48D'),
 }
 
 model DescribeHeadersResponse = {
@@ -5403,21 +5472,41 @@ async function describeInstanceStatus(request: DescribeInstanceStatusRequest): D
 }
 
 model DescribeInstancesRequest {
-  edition?: int32(name='Edition', example='9'),
-  enabled?: int32(name='Enabled', example='1'),
-  expireEndTime?: long(name='ExpireEndTime', example='1640361700000'),
-  expireStartTime?: long(name='ExpireStartTime', example='1640361500000'),
+  edition?: int32(name='Edition', description='The mitigation plan of the instance to query. Valid values:
+
+*   **0**: Anti-DDoS Premium instance of the Insurance mitigation plan
+*   **1**: Anti-DDoS Premium instance of the Unlimited mitigation plan
+*   **2**: Anti-DDoS Premium instance of the Mainland China Acceleration (MCA) mitigation plan
+*   **9**: Anti-DDoS Pro instance of the Profession mitigation plan', example='9'),
+  enabled?: int32(name='Enabled', description='The traffic forwarding status of the instance to query. Valid values:
+
+*   **0**: The instance no longer forwards service traffic.
+*   **1**: The instance forwards service traffic as expected.', example='1'),
+  expireEndTime?: long(name='ExpireEndTime', description='The end of the time range to query. Instances whose expiration time is earlier than the point in time are queried. This value is a UNIX timestamp. Unit: milliseconds.', example='1640361700000'),
+  expireStartTime?: long(name='ExpireStartTime', description='The beginning of the time range to query. Instances whose expiration time is later than the point in time are queried. This value is a UNIX timestamp. Unit: milliseconds.', example='1640361500000'),
   instanceIds?: [ string ](name='InstanceIds'),
-  ip?: string(name='Ip', example='203.107.XX.XX'),
-  pageNumber?: string(name='PageNumber', example='1'),
-  pageSize?: string(name='PageSize', example='10'),
-  remark?: string(name='Remark', example='doc-test'),
-  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfm2pz25js****'),
+  ip?: string(name='Ip', description='The IP address of the instance to query.', example='203.107.XX.XX'),
+  pageNumber?: string(name='PageNumber', description='The number of the page to return.', example='1'),
+  pageSize?: string(name='PageSize', description='The number of entries to return on each page.', example='10'),
+  remark?: string(name='Remark', description='The remarks of the instance to query. Fuzzy match is supported.', example='doc-test'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs in Resource Management.
+
+If you do not specify this parameter, the instance belongs to the default resource group.', example='rg-acfm2pz25js****'),
   status?: [ int32 ](name='Status'),
   tag?: [ 
     {
-      key?: string(name='Key', example='test-key'),
-      value?: string(name='Value', example='test-value'),
+      key?: string(name='Key', description='The key of tag N that is added to the instance to query. The maximum value of N is 200. You can specify up to 200 tags. When you specify tags, take note of the following rules:
+
+*   Each tag consists of a key (**Key**) and a value (**Value**), which are separated by a comma (,).
+*   Separate multiple tags with commas (,).
+
+>  The tag key (**Key**) and tag value (**Value**) must be specified in pairs.', example='test-key'),
+      value?: string(name='Value', description='The value of tag N that is added to the instance to query. The maximum value of N is 200. You can specify up to 200 tags. When you specify tags, take note of the following rules:
+
+*   Each tag consists of a key (**Key**) and a value (**Value**), which are separated by a comma (,).
+*   Separate multiple tags with commas (,).
+
+>  The tag key (**Key**) and tag value (**Value**) must be specified in pairs.', example='test-value'),
     }
   ](name='Tag'),
 }
@@ -5425,22 +5514,46 @@ model DescribeInstancesRequest {
 model DescribeInstancesResponseBody = {
   instances?: [ 
     {
-      createTime?: long(name='CreateTime', example='1637751953000'),
-      debtStatus?: int32(name='DebtStatus', example='0'),
-      edition?: int32(name='Edition', example='9'),
-      enabled?: int32(name='Enabled', example='1'),
-      expireTime?: long(name='ExpireTime', example='1640361600000'),
-      instanceId?: string(name='InstanceId', example='ddoscoo-cn-7pp2g9ed****'),
-      ipMode?: string(name='IpMode', example='fnat'),
-      ipVersion?: string(name='IpVersion', example='Ipv4'),
-      isFirstOpenBw?: long(name='IsFirstOpenBw', example='0'),
-      isFirstOpenQps?: long(name='IsFirstOpenQps', example='0'),
-      remark?: string(name='Remark', example='doc-test'),
-      status?: int32(name='Status', example='1'),
+      createTime?: long(name='CreateTime', description='The time when the instance is created. This value is a UNIX timestamp. Unit: milliseconds.', example='1637751953000'),
+      debtStatus?: int32(name='DebtStatus', description='The overdue status of the instance. The value is fixed as **0**, which indicates that your Alibaba Cloud account does not have overdue payments. The instance supports only the subscription billing method.', example='0'),
+      edition?: int32(name='Edition', description='The mitigation plan of the instance. Valid values:
+
+*   **0**: Anti-DDoS Premium instance of the Insurance mitigation plan
+*   **1**: Anti-DDoS Premium instance of the Unlimited mitigation plan
+*   **2**: Anti-DDoS Premium instance of the MCA mitigation plan
+*   **9**: Anti-DDoS Pro instance of the Profession mitigation plan', example='9'),
+      enabled?: int32(name='Enabled', description='The forwarding status of the instance. Valid values:
+
+*   **0**: The instance no longer forwards service traffic.
+*   **1**: The instance forwards service traffic as expected.', example='1'),
+      expireTime?: long(name='ExpireTime', description='The time when the instance expires. This value is a UNIX timestamp. Unit: milliseconds.', example='1640361600000'),
+      instanceId?: string(name='InstanceId', description='The ID of the instance.', example='ddoscoo-cn-7pp2g9ed****'),
+      ip?: string(name='Ip', description='The IP address of the instance.', example='203.199.XX.XX'),
+      ipMode?: string(name='IpMode', description='The IP address-based forwarding mode of the instance. Valid values:
+
+*   **fnat**: Requests from IPv4 addresses are forwarded to origin servers that use IPv4 addresses and requests from IPv6 addresses are forwarded to origin servers that use IPv6 addresses.
+*   **v6tov4**: All requests are forwarded to origin servers that use IPv4 addresses.', example='fnat'),
+      ipVersion?: string(name='IpVersion', description='The IP version of the instance. Valid values:
+
+*   **Ipv4**: IPv4
+*   **Ipv6**: IPv6', example='Ipv4'),
+      isFirstOpenBw?: long(name='IsFirstOpenBw', description='Indicates whether the 95th percentile metering method has been enabled for the instance. Valid values:
+
+*   0: The 95th percentile metering method has not been enabled for the instance.
+*   1: The 95th percentile metering method has been enabled for the instance.', example='0'),
+      isFirstOpenQps?: long(name='IsFirstOpenQps', description='Indicates whether the metering method of the 95th percentile burstable QPS is enabled for the instance. Valid values:
+
+- 0: no
+- 1: yes', example='0'),
+      remark?: string(name='Remark', description='The remarks of the instance.', example='doc-test'),
+      status?: int32(name='Status', description='The status of the instance. Valid values:
+
+*   **1**: normal
+*   **2**: expired', example='1'),
     }
-  ](name='Instances'),
-  requestId?: string(name='RequestId', example='A0AF40CC-814A-5A86-AEAA-6F19E88B8A39'),
-  totalCount?: long(name='TotalCount', example='1'),
+  ](name='Instances', description='An array that consists of the details of the instances.'),
+  requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='A0AF40CC-814A-5A86-AEAA-6F19E88B8A39'),
+  totalCount?: long(name='TotalCount', description='The total number of the instances.', example='1'),
 }
 
 model DescribeInstancesResponse = {
@@ -5449,6 +5562,13 @@ model DescribeInstancesResponse = {
   body: DescribeInstancesResponseBody(name='body'),
 }
 
+/**
+  * You can call the DescribeInstances operation to query the details of Anti-DDoS Pro or Anti-DDoS Premium instances within the Alibaba Cloud account by page. The details include the ID, mitigation plan, expiration time, and forwarding status.
+  *
+  * @param request DescribeInstancesRequest
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return DescribeInstancesResponse
+ */
 async function describeInstancesWithOptions(request: DescribeInstancesRequest, runtime: Util.RuntimeOptions): DescribeInstancesResponse {
   Util.validateModel(request);
   var query = {};
@@ -5505,6 +5625,12 @@ async function describeInstancesWithOptions(request: DescribeInstancesRequest, r
   return callApi(params, req, runtime);
 }
 
+/**
+  * You can call the DescribeInstances operation to query the details of Anti-DDoS Pro or Anti-DDoS Premium instances within the Alibaba Cloud account by page. The details include the ID, mitigation plan, expiration time, and forwarding status.
+  *
+  * @param request DescribeInstancesRequest
+  * @return DescribeInstancesResponse
+ */
 async function describeInstances(request: DescribeInstancesRequest): DescribeInstancesResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeInstancesWithOptions(request, runtime);
@@ -6761,20 +6887,28 @@ async function describePortViewSourceCountries(request: DescribePortViewSourceCo
 }
 
 model DescribePortViewSourceIspsRequest {
-  endTime?: long(name='EndTime', example='1583683200'),
-  instanceIds?: [ string ](name='InstanceIds', example='ddoscoo-cn-mp91j1ao****'),
-  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfm2pz25js****'),
-  startTime?: long(name='StartTime', example='1582992000'),
+  endTime?: long(name='EndTime', description='The end of the time range to query. This value is a UNIX timestamp. Unit: seconds.
+
+> This UNIX timestamp must indicate a point in time that is accurate to the minute.', example='1583683200'),
+  instanceIds?: [ string ](name='InstanceIds', description='An array that consists of the IDs of instances to query.', example='ddoscoo-cn-mp91j1ao****'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs in Resource Management.
+
+If you do not configure this parameter, the instance belongs to the default resource group.', example='rg-acfm2pz25js****'),
+  startTime?: long(name='StartTime', description='The beginning of the time range to query. This value is a UNIX timestamp. Unit: seconds.
+
+> This UNIX timestamp must indicate a point in time that is accurate to the minute.', example='1582992000'),
 }
 
 model DescribePortViewSourceIspsResponseBody = {
   isps?: [ 
     {
-      count?: long(name='Count', example='3390671'),
-      ispId?: string(name='IspId', example='100017'),
+      count?: long(name='Count', description='The total number of requests that are sent from the ISP.
+
+> This parameter does not indicate the accurate number of requests. You can use this parameter to calculate the proportion of requests from different ISPs.', example='3390671'),
+      ispId?: string(name='IspId', description='The ID of the ISP. For more information, see the ISP codes table.', example='100017'),
     }
-  ](name='Isps'),
-  requestId?: string(name='RequestId', example='C33EB3D5-AF96-43CA-9C7E-37A81BC06A1E'),
+  ](name='Isps', description='An array that consists of the details of the ISP.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='C33EB3D5-AF96-43CA-9C7E-37A81BC06A1E'),
 }
 
 model DescribePortViewSourceIspsResponse = {
@@ -6784,7 +6918,10 @@ model DescribePortViewSourceIspsResponse = {
 }
 
 /**
-  * The ID of the ISP. For more information, see the ISP codes table.
+  * You can call the DescribePortViewSourceIsps operation to query the ISPs from which requests are sent to one or more Anti-DDoS Pro or Anti-DDoS Premium instances within a specific period of time.
+  * > The data returned for this operation cannot reflect the actual traffic volume because Layer 4 identity authentication algorithms are updated for Anti-DDoS Pro and Anti-DDoS Premium. You can call this operation to calculate only the proportion of requests sent from different ISPs. If you want to query the request traffic volume, we recommend that you call the [DescribePortFlowList](~~157460~~) operation.
+  * ### Limits
+  * You can call this operation up to 10 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
   *
   * @param request DescribePortViewSourceIspsRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -6823,7 +6960,10 @@ async function describePortViewSourceIspsWithOptions(request: DescribePortViewSo
 }
 
 /**
-  * The ID of the ISP. For more information, see the ISP codes table.
+  * You can call the DescribePortViewSourceIsps operation to query the ISPs from which requests are sent to one or more Anti-DDoS Pro or Anti-DDoS Premium instances within a specific period of time.
+  * > The data returned for this operation cannot reflect the actual traffic volume because Layer 4 identity authentication algorithms are updated for Anti-DDoS Pro and Anti-DDoS Premium. You can call this operation to calculate only the proportion of requests sent from different ISPs. If you want to query the request traffic volume, we recommend that you call the [DescribePortFlowList](~~157460~~) operation.
+  * ### Limits
+  * You can call this operation up to 10 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
   *
   * @param request DescribePortViewSourceIspsRequest
   * @return DescribePortViewSourceIspsResponse
@@ -7788,16 +7928,20 @@ async function describeTagResources(request: DescribeTagResourcesRequest): Descr
 }
 
 model DescribeTotalAttackMaxFlowRequest {
-  endTime?: long(name='EndTime', example='1659697200'),
-  instanceIds?: [ string ](name='InstanceIds'),
-  resourceGroupId?: string(name='ResourceGroupId', example='default'),
-  startTime?: long(name='StartTime', example='1669240800'),
+  endTime?: long(name='EndTime', description='The end of the time range to query. The value is a UNIX timestamp. Unit: seconds.
+
+> This UNIX timestamp must indicate a point in time that is accurate to the minute.', example='1659697200'),
+  instanceIds?: [ string ](name='InstanceIds', description='The IDs of the instances. Separate multiple instance IDs with commas (,). Example: InstanceIds.1, InstanceIds.2, InstanceIds.3.'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs in Resource Management. If you do not configure this parameter, the instance belongs to the default resource group.', example='default'),
+  startTime?: long(name='StartTime', description='The beginning of the time range to query. The value is a UNIX timestamp. Unit: seconds.
+
+> This UNIX timestamp must indicate a point in time that is accurate to the minute.', example='1669240800'),
 }
 
 model DescribeTotalAttackMaxFlowResponseBody = {
-  bps?: long(name='Bps', example='0'),
-  pps?: long(name='Pps', example='0'),
-  requestId?: string(name='RequestId', example='9173A3CB-C40B-559B-96B7-2373830BD06A'),
+  bps?: long(name='Bps', description='The peak bandwidth of attack traffic. Unit: bit/s.', example='0'),
+  pps?: long(name='Pps', description='The peak packet rate of attack traffic . Unit: packets per second (pps).', example='0'),
+  requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='9173A3CB-C40B-559B-96B7-2373830BD06A'),
 }
 
 model DescribeTotalAttackMaxFlowResponse = {
@@ -8757,6 +8901,7 @@ model DescribeWebRulesResponseBody = {
       ccRuleEnabled?: boolean(name='CcRuleEnabled', example='false'),
       ccTemplate?: string(name='CcTemplate', example='default'),
       certName?: string(name='CertName', example='testcert'),
+      certRegion?: string(name='CertRegion'),
       cname?: string(name='Cname', example='kzmk7b8tt351****.aliyunddos1014****'),
       customCiphers?: [ string ](name='CustomCiphers'),
       domain?: string(name='Domain', example='example.com'),
@@ -9416,12 +9561,17 @@ async function enableWebCCRule(request: EnableWebCCRuleRequest): EnableWebCCRule
 }
 
 model ModifyBizBandWidthModeRequest {
-  instanceId?: string(name='InstanceId', example='ddoscoo-cn-zvp2ay9b****'),
-  mode?: string(name='Mode', example='month'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance.
+
+> You can call the [DescribeInstanceIds](~~157459~~) operation to query the IDs of all instances.', example='ddoscoo-cn-zvp2ay9b****'),
+  mode?: string(name='Mode', description='The metering method of the burstable clean bandwidth feature. Valid values:
+
+*   **month**: the metering method of monthly 95th percentile
+*   **day**: the metering method of daily 95th percentile', example='month'),
 }
 
 model ModifyBizBandWidthModeResponseBody = {
-  requestId?: string(name='RequestId', example='CF33B4C3-196E-4015-AADD-5CAD00057B80'),
+  requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='CF33B4C3-196E-4015-AADD-5CAD00057B80'),
 }
 
 model ModifyBizBandWidthModeResponse = {
@@ -9430,6 +9580,13 @@ model ModifyBizBandWidthModeResponse = {
   body: ModifyBizBandWidthModeResponseBody(name='body'),
 }
 
+/**
+  * You can switch between the metering methods of the burstable clean bandwidth feature. The new metering method takes effect from 00:00 on the first day of the next month. You can change the metering method up to three times each calendar month. The most recent metering method that you select takes effect in the next month. You cannot change the metering method on the last day of each calendar month.
+  *
+  * @param request ModifyBizBandWidthModeRequest
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ModifyBizBandWidthModeResponse
+ */
 async function modifyBizBandWidthModeWithOptions(request: ModifyBizBandWidthModeRequest, runtime: Util.RuntimeOptions): ModifyBizBandWidthModeResponse {
   Util.validateModel(request);
   var query = {};
@@ -9456,6 +9613,12 @@ async function modifyBizBandWidthModeWithOptions(request: ModifyBizBandWidthMode
   return callApi(params, req, runtime);
 }
 
+/**
+  * You can switch between the metering methods of the burstable clean bandwidth feature. The new metering method takes effect from 00:00 on the first day of the next month. You can change the metering method up to three times each calendar month. The most recent metering method that you select takes effect in the next month. You cannot change the metering method on the last day of each calendar month.
+  *
+  * @param request ModifyBizBandWidthModeRequest
+  * @return ModifyBizBandWidthModeResponse
+ */
 async function modifyBizBandWidthMode(request: ModifyBizBandWidthModeRequest): ModifyBizBandWidthModeResponse {
   var runtime = new Util.RuntimeOptions{};
   return modifyBizBandWidthModeWithOptions(request, runtime);
@@ -9809,13 +9972,18 @@ async function modifyElasticBandWidth(request: ModifyElasticBandWidthRequest): M
 }
 
 model ModifyElasticBizBandWidthRequest {
-  elasticBizBandwidth?: int32(name='ElasticBizBandwidth', example='0'),
-  instanceId?: string(name='InstanceId', example='ddoscoo-cn-tl32morr****'),
-  mode?: string(name='Mode', example='month'),
+  elasticBizBandwidth?: int32(name='ElasticBizBandwidth', description='The burstable clean bandwidth. Unit: Mbit/s. The burstable clean bandwidth cannot exceed nine times the clean bandwidth of your Anti-DDoS Pro or Anti-DDoS Premium instance, and the sum of the clean bandwidth and the burstable clean bandwidth cannot exceed the maximum clean bandwidth that is supported by your instance. The value 0 indicates that the burstable clean bandwidth feature is disabled. You can disable the burstable clean bandwidth feature once a month.', example='0'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance.
+
+> You can call the [DescribeInstanceIds](~~157459~~) operation to query the IDs of all instances.', example='ddoscoo-cn-tl32morr****'),
+  mode?: string(name='Mode', description='The metering method of the burstable clean bandwidth feature. Valid values:
+
+*   **month**: the metering method of monthly 95th percentile
+*   **day**: the metering method of daily 95th percentile', example='month'),
 }
 
 model ModifyElasticBizBandWidthResponseBody = {
-  requestId?: string(name='RequestId', example='C566BA3A-192F-5D32-8A33-21422F975145'),
+  requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='C566BA3A-192F-5D32-8A33-21422F975145'),
 }
 
 model ModifyElasticBizBandWidthResponse = {
@@ -9824,6 +9992,13 @@ model ModifyElasticBizBandWidthResponse = {
   body: ModifyElasticBizBandWidthResponseBody(name='body'),
 }
 
+/**
+  * Before you call this operation, make sure that you have fully understood the billing method and [pricing](https://help.aliyun.com/document_detail/283754.html) of the burstable clean bandwidth feature. After you call this operation for the first time, the modification immediately takes effect.
+  *
+  * @param request ModifyElasticBizBandWidthRequest
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ModifyElasticBizBandWidthResponse
+ */
 async function modifyElasticBizBandWidthWithOptions(request: ModifyElasticBizBandWidthRequest, runtime: Util.RuntimeOptions): ModifyElasticBizBandWidthResponse {
   Util.validateModel(request);
   var query = {};
@@ -9853,6 +10028,12 @@ async function modifyElasticBizBandWidthWithOptions(request: ModifyElasticBizBan
   return callApi(params, req, runtime);
 }
 
+/**
+  * Before you call this operation, make sure that you have fully understood the billing method and [pricing](https://help.aliyun.com/document_detail/283754.html) of the burstable clean bandwidth feature. After you call this operation for the first time, the modification immediately takes effect.
+  *
+  * @param request ModifyElasticBizBandWidthRequest
+  * @return ModifyElasticBizBandWidthResponse
+ */
 async function modifyElasticBizBandWidth(request: ModifyElasticBizBandWidthRequest): ModifyElasticBizBandWidthResponse {
   var runtime = new Util.RuntimeOptions{};
   return modifyElasticBizBandWidthWithOptions(request, runtime);
@@ -9905,13 +10086,28 @@ async function modifyFullLogTtl(request: ModifyFullLogTtlRequest): ModifyFullLog
 }
 
 model ModifyHeadersRequest {
-  customHeaders?: string(name='CustomHeaders', example='{\\"X-Forwarded-ClientSrcPort\\":\\"\\"}'),
-  domain?: string(name='Domain', example='example.aliyundoc.com'),
-  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmz6jbof5****'),
+  customHeaders?: string(name='CustomHeaders', description='The key-value pair of the custom header. Key indicates the header name and Value indicates the header value. You can specify up to five key-value pairs. The key-value pairs can be up to 200 characters in length.
+
+Take note of the following items:
+
+*   Do not use X-Forwarded-ClientSrcPort as a custom header.
+*   Do not use a standard HTTP header such as User-Agent. If you use a standard HTTP header, the original header may be overwritten.
+
+> If you set Key to X-Forwarded-ClientSrcPort, the actual source port of the client that accesses Anti-DDoS Pro or Anti-DDoS Premium (a Layer 7 proxy) is obtained. In this case, the Value is "".', example='{\\"X-Forwarded-ClientSrcPort\\":\\"\\"}'),
+  domain?: string(name='Domain', description='The domain name of the website.
+
+> A forwarding rule must be configured for the domain name. You can call the [DescribeDomains](~~91724~~) operation to query all domain names.', example='example.aliyundoc.com'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs.
+
+> 
+
+*   You can query resource group IDs in the Anti-DDoS Pro or Anti-DDoS Premium console or by calling the [ListResourceGroups](~~158855~~) operation. For more information, see [View basic information of a resource group](~~151181~~).
+
+*   Before you modify the resource group to which an instance belongs, you can call the [ListResources](~~158866~~) operation to view the current resource group of the instance.', example='rg-acfmz6jbof5****'),
 }
 
 model ModifyHeadersResponseBody = {
-  requestId?: string(name='RequestId', example='DC38A1D3-C042-5670-8394-8F6B1FA97B5E'),
+  requestId?: string(name='RequestId', description='The unique ID of the request, which is used to locate and troubleshoot issues.', example='DC38A1D3-C042-5670-8394-8F6B1FA97B5E'),
 }
 
 model ModifyHeadersResponse = {
@@ -10217,12 +10413,17 @@ async function modifyNetworkRuleAttribute(request: ModifyNetworkRuleAttributeReq
 }
 
 model ModifyOcspStatusRequest {
-  domain?: string(name='Domain', example='click.linktech.cn'),
-  enable?: int32(name='Enable'),
+  domain?: string(name='Domain', description='The domain name for which you want to configure the Static Page Caching policy.
+
+> You can call the [DescribeDomains](~~91724~~) operation to query all the domain names that are added to Anti-DDoS Pro or Anti-DDoS Premium.', example='click.linktech.cn'),
+  enable?: int32(name='Enable', description='Specifies whether to enable the OCSP feature. Valid values:
+
+*   **1**: yes
+*   **0**: no'),
 }
 
 model ModifyOcspStatusResponseBody = {
-  requestId?: string(name='RequestId', example='D8DDBA8E-8182-5C85-AA41-F17EACFCAE0D'),
+  requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='D8DDBA8E-8182-5C85-AA41-F17EACFCAE0D'),
 }
 
 model ModifyOcspStatusResponse = {
@@ -10231,6 +10432,13 @@ model ModifyOcspStatusResponse = {
   body: ModifyOcspStatusResponseBody(name='body'),
 }
 
+/**
+  * This feature is available only for a website that supports HTTPS. If HTTPS is selected for Protocol, we recommend that you enable this feature.
+  *
+  * @param request ModifyOcspStatusRequest
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ModifyOcspStatusResponse
+ */
 async function modifyOcspStatusWithOptions(request: ModifyOcspStatusRequest, runtime: Util.RuntimeOptions): ModifyOcspStatusResponse {
   Util.validateModel(request);
   var query = {};
@@ -10257,6 +10465,12 @@ async function modifyOcspStatusWithOptions(request: ModifyOcspStatusRequest, run
   return callApi(params, req, runtime);
 }
 
+/**
+  * This feature is available only for a website that supports HTTPS. If HTTPS is selected for Protocol, we recommend that you enable this feature.
+  *
+  * @param request ModifyOcspStatusRequest
+  * @return ModifyOcspStatusResponse
+ */
 async function modifyOcspStatus(request: ModifyOcspStatusRequest): ModifyOcspStatusResponse {
   var runtime = new Util.RuntimeOptions{};
   return modifyOcspStatusWithOptions(request, runtime);
