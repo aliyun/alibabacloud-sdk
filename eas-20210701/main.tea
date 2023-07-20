@@ -182,6 +182,8 @@ model Service {
   roleAttrs?: string(name='RoleAttrs'),
   runningInstance?: int32(name='RunningInstance'),
   safetyLock?: string(name='SafetyLock'),
+  secondaryInternetEndpoint?: string(name='SecondaryInternetEndpoint'),
+  secondaryIntranetEndpoint?: string(name='SecondaryIntranetEndpoint'),
   serviceConfig?: string(name='ServiceConfig'),
   serviceGroup?: string(name='ServiceGroup'),
   serviceId?: string(name='ServiceId'),
@@ -1023,7 +1025,9 @@ async function deleteServiceCronScaler(ClusterId: string, ServiceName: string): 
 }
 
 model DeleteServiceInstancesRequest {
+  container?: string(name='Container'),
   instanceList?: string(name='InstanceList', example='foo-rdsbxxxx,foo-rdsaxxxx'),
+  softRestart?: boolean(name='SoftRestart'),
 }
 
 model DeleteServiceInstancesResponseBody = {
@@ -1040,8 +1044,14 @@ model DeleteServiceInstancesResponse = {
 async function deleteServiceInstancesWithOptions(ClusterId: string, ServiceName: string, request: DeleteServiceInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteServiceInstancesResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
+  if (!Util.isUnset(request.container)) {
+    query['Container'] = request.container;
+  }
   if (!Util.isUnset(request.instanceList)) {
     query['InstanceList'] = request.instanceList;
+  }
+  if (!Util.isUnset(request.softRestart)) {
+    query['SoftRestart'] = request.softRestart;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -1586,6 +1596,47 @@ async function describeServiceCronScaler(ClusterId: string, ServiceName: string)
   return describeServiceCronScalerWithOptions(ClusterId, ServiceName, headers, runtime);
 }
 
+model DescribeServiceDiagnosisResponseBody = {
+  diagnosisList?: [ 
+    {
+      advices?: [ string ](name='Advices'),
+      causes?: [ string ](name='Causes'),
+      error?: string(name='Error', example='Container worker0 failed to pull image.'),
+    }
+  ](name='DiagnosisList'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model DescribeServiceDiagnosisResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DescribeServiceDiagnosisResponseBody(name='body'),
+}
+
+async function describeServiceDiagnosisWithOptions(ClusterId: string, ServiceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeServiceDiagnosisResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeServiceDiagnosis',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(ServiceName)}/diagnosis`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function describeServiceDiagnosis(ClusterId: string, ServiceName: string): DescribeServiceDiagnosisResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeServiceDiagnosisWithOptions(ClusterId, ServiceName, headers, runtime);
+}
+
 model DescribeServiceEventRequest {
   endTime?: string(name='EndTime', example='2006-01-02 15:04:05'),
   eventType?: string(name='EventType', example='Normal'),
@@ -1660,6 +1711,45 @@ async function describeServiceEvent(ClusterId: string, ServiceName: string, requ
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return describeServiceEventWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
+model DescribeServiceInstanceDiagnosisResponseBody = {
+  diagnosis?: {
+    advices?: [ string ](name='Advices'),
+    causes?: [ string ](name='Causes'),
+    error?: string(name='Error', example='Container worker0 failed to pull image.'),
+  }(name='Diagnosis'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82***'),
+}
+
+model DescribeServiceInstanceDiagnosisResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DescribeServiceInstanceDiagnosisResponseBody(name='body'),
+}
+
+async function describeServiceInstanceDiagnosisWithOptions(ClusterId: string, ServiceName: string, InstanceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeServiceInstanceDiagnosisResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeServiceInstanceDiagnosis',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(ServiceName)}/instances/${OpenApiUtil.getEncodeParam(InstanceName)}/diagnosis`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function describeServiceInstanceDiagnosis(ClusterId: string, ServiceName: string, InstanceName: string): DescribeServiceInstanceDiagnosisResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeServiceInstanceDiagnosisWithOptions(ClusterId, ServiceName, InstanceName, headers, runtime);
 }
 
 model DescribeServiceLogRequest {
@@ -2015,15 +2105,15 @@ async function listResourceInstanceWorker(ClusterId: string, ResourceId: string,
 
 model ListResourceInstancesRequest {
   chargeType?: string(name='ChargeType', example='PrePaid'),
-  filter?: string(name='Filter'),
-  instanceIP?: string(name='InstanceIP'),
+  filter?: string(name='Filter', example='10.224.xx.xx'),
+  instanceIP?: string(name='InstanceIP', example='10.224.xx.xx'),
   instanceId?: string(name='InstanceId', example='i-bp1jd6x3uotsv****'),
   instanceName?: string(name='InstanceName', example='e-xxxx***'),
-  instanceStatus?: string(name='InstanceStatus'),
-  order?: string(name='Order'),
+  instanceStatus?: string(name='InstanceStatus', example='Ready'),
+  order?: string(name='Order', example='desc'),
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='20'),
-  sort?: string(name='Sort'),
+  sort?: string(name='Sort', example='CreateTime'),
 }
 
 model ListResourceInstancesResponseBody = {
@@ -2218,20 +2308,58 @@ async function listResources(request: ListResourcesRequest): ListResourcesRespon
   return listResourcesWithOptions(request, headers, runtime);
 }
 
+model ListServiceContainersResponseBody = {
+  containers?: [
+    ContainerInfo
+  ](name='Containers'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  serviceName?: string(name='ServiceName', example='foo'),
+}
+
+model ListServiceContainersResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListServiceContainersResponseBody(name='body'),
+}
+
+async function listServiceContainersWithOptions(ClusterId: string, ServiceName: string, InstanceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListServiceContainersResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ListServiceContainers',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(ServiceName)}/instances/${OpenApiUtil.getEncodeParam(InstanceName)}/containers`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listServiceContainers(ClusterId: string, ServiceName: string, InstanceName: string): ListServiceContainersResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listServiceContainersWithOptions(ClusterId, ServiceName, InstanceName, headers, runtime);
+}
+
 model ListServiceInstancesRequest {
-  filter?: string(name='Filter'),
-  hostIP?: string(name='HostIP'),
-  instanceIP?: string(name='InstanceIP'),
-  instanceName?: string(name='InstanceName'),
-  instanceStatus?: string(name='InstanceStatus'),
-  instanceType?: string(name='InstanceType'),
-  isSpot?: boolean(name='IsSpot'),
-  order?: string(name='Order'),
+  filter?: string(name='Filter', example='10.118.xx.xx'),
+  hostIP?: string(name='HostIP', example='10.224.xx.xx'),
+  instanceIP?: string(name='InstanceIP', example='10.224.xx.xx'),
+  instanceName?: string(name='InstanceName', example='foo-bdc5xxxx-8l7rk'),
+  instanceStatus?: string(name='InstanceStatus', example='Running'),
+  instanceType?: string(name='InstanceType', example='ecs.c7.large'),
+  isSpot?: boolean(name='IsSpot', example='false'),
+  order?: string(name='Order', example='desc'),
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='20'),
-  resourceType?: string(name='ResourceType'),
-  role?: string(name='Role'),
-  sort?: string(name='Sort'),
+  resourceType?: string(name='ResourceType', example='PublicResource'),
+  role?: string(name='Role', example='Queue'),
+  sort?: string(name='Sort', example='StartTime'),
 }
 
 model ListServiceInstancesResponseBody = {
@@ -2654,6 +2782,41 @@ async function releaseService(ClusterId: string, ServiceName: string, request: R
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return releaseServiceWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
+model RestartServiceResponseBody = {
+  message?: string(name='Message', example='Service is restarting'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model RestartServiceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: RestartServiceResponseBody(name='body'),
+}
+
+async function restartServiceWithOptions(ClusterId: string, ServiceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): RestartServiceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'RestartService',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(ServiceName)}/restart`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function restartService(ClusterId: string, ServiceName: string): RestartServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return restartServiceWithOptions(ClusterId, ServiceName, headers, runtime);
 }
 
 model StartBenchmarkTaskResponseBody = {
