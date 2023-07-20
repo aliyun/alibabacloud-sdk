@@ -214,6 +214,33 @@ async function addClientUserDefineRule(request: AddClientUserDefineRuleRequest):
   return @handler.do('RPC', 'AddClientUserDefineRule', 'POST', '/', 'json', false, 'json', request);
 }
 
+model AddImageVulWhiteListRequest {
+  lang?: string(name='Lang', example='zh', position='Query'),
+  reason?: string(name='Reason', example='already config in another way', position='Query'),
+  target?: string(name='Target', example='{\\"type\\":\\"repo\\",\\"target\\":[\\"sas_test/script_0209\\",\\"sas_test/script\\"]}', position='Query'),
+  type?: string(name='Type', example='cve', position='Query'),
+  whitelist?: string(name='Whitelist', example='[{\\"Type\\":\\"sca\\",\\"Name\\":\\"imgsca:java:spring-core:AVD-2022-1124599\\",\\"AliasName\\":\\"Spring Framework JDK >= 9 (CVE-2022-22965)\\"}]', position='Query'),
+}
+
+model AddImageVulWhiteListResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: boolean(name='Data', example='true'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='successful'),
+  requestId?: string(name='RequestId', example='F8B6F758-BCD4-597A-8A2C-DA5A552C****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model AddImageVulWhiteListResponse = {
+  headers: map[string]string(name='headers'),
+  body: AddImageVulWhiteListResponseBody(name='body'),
+}
+
+async function addImageVulWhiteList(request: AddImageVulWhiteListRequest): AddImageVulWhiteListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'AddImageVulWhiteList', 'POST', '/', 'json', false, 'json', request);
+}
+
 model AddInstallCodeRequest {
   expiredDate?: long(name='ExpiredDate', description='The validity period of the installation command. The value is a 13-digit timestamp.
 
@@ -607,8 +634,43 @@ async function cancelOnceTask(request: CancelOnceTaskRequest): CancelOnceTaskRes
   return @handler.do('RPC', 'CancelOnceTask', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ChangeAssetRefreshTaskConfigRequest {
+  assetRefreshConfigs?: [ 
+    {
+      schedulePeriod?: int32(name='SchedulePeriod', example='360'),
+      status?: int32(name='Status', example='1'),
+      vendor?: int32(name='Vendor', example='3'),
+    }
+  ](name='AssetRefreshConfigs', position='Query'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+}
+
+model ChangeAssetRefreshTaskConfigResponseBody = {
+  data?: boolean(name='Data', example='true'),
+  message?: string(name='Message', example='successful'),
+  requestId?: string(name='RequestId', example='BE120DAB-F4E7-4C53-ADC3-A97578ABF384'),
+}
+
+model ChangeAssetRefreshTaskConfigResponse = {
+  headers: map[string]string(name='headers'),
+  body: ChangeAssetRefreshTaskConfigResponseBody(name='body'),
+}
+
+async function changeAssetRefreshTaskConfig(request: ChangeAssetRefreshTaskConfigRequest): ChangeAssetRefreshTaskConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ChangeAssetRefreshTaskConfig', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ChangeCheckConfigRequest {
+  addedCheck?: [ 
+    {
+      checkId?: long(name='CheckId'),
+      sectionId?: long(name='SectionId'),
+    }
+  ](name='AddedCheck', position='Query'),
   cycleDays?: [ int32 ](name='CycleDays', position='Query'),
+  enableAddCheck?: boolean(name='EnableAddCheck', position='Query'),
+  enableAutoCheck?: boolean(name='EnableAutoCheck', position='Query'),
   endTime?: int32(name='EndTime', description='The end time of the check. The value specifies a point in time in a day. The time period that is specified by the start time and end time must be one of the following time periods:
 
 *   **00:00 to 06:00:** If you set the StartTime parameter to 0, you must set the EndTime parameter to 6.
@@ -618,6 +680,12 @@ model ChangeCheckConfigRequest {
   regionId?: string(name='RegionId', description='The region ID of the bastion host to query.
 
 >  For more information about the mapping between region IDs and region names, see [Regions and zones](~~40654~~).', example='cn-hangzhou', position='Query'),
+  removedCheck?: [ 
+    {
+      checkId?: long(name='CheckId'),
+      sectionId?: long(name='SectionId'),
+    }
+  ](name='RemovedCheck', position='Query'),
   standardIds?: [ long ](name='StandardIds', description='An array that consists of the information about the check item.', position='Query'),
   startTime?: int32(name='StartTime', description='The start time of the check. The value specifies a point in time in a day.', example='0', position='Query'),
 }
@@ -791,8 +859,10 @@ async function confirmVirusEvents(request: ConfirmVirusEventsRequest): ConfirmVi
 
 model CreateAgentlessScanTaskRequest {
   autoDeleteDays?: int32(name='AutoDeleteDays', example='1', position='Query'),
+  releaseAfterScan?: boolean(name='ReleaseAfterScan', position='Query'),
+  scanDataDisk?: boolean(name='ScanDataDisk', position='Query'),
   targetType?: int32(name='TargetType', example='2', position='Query'),
-  uuidList?: [ string ](name='UuidList', position='Query'),
+  uuidList: [ string ](name='UuidList', position='Query'),
 }
 
 model CreateAgentlessScanTaskResponseBody = {
@@ -1062,9 +1132,9 @@ async function createCycleTask(request: CreateCycleTaskRequest): CreateCycleTask
 }
 
 model CreateFileDetectRequest {
-  downloadUrl?: string(name='DownloadUrl', example='https://xxxxxxxx.oss-cn-hangzhou-1.aliyuncs.com/xxxxx/xxxxxxxxxxxxxx?Expires=1671448125&OSSAccessKeyId=xxx', position='Query'),
+  downloadUrl?: string(name='DownloadUrl', description='The URL that is used to download the file. You can specify this parameter to trigger file detection without the need to upload the file in advance.', example='https://xxxxxxxx.oss-cn-hangzhou-1.aliyuncs.com/xxxxx/xxxxxxxxxxxxxx?Expires=1671448125&OSSAccessKeyId=xxx', position='Query'),
   hashKey: string(name='HashKey', description='The identifier of the file. Only MD5 hash values are supported.', example='0a212417e65c26ff133cfff28f6c****', position='Query'),
-  ossKey?: string(name='OssKey', description='The key of the file that is stored in the Object Storage Service (OSS) bucket. You can call the [CreateFileDetectUploadUrl](~~CreateFileDetectUploadUrl~~) operation to query the keys of files.', example='1/2022/06/23/15/41/16559701077444693a0c6-33b2-4cc2-a99f-9f38b8b8****', position='Query'),
+  ossKey?: string(name='OssKey', description='The key of the file that is stored in the Object Storage Service (OSS) bucket. If you specify the DownloadUrl parameter, you can leave this parameter empty. You can call the [CreateFileDetectUploadUrl](~~CreateFileDetectUploadUrl~~) operation to query the keys of files.', example='1/2022/06/23/15/41/16559701077444693a0c6-33b2-4cc2-a99f-9f38b8b8****', position='Query'),
   sourceIp?: string(name='SourceIp', description='The source IP address of the request.', example='115.213.XX.XX', position='Query'),
   type: int32(name='Type', description='The type of the file. Valid values:
 
@@ -1088,7 +1158,10 @@ model CreateFileDetectResponse = {
 
 /**
   * You can call this operation to push a file to the cloud for detection. Before you call this operation, make sure that the file is uploaded. You can call the CreateFileDetectUploadUrl operation to upload the file.
-  * The HashKey parameter is included in all API operations that are related to the file detection feature. The parameter specifies the unique identifier of a file. Only MD5 hash values are supported. Before you call this operation, calculate the MD5 hash value of the file.
+  * The HashKey parameter is included in all API operations that are related to the file detection feature. The parameter specifies the unique identifier of a file. Only hexadecimal MD5 hash values of complete file content are supported. You must calculate the MD5 hash value before you call this operation.
+  * To calculate the hexadecimal MD5 hash value for a file, you can perform the following steps:
+  * 1\\. Use the MD5 algorithm to encrypt data and generate a 128-bit hash value. You can use a tool such as MessageDigest for Java and the hashlib module for Python.
+  * 2\\. Convert the hash value to a hexadecimal string. You can use a tool such as Codec for Java and the hex() function for Python.
   *
  */
 async function createFileDetect(request: CreateFileDetectRequest): CreateFileDetectResponse {
@@ -1259,7 +1332,10 @@ async function createHoneypotNode(request: CreateHoneypotNodeRequest): CreateHon
 
 model CreateHoneypotPresetRequest {
   honeypotImageName: string(name='HoneypotImageName', description='The name of the honeypot image.', example='webmin', position='Query'),
-  lang?: string(name='Lang', example='zh', position='Query'),
+  lang?: string(name='Lang', description='The language of the content within the request and response. Default value: **zh**. Valid values:
+
+*   **zh**: Chinese
+*   **en**: English', example='zh', position='Query'),
   meta: string(name='Meta', description='The custom configurations of the honeypot template. The value is a JSON string that contains the following fields:
 
 *   **portrait_option**: Social Source Tracing
@@ -1910,6 +1986,26 @@ async function deleteBackupPolicyMachine(request: DeleteBackupPolicyMachineReque
   return @handler.do('RPC', 'DeleteBackupPolicyMachine', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DeleteBinarySecurityPolicyRequest {
+  name?: string(name='Name', example='policy-auto-bfu7pm', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  sourceIp?: string(name='SourceIp', example='42.120.XXX.XXX', position='Query'),
+}
+
+model DeleteBinarySecurityPolicyResponseBody = {
+  requestId?: string(name='RequestId', example='A6CFADC0-1167-521A-9284-8CD8034C****'),
+}
+
+model DeleteBinarySecurityPolicyResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteBinarySecurityPolicyResponseBody(name='body'),
+}
+
+async function deleteBinarySecurityPolicy(request: DeleteBinarySecurityPolicyRequest): DeleteBinarySecurityPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteBinarySecurityPolicy', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DeleteClientUserDefineRuleRequest {
   idList: [ long ](name='IdList', description='The IDs of the custom defense rules.', position='Query'),
 }
@@ -1999,7 +2095,10 @@ model DeleteHoneypotRequest {
   honeypotId: string(name='HoneypotId', description='The ID of the honeypot.
 
 > You can call the [ListHoneypot](~~ListHoneypot~~) operation to query the IDs of honeypots.', example='558b5fa40948ebe2171a74757c54dc7e58f761870fa7ee6a105e70947ec82aa9', position='Query'),
-  lang?: string(name='Lang', example='zh', position='Query'),
+  lang?: string(name='Lang', description='The language of the content within the request and response. Default value: **zh**. Valid values:
+
+*   **zh**: Chinese
+*   **en**: English', example='zh', position='Query'),
 }
 
 model DeleteHoneypotResponseBody = {
@@ -2024,7 +2123,10 @@ async function deleteHoneypot(request: DeleteHoneypotRequest): DeleteHoneypotRes
 }
 
 model DeleteHoneypotNodeRequest {
-  lang?: string(name='Lang', example='zh', position='Query'),
+  lang?: string(name='Lang', description='The language of the content within the request and response. Default value: **zh**. Valid values:
+
+*   **zh**: Chinese
+*   **en**: English', example='zh', position='Query'),
   nodeId: string(name='NodeId', description='The ID of the management node.
 
 > You can call the [ListHoneypotNode](~~ListHoneypotNode~~) operation to query the IDs of management nodes.', example='670baeee-86c4-46b9-8200-a2c38141a453', position='Query'),
@@ -2448,8 +2550,10 @@ model DescribeAccessKeyLeakDetailResponseBody = {
   remark?: string(name='Remark', example='12'),
   requestId?: string(name='RequestId', example='79CFF74D-E967-5407-8A78-EE03B925FDAA'),
   source?: string(name='Source', example='GitHub'),
+  tokenValid?: int32(name='TokenValid'),
   type?: string(name='Type', example='AccessKey'),
   whitelistStatus?: string(name='WhitelistStatus', example='no'),
+  whitelistTime?: long(name='WhitelistTime'),
 }
 
 model DescribeAccessKeyLeakDetailResponse = {
@@ -2849,6 +2953,7 @@ model DescribeAlarmEventStackInfoRequest {
 
 *   **zh**: Chinese
 *   **en**: English', example='zh', position='Query'),
+  resourceDirectoryAccountId?: long(name='ResourceDirectoryAccountId', position='Query'),
   sourceIp?: string(name='SourceIp', description='The source IP address of the request.', example='192.168.XX.XX', position='Query'),
   uniqueInfo: string(name='UniqueInfo', description='The ID of the alert event.', example='1fbe8d16727f61d1478a674d6fa0****', position='Query'),
   uuid: string(name='Uuid', description='The UUID of the server to query.
@@ -3135,6 +3240,7 @@ model DescribeAssetDetailByUuidsRequest {
 
 *   **zh**: Chinese
 *   **en**: English', example='zh', position='Query'),
+  resourceDirectoryAccountId?: long(name='ResourceDirectoryAccountId', position='Query'),
   uuids: string(name='Uuids', description='The UUIDs of the ECS instances. Separate multiple UUIDs with commas (,).', example='0687b17f-2a36-4e5****,0687b17f-2a36-4e****', position='Query'),
 }
 
@@ -4416,6 +4522,7 @@ model DescribeCloudCenterInstancesRequest {
 *   **false**: The system returns default for the **GroupTrace** response parameter.', example='false', position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Default value: **20**.', example='100', position='Query'),
   regionId?: string(name='RegionId', description='The ID of the region in which the asset resides.', example='cn-hangzhou', position='Query'),
+  resourceDirectoryAccountId?: long(name='ResourceDirectoryAccountId', position='Query'),
   useNextToken?: boolean(name='UseNextToken', position='Query'),
 }
 
@@ -6467,6 +6574,7 @@ async function describeExposedStatisticsDetail(request: DescribeExposedStatistic
 model DescribeFieldStatisticsRequest {
   machineTypes?: string(name='MachineTypes', description='The total number of cloud services that are protected by Security Center.', example='ecs', position='Query'),
   regionId?: string(name='RegionId', description='The number of regions to which the servers belong.', example='cn-hangzhou', position='Query'),
+  resourceDirectoryAccountId?: long(name='ResourceDirectoryAccountId', position='Query'),
 }
 
 model DescribeFieldStatisticsResponseBody = {
@@ -6917,6 +7025,7 @@ model DescribeGroupedVulRequest {
 *   **later**: medium
 *   **nntf**: low', example='asap,later,nntf', position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10.', example='20', position='Query'),
+  resourceDirectoryAccountId?: long(name='ResourceDirectoryAccountId', position='Query'),
   searchTags?: string(name='SearchTags', description='The tag that is used to filter vulnerabilities. Valid values:
 
 *   Restart required
@@ -7048,7 +7157,10 @@ async function describeHoneyPotAuth(request: DescribeHoneyPotAuthRequest): Descr
 
 model DescribeHoneyPotSuspStatisticsRequest {
   from: string(name='From', description='The source of the request. Set the value to **honeypot**.', example='honeypot', position='Query'),
-  lang?: string(name='Lang', example='zh', position='Query'),
+  lang?: string(name='Lang', description='The language of the content within the request and response. Valid values:
+
+*   **zh**: Chinese
+*   **en**: English', example='zh', position='Query'),
   statisticsDays: int32(name='StatisticsDays', description='The time range of the data to query. Unit: days.', example='30', position='Query'),
   statisticsKeyType: string(name='StatisticsKeyType', description='The type of the asset to query. Valid values:
 
@@ -9050,6 +9162,48 @@ async function describeImageVulList(request: DescribeImageVulListRequest): Descr
   return @handler.do('RPC', 'DescribeImageVulList', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeImageVulWhiteListRequest {
+  aliasName?: string(name='AliasName', example='CVE-2007-5686:rpath_linux', position='Query'),
+  currentPage?: int32(name='CurrentPage', example='1', position='Query'),
+  lang?: string(name='Lang', example='zh', position='Query'),
+  pageSize?: int32(name='PageSize', example='20', position='Query'),
+}
+
+model DescribeImageVulWhiteListResponseBody = {
+  code?: string(name='Code', example='200'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  imageVulWhitelist?: [ 
+    {
+      aliasName?: string(name='AliasName', example='CVE-2019-19906:in_sasl_add_string'),
+      id?: long(name='Id', example='34032043'),
+      name?: string(name='Name', example='scan:AVD-2022-953356'),
+      reason?: string(name='Reason', example='already config in another way'),
+      target?: string(name='Target', example='{\\"type\\":\\"repo\\",\\"target\\":[\\"sas_test/script_0209\\",\\"sas_test/script\\"]}'),
+      type?: string(name='Type', example='sca'),
+    }
+  ](name='ImageVulWhitelist'),
+  message?: string(name='Message', example='successful'),
+  pageInfo?: {
+    count?: int32(name='Count', example='20'),
+    currentPage?: int32(name='CurrentPage', example='1'),
+    pageSize?: int32(name='PageSize', example='20'),
+    totalCount?: int32(name='TotalCount', example='100'),
+  }(name='PageInfo'),
+  requestId?: string(name='RequestId', example='911025D0-3D1E-5213-A18A-37EA0C92****'),
+  success?: boolean(name='Success', example='true'),
+  timeCost?: long(name='TimeCost', example='1'),
+}
+
+model DescribeImageVulWhiteListResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeImageVulWhiteListResponseBody(name='body'),
+}
+
+async function describeImageVulWhiteList(request: DescribeImageVulWhiteListRequest): DescribeImageVulWhiteListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeImageVulWhiteList', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DescribeInstallCaptchaRequest {
   deadline?: string(name='Deadline', description='The validity period of the installation verification code. If this parameter is not specified, the validity period is 1 hour.
 
@@ -9579,6 +9733,24 @@ model DescribeModuleConfigResponse = {
 async function describeModuleConfig(request: DescribeModuleConfigRequest): DescribeModuleConfigResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeModuleConfig', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeMonitorAccountsRequest {
+}
+
+model DescribeMonitorAccountsResponseBody = {
+  accountIds?: [ string ](name='AccountIds'),
+  requestId?: string(name='RequestId', example='028CF634-5268-5660-9575-48C9ED6BF880'),
+}
+
+model DescribeMonitorAccountsResponse = {
+  headers: map[string]string(name='headers'),
+  body: DescribeMonitorAccountsResponseBody(name='body'),
+}
+
+async function describeMonitorAccounts(request: DescribeMonitorAccountsRequest): DescribeMonitorAccountsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeMonitorAccounts', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeNoticeConfigRequest {
@@ -11520,7 +11692,46 @@ model DescribeSecureSuggestionResponseBody = {
 *   **SS_CLOUD_HC**: configuration risks of cloud services
 *   **OTHER**: others', example='SS_ALARM'),
     }
-  ](name='Suggestions', description='An array that consists of the unhandled security risks.'),
+  ](name='Suggestions', description='The sub-type of the unhandled risk. Valid values:
+
+*   **ALARM_HIGH**: Unhandled Urgency Alerts
+*   **ALARM_MEDIUM**: Unhandled Warning Alerts
+*   **ALARM_LOW**: Unhandled Reminder Alerts
+*   **VUL_EMR_UNCHECK**: Unchecked Urgent Vulnerabilities
+*   **VUL_EMR_UNFIX**: Unfixed Urgent Vulnerabilities
+*   **VUL_WIN**: Unfixed Windows Server Vulnerabilities
+*   **VUL_LINUX**: Unfixed Linux Server Vulnerabilities
+*   **VUL_CMS**: Unfixed CMS Vulnerabilities
+*   **ACCESSKEY_LEAK**: AccessKey Leakage Risks
+*   **HC_WARN**: Baseline Risks
+*   **HC_WEAK_EXPLOIT_WARN**: There is a risk of weak passwords exposed by the public network.
+*   **HC_WEAK_PASSWORD_WARN**: Risk of weak password
+*   **HC_HIGH_EXPLOIT_WARN**: There is a high risk of invasion
+*   **HC_OTHER_WARN**: Security Configuration risk
+*   **HC_DATABASE_WARN**: Database has security risks
+*   **CLOUD_HC_SAS_OPEN**: Security protection has not been installed on the server
+*   **CLOUD_HC_AEGIS_OFFLINE**: Server protection status is offline
+*   **CLOUD_HC_ACCOUNT_DOUBLE_CHECK**: Two-Factor Authentication not Enabled for Primary Account
+*   **CLOUD_HC_RDS**: RDS-database security policy failed, security risks
+*   **CLOUD_HC_DDOS**: Risks in Anti-DDoS Pro Back-to-Origin Settings
+*   **CLOUD_HC_HIGH_LEVEL**: Cloud product configuration has high risk
+*   **CLOUD_HC_OTHER_LEVEL**: Cloud product configuration has medium and low risk risks
+*   **OTHER_ATTACH**: Attacks
+*   **OTHER_DATABASE_ATTACH**: Database has security risks
+*   **REINFORCE_BASELINE**: Config Assessment
+*   **REINFORCE_SUSPICIOUS**: Antivirus
+*   **REINFORCE_ANALYSIS**: Log Analysis
+*   **REINFORCE_AK_LEAK**: AccessKey Leaked Intelligence Detection
+*   **REINFORCE_WEB_LOCK**: Website tamper-proofing capability not configured
+*   **REINFORCE_BRUTE_FORCE**: Anti brute force cracking
+*   **REINFORCE_XPRESS_INSTALL**: One-click client installation
+*   **REINFORCE_RANSOMWARE**: Enable anti-extortion strategy
+*   **REINFORCE_UNI_RANSOMWARE**: Anti-ransomware for Databases
+*   **REINFORCE_VIRUS_SCHEDULE_SCAN**: Periodic virus scan policies not configured
+*   **REINFORCE_IMAGE_REPO_SCAN**: No container image scan range configured
+*   **REINFORCE_IMAGE_SCAN_TASK**: Image security scan
+*   **REINFORCE_K8S_LOG_ANALYSIS**: Container K8s threat detection is disabled
+*   **REINFORCE_CONTAINER_NETWORK**: Container Visualization'),
   totalCount?: int32(name='TotalCount', description='The total number of unhandled security risks.', example='15'),
 }
 
@@ -12342,6 +12553,7 @@ model DescribeSuspEventDetailRequest {
 
 *   **zh**: Chinese
 *   **en**: English', example='zh', position='Query'),
+  resourceDirectoryAccountId?: long(name='ResourceDirectoryAccountId', position='Query'),
   sourceIp?: string(name='SourceIp', description='The source IP address of the request.', example='121.33.XX.XX', position='Query'),
   suspiciousEventId: int32(name='SuspiciousEventId', description='The ID of the exception.', example='32750999', position='Query'),
 }
@@ -12601,6 +12813,7 @@ model DescribeSuspEventsRequest {
   remark?: string(name='Remark', description='The name of the alert or the information about the asset.
 
 >  Fuzzy search is supported. The asset information includes the name, public IP address, and private IP address of an asset.', example='192.168.XX.XX', position='Query'),
+  resourceDirectoryAccountId?: long(name='ResourceDirectoryAccountId', position='Query'),
   sortColumn?: string(name='SortColumn', description='The custom sorting field. Default value: **operateTime**. Valid values:
 
 *   **lastTime**: the latest occurrence time.
@@ -13873,6 +14086,7 @@ model DescribeVulDetailsRequest {
   name: string(name='Name', description='The name of the vulnerability.
 
 > You can call the [DescribeGroupedVul](~~DescribeGroupedVul~~) or [DescribeVulList](~~DescribeVulList~~) operation to query the names of vulnerabilities.', example='SCA:ACSV-2020-052801', position='Query'),
+  resourceDirectoryAccountId?: long(name='ResourceDirectoryAccountId', position='Query'),
   type: string(name='Type', description='The type of the vulnerability. Valid values:
 
 *   **cve**: Linux software vulnerability
@@ -14082,6 +14296,7 @@ model DescribeVulListRequest {
 *   **nntf**: low', example='asap,later,nntf', position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: **10**.', example='20', position='Query'),
   remark?: string(name='Remark', description='The remarks for the asset affected by the vulnerability. The value can be the private IP address, public IP address, or name of the asset.', example='1.2.XX.XX', position='Query'),
+  resourceDirectoryAccountId?: long(name='ResourceDirectoryAccountId', position='Query'),
   type: string(name='Type', description='The type of the vulnerability. Valid values:
 
 *   **cve**: Linux software vulnerability
@@ -14529,7 +14744,9 @@ model DescribeWarningMachinesRequest {
 *   **INSTANCE_ID**: the ID of the instance', example='containerId', position='Query'),
   containerFieldValue?: string(name='ContainerFieldValue', description='The value of the field that is used to search for the container.', example='c8bb3ef0f5ccf45508f0fd1ffc200****', position='Query'),
   currentPage?: int32(name='CurrentPage', description='The number of the page to return. Default value: **1**.', example='1', position='Query'),
-  groupId?: long(name='GroupId', example='123', position='Query'),
+  groupId?: long(name='GroupId', description='The ID of the new server group to which the servers belong.
+
+>  You can call the [DescribeAllGroups](~~DescribeAllGroups~~) operation to query the IDs of server groups.', example='123', position='Query'),
   haveRisk?: int32(name='HaveRisk', description='Specifies whether risks were detected. Valid values:
 
 *   **1**: yes
@@ -14572,8 +14789,8 @@ model DescribeWarningMachinesResponseBody = {
 
 *   **true**: yes
 *   **false**: no', example='true'),
-      containerId?: string(name='ContainerId'),
-      containerName?: string(name='ContainerName'),
+      containerId?: string(name='ContainerId', description='The ID of the container.', example='48a6d9a92435a13ad573372c3f3c63b7e04d106458141df9f92155709d******'),
+      containerName?: string(name='ContainerName', description='The name of container.', example='redis'),
       highWarningCount?: int32(name='HighWarningCount', description='The number of **high-risk** items on the server.', example='10'),
       instanceId?: string(name='InstanceId', description='The ID of the server.', example='i-m5ee8b9nr3h30mhb****'),
       instanceName?: string(name='InstanceName', description='The name of the server.', example='oracle-win-00****'),
@@ -15624,10 +15841,13 @@ model GetAgentlessTaskCountRequest {
 }
 
 model GetAgentlessTaskCountResponseBody = {
+  baselineCheckCount?: int32(name='BaselineCheckCount'),
+  cveVulCount?: int32(name='CveVulCount'),
   lastTaskTime?: long(name='LastTaskTime', example='1682577532318'),
   maliciousFile?: int32(name='MaliciousFile', example='1'),
   requestId?: string(name='RequestId', example='D03DD0FD-6041-5107-AC00-383E28F1****'),
   riskMachine?: int32(name='RiskMachine', example='1'),
+  scaVulCount?: int32(name='ScaVulCount'),
   scanMachine?: int32(name='ScanMachine', example='1'),
   vulnerability?: int32(name='Vulnerability', example='1'),
 }
@@ -16017,6 +16237,8 @@ model GetCheckConfigRequest {
 
 model GetCheckConfigResponseBody = {
   cycleDays?: [ int32 ](name='CycleDays', description='An array that consists of days in a week on which an automatic check is performed.'),
+  enableAddCheck?: boolean(name='EnableAddCheck'),
+  enableAutoCheck?: boolean(name='EnableAutoCheck'),
   endTime?: int32(name='EndTime', description='The end time of the check. The value indicates a point in time. The time period that is specified by the start time and end time must be one of the following time periods:
 
 *   **00:00 to 06:00:** The StartTime parameter is set to 0 and the EndTime parameter is set to 6.
@@ -16024,6 +16246,12 @@ model GetCheckConfigResponseBody = {
 *   **12:00 to 18:00**: The StartTime parameter is set to 12 and the EndTime parameter is set to 18.
 *   **18:00 to 24:00:** The StartTime parameter is set to 18 and the EndTime parameter is set to 24.', example='6'),
   requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='5A3D5C8F-2A42-5477-BDD8-27E64B5F1739'),
+  selectedChecks?: [ 
+    {
+      checkId?: long(name='CheckId'),
+      sectionId?: long(name='SectionId'),
+    }
+  ](name='SelectedChecks'),
   standards?: [ 
     {
       id?: long(name='Id', description='The ID of the check item.', example='1'),
@@ -16219,6 +16447,7 @@ async function getCheckSummary(request: GetCheckSummaryRequest): GetCheckSummary
 }
 
 model GetClientRatioStatisticRequest {
+  resourceDirectoryAccountId?: long(name='ResourceDirectoryAccountId', position='Query'),
   statisticTypes?: [ string ](name='StatisticTypes', position='Query'),
   timeEnd: long(name='TimeEnd', example='1686412799999', position='Query'),
   timeStart: long(name='TimeStart', example='1671382800000', position='Query'),
@@ -17939,6 +18168,45 @@ async function listAgentlessTask(request: ListAgentlessTaskRequest): ListAgentle
   return @handler.do('RPC', 'ListAgentlessTask', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ListAssetRefreshTaskConfigRequest {
+  regionId?: string(name='RegionId', description='The region where the Security Center instance is deployed.', example='cn-hangzhou', position='Query'),
+}
+
+model ListAssetRefreshTaskConfigResponseBody = {
+  assetRefreshConfig?: [ 
+    {
+      schedulePeriod?: int32(name='SchedulePeriod', description='The synchronization cycle. Valid values:
+
+*   **60**: 60 minutes
+*   **180**: 3 hours
+*   **360**: 6 hours
+*   **720**: 12 hours
+*   **1440**: 1 day
+*   **10080**: 7 days', example='360'),
+      status?: int32(name='Status', description='The status of asset synchonization. Valid values:
+
+*   **1**: enabled
+*   **0**: disabled', example='1'),
+      vendor?: int32(name='Vendor', description='The service provider of the cloud asset. Valid values:
+
+*   **3**: Tencent Cloud
+*   **4**: HUAWEI CLOUD
+*   **7**: Amazon Web Services (AWS) Cloud', example='3'),
+    }
+  ](name='AssetRefreshConfig', description='An array that consist of the configurations.'),
+  requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='D65AADFC-1D20-5A6A-8F6A-9FA53C0DC1F8'),
+}
+
+model ListAssetRefreshTaskConfigResponse = {
+  headers: map[string]string(name='headers'),
+  body: ListAssetRefreshTaskConfigResponseBody(name='body'),
+}
+
+async function listAssetRefreshTaskConfig(request: ListAssetRefreshTaskConfigRequest): ListAssetRefreshTaskConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListAssetRefreshTaskConfig', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListAssetSelectionSelectedTargetRequest {
   selectionKey: string(name='SelectionKey', example='2e6ab33d-4e00-4581-ac16-0dd1f9ad****', position='Query'),
   targetList?: [ string ](name='TargetList', position='Query'),
@@ -18071,6 +18339,7 @@ model ListCheckInstanceResultResponseBody = {
 *   **CHECKING**
 *   **NOT_CHECK**
 *   **WHITELIST**', example='NOT_PASS'),
+      statusMessage?: string(name='StatusMessage'),
     }
   ](name='BasicData', description='An array that consists of the basic information about the instances.'),
   checks?: [ map[string]any ](name='Checks', description='The extended information about the instances.', example='[{
@@ -18266,7 +18535,9 @@ model ListCheckItemWarningSummaryResponseBody = {
 *  **medium**
 *   **low**', example='high'),
       checkType?: string(name='CheckType', description='The type of the check item.', example='Security audit'),
-      containerCheckItem?: boolean(name='ContainerCheckItem', example='true'),
+      containerCheckItem?: boolean(name='ContainerCheckItem', description='Checks if the item belongs to the container runtime category.Valid values:
+*   **true**
+*  **false**', example='true'),
       description?: string(name='Description', description='The description of the check item.', example='Config the Event Audit policys'),
       riskType?: string(name='RiskType', description='The type of the baseline.', example='weak_password'),
       status?: int32(name='Status', description='The risk status of the check item.Valid values:
@@ -18298,6 +18569,7 @@ async function listCheckItemWarningSummary(request: ListCheckItemWarningSummaryR
 model ListCheckResultRequest {
   checkKey?: string(name='CheckKey', description='The key that you want to use to search for check items in fuzzy match mode.', example='OSS', position='Query'),
   currentPage?: int32(name='CurrentPage', description='The page number.', example='2', position='Query'),
+  customParam?: boolean(name='CustomParam', position='Query'),
   instanceIds?: [ string ](name='InstanceIds', description='The instance IDs of the cloud services that you want to query. Separate multiple IDs with commas (,).', position='Query'),
   instanceTypes?: [ string ](name='InstanceTypes', description='The asset type of the cloud services. Valid values:
 
@@ -18435,6 +18707,7 @@ model ListCheckResultResponseBody = {
 *   **CHECKING**
 *   **NOT_CHECK**
 *   **WHITELIST**', example='PASS'),
+      statusMessage?: string(name='StatusMessage'),
       taskId?: string(name='TaskId', description='The ID of the check task.', example='64'),
       trialPermission?: boolean(name='TrialPermission', description='Indicates whether the TRIAL permission is required.', example='true'),
       vendor?: string(name='Vendor', description='The value of the cloud service provider.', example='ALIYUN'),
@@ -23442,6 +23715,7 @@ async function startVirusScanTask(request: StartVirusScanTaskRequest): StartViru
 }
 
 model SubmitCheckRequest {
+  scanRange?: string(name='ScanRange', position='Query'),
 }
 
 model SubmitCheckResponseBody = {
@@ -23542,7 +23816,10 @@ model UpdateHoneypotRequest {
 
 > You can call the [ListHoneypot](~~ListHoneypot~~) operation to query the IDs of honeypots.', example='945607c2ae2a1a737c04599d6608065688bfc6048d9b9d306ce8dc8191c278b4', position='Query'),
   honeypotName?: string(name='HoneypotName', description='The custom name of the honeypot.', example='ExtMail', position='Query'),
-  lang?: string(name='Lang', position='Query'),
+  lang?: string(name='Lang', description='The language of the content within the request and response. Default value: **zh**. Valid values:
+
+*   **zh**: Chinese
+*   **en**: English', example='zh', position='Query'),
   meta?: string(name='Meta', description='The custom configuration of the honeypot.
 
 > You can call the [ListAvailableHoneypot](~~ListAvailableHoneypot~~) operation to query the configurations of honeypots from the **Template** response parameter.', example='{\\"burp\\":\\"open\\",\\"webshell\\":\\"open\\",\\"trojan_git\\":\\"close\\",\\"portrait_option\\":\\"true\\"}', position='Query'),
@@ -23613,7 +23890,10 @@ model UpdateHoneypotPresetRequest {
   honeypotPresetId: string(name='HoneypotPresetId', description='The ID of the honeypot template.
 
 > You can call the [ListHoneypotPreset](~~ListHoneypotPreset~~) operation to query the IDs of honeypot templates.', example='f75eddce-e9d3-4a88-af95-b10b6f65xxxx', position='Query'),
-  lang?: string(name='Lang', example='zh', position='Query'),
+  lang?: string(name='Lang', description='The language of the content within the request and response. Default value: **zh**. Valid values:
+
+*   **zh**: Chinese
+*   **en**: English', example='zh', position='Query'),
   meta?: string(name='Meta', description='The custom configurations of the honeypot template. The value is a JSON string that contains the following fields:
 
 *   **portrait_option**: Social Source Tracing
@@ -23646,7 +23926,10 @@ async function updateHoneypotPreset(request: UpdateHoneypotPresetRequest): Updat
 model UpdateHoneypotProbeRequest {
   arp?: boolean(name='Arp', description='Specifies whether address resolution protocol (ARP) is enabled for the check type.', example='false', position='Query'),
   displayName?: string(name='DisplayName', description='The name of the probe.', example='svwsx-vpc-4430', position='Query'),
-  lang?: string(name='Lang', example='zh', position='Query'),
+  lang?: string(name='Lang', description='The language of the content within the request and response. Default value: **zh**. Valid values:
+
+*   **zh**: Chinese
+*   **en**: English', example='zh', position='Query'),
   ping?: boolean(name='Ping', description='Specifies whether ping is enabled for the check type.', example='true', position='Query'),
   probeId: string(name='ProbeId', description='The ID of the probe.
 
@@ -23752,13 +24035,19 @@ async function upgradeBackupPolicyVersion(request: UpgradeBackupPolicyVersionReq
 }
 
 model ValidateHcWarningsRequest {
-  checkIds?: string(name='CheckIds', position='Query'),
-  riskIds?: string(name='RiskIds', description='The IDs of risk items that you want to verify. Separate multiple IDs with commas (,).', example='43', position='Query'),
-  uuids: string(name='Uuids', description='The UUIDs of servers on which you want to verify risk items.', example='78645c8e-2e89-441b-8eb,a9622a6b-adb5-4dd3-929e,0136460a-1cb5-44e8-****', position='Query'),
+  checkIds?: string(name='CheckIds', description='The IDs of the check items. Separate multiple IDs with commas (,).
+
+> You can call the [DescribeCheckWarningSummary](~~116179~~) operation to query the IDs of check items.', example='695,234', position='Query'),
+  riskIds?: string(name='RiskIds', description='The list of IDs of the risk items that you want to verify. Separate multiple IDs with commas (,).
+
+> You can call the [DescribeCheckWarnings](~~DescribeCheckWarnings~~) operation to query the IDs of risk items.', example='43', position='Query'),
+  uuids: string(name='Uuids', description='The UUIDs of the servers on which you want to verify the risk items. Separate multiple UUIDs with commas (,).
+
+> You can call the [DescribeCloudCenterInstances](~~DescribeCloudCenterInstances~~) operation to query the UUIDs of servers.', example='78645c8e-2e89-441b-8eb,a9622a6b-adb5-4dd3-929e,0136460a-1cb5-44e8-****', position='Query'),
 }
 
 model ValidateHcWarningsResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='722C4F88-7867-4E7B-8ADE-7451053'),
+  requestId?: string(name='RequestId', description='The request ID.', example='722C4F88-7867-4E7B-8ADE-7451053'),
 }
 
 model ValidateHcWarningsResponse = {
