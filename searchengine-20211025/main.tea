@@ -29,24 +29,40 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model ErrorResponse {
-  code?: string(name='code'),
-  message?: string(name='message'),
-  requestId?: string(name='requestId'),
+  code?: string(name='code', example='InternalServerError'),
+  message?: string(name='message', example='internal server error'),
+  requestId?: string(name='requestId', example='90D6B8F5-FE97-4509-9AAB-367836C51818'),
+}
+
+model VariablesValue = {
+  disableModify?: boolean(name='disableModify', description='Specifies whether the variable cannot be modified.', example='false'),
+  isModify?: boolean(name='isModify', description='Specifies whether the variable is modified.', example='false'),
+  value?: string(name='value', description='The value of the variable.', example='""'),
+  description?: string(name='description', description='The description about the variable.', example='""'),
+  templateValue?: string(name='templateValue', description='The value of the template.', example='""'),
+  type?: string(name='type', description='The type of the variable. Valid values:
+
+*   NORMAL: a normal variable
+*   FUNCTION: a function variable', example='NORMAL'),
+  funcValue?: {
+    funcClassName?: string(name='funcClassName', description='The class name.', example='""'),
+    template?: string(name='template', description='The template of the variable.', example='""'),
+  }(name='funcValue', description='The function variable.'),
 }
 
 model BuildIndexRequest {
-  buildMode?: string(name='buildMode'),
-  dataSourceName?: string(name='dataSourceName'),
-  dataSourceType?: string(name='dataSourceType'),
-  dataTimeSec?: int32(name='dataTimeSec'),
-  domain?: string(name='domain'),
-  generation?: long(name='generation'),
-  partition?: string(name='partition'),
+  buildMode?: string(name='buildMode', description='The mode in which reindexing is performed.', example='indexRecover'),
+  dataSourceName?: string(name='dataSourceName', description='The name of the data source.', example='my_data_source'),
+  dataSourceType?: string(name='dataSourceType', description='The type of the data source.', example='swift'),
+  dataTimeSec?: int32(name='dataTimeSec', description='The timestamp in seconds. This parameter is required if you import data from the data source by calling API operations.', example='1640867288'),
+  domain?: string(name='domain', description='The data center in which the data source resides.', example='test'),
+  generation?: long(name='generation', description='The ID of the generation.', example='160131146'),
+  partition?: string(name='partition', description='The data partition. This parameter is required if the dataSourceType parameter is set to odps.', example='20201010'),
 }
 
 model BuildIndexResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='407BFD91-DE7D-50BA-8F88-CDE52A3B5E46'),
+  result?: map[string]any(name='result', description='The result returned.', example='{}'),
 }
 
 model BuildIndexResponse = {
@@ -55,15 +71,19 @@ model BuildIndexResponse = {
   body: BuildIndexResponseBody(name='body'),
 }
 
-async function buildIndex(instanceId: string, request: BuildIndexRequest): BuildIndexResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return buildIndexWithOptions(instanceId, request, headers, runtime);
-}
-
+/**
+  * ## Method
+  *     POST
+  * ## URI
+  *     /openapi/ha3/instances/{instanceId}/actions/build-index
+  *
+  * @param request BuildIndexRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return BuildIndexResponse
+ */
 async function buildIndexWithOptions(instanceId: string, request: BuildIndexRequest, headers: map[string]string, runtime: Util.RuntimeOptions): BuildIndexResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var body : map[string]any = {};
   if (!Util.isUnset(request.buildMode)) {
     body['buildMode'] = request.buildMode;
@@ -95,7 +115,7 @@ async function buildIndexWithOptions(instanceId: string, request: BuildIndexRequ
     action = 'BuildIndex',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/actions/build-index`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/actions/build-index`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
@@ -105,21 +125,36 @@ async function buildIndexWithOptions(instanceId: string, request: BuildIndexRequ
   return callApi(params, req, runtime);
 }
 
+/**
+  * ## Method
+  *     POST
+  * ## URI
+  *     /openapi/ha3/instances/{instanceId}/actions/build-index
+  *
+  * @param request BuildIndexRequest
+  * @return BuildIndexResponse
+ */
+async function buildIndex(instanceId: string, request: BuildIndexRequest): BuildIndexResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return buildIndexWithOptions(instanceId, request, headers, runtime);
+}
+
 model CreateClusterRequest {
-  autoLoad?: boolean(name='autoLoad'),
+  autoLoad?: boolean(name='autoLoad', description='Specifies whether to automatically balance the load between QRS workers.', example='true'),
   dataNode?: {
-    number?: int32(name='number'),
-  }(name='dataNode'),
-  description?: string(name='description'),
-  name?: string(name='name'),
+    number?: int32(name='number', description='The number of Searcher workers.', example='2'),
+  }(name='dataNode', description='The information about Searcher workers.'),
+  description?: string(name='description', description='The description of the cluster.', example='"ha-tets"'),
+  name?: string(name='name', description='The name of the cluster.', example='ha-cn-zvp2qr1sk01_qrs'),
   queryNode?: {
-    number?: int32(name='number'),
-  }(name='queryNode'),
+    number?: int32(name='number', description='The number of QRS workers.', example='2'),
+  }(name='queryNode', description='The information about Query Result Searcher (QRS) workers.'),
 }
 
 model CreateClusterResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='10D5E615-69F7-5F49-B850-00169ADE513C'),
+  result?: map[string]any(name='result', description='The result returned.', example='{}'),
 }
 
 model CreateClusterResponse = {
@@ -128,15 +163,19 @@ model CreateClusterResponse = {
   body: CreateClusterResponseBody(name='body'),
 }
 
-async function createCluster(instanceId: string, request: CreateClusterRequest): CreateClusterResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createClusterWithOptions(instanceId, request, headers, runtime);
-}
-
+/**
+  * ### Method
+  * `POST`
+  * ### URI
+  * `/openapi/ha3/instances/{instanceId}/clusters`
+  *
+  * @param request CreateClusterRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return CreateClusterResponse
+ */
 async function createClusterWithOptions(instanceId: string, request: CreateClusterRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateClusterResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var body : map[string]any = {};
   if (!Util.isUnset(request.autoLoad)) {
     body['autoLoad'] = request.autoLoad;
@@ -162,7 +201,7 @@ async function createClusterWithOptions(instanceId: string, request: CreateClust
     action = 'CreateCluster',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/clusters`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/clusters`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
@@ -172,14 +211,48 @@ async function createClusterWithOptions(instanceId: string, request: CreateClust
   return callApi(params, req, runtime);
 }
 
+/**
+  * ### Method
+  * `POST`
+  * ### URI
+  * `/openapi/ha3/instances/{instanceId}/clusters`
+  *
+  * @param request CreateClusterRequest
+  * @return CreateClusterResponse
+ */
+async function createCluster(instanceId: string, request: CreateClusterRequest): CreateClusterResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createClusterWithOptions(instanceId, request, headers, runtime);
+}
+
 model CreateDataSourceRequest {
-  body?: map[string]any(name='body'),
-  dryRun?: boolean(name='dryRun'),
+  autoBuildIndex?: boolean(name='autoBuildIndex'),
+  config?: {
+    accessKey?: string(name='accessKey'),
+    accessSecret?: string(name='accessSecret'),
+    bucket?: string(name='bucket'),
+    endpoint?: string(name='endpoint'),
+    namespace?: string(name='namespace'),
+    ossPath?: string(name='ossPath'),
+    partition?: string(name='partition'),
+    path?: string(name='path'),
+    project?: string(name='project'),
+    table?: string(name='table'),
+  }(name='config'),
+  domain?: string(name='domain'),
+  name?: string(name='name'),
+  saroConfig?: {
+    namespace?: string(name='namespace'),
+    tableName?: string(name='tableName'),
+  }(name='saroConfig'),
+  type?: string(name='type'),
+  dryRun?: boolean(name='dryRun', example='true'),
 }
 
 model CreateDataSourceResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', example='10D5E615-69F7-5F49-B850-00169ADE513C'),
+  result?: map[string]any(name='result', example='{}'),
 }
 
 model CreateDataSourceResponse = {
@@ -188,23 +261,39 @@ model CreateDataSourceResponse = {
   body: CreateDataSourceResponseBody(name='body'),
 }
 
-async function createDataSource(instanceId: string, request: CreateDataSourceRequest): CreateDataSourceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createDataSourceWithOptions(instanceId, request, headers, runtime);
-}
-
+/**
+  * The result returned
+  *
+  * @param request CreateDataSourceRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return CreateDataSourceResponse
+ */
 async function createDataSourceWithOptions(instanceId: string, request: CreateDataSourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateDataSourceResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var query : map[string]any = {};
   if (!Util.isUnset(request.dryRun)) {
     query['dryRun'] = request.dryRun;
   }
 
   var body : map[string]any = {};
-  if (!Util.isUnset(request.body)) {
-    body['body'] = request.body;
+  if (!Util.isUnset(request.autoBuildIndex)) {
+    body['autoBuildIndex'] = request.autoBuildIndex;
+  }
+  if (!Util.isUnset(request.config)) {
+    body['config'] = request.config;
+  }
+  if (!Util.isUnset(request.domain)) {
+    body['domain'] = request.domain;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!Util.isUnset(request.saroConfig)) {
+    body['saroConfig'] = request.saroConfig;
+  }
+  if (!Util.isUnset(request.type)) {
+    body['type'] = request.type;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -216,7 +305,7 @@ async function createDataSourceWithOptions(instanceId: string, request: CreateDa
     action = 'CreateDataSource',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/data-sources`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/data-sources`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
@@ -226,17 +315,44 @@ async function createDataSourceWithOptions(instanceId: string, request: CreateDa
   return callApi(params, req, runtime);
 }
 
+/**
+  * The result returned
+  *
+  * @param request CreateDataSourceRequest
+  * @return CreateDataSourceResponse
+ */
+async function createDataSource(instanceId: string, request: CreateDataSourceRequest): CreateDataSourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createDataSourceWithOptions(instanceId, request, headers, runtime);
+}
+
 model CreateIndexRequest {
-  content?: string(name='content'),
-  dataSource?: string(name='dataSource'),
-  domain?: string(name='domain'),
-  name?: string(name='name'),
-  partition?: int32(name='partition'),
+  content?: string(name='content', description='The content of the index.', example='{\\"summarys\\":{\\"summary_fields\\":[\\"id\\"]},\\"indexs\\":[{\\"index_name\\":\\"index_id\\",\\"index_type\\":\\"PRIMARYKEY64\\",\\"index_fields\\":\\"id\\",\\"has_primary_key_attribute\\":true,\\"is_primary_key_sorted\\":false}],\\"attributes\\":[\\"id\\"],\\"fields\\":[{\\"field_name\\":\\"id\\",\\"field_type\\":\\"UINT16\\"}],\\"table_name\\":\\"index_2\\"}'),
+  dataSource?: string(name='dataSource', description='Optional. The data source, which can be MaxCompute, Message Service (MNS), Realtime Compute for Apache Flink, or StreamCompute.', example='test1'),
+  dataSourceInfo?: {
+    autoBuildIndex?: boolean(name='autoBuildIndex'),
+    config?: {
+      accessKey?: string(name='accessKey'),
+      accessSecret?: string(name='accessSecret'),
+      endpoint?: string(name='endpoint'),
+      partition?: string(name='partition'),
+      project?: string(name='project'),
+      table?: string(name='table'),
+    }(name='config'),
+    processPartitionCount?: int32(name='processPartitionCount'),
+    type?: string(name='type'),
+  }(name='dataSourceInfo'),
+  domain?: string(name='domain', description='The data center in which the data source resides.', example='vpc_hz_domain_1'),
+  extend?: map[string]any(name='extend'),
+  name?: string(name='name', description='The name of the index.', example='ha-cn-zvp2qr1sk01_qrs'),
+  partition?: int32(name='partition', description='The data partition.', example='2'),
+  dryRun?: boolean(name='dryRun'),
 }
 
 model CreateIndexResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='407BFD91-DE7D-50BA-8F88-CDE52A3B5E46'),
+  result?: map[string]any(name='result', description='The information about the index.', example='{}'),
 }
 
 model CreateIndexResponse = {
@@ -245,15 +361,28 @@ model CreateIndexResponse = {
   body: CreateIndexResponseBody(name='body'),
 }
 
-async function createIndex(instanceId: string, request: CreateIndexRequest): CreateIndexResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createIndexWithOptions(instanceId, request, headers, runtime);
-}
-
+/**
+  * ### Method
+  * ```java
+  * POST
+  * ```
+  * ### URI
+  * ```java
+  * /openapi/ha3/instances/{instanceId}/indexes
+  * ```
+  *
+  * @param request CreateIndexRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return CreateIndexResponse
+ */
 async function createIndexWithOptions(instanceId: string, request: CreateIndexRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateIndexResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.dryRun)) {
+    query['dryRun'] = request.dryRun;
+  }
+
   var body : map[string]any = {};
   if (!Util.isUnset(request.content)) {
     body['content'] = request.content;
@@ -261,8 +390,14 @@ async function createIndexWithOptions(instanceId: string, request: CreateIndexRe
   if (!Util.isUnset(request.dataSource)) {
     body['dataSource'] = request.dataSource;
   }
+  if (!Util.isUnset(request.dataSourceInfo)) {
+    body['dataSourceInfo'] = request.dataSourceInfo;
+  }
   if (!Util.isUnset(request.domain)) {
     body['domain'] = request.domain;
+  }
+  if (!Util.isUnset(request.extend)) {
+    body['extend'] = request.extend;
   }
   if (!Util.isUnset(request.name)) {
     body['name'] = request.name;
@@ -273,13 +408,14 @@ async function createIndexWithOptions(instanceId: string, request: CreateIndexRe
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
     action = 'CreateIndex',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/indexes`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/indexes`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
@@ -289,26 +425,45 @@ async function createIndexWithOptions(instanceId: string, request: CreateIndexRe
   return callApi(params, req, runtime);
 }
 
+/**
+  * ### Method
+  * ```java
+  * POST
+  * ```
+  * ### URI
+  * ```java
+  * /openapi/ha3/instances/{instanceId}/indexes
+  * ```
+  *
+  * @param request CreateIndexRequest
+  * @return CreateIndexResponse
+ */
+async function createIndex(instanceId: string, request: CreateIndexRequest): CreateIndexResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createIndexWithOptions(instanceId, request, headers, runtime);
+}
+
 model CreateInstanceRequest {
-  chargeType?: string(name='chargeType'),
+  chargeType?: string(name='chargeType', description='The billing method of the instance. Valid values: PREPAY and POSTPAY. PREPAY: subscription. If you set this parameter to PREPAY, make sure that your Alibaba Cloud account supports balance payment or credit payment. Otherwise, the system returns the InvalidPayMethod error message. In addition, you must specify the paymentInfo parameter. POSTPAY: pay-as-you-go. This billing method is not supported.', example='""'),
   components?: [ 
     {
-      code?: string(name='code'),
-      value?: string(name='value'),
+      code?: string(name='code', description='The name of the specification. The value must be the same as the name of a parameter on the buy page.', example='""'),
+      value?: string(name='value', description='The value of the specification.', example='""'),
     }
-  ](name='components'),
+  ](name='components', description='The specifications of the instance.'),
   order?: {
-    autoRenew?: boolean(name='autoRenew'),
-    duration?: long(name='duration'),
-    pricingCycle?: string(name='pricingCycle'),
-  }(name='order'),
+    autoRenew?: boolean(name='autoRenew', description='Specifies whether to enable auto-renewal. Valid values: true and false.', example='true'),
+    duration?: long(name='duration', description='The billing cycle. Valid values: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, and 12.', example='29'),
+    pricingCycle?: string(name='pricingCycle', description='The unit of the billing cycle. Valid values: Month and Year.', example='""'),
+  }(name='order', description='The information about billing.'),
 }
 
 model CreateInstanceResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='D39EE0F1-D7EF-5F46-B781-6BF4185308B0'),
   result?: {
-    instanceId?: string(name='instanceId'),
-  }(name='result'),
+    instanceId?: string(name='instanceId', description='The ID of the instance.', example='ha-cn-2r42ppr7901'),
+  }(name='result', description='The result returned.'),
 }
 
 model CreateInstanceResponse = {
@@ -317,12 +472,17 @@ model CreateInstanceResponse = {
   body: CreateInstanceResponseBody(name='body'),
 }
 
-async function createInstance(request: CreateInstanceRequest): CreateInstanceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createInstanceWithOptions(request, headers, runtime);
-}
-
+/**
+  * ### Method
+  * `POST`
+  * ### URI
+  * `/api/instances?dryRun=false`
+  *
+  * @param request CreateInstanceRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return CreateInstanceResponse
+ */
 async function createInstanceWithOptions(request: CreateInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateInstanceResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
@@ -354,9 +514,24 @@ async function createInstanceWithOptions(request: CreateInstanceRequest, headers
   return callApi(params, req, runtime);
 }
 
+/**
+  * ### Method
+  * `POST`
+  * ### URI
+  * `/api/instances?dryRun=false`
+  *
+  * @param request CreateInstanceRequest
+  * @return CreateInstanceResponse
+ */
+async function createInstance(request: CreateInstanceRequest): CreateInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createInstanceWithOptions(request, headers, runtime);
+}
+
 model DeleteAdvanceConfigResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='E7B7D598-B080-5C8E-AA35-D43EC0D5F886'),
+  result?: map[string]any(name='result', description='The result.', example='{}'),
 }
 
 model DeleteAdvanceConfigResponse = {
@@ -365,15 +540,17 @@ model DeleteAdvanceConfigResponse = {
   body: DeleteAdvanceConfigResponseBody(name='body'),
 }
 
-async function deleteAdvanceConfig(instanceId: string, configName: string): DeleteAdvanceConfigResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteAdvanceConfigWithOptions(instanceId, configName, headers, runtime);
-}
-
+/**
+  * ## Method
+  *     DELETE
+  * ## URI
+  *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}
+  *
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return DeleteAdvanceConfigResponse
+ */
 async function deleteAdvanceConfigWithOptions(instanceId: string, configName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteAdvanceConfigResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  configName = OpenApiUtil.getEncodeParam(configName);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -381,7 +558,7 @@ async function deleteAdvanceConfigWithOptions(instanceId: string, configName: st
     action = 'DeleteAdvanceConfig',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/advanced-configs/${configName}`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/advanced-configs/${OpenApiUtil.getEncodeParam(configName)}`,
     method = 'DELETE',
     authType = 'AK',
     style = 'ROA',
@@ -391,9 +568,23 @@ async function deleteAdvanceConfigWithOptions(instanceId: string, configName: st
   return callApi(params, req, runtime);
 }
 
+/**
+  * ## Method
+  *     DELETE
+  * ## URI
+  *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}
+  *
+  * @return DeleteAdvanceConfigResponse
+ */
+async function deleteAdvanceConfig(instanceId: string, configName: string): DeleteAdvanceConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteAdvanceConfigWithOptions(instanceId, configName, headers, runtime);
+}
+
 model DeleteDataSourceResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', example='10D5E615-69F7-5F49-B850-00169ADE513C'),
+  result?: map[string]any(name='result', example='{}'),
 }
 
 model DeleteDataSourceResponse = {
@@ -402,15 +593,14 @@ model DeleteDataSourceResponse = {
   body: DeleteDataSourceResponseBody(name='body'),
 }
 
-async function deleteDataSource(instanceId: string, dataSourceName: string): DeleteDataSourceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteDataSourceWithOptions(instanceId, dataSourceName, headers, runtime);
-}
-
+/**
+  * The result returned
+  *
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return DeleteDataSourceResponse
+ */
 async function deleteDataSourceWithOptions(instanceId: string, dataSourceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteDataSourceResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  dataSourceName = OpenApiUtil.getEncodeParam(dataSourceName);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -418,7 +608,7 @@ async function deleteDataSourceWithOptions(instanceId: string, dataSourceName: s
     action = 'DeleteDataSource',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/data-sources/${dataSourceName}`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/data-sources/${OpenApiUtil.getEncodeParam(dataSourceName)}`,
     method = 'DELETE',
     authType = 'AK',
     style = 'ROA',
@@ -428,13 +618,25 @@ async function deleteDataSourceWithOptions(instanceId: string, dataSourceName: s
   return callApi(params, req, runtime);
 }
 
+/**
+  * The result returned
+  *
+  * @return DeleteDataSourceResponse
+ */
+async function deleteDataSource(instanceId: string, dataSourceName: string): DeleteDataSourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteDataSourceWithOptions(instanceId, dataSourceName, headers, runtime);
+}
+
 model DeleteIndexRequest {
-  dataSource?: string(name='dataSource'),
+  dataSource?: string(name='dataSource', example='ha-cn-pl32rf0js04_test'),
+  deleteDataSource?: boolean(name='deleteDataSource'),
 }
 
 model DeleteIndexResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='id of request', example='022F36C7-9FB4-5D67-BEBC-3D14B0984463'),
+  result?: map[string]any(name='result', example='{}'),
 }
 
 model DeleteIndexResponse = {
@@ -443,19 +645,22 @@ model DeleteIndexResponse = {
   body: DeleteIndexResponseBody(name='body'),
 }
 
-async function deleteIndex(instanceId: string, indexName: string, request: DeleteIndexRequest): DeleteIndexResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteIndexWithOptions(instanceId, indexName, request, headers, runtime);
-}
-
+/**
+  * The information about the index
+  *
+  * @param request DeleteIndexRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return DeleteIndexResponse
+ */
 async function deleteIndexWithOptions(instanceId: string, indexName: string, request: DeleteIndexRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteIndexResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  indexName = OpenApiUtil.getEncodeParam(indexName);
   var query : map[string]any = {};
   if (!Util.isUnset(request.dataSource)) {
     query['dataSource'] = request.dataSource;
+  }
+  if (!Util.isUnset(request.deleteDataSource)) {
+    query['deleteDataSource'] = request.deleteDataSource;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -466,7 +671,7 @@ async function deleteIndexWithOptions(instanceId: string, indexName: string, req
     action = 'DeleteIndex',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/indexes/${indexName}`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/indexes/${OpenApiUtil.getEncodeParam(indexName)}`,
     method = 'DELETE',
     authType = 'AK',
     style = 'ROA',
@@ -476,9 +681,21 @@ async function deleteIndexWithOptions(instanceId: string, indexName: string, req
   return callApi(params, req, runtime);
 }
 
+/**
+  * The information about the index
+  *
+  * @param request DeleteIndexRequest
+  * @return DeleteIndexResponse
+ */
+async function deleteIndex(instanceId: string, indexName: string, request: DeleteIndexRequest): DeleteIndexResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteIndexWithOptions(instanceId, indexName, request, headers, runtime);
+}
+
 model DeleteIndexVersionResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='id of request', example='022F36C7-9FB4-5D67-BEBC-3D14B0984463'),
+  result?: map[string]any(name='result', example='{}'),
 }
 
 model DeleteIndexVersionResponse = {
@@ -487,16 +704,14 @@ model DeleteIndexVersionResponse = {
   body: DeleteIndexVersionResponseBody(name='body'),
 }
 
-async function deleteIndexVersion(instanceId: string, indexName: string, versionName: string): DeleteIndexVersionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteIndexVersionWithOptions(instanceId, indexName, versionName, headers, runtime);
-}
-
+/**
+  * The result
+  *
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return DeleteIndexVersionResponse
+ */
 async function deleteIndexVersionWithOptions(instanceId: string, indexName: string, versionName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteIndexVersionResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  indexName = OpenApiUtil.getEncodeParam(indexName);
-  versionName = OpenApiUtil.getEncodeParam(versionName);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -504,7 +719,7 @@ async function deleteIndexVersionWithOptions(instanceId: string, indexName: stri
     action = 'DeleteIndexVersion',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/indexes/${indexName}/versions/${versionName}`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/indexes/${OpenApiUtil.getEncodeParam(indexName)}/versions/${OpenApiUtil.getEncodeParam(versionName)}`,
     method = 'DELETE',
     authType = 'AK',
     style = 'ROA',
@@ -514,9 +729,20 @@ async function deleteIndexVersionWithOptions(instanceId: string, indexName: stri
   return callApi(params, req, runtime);
 }
 
+/**
+  * The result
+  *
+  * @return DeleteIndexVersionResponse
+ */
+async function deleteIndexVersion(instanceId: string, indexName: string, versionName: string): DeleteIndexVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteIndexVersionWithOptions(instanceId, indexName, versionName, headers, runtime);
+}
+
 model DeleteInstanceResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', example='E45380E8-994A-5402-9806-F114B3295FCF'),
+  result?: map[string]any(name='result', example='{}'),
 }
 
 model DeleteInstanceResponse = {
@@ -525,14 +751,14 @@ model DeleteInstanceResponse = {
   body: DeleteInstanceResponseBody(name='body'),
 }
 
-async function deleteInstance(instanceId: string): DeleteInstanceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteInstanceWithOptions(instanceId, headers, runtime);
-}
-
+/**
+  * The result returned
+  *
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return DeleteInstanceResponse
+ */
 async function deleteInstanceWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteInstanceResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -540,7 +766,7 @@ async function deleteInstanceWithOptions(instanceId: string, headers: map[string
     action = 'DeleteInstance',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}`,
     method = 'DELETE',
     authType = 'AK',
     style = 'ROA',
@@ -550,9 +776,20 @@ async function deleteInstanceWithOptions(instanceId: string, headers: map[string
   return callApi(params, req, runtime);
 }
 
+/**
+  * The result returned
+  *
+  * @return DeleteInstanceResponse
+ */
+async function deleteInstance(instanceId: string): DeleteInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteInstanceWithOptions(instanceId, headers, runtime);
+}
+
 model ForceSwitchResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='0B1FF998-BB8D-5182-BFC0-E471AA77095A'),
+  result?: map[string]any(name='result', description='The index information.', example='{}'),
 }
 
 model ForceSwitchResponse = {
@@ -561,15 +798,21 @@ model ForceSwitchResponse = {
   body: ForceSwitchResponseBody(name='body'),
 }
 
-async function forceSwitch(instanceId: string, fsmId: string): ForceSwitchResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return forceSwitchWithOptions(instanceId, fsmId, headers, runtime);
-}
-
+/**
+  * \\### Method
+  * ```java
+  * PUT
+  * ```
+  * ### URI
+  * ```java
+  * /openapi/ha3/instances/{instanceId}/force-switch/{fsmId}
+  * ```
+  *
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ForceSwitchResponse
+ */
 async function forceSwitchWithOptions(instanceId: string, fsmId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ForceSwitchResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  fsmId = OpenApiUtil.getEncodeParam(fsmId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -577,7 +820,7 @@ async function forceSwitchWithOptions(instanceId: string, fsmId: string, headers
     action = 'ForceSwitch',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/force-switch/${fsmId}`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/force-switch/${OpenApiUtil.getEncodeParam(fsmId)}`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -587,22 +830,46 @@ async function forceSwitchWithOptions(instanceId: string, fsmId: string, headers
   return callApi(params, req, runtime);
 }
 
+/**
+  * \\### Method
+  * ```java
+  * PUT
+  * ```
+  * ### URI
+  * ```java
+  * /openapi/ha3/instances/{instanceId}/force-switch/{fsmId}
+  * ```
+  *
+  * @return ForceSwitchResponse
+ */
+async function forceSwitch(instanceId: string, fsmId: string): ForceSwitchResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return forceSwitchWithOptions(instanceId, fsmId, headers, runtime);
+}
+
+model GetAdvanceConfigRequest {
+  type?: string(name='type'),
+}
+
 model GetAdvanceConfigResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='E45380E8-994A-5402-9806-F114B3295FCF'),
   result?: {
-    desc?: string(name='desc'),
+    content?: string(name='content', description='The content of the configuration that is returned.'),
+    contentType?: string(name='contentType', description='The type of the configuration content. Valid values: FILE, GIT, HTTP, and ODPS.'),
+    desc?: string(name='desc', description='The description.', example='close alarm, chiji id 37080'),
     files?: [ 
       {
-        fullPathName?: string(name='fullPathName'),
-        isDir?: boolean(name='isDir'),
-        isTemplate?: boolean(name='isTemplate'),
-        name?: string(name='name'),
+        fullPathName?: string(name='fullPathName', description='The name of the file path.', example='""'),
+        isDir?: boolean(name='isDir', description='Indicates whether it is a directory.', example='True'),
+        isTemplate?: boolean(name='isTemplate', description='Indicates whether it is a template.', example='True'),
+        name?: string(name='name', description='The name.', example='ha-cn-2r42ostoc01_qrs'),
       }
-    ](name='files'),
-    name?: string(name='name'),
-    status?: string(name='status'),
-    updateTime?: long(name='updateTime'),
-  }(name='result'),
+    ](name='files', description='The information about files.'),
+    name?: string(name='name', description='The name.', example='ha-cn-0ju2s170b03_qrs'),
+    status?: string(name='status', description='The status.', example='0,1,3,6,8'),
+    updateTime?: long(name='updateTime', description='The update time.', example='""'),
+  }(name='result', description='The returned results.'),
 }
 
 model GetAdvanceConfigResponse = {
@@ -611,23 +878,33 @@ model GetAdvanceConfigResponse = {
   body: GetAdvanceConfigResponseBody(name='body'),
 }
 
-async function getAdvanceConfig(instanceId: string, configName: string): GetAdvanceConfigResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getAdvanceConfigWithOptions(instanceId, configName, headers, runtime);
-}
+/**
+  * ## Method
+  *     GET
+  * ## URI
+  *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}
+  *
+  * @param request GetAdvanceConfigRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return GetAdvanceConfigResponse
+ */
+async function getAdvanceConfigWithOptions(instanceId: string, configName: string, request: GetAdvanceConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetAdvanceConfigResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
 
-async function getAdvanceConfigWithOptions(instanceId: string, configName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetAdvanceConfigResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  configName = OpenApiUtil.getEncodeParam(configName);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'GetAdvanceConfig',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/advanced-configs/${configName}`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/advanced-configs/${OpenApiUtil.getEncodeParam(configName)}`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -637,12 +914,27 @@ async function getAdvanceConfigWithOptions(instanceId: string, configName: strin
   return callApi(params, req, runtime);
 }
 
+/**
+  * ## Method
+  *     GET
+  * ## URI
+  *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}
+  *
+  * @param request GetAdvanceConfigRequest
+  * @return GetAdvanceConfigResponse
+ */
+async function getAdvanceConfig(instanceId: string, configName: string, request: GetAdvanceConfigRequest): GetAdvanceConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getAdvanceConfigWithOptions(instanceId, configName, request, headers, runtime);
+}
+
 model GetAdvanceConfigFileRequest {
-  fileName?: string(name='fileName'),
+  fileName?: string(name='fileName', example='/intervene_dict/chn_ecommerce_general.dict'),
 }
 
 model GetAdvanceConfigFileResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='id of request', example='10D5E615-69F7-5F49-B850-00169ADE513C'),
   result?: {
     content?: string(name='content'),
   }(name='result'),
@@ -654,16 +946,8 @@ model GetAdvanceConfigFileResponse = {
   body: GetAdvanceConfigFileResponseBody(name='body'),
 }
 
-async function getAdvanceConfigFile(instanceId: string, configName: string, request: GetAdvanceConfigFileRequest): GetAdvanceConfigFileResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getAdvanceConfigFileWithOptions(instanceId, configName, request, headers, runtime);
-}
-
 async function getAdvanceConfigFileWithOptions(instanceId: string, configName: string, request: GetAdvanceConfigFileRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetAdvanceConfigFileResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  configName = OpenApiUtil.getEncodeParam(configName);
   var query : map[string]any = {};
   if (!Util.isUnset(request.fileName)) {
     query['fileName'] = request.fileName;
@@ -677,7 +961,7 @@ async function getAdvanceConfigFileWithOptions(instanceId: string, configName: s
     action = 'GetAdvanceConfigFile',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/advanced-configs/${configName}/file`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/advanced-configs/${OpenApiUtil.getEncodeParam(configName)}/file`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -687,28 +971,34 @@ async function getAdvanceConfigFileWithOptions(instanceId: string, configName: s
   return callApi(params, req, runtime);
 }
 
+async function getAdvanceConfigFile(instanceId: string, configName: string, request: GetAdvanceConfigFileRequest): GetAdvanceConfigFileResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getAdvanceConfigFileWithOptions(instanceId, configName, request, headers, runtime);
+}
+
 model GetClusterResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='E7B7D598-B080-5C8E-AA35-D43EC0D5F886'),
   result?: {
-    configUpdateTime?: string(name='configUpdateTime'),
-    currentAdvanceConfigVersion?: string(name='currentAdvanceConfigVersion'),
-    currentOnlineConfigVersion?: string(name='currentOnlineConfigVersion'),
+    configUpdateTime?: string(name='configUpdateTime', description='The time when the cluster was updated.', example='2021-08-09 00:01:02'),
+    currentAdvanceConfigVersion?: string(name='currentAdvanceConfigVersion', description='The effective advanced configuration version.', example='test_yyds_data1'),
+    currentOnlineConfigVersion?: string(name='currentOnlineConfigVersion', description='The effective online configuration version.', example='test_yyds_data1'),
     dataNode?: {
-      name?: string(name='name'),
-      number?: int32(name='number'),
-      partition?: int32(name='partition'),
-    }(name='dataNode'),
-    description?: string(name='description'),
-    latestAdvanceConfigVersion?: string(name='latestAdvanceConfigVersion'),
-    latestOnlineConfigVersion?: string(name='latestOnlineConfigVersion'),
-    name?: string(name='name'),
+      name?: string(name='name', description='The name of the node.', example='test'),
+      number?: int32(name='number', description='The number of replicas.', example='1'),
+      partition?: int32(name='partition', description='The number of partitions.', example='2'),
+    }(name='dataNode', description='The specifications of the data node.'),
+    description?: string(name='description', description='The description of the cluster.', example='fzz_test'),
+    latestAdvanceConfigVersion?: string(name='latestAdvanceConfigVersion', description='The latest advanced configuration version.', example='test_yyds_data1'),
+    latestOnlineConfigVersion?: string(name='latestOnlineConfigVersion', description='The latest online configuration version.', example='test_yyds_data1'),
+    name?: string(name='name', description='The name of the cluster.', example='general'),
     queryNode?: {
-      name?: string(name='name'),
-      number?: int32(name='number'),
-      partition?: int32(name='partition'),
-    }(name='queryNode'),
-    status?: string(name='status'),
-  }(name='result'),
+      name?: string(name='name', description='The name of the node.', example='test'),
+      number?: int32(name='number', description='The number of nodes.', example='1'),
+      partition?: int32(name='partition', description='The number of replicas.', example='2'),
+    }(name='queryNode', description='The specifications of the query node.'),
+    status?: string(name='status', description='The creation status of the cluster. Valid values: NEW and PUBLISH. NEW indicates that the cluster is being created. PUBLISH indicates that the cluster is created.', example='NEW'),
+  }(name='result', description='The list of the cluster details.'),
 }
 
 model GetClusterResponse = {
@@ -717,15 +1007,17 @@ model GetClusterResponse = {
   body: GetClusterResponseBody(name='body'),
 }
 
-async function getCluster(instanceId: string, clusterName: string): GetClusterResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getClusterWithOptions(instanceId, clusterName, headers, runtime);
-}
-
+/**
+  * ### Method
+  * `GET`
+  * ### URI
+  * `/openapi/ha3/instance/{instanceId}/clusters/{clusterName}`
+  *
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return GetClusterResponse
+ */
 async function getClusterWithOptions(instanceId: string, clusterName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetClusterResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  clusterName = OpenApiUtil.getEncodeParam(clusterName);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -733,7 +1025,7 @@ async function getClusterWithOptions(instanceId: string, clusterName: string, he
     action = 'GetCluster',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/clusters/${clusterName}`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/clusters/${OpenApiUtil.getEncodeParam(clusterName)}`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -743,52 +1035,89 @@ async function getClusterWithOptions(instanceId: string, clusterName: string, he
   return callApi(params, req, runtime);
 }
 
+/**
+  * ### Method
+  * `GET`
+  * ### URI
+  * `/openapi/ha3/instance/{instanceId}/clusters/{clusterName}`
+  *
+  * @return GetClusterResponse
+ */
+async function getCluster(instanceId: string, clusterName: string): GetClusterResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getClusterWithOptions(instanceId, clusterName, headers, runtime);
+}
+
 model GetClusterRunTimeInfoResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='Id of the request', example='E45380E8-994A-5402-9806-F114B3295FCF'),
   result?: [ 
     {
-      clusterName?: string(name='clusterName'),
-      dataNodes?: {
-        configStatus?: {
-          configUpdateTime?: string(name='configUpdateTime'),
-          donePercent?: long(name='donePercent'),
-          doneSize?: long(name='doneSize'),
-          name?: string(name='name'),
-          totalSize?: long(name='totalSize'),
-        }(name='configStatus'),
-        dataStatus?: {
-          donePercent?: long(name='donePercent'),
-          doneSize?: long(name='doneSize'),
-          errorMsg?: string(name='errorMsg'),
-          fullSwitchTime?: string(name='fullSwitchTime'),
-          incSwitchTime?: string(name='incSwitchTime'),
-          name?: string(name='name'),
-          partition?: long(name='partition'),
-          totalSize?: long(name='totalSize'),
-          version?: long(name='version'),
-        }(name='dataStatus'),
-        serviceStatus?: {
-          donePercent?: long(name='donePercent'),
-          doneSize?: long(name='doneSize'),
-          totalSize?: long(name='totalSize'),
-        }(name='serviceStatus'),
-      }(name='dataNodes'),
+      clusterName?: string(name='clusterName', description='The name of the cluster', example='vpc_hz_domain_1'),
+      dataNodes?: [ 
+        {
+          configStatusList?: [ 
+            {
+              configUpdateTime?: string(name='configUpdateTime'),
+              donePercent?: int32(name='donePercent'),
+              doneSize?: int32(name='doneSize'),
+              name?: string(name='name'),
+              totalSize?: int32(name='totalSize'),
+            }
+          ](name='configStatusList'),
+          dataStatusList?: [ 
+            {
+              advanceConfigInfo?: {
+                configMetaName?: string(name='configMetaName'),
+                version?: long(name='version'),
+              }(name='advanceConfigInfo'),
+              deployFailedWorker?: [ string ](name='deployFailedWorker'),
+              docSize?: int32(name='docSize'),
+              donePercent?: int32(name='donePercent'),
+              doneSize?: int32(name='doneSize'),
+              errorMsg?: string(name='errorMsg'),
+              fullUpdateTime?: string(name='fullUpdateTime'),
+              fullVersion?: long(name='fullVersion'),
+              incUpdateTime?: string(name='incUpdateTime'),
+              incVersion?: long(name='incVersion'),
+              indexConfigInfo?: {
+                configMetaName?: string(name='configMetaName'),
+                version?: long(name='version'),
+              }(name='indexConfigInfo'),
+              indexSize?: long(name='indexSize'),
+              lackDiskWorker?: [ string ](name='lackDiskWorker'),
+              lackMemWorker?: [ string ](name='lackMemWorker'),
+              name?: string(name='name'),
+              totalSize?: int32(name='totalSize'),
+            }
+          ](name='dataStatusList'),
+          serviceStatus?: {
+            donePercent?: int32(name='donePercent'),
+            doneSize?: int32(name='doneSize'),
+            name?: string(name='name'),
+            totalSize?: int32(name='totalSize'),
+          }(name='serviceStatus'),
+        }
+      ](name='dataNodes', description='dataNodes', example='{}'),
       queryNode?: {
-        configStatus?: {
-          configUpdateTime?: string(name='configUpdateTime'),
-          donePercent?: long(name='donePercent'),
-          doneSize?: long(name='doneSize'),
-          name?: string(name='name'),
-          totalSize?: long(name='totalSize'),
-        }(name='configStatus'),
+        configStatusList?: [ 
+          {
+            configUpdateTime?: string(name='configUpdateTime', description='configUpdateTime', example='" "'),
+            donePercent?: int32(name='donePercent', description='donePercent', example='100'),
+            doneSize?: int32(name='doneSize', description='doneSize', example='100'),
+            name?: string(name='name', description='name', example='ha-cn-zvp2qr1sk01_qrs'),
+            totalSize?: int32(name='totalSize', description='totalSize', example='6'),
+          }
+        ](name='configStatusList', description='configStatusList'),
         serviceStatus?: {
-          donePercent?: long(name='donePercent'),
-          doneSize?: long(name='doneSize'),
-          totalSize?: long(name='totalSize'),
-        }(name='serviceStatus'),
-      }(name='queryNode'),
+          donePercent?: int32(name='donePercent', description='donePercent', example='100'),
+          doneSize?: int32(name='doneSize', description='doneSize', example='100'),
+          name?: string(name='name', description='The name of the cluster.', example='ha-cn-c4d2rq7nt04_qrs'),
+          totalSize?: int32(name='totalSize', description='totalSize', example='100'),
+        }(name='serviceStatus', description='serviceStatus'),
+      }(name='queryNode', description='The specifications of the query node.'),
     }
-  ](name='result'),
+  ](name='result', description='The result returned.'),
 }
 
 model GetClusterRunTimeInfoResponse = {
@@ -797,14 +1126,7 @@ model GetClusterRunTimeInfoResponse = {
   body: GetClusterRunTimeInfoResponseBody(name='body'),
 }
 
-async function getClusterRunTimeInfo(instanceId: string): GetClusterRunTimeInfoResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getClusterRunTimeInfoWithOptions(instanceId, headers, runtime);
-}
-
 async function getClusterRunTimeInfoWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetClusterRunTimeInfoResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -812,7 +1134,7 @@ async function getClusterRunTimeInfoWithOptions(instanceId: string, headers: map
     action = 'GetClusterRunTimeInfo',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/cluster-run-time-info`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/cluster-run-time-info`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -822,25 +1144,22 @@ async function getClusterRunTimeInfoWithOptions(instanceId: string, headers: map
   return callApi(params, req, runtime);
 }
 
+async function getClusterRunTimeInfo(instanceId: string): GetClusterRunTimeInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getClusterRunTimeInfoWithOptions(instanceId, headers, runtime);
+}
+
 model GetDataSourceResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='Id of the request', example='FE03180A-0E29-5474-8A86-33F0683294A4'),
   result?: {
-    autoBuildIndex?: boolean(name='autoBuildIndex'),
-    config?: {
-      accessKey?: string(name='accessKey'),
-      accessSecret?: string(name='accessSecret'),
-      partition?: string(name='partition'),
-      project?: string(name='project'),
-      table?: string(name='table'),
-    }(name='config'),
-    domain?: string(name='domain'),
+    domain?: string(name='domain', example='vpc_hz_domain_1'),
     indexes?: [ string ](name='indexes'),
     lastFulTime?: long(name='lastFulTime'),
-    name?: string(name='name'),
-    partitions?: [ string ](name='partitions'),
-    status?: string(name='status'),
-    type?: string(name='type'),
-  }(name='result'),
+    name?: string(name='name', example='my_index'),
+    status?: string(name='status', example='NEW'),
+    type?: string(name='type', example='odps'),
+  }(name='result', description='Obtains a data source.'),
 }
 
 model GetDataSourceResponse = {
@@ -849,15 +1168,7 @@ model GetDataSourceResponse = {
   body: GetDataSourceResponseBody(name='body'),
 }
 
-async function getDataSource(instanceId: string, dataSourceName: string): GetDataSourceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getDataSourceWithOptions(instanceId, dataSourceName, headers, runtime);
-}
-
 async function getDataSourceWithOptions(instanceId: string, dataSourceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetDataSourceResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  dataSourceName = OpenApiUtil.getEncodeParam(dataSourceName);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -865,7 +1176,7 @@ async function getDataSourceWithOptions(instanceId: string, dataSourceName: stri
     action = 'GetDataSource',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/data-sources/${dataSourceName}`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/data-sources/${OpenApiUtil.getEncodeParam(dataSourceName)}`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -875,9 +1186,87 @@ async function getDataSourceWithOptions(instanceId: string, dataSourceName: stri
   return callApi(params, req, runtime);
 }
 
-model GetDeployGraphResponseBody = {
+async function getDataSource(instanceId: string, dataSourceName: string): GetDataSourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getDataSourceWithOptions(instanceId, dataSourceName, headers, runtime);
+}
+
+model GetDataSourceDeployResponseBody = {
   requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  result?: {
+    autoBuildIndex?: boolean(name='autoBuildIndex'),
+    extend?: {
+      hdfs?: {
+        path?: string(name='path'),
+      }(name='hdfs'),
+      odps?: {
+        partitions?: map[string]string(name='partitions'),
+      }(name='odps'),
+      oss?: {
+        path?: string(name='path'),
+      }(name='oss'),
+      saro?: {
+        path?: string(name='path'),
+        version?: string(name='version'),
+      }(name='saro'),
+    }(name='extend'),
+    processor?: {
+      args?: string(name='args'),
+      resource?: string(name='resource'),
+    }(name='processor'),
+    storage?: {
+      accessKey?: string(name='accessKey'),
+      accessSecret?: string(name='accessSecret'),
+      bucket?: string(name='bucket'),
+      endpoint?: string(name='endpoint'),
+      namespace?: string(name='namespace'),
+      ossPath?: string(name='ossPath'),
+      partition?: string(name='partition'),
+      path?: string(name='path'),
+      project?: string(name='project'),
+      table?: string(name='table'),
+    }(name='storage'),
+    swift?: {
+      topic?: string(name='topic'),
+      zk?: string(name='zk'),
+    }(name='swift'),
+  }(name='result'),
+}
+
+model GetDataSourceDeployResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetDataSourceDeployResponseBody(name='body'),
+}
+
+async function getDataSourceDeployWithOptions(instanceId: string, deployName: string, dataSourceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetDataSourceDeployResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetDataSourceDeploy',
+    version = '2021-10-25',
+    protocol = 'HTTPS',
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/data-sources/${OpenApiUtil.getEncodeParam(dataSourceName)}/deploys/${OpenApiUtil.getEncodeParam(deployName)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getDataSourceDeploy(instanceId: string, deployName: string, dataSourceName: string): GetDataSourceDeployResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getDataSourceDeployWithOptions(instanceId, deployName, dataSourceName, headers, runtime);
+}
+
+model GetDeployGraphResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='E7B7D598-B080-5C8E-AA35-D43EC0D5F886'),
+  result?: map[string]any(name='result', example='{}'),
 }
 
 model GetDeployGraphResponse = {
@@ -886,14 +1275,17 @@ model GetDeployGraphResponse = {
   body: GetDeployGraphResponseBody(name='body'),
 }
 
-async function getDeployGraph(instanceId: string): GetDeployGraphResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getDeployGraphWithOptions(instanceId, headers, runtime);
-}
-
+/**
+  * ### Sample requests
+  * ```java
+  * GET /openapi/ha3/instances/{instanceId}/deploy-graph
+  * ```
+  *
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return GetDeployGraphResponse
+ */
 async function getDeployGraphWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetDeployGraphResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -901,7 +1293,7 @@ async function getDeployGraphWithOptions(instanceId: string, headers: map[string
     action = 'GetDeployGraph',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/deploy-graph`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/deploy-graph`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -911,19 +1303,33 @@ async function getDeployGraphWithOptions(instanceId: string, headers: map[string
   return callApi(params, req, runtime);
 }
 
+/**
+  * ### Sample requests
+  * ```java
+  * GET /openapi/ha3/instances/{instanceId}/deploy-graph
+  * ```
+  *
+  * @return GetDeployGraphResponse
+ */
+async function getDeployGraph(instanceId: string): GetDeployGraphResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getDeployGraphWithOptions(instanceId, headers, runtime);
+}
+
 model GetFileRequest {
-  fileName?: string(name='fileName'),
+  fileName?: string(name='fileName', example='/schemas/automobile_vector_schema.json'),
 }
 
 model GetFileResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='id of request', example='2AE63638-5420-56DC-BF59-37D8174039A0'),
   result?: {
-    content?: string(name='content'),
-    dataSource?: string(name='dataSource'),
-    fullPathName?: string(name='fullPathName'),
-    isDir?: boolean(name='isDir'),
-    name?: string(name='name'),
-    partition?: long(name='partition'),
+    content?: string(name='content', example='None'),
+    dataSource?: string(name='dataSource', example='ha-cn-2r42p5oi202_xijie_test'),
+    fullPathName?: string(name='fullPathName', example='""'),
+    isDir?: boolean(name='isDir', example='True'),
+    name?: string(name='name', example='ha-cn-2r42ostoc01_qrs'),
+    partition?: long(name='partition', example='ds=20210828'),
   }(name='result'),
 }
 
@@ -933,17 +1339,8 @@ model GetFileResponse = {
   body: GetFileResponseBody(name='body'),
 }
 
-async function getFile(instanceId: string, indexName: string, versionName: string, request: GetFileRequest): GetFileResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getFileWithOptions(instanceId, indexName, versionName, request, headers, runtime);
-}
-
 async function getFileWithOptions(instanceId: string, indexName: string, versionName: string, request: GetFileRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetFileResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  indexName = OpenApiUtil.getEncodeParam(indexName);
-  versionName = OpenApiUtil.getEncodeParam(versionName);
   var query : map[string]any = {};
   if (!Util.isUnset(request.fileName)) {
     query['fileName'] = request.fileName;
@@ -957,7 +1354,7 @@ async function getFileWithOptions(instanceId: string, indexName: string, version
     action = 'GetFile',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/indexes/${indexName}/versions/${versionName}/file`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/indexes/${OpenApiUtil.getEncodeParam(indexName)}/versions/${OpenApiUtil.getEncodeParam(versionName)}/file`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -967,35 +1364,67 @@ async function getFileWithOptions(instanceId: string, indexName: string, version
   return callApi(params, req, runtime);
 }
 
-model GetIndexRequest {
-  dataSource?: string(name='dataSource'),
+async function getFile(instanceId: string, indexName: string, versionName: string, request: GetFileRequest): GetFileResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getFileWithOptions(instanceId, indexName, versionName, request, headers, runtime);
 }
 
 model GetIndexResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='id of request', example='4FB0325E-8C37-5525-96AC-0333523170A3'),
   result?: {
-    dataSource?: string(name='dataSource'),
+    content?: string(name='content'),
+    dataSource?: string(name='dataSource', example='ha-cn-tl32nd2nq01_00'),
+    dataSourceInfo?: {
+      autoBuildIndex?: boolean(name='autoBuildIndex'),
+      config?: {
+        accessKey?: string(name='accessKey'),
+        accessSecret?: string(name='accessSecret'),
+        bucket?: string(name='bucket'),
+        endpoint?: string(name='endpoint'),
+        namespace?: string(name='namespace'),
+        ossPath?: string(name='ossPath'),
+        partition?: string(name='partition'),
+        path?: string(name='path'),
+        project?: string(name='project'),
+        table?: string(name='table'),
+      }(name='config'),
+      domain?: string(name='domain'),
+      name?: string(name='name'),
+      processPartitionCount?: int32(name='processPartitionCount'),
+      saroConfig?: {
+        namespace?: string(name='namespace'),
+        tableName?: string(name='tableName'),
+      }(name='saroConfig'),
+      type?: string(name='type'),
+    }(name='dataSourceInfo'),
+    description?: string(name='description'),
     domain?: string(name='domain'),
-    indexStatus?: string(name='indexStatus'),
-    name?: string(name='name'),
+    fullUpdateTime?: string(name='fullUpdateTime'),
+    fullVersion?: long(name='fullVersion'),
+    incUpdateTime?: string(name='incUpdateTime'),
+    indexSize?: long(name='indexSize'),
+    indexStatus?: string(name='indexStatus', description='NEW, PUBLISH'),
+    name?: string(name='name', example='general'),
+    partition?: int32(name='partition'),
     versions?: [ 
       {
-        desc?: string(name='desc'),
+        desc?: string(name='desc', example='close alarm, by 3.9.2 hotfix workflow'),
         files?: [ 
           {
-            fullPathName?: string(name='fullPathName'),
-            isDir?: boolean(name='isDir'),
-            isTemplate?: boolean(name='isTemplate'),
+            fullPathName?: string(name='fullPathName', example='" "'),
+            isDir?: boolean(name='isDir', example='True'),
+            isTemplate?: boolean(name='isTemplate', example='True'),
             name?: string(name='name'),
           }
         ](name='files'),
-        name?: string(name='name'),
-        status?: string(name='status'),
-        updateTime?: long(name='updateTime'),
-        versionId?: int32(name='versionId'),
+        name?: string(name='name', example='ha-cn-7pp2ngv4s02_qrs'),
+        status?: string(name='status', example='2'),
+        updateTime?: long(name='updateTime', example='" "'),
+        versionId?: int32(name='versionId', example='1'),
       }
     ](name='versions'),
-  }(name='result'),
+  }(name='result', description='Queries details about the version information of an index table.'),
 }
 
 model GetIndexResponse = {
@@ -1004,30 +1433,15 @@ model GetIndexResponse = {
   body: GetIndexResponseBody(name='body'),
 }
 
-async function getIndex(instanceId: string, indexName: string, request: GetIndexRequest): GetIndexResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getIndexWithOptions(instanceId, indexName, request, headers, runtime);
-}
-
-async function getIndexWithOptions(instanceId: string, indexName: string, request: GetIndexRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetIndexResponse {
-  Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  indexName = OpenApiUtil.getEncodeParam(indexName);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.dataSource)) {
-    query['dataSource'] = request.dataSource;
-  }
-
+async function getIndexWithOptions(instanceId: string, indexName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetIndexResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
-    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'GetIndex',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/indexes/${indexName}`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/indexes/${OpenApiUtil.getEncodeParam(indexName)}`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1037,15 +1451,21 @@ async function getIndexWithOptions(instanceId: string, indexName: string, reques
   return callApi(params, req, runtime);
 }
 
+async function getIndex(instanceId: string, indexName: string): GetIndexResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getIndexWithOptions(instanceId, indexName, headers, runtime);
+}
+
 model GetIndexVersionResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='id of request', example='E7B7D598-B080-5C8E-AA35-D43EC0D5F886'),
   result?: {
-    cluster?: string(name='cluster'),
+    cluster?: string(name='cluster', example='ayoss-cn-zhangjiakou-b'),
     indexVersions?: [ 
       {
-        buildDeployId?: string(name='buildDeployId'),
+        buildDeployId?: string(name='buildDeployId', example='" "'),
         currentVersion?: long(name='currentVersion'),
-        indexName?: string(name='indexName'),
+        indexName?: string(name='indexName', example='table4'),
         versions?: [ long ](name='versions'),
       }
     ](name='indexVersions'),
@@ -1058,15 +1478,16 @@ model GetIndexVersionResponse = {
   body: GetIndexVersionResponseBody(name='body'),
 }
 
-async function getIndexVersion(instanceId: string, clusterName: string): GetIndexVersionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getIndexVersionWithOptions(instanceId, clusterName, headers, runtime);
-}
-
+/**
+  * ## Examples
+  * Sample requests
+  *     GET  /openapi/ha3/instances/ha3_instance_id_1/clusters/cluster1/index-version
+  *
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return GetIndexVersionResponse
+ */
 async function getIndexVersionWithOptions(instanceId: string, clusterName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetIndexVersionResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  clusterName = OpenApiUtil.getEncodeParam(clusterName);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -1074,7 +1495,7 @@ async function getIndexVersionWithOptions(instanceId: string, clusterName: strin
     action = 'GetIndexVersion',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/clusters/${clusterName}/index-version`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/clusters/${OpenApiUtil.getEncodeParam(clusterName)}/index-version`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1084,21 +1505,89 @@ async function getIndexVersionWithOptions(instanceId: string, clusterName: strin
   return callApi(params, req, runtime);
 }
 
+/**
+  * ## Examples
+  * Sample requests
+  *     GET  /openapi/ha3/instances/ha3_instance_id_1/clusters/cluster1/index-version
+  *
+  * @return GetIndexVersionResponse
+ */
+async function getIndexVersion(instanceId: string, clusterName: string): GetIndexVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getIndexVersionWithOptions(instanceId, clusterName, headers, runtime);
+}
+
 model GetInstanceResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', example='E7B7D598-B080-5C8E-AA35-D43EC0D5F886'),
   result?: {
-    chargeType?: string(name='chargeType'),
-    commodityCode?: string(name='commodityCode'),
-    createTime?: string(name='createTime'),
-    description?: string(name='description'),
-    expiredTime?: string(name='expiredTime'),
-    inDebt?: boolean(name='inDebt'),
-    instanceId?: string(name='instanceId'),
-    lockMode?: string(name='lockMode'),
-    resourceGroupId?: string(name='resourceGroupId'),
-    status?: string(name='status'),
-    updateTime?: string(name='updateTime'),
-  }(name='result'),
+    chargeType?: string(name='chargeType', description='付费类型', example='POSYPAY'),
+    commodityCode?: string(name='commodityCode', description='商品code', example='commodityCode'),
+    createTime?: string(name='createTime', description='代表创建时间的资源属性字段', example='2022-06-17T02:01:26Z'),
+    description?: string(name='description', description='The ID of the request.', example='ha3_test'),
+    expiredTime?: string(name='expiredTime', description='WB01240825', example='1634609702'),
+    inDebt?: boolean(name='inDebt', description='是否欠费', example='false'),
+    instanceId?: string(name='instanceId', description='代表资源一级ID的资源属性字段', example='ha-cn-7mz2qsgq301'),
+    lockMode?: string(name='lockMode', description='锁定状态', example='Unlock'),
+    resourceGroupId?: string(name='resourceGroupId', description='### Sample responses
+
+**Sample success responses**
+
+    {
+      "requestId": "90D6B8F5-FE97-4509-9AAB-367836C51818",
+      "result": 
+      {
+        "instanceId":"fadsfsafs",
+        "inDebt":true,
+        "lockMode":"Unlock",
+        "expiredTime":"asdfas",
+        "updateTime":"dfasf",
+        "createTime":"dfasf",
+        "resourceGroupId":"resourceGroupID",
+        "commodityCode":"commodityCode",
+        "chargeType":"POSYPAY",
+        "description":"this is description",
+        "apiVersion": "tisplus/v1",
+        "network": {
+          "vSwitchId": "vswitch_id_xxx",
+          "vpcId": "vpc_id_xxx",	  
+        },
+        "userName": "user",
+        "spec": {
+          "searchResource": {
+            "disk": 50,
+            "mem": 8,
+            "cpu": 2,
+            "nodeCount": 2
+          },
+          "qrsResource": {
+            "disk": 50,
+            "mem": 8,
+            "cpu": 2,
+            "nodeCount": 2
+          }
+        },
+       "status": "INIT",
+      }
+    }
+
+**Sample error responses**
+
+    {
+      "requestId": "BD1EA715-DF6F-06C2-004C-C1FA0D3A9820",
+      "httpCode": 404,
+      "code": "App.NotFound",
+      "message": "App not found"
+    }', example='rg-aekzjvw24el5lma'),
+    status?: string(name='status', example='INIT'),
+    tags?: [ 
+      {
+        key?: string(name='key', example='env'),
+        value?: string(name='value', example='prod'),
+      }
+    ](name='tags'),
+    updateTime?: string(name='updateTime', description='更新时间', example='1634609702'),
+  }(name='result', description='The description of the instance.'),
 }
 
 model GetInstanceResponse = {
@@ -1107,14 +1596,14 @@ model GetInstanceResponse = {
   body: GetInstanceResponseBody(name='body'),
 }
 
-async function getInstance(instanceId: string): GetInstanceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getInstanceWithOptions(instanceId, headers, runtime);
-}
-
+/**
+  * The billing method.
+  *
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return GetInstanceResponse
+ */
 async function getInstanceWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetInstanceResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -1122,7 +1611,7 @@ async function getInstanceWithOptions(instanceId: string, headers: map[string]st
     action = 'GetInstance',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1132,22 +1621,33 @@ async function getInstanceWithOptions(instanceId: string, headers: map[string]st
   return callApi(params, req, runtime);
 }
 
+/**
+  * The billing method.
+  *
+  * @return GetInstanceResponse
+ */
+async function getInstance(instanceId: string): GetInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getInstanceWithOptions(instanceId, headers, runtime);
+}
+
 model GetNodeConfigRequest {
-  clusterName?: string(name='clusterName'),
-  dataSourceName?: string(name='dataSourceName'),
-  name?: string(name='name'),
-  tableDeployId?: string(name='tableDeployId'),
-  type?: string(name='type'),
+  clusterName?: string(name='clusterName', example='vpc_sh_domain_2'),
+  dataSourceName?: string(name='dataSourceName', example='ha-cn-2r42ostoc01_people_info'),
+  name?: string(name='name', example='ha-cn-30174dhoz53_qrs'),
+  tableDeployId?: string(name='tableDeployId', example='56'),
+  type?: string(name='type', example='index'),
 }
 
 model GetNodeConfigResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='Id of the request', example='2AE63638-5420-56DC-BF59-37D8174039A0'),
   result?: [ 
     {
-      dataDuplicateNumber?: long(name='dataDuplicateNumber'),
-      dataFragmentNumber?: long(name='dataFragmentNumber'),
-      minServicePercent?: long(name='minServicePercent'),
-      published?: boolean(name='published'),
+      dataDuplicateNumber?: long(name='dataDuplicateNumber', example='2'),
+      dataFragmentNumber?: long(name='dataFragmentNumber', example='2'),
+      minServicePercent?: long(name='minServicePercent', example='100'),
+      published?: boolean(name='published', example='true'),
     }
   ](name='result'),
 }
@@ -1158,15 +1658,8 @@ model GetNodeConfigResponse = {
   body: GetNodeConfigResponseBody(name='body'),
 }
 
-async function getNodeConfig(instanceId: string, request: GetNodeConfigRequest): GetNodeConfigResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getNodeConfigWithOptions(instanceId, request, headers, runtime);
-}
-
 async function getNodeConfigWithOptions(instanceId: string, request: GetNodeConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetNodeConfigResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var query : map[string]any = {};
   if (!Util.isUnset(request.clusterName)) {
     query['clusterName'] = request.clusterName;
@@ -1192,7 +1685,7 @@ async function getNodeConfigWithOptions(instanceId: string, request: GetNodeConf
     action = 'GetNodeConfig',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/node-config`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/node-config`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1202,18 +1695,24 @@ async function getNodeConfigWithOptions(instanceId: string, request: GetNodeConf
   return callApi(params, req, runtime);
 }
 
+async function getNodeConfig(instanceId: string, request: GetNodeConfigRequest): GetNodeConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getNodeConfigWithOptions(instanceId, request, headers, runtime);
+}
+
 model ListAdvanceConfigDirRequest {
-  dirName?: string(name='dirName'),
+  dirName?: string(name='dirName', example='/zones/general'),
 }
 
 model ListAdvanceConfigDirResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', example='2AE63638-5420-56DC-BF59-37D8174039A0'),
   result?: [ 
     {
-      fullPathName?: string(name='fullPathName'),
-      isDir?: boolean(name='isDir'),
-      isTemplate?: boolean(name='isTemplate'),
-      name?: string(name='name'),
+      fullPathName?: string(name='fullPathName', example='"/path/wpd/nae"'),
+      isDir?: boolean(name='isDir', example='true'),
+      isTemplate?: boolean(name='isTemplate', example='true'),
+      name?: string(name='name', example='file_name_1'),
     }
   ](name='result'),
 }
@@ -1224,16 +1723,17 @@ model ListAdvanceConfigDirResponse = {
   body: ListAdvanceConfigDirResponseBody(name='body'),
 }
 
-async function listAdvanceConfigDir(instanceId: string, configName: string, request: ListAdvanceConfigDirRequest): ListAdvanceConfigDirResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listAdvanceConfigDirWithOptions(instanceId, configName, request, headers, runtime);
-}
-
+/**
+  * ## Sample requests
+  * `GET /openapi/ha3/instances/ose-test1/advanced-configs`
+  *
+  * @param request ListAdvanceConfigDirRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ListAdvanceConfigDirResponse
+ */
 async function listAdvanceConfigDirWithOptions(instanceId: string, configName: string, request: ListAdvanceConfigDirRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListAdvanceConfigDirResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  configName = OpenApiUtil.getEncodeParam(configName);
   var query : map[string]any = {};
   if (!Util.isUnset(request.dirName)) {
     query['dirName'] = request.dirName;
@@ -1247,7 +1747,7 @@ async function listAdvanceConfigDirWithOptions(instanceId: string, configName: s
     action = 'ListAdvanceConfigDir',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/advanced-configs/${configName}/dir`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/advanced-configs/${OpenApiUtil.getEncodeParam(configName)}/dir`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1257,26 +1757,43 @@ async function listAdvanceConfigDirWithOptions(instanceId: string, configName: s
   return callApi(params, req, runtime);
 }
 
+/**
+  * ## Sample requests
+  * `GET /openapi/ha3/instances/ose-test1/advanced-configs`
+  *
+  * @param request ListAdvanceConfigDirRequest
+  * @return ListAdvanceConfigDirResponse
+ */
+async function listAdvanceConfigDir(instanceId: string, configName: string, request: ListAdvanceConfigDirRequest): ListAdvanceConfigDirResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listAdvanceConfigDirWithOptions(instanceId, configName, request, headers, runtime);
+}
+
 model ListAdvanceConfigsRequest {
-  type?: string(name='type'),
+  dataSourceName?: string(name='dataSourceName'),
+  indexName?: string(name='indexName'),
+  type?: string(name='type', example='online'),
 }
 
 model ListAdvanceConfigsResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', example='4FB0325E-8C37-5525-96AC-0333523170A3'),
   result?: [ 
     {
-      desc?: string(name='desc'),
+      content?: string(name='content', description='配置内容 http，git 请求时不为空'),
+      contentType?: string(name='contentType', description='配置内容的类型 (FILE, GIT, HTTP, ODPS)'),
+      desc?: string(name='desc', example='test'),
       files?: [ 
         {
-          fullPathName?: string(name='fullPathName'),
-          isDir?: boolean(name='isDir'),
-          isTemplate?: boolean(name='isTemplate'),
-          name?: string(name='name'),
+          fullPathName?: string(name='fullPathName', example='/path/wpd/nae'),
+          isDir?: boolean(name='isDir', example='true'),
+          isTemplate?: boolean(name='isTemplate', example='true'),
+          name?: string(name='name', example='file_name_1'),
         }
       ](name='files'),
-      name?: string(name='name'),
-      status?: string(name='status'),
-      updateTime?: long(name='updateTime'),
+      name?: string(name='name', example='my_index'),
+      status?: string(name='status', example='drafting'),
+      updateTime?: long(name='updateTime', example='1631070464000'),
     }
   ](name='result'),
 }
@@ -1287,16 +1804,23 @@ model ListAdvanceConfigsResponse = {
   body: ListAdvanceConfigsResponseBody(name='body'),
 }
 
-async function listAdvanceConfigs(instanceId: string, request: ListAdvanceConfigsRequest): ListAdvanceConfigsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listAdvanceConfigsWithOptions(instanceId, request, headers, runtime);
-}
-
+/**
+  * http
+  *
+  * @param request ListAdvanceConfigsRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ListAdvanceConfigsResponse
+ */
 async function listAdvanceConfigsWithOptions(instanceId: string, request: ListAdvanceConfigsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListAdvanceConfigsResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var query : map[string]any = {};
+  if (!Util.isUnset(request.dataSourceName)) {
+    query['dataSourceName'] = request.dataSourceName;
+  }
+  if (!Util.isUnset(request.indexName)) {
+    query['indexName'] = request.indexName;
+  }
   if (!Util.isUnset(request.type)) {
     query['type'] = request.type;
   }
@@ -1309,7 +1833,7 @@ async function listAdvanceConfigsWithOptions(instanceId: string, request: ListAd
     action = 'ListAdvanceConfigs',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/advanced-configs`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/advanced-configs`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1319,12 +1843,24 @@ async function listAdvanceConfigsWithOptions(instanceId: string, request: ListAd
   return callApi(params, req, runtime);
 }
 
+/**
+  * http
+  *
+  * @param request ListAdvanceConfigsRequest
+  * @return ListAdvanceConfigsResponse
+ */
+async function listAdvanceConfigs(instanceId: string, request: ListAdvanceConfigsRequest): ListAdvanceConfigsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listAdvanceConfigsWithOptions(instanceId, request, headers, runtime);
+}
+
 model ListClusterNamesResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='id of request', example='F6E3D968-529C-5C40-AFDD-133A8B8FD930'),
   result?: {
-    description?: string(name='description'),
-    id?: long(name='id'),
-    name?: string(name='name'),
+    description?: string(name='description', example='ha3_test'),
+    id?: long(name='id', example='25030'),
+    name?: string(name='name', example='my_index'),
   }(name='result'),
 }
 
@@ -1334,14 +1870,17 @@ model ListClusterNamesResponse = {
   body: ListClusterNamesResponseBody(name='body'),
 }
 
-async function listClusterNames(instanceId: string): ListClusterNamesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listClusterNamesWithOptions(instanceId, headers, runtime);
-}
-
+/**
+  * ### Sample requests
+  * ```java
+  * GET /openapi/ha3/instances/ha3_instance_name/cluster-names
+  * ```
+  *
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ListClusterNamesResponse
+ */
 async function listClusterNamesWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListClusterNamesResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -1349,7 +1888,7 @@ async function listClusterNamesWithOptions(instanceId: string, headers: map[stri
     action = 'ListClusterNames',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/cluster-names`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/cluster-names`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1359,35 +1898,59 @@ async function listClusterNamesWithOptions(instanceId: string, headers: map[stri
   return callApi(params, req, runtime);
 }
 
+/**
+  * ### Sample requests
+  * ```java
+  * GET /openapi/ha3/instances/ha3_instance_name/cluster-names
+  * ```
+  *
+  * @return ListClusterNamesResponse
+ */
+async function listClusterNames(instanceId: string): ListClusterNamesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listClusterNamesWithOptions(instanceId, headers, runtime);
+}
+
 model ListClusterTasksResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='id of request', example='CC5EC8FA-5C0D-56AF-BEF4-6FCCEABD0511'),
   result?: [ 
     {
-      extraAttribute?: string(name='extraAttribute'),
-      field3?: string(name='field3'),
-      fsmId?: string(name='fsmId'),
-      groupType?: string(name='groupType'),
-      name?: string(name='name'),
-      status?: string(name='status'),
+      extraAttribute?: string(name='extraAttribute', example='" "'),
+      field3?: string(name='field3', example='" "'),
+      fsmId?: string(name='fsmId', description='fsmId', example='tisplus_opensearch@datasource_flow_fsm@1865410598556969-ha-cn-zvp2ljiwe01_api2@bj_vpc_domain_1@null@MANUAL-ha-cn-zvp2ljiwe01_api2@1649729867698@028315'),
+      groupType?: string(name='groupType', description='### Method
+
+```java
+GET
+```
+
+### URI
+
+```java
+/openapi/ha3/instances/{instanceId}/cluster-tasks
+```', example='" "'),
+      name?: string(name='name', description='Displays cluster tasks .', example='ha-cn-pl32rf0js04_qrs'),
+      status?: string(name='status', example='onlyPublished'),
       tags?: [ 
         {
-          msg?: string(name='msg'),
-          tagLevel?: string(name='tagLevel'),
+          msg?: string(name='msg', example='succeed in handling request'),
+          tagLevel?: string(name='tagLevel', example='" "'),
         }
       ](name='tags'),
       taskNodes?: [ 
         {
-          finishDate?: string(name='finishDate'),
-          index?: long(name='index'),
-          name?: string(name='name'),
-          status?: string(name='status'),
+          finishDate?: string(name='finishDate', example='" "'),
+          index?: long(name='index', example='100'),
+          name?: string(name='name', example='general'),
+          status?: string(name='status', example='2'),
         }
       ](name='taskNodes'),
-      time?: string(name='time'),
-      type?: string(name='type'),
-      user?: string(name='user'),
+      time?: string(name='time', example='1657610520'),
+      type?: string(name='type', example='qrs'),
+      user?: string(name='user', example='" "'),
     }
-  ](name='result'),
+  ](name='result', description='The date when the task was completed.'),
 }
 
 model ListClusterTasksResponse = {
@@ -1396,14 +1959,7 @@ model ListClusterTasksResponse = {
   body: ListClusterTasksResponseBody(name='body'),
 }
 
-async function listClusterTasks(instanceId: string): ListClusterTasksResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listClusterTasksWithOptions(instanceId, headers, runtime);
-}
-
 async function listClusterTasksWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListClusterTasksResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -1411,7 +1967,7 @@ async function listClusterTasksWithOptions(instanceId: string, headers: map[stri
     action = 'ListClusterTasks',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/cluster-tasks`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/cluster-tasks`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1421,28 +1977,38 @@ async function listClusterTasksWithOptions(instanceId: string, headers: map[stri
   return callApi(params, req, runtime);
 }
 
+async function listClusterTasks(instanceId: string): ListClusterTasksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listClusterTasksWithOptions(instanceId, headers, runtime);
+}
+
 model ListClustersResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='id of request', example='F43E8AB4-419C-5F4C-90D6-615590DFAA3C'),
   result?: [ 
     {
-      configUpdateTime?: string(name='configUpdateTime'),
-      currentAdvanceConfigVersion?: string(name='currentAdvanceConfigVersion'),
-      currentOnlineConfigVersion?: string(name='currentOnlineConfigVersion'),
+      configUpdateTime?: string(name='configUpdateTime', example='" "'),
+      currentAdvanceConfigVersion?: string(name='currentAdvanceConfigVersion', example='" "'),
+      currentOfflineDictConfigVersion?: string(name='currentOfflineDictConfigVersion', description='词典配置生效版本'),
+      currentOnlineConfigVersion?: string(name='currentOnlineConfigVersion', example='" "'),
+      currentOnlineQueryConfigVersion?: string(name='currentOnlineQueryConfigVersion', description='查询配置生效版本'),
       dataNode?: {
-        name?: string(name='name'),
-        number?: int32(name='number'),
-        partition?: int32(name='partition'),
+        name?: string(name='name', example='ha-cn-8ed2k7brm05_qrs'),
+        number?: int32(name='number', example='1'),
+        partition?: int32(name='partition', example='dt=20220216'),
       }(name='dataNode'),
-      description?: string(name='description'),
-      latestAdvanceConfigVersion?: string(name='latestAdvanceConfigVersion'),
-      latestOnlineConfigVersion?: string(name='latestOnlineConfigVersion'),
-      name?: string(name='name'),
+      description?: string(name='description', example='fzz_test'),
+      latestAdvanceConfigVersion?: string(name='latestAdvanceConfigVersion', example='" "'),
+      latestOfflineDictConfigVersion?: string(name='latestOfflineDictConfigVersion', description='词典配置最新版本'),
+      latestOnlineConfigVersion?: string(name='latestOnlineConfigVersion', example='" "'),
+      latestOnlineQueryConfigVersion?: string(name='latestOnlineQueryConfigVersion', description='查询配置最新版本'),
+      name?: string(name='name', example='ha-cn-7pp2pcna701_qrs'),
       queryNode?: {
-        name?: string(name='name'),
-        number?: int32(name='number'),
-        partition?: int32(name='partition'),
+        name?: string(name='name', example='test_0704'),
+        number?: int32(name='number', example='1'),
+        partition?: int32(name='partition', example='dt=20211216'),
       }(name='queryNode'),
-      status?: string(name='status'),
+      status?: string(name='status', example='"starting"'),
     }
   ](name='result'),
 }
@@ -1453,14 +2019,14 @@ model ListClustersResponse = {
   body: ListClustersResponseBody(name='body'),
 }
 
-async function listClusters(instanceId: string): ListClustersResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listClustersWithOptions(instanceId, headers, runtime);
-}
-
+/**
+  * http
+  *
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ListClustersResponse
+ */
 async function listClustersWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListClustersResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -1468,7 +2034,7 @@ async function listClustersWithOptions(instanceId: string, headers: map[string]s
     action = 'ListClusters',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/clusters`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/clusters`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1478,21 +2044,32 @@ async function listClustersWithOptions(instanceId: string, headers: map[string]s
   return callApi(params, req, runtime);
 }
 
+/**
+  * http
+  *
+  * @return ListClustersResponse
+ */
+async function listClusters(instanceId: string): ListClustersResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listClustersWithOptions(instanceId, headers, runtime);
+}
+
 model ListDataSourceSchemasResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', example='022F36C7-9FB4-5D67-BEBC-3D14B0984463'),
   result?: [ 
     {
-      addIndex?: boolean(name='addIndex'),
-      attribute?: boolean(name='attribute'),
-      custom?: boolean(name='custom'),
-      name?: string(name='name'),
+      addIndex?: boolean(name='addIndex', example='false'),
+      attribute?: boolean(name='attribute', example='false'),
+      custom?: boolean(name='custom', example='false'),
+      name?: string(name='name', example='test'),
       primaryKey?: {
-        hasPrimaryKeyAttribute?: boolean(name='hasPrimaryKeyAttribute'),
-        isPrimaryKey?: boolean(name='isPrimaryKey'),
-        isPrimaryKeySorted?: boolean(name='isPrimaryKeySorted'),
+        hasPrimaryKeyAttribute?: boolean(name='hasPrimaryKeyAttribute', example='false'),
+        isPrimaryKey?: boolean(name='isPrimaryKey', example='false'),
+        isPrimaryKeySorted?: boolean(name='isPrimaryKeySorted', example='false'),
       }(name='primaryKey'),
-      summary?: boolean(name='summary'),
-      type?: string(name='type'),
+      summary?: boolean(name='summary', example='false'),
+      type?: string(name='type', example='STRING'),
     }
   ](name='result'),
 }
@@ -1503,15 +2080,14 @@ model ListDataSourceSchemasResponse = {
   body: ListDataSourceSchemasResponseBody(name='body'),
 }
 
-async function listDataSourceSchemas(instanceId: string, dataSourceName: string): ListDataSourceSchemasResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listDataSourceSchemasWithOptions(instanceId, dataSourceName, headers, runtime);
-}
-
+/**
+  * Obtains the schema information of a specified data source.
+  *
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ListDataSourceSchemasResponse
+ */
 async function listDataSourceSchemasWithOptions(instanceId: string, dataSourceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListDataSourceSchemasResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  dataSourceName = OpenApiUtil.getEncodeParam(dataSourceName);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -1519,7 +2095,7 @@ async function listDataSourceSchemasWithOptions(instanceId: string, dataSourceNa
     action = 'ListDataSourceSchemas',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/data-sources/${dataSourceName}/schemas`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/data-sources/${OpenApiUtil.getEncodeParam(dataSourceName)}/schemas`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1529,35 +2105,56 @@ async function listDataSourceSchemasWithOptions(instanceId: string, dataSourceNa
   return callApi(params, req, runtime);
 }
 
+/**
+  * Obtains the schema information of a specified data source.
+  *
+  * @return ListDataSourceSchemasResponse
+ */
+async function listDataSourceSchemas(instanceId: string, dataSourceName: string): ListDataSourceSchemasResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listDataSourceSchemasWithOptions(instanceId, dataSourceName, headers, runtime);
+}
+
 model ListDataSourceTasksResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='id of request', example='CC5EC8FA-5C0D-56AF-BEF4-6FCCEABD0511'),
   result?: [ 
     {
-      extraAttribute?: string(name='extraAttribute'),
-      field3?: string(name='field3'),
-      fsmId?: string(name='fsmId'),
-      groupType?: string(name='groupType'),
-      name?: string(name='name'),
-      status?: string(name='status'),
+      extraAttribute?: string(name='extraAttribute', example='""'),
+      field3?: string(name='field3', example='""'),
+      fsmId?: string(name='fsmId', description='fsmId', example='tisplus_opensearch@datasource_flow_fsm@1062017779051424-ha-cn-2r42ostoc01_ecom_table@vpc_hz_domain_1@null@MANUAL-ha-cn-2r42ostoc01_ecom_table@1655974525756@006754'),
+      groupType?: string(name='groupType', description='### Method
+
+```java
+GET
+```
+
+### URI
+
+```java
+/openapi/ha3/instances/{instanceId}/data-source-tasks
+```', example='" "'),
+      name?: string(name='name', description='Displays data source tasks.', example='general'),
+      status?: string(name='status', example='2'),
       tags?: [ 
         {
-          msg?: string(name='msg'),
-          tagLevel?: string(name='tagLevel'),
+          msg?: string(name='msg', example='succeed in handling request'),
+          tagLevel?: string(name='tagLevel', example='""'),
         }
       ](name='tags'),
       taskNodes?: [ 
         {
-          finishDate?: string(name='finishDate'),
-          index?: long(name='index'),
-          name?: string(name='name'),
-          status?: string(name='status'),
+          finishDate?: string(name='finishDate', example='""'),
+          index?: long(name='index', example='100'),
+          name?: string(name='name', example='ha-cn-7pp2ngv4s02_qrs'),
+          status?: string(name='status', example='onlyPublished'),
         }
       ](name='taskNodes'),
-      time?: string(name='time'),
-      type?: string(name='type'),
-      user?: string(name='user'),
+      time?: string(name='time', example='1646279473'),
+      type?: string(name='type', example='search'),
+      user?: string(name='user', example='""'),
     }
-  ](name='result'),
+  ](name='result', description='The date when the task was completed.'),
 }
 
 model ListDataSourceTasksResponse = {
@@ -1566,14 +2163,7 @@ model ListDataSourceTasksResponse = {
   body: ListDataSourceTasksResponseBody(name='body'),
 }
 
-async function listDataSourceTasks(instanceId: string): ListDataSourceTasksResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listDataSourceTasksWithOptions(instanceId, headers, runtime);
-}
-
 async function listDataSourceTasksWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListDataSourceTasksResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -1581,7 +2171,7 @@ async function listDataSourceTasksWithOptions(instanceId: string, headers: map[s
     action = 'ListDataSourceTasks',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/data-source-tasks`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/data-source-tasks`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1591,27 +2181,32 @@ async function listDataSourceTasksWithOptions(instanceId: string, headers: map[s
   return callApi(params, req, runtime);
 }
 
+async function listDataSourceTasks(instanceId: string): ListDataSourceTasksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listDataSourceTasksWithOptions(instanceId, headers, runtime);
+}
+
 model ListDataSourcesResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='## Method
+
+`GET`
+
+## URI
+
+`/openapi/ha3/instances/{instanceId}/data-sources`', example='93A9E542-8CF8-5BA6-99AB-94C0FE520429'),
   result?: [ 
     {
-      autoBuildIndex?: boolean(name='autoBuildIndex'),
-      config?: {
-        accessKey?: string(name='accessKey'),
-        accessSecret?: string(name='accessSecret'),
-        partition?: string(name='partition'),
-        project?: string(name='project'),
-        table?: string(name='table'),
-      }(name='config'),
-      domain?: string(name='domain'),
+      domain?: string(name='domain', example='test'),
       indexes?: [ string ](name='indexes'),
       lastFulTime?: long(name='lastFulTime'),
-      name?: string(name='name'),
-      partitions?: [ string ](name='partitions'),
-      status?: string(name='status'),
-      type?: string(name='type'),
+      name?: string(name='name', example='data_source_name'),
+      status?: string(name='status', example='new'),
+      type?: string(name='type', example='odps'),
     }
-  ](name='result'),
+  ](name='result', description='## Sample requests
+
+`GET /openapi/ha3/instances/ha3_instances_id/data-sources`'),
 }
 
 model ListDataSourcesResponse = {
@@ -1620,14 +2215,7 @@ model ListDataSourcesResponse = {
   body: ListDataSourcesResponseBody(name='body'),
 }
 
-async function listDataSources(instanceId: string): ListDataSourcesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listDataSourcesWithOptions(instanceId, headers, runtime);
-}
-
 async function listDataSourcesWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListDataSourcesResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -1635,7 +2223,7 @@ async function listDataSourcesWithOptions(instanceId: string, headers: map[strin
     action = 'ListDataSources',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/data-sources`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/data-sources`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1645,24 +2233,30 @@ async function listDataSourcesWithOptions(instanceId: string, headers: map[strin
   return callApi(params, req, runtime);
 }
 
+async function listDataSources(instanceId: string): ListDataSourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listDataSourcesWithOptions(instanceId, headers, runtime);
+}
+
 model ListDateSourceGenerationsRequest {
-  domainName?: string(name='domainName'),
-  validStatus?: boolean(name='validStatus'),
+  domainName?: string(name='domainName', example='bj_vpc_domain_1'),
+  validStatus?: boolean(name='validStatus', description='Obtains the data restoration version of a data source.', example='true'),
 }
 
 model ListDateSourceGenerationsResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='id of request', example='022F36C7-9FB4-5D67-BEBC-3D14B0984463'),
   result?: [ 
     {
-      buildDeployId?: int32(name='buildDeployId'),
-      createTime?: long(name='createTime'),
-      dataDumpRoot?: string(name='dataDumpRoot'),
-      generation?: long(name='generation'),
+      buildDeployId?: int32(name='buildDeployId', description='buildDeployId', example='122'),
+      createTime?: long(name='createTime', example='1626143673'),
+      dataDumpRoot?: string(name='dataDumpRoot', example='""'),
+      generation?: long(name='generation', example='1626143930'),
       partition?: map[string]int32(name='partition'),
-      status?: string(name='status'),
-      timestamp?: long(name='timestamp'),
+      status?: string(name='status', example='STOPPED'),
+      timestamp?: long(name='timestamp', example='1626143673'),
     }
-  ](name='result'),
+  ](name='result', description='List'),
 }
 
 model ListDateSourceGenerationsResponse = {
@@ -1671,16 +2265,8 @@ model ListDateSourceGenerationsResponse = {
   body: ListDateSourceGenerationsResponseBody(name='body'),
 }
 
-async function listDateSourceGenerations(instanceId: string, dataSourceName: string, request: ListDateSourceGenerationsRequest): ListDateSourceGenerationsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listDateSourceGenerationsWithOptions(instanceId, dataSourceName, request, headers, runtime);
-}
-
 async function listDateSourceGenerationsWithOptions(instanceId: string, dataSourceName: string, request: ListDateSourceGenerationsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListDateSourceGenerationsResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  dataSourceName = OpenApiUtil.getEncodeParam(dataSourceName);
   var query : map[string]any = {};
   if (!Util.isUnset(request.domainName)) {
     query['domainName'] = request.domainName;
@@ -1697,7 +2283,7 @@ async function listDateSourceGenerationsWithOptions(instanceId: string, dataSour
     action = 'ListDateSourceGenerations',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/data-sources/${dataSourceName}/generations`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/data-sources/${OpenApiUtil.getEncodeParam(dataSourceName)}/generations`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1707,33 +2293,101 @@ async function listDateSourceGenerationsWithOptions(instanceId: string, dataSour
   return callApi(params, req, runtime);
 }
 
+async function listDateSourceGenerations(instanceId: string, dataSourceName: string, request: ListDateSourceGenerationsRequest): ListDateSourceGenerationsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listDateSourceGenerationsWithOptions(instanceId, dataSourceName, request, headers, runtime);
+}
+
+model ListIndexesRequest {
+  newMode?: boolean(name='newMode'),
+}
+
 model ListIndexesResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='id of request', example='4FB0325E-8C37-5525-96AC-0333523170A3'),
   result?: [ 
     {
-      dataSource?: string(name='dataSource'),
-      domain?: string(name='domain'),
-      indexStatus?: string(name='indexStatus'),
-      name?: string(name='name'),
+      content?: string(name='content'),
+      dataSource?: string(name='dataSource', example='ha-cn-7mz2kvu2c01_table4'),
+      dataSourceInfo?: {
+        autoBuildIndex?: boolean(name='autoBuildIndex'),
+        config?: {
+          accessKey?: string(name='accessKey'),
+          accessSecret?: string(name='accessSecret'),
+          bucket?: string(name='bucket'),
+          endpoint?: string(name='endpoint'),
+          namespace?: string(name='namespace'),
+          ossPath?: string(name='ossPath'),
+          partition?: string(name='partition'),
+          path?: string(name='path'),
+          project?: string(name='project'),
+          table?: string(name='table'),
+        }(name='config'),
+        domain?: string(name='domain'),
+        name?: string(name='name'),
+        processPartitionCount?: int32(name='processPartitionCount'),
+        saroConfig?: {
+          namespace?: string(name='namespace'),
+          tableName?: string(name='tableName'),
+        }(name='saroConfig'),
+        type?: string(name='type'),
+      }(name='dataSourceInfo'),
+      description?: string(name='description'),
+      domain?: string(name='domain', example='test'),
+      fullUpdateTime?: string(name='fullUpdateTime'),
+      fullVersion?: long(name='fullVersion'),
+      incUpdateTime?: string(name='incUpdateTime'),
+      indexSize?: long(name='indexSize'),
+      indexStatus?: string(name='indexStatus', description='NEW, PUBLISH', example='" "'),
+      name?: string(name='name', description='## Sample responses
+
+Success responses ﻿
+
+    {
+    ﻿
+      "requestId": "38b079f1-7846-4226-8c90-3e2644b5c52b",
+    ﻿
+      "result": [
+    ﻿
+        {
+    ﻿
+          "name": "index1",
+    ﻿
+          "dataSource": "test_yyds_data1",
+    ﻿
+        },
+    ﻿
+        {
+    ﻿
+          "name": "index1",
+    ﻿
+          "dataSource": "test_yyds_data1",
+    ﻿
+        }
+    ﻿
+      ]
+    ﻿
+    }', example='general'),
+      partition?: int32(name='partition'),
       versions?: [ 
         {
-          desc?: string(name='desc'),
+          desc?: string(name='desc', example='close alarm, by 3.9.2 hotfix workflow'),
           files?: [ 
             {
-              fullPathName?: string(name='fullPathName'),
-              isDir?: boolean(name='isDir'),
-              isTemplate?: boolean(name='isTemplate'),
-              name?: string(name='name'),
+              fullPathName?: string(name='fullPathName', example='" "'),
+              isDir?: boolean(name='isDir', example='True'),
+              isTemplate?: boolean(name='isTemplate', example='True'),
+              name?: string(name='name', example='ha-cn-7mz2iv7sq01_qrs'),
             }
           ](name='files'),
-          name?: string(name='name'),
-          status?: string(name='status'),
-          updateTime?: long(name='updateTime'),
-          versionId?: int32(name='versionId'),
+          name?: string(name='name', example='ha-cn-7pp2ngv4s02_qrs'),
+          status?: string(name='status', example='2'),
+          updateTime?: long(name='updateTime', example='" "'),
+          versionId?: int32(name='versionId', example='1'),
         }
       ](name='versions'),
     }
-  ](name='result'),
+  ](name='result', description='auditing'),
 }
 
 model ListIndexesResponse = {
@@ -1742,22 +2396,22 @@ model ListIndexesResponse = {
   body: ListIndexesResponseBody(name='body'),
 }
 
-async function listIndexes(instanceId: string): ListIndexesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listIndexesWithOptions(instanceId, headers, runtime);
-}
+async function listIndexesWithOptions(instanceId: string, request: ListIndexesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListIndexesResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.newMode)) {
+    query['newMode'] = request.newMode;
+  }
 
-async function listIndexesWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListIndexesResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'ListIndexes',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/indexes`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/indexes`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1767,19 +2421,26 @@ async function listIndexesWithOptions(instanceId: string, headers: map[string]st
   return callApi(params, req, runtime);
 }
 
+async function listIndexes(instanceId: string, request: ListIndexesRequest): ListIndexesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listIndexesWithOptions(instanceId, request, headers, runtime);
+}
+
 model ListInstanceSpecsRequest {
-  type?: string(name='type'),
+  type?: string(name='type', description='The node type. Valid values: qrs, search, index, and cluster. qrs specifies an Query Result Searcher (QRS) worker, search specifies a searcher worker, index specifies an index node, and cluster specifies a cluster.', example='search'),
 }
 
 model ListInstanceSpecsResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='10D5E615-69F7-5F49-B850-00169ADE513C'),
   result?: [ 
     {
-      cpu?: int32(name='cpu'),
-      disk?: int32(name='disk'),
-      mem?: int32(name='mem'),
+      cpu?: int32(name='cpu', description='The number of CPU cores.', example='1'),
+      maxDisk?: int32(name='maxDisk', description='The maximum storage space of a searcher worker.'),
+      mem?: int32(name='mem', description='The memory size. Unit: GB.', example='4'),
+      minDisk?: int32(name='minDisk', description='The minimum storage space of a searcher worker.'),
     }
-  ](name='result'),
+  ](name='result', description='The specifications of the instances.'),
 }
 
 model ListInstanceSpecsResponse = {
@@ -1788,15 +2449,19 @@ model ListInstanceSpecsResponse = {
   body: ListInstanceSpecsResponseBody(name='body'),
 }
 
-async function listInstanceSpecs(instanceId: string, request: ListInstanceSpecsRequest): ListInstanceSpecsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listInstanceSpecsWithOptions(instanceId, request, headers, runtime);
-}
-
+/**
+  * ### Method
+  * `GET`
+  * ### URI
+  * `/openapi/ha3/instances/{instanceId}/specs?type=qrs`
+  *
+  * @param request ListInstanceSpecsRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ListInstanceSpecsResponse
+ */
 async function listInstanceSpecsWithOptions(instanceId: string, request: ListInstanceSpecsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListInstanceSpecsResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var query : map[string]any = {};
   if (!Util.isUnset(request.type)) {
     query['type'] = request.type;
@@ -1810,7 +2475,7 @@ async function listInstanceSpecsWithOptions(instanceId: string, request: ListIns
     action = 'ListInstanceSpecs',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/specs`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/specs`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1820,37 +2485,149 @@ async function listInstanceSpecsWithOptions(instanceId: string, request: ListIns
   return callApi(params, req, runtime);
 }
 
+/**
+  * ### Method
+  * `GET`
+  * ### URI
+  * `/openapi/ha3/instances/{instanceId}/specs?type=qrs`
+  *
+  * @param request ListInstanceSpecsRequest
+  * @return ListInstanceSpecsResponse
+ */
+async function listInstanceSpecs(instanceId: string, request: ListInstanceSpecsRequest): ListInstanceSpecsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listInstanceSpecsWithOptions(instanceId, request, headers, runtime);
+}
+
 model ListInstancesRequest {
-  description?: string(name='description'),
-  instanceId?: string(name='instanceId'),
-  pageNumber?: int32(name='pageNumber'),
-  pageSize?: int32(name='pageSize'),
-  resourceGroupId?: string(name='resourceGroupId'),
+  description?: string(name='description', description='The description of the instance', example='The product code'),
+  edition?: string(name='edition', description='实例类型，vector(向量索引版)，engine(召回引擎版)', example='vector'),
+  instanceId?: string(name='instanceId', description='The time when the instance was created', example='ha-cn-83570439y0n'),
+  pageNumber?: int32(name='pageNumber', description='The status of the instance', example='1'),
+  pageSize?: int32(name='pageSize', description='The description of the instance. You can use this description to filter instances. Fuzzy match is supported.', example='10'),
+  resourceGroupId?: string(name='resourceGroupId', description='The number of the page to return. Default value: 1.', example='rg-aekzgpiswzbksdi'),
+  tags?: [ 
+    {
+      key?: string(name='key'),
+      value?: string(name='value'),
+    }
+  ](name='tags'),
+}
+
+model ListInstancesShrinkRequest {
+  description?: string(name='description', description='The description of the instance', example='The product code'),
+  edition?: string(name='edition', description='实例类型，vector(向量索引版)，engine(召回引擎版)', example='vector'),
+  instanceId?: string(name='instanceId', description='The time when the instance was created', example='ha-cn-83570439y0n'),
+  pageNumber?: int32(name='pageNumber', description='The status of the instance', example='1'),
+  pageSize?: int32(name='pageSize', description='The description of the instance. You can use this description to filter instances. Fuzzy match is supported.', example='10'),
+  resourceGroupId?: string(name='resourceGroupId', description='The number of the page to return. Default value: 1.', example='rg-aekzgpiswzbksdi'),
+  tagsShrink?: string(name='tags'),
 }
 
 model ListInstancesResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', example='89B968E6-1E41-58DF-BB25-5F98ECC759CE'),
   result?: [ 
     {
-      chargeType?: string(name='chargeType'),
-      commodityCode?: string(name='commodityCode'),
-      createTime?: string(name='createTime'),
-      description?: string(name='description'),
-      expiredTime?: string(name='expiredTime'),
-      inDebt?: boolean(name='inDebt'),
-      instanceId?: string(name='instanceId'),
-      lockMode?: string(name='lockMode'),
+      chargeType?: string(name='chargeType', description='The ID of the resource group to which the instance belongs.', example='PrePaid'),
+      commodityCode?: string(name='commodityCode', description='The total number of entries returned', example='""'),
+      createTime?: string(name='createTime', description='Havenask instance', example='2022-06-04T02:03:21Z'),
+      description?: string(name='description', description='The ID of the virtual switch', example='The billing method'),
+      expiredTime?: string(name='expiredTime', description='The ID of the Virtual Private Cloud (VPC) network', example='1634885083'),
+      inDebt?: boolean(name='inDebt', description='The ID of the request', example='false'),
+      instanceId?: string(name='instanceId', description='The access point of the gateway', example='ha-cn-2r42n8oh001'),
+      lockMode?: string(name='lockMode', description='Emergency test', example='Unlock'),
       network?: {
-        endpoint?: string(name='endpoint'),
-        vSwitchId?: string(name='vSwitchId'),
-        vpcId?: string(name='vpcId'),
-      }(name='network'),
-      resourceGroupId?: string(name='resourceGroupId'),
-      status?: string(name='status'),
-      updateTime?: string(name='updateTime'),
+        endpoint?: string(name='endpoint', description='353490', example='""'),
+        vSwitchId?: string(name='vSwitchId', description='### Sample responses
+
+**Sample success responses**
+
+    {
+        "requestId": "90D6B8F5-FE97-4509-9AAB-367836C51818",
+        "result": [
+            {
+                "instanceId": "igraph-cn-xxxxxx1",
+                "spec": {
+                    "password": "passwd",
+                    "searchResource": {
+                        "disk": 50,
+                        "mem": 8,
+                        "cpu": 2,
+                        "nodeCount": 2
+                    },
+                    "instanceName": "testInstance",
+                    "vSwitchId": "vswitch_id_xxx",
+                    "vpcId": "vpc_id_xxx",
+                    "qrsResource": {
+                        "disk": 50,
+                        "mem": 8,
+                        "cpu": 2,
+                        "nodeCount": 2
+                    },
+                    "region": "cn-hangzhou",
+                    "userName": "user"
+                },
+                "status": {
+                    "phase": "PENDING",
+                    "instancePhase": "INIT",
+                    "createSuccess": false
+                }
+            },
+            {
+                "instanceId": "igraph-cn-xxxxxx2",
+                "spec": {
+                    "password": "passwd",
+                    "searchResource": {
+                        "disk": 50,
+                        "mem": 8,
+                        "cpu": 2,
+                        "nodeCount": 2
+                    },
+                    "instanceName": "testInstance",
+                    "vSwitchId": "vswitch_id_xxx",
+                    "vpcId": "vpc_id_xxx",
+                    "qrsResource": {
+                        "disk": 50,
+                        "mem": 8,
+                        "cpu": 2,
+                        "nodeCount": 2
+                    },
+                    "region": "cn-hangzhou",
+                    "userName": "user"
+                },
+                "status": {
+                    "phase": "PENDING",
+                    "instancePhase": "INIT",
+                    "createSuccess": false
+                }
+            }
+        ],
+        "totalCount": 20
     }
-  ](name='result'),
-  totalCount?: int32(name='totalCount'),
+
+**Sample error responses**
+
+    {
+      "requestId": "BD1EA715-DF6F-06C2-004C-C1FA0D3A9820",
+      "httpCode": 404,
+      "code": "App.NotFound",
+      "message": "App not found"
+    }', example='vsw-bp11ldcf59q2nbwkqgj6z'),
+        vpcId?: string(name='vpcId', description='Queries instances.', example='vpc-wz9axk41d9vffoc79x0oe'),
+      }(name='network', description='The lock status'),
+      resourceGroupId?: string(name='resourceGroupId', description='The number of entries to return on each page. Valid values: 1 to 50. Default value: 10.', example='rg-aekzgpiswzbksdi'),
+      status?: string(name='status', description='The expiration time', example='2'),
+      tags?: [ 
+        {
+          key?: string(name='key'),
+          value?: string(name='value'),
+        }
+      ](name='tags'),
+      updateTime?: string(name='updateTime', description='The time when the instance was last updated', example='2018-12-06T11:17:49.0'),
+    }
+  ](name='result', description='The result returned'),
+  totalCount?: int32(name='totalCount', example='5'),
 }
 
 model ListInstancesResponse = {
@@ -1859,17 +2636,27 @@ model ListInstancesResponse = {
   body: ListInstancesResponseBody(name='body'),
 }
 
-async function listInstances(request: ListInstancesRequest): ListInstancesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listInstancesWithOptions(request, headers, runtime);
-}
-
-async function listInstancesWithOptions(request: ListInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListInstancesResponse {
-  Util.validateModel(request);
+/**
+  * Indicates whether an overdue payment is involved
+  *
+  * @param tmpReq ListInstancesRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ListInstancesResponse
+ */
+async function listInstancesWithOptions(tmpReq: ListInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListInstancesResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListInstancesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.tags)) {
+    request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'tags', 'json');
+  }
   var query : map[string]any = {};
   if (!Util.isUnset(request.description)) {
     query['description'] = request.description;
+  }
+  if (!Util.isUnset(request.edition)) {
+    query['edition'] = request.edition;
   }
   if (!Util.isUnset(request.instanceId)) {
     query['instanceId'] = request.instanceId;
@@ -1882,6 +2669,9 @@ async function listInstancesWithOptions(request: ListInstancesRequest, headers: 
   }
   if (!Util.isUnset(request.resourceGroupId)) {
     query['resourceGroupId'] = request.resourceGroupId;
+  }
+  if (!Util.isUnset(request.tagsShrink)) {
+    query['tags'] = request.tagsShrink;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -1902,18 +2692,30 @@ async function listInstancesWithOptions(request: ListInstancesRequest, headers: 
   return callApi(params, req, runtime);
 }
 
+/**
+  * Indicates whether an overdue payment is involved
+  *
+  * @param request ListInstancesRequest
+  * @return ListInstancesResponse
+ */
+async function listInstances(request: ListInstancesRequest): ListInstancesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listInstancesWithOptions(request, headers, runtime);
+}
+
 model ListOnlineConfigsRequest {
-  domain?: string(name='domain'),
+  domain?: string(name='domain', example='sz_vpc_domain_1'),
 }
 
 model ListOnlineConfigsResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='id of request', example='E45380E8-994A-5402-9806-F114B3295FCF'),
   result?: [ 
     {
-      config?: string(name='config'),
-      indexName?: string(name='indexName'),
+      config?: string(name='config', example='{\\"specItems\\":[{\\"specKey\\":\\"YQ_KEYWORD_NUMBER_PLUS\\",\\"value\\":\\"1\\"}]}'),
+      indexName?: string(name='indexName', example='generation'),
     }
-  ](name='result'),
+  ](name='result', description='List'),
 }
 
 model ListOnlineConfigsResponse = {
@@ -1922,16 +2724,19 @@ model ListOnlineConfigsResponse = {
   body: ListOnlineConfigsResponseBody(name='body'),
 }
 
-async function listOnlineConfigs(instanceId: string, nodeName: string, request: ListOnlineConfigsRequest): ListOnlineConfigsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listOnlineConfigsWithOptions(instanceId, nodeName, request, headers, runtime);
-}
-
+/**
+  * \\### Sample requests
+  * ```java
+  * GET  /openapi/ha3/instances/ha-test1/node/ihome_searcher/online-configs?domain=pre_ea120
+  * ```
+  *
+  * @param request ListOnlineConfigsRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ListOnlineConfigsResponse
+ */
 async function listOnlineConfigsWithOptions(instanceId: string, nodeName: string, request: ListOnlineConfigsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListOnlineConfigsResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  nodeName = OpenApiUtil.getEncodeParam(nodeName);
   var query : map[string]any = {};
   if (!Util.isUnset(request.domain)) {
     query['domain'] = request.domain;
@@ -1945,7 +2750,7 @@ async function listOnlineConfigsWithOptions(instanceId: string, nodeName: string
     action = 'ListOnlineConfigs',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/node/${nodeName}/online-configs`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/node/${OpenApiUtil.getEncodeParam(nodeName)}/online-configs`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -1955,13 +2760,28 @@ async function listOnlineConfigsWithOptions(instanceId: string, nodeName: string
   return callApi(params, req, runtime);
 }
 
+/**
+  * \\### Sample requests
+  * ```java
+  * GET  /openapi/ha3/instances/ha-test1/node/ihome_searcher/online-configs?domain=pre_ea120
+  * ```
+  *
+  * @param request ListOnlineConfigsRequest
+  * @return ListOnlineConfigsResponse
+ */
+async function listOnlineConfigs(instanceId: string, nodeName: string, request: ListOnlineConfigsRequest): ListOnlineConfigsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listOnlineConfigsWithOptions(instanceId, nodeName, request, headers, runtime);
+}
+
 model ListQueryResultRequest {
-  query?: string(name='query'),
-  sql?: string(name='sql'),
+  query?: string(name='query', description='353490', example='query%3D1%26%26config%3Dstart%3A0%2Chit%3A10%2Cformat%3Ajson%26%26cluster%3Dgeneral'),
+  sql?: string(name='sql', example='query%3Dselect%20max(content_id)%20from%20generation'),
 }
 
 model ListQueryResultResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', example='9E5BCFAA-98B3-51D0-9188-B1BC07589337'),
 }
 
 model ListQueryResultResponse = {
@@ -1970,15 +2790,16 @@ model ListQueryResultResponse = {
   body: ListQueryResultResponseBody(name='body'),
 }
 
-async function listQueryResult(instanceId: string, request: ListQueryResultRequest): ListQueryResultResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listQueryResultWithOptions(instanceId, request, headers, runtime);
-}
-
+/**
+  * The ID of the instance
+  *
+  * @param request ListQueryResultRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ListQueryResultResponse
+ */
 async function listQueryResultWithOptions(instanceId: string, request: ListQueryResultRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListQueryResultResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var query : map[string]any = {};
   if (!Util.isUnset(request.query)) {
     query['query'] = request.query;
@@ -1995,7 +2816,7 @@ async function listQueryResultWithOptions(instanceId: string, request: ListQuery
     action = 'ListQueryResult',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/query`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/query`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -2005,15 +2826,27 @@ async function listQueryResultWithOptions(instanceId: string, request: ListQuery
   return callApi(params, req, runtime);
 }
 
+/**
+  * The ID of the instance
+  *
+  * @param request ListQueryResultRequest
+  * @return ListQueryResultResponse
+ */
+async function listQueryResult(instanceId: string, request: ListQueryResultRequest): ListQueryResultResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listQueryResultWithOptions(instanceId, request, headers, runtime);
+}
+
 model ModifyAdvanceConfigFileRequest {
-  content?: string(name='content'),
-  variables?: map[string]VariablesValue(name='variables'),
-  fileName?: string(name='fileName'),
+  content?: string(name='content', description='The content of the file.', example='"ha3"'),
+  variables?: map[string]VariablesValue(name='variables', description='The variable.'),
+  fileName?: string(name='fileName', description='The name of the file.', example='/qrs.json'),
 }
 
 model ModifyAdvanceConfigFileResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='id of request', example='93A9E542-8CF8-5BA6-99AB-94C0FE520429'),
+  result?: map[string]any(name='result', description='The result.', example='{}'),
 }
 
 model ModifyAdvanceConfigFileResponse = {
@@ -2022,16 +2855,19 @@ model ModifyAdvanceConfigFileResponse = {
   body: ModifyAdvanceConfigFileResponseBody(name='body'),
 }
 
-async function modifyAdvanceConfigFile(instanceId: string, configName: string, request: ModifyAdvanceConfigFileRequest): ModifyAdvanceConfigFileResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return modifyAdvanceConfigFileWithOptions(instanceId, configName, request, headers, runtime);
-}
-
+/**
+  * ## Method
+  *     put
+  * ## URI
+  *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/file?fileName={fileName}
+  *
+  * @param request ModifyAdvanceConfigFileRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ModifyAdvanceConfigFileResponse
+ */
 async function modifyAdvanceConfigFileWithOptions(instanceId: string, configName: string, request: ModifyAdvanceConfigFileRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyAdvanceConfigFileResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  configName = OpenApiUtil.getEncodeParam(configName);
   var query : map[string]any = {};
   if (!Util.isUnset(request.fileName)) {
     query['fileName'] = request.fileName;
@@ -2054,7 +2890,7 @@ async function modifyAdvanceConfigFileWithOptions(instanceId: string, configName
     action = 'ModifyAdvanceConfigFile',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/advanced-configs/${configName}/file`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/advanced-configs/${OpenApiUtil.getEncodeParam(configName)}/file`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -2064,13 +2900,28 @@ async function modifyAdvanceConfigFileWithOptions(instanceId: string, configName
   return callApi(params, req, runtime);
 }
 
+/**
+  * ## Method
+  *     put
+  * ## URI
+  *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/file?fileName={fileName}
+  *
+  * @param request ModifyAdvanceConfigFileRequest
+  * @return ModifyAdvanceConfigFileResponse
+ */
+async function modifyAdvanceConfigFile(instanceId: string, configName: string, request: ModifyAdvanceConfigFileRequest): ModifyAdvanceConfigFileResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modifyAdvanceConfigFileWithOptions(instanceId, configName, request, headers, runtime);
+}
+
 model ModifyClusterDescRequest {
-  body?: map[string]any(name='body'),
+  body?: map[string]any(name='body', example='{}'),
 }
 
 model ModifyClusterDescResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', example='D39EE0F1-D7EF-5F46-B781-6BF4185308B0'),
+  result?: map[string]any(name='result', description='Map'),
 }
 
 model ModifyClusterDescResponse = {
@@ -2079,16 +2930,16 @@ model ModifyClusterDescResponse = {
   body: ModifyClusterDescResponseBody(name='body'),
 }
 
-async function modifyClusterDesc(instanceId: string, clusterName: string, request: ModifyClusterDescRequest): ModifyClusterDescResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return modifyClusterDescWithOptions(instanceId, clusterName, request, headers, runtime);
-}
-
+/**
+  * The name of the cluster
+  *
+  * @param request ModifyClusterDescRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ModifyClusterDescResponse
+ */
 async function modifyClusterDescWithOptions(instanceId: string, clusterName: string, request: ModifyClusterDescRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyClusterDescResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  clusterName = OpenApiUtil.getEncodeParam(clusterName);
   var body : map[string]any = {};
   if (!Util.isUnset(request.body)) {
     body['body'] = request.body;
@@ -2102,7 +2953,7 @@ async function modifyClusterDescWithOptions(instanceId: string, clusterName: str
     action = 'ModifyClusterDesc',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/clusters/${clusterName}/desc`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/clusters/${OpenApiUtil.getEncodeParam(clusterName)}/desc`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -2112,27 +2963,36 @@ async function modifyClusterDescWithOptions(instanceId: string, clusterName: str
   return callApi(params, req, runtime);
 }
 
+/**
+  * The name of the cluster
+  *
+  * @param request ModifyClusterDescRequest
+  * @return ModifyClusterDescResponse
+ */
+async function modifyClusterDesc(instanceId: string, clusterName: string, request: ModifyClusterDescRequest): ModifyClusterDescResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modifyClusterDescWithOptions(instanceId, clusterName, request, headers, runtime);
+}
+
 model ModifyClusterOfflineConfigRequest {
-  advancedConfigVersionId?: int32(name='advancedConfigVersionId'),
-  buildMode?: string(name='buildMode'),
-  dataSource?: string(name='dataSource'),
-  dataSourceType?: string(name='dataSourceType'),
-  dataTimeSec?: int32(name='dataTimeSec'),
-  domain?: string(name='domain'),
-  generation?: long(name='generation'),
-  indexes?: [ 
-    {
-      name?: string(name='name'),
-      versionId?: int32(name='versionId'),
-    }
-  ](name='indexes'),
-  partition?: string(name='partition'),
-  triggerBuild?: boolean(name='triggerBuild'),
+  buildMode?: string(name='buildMode', description='The reindexing method. Valid values: api: API data source. indexRecover: data recovery through indexing.', example='indexRecover'),
+  config?: map[string]int32(name='config', description='The configuration name, which is stored as a key.'),
+  dataSource?: string(name='dataSource', description='The name of the data source.', example='test1'),
+  dataSourceType?: string(name='dataSourceType', description='The type of the data source. Valid values: odps: MaxCompute. swift: Swift. unKnow: unknown type.', example='odps'),
+  dataTimeSec?: int32(name='dataTimeSec', description='This parameter is required if the API data source experiences full indexing.', example='1640867288'),
+  domain?: string(name='domain', description='The domain in which the data source is deployed.', example='vpc_hz_domain_1'),
+  generation?: long(name='generation', description='The ID of the backward data delivery.', example='160142641'),
+  partition?: string(name='partition', description='This parameter is required if the MaxCompute data source experiences full indexing.', example='20211202'),
+  triggerBuild?: boolean(name='triggerBuild', description='Specifies whether to trigger reindexing.
+
+*   true: synchronizes the configuration and triggers reindexing.
+*   false: waits for the configuration to take effect next time when reindexing is triggered.', example='true'),
 }
 
 model ModifyClusterOfflineConfigResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='E7B7D598-B080-5C8E-AA35-D43EC0D5F886'),
+  result?: map[string]any(name='result', description='The result of the request.', example='{}'),
 }
 
 model ModifyClusterOfflineConfigResponse = {
@@ -2141,21 +3001,24 @@ model ModifyClusterOfflineConfigResponse = {
   body: ModifyClusterOfflineConfigResponseBody(name='body'),
 }
 
-async function modifyClusterOfflineConfig(instanceId: string, request: ModifyClusterOfflineConfigRequest): ModifyClusterOfflineConfigResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return modifyClusterOfflineConfigWithOptions(instanceId, request, headers, runtime);
-}
-
+/**
+  * ## Request syntax
+  *     PUT /openapi/ha3/instances/{instanceId}/cluster-offline-config
+  *     ...
+  *
+  * @param request ModifyClusterOfflineConfigRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ModifyClusterOfflineConfigResponse
+ */
 async function modifyClusterOfflineConfigWithOptions(instanceId: string, request: ModifyClusterOfflineConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyClusterOfflineConfigResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var body : map[string]any = {};
-  if (!Util.isUnset(request.advancedConfigVersionId)) {
-    body['advancedConfigVersionId'] = request.advancedConfigVersionId;
-  }
   if (!Util.isUnset(request.buildMode)) {
     body['buildMode'] = request.buildMode;
+  }
+  if (!Util.isUnset(request.config)) {
+    body['config'] = request.config;
   }
   if (!Util.isUnset(request.dataSource)) {
     body['dataSource'] = request.dataSource;
@@ -2172,9 +3035,6 @@ async function modifyClusterOfflineConfigWithOptions(instanceId: string, request
   if (!Util.isUnset(request.generation)) {
     body['generation'] = request.generation;
   }
-  if (!Util.isUnset(request.indexes)) {
-    body['indexes'] = request.indexes;
-  }
   if (!Util.isUnset(request.partition)) {
     body['partition'] = request.partition;
   }
@@ -2190,7 +3050,7 @@ async function modifyClusterOfflineConfigWithOptions(instanceId: string, request
     action = 'ModifyClusterOfflineConfig',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/cluster-offline-config`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/cluster-offline-config`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -2200,14 +3060,28 @@ async function modifyClusterOfflineConfigWithOptions(instanceId: string, request
   return callApi(params, req, runtime);
 }
 
+/**
+  * ## Request syntax
+  *     PUT /openapi/ha3/instances/{instanceId}/cluster-offline-config
+  *     ...
+  *
+  * @param request ModifyClusterOfflineConfigRequest
+  * @return ModifyClusterOfflineConfigResponse
+ */
+async function modifyClusterOfflineConfig(instanceId: string, request: ModifyClusterOfflineConfigRequest): ModifyClusterOfflineConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modifyClusterOfflineConfigWithOptions(instanceId, request, headers, runtime);
+}
+
 model ModifyClusterOnlineConfigRequest {
-  advancedConfigVersionId?: int32(name='advancedConfigVersionId'),
-  clusters?: [ string ](name='clusters'),
+  clusters?: [ string ](name='clusters', description='The information about the cluster'),
+  config?: map[string]int32(name='config', description='配置信息'),
 }
 
 model ModifyClusterOnlineConfigResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='The ID of the request', example='E7B7D598-B080-5C8E-AA35-D43EC0D5F886'),
+  result?: map[string]any(name='result', description='Map', example='{}'),
 }
 
 model ModifyClusterOnlineConfigResponse = {
@@ -2216,21 +3090,25 @@ model ModifyClusterOnlineConfigResponse = {
   body: ModifyClusterOnlineConfigResponseBody(name='body'),
 }
 
-async function modifyClusterOnlineConfig(instanceId: string, request: ModifyClusterOnlineConfigRequest): ModifyClusterOnlineConfigResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return modifyClusterOnlineConfigWithOptions(instanceId, request, headers, runtime);
-}
-
+/**
+  * ### Method
+  * `PUT`
+  * ### URI
+  * `/openapi/ha3/instances/{instanceId}/cluster-online-config`
+  *
+  * @param request ModifyClusterOnlineConfigRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ModifyClusterOnlineConfigResponse
+ */
 async function modifyClusterOnlineConfigWithOptions(instanceId: string, request: ModifyClusterOnlineConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyClusterOnlineConfigResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var body : map[string]any = {};
-  if (!Util.isUnset(request.advancedConfigVersionId)) {
-    body['advancedConfigVersionId'] = request.advancedConfigVersionId;
-  }
   if (!Util.isUnset(request.clusters)) {
     body['clusters'] = request.clusters;
+  }
+  if (!Util.isUnset(request.config)) {
+    body['config'] = request.config;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2241,7 +3119,7 @@ async function modifyClusterOnlineConfigWithOptions(instanceId: string, request:
     action = 'ModifyClusterOnlineConfig',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/cluster-online-config`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/cluster-online-config`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -2251,14 +3129,29 @@ async function modifyClusterOnlineConfigWithOptions(instanceId: string, request:
   return callApi(params, req, runtime);
 }
 
+/**
+  * ### Method
+  * `PUT`
+  * ### URI
+  * `/openapi/ha3/instances/{instanceId}/cluster-online-config`
+  *
+  * @param request ModifyClusterOnlineConfigRequest
+  * @return ModifyClusterOnlineConfigResponse
+ */
+async function modifyClusterOnlineConfig(instanceId: string, request: ModifyClusterOnlineConfigRequest): ModifyClusterOnlineConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modifyClusterOnlineConfigWithOptions(instanceId, request, headers, runtime);
+}
+
 model ModifyDataSourceRequest {
-  body?: map[string]any(name='body'),
-  dryRun?: boolean(name='dryRun'),
+  body?: map[string]any(name='body', description='The information about the index', example='{}'),
+  dryRun?: boolean(name='dryRun', description='The ID of the request', example='true'),
 }
 
 model ModifyDataSourceResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='id of request', example='2AE63638-5420-56DC-BF59-37D8174039A0'),
+  result?: map[string]any(name='result', description='The schema information.', example='{}'),
 }
 
 model ModifyDataSourceResponse = {
@@ -2267,16 +3160,16 @@ model ModifyDataSourceResponse = {
   body: ModifyDataSourceResponseBody(name='body'),
 }
 
-async function modifyDataSource(instanceId: string, dataSourceName: string, request: ModifyDataSourceRequest): ModifyDataSourceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return modifyDataSourceWithOptions(instanceId, dataSourceName, request, headers, runtime);
-}
-
+/**
+  * The result returned
+  *
+  * @param request ModifyDataSourceRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ModifyDataSourceResponse
+ */
 async function modifyDataSourceWithOptions(instanceId: string, dataSourceName: string, request: ModifyDataSourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyDataSourceResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  dataSourceName = OpenApiUtil.getEncodeParam(dataSourceName);
   var query : map[string]any = {};
   if (!Util.isUnset(request.dryRun)) {
     query['dryRun'] = request.dryRun;
@@ -2296,7 +3189,7 @@ async function modifyDataSourceWithOptions(instanceId: string, dataSourceName: s
     action = 'ModifyDataSource',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/data-sources/${dataSourceName}`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/data-sources/${OpenApiUtil.getEncodeParam(dataSourceName)}`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -2306,15 +3199,27 @@ async function modifyDataSourceWithOptions(instanceId: string, dataSourceName: s
   return callApi(params, req, runtime);
 }
 
+/**
+  * The result returned
+  *
+  * @param request ModifyDataSourceRequest
+  * @return ModifyDataSourceResponse
+ */
+async function modifyDataSource(instanceId: string, dataSourceName: string, request: ModifyDataSourceRequest): ModifyDataSourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modifyDataSourceWithOptions(instanceId, dataSourceName, request, headers, runtime);
+}
+
 model ModifyFileRequest {
-  content?: string(name='content'),
-  partition?: int32(name='partition'),
-  fileName?: string(name='fileName'),
+  content?: string(name='content', description='The parameters in the request body', example='""'),
+  partition?: int32(name='partition', description='auditing', example='1'),
+  fileName?: string(name='fileName', description='ha-cn-tl32m2c4u01@ha-cn-tl32m2c4u01_00@bj_vpc_domain_1@automobile_vector@index_config_edit', example='/schemas/generation_schema.json'),
 }
 
 model ModifyFileResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='id of request', example='89B968E6-1E41-58DF-BB25-5F98ECC759CE'),
+  result?: map[string]any(name='result', description='The information about the index', example='{}'),
 }
 
 model ModifyFileResponse = {
@@ -2323,17 +3228,23 @@ model ModifyFileResponse = {
   body: ModifyFileResponseBody(name='body'),
 }
 
-async function modifyFile(instanceId: string, indexName: string, versionName: string, request: ModifyFileRequest): ModifyFileResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return modifyFileWithOptions(instanceId, indexName, versionName, request, headers, runtime);
-}
-
+/**
+  * ### Method
+  * ~~~
+  * PUT
+  * ~~~
+  * ### URI
+  * ~~~
+  * /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}/file?fileName=/root/test.txt
+  * ~~~
+  *
+  * @param request ModifyFileRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ModifyFileResponse
+ */
 async function modifyFileWithOptions(instanceId: string, indexName: string, versionName: string, request: ModifyFileRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyFileResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  indexName = OpenApiUtil.getEncodeParam(indexName);
-  versionName = OpenApiUtil.getEncodeParam(versionName);
   var query : map[string]any = {};
   if (!Util.isUnset(request.fileName)) {
     query['fileName'] = request.fileName;
@@ -2356,7 +3267,7 @@ async function modifyFileWithOptions(instanceId: string, indexName: string, vers
     action = 'ModifyFile',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/indexes/${indexName}/versions/${versionName}/file`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/indexes/${OpenApiUtil.getEncodeParam(indexName)}/versions/${OpenApiUtil.getEncodeParam(versionName)}/file`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -2366,22 +3277,41 @@ async function modifyFileWithOptions(instanceId: string, indexName: string, vers
   return callApi(params, req, runtime);
 }
 
+/**
+  * ### Method
+  * ~~~
+  * PUT
+  * ~~~
+  * ### URI
+  * ~~~
+  * /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}/file?fileName=/root/test.txt
+  * ~~~
+  *
+  * @param request ModifyFileRequest
+  * @return ModifyFileResponse
+ */
+async function modifyFile(instanceId: string, indexName: string, versionName: string, request: ModifyFileRequest): ModifyFileResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modifyFileWithOptions(instanceId, indexName, versionName, request, headers, runtime);
+}
+
 model ModifyIndexPartitionRequest {
-  dataSourceName?: string(name='dataSourceName'),
-  domainName?: string(name='domainName'),
-  generation?: long(name='generation'),
+  dataSourceName?: string(name='dataSourceName', description='The name of the data source.', example='test1'),
+  domainName?: string(name='domainName', description='The information about each index.', example='pre_domain_1'),
+  generation?: long(name='generation', description='The name of the data center.', example='1633293829'),
   indexInfos?: [ 
     {
-      indexName?: string(name='indexName'),
-      parallelNum?: int32(name='parallelNum'),
-      partitionCount?: int32(name='partitionCount'),
+      indexName?: string(name='indexName', description='auditing', example='atest2'),
+      parallelNum?: int32(name='parallelNum', description='The parameters in the request body.', example='1'),
+      partitionCount?: int32(name='partitionCount', description='The number of shards of the index.', example='3'),
     }
-  ](name='indexInfos'),
+  ](name='indexInfos', description='The number of shards of the index.'),
 }
 
 model ModifyIndexPartitionResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='id of request', example='93A9E542-8CF8-5BA6-99AB-94C0FE520429'),
+  result?: map[string]any(name='result', description='Map', example='[]'),
 }
 
 model ModifyIndexPartitionResponse = {
@@ -2390,15 +3320,16 @@ model ModifyIndexPartitionResponse = {
   body: ModifyIndexPartitionResponseBody(name='body'),
 }
 
-async function modifyIndexPartition(instanceId: string, request: ModifyIndexPartitionRequest): ModifyIndexPartitionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return modifyIndexPartitionWithOptions(instanceId, request, headers, runtime);
-}
-
+/**
+  * The information about each index.
+  *
+  * @param request ModifyIndexPartitionRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ModifyIndexPartitionResponse
+ */
 async function modifyIndexPartitionWithOptions(instanceId: string, request: ModifyIndexPartitionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyIndexPartitionResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var body : map[string]any = {};
   if (!Util.isUnset(request.dataSourceName)) {
     body['dataSourceName'] = request.dataSourceName;
@@ -2421,7 +3352,7 @@ async function modifyIndexPartitionWithOptions(instanceId: string, request: Modi
     action = 'ModifyIndexPartition',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/index-partition`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/index-partition`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -2431,19 +3362,61 @@ async function modifyIndexPartitionWithOptions(instanceId: string, request: Modi
   return callApi(params, req, runtime);
 }
 
+/**
+  * The information about each index.
+  *
+  * @param request ModifyIndexPartitionRequest
+  * @return ModifyIndexPartitionResponse
+ */
+async function modifyIndexPartition(instanceId: string, request: ModifyIndexPartitionRequest): ModifyIndexPartitionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modifyIndexPartitionWithOptions(instanceId, request, headers, runtime);
+}
+
 model ModifyIndexVersionRequest {
   body?: [ 
     {
-      buildDeployId?: string(name='buildDeployId'),
-      indexName?: string(name='indexName'),
-      version?: string(name='version'),
+      buildDeployId?: string(name='buildDeployId', example='277'),
+      indexName?: string(name='indexName', description='WB01240825', example='main_index'),
+      version?: string(name='version', example='1'),
     }
-  ](name='body'),
+  ](name='body', description='## Sample requests
+
+﻿
+
+    PUT /openapi/ha3/instances/ha3_instance_nameclusters/test_cluster/index-version
+
+﻿
+
+    [
+    ﻿
+      {
+    ﻿
+        "indexName": "index1",
+    ﻿
+        "version": "123456",
+    ﻿
+        "buildDeployId": "20201010"
+    ﻿
+      },
+    ﻿
+      {
+    ﻿
+        "indexName": "index1",
+    ﻿
+        "version": "123456",
+    ﻿
+        "buildDeployId": "20201010"
+    ﻿
+      }
+    ﻿
+    ]', example='{}'),
 }
 
 model ModifyIndexVersionResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='id of request', example='F43E8AB4-419C-5F4C-90D6-615590DFAA3C'),
+  result?: map[string]any(name='result', description='result', example='{}'),
 }
 
 model ModifyIndexVersionResponse = {
@@ -2452,16 +3425,19 @@ model ModifyIndexVersionResponse = {
   body: ModifyIndexVersionResponseBody(name='body'),
 }
 
-async function modifyIndexVersion(instanceId: string, clusterName: string, request: ModifyIndexVersionRequest): ModifyIndexVersionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return modifyIndexVersionWithOptions(instanceId, clusterName, request, headers, runtime);
-}
-
+/**
+  * ## Method
+  *     PUT
+  * ## URI
+  *     /openapi/ha3/instances/{instanceId}/clusters/{clusterName}/index-version
+  *
+  * @param request ModifyIndexVersionRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ModifyIndexVersionResponse
+ */
 async function modifyIndexVersionWithOptions(instanceId: string, clusterName: string, request: ModifyIndexVersionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyIndexVersionResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  clusterName = OpenApiUtil.getEncodeParam(clusterName);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
     body = Util.toArray(request.body),
@@ -2470,7 +3446,7 @@ async function modifyIndexVersionWithOptions(instanceId: string, clusterName: st
     action = 'ModifyIndexVersion',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/clusters/${clusterName}/index-version`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/clusters/${OpenApiUtil.getEncodeParam(clusterName)}/index-version`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -2480,18 +3456,33 @@ async function modifyIndexVersionWithOptions(instanceId: string, clusterName: st
   return callApi(params, req, runtime);
 }
 
+/**
+  * ## Method
+  *     PUT
+  * ## URI
+  *     /openapi/ha3/instances/{instanceId}/clusters/{clusterName}/index-version
+  *
+  * @param request ModifyIndexVersionRequest
+  * @return ModifyIndexVersionResponse
+ */
+async function modifyIndexVersion(instanceId: string, clusterName: string, request: ModifyIndexVersionRequest): ModifyIndexVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modifyIndexVersionWithOptions(instanceId, clusterName, request, headers, runtime);
+}
+
 model ModifyNodeConfigRequest {
-  body?: map[string]any(name='body'),
-  clusterName?: string(name='clusterName'),
-  dataSourceName?: string(name='dataSourceName'),
-  name?: string(name='name'),
-  tableDeployId?: string(name='tableDeployId'),
-  type?: string(name='type'),
+  body?: map[string]any(name='body', description='The information about the index', example='{\\"desc\\":\\"new version\\"}'),
+  clusterName?: string(name='clusterName', description='The ID of the cluster.', example='vpc_sh_domain_2'),
+  dataSourceName?: string(name='dataSourceName', description='The parameters in the request body.', example='ha-cn-2r42ostoc01_0704'),
+  name?: string(name='name', description='The name of the cluster.', example='ha-cn-zvp2iv9a401_qrs'),
+  tableDeployId?: string(name='tableDeployId', description='The name of the data source. Valid values: search and not_search. search indicates to search data. not_search indicates not to search data.', example='61'),
+  type?: string(name='type', description='The original name of the node.', example='" "'),
 }
 
 model ModifyNodeConfigResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='id of request', example='D39EE0F1-D7EF-5F46-B781-6BF4185308B0'),
+  result?: map[string]any(name='result', description='auditing', example='{}'),
 }
 
 model ModifyNodeConfigResponse = {
@@ -2500,15 +3491,23 @@ model ModifyNodeConfigResponse = {
   body: ModifyNodeConfigResponseBody(name='body'),
 }
 
-async function modifyNodeConfig(instanceId: string, request: ModifyNodeConfigRequest): ModifyNodeConfigResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return modifyNodeConfigWithOptions(instanceId, request, headers, runtime);
-}
-
+/**
+  * ### Method
+  *  ~~~
+  * PUT
+  * ~~~
+  * ### URI
+  * ~~~
+  * /openapi/ha3/instances/{instanceId}/node-config?type=qrs&name=test
+  * ~~~
+  *
+  * @param request ModifyNodeConfigRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ModifyNodeConfigResponse
+ */
 async function modifyNodeConfigWithOptions(instanceId: string, request: ModifyNodeConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyNodeConfigResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var query : map[string]any = {};
   if (!Util.isUnset(request.clusterName)) {
     query['clusterName'] = request.clusterName;
@@ -2540,7 +3539,7 @@ async function modifyNodeConfigWithOptions(instanceId: string, request: ModifyNo
     action = 'ModifyNodeConfig',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/node-config`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/node-config`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -2550,13 +3549,32 @@ async function modifyNodeConfigWithOptions(instanceId: string, request: ModifyNo
   return callApi(params, req, runtime);
 }
 
+/**
+  * ### Method
+  *  ~~~
+  * PUT
+  * ~~~
+  * ### URI
+  * ~~~
+  * /openapi/ha3/instances/{instanceId}/node-config?type=qrs&name=test
+  * ~~~
+  *
+  * @param request ModifyNodeConfigRequest
+  * @return ModifyNodeConfigResponse
+ */
+async function modifyNodeConfig(instanceId: string, request: ModifyNodeConfigRequest): ModifyNodeConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modifyNodeConfigWithOptions(instanceId, request, headers, runtime);
+}
+
 model ModifyOnlineConfigRequest {
-  body?: map[string]string(name='body'),
+  body?: map[string]string(name='body', description='ashortdescriptionofstruct'),
 }
 
 model ModifyOnlineConfigResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='id of request', example='2AE63638-5420-56DC-BF59-37D8174039A0'),
+  result?: map[string]any(name='result', description='Map', example='{}'),
 }
 
 model ModifyOnlineConfigResponse = {
@@ -2565,17 +3583,23 @@ model ModifyOnlineConfigResponse = {
   body: ModifyOnlineConfigResponseBody(name='body'),
 }
 
-async function modifyOnlineConfig(instanceId: string, nodeName: string, indexName: string, request: ModifyOnlineConfigRequest): ModifyOnlineConfigResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return modifyOnlineConfigWithOptions(instanceId, nodeName, indexName, request, headers, runtime);
-}
-
+/**
+  * ### Method
+  * ```java
+  * put
+  * ```
+  * ### URI
+  * ```java
+  * /openapi/ha3/instances/{instanceId}/node/{nodeName}/online-configs/{indexName}
+  * ```
+  *
+  * @param request ModifyOnlineConfigRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ModifyOnlineConfigResponse
+ */
 async function modifyOnlineConfigWithOptions(instanceId: string, nodeName: string, indexName: string, request: ModifyOnlineConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyOnlineConfigResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  nodeName = OpenApiUtil.getEncodeParam(nodeName);
-  indexName = OpenApiUtil.getEncodeParam(indexName);
   var body : map[string]any = {};
   if (!Util.isUnset(request.body)) {
     body['body'] = request.body;
@@ -2589,7 +3613,7 @@ async function modifyOnlineConfigWithOptions(instanceId: string, nodeName: strin
     action = 'ModifyOnlineConfig',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/node/${nodeName}/online-configs/${indexName}`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/node/${OpenApiUtil.getEncodeParam(nodeName)}/online-configs/${OpenApiUtil.getEncodeParam(indexName)}`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -2599,14 +3623,33 @@ async function modifyOnlineConfigWithOptions(instanceId: string, nodeName: strin
   return callApi(params, req, runtime);
 }
 
+/**
+  * ### Method
+  * ```java
+  * put
+  * ```
+  * ### URI
+  * ```java
+  * /openapi/ha3/instances/{instanceId}/node/{nodeName}/online-configs/{indexName}
+  * ```
+  *
+  * @param request ModifyOnlineConfigRequest
+  * @return ModifyOnlineConfigResponse
+ */
+async function modifyOnlineConfig(instanceId: string, nodeName: string, indexName: string, request: ModifyOnlineConfigRequest): ModifyOnlineConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modifyOnlineConfigWithOptions(instanceId, nodeName, indexName, request, headers, runtime);
+}
+
 model ModifyPasswordRequest {
-  password?: string(name='password'),
-  username?: string(name='username'),
+  password?: string(name='password', description='The password', example='******************************'),
+  username?: string(name='username', description='The username', example='"username"'),
 }
 
 model ModifyPasswordResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='The ID of the request', example='407BFD91-DE7D-50BA-8F88-CDE52A3B5E46'),
+  result?: map[string]any(name='result', description='The result', example='{}'),
 }
 
 model ModifyPasswordResponse = {
@@ -2615,15 +3658,19 @@ model ModifyPasswordResponse = {
   body: ModifyPasswordResponseBody(name='body'),
 }
 
-async function modifyPassword(instanceId: string, request: ModifyPasswordRequest): ModifyPasswordResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return modifyPasswordWithOptions(instanceId, request, headers, runtime);
-}
-
+/**
+  * ### Method
+  * `PUT`
+  * ### URI
+  * `/openapi/ha3/instances/{instanceId}/password`
+  *
+  * @param request ModifyPasswordRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ModifyPasswordResponse
+ */
 async function modifyPasswordWithOptions(instanceId: string, request: ModifyPasswordRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyPasswordResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var body : map[string]any = {};
   if (!Util.isUnset(request.password)) {
     body['password'] = request.password;
@@ -2640,7 +3687,7 @@ async function modifyPasswordWithOptions(instanceId: string, request: ModifyPass
     action = 'ModifyPassword',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/password`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/password`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -2650,13 +3697,28 @@ async function modifyPasswordWithOptions(instanceId: string, request: ModifyPass
   return callApi(params, req, runtime);
 }
 
+/**
+  * ### Method
+  * `PUT`
+  * ### URI
+  * `/openapi/ha3/instances/{instanceId}/password`
+  *
+  * @param request ModifyPasswordRequest
+  * @return ModifyPasswordResponse
+ */
+async function modifyPassword(instanceId: string, request: ModifyPasswordRequest): ModifyPasswordResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modifyPasswordWithOptions(instanceId, request, headers, runtime);
+}
+
 model PublishAdvanceConfigRequest {
-  body?: map[string]any(name='body'),
+  body?: map[string]any(name='body', description='The structure of the request', example='{\\"desc\\":\\"new version\\"}'),
 }
 
 model PublishAdvanceConfigResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='The ID of the request', example='10D5E615-69F7-5F49-B850-00169ADE513C'),
+  result?: map[string]any(name='result', description='The result returned', example='{}'),
 }
 
 model PublishAdvanceConfigResponse = {
@@ -2665,16 +3727,23 @@ model PublishAdvanceConfigResponse = {
   body: PublishAdvanceConfigResponseBody(name='body'),
 }
 
-async function publishAdvanceConfig(instanceId: string, configName: string, request: PublishAdvanceConfigRequest): PublishAdvanceConfigResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return publishAdvanceConfigWithOptions(instanceId, configName, request, headers, runtime);
-}
-
+/**
+  * ## Method
+  * ~~~
+  * POST
+  * ~~~
+  * ## URI
+  * ~~~
+  * /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/actions/publish
+  * ~~~
+  *
+  * @param request PublishAdvanceConfigRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return PublishAdvanceConfigResponse
+ */
 async function publishAdvanceConfigWithOptions(instanceId: string, configName: string, request: PublishAdvanceConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): PublishAdvanceConfigResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  configName = OpenApiUtil.getEncodeParam(configName);
   var body : map[string]any = {};
   if (!Util.isUnset(request.body)) {
     body['body'] = request.body;
@@ -2688,7 +3757,7 @@ async function publishAdvanceConfigWithOptions(instanceId: string, configName: s
     action = 'PublishAdvanceConfig',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/advanced-configs/${configName}/actions/publish`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/advanced-configs/${OpenApiUtil.getEncodeParam(configName)}/actions/publish`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
@@ -2698,13 +3767,32 @@ async function publishAdvanceConfigWithOptions(instanceId: string, configName: s
   return callApi(params, req, runtime);
 }
 
+/**
+  * ## Method
+  * ~~~
+  * POST
+  * ~~~
+  * ## URI
+  * ~~~
+  * /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/actions/publish
+  * ~~~
+  *
+  * @param request PublishAdvanceConfigRequest
+  * @return PublishAdvanceConfigResponse
+ */
+async function publishAdvanceConfig(instanceId: string, configName: string, request: PublishAdvanceConfigRequest): PublishAdvanceConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return publishAdvanceConfigWithOptions(instanceId, configName, request, headers, runtime);
+}
+
 model PublishIndexVersionRequest {
-  body?: map[string]any(name='body'),
+  body?: map[string]any(name='body', example='{}'),
 }
 
 model PublishIndexVersionResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='id of request', example='E45380E8-994A-5402-9806-F114B3295FCF'),
+  result?: map[string]any(name='result', example='{}'),
 }
 
 model PublishIndexVersionResponse = {
@@ -2713,16 +3801,16 @@ model PublishIndexVersionResponse = {
   body: PublishIndexVersionResponseBody(name='body'),
 }
 
-async function publishIndexVersion(instanceId: string, indexName: string, request: PublishIndexVersionRequest): PublishIndexVersionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return publishIndexVersionWithOptions(instanceId, indexName, request, headers, runtime);
-}
-
+/**
+  * The information about the index
+  *
+  * @param request PublishIndexVersionRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return PublishIndexVersionResponse
+ */
 async function publishIndexVersionWithOptions(instanceId: string, indexName: string, request: PublishIndexVersionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): PublishIndexVersionResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  indexName = OpenApiUtil.getEncodeParam(indexName);
   var body : map[string]any = {};
   if (!Util.isUnset(request.body)) {
     body['body'] = request.body;
@@ -2736,7 +3824,7 @@ async function publishIndexVersionWithOptions(instanceId: string, indexName: str
     action = 'PublishIndexVersion',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/indexes/${indexName}/actions/publish`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/indexes/${OpenApiUtil.getEncodeParam(indexName)}/actions/publish`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
@@ -2746,16 +3834,28 @@ async function publishIndexVersionWithOptions(instanceId: string, indexName: str
   return callApi(params, req, runtime);
 }
 
+/**
+  * The information about the index
+  *
+  * @param request PublishIndexVersionRequest
+  * @return PublishIndexVersionResponse
+ */
+async function publishIndexVersion(instanceId: string, indexName: string, request: PublishIndexVersionRequest): PublishIndexVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return publishIndexVersionWithOptions(instanceId, indexName, request, headers, runtime);
+}
+
 model RecoverIndexRequest {
-  buildDeployId?: int32(name='buildDeployId'),
-  dataSourceName?: string(name='dataSourceName'),
-  generation?: string(name='generation'),
-  indexName?: string(name='indexName'),
+  buildDeployId?: int32(name='buildDeployId', description='buildDeployId', example='277'),
+  dataSourceName?: string(name='dataSourceName', example='ha-cn-pl32rf0js04_odps_first'),
+  generation?: string(name='generation', description='generation', example='1653018575'),
+  indexName?: string(name='indexName', example='main_index'),
 }
 
 model RecoverIndexResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='id of request', example='10D5E615-69F7-5F49-B850-00169ADE513C'),
+  result?: map[string]any(name='result', description='Map', example='{}'),
 }
 
 model RecoverIndexResponse = {
@@ -2764,15 +3864,16 @@ model RecoverIndexResponse = {
   body: RecoverIndexResponseBody(name='body'),
 }
 
-async function recoverIndex(instanceId: string, request: RecoverIndexRequest): RecoverIndexResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return recoverIndexWithOptions(instanceId, request, headers, runtime);
-}
-
+/**
+  * The name of the index
+  *
+  * @param request RecoverIndexRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return RecoverIndexResponse
+ */
 async function recoverIndexWithOptions(instanceId: string, request: RecoverIndexRequest, headers: map[string]string, runtime: Util.RuntimeOptions): RecoverIndexResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var body : map[string]any = {};
   if (!Util.isUnset(request.buildDeployId)) {
     body['buildDeployId'] = request.buildDeployId;
@@ -2795,7 +3896,7 @@ async function recoverIndexWithOptions(instanceId: string, request: RecoverIndex
     action = 'RecoverIndex',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/recover-index`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/recover-index`,
     method = 'POST',
     authType = 'AK',
     style = 'ROA',
@@ -2805,9 +3906,21 @@ async function recoverIndexWithOptions(instanceId: string, request: RecoverIndex
   return callApi(params, req, runtime);
 }
 
+/**
+  * The name of the index
+  *
+  * @param request RecoverIndexRequest
+  * @return RecoverIndexResponse
+ */
+async function recoverIndex(instanceId: string, request: RecoverIndexRequest): RecoverIndexResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return recoverIndexWithOptions(instanceId, request, headers, runtime);
+}
+
 model RemoveClusterResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='id of request', example='E45380E8-994A-5402-9806-F114B3295FCF'),
+  result?: map[string]any(name='result', example='{}'),
 }
 
 model RemoveClusterResponse = {
@@ -2816,15 +3929,14 @@ model RemoveClusterResponse = {
   body: RemoveClusterResponseBody(name='body'),
 }
 
-async function removeCluster(instanceId: string, clusterName: string): RemoveClusterResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return removeClusterWithOptions(instanceId, clusterName, headers, runtime);
-}
-
+/**
+  * The result
+  *
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return RemoveClusterResponse
+ */
 async function removeClusterWithOptions(instanceId: string, clusterName: string, headers: map[string]string, runtime: Util.RuntimeOptions): RemoveClusterResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  clusterName = OpenApiUtil.getEncodeParam(clusterName);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -2832,7 +3944,7 @@ async function removeClusterWithOptions(instanceId: string, clusterName: string,
     action = 'RemoveCluster',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/clusters/${clusterName}`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/clusters/${OpenApiUtil.getEncodeParam(clusterName)}`,
     method = 'DELETE',
     authType = 'AK',
     style = 'ROA',
@@ -2842,9 +3954,20 @@ async function removeClusterWithOptions(instanceId: string, clusterName: string,
   return callApi(params, req, runtime);
 }
 
+/**
+  * The result
+  *
+  * @return RemoveClusterResponse
+ */
+async function removeCluster(instanceId: string, clusterName: string): RemoveClusterResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return removeClusterWithOptions(instanceId, clusterName, headers, runtime);
+}
+
 model StopTaskResponseBody = {
-  requestId?: string(name='requestId'),
-  result?: map[string]any(name='result'),
+  requestId?: string(name='requestId', description='id of request', example='FE03180A-0E29-5474-8A86-33F0683294A4'),
+  result?: map[string]any(name='result', description='The information about the index', example='{}'),
 }
 
 model StopTaskResponse = {
@@ -2853,15 +3976,14 @@ model StopTaskResponse = {
   body: StopTaskResponseBody(name='body'),
 }
 
-async function stopTask(instanceId: string, fsmId: string): StopTaskResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return stopTaskWithOptions(instanceId, fsmId, headers, runtime);
-}
-
+/**
+  * The information about the index
+  *
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return StopTaskResponse
+ */
 async function stopTaskWithOptions(instanceId: string, fsmId: string, headers: map[string]string, runtime: Util.RuntimeOptions): StopTaskResponse {
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
-  fsmId = OpenApiUtil.getEncodeParam(fsmId);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -2869,7 +3991,7 @@ async function stopTaskWithOptions(instanceId: string, fsmId: string, headers: m
     action = 'StopTask',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}/stop-task/${fsmId}`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/stop-task/${OpenApiUtil.getEncodeParam(fsmId)}`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -2879,32 +4001,43 @@ async function stopTaskWithOptions(instanceId: string, fsmId: string, headers: m
   return callApi(params, req, runtime);
 }
 
+/**
+  * The information about the index
+  *
+  * @return StopTaskResponse
+ */
+async function stopTask(instanceId: string, fsmId: string): StopTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return stopTaskWithOptions(instanceId, fsmId, headers, runtime);
+}
+
 model UpdateInstanceRequest {
   components?: [ 
     {
-      code?: string(name='code'),
-      value?: string(name='value'),
+      code?: string(name='code', description='The name of the specification. The value must be the same as the name of a parameter on the buy page.', example='200'),
+      value?: string(name='value', description='The value of the specification.', example='""'),
     }
-  ](name='components'),
-  description?: string(name='description'),
-  orderType?: string(name='orderType'),
+  ](name='components', description='The information about the instance type.'),
+  description?: string(name='description', description='The description of the instance.', example='""'),
+  orderType?: string(name='orderType', description='The type of the order. Valid values: UPGRADE and DOWNGRADE. UPGRADE indicates the instance type is to be upgraded. DOWNGRADE indicates the instance type is to be downgraded.', example='""'),
 }
 
 model UpdateInstanceResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='90D6B8F5-FE97-4509-9AAB-367836C51818'),
   result?: {
-    chargeType?: string(name='chargeType'),
-    commodityCode?: string(name='commodityCode'),
-    createTime?: string(name='createTime'),
-    description?: string(name='description'),
-    expiredTime?: string(name='expiredTime'),
-    inDebt?: boolean(name='inDebt'),
-    instanceId?: string(name='instanceId'),
-    lockMode?: string(name='lockMode'),
-    resourceGroupId?: string(name='resourceGroupId'),
-    status?: string(name='status'),
-    updateTime?: string(name='updateTime'),
-  }(name='result'),
+    chargeType?: string(name='chargeType', description='The billing method of the instance.', example='PrePaid'),
+    commodityCode?: string(name='commodityCode', description='The service code.', example='ha3-code'),
+    createTime?: string(name='createTime', description='The time when the instance was created.', example='2018-12-06T11:17:49.0'),
+    description?: string(name='description', description='The description of the instance.', example='Test instance'),
+    expiredTime?: string(name='expiredTime', description='The time when the instance expires.', example='2019-01-06T16:00:00.0'),
+    inDebt?: boolean(name='inDebt', description='Indicates whether an overdue payment is involved.', example='false'),
+    instanceId?: string(name='instanceId', description='The ID of the instance.', example='ha-cn-0ju2s170b03'),
+    lockMode?: string(name='lockMode', description='The lock mode of the instance.', example='Unlock'),
+    resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-aeky6hthboewpuy'),
+    status?: string(name='status', description='The state of the instance.', example='Running'),
+    updateTime?: string(name='updateTime', description='The time when the instance was last updated.', example='2018-12-06T11:17:49.0'),
+  }(name='result', description='The result returned.'),
 }
 
 model UpdateInstanceResponse = {
@@ -2913,15 +4046,19 @@ model UpdateInstanceResponse = {
   body: UpdateInstanceResponseBody(name='body'),
 }
 
-async function updateInstance(instanceId: string, request: UpdateInstanceRequest): UpdateInstanceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateInstanceWithOptions(instanceId, request, headers, runtime);
-}
-
+/**
+  * ### Method
+  * `PUT`
+  * ### URI
+  * `/openapi/ha3/instances/{instanceId}`
+  *
+  * @param request UpdateInstanceRequest
+  * @param headers map
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return UpdateInstanceResponse
+ */
 async function updateInstanceWithOptions(instanceId: string, request: UpdateInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateInstanceResponse {
   Util.validateModel(request);
-  instanceId = OpenApiUtil.getEncodeParam(instanceId);
   var body : map[string]any = {};
   if (!Util.isUnset(request.components)) {
     body['components'] = request.components;
@@ -2941,7 +4078,7 @@ async function updateInstanceWithOptions(instanceId: string, request: UpdateInst
     action = 'UpdateInstance',
     version = '2021-10-25',
     protocol = 'HTTPS',
-    pathname = `/openapi/ha3/instances/${instanceId}`,
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -2951,16 +4088,18 @@ async function updateInstanceWithOptions(instanceId: string, request: UpdateInst
   return callApi(params, req, runtime);
 }
 
-model VariablesValue = {
-  disableModify?: boolean(name='disableModify'),
-  isModify?: boolean(name='isModify'),
-  value?: string(name='value'),
-  description?: string(name='description'),
-  templateValue?: string(name='templateValue'),
-  type?: string(name='type'),
-  funcValue?: {
-    funcClassName?: string(name='funcClassName'),
-    template?: string(name='template'),
-  }(name='funcValue'),
+/**
+  * ### Method
+  * `PUT`
+  * ### URI
+  * `/openapi/ha3/instances/{instanceId}`
+  *
+  * @param request UpdateInstanceRequest
+  * @return UpdateInstanceResponse
+ */
+async function updateInstance(instanceId: string, request: UpdateInstanceRequest): UpdateInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateInstanceWithOptions(instanceId, request, headers, runtime);
 }
 
