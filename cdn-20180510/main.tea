@@ -3495,10 +3495,7 @@ async function describeCdnUserBillHistory(request: DescribeCdnUserBillHistoryReq
 }
 
 model DescribeCdnUserBillPredictionRequest {
-  area?: string(name='Area', description='The ID of the request.', example='CN,OverSeas'),
-  dimension?: string(name='Dimension', description='The start time of the estimation.', example='flow'),
-  endTime?: string(name='EndTime', description='The end time of the estimation.', example='2018-10-25T10:00:00Z'),
-  startTime?: string(name='StartTime', description='The billable region. Valid values:
+  area?: string(name='Area', description='The billable region. Valid values:
 
 *   **CN**: the Chinese mainland
 *   **OverSeas**: outside the Chinese mainland
@@ -3512,21 +3509,25 @@ model DescribeCdnUserBillPredictionRequest {
 
 By default, the value of this parameter is determined by the metering method that is currently used. Regions inside and outside the Chinese mainland are classified into the **CN** and **OverSeas** billable regions. Billable regions inside the Chinese mainland include **CN**. Billable regions outside the Chinese mainland include **AP1**, **AP2**, **AP3**, **NA**, **SA**, **EU**, and **MEAA**.
 
-> For more information about billable regions, see [Billable regions](~~142221~~).', example='2018-09-30T16:00:00Z'),
+> For more information about billable regions, see [Billable regions](~~142221~~).', example='CN,OverSeas'),
+  dimension?: string(name='Dimension', description='The billable item. A value of flow specifies bandwidth.', example='flow'),
+  endTime?: string(name='EndTime', description='The end time of the estimation. The default value is the current time. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
+
+> The end time must be later than the start time.', example='2018-10-25T10:00:00Z'),
+  startTime?: string(name='StartTime', description='The start time of the estimation. The default value is 00:00 on the first day of the current month. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.', example='2018-09-30T16:00:00Z'),
 }
 
 model DescribeCdnUserBillPredictionResponseBody = {
   billPredictionData?: {
     billPredictionDataItem?: [ 
     {
-      area?: string(name='Area', example='CN'),
-      timeStp?: string(name='TimeStp', example='2018-10-15T16:00:00Z'),
-      value?: float(name='Value', example='10000'),
+      area?: string(name='Area', description='The billable region.', example='CN'),
+      timeStp?: string(name='TimeStp', description='The time when the value used as the estimated value is generated. This parameter is returned only if the metering method is pay by 95th percentile, pay by 95th percentile bandwidth with 50% off from 00:00 to 08:00, or pay by 4th peak bandwidth per month.', example='2018-10-15T16:00:00Z'),
+      value?: float(name='Value', description='The estimated value.', example='10000'),
     }
   ](name='BillPredictionDataItem')
-  }(name='BillPredictionData', description='The billable region.'),
-  billType?: string(name='BillType', description='The time when the value used as the estimated value is generated. This parameter is returned only if the metering method is pay by 95th percentile, pay by 95th percentile bandwidth with 50% off from 00:00 to 08:00, or pay by 4th peak bandwidth per month.', example='month_95_overseas'),
-  endTime?: string(name='EndTime', description='The metering method.
+  }(name='BillPredictionData', description='The estimated bill data.'),
+  billType?: string(name='BillType', description='The metering method.
 
 > If the metering method ends with \\_overseas, the billable region is outside the Chinese mainland. For example, BillType": "month_avg_day_bandwidth_overseas specifies a billable region outside the Chinese mainland and that the metering method is pay by daily peak bandwidth per month.
 
@@ -3540,9 +3541,10 @@ Valid values:
 *   month_avg_day\\_95: pay by average daily 95th percentile bandwidth per month
 *   month\\_95\\_night_half: pay by 95th percentile bandwidth with 50% off from 00:00 to 08:00.
 *   hour_vas: pay by value-added services per hour
-*   day_count: pay by daily requests', example='2018-10-25T10:00:00Z'),
-  requestId?: string(name='RequestId', description='The estimated value.', example='C370DAF1-C838-4288-A1A0-9A87633D248E'),
-  startTime?: string(name='StartTime', description='The estimated bill data.', example='2018-09-30T16:00:00Z'),
+*   day_count: pay by daily requests', example='month_95'),
+  endTime?: string(name='EndTime', description='The end time of the estimation.', example='2018-10-25T10:00:00Z'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='C370DAF1-C838-4288-A1A0-9A87633D248E'),
+  startTime?: string(name='StartTime', description='The start time of the estimation.', example='2018-09-30T16:00:00Z'),
 }
 
 model DescribeCdnUserBillPredictionResponse = {
@@ -3552,18 +3554,13 @@ model DescribeCdnUserBillPredictionResponse = {
 }
 
 /**
-  * The billable region. Valid values:
-  * *   **CN**: the Chinese mainland
-  * *   **OverSeas**: outside the Chinese mainland
-  * *   **AP1**: Asia Pacific 1
-  * *   **AP2**: Asia Pacific 2
-  * *   **AP3**: Asia Pacific 3
-  * *   **NA**: North America
-  * *   **SA**: South America
-  * *   **EU**: Europe
-  * *   **MEAA**: Middle East and Africa
-  * By default, the value of this parameter is determined by the metering method that is currently used. Regions inside and outside the Chinese mainland are classified into the **CN** and **OverSeas** billable regions. Billable regions inside the Chinese mainland include **CN**. Billable regions outside the Chinese mainland include **AP1**, **AP2**, **AP3**, **NA**, **SA**, **EU**, and **MEAA**.
-  * > For more information about billable regions, see [Billable regions](~~142221~~).
+  * You can call this operation to estimate resource usage of the current month based on the metering method that is specified on the first day of the current month. You can call this operation to estimate resource usage only of the current month within your Alibaba Cloud account. The time range used for the estimation starts at 00:00 on the first day of the current month and ends 2 hours earlier than the current time.
+  * *   Pay by monthly 95th percentile: The top 5% values between the start time and end time are excluded. The estimated value is the highest value among the remaining values.
+  * *   Pay by average daily peak bandwidth per month: Estimated value = Sum of daily peak bandwidth values/Number of days. The current day is excluded.
+  * *   Pay by 4th peak bandwidth per month: The estimated value is the 4th peak bandwidth value between the start time and end time. If the time range is less than four days, the estimated value is 0.
+  * *   Pay by average daily 95th percentile bandwidth per month: Estimated value = Sum of daily 95th percentile bandwidth values/Number of days. The current day is excluded.
+  * *   Pay by 95th percentile bandwidth with 50% off from 00:00 to 08:00: The top 5% values between the start time and end time are excluded. The estimated value is the highest value among the remaining values.
+  * > You can call this operation only once per second per account.
   *
   * @param request DescribeCdnUserBillPredictionRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -3602,18 +3599,13 @@ async function describeCdnUserBillPredictionWithOptions(request: DescribeCdnUser
 }
 
 /**
-  * The billable region. Valid values:
-  * *   **CN**: the Chinese mainland
-  * *   **OverSeas**: outside the Chinese mainland
-  * *   **AP1**: Asia Pacific 1
-  * *   **AP2**: Asia Pacific 2
-  * *   **AP3**: Asia Pacific 3
-  * *   **NA**: North America
-  * *   **SA**: South America
-  * *   **EU**: Europe
-  * *   **MEAA**: Middle East and Africa
-  * By default, the value of this parameter is determined by the metering method that is currently used. Regions inside and outside the Chinese mainland are classified into the **CN** and **OverSeas** billable regions. Billable regions inside the Chinese mainland include **CN**. Billable regions outside the Chinese mainland include **AP1**, **AP2**, **AP3**, **NA**, **SA**, **EU**, and **MEAA**.
-  * > For more information about billable regions, see [Billable regions](~~142221~~).
+  * You can call this operation to estimate resource usage of the current month based on the metering method that is specified on the first day of the current month. You can call this operation to estimate resource usage only of the current month within your Alibaba Cloud account. The time range used for the estimation starts at 00:00 on the first day of the current month and ends 2 hours earlier than the current time.
+  * *   Pay by monthly 95th percentile: The top 5% values between the start time and end time are excluded. The estimated value is the highest value among the remaining values.
+  * *   Pay by average daily peak bandwidth per month: Estimated value = Sum of daily peak bandwidth values/Number of days. The current day is excluded.
+  * *   Pay by 4th peak bandwidth per month: The estimated value is the 4th peak bandwidth value between the start time and end time. If the time range is less than four days, the estimated value is 0.
+  * *   Pay by average daily 95th percentile bandwidth per month: Estimated value = Sum of daily 95th percentile bandwidth values/Number of days. The current day is excluded.
+  * *   Pay by 95th percentile bandwidth with 50% off from 00:00 to 08:00: The top 5% values between the start time and end time are excluded. The estimated value is the highest value among the remaining values.
+  * > You can call this operation only once per second per account.
   *
   * @param request DescribeCdnUserBillPredictionRequest
   * @return DescribeCdnUserBillPredictionResponse
@@ -5074,42 +5066,53 @@ async function describeDomainCustomLogConfig(request: DescribeDomainCustomLogCon
 }
 
 model DescribeDomainDetailDataByLayerRequest {
-  domainName?: string(name='DomainName', description='The domain name that you want to query. You can specify multiple domain names and separate them with commas (,). You can specify up to 30 domain names in each call.', example='example.com'),
-  endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
+  domainName?: string(name='DomainName', description='The name of the Internet service provider (ISP) for your Alibaba Cloud CDN service. You can call the [DescribeCdnRegionAndIsp](~~91077~~) operation to query ISP names.
 
->  The end time must be later than the start time. The maximum time range that can be specified is 1 hour.', example='2020-07-05T22:05:00Z'),
-  field?: string(name='Field', description='The metric that you want to query. You can specify one or more metrics and separate them with commas (,). Valid values: **bps**, **qps**, **traf**, **acc**, **ipv6\\_traf**, **ipv6\\_bps**, **ipv6\\_acc**, **ipv6\\_qps**, and **http_code**.', example='bps,ipv6_traf,traf,http_code,qps'),
-  ispNameEn?: string(name='IspNameEn', description='The name of the Internet service provider (ISP). You can call the [DescribeCdnRegionAndIsp](~~91077~~) operation to query ISP names.
+If you do not specify an ISP, data of all ISPs is queried.', example='example.com'),
+  endTime?: string(name='EndTime', description='The protocol by which you want to query data. Valid values: **http**, **https**, **quic**, and **all**.
 
-If you do not specify an ISP, data of all ISPs is queried.', example='telecom'),
-  layer?: string(name='Layer', description='The protocol by which you want to query data. Valid values: **http**, **https**, **quic**, and **all**.
+The default value is **all**.', example='2020-07-05T22:05:00Z'),
+  field?: string(name='Field', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
 
-Default value: **all**.', example='all'),
-  locationNameEn?: string(name='LocationNameEn', description='The name of the region. You can call the [DescribeCdnRegionAndIsp](~~91077~~) operation to query region names.
+>  The end time must be later than the start time.', example='bps,ipv6_traf,traf,http_code,qps'),
+  ispNameEn?: string(name='IspNameEn', description='The ID of the request.', example='telecom'),
+  layer?: string(name='Layer', description='The amount of network traffic. Unit: bytes.', example='all'),
+  locationNameEn?: string(name='LocationNameEn', description='The detailed data of the accelerated domain names.', example='hangzhou'),
+  startTime?: string(name='StartTime', description='The name of the region. You can call the [DescribeCdnRegionAndIsp](~~91077~~) operation to query regions.
 
-If you do not specify a region, data in all regions is queried.', example='hangzhou'),
-  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.', example='2020-07-05T22:00:00Z'),
+If you do not specify a region, data in all regions is queried.', example='2020-07-05T22:00:00Z'),
 }
 
 model DescribeDomainDetailDataByLayerResponseBody = {
   data?: {
     dataModule?: [ 
     {
-      acc?: long(name='Acc', description='The number of requests.', example='2'),
-      bps?: float(name='Bps', description='The bandwidth. Unit: bit/s.', example='21060178715.146667'),
-      domainName?: string(name='DomainName', description='The domain name.', example='example.com'),
-      httpCode?: string(name='HttpCode', description='The distribution of HTTP status codes.', example='200:44349|206:1753719|304:45|403:1095|416:1|499:332'),
-      ipv6Acc?: long(name='Ipv6Acc', description='The number of IPv6 requests.', example='1'),
-      ipv6Bps?: float(name='Ipv6Bps', description='The IPv6 bandwidth. Unit: bit/s.', example='0'),
-      ipv6Qps?: float(name='Ipv6Qps', description='The QPS over IPv6.', example='0'),
-      ipv6Traf?: long(name='Ipv6Traf', description='The IPv6 traffic. Unit: bytes.', example='141718944482'),
-      qps?: float(name='Qps', description='The QPS.', example='5998.47'),
-      timeStamp?: string(name='TimeStamp', description='The timestamp of the returned data.', example='2020-07-05T22:00:00Z'),
-      traf?: long(name='Traf', description='The amount of network traffic. Unit: bytes.', example='789756701818'),
+      acc?: long(name='Acc', description='The timestamp of the data returned.', example='2'),
+      bps?: float(name='Bps', description='The bandwidth of IPv6 requests. Unit: bit/s.', example='21060178715.146667'),
+      domainName?: string(name='DomainName', description='The number of requests.', example='example.com'),
+      httpCode?: string(name='HttpCode', description='- You can call this operation up to 20 times per second per account.
+- If you do not set the StartTime or EndTime parameter, the request returns the data collected in the last 24 hours. If you set both these parameters, the request returns the data collected within the specified time range.
+
+**Time granularity**
+
+The following table describes the time granularity, the time period within which historical data is available, and the data delay, which vary with the maximum time range per query. 
+
+| Time granularity | Maximum time range per query | Historical data available | Data delay |
+| ---------------- | ---------------------------- | ------------------------- | ---------- |
+| 5 minutes | 3 days | 93 days | 15 minutes |
+| 1 hour | 31 days | 186 days | 4 hours |
+| 1 days | 366 days | 366 days | 04:00 on the next day |', example='200:44349|206:1753719|304:45|403:1095|416:1|499:332'),
+      ipv6Acc?: long(name='Ipv6Acc', description='The bandwidth. Unit: bit/s.', example='1'),
+      ipv6Bps?: float(name='Ipv6Bps', description='The number of IPv6 requests.', example='0'),
+      ipv6Qps?: float(name='Ipv6Qps', description='The amount of network traffic generated by IPv6 requests. Unit: bytes.', example='0'),
+      ipv6Traf?: long(name='Ipv6Traf', description='The proportions of HTTP status codes.', example='141718944482'),
+      qps?: float(name='Qps', description='The number of requests.', example='5998.47'),
+      timeStamp?: string(name='TimeStamp', description='The domain name.', example='2020-07-05T22:00:00Z'),
+      traf?: long(name='Traf', description='The bandwidth of IPv6 requests. Unit: bit/s.', example='789756701818'),
     }
   ](name='DataModule')
-  }(name='Data', description='Details about the accelerated domain names.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='BEA5625F-8FCF-48F4-851B-CA63946DA664'),
+  }(name='Data', description='The number of IPv6 requests per second.'),
+  requestId?: string(name='RequestId', description='The number of queries per second.', example='BEA5625F-8FCF-48F4-851B-CA63946DA664'),
 }
 
 model DescribeDomainDetailDataByLayerResponse = {
@@ -5119,8 +5122,7 @@ model DescribeDomainDetailDataByLayerResponse = {
 }
 
 /**
-  * *   You can call this operation up to 20 times per second per account.
-  * *   If you do not set the StartTime or EndTime parameter, the request returns the data collected in the last 24 hours. If you set both these parameters, the request returns the data collected within the specified time range.
+  * You can call this operation up to 20 times per second per account.
   *
   * @param request DescribeDomainDetailDataByLayerRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -5147,8 +5149,7 @@ async function describeDomainDetailDataByLayerWithOptions(request: DescribeDomai
 }
 
 /**
-  * *   You can call this operation up to 20 times per second per account.
-  * *   If you do not set the StartTime or EndTime parameter, the request returns the data collected in the last 24 hours. If you set both these parameters, the request returns the data collected within the specified time range.
+  * You can call this operation up to 20 times per second per account.
   *
   * @param request DescribeDomainDetailDataByLayerRequest
   * @return DescribeDomainDetailDataByLayerResponse
@@ -5156,6 +5157,102 @@ async function describeDomainDetailDataByLayerWithOptions(request: DescribeDomai
 async function describeDomainDetailDataByLayer(request: DescribeDomainDetailDataByLayerRequest): DescribeDomainDetailDataByLayerResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeDomainDetailDataByLayerWithOptions(request, runtime);
+}
+
+model DescribeDomainFileSizeProportionDataRequest {
+  domainName?: string(name='DomainName', description='The accelerated domain name. You can specify only one domain name in each request.', example='example.com'),
+  endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
+
+The end time must be later than the start time.', example='2019-12-31T02:00:00Z'),
+  ownerId?: long(name='OwnerId'),
+  securityToken?: string(name='SecurityToken'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the YYYY-MM-DDThh:mm:ssZ format. The time must be in UTC.', example='2019-12-31T01:00:00Z'),
+}
+
+model DescribeDomainFileSizeProportionDataResponseBody = {
+  dataInterval?: string(name='DataInterval', description='The time interval between the data entries returned. Unit: seconds.', example='3600'),
+  domainName?: string(name='DomainName', description='The accelerated domain name.', example='example.com'),
+  endTime?: string(name='EndTime', description='The end of the time range during which data was queried.', example='2019-12-31T02:00:00Z'),
+  fileSizeProportionDataInterval?: {
+    usageData?: [ 
+    {
+      timeStamp?: string(name='TimeStamp', description='The timestamp of the returned data.', example='2019-12-31T01:00:00Z'),
+      value?: {
+        fileSizeProportionData?: [ 
+        {
+          fileSize?: string(name='FileSize', description='The size of the file.', example='<50K'),
+          proportion?: string(name='Proportion', description='The proportion of the file.', example='0.01'),
+        }
+      ](name='FileSizeProportionData')
+      }(name='Value', description='The proportions of files in different sizes.'),
+    }
+  ](name='UsageData')
+  }(name='FileSizeProportionDataInterval', description='The proportions of files in different sizes.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='23ACE7E2-2302-42E3-98F8-E5E697FD86C3'),
+  startTime?: string(name='StartTime', description='The beginning of the time range that was queried.', example='2019-12-31T01:00:00Z'),
+}
+
+model DescribeDomainFileSizeProportionDataResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DescribeDomainFileSizeProportionDataResponseBody(name='body'),
+}
+
+/**
+  * > 
+  * *   If you do not specify StartTime or EndTime, the request returns the data collected in the last 24 hours. If you specify both StartTime and EndTime, the request returns the data collected within the specified time range.
+  * *   You can call this operation up to 10 times per second per account.
+  *
+  * @param request DescribeDomainFileSizeProportionDataRequest
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return DescribeDomainFileSizeProportionDataResponse
+ */
+async function describeDomainFileSizeProportionDataWithOptions(request: DescribeDomainFileSizeProportionDataRequest, runtime: Util.RuntimeOptions): DescribeDomainFileSizeProportionDataResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.domainName)) {
+    query['DomainName'] = request.domainName;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!Util.isUnset(request.securityToken)) {
+    query['SecurityToken'] = request.securityToken;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['StartTime'] = request.startTime;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeDomainFileSizeProportionData',
+    version = '2018-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+  * > 
+  * *   If you do not specify StartTime or EndTime, the request returns the data collected in the last 24 hours. If you specify both StartTime and EndTime, the request returns the data collected within the specified time range.
+  * *   You can call this operation up to 10 times per second per account.
+  *
+  * @param request DescribeDomainFileSizeProportionDataRequest
+  * @return DescribeDomainFileSizeProportionDataResponse
+ */
+async function describeDomainFileSizeProportionData(request: DescribeDomainFileSizeProportionDataRequest): DescribeDomainFileSizeProportionDataResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeDomainFileSizeProportionDataWithOptions(request, runtime);
 }
 
 model DescribeDomainHitRateDataRequest {
@@ -8497,7 +8594,7 @@ async function describeDomainTrafficData(request: DescribeDomainTrafficDataReque
 }
 
 model DescribeDomainUsageDataRequest {
-  area?: string(name='Area', description='The ID of the billable region. Valid values:
+  area?: string(name='Area', description='The billable region. Valid values:
 
 *   **CN** (default): inside the Chinese mainland
 *   **OverSeas**: outside the Chinese mainland
@@ -8511,8 +8608,8 @@ model DescribeDomainUsageDataRequest {
 *   **all**: all the preceding billable regions', example='CN'),
   dataProtocol?: string(name='DataProtocol', description='The protocol of the data that you want to query. Valid values:
 
-*   **http**: HTTP
-*   **https**: HTTPS
+*   **http:** HTTP
+*   **https:** HTTPS
 *   **quic**: QUIC
 *   **all** (default): HTTP, HTTPS, and QUIC', example='all'),
   domainName?: string(name='DomainName', description='The accelerated domain name. You can specify up to 100 domain names in each request. Separate multiple domain names with commas (,).
@@ -12098,6 +12195,7 @@ model SetDomainServerCertificateResponse = {
 }
 
 /**
+  * @deprecated : SetDomainServerCertificate is deprecated, please use Cdn::2018-05-10::SetCdnDomainSSLCertificate instead.
   * *   You can call this operation up to 10 times per second per user.
   * *   Method: POST.
   *
@@ -12105,6 +12203,7 @@ model SetDomainServerCertificateResponse = {
   * @param runtime runtime options for this request RuntimeOptions
   * @return SetDomainServerCertificateResponse
  */
+// Deprecated
 async function setDomainServerCertificateWithOptions(request: SetDomainServerCertificateRequest, runtime: Util.RuntimeOptions): SetDomainServerCertificateResponse {
   Util.validateModel(request);
   var query = {};
@@ -12153,12 +12252,14 @@ async function setDomainServerCertificateWithOptions(request: SetDomainServerCer
 }
 
 /**
+  * @deprecated : SetDomainServerCertificate is deprecated, please use Cdn::2018-05-10::SetCdnDomainSSLCertificate instead.
   * *   You can call this operation up to 10 times per second per user.
   * *   Method: POST.
   *
   * @param request SetDomainServerCertificateRequest
   * @return SetDomainServerCertificateResponse
  */
+// Deprecated
 async function setDomainServerCertificate(request: SetDomainServerCertificateRequest): SetDomainServerCertificateResponse {
   var runtime = new Util.RuntimeOptions{};
   return setDomainServerCertificateWithOptions(request, runtime);
