@@ -3185,6 +3185,21 @@ model CreateResourceFileRequest {
   uploadMode?: boolean(name='UploadMode', example='false'),
 }
 
+model CreateResourceFileAdvanceRequest {
+  content?: string(name='Content', example='SHOW TABLES;'),
+  fileDescription?: string(name='FileDescription'),
+  fileFolderPath?: string(name='FileFolderPath'),
+  fileName?: string(name='FileName'),
+  fileType?: int32(name='FileType', example='10'),
+  originResourceName?: string(name='OriginResourceName', example='origin_file_name.sql'),
+  owner?: string(name='Owner', example='1000000000001'),
+  projectId?: long(name='ProjectId', example='10000'),
+  registerToCalcEngine?: boolean(name='RegisterToCalcEngine', example='false'),
+  resourceFileObject?: readable(name='ResourceFile', example='http://bucketname1.oss-cn-shanghai.aliyuncs.com/example'),
+  storageURL?: string(name='StorageURL', example='oss://oss-cn-shanghai.aliyuncs.com/emr-test'),
+  uploadMode?: boolean(name='UploadMode', example='false'),
+}
+
 model CreateResourceFileResponseBody = {
   data?: long(name='Data', example='1000001'),
   requestId?: string(name='RequestId', example='0000-ABCD-EFG'),
@@ -3255,6 +3270,80 @@ async function createResourceFileWithOptions(request: CreateResourceFileRequest,
 async function createResourceFile(request: CreateResourceFileRequest): CreateResourceFileResponse {
   var runtime = new Util.RuntimeOptions{};
   return createResourceFileWithOptions(request, runtime);
+}
+
+async function createResourceFileAdvance(request: CreateResourceFileAdvanceRequest, runtime: Util.RuntimeOptions): CreateResourceFileResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'dataworks-public',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var createResourceFileReq = new CreateResourceFileRequest{};
+  OpenApiUtil.convert(request, createResourceFileReq);
+
+  if(!Util.isUnset(request.resourceFileObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.resourceFileObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    createResourceFileReq.resourceFile = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var createResourceFileResp = createResourceFileWithOptions(createResourceFileReq, runtime);
+  return createResourceFileResp;
 }
 
 model CreateTableRequest {
