@@ -1000,6 +1000,7 @@ model ControlRoomDeviceHeaders {
 model ControlRoomDeviceRequest {
   cmd?: string(name='Cmd', example='thing.attribute.set
 thing.attribute.adjust'),
+  deviceIndex?: int32(name='DeviceIndex'),
   deviceNumber?: string(name='DeviceNumber', example='INFRARED49122575595'),
   hotelId?: string(name='HotelId', example='a7***83'),
   properties?: map[string]string(name='Properties'),
@@ -1009,6 +1010,7 @@ thing.attribute.adjust'),
 model ControlRoomDeviceShrinkRequest {
   cmd?: string(name='Cmd', example='thing.attribute.set
 thing.attribute.adjust'),
+  deviceIndex?: int32(name='DeviceIndex'),
   deviceNumber?: string(name='DeviceNumber', example='INFRARED49122575595'),
   hotelId?: string(name='HotelId', example='a7***83'),
   propertiesShrink?: string(name='Properties'),
@@ -1041,6 +1043,9 @@ async function controlRoomDeviceWithOptions(tmpReq: ControlRoomDeviceRequest, he
   var body : map[string]any = {};
   if (!Util.isUnset(request.cmd)) {
     body['Cmd'] = request.cmd;
+  }
+  if (!Util.isUnset(request.deviceIndex)) {
+    body['DeviceIndex'] = request.deviceIndex;
   }
   if (!Util.isUnset(request.deviceNumber)) {
     body['DeviceNumber'] = request.deviceNumber;
@@ -3584,11 +3589,23 @@ model ImportRoomControlDevicesRequest {
           city?: string(name='City'),
           connectType?: string(name='ConnectType'),
           deviceName?: string(name='DeviceName'),
+          dn?: string(name='Dn'),
           infraredId?: string(name='InfraredId'),
           infraredIndex?: string(name='InfraredIndex'),
           infraredVersion?: string(name='InfraredVersion'),
+          multiKeySwitchExt?: {
+            switchList?: [ 
+              {
+                category?: string(name='Category'),
+                deviceIndex?: int32(name='DeviceIndex'),
+                deviceName?: string(name='DeviceName'),
+                location?: string(name='Location'),
+              }
+            ](name='SwitchList'),
+          }(name='MultiKeySwitchExt'),
           name?: string(name='Name', example='light'),
           number?: string(name='Number', example='night_light'),
+          pk?: string(name='Pk'),
           province?: string(name='Province'),
           serviceProvider?: string(name='ServiceProvider'),
         }
@@ -3674,6 +3691,119 @@ async function importRoomControlDevices(request: ImportRoomControlDevicesRequest
   var runtime = new Util.RuntimeOptions{};
   var headers = new ImportRoomControlDevicesHeaders{};
   return importRoomControlDevicesWithOptions(request, headers, runtime);
+}
+
+model ImportRoomGenieScenesHeaders {
+  commonHeaders?: map[string]string,
+  xAcsAligenieAccessToken?: string(name='x-acs-aligenie-access-token'),
+  authorization?: string(name='Authorization'),
+}
+
+model ImportRoomGenieScenesRequest {
+  hotelId?: string(name='HotelId', example='a7a3***013'),
+  roomNo?: string(name='RoomNo', example='1211'),
+  sceneList?: [ 
+    {
+      actions?: [ 
+        {
+          attributeValues?: [ 
+            {
+              attributeName?: string(name='AttributeName', example='powerstate'),
+              attributeValue?: string(name='AttributeValue', example='1'),
+            }
+          ](name='AttributeValues'),
+          device?: {
+            category?: string(name='Category', example='light'),
+            deviceIndex?: int32(name='DeviceIndex', example='0'),
+            deviceNumber?: string(name='DeviceNumber', example='3c5d2ab8f9ec'),
+            type?: int32(name='Type', example='1'),
+          }(name='Device'),
+        }
+      ](name='Actions'),
+      description?: string(name='Description'),
+      display?: boolean(name='Display', example='true'),
+      icon?: string(name='Icon', example='http://xxx.com/yyy.png'),
+      sceneName?: string(name='SceneName'),
+      triggerLogical?: int32(name='TriggerLogical', example='1'),
+      triggers?: [ 
+        {
+          corpusList?: [ string ](name='CorpusList'),
+          type?: int32(name='Type', example='1'),
+        }
+      ](name='Triggers'),
+    }
+  ](name='SceneList'),
+}
+
+model ImportRoomGenieScenesShrinkRequest {
+  hotelId?: string(name='HotelId', example='a7a3***013'),
+  roomNo?: string(name='RoomNo', example='1211'),
+  sceneListShrink?: string(name='SceneList'),
+}
+
+model ImportRoomGenieScenesResponseBody = {
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='73C6***E6FA'),
+  result?: boolean(name='Result', example='true'),
+  statusCode?: int32(name='StatusCode', example='200'),
+}
+
+model ImportRoomGenieScenesResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ImportRoomGenieScenesResponseBody(name='body'),
+}
+
+async function importRoomGenieScenesWithOptions(tmpReq: ImportRoomGenieScenesRequest, headers: ImportRoomGenieScenesHeaders, runtime: Util.RuntimeOptions): ImportRoomGenieScenesResponse {
+  Util.validateModel(tmpReq);
+  var request = new ImportRoomGenieScenesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.sceneList)) {
+    request.sceneListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sceneList, 'SceneList', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.hotelId)) {
+    body['HotelId'] = request.hotelId;
+  }
+  if (!Util.isUnset(request.roomNo)) {
+    body['RoomNo'] = request.roomNo;
+  }
+  if (!Util.isUnset(request.sceneListShrink)) {
+    body['SceneList'] = request.sceneListShrink;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xAcsAligenieAccessToken)) {
+    realHeaders['x-acs-aligenie-access-token'] = Util.toJSONString(headers.xAcsAligenieAccessToken);
+  }
+  if (!Util.isUnset(headers.authorization)) {
+    realHeaders['Authorization'] = Util.toJSONString(headers.authorization);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ImportRoomGenieScenes',
+    version = 'ip_1.0',
+    protocol = 'HTTPS',
+    pathname = `/v1.0/ip/importRoomGenieScenes`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function importRoomGenieScenes(request: ImportRoomGenieScenesRequest): ImportRoomGenieScenesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new ImportRoomGenieScenesHeaders{};
+  return importRoomGenieScenesWithOptions(request, headers, runtime);
 }
 
 model InsertHotelSceneBookItemHeaders {
@@ -6207,9 +6337,24 @@ model QueryRoomControlDevicesResponseBody = {
       devices?: [ 
         {
           connectType?: string(name='ConnectType'),
+          DN?: string(name='DN'),
           deviceName?: string(name='DeviceName'),
+          deviceStatus?: string(name='DeviceStatus'),
+          multiKeySwitchExt?: {
+            switchList?: [ 
+              {
+                category?: string(name='Category'),
+                deviceIndex?: int32(name='DeviceIndex'),
+                deviceName?: string(name='DeviceName'),
+                deviceStatus?: string(name='DeviceStatus'),
+                elementCode?: string(name='ElementCode'),
+                location?: string(name='Location'),
+              }
+            ](name='SwitchList'),
+          }(name='MultiKeySwitchExt'),
           name?: string(name='Name', example='light'),
           number?: string(name='Number', example='night_light'),
+          PK?: string(name='PK'),
         }
       ](name='Devices'),
       location?: string(name='Location', example='room'),
