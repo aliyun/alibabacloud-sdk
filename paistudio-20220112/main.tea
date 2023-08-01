@@ -47,10 +47,7 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model AlgorithmSpec {
-  codeDir?: {
-    locationType?: string(name='LocationType'),
-    locationValue?: map[string]any(name='LocationValue'),
-  }(name='CodeDir'),
+  codeDir?: Location(name='CodeDir'),
   command?: [ string ](name='Command'),
   computeResource?: {
     policy?: {
@@ -75,16 +72,27 @@ model AlgorithmSpec {
   outputChannels?: [
     Channel
   ](name='OutputChannels'),
-  supportedInstanceTypes?: [ string ](name='SupportedInstanceTypes'),
+  progressDefinitions?: {
+    overallProgress?: {
+      description?: string(name='Description'),
+      regex?: string(name='Regex'),
+    }(name='OverallProgress'),
+    remainingTime?: {
+      description?: string(name='Description'),
+      regex?: string(name='Regex'),
+    }(name='RemainingTime'),
+  }(name='ProgressDefinitions'),
+  resourceRequirements?: [
+    ConditionExpression
+  ](name='ResourceRequirements'),
+  supportedInstanceTypes?: [ string ](name='SupportedInstanceTypes', deprecated='true'),
   supportsDistributedTraining?: boolean(name='SupportsDistributedTraining'),
 }
 
 model Channel {
   description?: string(name='Description'),
   name?: string(name='Name'),
-  properties?: [
-    ChannelProperty
-  ](name='Properties'),
+  properties?: map[string]any(name='Properties'),
   required?: boolean(name='Required'),
   supportedChannelTypes?: [ string ](name='SupportedChannelTypes'),
 }
@@ -92,6 +100,34 @@ model Channel {
 model ChannelProperty {
   name?: string(name='Name', example='SKlearn'),
   value?: string(name='Value', example='Framework'),
+}
+
+model ComponentSpec {
+  codeDir?: Location(name='CodeDir'),
+  command?: string(name='Command'),
+  hyperParameters?: [
+    HyperParameterDefinition
+  ](name='HyperParameters'),
+  image?: string(name='Image'),
+  inputChannels?: [
+    Channel
+  ](name='InputChannels'),
+  jobType?: string(name='JobType'),
+  metricDefinitions?: [
+    MetricDefinition
+  ](name='MetricDefinitions'),
+  outputChannels?: [
+    Channel
+  ](name='OutputChannels'),
+  resourceRequirements?: [
+    ConditionExpression
+  ](name='ResourceRequirements'),
+}
+
+model ConditionExpression {
+  key?: string(name='Key', example='SupportedMachineTypes'),
+  operator?: string(name='Operator', example='in'),
+  values?: [ string ](name='Values'),
 }
 
 model GPUInfo {
@@ -102,9 +138,22 @@ model GPUInfo {
 model HyperParameterDefinition {
   defaultValue?: string(name='DefaultValue'),
   description?: string(name='Description'),
+  displayName?: string(name='DisplayName'),
   name?: string(name='Name'),
+  range?: HyperParameterRange(name='Range'),
   required?: boolean(name='Required'),
   type?: string(name='Type'),
+}
+
+model HyperParameterRange {
+  enum?: [ string ](name='Enum'),
+  exclusiveMaximum?: boolean(name='ExclusiveMaximum'),
+  exclusiveMinimum?: boolean(name='ExclusiveMinimum'),
+  maxLength?: long(name='MaxLength'),
+  maximum?: string(name='Maximum'),
+  minLength?: long(name='MinLength'),
+  minimum?: string(name='Minimum'),
+  pattern?: string(name='Pattern'),
 }
 
 model JobViewMetric {
@@ -126,6 +175,16 @@ model JobViewMetric {
   totalGPU?: int32(name='TotalGPU'),
   totalMemory?: long(name='TotalMemory'),
   userId?: string(name='UserId'),
+}
+
+model Label {
+  key?: string(name='Key'),
+  value?: string(name='Value'),
+}
+
+model Location {
+  locationType?: string(name='LocationType'),
+  locationValue?: map[string]any(name='LocationValue'),
 }
 
 model MachineGroup {
@@ -190,11 +249,17 @@ model NodeViewMetric {
   userNumber?: string(name='UserNumber'),
 }
 
+model Permission {
+  isEnabled?: boolean(name='IsEnabled'),
+  resourceType?: string(name='ResourceType'),
+}
+
 model ResourceGroup {
   creatorID?: string(name='CreatorID'),
   gmtCreatedTime?: string(name='GmtCreatedTime'),
   gmtModifiedTime?: string(name='GmtModifiedTime'),
   name?: string(name='Name', example='RG1'),
+  nodeCount?: int32(name='NodeCount'),
   resourceGroupID?: string(name='ResourceGroupID', example='rg17tmvwiokhzaxg'),
   userVpc?: UserVpc(name='UserVpc'),
   workspaceID?: string(name='WorkspaceID', example='23000'),
@@ -245,6 +310,7 @@ model UserVpc {
 model CreateAlgorithmRequest {
   algorithmDescription?: string(name='AlgorithmDescription'),
   algorithmName?: string(name='AlgorithmName'),
+  displayName?: string(name='DisplayName'),
   workspaceId?: string(name='WorkspaceId'),
 }
 
@@ -267,6 +333,9 @@ async function createAlgorithmWithOptions(request: CreateAlgorithmRequest, heade
   }
   if (!Util.isUnset(request.algorithmName)) {
     body['AlgorithmName'] = request.algorithmName;
+  }
+  if (!Util.isUnset(request.displayName)) {
+    body['DisplayName'] = request.displayName;
   }
   if (!Util.isUnset(request.workspaceId)) {
     body['WorkspaceId'] = request.workspaceId;
@@ -352,8 +421,10 @@ async function createAlgorithmVersion(AlgorithmId: string, AlgorithmVersion: str
 }
 
 model CreateResourceGroupRequest {
+  computingResourceProvider?: string(name='ComputingResourceProvider'),
   description?: string(name='Description'),
   name?: string(name='Name'),
+  resourceType?: string(name='ResourceType'),
   userVpc?: UserVpc(name='UserVpc'),
 }
 
@@ -371,11 +442,17 @@ model CreateResourceGroupResponse = {
 async function createResourceGroupWithOptions(request: CreateResourceGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateResourceGroupResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
+  if (!Util.isUnset(request.computingResourceProvider)) {
+    body['ComputingResourceProvider'] = request.computingResourceProvider;
+  }
   if (!Util.isUnset(request.description)) {
     body['Description'] = request.description;
   }
   if (!Util.isUnset(request.name)) {
     body['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    body['ResourceType'] = request.resourceType;
   }
   if (!Util.isUnset(request.userVpc)) {
     body['UserVpc'] = request.userVpc;
@@ -410,13 +487,11 @@ model CreateTrainingJobRequest {
   algorithmProvider?: string(name='AlgorithmProvider'),
   algorithmSpec?: AlgorithmSpec(name='AlgorithmSpec'),
   algorithmVersion?: string(name='AlgorithmVersion'),
-  codeDir?: {
-    locationType?: string(name='LocationType'),
-    locationValue?: map[string]any(name='LocationValue'),
-  }(name='CodeDir'),
+  codeDir?: Location(name='CodeDir'),
   computeResource?: {
     ecsCount?: long(name='EcsCount'),
     ecsSpec?: string(name='EcsSpec'),
+    resourceGroupId?: string(name='ResourceGroupId'),
   }(name='ComputeResource'),
   hyperParameters?: [ 
     {
@@ -444,6 +519,7 @@ model CreateTrainingJobRequest {
       outputUri?: string(name='OutputUri'),
     }
   ](name='OutputChannels'),
+  roleArn?: string(name='RoleArn'),
   scheduler?: {
     maxRunningTimeInSeconds?: long(name='MaxRunningTimeInSeconds'),
   }(name='Scheduler'),
@@ -495,6 +571,9 @@ async function createTrainingJobWithOptions(request: CreateTrainingJobRequest, h
   }
   if (!Util.isUnset(request.outputChannels)) {
     body['OutputChannels'] = request.outputChannels;
+  }
+  if (!Util.isUnset(request.roleArn)) {
+    body['RoleArn'] = request.roleArn;
   }
   if (!Util.isUnset(request.scheduler)) {
     body['Scheduler'] = request.scheduler;
@@ -643,6 +722,7 @@ model GetAlgorithmResponseBody = {
   algorithmId?: string(name='AlgorithmId'),
   algorithmName?: string(name='AlgorithmName'),
   algorithmProvider?: string(name='AlgorithmProvider'),
+  displayName?: string(name='DisplayName'),
   gmtCreateTime?: string(name='GmtCreateTime'),
   gmtModifiedTime?: string(name='GmtModifiedTime'),
   requestId?: string(name='RequestId'),
@@ -836,13 +916,21 @@ async function getNodeMetrics(ResourceGroupID: string, MetricType: string, reque
   return getNodeMetricsWithOptions(ResourceGroupID, MetricType, request, headers, runtime);
 }
 
+model GetResourceGroupRequest {
+  isAIWorkspaceDataEnabled?: boolean(name='IsAIWorkspaceDataEnabled'),
+}
+
 model GetResourceGroupResponseBody = {
+  clusterID?: string(name='ClusterID'),
+  computingResourceProvider?: string(name='ComputingResourceProvider'),
   creatorID?: string(name='CreatorID'),
   gmtCreatedTime?: string(name='GmtCreatedTime'),
   gmtModifiedTime?: string(name='GmtModifiedTime'),
   name?: string(name='Name'),
   requestId?: string(name='RequestId'),
+  resourceType?: string(name='ResourceType'),
   status?: string(name='Status'),
+  supportRDMA?: boolean(name='SupportRDMA'),
   userVpc?: UserVpc(name='UserVpc'),
   workspaceID?: string(name='WorkspaceID'),
 }
@@ -853,9 +941,16 @@ model GetResourceGroupResponse = {
   body: GetResourceGroupResponseBody(name='body'),
 }
 
-async function getResourceGroupWithOptions(ResourceGroupID: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetResourceGroupResponse {
+async function getResourceGroupWithOptions(ResourceGroupID: string, request: GetResourceGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetResourceGroupResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.isAIWorkspaceDataEnabled)) {
+    query['IsAIWorkspaceDataEnabled'] = request.isAIWorkspaceDataEnabled;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'GetResourceGroup',
@@ -871,10 +966,10 @@ async function getResourceGroupWithOptions(ResourceGroupID: string, headers: map
   return callApi(params, req, runtime);
 }
 
-async function getResourceGroup(ResourceGroupID: string): GetResourceGroupResponse {
+async function getResourceGroup(ResourceGroupID: string, request: GetResourceGroupRequest): GetResourceGroupResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return getResourceGroupWithOptions(ResourceGroupID, headers, runtime);
+  return getResourceGroupWithOptions(ResourceGroupID, request, headers, runtime);
 }
 
 model GetResourceGroupMachineGroupResponseBody = {
@@ -1035,6 +1130,7 @@ model GetTrainingJobResponseBody = {
   algorithmId?: string(name='AlgorithmId'),
   algorithmName?: string(name='AlgorithmName'),
   algorithmProvider?: string(name='AlgorithmProvider'),
+  algorithmSpec?: AlgorithmSpec(name='AlgorithmSpec'),
   algorithmVersion?: string(name='AlgorithmVersion'),
   computeResource?: {
     ecsCount?: long(name='EcsCount'),
@@ -1062,6 +1158,7 @@ model GetTrainingJobResponseBody = {
       status?: string(name='Status'),
     }
   ](name='Instances'),
+  isTempAlgo?: boolean(name='IsTempAlgo'),
   labels?: [ 
     {
       key?: string(name='Key'),
@@ -1085,6 +1182,7 @@ model GetTrainingJobResponseBody = {
   reasonCode?: string(name='ReasonCode'),
   reasonMessage?: string(name='ReasonMessage'),
   requestId?: string(name='RequestId'),
+  roleArn?: string(name='RoleArn'),
   scheduler?: {
     maxRunningTimeInSeconds?: long(name='MaxRunningTimeInSeconds'),
   }(name='Scheduler'),
@@ -1288,6 +1386,7 @@ model ListAlgorithmsResponseBody = {
       algorithmId?: string(name='AlgorithmId'),
       algorithmName?: string(name='AlgorithmName'),
       algorithmProvider?: string(name='AlgorithmProvider'),
+      displayName?: string(name='DisplayName'),
       gmtCreateTime?: string(name='GmtCreateTime'),
       gmtModifiedTime?: string(name='GmtModifiedTime'),
       userId?: string(name='UserId'),
@@ -1440,10 +1539,12 @@ async function listResourceGroupMachineGroups(ResourceGroupID: string, request: 
 }
 
 model ListResourceGroupsRequest {
+  computingResourceProvider?: string(name='ComputingResourceProvider'),
   name?: string(name='Name', example='RG1'),
   order?: string(name='Order', example='desc'),
   pageNumber?: long(name='PageNumber', example='2'),
   pageSize?: long(name='PageSize', example='10'),
+  resourceType?: string(name='ResourceType'),
   showAll?: boolean(name='ShowAll'),
   sortBy?: string(name='SortBy', example='DisplayName'),
   status?: string(name='Status', example='Creating'),
@@ -1466,6 +1567,9 @@ model ListResourceGroupsResponse = {
 async function listResourceGroupsWithOptions(request: ListResourceGroupsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListResourceGroupsResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
+  if (!Util.isUnset(request.computingResourceProvider)) {
+    query['ComputingResourceProvider'] = request.computingResourceProvider;
+  }
   if (!Util.isUnset(request.name)) {
     query['Name'] = request.name;
   }
@@ -1477,6 +1581,9 @@ async function listResourceGroupsWithOptions(request: ListResourceGroupsRequest,
   }
   if (!Util.isUnset(request.pageSize)) {
     query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query['ResourceType'] = request.resourceType;
   }
   if (!Util.isUnset(request.showAll)) {
     query['ShowAll'] = request.showAll;
@@ -1708,6 +1815,7 @@ model ListTrainingJobsResponseBody = {
           name?: string(name='Name'),
         }
       ](name='InputChannels'),
+      isTempAlgo?: boolean(name='IsTempAlgo'),
       labels?: [ 
         {
           key?: string(name='Key'),
@@ -1723,6 +1831,7 @@ model ListTrainingJobsResponseBody = {
       ](name='OutputChannels'),
       reasonCode?: string(name='ReasonCode'),
       reasonMessage?: string(name='ReasonMessage'),
+      roleArn?: string(name='RoleArn'),
       scheduler?: {
         maxRunningTimeInSeconds?: long(name='MaxRunningTimeInSeconds'),
       }(name='Scheduler'),
@@ -1862,6 +1971,7 @@ async function stopTrainingJob(TrainingJobId: string): StopTrainingJobResponse {
 
 model UpdateAlgorithmRequest {
   algorithmDescription?: string(name='AlgorithmDescription'),
+  displayName?: string(name='DisplayName'),
 }
 
 model UpdateAlgorithmResponseBody = {
@@ -1880,6 +1990,9 @@ async function updateAlgorithmWithOptions(AlgorithmId: string, request: UpdateAl
   var body : map[string]any = {};
   if (!Util.isUnset(request.algorithmDescription)) {
     body['AlgorithmDescription'] = request.algorithmDescription;
+  }
+  if (!Util.isUnset(request.displayName)) {
+    body['DisplayName'] = request.displayName;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
