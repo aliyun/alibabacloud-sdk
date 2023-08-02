@@ -2929,6 +2929,7 @@ async function describeDBInstanceIndexUsage(request: DescribeDBInstanceIndexUsag
 }
 
 model DescribeDBInstanceNetInfoRequest {
+  connectionString?: string(name='ConnectionString'),
   DBInstanceId?: string(name='DBInstanceId', description='The ID of the instance.
 
 >  You can call the [DescribeDBInstances](~~86911~~) operation to query details about all AnalyticDB for PostgreSQL instances in a specific region, including instance IDs.', example='gp-xxxxxxxxxx'),
@@ -2968,6 +2969,9 @@ model DescribeDBInstanceNetInfoResponse = {
 async function describeDBInstanceNetInfoWithOptions(request: DescribeDBInstanceNetInfoRequest, runtime: Util.RuntimeOptions): DescribeDBInstanceNetInfoResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.connectionString)) {
+    query['ConnectionString'] = request.connectionString;
+  }
   if (!Util.isUnset(request.DBInstanceId)) {
     query['DBInstanceId'] = request.DBInstanceId;
   }
@@ -6300,6 +6304,66 @@ async function grantCollection(request: GrantCollectionRequest): GrantCollection
   return grantCollectionWithOptions(request, runtime);
 }
 
+model InitVectorDatabaseRequest {
+  DBInstanceId?: string(name='DBInstanceId', example='gp-xxxxxxxxx'),
+  managerAccount?: string(name='ManagerAccount', example='testaccount'),
+  managerAccountPassword?: string(name='ManagerAccountPassword', example='testpassword'),
+  ownerId?: long(name='OwnerId'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+}
+
+model InitVectorDatabaseResponseBody = {
+  message?: string(name='Message', example='failed to connect database, detailMsg: getConnection fail::SQL State: 28P01, Error Code: 0, Error Message: FATAL: password'),
+  requestId?: string(name='RequestId', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
+  status?: string(name='Status', example='success'),
+}
+
+model InitVectorDatabaseResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: InitVectorDatabaseResponseBody(name='body'),
+}
+
+async function initVectorDatabaseWithOptions(request: InitVectorDatabaseRequest, runtime: Util.RuntimeOptions): InitVectorDatabaseResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.DBInstanceId)) {
+    query['DBInstanceId'] = request.DBInstanceId;
+  }
+  if (!Util.isUnset(request.managerAccount)) {
+    query['ManagerAccount'] = request.managerAccount;
+  }
+  if (!Util.isUnset(request.managerAccountPassword)) {
+    query['ManagerAccountPassword'] = request.managerAccountPassword;
+  }
+  if (!Util.isUnset(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'InitVectorDatabase',
+    version = '2016-05-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function initVectorDatabase(request: InitVectorDatabaseRequest): InitVectorDatabaseResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return initVectorDatabaseWithOptions(request, runtime);
+}
+
 model ListCollectionsRequest {
   DBInstanceId?: string(name='DBInstanceId', example='gp-xxxxxxxxx'),
   namespace?: string(name='Namespace', example='mynamespace'),
@@ -7459,12 +7523,14 @@ model QueryCollectionDataResponseBody = {
     {
       id?: string(name='Id', example='doca-1234'),
       metadata?: map[string]string(name='Metadata'),
+      similarity?: double(name='Similarity'),
       values?: {
         value?: [ double ](name='value')
       }(name='Values'),
     }
   ](name='match')
   }(name='Matches'),
+  message?: string(name='Message'),
   requestId?: string(name='RequestId', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
   status?: string(name='Status', example='success'),
 }
