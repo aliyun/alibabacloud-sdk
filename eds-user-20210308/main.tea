@@ -28,6 +28,16 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model WaIdPermissions {
+  code?: string(name='Code'),
+  isBasicChild?: boolean(name='IsBasicChild'),
+  name?: string(name='Name'),
+  subPermissions?: [
+    WaIdPermissions
+  ](name='SubPermissions'),
+  type?: string(name='Type'),
+}
+
 model CheckUsedPropertyRequest {
   propertyId?: long(name='PropertyId', example='390'),
 }
@@ -198,41 +208,41 @@ async function createProperty(request: CreatePropertyRequest): CreatePropertyRes
 }
 
 model CreateUsersRequest {
-  password?: string(name='Password', example='Test123****'),
+  password?: string(name='Password', description='The initial password. If this parameter is left empty, an email for password reset is sent to the specified email address.', example='Test123****'),
   users?: [ 
     {
-      email?: string(name='Email', description='The name of the end user.', example='username@example.com'),
-      endUserId?: string(name='EndUserId', description='Details of the convenience user that failed to be created.', example='test1'),
-      orgId?: string(name='OrgId', description='The error message returned.', example='1111****'),
-      ownerType?: string(name='OwnerType', description='The error code returned if the request failed.', example='Normal'),
-      password?: string(name='Password', description='The mobile number of the end user.', example='password1'),
-      phone?: string(name='Phone', description='The email address of the end user.', example='1381111****'),
-      remark?: string(name='Remark', example='remark1'),
+      email?: string(name='Email', description='The email address of the end user. The email address is used to receive notifications about events such as desktop assignment. You must specify an email address or a mobile number to receive notifications.', example='username@example.com'),
+      endUserId?: string(name='EndUserId', description='The name of the end user. The name must be 3 to 24 characters in length, and can contain lowercase letters, digits, and underscores (\\_).', example='test1'),
+      orgId?: string(name='OrgId', description='The organization to which the end user belongs.', example='1111****'),
+      ownerType?: string(name='OwnerType', description='The type of the account ownership.', example='Normal'),
+      password?: string(name='Password', description='The password of the end user.', example='password1'),
+      phone?: string(name='Phone', description='Mobile numbers are not supported on the international site (alibabacloud.com).', example='1381111****'),
+      remark?: string(name='Remark', description='The remarks of the end user.', example='remark1'),
     }
-  ](name='Users', description='The remarks of the end user.', example='CreateUsers'),
+  ](name='Users', description='Details of the convenience users.', example='CreateUsers'),
 }
 
 model CreateUsersResponseBody = {
   createResult?: {
     createdUsers?: [ 
       {
-        email?: string(name='Email', example='username@example.com'),
-        endUserId?: string(name='EndUserId', example='test1'),
-        phone?: string(name='Phone', example='1381111****'),
-        remark?: string(name='Remark', example='remark1'),
+        email?: string(name='Email', description='The email address of the end user.', example='username@example.com'),
+        endUserId?: string(name='EndUserId', description='The name of the end user.', example='test1'),
+        phone?: string(name='Phone', description='The mobile number of the end user.', example='1381111****'),
+        remark?: string(name='Remark', description='The remarks of the end user.', example='remark1'),
       }
-    ](name='CreatedUsers'),
+    ](name='CreatedUsers', description='Details of the created convenience users.'),
     failedUsers?: [ 
       {
-        email?: string(name='Email', example='username2@example.com'),
-        endUserId?: string(name='EndUserId', example='test2'),
-        errorCode?: string(name='ErrorCode', example='ExistedEndUserId'),
-        errorMessage?: string(name='ErrorMessage', example='The username test is used by another user.'),
-        phone?: string(name='Phone', example='1390000****'),
+        email?: string(name='Email', description='The email address of the end user.', example='username2@example.com'),
+        endUserId?: string(name='EndUserId', description='The name of the end user.', example='test2'),
+        errorCode?: string(name='ErrorCode', description='The error code returned if the request failed.', example='ExistedEndUserId'),
+        errorMessage?: string(name='ErrorMessage', description='The error message returned.', example='The username test is used by another user.'),
+        phone?: string(name='Phone', description='The mobile number of the end user.', example='1390000****'),
       }
-    ](name='FailedUsers'),
-  }(name='CreateResult'),
-  requestId?: string(name='RequestId', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+    ](name='FailedUsers', description='Details of the convenience users that failed to be created.'),
+  }(name='CreateResult', description='The result of user creation.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
 }
 
 model CreateUsersResponse = {
@@ -242,7 +252,7 @@ model CreateUsersResponse = {
 }
 
 /**
-  * The mobile number of the end user.
+  * Convenience users are dedicated Elastic Desktop Service (EDS) user accounts and are suitable for scenarios in which you do not need to connect to enterprise Active Directory (AD) systems. The information about a convenience user includes the username, email address, and mobile number. You must specify the username or email address.
   *
   * @param request CreateUsersRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -275,7 +285,7 @@ async function createUsersWithOptions(request: CreateUsersRequest, runtime: Util
 }
 
 /**
-  * The mobile number of the end user.
+  * Convenience users are dedicated Elastic Desktop Service (EDS) user accounts and are suitable for scenarios in which you do not need to connect to enterprise Active Directory (AD) systems. The information about a convenience user includes the username, email address, and mobile number. You must specify the username or email address.
   *
   * @param request CreateUsersRequest
   * @return CreateUsersResponse
@@ -349,30 +359,34 @@ async function deleteUserPropertyValue(request: DeleteUserPropertyValueRequest):
 }
 
 model DescribeMfaDevicesRequest {
-  endUserIds?: [ string ](name='EndUserIds', description='This parameter is unavailable.', example='test'),
-  maxResults?: long(name='MaxResults', description='The list of username of convenience users.', example='100'),
-  nextToken?: string(name='NextToken', description='The time when the virtual MFA device was enabled. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='caeba0bbb2be03f84eb48b699f0a4883'),
-  serialNumbers?: [ string ](name='SerialNumbers', description='The time when a locked virtual MFA device is automatically unlocked. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='c2d9ae94-a64b-4a0d-8024-9519ca50****'),
+  endUserIds?: [ string ](name='EndUserIds', description='The list of username of convenience users.', example='test'),
+  maxResults?: long(name='MaxResults', description='The maximum number of entries to return. Valid values: 1 to 500.
+
+Default value: 100.', example='100'),
+  nextToken?: string(name='NextToken', description='The query token. Set the value to the NextToken value returned in the last call.', example='caeba0bbb2be03f84eb48b699f0a4883'),
+  serialNumbers?: [ string ](name='SerialNumbers', description='The list of serial numbers of the virtual MFA devices.', example='c2d9ae94-a64b-4a0d-8024-9519ca50****'),
 }
 
 model DescribeMfaDevicesResponseBody = {
   mfaDevices?: [ 
     {
-      consecutiveFails?: int32(name='ConsecutiveFails', description='The ID of the request.', example='0'),
-      deviceType?: string(name='DeviceType', example='TOTP_VIRTUAL'),
-      email?: string(name='Email', description='The username of the convenience user that uses the virtual MFA device.', example='username@example.com'),
-      endUserId?: string(name='EndUserId', description='The types of the virtual MFA device. Set the value to TOTP_VIRTUAL, which indicates that the virtual MFA devices follow the Time-based One-time Password (TOTP) algorithm.', example='test'),
-      gmtEnabled?: string(name='GmtEnabled', description='The serial numbers of the virtual MFA devices.', example='2021-06-22T06:20:49Z'),
-      gmtUnlock?: string(name='GmtUnlock', description='The serial number of the virtual MFA device, which is a unique identifier.', example='2021-06-23T06:20:49Z'),
-      id?: long(name='Id', description='The maximum number of entries to return. Valid values: 1 to 500.
+      consecutiveFails?: int32(name='ConsecutiveFails', description='The number of consecutive failures to bind the virtual MFA device, or the number of MFA failures based on the virtual MFA device.', example='0'),
+      deviceType?: string(name='DeviceType', description='The types of the virtual MFA device. Set the value to TOTP_VIRTUAL, which indicates that the virtual MFA devices follow the Time-based One-time Password (TOTP) algorithm.', example='TOTP_VIRTUAL'),
+      email?: string(name='Email', description='This parameter is unavailable.', example='username@example.com'),
+      endUserId?: string(name='EndUserId', description='The username of the convenience user that uses the virtual MFA device.', example='test'),
+      gmtEnabled?: string(name='GmtEnabled', description='The time when the virtual MFA device was enabled. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2021-06-22T06:20:49Z'),
+      gmtUnlock?: string(name='GmtUnlock', description='The time when a locked virtual MFA device is automatically unlocked. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2021-06-23T06:20:49Z'),
+      id?: long(name='Id', description='This parameter is unavailable.', example='36'),
+      serialNumber?: string(name='SerialNumber', description='The serial number of the virtual MFA device, which is a unique identifier.', example='dc856334-446b-4035-bfbc-18af261e****'),
+      status?: string(name='Status', description='The status of the virtual MFA device. Valid values:
 
-Default value: 100.', example='36'),
-      serialNumber?: string(name='SerialNumber', description='Queries the information about virtual MFA devices that are bound to convenience users.', example='dc856334-446b-4035-bfbc-18af261e****'),
-      status?: string(name='Status', example='NORMAL'),
+*   UNBOUND
+*   NORMAL
+*   LOCKED', example='NORMAL'),
     }
-  ](name='MfaDevices', description='The serial number of the virtual MFA device, which is a unique identifier.'),
-  nextToken?: string(name='NextToken', description='The operation that you want to perform. Set the value to DescribeMfaDevices.', example='AAAAAV3MpHK1AP0pfERHZN5pu6na6YlN9asMM31MsMcdQNpp'),
-  requestId?: string(name='RequestId', description='This parameter is unavailable.', example='33DBB8EC-6E68-4726-91C4-E09C59D9A7D8'),
+  ](name='MfaDevices', description='Details about the virtual MFA devices.'),
+  nextToken?: string(name='NextToken', description='The token that determines the start point of the next query.', example='AAAAAV3MpHK1AP0pfERHZN5pu6na6YlN9asMM31MsMcdQNpp'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='33DBB8EC-6E68-4726-91C4-E09C59D9A7D8'),
 }
 
 model DescribeMfaDevicesResponse = {
@@ -436,6 +450,7 @@ model DescribeUsersResponseBody = {
       endUserId?: string(name='EndUserId'),
       id?: long(name='Id'),
       isTenantManager?: boolean(name='IsTenantManager', example='true'),
+      nickName?: string(name='NickName'),
       orgId?: string(name='OrgId', example='org-4mdgc1cocc59z****'),
       ownerType?: string(name='OwnerType', example='Normal'),
       phone?: string(name='Phone', example='1381111****'),
