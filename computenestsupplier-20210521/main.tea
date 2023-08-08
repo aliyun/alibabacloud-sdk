@@ -36,7 +36,10 @@ model CreateArtifactRequest {
     fileScriptMetadata?: string(name='FileScriptMetadata', example='{\\"WorkDir\\":\\"/root\\",\\"CommandType\\":\\"RunShellScript\\",\\"Platform\\":\\"Linux\\",\\"Script\\":\\"echo hello\\"}'),
     imageId?: string(name='ImageId', example='m-0xij191j9cuev6xxxxxx'),
     regionId?: string(name='RegionId', example='cn-hangzhou'),
+    repoId?: string(name='RepoId'),
+    repoName?: string(name='RepoName'),
     scriptMetadata?: string(name='ScriptMetadata', example='{"ScriptMetadata":"{\\"CommandType\\":\\"RunShellScript\\",\\"Platform\\":\\"Linux\\",\\"Script\\":\\"ls\\"}"}'),
+    tag?: string(name='Tag'),
     url?: string(name='Url', example='https://service-info-private.oss-cn-hangzhou.aliyuncs.com/1309208528xxxxxx/template/2e1ce8fc-xxxx-481c-9e8e-789ba9db487d.json'),
   }(name='ArtifactProperty'),
   artifactType?: string(name='ArtifactType', example='EcsImage'),
@@ -141,6 +144,7 @@ model CreateServiceRequest {
   duration?: long(name='Duration', example='0'),
   isSupportOperated?: boolean(name='IsSupportOperated', example='false'),
   licenseMetadata?: string(name='LicenseMetadata'),
+  logMetadata?: string(name='LogMetadata'),
   operationMetadata?: string(name='OperationMetadata', example='{\\"PrometheusConfigMap\\":{\\"New_Vpc_Ack_And_Jumpserver\\":{}}}'),
   policyNames?: string(name='PolicyNames', example='policyName1, policyName2'),
   regionId?: string(name='RegionId', example='cn-hangzhou'),
@@ -150,6 +154,7 @@ model CreateServiceRequest {
     {
       image?: string(name='Image', example='http://img.tidb.oss.url'),
       locale?: string(name='Locale', example='zh-CN'),
+      longDescriptionUrl?: string(name='LongDescriptionUrl'),
       name?: string(name='Name', example='TiDB Database'),
       shortDescription?: string(name='ShortDescription'),
     }
@@ -207,6 +212,9 @@ async function createServiceWithOptions(request: CreateServiceRequest, runtime: 
   }
   if (!Util.isUnset(request.licenseMetadata)) {
     query['LicenseMetadata'] = request.licenseMetadata;
+  }
+  if (!Util.isUnset(request.logMetadata)) {
+    query['LogMetadata'] = request.logMetadata;
   }
   if (!Util.isUnset(request.operationMetadata)) {
     query['OperationMetadata'] = request.operationMetadata;
@@ -493,9 +501,11 @@ async function getArtifactRepositoryCredentials(request: GetArtifactRepositoryCr
 }
 
 model GetServiceRequest {
+  filterAliUid?: boolean(name='FilterAliUid'),
   regionId?: string(name='RegionId', example='cn-hangzhou'),
   serviceId?: string(name='ServiceId', example='service-4ee86df83fd948******'),
   serviceVersion?: string(name='ServiceVersion', example='1'),
+  showDetail?: [ string ](name='ShowDetail'),
 }
 
 model GetServiceResponseBody = {
@@ -523,6 +533,7 @@ model GetServiceResponseBody = {
   duration?: long(name='Duration', example='259200'),
   isSupportOperated?: boolean(name='IsSupportOperated', example='false'),
   licenseMetadata?: string(name='LicenseMetadata'),
+  logMetadata?: string(name='LogMetadata'),
   operationMetadata?: string(name='OperationMetadata', example='{\\"PrometheusConfigMap\\":{\\"New_Vpc_Ack_And_Jumpserver\\":{}}}'),
   payFromType?: string(name='PayFromType', example='None'),
   payType?: string(name='PayType', example='Permanent'),
@@ -539,6 +550,7 @@ model GetServiceResponseBody = {
     {
       image?: string(name='Image', example='https://example.com/service-image/c1c4a559-cc60-4af1-b976-98f356602462.png'),
       locale?: string(name='Locale', example='zh-CN'),
+      longDescriptionUrl?: string(name='LongDescriptionUrl'),
       name?: string(name='Name'),
       shortDescription?: string(name='ShortDescription'),
     }
@@ -546,6 +558,17 @@ model GetServiceResponseBody = {
   serviceProductUrl?: string(name='ServiceProductUrl', example='http://example2.com'),
   serviceType?: string(name='ServiceType', example='private'),
   shareType?: string(name='ShareType', example='Public'),
+  statistic?: {
+    accumulativeInstanceCount?: int32(name='AccumulativeInstanceCount'),
+    accumulativePocAmount?: double(name='AccumulativePocAmount'),
+    accumulativeUserCount?: int32(name='AccumulativeUserCount'),
+    averagePocAmount?: double(name='AveragePocAmount'),
+    averagePocDuration?: double(name='AveragePocDuration'),
+    averagePocUnitAmount?: double(name='AveragePocUnitAmount'),
+    deployedServiceInstanceCount?: int32(name='DeployedServiceInstanceCount'),
+    deployedUserCount?: int32(name='DeployedUserCount'),
+    submittedUsageCount?: int32(name='SubmittedUsageCount'),
+  }(name='Statistic'),
   status?: string(name='Status', example='Online'),
   statusDetail?: string(name='StatusDetail', example='deploy successfully'),
   supplierName?: string(name='SupplierName'),
@@ -575,6 +598,9 @@ model GetServiceResponse = {
 async function getServiceWithOptions(request: GetServiceRequest, runtime: Util.RuntimeOptions): GetServiceResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.filterAliUid)) {
+    query['FilterAliUid'] = request.filterAliUid;
+  }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
   }
@@ -583,6 +609,9 @@ async function getServiceWithOptions(request: GetServiceRequest, runtime: Util.R
   }
   if (!Util.isUnset(request.serviceVersion)) {
     query['ServiceVersion'] = request.serviceVersion;
+  }
+  if (!Util.isUnset(request.showDetail)) {
+    query['ShowDetail'] = request.showDetail;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -742,6 +771,7 @@ model GetServiceInstanceRequest {
 }
 
 model GetServiceInstanceResponseBody = {
+  bizStatus?: string(name='BizStatus'),
   createTime?: string(name='CreateTime', example='2021-05-20T00:00:00Z'),
   enableInstanceOps?: boolean(name='EnableInstanceOps', example='true'),
   enableUserPrometheus?: string(name='EnableUserPrometheus', example='true'),
@@ -790,9 +820,11 @@ model GetServiceInstanceResponseBody = {
       "param": "value"
 }'),
   payType?: string(name='PayType', example='Subscription'),
+  predefinedParameterName?: string(name='PredefinedParameterName'),
   progress?: long(name='Progress', example='90'),
   rdAccountLoginUrl?: string(name='RdAccountLoginUrl'),
   requestId?: string(name='RequestId', example='4DB0F536-B3BE-4F0D-BD29-E83FB56D550C'),
+  resourceGroupId?: string(name='ResourceGroupId'),
   resources?: string(name='Resources', example='[
       {
             "StackId": "stack-xxx"
@@ -932,7 +964,7 @@ async function getUploadCredentials(request: GetUploadCredentialsRequest): GetUp
 
 model ListArtifactVersionsRequest {
   artifactId?: string(name='ArtifactId', example='artifact-eea08d1e2d3a43aexxxx'),
-  maxResult?: string(name='MaxResult', example='20'),
+  maxResult?: int32(name='MaxResult', example='20'),
   nextToken?: string(name='NextToken', example='AAAAAc3HCuYhJi/wvpk4xOr0VLbfVwapgMwCN1wYzPVzLbItEdB0uWSY7AGnM3qCgm/YnjuEfwSnMwiMkcUoI0hRQzE='),
 }
 
@@ -958,10 +990,10 @@ model ListArtifactVersionsResponseBody = {
       versionName?: string(name='VersionName', example='v1'),
     }
   ](name='Artifacts'),
-  maxResults?: string(name='MaxResults', example='20'),
+  maxResults?: int32(name='MaxResults', example='20'),
   nextToken?: string(name='NextToken', example='AAAAAc3HCuYhJi/wvpk4xOr0VLbfVwapgMwCN1wYzPVzLbItEdB0uWSY7AGnM3qCgm/YnjuEfwSnMwiMkcUoI0hRQzE='),
   requestId?: string(name='RequestId', example='46577928-3162-15A6-9084-69820EB9xxxx'),
-  totalCount?: string(name='TotalCount', example='2'),
+  totalCount?: int32(name='TotalCount', example='2'),
 }
 
 model ListArtifactVersionsResponse = {
@@ -1011,7 +1043,7 @@ model ListArtifactsRequest {
       values?: [ string ](name='Values'),
     }
   ](name='Filter'),
-  maxResults?: string(name='MaxResults', example='20'),
+  maxResults?: int32(name='MaxResults', example='20'),
   nextToken?: string(name='NextToken', example='AAAAAc3HCuYhJi/wvpk4xOr0VLbfVwapgMwCN1wYzPVzLbItEdB0uWSY7AGnM3qCgm/YnjuEfwSnMwiMkcUoI0hRQzE='),
 }
 
@@ -1027,10 +1059,10 @@ model ListArtifactsResponseBody = {
       status?: string(name='Status', example='Created'),
     }
   ](name='Artifacts'),
-  maxResults?: string(name='MaxResults', example='20'),
+  maxResults?: int32(name='MaxResults', example='20'),
   nextToken?: string(name='NextToken', example='AAAAAc3HCuYhJi/wvpk4xOr0VLbfVwapgMwCN1wYzPVzLbItEdB0uWSY7AGnM3qCgm/YnjuEfwSnMwiMkcUoI0hRQzE='),
   requestId?: string(name='RequestId', example='46577928-3162-15A6-9084-69820EB9xxxx'),
-  totalCount?: string(name='TotalCount', example='2'),
+  totalCount?: int32(name='TotalCount', example='2'),
 }
 
 model ListArtifactsResponse = {
@@ -1080,9 +1112,10 @@ model ListServiceInstancesRequest {
       value?: [ string ](name='Value'),
     }
   ](name='Filter'),
-  maxResults?: string(name='MaxResults', example='10'),
+  maxResults?: int32(name='MaxResults', example='10'),
   nextToken?: string(name='NextToken', example='BBBAAfu+XtuBE55iRLHEYYuojI4='),
   regionId?: string(name='RegionId', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId'),
   showDeleted?: boolean(name='ShowDeleted', example='false'),
   tag?: [ 
     {
@@ -1093,7 +1126,7 @@ model ListServiceInstancesRequest {
 }
 
 model ListServiceInstancesResponseBody = {
-  maxResults?: string(name='MaxResults', example='20'),
+  maxResults?: int32(name='MaxResults', example='20'),
   nextToken?: string(name='NextToken', example='AAAAAfu+XtuBE55iRLHEYYuojI4='),
   requestId?: string(name='RequestId', example='E50287CB-AABF-4877-92C0-289B339A1546'),
   serviceInstances?: [ 
@@ -1109,6 +1142,7 @@ model ListServiceInstancesResponseBody = {
       parameters?: string(name='Parameters', example='{"param":"value"}'),
       payType?: string(name='PayType', example='Subscription'),
       progress?: long(name='Progress', example='90'),
+      resourceGroupId?: string(name='ResourceGroupId'),
       service?: {
         deployMetadata?: string(name='DeployMetadata'),
         deployType?: string(name='DeployType', example='ros'),
@@ -1169,6 +1203,9 @@ async function listServiceInstancesWithOptions(request: ListServiceInstancesRequ
   }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.resourceGroupId)) {
+    query['ResourceGroupId'] = request.resourceGroupId;
   }
   if (!Util.isUnset(request.showDeleted)) {
     query['ShowDeleted'] = request.showDeleted;
@@ -1286,7 +1323,7 @@ model ListServicesRequest {
       value?: [ string ](name='Value'),
     }
   ](name='Filter'),
-  maxResults?: string(name='MaxResults', example='10'),
+  maxResults?: int32(name='MaxResults', example='10'),
   nextToken?: string(name='NextToken', example='BBBAAfu+XtuBE55iRLHEYYuojI4='),
   regionId?: string(name='RegionId', example='cn-hangzhou'),
   resourceGroupId?: string(name='ResourceGroupId'),
@@ -1342,7 +1379,7 @@ model ListServicesResponseBody = {
       versionName?: string(name='VersionName', example='v2.0.0'),
     }
   ](name='Services'),
-  totalCount?: string(name='TotalCount', example='100'),
+  totalCount?: int32(name='TotalCount', example='100'),
 }
 
 model ListServicesResponse = {
@@ -1395,6 +1432,65 @@ async function listServicesWithOptions(request: ListServicesRequest, runtime: Ut
 async function listServices(request: ListServicesRequest): ListServicesResponse {
   var runtime = new Util.RuntimeOptions{};
   return listServicesWithOptions(request, runtime);
+}
+
+model ModifyServiceInstanceResourcesRequest {
+  resources?: string(name='Resources', example='{
+  "RegionId": "cn-hangzhou",
+  "Type": "ResourceIds",
+  "ResourceIds": {
+    "ALIYUN::ECS::INSTANCE": ["i-xxx", "i-yyy"],
+    "ALIYUN::RDS::INSTANCE": ["rm-xxx", "rm-yyy"],
+    "ALIYUN::VPC::VPC": ["vpc-xxx", "vpc-yyy"],
+    "ALIYUN::SLB::INSTANCE": ["lb-xxx", "lb-yyy"]
+  }
+}'),
+  serviceInstanceId?: string(name='ServiceInstanceId', example='si-d8a0cc2a1ee04dce****'),
+  serviceInstanceResourcesAction?: string(name='ServiceInstanceResourcesAction', example='Import'),
+}
+
+model ModifyServiceInstanceResourcesResponseBody = {
+  requestId?: string(name='RequestId', example='46577928-3162-15A6-9084-69820EB9xxxx'),
+}
+
+model ModifyServiceInstanceResourcesResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ModifyServiceInstanceResourcesResponseBody(name='body'),
+}
+
+async function modifyServiceInstanceResourcesWithOptions(request: ModifyServiceInstanceResourcesRequest, runtime: Util.RuntimeOptions): ModifyServiceInstanceResourcesResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.resources)) {
+    query['Resources'] = request.resources;
+  }
+  if (!Util.isUnset(request.serviceInstanceId)) {
+    query['ServiceInstanceId'] = request.serviceInstanceId;
+  }
+  if (!Util.isUnset(request.serviceInstanceResourcesAction)) {
+    query['ServiceInstanceResourcesAction'] = request.serviceInstanceResourcesAction;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModifyServiceInstanceResources',
+    version = '2021-05-21',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function modifyServiceInstanceResources(request: ModifyServiceInstanceResourcesRequest): ModifyServiceInstanceResourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return modifyServiceInstanceResourcesWithOptions(request, runtime);
 }
 
 model ReleaseArtifactRequest {
@@ -1547,6 +1643,7 @@ model UpdateServiceRequest {
   duration?: long(name='Duration', example='259200'),
   isSupportOperated?: boolean(name='IsSupportOperated', example='false'),
   licenseMetadata?: string(name='LicenseMetadata'),
+  logMetadata?: string(name='LogMetadata'),
   operationMetadata?: string(name='OperationMetadata', example='{\\"PrometheusConfigMap\\":{\\"Custom_Image_Ecs\\":{\\"EnablePrometheus\\":false}}}'),
   policyNames?: string(name='PolicyNames', example='policyName1, policyName2'),
   regionId?: string(name='RegionId', example='cn-hangzhou'),
@@ -1555,6 +1652,7 @@ model UpdateServiceRequest {
     {
       image?: string(name='Image', example='http://img.tidb.oss.url'),
       locale?: string(name='Locale', example='zh-CN'),
+      longDescriptionUrl?: string(name='LongDescriptionUrl'),
       name?: string(name='Name'),
       shortDescription?: string(name='ShortDescription'),
     }
@@ -1600,6 +1698,9 @@ async function updateServiceWithOptions(request: UpdateServiceRequest, runtime: 
   }
   if (!Util.isUnset(request.licenseMetadata)) {
     query['LicenseMetadata'] = request.licenseMetadata;
+  }
+  if (!Util.isUnset(request.logMetadata)) {
+    query['LogMetadata'] = request.logMetadata;
   }
   if (!Util.isUnset(request.operationMetadata)) {
     query['OperationMetadata'] = request.operationMetadata;
