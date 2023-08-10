@@ -31,51 +31,94 @@ function close(): void {
 }
 
 model DemoCategory {
-  categoryCode?: string(name='CategoryCode', description='目录码'),
-  categoryName?: string(name='CategoryName', description='目录名'),
-  order?: long(name='Order', description='序号'),
+  categoryCode?: string(name='CategoryCode', example='sdk'),
+  categoryName?: string(name='CategoryName', example='SDK Usage'),
+  order?: long(name='Order', example='12'),
   subCategories?: [
     DemoCategory
-  ](name='SubCategories', description='目录列表'),
+  ](name='SubCategories'),
+}
+
+model CreateIdleInstanceCullerRequest {
+  instanceId: string(name='InstanceId', example='dsw-730xxxxxxxxxx', position='Path'),
+  cpuPercentThreshold?: int32(name='CpuPercentThreshold', example='20', position='Body'),
+  gpuPercentThreshold?: int32(name='GpuPercentThreshold', example='10', position='Body'),
+  maxIdleTimeInMinutes?: int32(name='MaxIdleTimeInMinutes', example='60', position='Body'),
+}
+
+model CreateIdleInstanceCullerResponseBody = {
+  code?: string(name='Code', example='null'),
+  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateIdleInstanceCullerResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateIdleInstanceCullerResponseBody(name='body'),
+}
+
+async function createIdleInstanceCuller(request: CreateIdleInstanceCullerRequest): CreateIdleInstanceCullerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateIdleInstanceCuller', 'POST', '/api/v2/instances/{InstanceId}/idleinstanceculler', 'json', false, 'json', request);
 }
 
 model CreateInstanceRequest {
-  accessibility?: string(name='Accessibility', description='工作空间内是否他人可见', position='Body'),
+  accessibility?: string(name='Accessibility', example='PRIVATE', position='Body'),
+  cloudDisks?: [ 
+    {
+      capacity?: string(name='Capacity', example='30Gi'),
+      mountPath?: string(name='MountPath', example='/mmt/workspace'),
+      path?: string(name='Path', example='workspace'),
+      subType?: string(name='SubType', example='rootfs'),
+    }
+  ](name='CloudDisks', example='[]', position='Body'),
   datasets?: [ 
     {
-      datasetId?: string(name='DatasetId', description='数据集Id'),
-      mountPath?: string(name='MountPath', description='容器内挂载路径'),
+      datasetId?: string(name='DatasetId', example='d-vsqjvsjp4orp5l206u'),
+      mountPath?: string(name='MountPath', example='/mnt/data'),
     }
-  ](name='Datasets', description='数据集集合', position='Body'),
-  ecsSpec?: string(name='EcsSpec', description='实例对应的Ecs规格', position='Body'),
-  environmentVariables?: map[string]string(name='EnvironmentVariables', description='环境变量', position='Body'),
-  imageId?: string(name='ImageId', description='镜像Id', position='Body'),
-  imageUrl?: string(name='ImageUrl', description='镜像地址', position='Body'),
-  instanceName?: string(name='InstanceName', description='实例名称', position='Body'),
-  priority?: long(name='Priority', description='优先级，在分配资源给实例时，优先级越高的实例越优先', position='Body'),
+  ](name='Datasets', position='Body'),
+  ecsSpec?: string(name='EcsSpec', example='ecs.c6.large', position='Body'),
+  environmentVariables?: map[string]string(name='EnvironmentVariables', example='{userName: "Chris"}', position='Body'),
+  imageId?: string(name='ImageId', example='image-05cefd0be2exxxx', position='Body'),
+  imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu', position='Body'),
+  instanceName?: string(name='InstanceName', example='training_data', position='Body'),
+  labels?: [ 
+    {
+      key?: string(name='Key', example='stsTokenOwner'),
+      value?: string(name='Value', example='123xxxxxxxx'),
+    }
+  ](name='Labels', example='{\\"foo\\": \\"bar\\"}', position='Body'),
+  priority?: long(name='Priority', example='1', position='Body'),
   requestedResource?: {
-    CPU?: string(name='CPU', description='cpu核数'),
-    GPU?: string(name='GPU', description='gpu数量'),
-    GPUType?: string(name='GPUType', description='gpu显卡类型'),
-    memory?: string(name='Memory', description='memory大小'),
-    sharedMemory?: string(name='SharedMemory', description='shared memory大小'),
-  }(name='RequestedResource', description='资源配置，弹内或者轻量化时使用', position='Body'),
-  resourceId?: string(name='ResourceId', description='资源Id,预付费时填写', position='Body'),
+    CPU?: string(name='CPU', example='32'),
+    GPU?: string(name='GPU', example='4'),
+    GPUType?: string(name='GPUType', example='v100'),
+    memory?: string(name='Memory', example='32'),
+    sharedMemory?: string(name='SharedMemory', example='32'),
+  }(name='RequestedResource', example='{"CPU":"4","Memory":"8Gi","SharedMemory":"4Gi","GPU":"1","GPUType":"Tesla-V100-16G"}', position='Body'),
+  resourceId?: string(name='ResourceId', example='dsw-123456789', position='Body'),
+  userId?: string(name='UserId', example='1612285282502324', position='Body'),
   userVpc?: {
-    securityGroupId?: string(name='SecurityGroupId', description='Security Group Id'),
-    vSwitchId?: string(name='VSwitchId', description='VSwitch Id'),
-    vpcId?: string(name='VpcId', description='Vpc Id'),
-  }(name='UserVpc', description='user vpc配置', position='Body'),
-  workspaceId?: string(name='WorkspaceId', description='工作空间Id', position='Body'),
+    defaultRoute?: string(name='DefaultRoute', example='eth0 | eth1'),
+    extendedCIDRs?: [ string ](name='ExtendedCIDRs', example='["192.168.0.1/24", "192.168.1.1/24"]'),
+    securityGroupId?: string(name='SecurityGroupId', example='sg-xxxxxx'),
+    vSwitchId?: string(name='VSwitchId', example='vsw-xxxxx'),
+    vpcId?: string(name='VpcId', example='vpc-xxxxx'),
+  }(name='UserVpc', position='Body'),
+  workspaceId?: string(name='WorkspaceId', example='40823', position='Body'),
+  workspaceSource?: string(name='WorkspaceSource', example='d-123456789', position='Body'),
 }
 
 model CreateInstanceResponseBody = {
-  code?: string(name='Code', description='状态码'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='http状态码'),
-  instanceId?: string(name='InstanceId', description='实例Id'),
-  message?: string(name='Message', description='说明'),
-  requestId?: string(name='RequestId', description='请求Id'),
-  success?: boolean(name='Success', description='成功标志'),
+  code?: string(name='Code', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
+  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model CreateInstanceResponse = {
@@ -89,18 +132,18 @@ async function createInstance(request: CreateInstanceRequest): CreateInstanceRes
 }
 
 model CreateInstanceShutdownTimerRequest {
-  instanceId: string(name='InstanceId', description='定时关机任务对应实例的Id', position='Path'),
-  dueTime?: string(name='DueTime', description='定时关机设定时间', position='Body'),
-  remainingTimeInMs?: long(name='RemainingTimeInMs', description='距离定时关机时间段', position='Body'),
+  instanceId: string(name='InstanceId', example='dsw-730xxxxxxxxxx', position='Path'),
+  dueTime?: string(name='DueTime', example='2021-01-12T14:36:01Z', position='Body'),
+  remainingTimeInMs?: long(name='RemainingTimeInMs', example='3600000', position='Body'),
 }
 
 model CreateInstanceShutdownTimerResponseBody = {
-  code?: string(name='Code', description='状态码'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='http状态码'),
-  instanceId?: string(name='InstanceId', description='实例Id'),
-  message?: string(name='Message', description='说明'),
-  requestId?: string(name='RequestId', description='请求Id'),
-  success?: boolean(name='Success', description='成功标志'),
+  code?: string(name='Code', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
+  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model CreateInstanceShutdownTimerResponse = {
@@ -114,20 +157,26 @@ async function createInstanceShutdownTimer(request: CreateInstanceShutdownTimerR
 }
 
 model CreateInstanceSnapshotRequest {
-  instanceId: string(name='InstanceId', description='实例Id', position='Path'),
-  imageUrl?: string(name='ImageUrl', description='镜像地址', position='Body'),
-  snapshotDescription?: string(name='SnapshotDescription', description='实例快照描述', position='Body'),
-  snapshotName?: string(name='SnapshotName', description='实例快照名称', position='Body'),
+  instanceId: string(name='InstanceId', example='dsw-730xxxxxxxxxx', position='Path'),
+  imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu', position='Body'),
+  labels?: [ 
+    {
+      key?: string(name='Key', example='stsTokenOwner'),
+      value?: string(name='Value', example='123xxxxxxxx'),
+    }
+  ](name='Labels', example='{\\"foo\\": \\"bar\\"}', position='Body'),
+  snapshotDescription?: string(name='SnapshotDescription', example='training_data_env', position='Body'),
+  snapshotName?: string(name='SnapshotName', example='training_data_env', position='Body'),
 }
 
 model CreateInstanceSnapshotResponseBody = {
-  code?: string(name='Code', description='状态码'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='http状态码'),
-  instanceId?: string(name='InstanceId', description='实例Id'),
-  message?: string(name='Message', description='说明'),
-  requestId?: string(name='RequestId', description='请求Id'),
-  snapshotId?: string(name='SnapshotId', description='实例快照Id'),
-  success?: boolean(name='Success', description='成功标志'),
+  code?: string(name='Code', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
+  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  snapshotId?: string(name='SnapshotId', example='snp-05cexxxxxxxxx'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model CreateInstanceSnapshotResponse = {
@@ -140,17 +189,39 @@ async function createInstanceSnapshot(request: CreateInstanceSnapshotRequest): C
   return @handler.do('RESTFUL', 'CreateInstanceSnapshot', 'POST', '/api/v2/instances/{InstanceId}/snapshots', 'json', false, 'json', request);
 }
 
+model DeleteIdleInstanceCullerRequest {
+  instanceId: string(name='InstanceId', example='dsw-730xxxxxxxxxx', position='Path'),
+}
+
+model DeleteIdleInstanceCullerResponseBody = {
+  code?: string(name='Code', example='ValidationError'),
+  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteIdleInstanceCullerResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteIdleInstanceCullerResponseBody(name='body'),
+}
+
+async function deleteIdleInstanceCuller(request: DeleteIdleInstanceCullerRequest): DeleteIdleInstanceCullerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteIdleInstanceCuller', 'DELETE', '/api/v2/instances/{InstanceId}/idleinstanceculler', 'json', false, 'json', request);
+}
+
 model DeleteInstanceRequest {
-  instanceId: string(name='InstanceId', description='实例Id', position='Path'),
+  instanceId: string(name='InstanceId', example='dsw-730xxxxxxxxxx', position='Path'),
 }
 
 model DeleteInstanceResponseBody = {
-  code?: string(name='Code', description='状态码'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='http状态码'),
-  instanceId?: string(name='InstanceId', description='实例Id'),
-  message?: string(name='Message', description='说明'),
-  requestId?: string(name='RequestId', description='请求Id'),
-  success?: boolean(name='Success', description='成功标志'),
+  code?: string(name='Code', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
+  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model DeleteInstanceResponse = {
@@ -164,16 +235,16 @@ async function deleteInstance(request: DeleteInstanceRequest): DeleteInstanceRes
 }
 
 model DeleteInstanceShutdownTimerRequest {
-  instanceId: string(name='InstanceId', description='实例Id', position='Path'),
+  instanceId: string(name='InstanceId', example='dsw-730xxxxxxxxxx', position='Path'),
 }
 
 model DeleteInstanceShutdownTimerResponseBody = {
-  code?: string(name='Code', description='状态码'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='http状态码'),
-  instanceId?: string(name='InstanceId', description='实例Id'),
-  message?: string(name='Message', description='说明'),
-  requestId?: string(name='RequestId', description='请求Id'),
-  success?: boolean(name='Success', description='成功标志'),
+  code?: string(name='Code', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
+  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model DeleteInstanceShutdownTimerResponse = {
@@ -187,18 +258,18 @@ async function deleteInstanceShutdownTimer(request: DeleteInstanceShutdownTimerR
 }
 
 model DeleteInstanceSnapshotRequest {
-  instanceId: string(name='InstanceId', description='实例Id', position='Path'),
-  snapshotId: string(name='SnapshotId', description='实例快照Id', position='Path'),
+  instanceId: string(name='InstanceId', example='dsw-730xxxxxxxxxx', position='Path'),
+  snapshotId: string(name='SnapshotId', example='snp-05cexxxxxxxxx', position='Path'),
 }
 
 model DeleteInstanceSnapshotResponseBody = {
-  code?: string(name='Code', description='状态码'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='http状态码'),
-  instanceId?: string(name='InstanceId', description='实例Id'),
-  message?: string(name='Message', description='说明'),
-  requestId?: string(name='RequestId', description='请求Id'),
-  snapshotId?: string(name='SnapshotId', description='实例快照Id'),
-  success?: boolean(name='Success', description='成功标志'),
+  code?: string(name='Code', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
+  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  snapshotId?: string(name='SnapshotId', example='snp-05cexxxxxxxxx'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model DeleteInstanceSnapshotResponse = {
@@ -211,76 +282,142 @@ async function deleteInstanceSnapshot(request: DeleteInstanceSnapshotRequest): D
   return @handler.do('RESTFUL', 'DeleteInstanceSnapshot', 'DELETE', '/api/v2/instances/{InstanceId}/snapshots/{SnapshotId}', 'json', false, 'json', request);
 }
 
+model GetIdleInstanceCullerRequest {
+  instanceId: string(name='InstanceId', example='dsw-730xxxxxxxxxx', position='Path'),
+}
+
+model GetIdleInstanceCullerResponseBody = {
+  code?: string(name='Code', example='ValidationError'),
+  cpuPercentThreshold?: int32(name='CpuPercentThreshold', example='20'),
+  gpuPercentThreshold?: int32(name='GpuPercentThreshold', example='10'),
+  idleTimeInMinutes?: int32(name='IdleTimeInMinutes', example='30'),
+  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+  maxIdleTimeInMinutes?: int32(name='MaxIdleTimeInMinutes', example='60'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetIdleInstanceCullerResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetIdleInstanceCullerResponseBody(name='body'),
+}
+
+async function getIdleInstanceCuller(request: GetIdleInstanceCullerRequest): GetIdleInstanceCullerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetIdleInstanceCuller', 'GET', '/api/v2/instances/{InstanceId}/idleinstanceculler', 'json', false, 'json', request);
+}
+
 model GetInstanceRequest {
-  instanceId: string(name='InstanceId', description='实例Id', position='Path'),
+  instanceId: string(name='InstanceId', example='dsw-730xxxxxxxxxx', position='Path'),
 }
 
 model GetInstanceResponseBody = {
-  acceleratorType?: string(name='AcceleratorType', description='实例计算类型'),
-  accessibility?: string(name='Accessibility', description='工作空间内是否他人可见'),
-  accumulatedRunningTimeInMs?: long(name='AccumulatedRunningTimeInMs', description='累计运行时间（ms）'),
-  code?: string(name='Code', description='状态码'),
+  acceleratorType?: string(name='AcceleratorType', example='CPU'),
+  accessibility?: string(name='Accessibility', example='PRIVATE'),
+  accumulatedRunningTimeInMs?: long(name='AccumulatedRunningTimeInMs', example='3600000'),
+  cloudDisks?: [ 
+    {
+      capacity?: string(name='Capacity', example='30Gi'),
+      mountPath?: string(name='MountPath', example='/mmt/workspace'),
+      path?: string(name='Path', example='/workspace'),
+      subType?: string(name='SubType', example='rootfs'),
+    }
+  ](name='CloudDisks', example='[]'),
+  code?: string(name='Code', example='null'),
   datasets?: [ 
     {
-      datasetId?: string(name='DatasetId', description='数据集Id'),
-      mountPath?: string(name='MountPath', description='容器内挂载路径'),
+      datasetId?: string(name='DatasetId', example='d-vsqjvsjp4orp5l206u'),
+      mountPath?: string(name='MountPath', example='/mnt/data'),
     }
-  ](name='Datasets', description='数据集集合'),
-  ecsSpec?: string(name='EcsSpec', description='实例对应的Ecs规格'),
-  environmentVariables?: map[string]string(name='EnvironmentVariables', description='环境变量'),
-  gmtCreateTime?: string(name='GmtCreateTime', description='实例创建时间'),
-  gmtModifiedTime?: string(name='GmtModifiedTime', description='实例修改时间'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='http状态码'),
-  imageId?: string(name='ImageId', description='镜像Id'),
-  imageName?: string(name='ImageName', description='镜像名称'),
-  imageUrl?: string(name='ImageUrl', description='镜像地址'),
-  instanceId?: string(name='InstanceId', description='实例Id'),
-  instanceName?: string(name='InstanceName', description='实例名称'),
+  ](name='Datasets'),
+  ecsSpec?: string(name='EcsSpec', example='ecs.c6.large'),
+  environmentVariables?: map[string]string(name='EnvironmentVariables', example='{userName: "Chris"}'),
+  gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-12T14:36:01Z'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
+  idleInstanceCuller?: {
+    cpuPercentThreshold?: int32(name='CpuPercentThreshold', example='20'),
+    gpuPercentThreshold?: int32(name='GpuPercentThreshold', example='10'),
+    idleTimeInMinutes?: int32(name='IdleTimeInMinutes', example='30'),
+    instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+    maxIdleTimeInMinutes?: int32(name='MaxIdleTimeInMinutes', example='60'),
+  }(name='IdleInstanceCuller', example='{"InstanceId":"dsw-05cefd0be2e5a278","CpuPercentThreshold":20,"GpuPercentThreshold":10,"MaxIdleTimeInMinutes":120,"IdleTimeInMinutes":30}'),
+  imageId?: string(name='ImageId', example='image-05cefd0be2exxxx'),
+  imageName?: string(name='ImageName', example='py36_cpu_tf1.12_ubuntu'),
+  imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
+  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+  instanceName?: string(name='InstanceName', example='training_data'),
   instanceShutdownTimer?: {
-    dueTime?: string(name='DueTime', description='设定关机时间'),
-    gmtCreateTime?: string(name='GmtCreateTime', description='创建时间'),
-    gmtModifiedTime?: string(name='GmtModifiedTime', description='修改时间'),
-    instanceId?: string(name='InstanceId', description='实例Id'),
-    remainingTimeInMs?: long(name='RemainingTimeInMs', description='剩余关机时间（ms）'),
-  }(name='InstanceShutdownTimer', description='定时关机任务'),
-  instanceUrl?: string(name='InstanceUrl', description='实例Url'),
-  jupyterlabUrl?: string(name='JupyterlabUrl', description='Jupyterlab Url'),
+    dueTime?: string(name='DueTime', example='2021-01-12T14:36:01Z'),
+    gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
+    gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-12T14:36:01Z'),
+    instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+    remainingTimeInMs?: long(name='RemainingTimeInMs', example='3600000'),
+  }(name='InstanceShutdownTimer'),
+  instanceSnapshotList?: [ 
+    {
+      gmtCreateTime?: string(name='GmtCreateTime', description='快照创建时间', example='2021-01-12T14:36:01Z'),
+      gmtModifiedTime?: string(name='GmtModifiedTime', description='快照修改时间', example='2021-01-12T14:36:01Z'),
+      imageId?: string(name='ImageId', description='镜像Id', example='image-05cefd0be2exxxx'),
+      imageName?: string(name='ImageName', description='镜像名称', example='py36_cpu_tf1.12_ubuntu'),
+      imageUrl?: string(name='ImageUrl', description='镜像Url', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
+      reasonCode?: string(name='ReasonCode', description='实例快照错误代码', example='Internal Error'),
+      reasonMessage?: string(name='ReasonMessage', description='实例快照错误消息', example='ImagePullBackOff'),
+      repositoryUrl?: string(name='RepositoryUrl', description='镜像仓库Url', example='https://cr.console.aliyun.com/repository/cn-hangzhou/zouxu/kf/images'),
+      status?: string(name='Status', description='实例快照状态', example='Pushing'),
+    }
+  ](name='InstanceSnapshotList', example='[]'),
+  instanceUrl?: string(name='InstanceUrl', example='https://dsw-cn-shanghai.data.aliyun.com/notebook.htm?instance=39772#/'),
+  jupyterlabUrl?: string(name='JupyterlabUrl', description='Jupyterlab Url。', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/lab/'),
+  labels?: [ 
+    {
+      key?: string(name='Key', example='stsTokenOwner'),
+      value?: string(name='Value', example='123xxxxxxxx'),
+    }
+  ](name='Labels', example='{\\"foo\\": \\"bar\\"}'),
   latestSnapshot?: {
-    gmtCreateTime?: string(name='GmtCreateTime', description='快照创建时间'),
-    gmtModifiedTime?: string(name='GmtModifiedTime', description='快照修改时间'),
-    imageId?: string(name='ImageId', description='镜像Id'),
-    imageName?: string(name='ImageName', description='镜像名称'),
-    imageUrl?: string(name='ImageUrl', description='镜像Url'),
-    repositoryUrl?: string(name='RepositoryUrl', description='镜像仓库Url'),
-  }(name='LatestSnapshot', description='最新保存的用户镜像'),
-  message?: string(name='Message', description='说明'),
-  paymentType?: string(name='PaymentType', description='支付类型'),
-  priority?: long(name='Priority', description='优先级，在分配资源给实例时，优先级越高的实例越优先'),
-  reasonCode?: string(name='ReasonCode', description='实例错误代码'),
-  reasonMessage?: string(name='ReasonMessage', description='实例错误原因'),
-  requestId?: string(name='RequestId', description='请求Id'),
+    gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
+    gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-12T14:36:01Z'),
+    imageId?: string(name='ImageId', example='image-05cefd0be2exxxx'),
+    imageName?: string(name='ImageName', example='py36_cpu_tf1.12_ubuntu'),
+    imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
+    reasonCode?: string(name='ReasonCode', description='实例快照错误代码', example='Internal Error'),
+    reasonMessage?: string(name='ReasonMessage', description='实例快照错误消息', example='ImagePullBackOff'),
+    repositoryUrl?: string(name='RepositoryUrl', example='https://cr.console.aliyun.com/repository/cn-hangzhou/zouxu/kf/images'),
+    status?: string(name='Status', description='实例快照状态', example='Pushing'),
+  }(name='LatestSnapshot'),
+  message?: string(name='Message', example='"XXX"'),
+  paymentType?: string(name='PaymentType', example='PayAsYouGo'),
+  priority?: long(name='Priority', example='1'),
+  reasonCode?: string(name='ReasonCode', example='Internal Error'),
+  reasonMessage?: string(name='ReasonMessage', example='ImagePullBackOff'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
   requestedResource?: {
-    CPU?: string(name='CPU', description='cpu核数'),
-    GPU?: string(name='GPU', description='gpu数量'),
-    GPUType?: string(name='GPUType', description='gpu显卡类型'),
-    memory?: string(name='Memory', description='memory大小'),
-    sharedMemory?: string(name='SharedMemory', description='shared memory大小'),
-  }(name='RequestedResource', description='资源配置，弹内或者轻量化时使用'),
-  resourceId?: string(name='ResourceId', description='资源Id,预付费时填写'),
-  resourceName?: string(name='ResourceName'),
-  status?: string(name='Status', description='实例状态'),
-  success?: boolean(name='Success', description='成功标志'),
-  terminalUrl?: string(name='TerminalUrl', description='终端url'),
-  userId?: string(name='UserId', description='用户Id'),
-  userName?: string(name='UserName', description='用户名称'),
+    CPU?: string(name='CPU', example='32'),
+    GPU?: string(name='GPU', example='4'),
+    GPUType?: string(name='GPUType', example='v100'),
+    memory?: string(name='Memory', example='32'),
+    sharedMemory?: string(name='SharedMemory', example='32'),
+  }(name='RequestedResource', example='{"CPU":"4","Memory":"8Gi","SharedMemory":"4Gi","GPU":"1","GPUType":"Tesla-V100-16G"}'),
+  resourceId?: string(name='ResourceId', example='dsw-123456789'),
+  resourceName?: string(name='ResourceName', example='ecs.g7.xlarge'),
+  status?: string(name='Status', example='Running'),
+  success?: boolean(name='Success', example='true'),
+  terminalUrl?: string(name='TerminalUrl', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/tty/'),
+  userId?: string(name='UserId', example='1612285282502324'),
+  userName?: string(name='UserName', example='测试用户'),
   userVpc?: {
-    securityGroupId?: string(name='SecurityGroupId', description='Security Group Id'),
-    vSwitchId?: string(name='VSwitchId', description='VSwitch Id'),
-    vpcId?: string(name='VpcId', description='Vpc Id'),
-  }(name='UserVpc', description='user vpc配置'),
-  webIDEUrl?: string(name='WebIDEUrl', description='Web IDE url'),
-  workspaceId?: string(name='WorkspaceId', description='工作空间Id'),
-  workspaceName?: string(name='WorkspaceName', description='工作空间名称'),
+    defaultRoute?: string(name='DefaultRoute', example='eth0 | eth1'),
+    extendedCIDRs?: [ string ](name='ExtendedCIDRs', example='["192.168.0.1/24", "192.168.1.1/24"]'),
+    securityGroupId?: string(name='SecurityGroupId', example='sg-xxxxxx'),
+    vSwitchId?: string(name='VSwitchId', example='vsw-xxxxx'),
+    vpcId?: string(name='VpcId', description='Vpc Id。', example='vpc-xxxxx'),
+  }(name='UserVpc'),
+  webIDEUrl?: string(name='WebIDEUrl', description='Web IDE url。', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/ide/'),
+  workspaceId?: string(name='WorkspaceId', example='40823'),
+  workspaceName?: string(name='WorkspaceName', example='training_data'),
+  workspaceSource?: string(name='WorkspaceSource', example='d-123456789'),
 }
 
 model GetInstanceResponse = {
@@ -293,21 +430,59 @@ async function getInstance(request: GetInstanceRequest): GetInstanceResponse {
   return @handler.do('RESTFUL', 'GetInstance', 'GET', '/api/v2/instances/{InstanceId}', 'json', false, 'json', request);
 }
 
+model GetInstanceMetricsRequest {
+  instanceId: string(name='InstanceId', example='dsw-730xxxxxxxxxx', position='Path'),
+  endTime?: string(name='EndTime', example='2020-11-08T15:00:00Z', position='Query'),
+  metricType: string(name='MetricType', example='GpuCoreUsage', position='Query'),
+  startTime?: string(name='StartTime', example='2020-11-08T15:00:00Z', position='Query'),
+  timeStep?: string(name='TimeStep', example='15m', position='Query'),
+}
+
+model GetInstanceMetricsResponseBody = {
+  code?: string(name='Code', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
+  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', example='"XXX"'),
+  podMetrics?: [ 
+    {
+      metrics?: [ 
+        {
+          time?: long(name='Time', example='1670890560'),
+          value?: float(name='Value', example='25.901031'),
+        }
+      ](name='Metrics'),
+      podId?: string(name='PodId', example='dsw-15870-695f44c5bc-hd6xm'),
+    }
+  ](name='PodMetrics'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetInstanceMetricsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetInstanceMetricsResponseBody(name='body'),
+}
+
+async function getInstanceMetrics(request: GetInstanceMetricsRequest): GetInstanceMetricsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetInstanceMetrics', 'GET', '/api/v2/instance/{InstanceId}/metrics', 'json', false, 'json', request);
+}
+
 model GetInstanceShutdownTimerRequest {
-  instanceId: string(name='InstanceId', description='实例Id', position='Path'),
+  instanceId: string(name='InstanceId', example='dsw-730xxxxxxxxxx', position='Path'),
 }
 
 model GetInstanceShutdownTimerResponseBody = {
-  code?: string(name='Code', description='状态码'),
-  dueTime?: string(name='DueTime', description='设定关机时间'),
-  gmtCreateTime?: string(name='GmtCreateTime', description='创建时间'),
-  gmtModifiedTime?: string(name='GmtModifiedTime', description='修改时间'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='http状态码'),
-  instanceId?: string(name='InstanceId', description='实例Id'),
-  message?: string(name='Message', description='说明'),
-  remainingTimeInMs?: long(name='RemainingTimeInMs', description='剩余关机时间（ms）'),
-  requestId?: string(name='RequestId', description='请求Id'),
-  success?: boolean(name='Success', description='成功标志'),
+  code?: string(name='Code', example='null'),
+  dueTime?: string(name='DueTime', example='2021-01-12T14:36:01Z'),
+  gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-12T14:36:01Z'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
+  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', example='"XXX"'),
+  remainingTimeInMs?: long(name='RemainingTimeInMs', example='3600000'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model GetInstanceShutdownTimerResponse = {
@@ -321,26 +496,26 @@ async function getInstanceShutdownTimer(request: GetInstanceShutdownTimerRequest
 }
 
 model GetInstanceSnapshotRequest {
-  instanceId: string(name='InstanceId', description='实例Id', position='Path'),
-  snapshotId: string(name='SnapshotId', description='实例快照Id', position='Path'),
+  instanceId: string(name='InstanceId', example='dsw-730xxxxxxxxxx', position='Path'),
+  snapshotId: string(name='SnapshotId', example='snp-05cexxxxxxxxx', position='Path'),
 }
 
 model GetInstanceSnapshotResponseBody = {
-  code?: string(name='Code', description='状态码'),
-  gmtCreateTime?: string(name='GmtCreateTime', description='实例快照创建时间'),
-  gmtModifiedTime?: string(name='GmtModifiedTime', description='实例快照修改时间'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='http状态码'),
-  imageId?: string(name='ImageId', description='实例快照的镜像Id'),
-  imageUrl?: string(name='ImageUrl', description='实例快照的镜像地址'),
-  instanceId?: string(name='InstanceId', description='实例Id'),
-  message?: string(name='Message', description='说明'),
-  reasonCode?: string(name='ReasonCode', description='实例快照错误代码'),
-  reasonMessage?: string(name='ReasonMessage', description='实例快照错误消息'),
-  requestId?: string(name='RequestId', description='请求Id'),
-  snapshotId?: string(name='SnapshotId', description='实例快照Id'),
-  snapshotName?: string(name='SnapshotName', description='实例快照名称'),
-  status?: string(name='Status', description='实例快照状态'),
-  success?: boolean(name='Success', description='成功标志'),
+  code?: string(name='Code', example='null'),
+  gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-12T14:36:01Z'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
+  imageId?: string(name='ImageId', example='image-05cefd0be2exxxx'),
+  imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
+  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', example='"XXX"'),
+  reasonCode?: string(name='ReasonCode', example='Internal Error'),
+  reasonMessage?: string(name='ReasonMessage', example='ImagePullBackOff'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  snapshotId?: string(name='SnapshotId', example='snp-05cexxxxxxxxx'),
+  snapshotName?: string(name='SnapshotName', example='training_data_env'),
+  status?: string(name='Status', example='Pushing'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model GetInstanceSnapshotResponse = {
@@ -353,17 +528,78 @@ async function getInstanceSnapshot(request: GetInstanceSnapshotRequest): GetInst
   return @handler.do('RESTFUL', 'GetInstanceSnapshot', 'GET', '/api/v2/instances/{InstanceId}/snapshots/{SnapshotId}', 'json', false, 'json', request);
 }
 
+model GetLifecycleRequest {
+  instanceId: string(name='InstanceId', example='dsw-9698d842b6***', position='Path'),
+  endTime?: string(name='EndTime', example='2020-11-08T15:00:00Z', position='Query'),
+  limit?: int32(name='Limit', example='1', position='Query'),
+  order?: string(name='Order', example='DESC', position='Query'),
+  sessionNumber?: int32(name='SessionNumber', example='1', position='Query'),
+  startTime?: string(name='StartTime', example='2020-11-08T15:00:00Z', position='Query'),
+}
+
+model GetLifecycleResponseBody = {
+  code?: string(name='Code', example='null'),
+  lifecycle?: [[ 
+    {
+      status?: string(name='Status', example='Starting'),
+      reasonCode?: string(name='ReasonCode', example='“”'),
+      reasonMessage?: string(name='ReasonMessage', example='“”'),
+      gmtCreateTime?: string(name='GmtCreateTime', example='2022-10-21T07:27:44Z'),
+    }
+  ]  ](name='Lifecycle', example='[[{"Status":"Creating","GmtCreateTime":"2022-09-19T22:38:00Z","Reason":"","ReasonCode":""}]]'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: int32(name='TotalCount', example='35'),
+}
+
+model GetLifecycleResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetLifecycleResponseBody(name='body'),
+}
+
+async function getLifecycle(request: GetLifecycleRequest): GetLifecycleResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetLifecycle', 'GET', '/api/v2/instances/{InstanceId}/lifecycle', 'json', false, 'json', request);
+}
+
+model GetResourceGroupStatisticsRequest {
+  endTime: string(name='EndTime', example='2020-11-08T15:00:00Z', position='Query'),
+  resourceId: string(name='ResourceId', example='rg-123456789', position='Query'),
+  startTime: string(name='StartTime', example='2020-11-08T15:00:00Z', position='Query'),
+  workspaceIds: string(name='WorkspaceIds', example='27218,34956', position='Query'),
+}
+
+model GetResourceGroupStatisticsResponseBody = {
+  code?: string(name='Code', example='InternalError'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='400'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  statistics?: map[string]map[string]any(name='Statistics'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetResourceGroupStatisticsResponse = {
+  headers: map[string]string(name='headers'),
+  body: GetResourceGroupStatisticsResponseBody(name='body'),
+}
+
+async function getResourceGroupStatistics(request: GetResourceGroupStatisticsRequest): GetResourceGroupStatisticsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetResourceGroupStatistics', 'GET', '/api/v2/resourcegroupstatistics', 'json', false, 'json', request);
+}
+
 model GetTokenRequest {
-  expireTime?: int32(name='ExpireTime', position='Query'),
-  instanceId: string(name='InstanceId', position='Query'),
+  expireTime?: int32(name='ExpireTime', example='60', position='Query'),
+  instanceId: string(name='InstanceId', example='dsw-730xxxxxxxxxx', position='Query'),
 }
 
 model GetTokenResponseBody = {
-  code?: string(name='Code', description='状态码'),
-  message?: string(name='Message', description='说明'),
-  requestId?: string(name='RequestId', description='请求Id'),
-  success?: boolean(name='Success', description='成功标志'),
-  token?: string(name='Token', description='token'),
+  code?: string(name='Code', example='ValidationError'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', example='true'),
+  token?: string(name='Token', example='*******'),
 }
 
 model GetTokenResponse = {
@@ -380,12 +616,28 @@ model GetUserConfigRequest {
 }
 
 model GetUserConfigResponseBody = {
-  accountSufficient?: boolean(name='AccountSufficient', description='用户账号金额是否充足'),
-  code?: string(name='Code', description='状态码'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='http状态码'),
-  message?: string(name='Message', description='说明'),
-  requestId?: string(name='RequestId', description='请求Id'),
-  success?: boolean(name='Success', description='成功标志'),
+  accountSufficient?: boolean(name='AccountSufficient', example='false'),
+  code?: string(name='Code', example='null'),
+  enableEciDisk?: boolean(name='EnableEciDisk', example='true'),
+  freeTier?: {
+    endTime?: string(name='EndTime', example='2020-11-08T15:00:00Z'),
+    initBaseUnit?: string(name='InitBaseUnit', example='个'),
+    initBaseValue?: double(name='InitBaseValue', example='5000'),
+    initShowUnit?: string(name='InitShowUnit', example='个'),
+    initShowValue?: string(name='InitShowValue', example='5000'),
+    isFreeTierUser?: boolean(name='IsFreeTierUser', example='true'),
+    periodBaseUnit?: string(name='PeriodBaseUnit', example='个'),
+    periodBaseValue?: double(name='PeriodBaseValue', example='3000'),
+    periodShowUnit?: string(name='PeriodShowUnit', example='个'),
+    periodShowValue?: string(name='PeriodShowValue', example='3000'),
+    startTime?: string(name='StartTime', example='2020-11-08T15:00:00Z'),
+    status?: string(name='Status', example='valid'),
+  }(name='FreeTier'),
+  freeTierSpecAvailable?: boolean(name='FreeTierSpecAvailable', example='true'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
+  message?: string(name='Message', example='"Access denied"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model GetUserConfigResponse = {
@@ -398,87 +650,42 @@ async function getUserConfig(request: GetUserConfigRequest): GetUserConfigRespon
   return @handler.do('RESTFUL', 'GetUserConfig', 'GET', '/api/v2/userconfig', 'json', false, 'json', request);
 }
 
-model ListDemoCategoriesRequest {
-}
-
-model ListDemoCategoriesResponseBody = {
-  categories?: [
-    DemoCategory
-  ](name='Categories', description='样例列表'),
-  requestId?: string(name='RequestId', description='请求Id'),
-}
-
-model ListDemoCategoriesResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListDemoCategoriesResponseBody(name='body'),
-}
-
-async function listDemoCategories(request: ListDemoCategoriesRequest): ListDemoCategoriesResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'ListDemoCategories', 'GET', '/api/v2/democategories', 'json', false, 'json', request);
-}
-
-model ListDemosRequest {
-  category?: string(name='Category', description='目录', position='Query'),
-  demoName?: string(name='DemoName', position='Query'),
-  pageNumber?: long(name='PageNumber', position='Query'),
-  pageSize?: long(name='PageSize', position='Query'),
-}
-
-model ListDemosResponseBody = {
-  demos?: [ 
-    {
-      categories?: [ string ](name='Categories', description='所在目录'),
-      demoDescription?: string(name='DemoDescription', description='样例描述'),
-      demoName?: string(name='DemoName', description='样例名称'),
-      demoUrl?: string(name='DemoUrl', description='样例地址'),
-      order?: long(name='Order', description='序号'),
-      size?: long(name='Size', description='大小'),
-    }
-  ](name='Demos', description='样例列表'),
-  requestId?: string(name='RequestId', description='请求Id'),
-  totalCount?: long(name='TotalCount', description='总数'),
-}
-
-model ListDemosResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListDemosResponseBody(name='body'),
-}
-
-async function listDemos(request: ListDemosRequest): ListDemosResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'ListDemos', 'GET', '/api/v2/demos', 'json', false, 'json', request);
-}
-
 model ListEcsSpecsRequest {
-  acceleratorType: string(name='AcceleratorType', description='加速类型', position='Query'),
-  order?: string(name='Order', description='排序顺序', position='Query'),
-  pageNumber?: long(name='PageNumber', description='页数', position='Query'),
-  pageSize?: long(name='PageSize', description='每页大小', position='Query'),
-  sortBy?: string(name='SortBy', description='排序字段', position='Query'),
+  acceleratorType: string(name='AcceleratorType', example='PRIVATE', position='Query'),
+  order?: string(name='Order', example='DESC', position='Query'),
+  pageNumber?: long(name='PageNumber', example='1', position='Query'),
+  pageSize?: long(name='PageSize', example='10', position='Query'),
+  sortBy?: string(name='SortBy', example='gmtCreate', position='Query'),
 }
 
 model ListEcsSpecsResponseBody = {
-  code?: string(name='Code', description='状态码'),
+  code?: string(name='Code', example='null'),
   ecsSpecs?: [ 
     {
-      acceleratorType?: string(name='AcceleratorType', description='资源类型'),
-      CPU?: long(name='CPU', description='CPU核数'),
-      currency?: string(name='Currency', description='货币单位'),
-      GPU?: long(name='GPU', description='GPU卡数'),
-      GPUType?: string(name='GPUType', description='显卡类型'),
-      instanceBandwidthRx?: long(name='InstanceBandwidthRx', description='实例接收带宽'),
-      instanceType?: string(name='InstanceType', description='实例规格'),
-      memory?: float(name='Memory', description='内存大小(GB)'),
-      price?: double(name='Price', description='价格'),
-      systemDiskCapacity?: long(name='SystemDiskCapacity', description='系统盘大小(GB)'),
+      acceleratorType?: string(name='AcceleratorType', example='CPU'),
+      CPU?: long(name='CPU', example='32'),
+      currency?: string(name='Currency', example='CNY'),
+      GPU?: long(name='GPU', example='4'),
+      GPUType?: string(name='GPUType', example='v100'),
+      instanceBandwidthRx?: long(name='InstanceBandwidthRx', example='5120000'),
+      instanceType?: string(name='InstanceType', example='ecs.gn5-c28g1.7xlarge'),
+      isAvailable?: boolean(name='IsAvailable', example='True'),
+      labels?: [ 
+        {
+          key?: string(name='Key', example='stsTokenOwner'),
+          value?: string(name='Value'),
+        }
+      ](name='Labels', example='{\\"foo\\": \\"bar\\"}'),
+      memory?: float(name='Memory', example='32'),
+      price?: double(name='Price', example='22.8'),
+      systemDiskCapacity?: long(name='SystemDiskCapacity', example='500'),
     }
-  ](name='EcsSpecs', description='本分页中请求的实例列表'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='http状态码'),
-  message?: string(name='Message', description='说明'),
-  requestId?: string(name='RequestId', description='请求Id'),
-  success?: boolean(name='Success', description='成功标志'),
-  totalCount?: long(name='TotalCount', description='实例总数'),
+  ](name='EcsSpecs'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: long(name='TotalCount', example='35'),
 }
 
 model ListEcsSpecsResponse = {
@@ -492,34 +699,40 @@ async function listEcsSpecs(request: ListEcsSpecsRequest): ListEcsSpecsResponse 
 }
 
 model ListInstanceSnapshotRequest {
-  instanceId: string(name='InstanceId', position='Path'),
-  order?: string(name='Order', position='Query'),
-  pageNumber?: long(name='PageNumber', position='Query'),
-  pageSize?: long(name='PageSize', position='Query'),
-  sortBy?: string(name='SortBy', position='Query'),
+  instanceId: string(name='InstanceId', example='dsw-730xxxxxxxxxx', position='Path'),
+  order?: string(name='Order', example='DESC', position='Query'),
+  pageNumber?: long(name='PageNumber', example='1', position='Query'),
+  pageSize?: long(name='PageSize', example='10', position='Query'),
+  sortBy?: string(name='SortBy', example='gmtCreate', position='Query'),
 }
 
 model ListInstanceSnapshotResponseBody = {
-  code?: string(name='Code', description='状态码'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='http状态码'),
-  message?: string(name='Message', description='说明'),
-  requestId?: string(name='RequestId', description='请求Id'),
+  code?: string(name='Code', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
   snapshots?: [ 
     {
-      gmtCreateTime?: string(name='GmtCreateTime', description='实例快照创建时间'),
-      gmtModifiedTime?: string(name='GmtModifiedTime', description='实例快照修改时间'),
-      imageId?: string(name='ImageId', description='实例快照的镜像Id'),
-      imageUrl?: string(name='ImageUrl', description='实例快照的镜像地址'),
-      instanceId?: string(name='InstanceId', description='实例Id'),
-      reasonCode?: string(name='ReasonCode', description='实例快照错误代码'),
-      reasonMessage?: string(name='ReasonMessage', description='实例快照错误消息'),
-      snapshotId?: string(name='SnapshotId', description='实例快照Id'),
-      snapshotName?: string(name='SnapshotName', description='实例快照名称'),
-      status?: string(name='Status', description='实例快照状态'),
+      gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
+      gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-12T14:36:01Z'),
+      imageId?: string(name='ImageId', example='image-05cefd0be2exxxx'),
+      imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
+      instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+      labels?: [ 
+        {
+          key?: string(name='Key', example='stsTokenOwner'),
+          value?: string(name='Value', example='123xxxxxxxx'),
+        }
+      ](name='Labels', example='{\\"foo\\": \\"bar\\"}'),
+      reasonCode?: string(name='ReasonCode', example='Internal Error'),
+      reasonMessage?: string(name='ReasonMessage', example='ImagePullBackOff'),
+      snapshotId?: string(name='SnapshotId', example='snp-05cexxxxxxxxx'),
+      snapshotName?: string(name='SnapshotName', example='training_data_env'),
+      status?: string(name='Status', example='Pushing'),
     }
-  ](name='Snapshots', description='本分页中请求的实例镜像列表'),
-  success?: boolean(name='Success', description='成功标志'),
-  totalCount?: long(name='TotalCount', description='实例总数'),
+  ](name='Snapshots'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: long(name='TotalCount', example='35'),
 }
 
 model ListInstanceSnapshotResponse = {
@@ -533,16 +746,16 @@ async function listInstanceSnapshot(request: ListInstanceSnapshotRequest): ListI
 }
 
 model ListInstanceStatisticsRequest {
-  workspaceIds: string(name='WorkspaceIds', description='工作空间列表', position='Query'),
+  workspaceIds: string(name='WorkspaceIds', example='27218,34956', position='Query'),
 }
 
 model ListInstanceStatisticsResponseBody = {
-  code?: string(name='Code', description='状态码'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='http状态码'),
-  message?: string(name='Message', description='说明'),
-  requestId?: string(name='RequestId', description='请求Id'),
-  statistics?: map[string]map[string]any(name='Statistics', description='统计信息'),
-  success?: boolean(name='Success', description='成功标志'),
+  code?: string(name='Code', example='InternalError'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='400'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  statistics?: map[string]map[string]any(name='Statistics'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model ListInstanceStatisticsResponse = {
@@ -556,90 +769,131 @@ async function listInstanceStatistics(request: ListInstanceStatisticsRequest): L
 }
 
 model ListInstancesRequest {
-  acceleratorType?: string(name='AcceleratorType', position='Query'),
-  accessibility?: string(name='Accessibility', position='Query'),
-  instanceName?: string(name='InstanceName', description='实例名称', position='Query'),
-  order?: string(name='Order', description='排列顺序', position='Query'),
-  pageNumber?: long(name='PageNumber', description='页码', position='Query'),
-  pageSize?: long(name='PageSize', description='分页数量大小', position='Query'),
-  paymentType?: string(name='PaymentType', position='Query'),
-  resourceId?: string(name='ResourceId', position='Query'),
-  sortBy?: string(name='SortBy', description='排序字段', position='Query'),
-  status?: string(name='Status', description='实例状态', position='Query'),
-  workspaceId?: string(name='WorkspaceId', description='工作空间Id', position='Query'),
+  acceleratorType?: string(name='AcceleratorType', example='AcceleratorType', position='Query'),
+  accessibility?: string(name='Accessibility', example='PRIVATE', position='Query'),
+  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx', position='Query'),
+  instanceName?: string(name='InstanceName', example='training_data', position='Query'),
+  order?: string(name='Order', example='DESC', position='Query'),
+  pageNumber?: long(name='PageNumber', example='1', position='Query'),
+  pageSize?: long(name='PageSize', example='10', position='Query'),
+  paymentType?: string(name='PaymentType', example='PayAsYouGo', position='Query'),
+  resourceId?: string(name='ResourceId', example='rg-123456789', position='Query'),
+  sortBy?: string(name='SortBy', example='gmtCreate', position='Query'),
+  status?: string(name='Status', example='Running', position='Query'),
+  workspaceId?: string(name='WorkspaceId', example='40823', position='Query'),
 }
 
 model ListInstancesResponseBody = {
-  code?: string(name='Code', description='状态码'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='http状态码'),
+  code?: string(name='Code', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
   instances?: [ 
     {
-      acceleratorType?: string(name='AcceleratorType', description='实例计算类型'),
-      accessibility?: string(name='Accessibility', description='工作空间内是否他人可见'),
-      accumulatedRunningTimeInMs?: long(name='AccumulatedRunningTimeInMs', description='累计运行时间（ms）'),
+      acceleratorType?: string(name='AcceleratorType', example='CPU'),
+      accessibility?: string(name='Accessibility', example='PRIVATE'),
+      accumulatedRunningTimeInMs?: long(name='AccumulatedRunningTimeInMs', example='3600000'),
+      cloudDisks?: [ 
+        {
+          capacity?: string(name='Capacity', example='30Gi'),
+          mountPath?: string(name='MountPath', example='/mmt/workspace'),
+          path?: string(name='Path', example='/workspace'),
+          subType?: string(name='SubType', example='rootfs'),
+        }
+      ](name='CloudDisks', example='[]'),
       datasets?: [ 
         {
-          datasetId?: string(name='DatasetId', description='数据集Id'),
-          mountPath?: string(name='MountPath', description='容器内挂载路径'),
+          datasetId?: string(name='DatasetId', example='d-vsqjvsjp4orp5l206u'),
+          mountPath?: string(name='MountPath', example='/mnt/data'),
         }
-      ](name='Datasets', description='数据集集合'),
-      ecsSpec?: string(name='EcsSpec', description='实例对应的Ecs规格'),
-      environmentVariables?: map[string]string(name='EnvironmentVariables', description='环境变量'),
-      gmtCreateTime?: string(name='GmtCreateTime', description='实例创建时间'),
-      gmtModifiedTime?: string(name='GmtModifiedTime', description='实例修改时间'),
-      imageId?: string(name='ImageId', description='镜像Id'),
-      imageName?: string(name='ImageName', description='镜像名称'),
-      imageUrl?: string(name='ImageUrl', description='镜像地址'),
-      instanceId?: string(name='InstanceId', description='实例Id'),
-      instanceName?: string(name='InstanceName', description='实例名称'),
+      ](name='Datasets'),
+      ecsSpec?: string(name='EcsSpec', example='ecs.c6.large'),
+      environmentVariables?: map[string]string(name='EnvironmentVariables', example='{userName: "Chris"}'),
+      gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
+      gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-12T14:36:01Z'),
+      idleInstanceCuller?: {
+        cpuPercentThreshold?: int32(name='CpuPercentThreshold', example='20'),
+        gpuPercentThreshold?: int32(name='GpuPercentThreshold', example='10'),
+        idleTimeInMinutes?: int32(name='IdleTimeInMinutes', example='30'),
+        instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+        maxIdleTimeInMinutes?: int32(name='MaxIdleTimeInMinutes', example='60'),
+      }(name='IdleInstanceCuller', example='{"InstanceId":"dsw-05cefd0be2e5a278","CpuPercentThreshold":20,"GpuPercentThreshold":10,"MaxIdleTimeInMinutes":120,"IdleTimeInMinutes":30}'),
+      imageId?: string(name='ImageId', example='image-05cefd0be2exxxx'),
+      imageName?: string(name='ImageName', example='py36_cpu_tf1.12_ubuntu'),
+      imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
+      instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+      instanceName?: string(name='InstanceName', example='training_data'),
       instanceShutdownTimer?: {
-        dueTime?: string(name='DueTime', description='设定关机时间'),
-        gmtCreateTime?: string(name='GmtCreateTime', description='创建时间'),
-        gmtModifiedTime?: string(name='GmtModifiedTime', description='修改时间'),
-        instanceId?: string(name='InstanceId', description='实例Id'),
-        remainingTimeInMs?: long(name='RemainingTimeInMs', description='剩余关机时间（ms）'),
-      }(name='InstanceShutdownTimer', description='定时关机任务'),
-      instanceUrl?: string(name='InstanceUrl', description='实例Url'),
-      jupyterlabUrl?: string(name='JupyterlabUrl', description='Jupyterlab Url'),
+        dueTime?: string(name='DueTime', example='2021-01-12T14:36:01Z'),
+        gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
+        gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-12T14:36:01Z'),
+        instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+        remainingTimeInMs?: long(name='RemainingTimeInMs', example='3600000'),
+      }(name='InstanceShutdownTimer'),
+      instanceSnapshotList?: [ 
+        {
+          gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
+          gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-12T14:36:01Z'),
+          imageId?: string(name='ImageId', example='image-05cefd0be2exxxx'),
+          imageName?: string(name='ImageName', example='py36_cpu_tf1.12_ubuntu'),
+          imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
+          reasonCode?: string(name='ReasonCode', example='Internal Error'),
+          reasonMessage?: string(name='ReasonMessage', example='ImagePullBackOff'),
+          repositoryUrl?: string(name='RepositoryUrl', example='https://cr.console.aliyun.com/repository/cn-hangzhou/zouxu/kf/images'),
+          status?: string(name='Status', example='Pushing'),
+        }
+      ](name='InstanceSnapshotList', example='[]'),
+      instanceUrl?: string(name='InstanceUrl', example='https://dsw-cn-shanghai.data.aliyun.com/notebook.htm?instance=39772#/'),
+      jupyterlabUrl?: string(name='JupyterlabUrl', description='Jupyterlab Url。', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/lab/'),
+      labels?: [ 
+        {
+          key?: string(name='Key', example='stsTokenOwner'),
+          value?: string(name='Value', example='123xxxxxxxx'),
+        }
+      ](name='Labels', example='{\\"foo\\": \\"bar\\"}'),
       latestSnapshot?: {
-        gmtCreateTime?: string(name='GmtCreateTime', description='快照创建时间'),
-        gmtModifiedTime?: string(name='GmtModifiedTime', description='快照修改时间'),
-        imageId?: string(name='ImageId', description='镜像Id'),
-        imageName?: string(name='ImageName', description='镜像名称'),
-        imageUrl?: string(name='ImageUrl', description='镜像Url'),
-        repositoryUrl?: string(name='RepositoryUrl', description='镜像仓库Url'),
-      }(name='LatestSnapshot', description='最新保存的用户镜像'),
-      paymentType?: string(name='PaymentType', description='支付类型'),
-      priority?: long(name='Priority', description='优先级，在分配资源给实例时，优先级越高的实例越优先'),
-      reasonCode?: string(name='ReasonCode', description='实例错误代码'),
-      reasonMessage?: string(name='ReasonMessage', description='实例错误原因'),
+        gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
+        gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-12T14:36:01Z'),
+        imageId?: string(name='ImageId', example='image-05cefd0be2exxxx'),
+        imageName?: string(name='ImageName', example='py36_cpu_tf1.12_ubuntu'),
+        imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
+        reasonCode?: string(name='ReasonCode', example='Internal Error'),
+        reasonMessage?: string(name='ReasonMessage', example='ImagePullBackOff'),
+        repositoryUrl?: string(name='RepositoryUrl', example='https://cr.console.aliyun.com/repository/cn-hangzhou/zouxu/kf/images'),
+        status?: string(name='Status', example='Pushing'),
+      }(name='LatestSnapshot'),
+      paymentType?: string(name='PaymentType', example='PayAsYouGo'),
+      priority?: long(name='Priority', example='1'),
+      reasonCode?: string(name='ReasonCode', example='Internal Error'),
+      reasonMessage?: string(name='ReasonMessage', example='ImagePullBackOff'),
       requestedResource?: {
-        CPU?: string(name='CPU', description='cpu核数'),
-        GPU?: string(name='GPU', description='gpu数量'),
-        GPUType?: string(name='GPUType', description='gpu显卡类型'),
-        memory?: string(name='Memory', description='memory大小'),
-        sharedMemory?: string(name='SharedMemory', description='shared memory大小'),
-      }(name='RequestedResource', description='资源配置，弹内或者轻量化时使用'),
-      resourceId?: string(name='ResourceId', description='资源Id,预付费时填写'),
-      resourceName?: string(name='ResourceName'),
-      status?: string(name='Status', description='实例状态'),
-      terminalUrl?: string(name='TerminalUrl', description='终端url'),
-      userId?: string(name='UserId', description='用户Id'),
-      userName?: string(name='UserName', description='用户名称'),
+        CPU?: string(name='CPU', example='32'),
+        GPU?: string(name='GPU', example='4'),
+        GPUType?: string(name='GPUType', example='v100'),
+        memory?: string(name='Memory', example='32'),
+        sharedMemory?: string(name='SharedMemory', example='32'),
+      }(name='RequestedResource', example='{"CPU":"4","Memory":"8Gi","SharedMemory":"4Gi","GPU":"1","GPUType":"Tesla-V100-16G"}'),
+      resourceId?: string(name='ResourceId', example='dsw-123456789'),
+      resourceName?: string(name='ResourceName', example='resource_group'),
+      status?: string(name='Status', example='Running'),
+      terminalUrl?: string(name='TerminalUrl', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/tty/'),
+      userId?: string(name='UserId', example='1612285282502324'),
+      userName?: string(name='UserName', example='测试用户'),
       userVpc?: {
-        securityGroupId?: string(name='SecurityGroupId', description='Security Group Id'),
-        vSwitchId?: string(name='VSwitchId', description='VSwitch Id'),
-        vpcId?: string(name='VpcId', description='Vpc Id'),
-      }(name='UserVpc', description='user vpc配置'),
-      webIDEUrl?: string(name='WebIDEUrl', description='Web IDE url'),
-      workspaceId?: string(name='WorkspaceId', description='工作空间Id'),
-      workspaceName?: string(name='WorkspaceName', description='工作空间名称'),
+        defaultRoute?: string(name='DefaultRoute', example='eth0 | eth1'),
+        extendedCIDRs?: [ string ](name='ExtendedCIDRs', example='["192.168.0.1/24", "192.168.1.1/24"]'),
+        securityGroupId?: string(name='SecurityGroupId', example='sg-xxxxxx'),
+        vSwitchId?: string(name='VSwitchId', example='vsw-xxxxx'),
+        vpcId?: string(name='VpcId', example='vpc-xxxxx'),
+      }(name='UserVpc'),
+      webIDEUrl?: string(name='WebIDEUrl', description='Web IDE url。', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/ide/'),
+      workspaceId?: string(name='WorkspaceId', example='40823'),
+      workspaceName?: string(name='WorkspaceName', example='training_data'),
+      workspaceSource?: string(name='WorkspaceSource', example='d-123456789'),
     }
-  ](name='Instances', description='本分页中请求的实例列表'),
-  message?: string(name='Message', description='说明'),
-  requestId?: string(name='RequestId', description='请求Id'),
-  success?: boolean(name='Success', description='成功标志'),
-  totalCount?: long(name='TotalCount', description='实例总数'),
+  ](name='Instances'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: long(name='TotalCount', example='35'),
 }
 
 model ListInstancesResponse = {
@@ -653,16 +907,16 @@ async function listInstances(request: ListInstancesRequest): ListInstancesRespon
 }
 
 model StartInstanceRequest {
-  instanceId: string(name='InstanceId', description='实例Id', position='Path'),
+  instanceId: string(name='InstanceId', example='dsw-730xxxxxxxxxx', position='Path'),
 }
 
 model StartInstanceResponseBody = {
-  code?: string(name='Code', description='状态码'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='http状态码'),
-  instanceId?: string(name='InstanceId', description='实例Id'),
-  message?: string(name='Message', description='说明'),
-  requestId?: string(name='RequestId', description='请求Id'),
-  success?: boolean(name='Success', description='成功标志'),
+  code?: string(name='Code', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
+  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model StartInstanceResponse = {
@@ -676,17 +930,17 @@ async function startInstance(request: StartInstanceRequest): StartInstanceRespon
 }
 
 model StopInstanceRequest {
-  instanceId: string(name='InstanceId', description='实例Id', position='Path'),
-  saveImage?: boolean(name='SaveImage', description='是否保存环境后再关闭实例', position='Query'),
+  instanceId: string(name='InstanceId', example='dsw-730xxxxxxxxxx', position='Path'),
+  saveImage?: boolean(name='SaveImage', example='false', position='Query'),
 }
 
 model StopInstanceResponseBody = {
-  code?: string(name='Code', description='状态码'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='http状态码'),
-  instanceId?: string(name='InstanceId', description='实例Id'),
-  message?: string(name='Message', description='说明'),
-  requestId?: string(name='RequestId', description='请求Id'),
-  success?: boolean(name='Success', description='成功标志'),
+  code?: string(name='Code', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
+  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model StopInstanceResponse = {
@@ -700,17 +954,45 @@ async function stopInstance(request: StopInstanceRequest): StopInstanceResponse 
 }
 
 model UpdateInstanceRequest {
-  instanceId: string(name='InstanceId', description='实例Id', position='Path'),
-  instanceName?: string(name='InstanceName', description='实例名称', position='Body'),
+  instanceId: string(name='InstanceId', example='dsw-730xxxxxxxxxx', position='Path'),
+  accessibility?: string(name='Accessibility', example='PRIVATE', position='Body'),
+  datasets?: [ 
+    {
+      datasetId?: string(name='DatasetId', example='d-vsqjvsjp4orp5l206u'),
+      mountPath?: string(name='MountPath', example='/mnt/data'),
+    }
+  ](name='Datasets', position='Body'),
+  disassociateDatasets?: boolean(name='DisassociateDatasets', example='false', position='Body'),
+  disassociateVpc?: boolean(name='DisassociateVpc', example='false', position='Body'),
+  ecsSpec?: string(name='EcsSpec', example='ecs.c6.large', position='Body'),
+  imageId?: string(name='ImageId', example='image-05cefd0be2exxxx', position='Body'),
+  imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu', position='Body'),
+  instanceName?: string(name='InstanceName', example='training_data', position='Body'),
+  requestedResource?: {
+    CPU?: string(name='CPU', example='32'),
+    GPU?: string(name='GPU', example='4'),
+    GPUType?: string(name='GPUType', example='v100'),
+    memory?: string(name='Memory', example='32'),
+    sharedMemory?: string(name='SharedMemory', example='32'),
+  }(name='RequestedResource', example='{"CPU":"4","Memory":"8Gi","SharedMemory":"4Gi","GPU":"1","GPUType":"Tesla-V100-16G"}', position='Body'),
+  userId?: string(name='UserId', example='1612285282502324', position='Body'),
+  userVpc?: {
+    defaultRoute?: string(name='DefaultRoute', example='eth0 | eth1'),
+    extendedCIDRs?: [ string ](name='ExtendedCIDRs', example='["192.168.0.1/24", "192.168.1.1/24"]'),
+    securityGroupId?: string(name='SecurityGroupId', example='sg-xxxxxx'),
+    vSwitchId?: string(name='VSwitchId', example='vsw-xxxxx'),
+    vpcId?: string(name='VpcId', example='vpc-xxxxx'),
+  }(name='UserVpc', position='Body'),
+  workspaceSource?: string(name='WorkspaceSource', example='d-123456789', position='Body'),
 }
 
 model UpdateInstanceResponseBody = {
-  code?: string(name='Code', description='状态码'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='http状态码'),
-  instanceId?: string(name='InstanceId', description='实例Id'),
-  message?: string(name='Message', description='说明'),
-  requestId?: string(name='RequestId', description='请求Id'),
-  success?: boolean(name='Success', description='成功标志'),
+  code?: string(name='Code', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
+  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', example='"XXX"'),
+  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model UpdateInstanceResponse = {

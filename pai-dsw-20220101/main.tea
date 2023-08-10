@@ -96,6 +96,14 @@ async function createIdleInstanceCuller(InstanceId: string, request: CreateIdleI
 
 model CreateInstanceRequest {
   accessibility?: string(name='Accessibility', example='PRIVATE'),
+  cloudDisks?: [ 
+    {
+      capacity?: string(name='Capacity', example='30Gi'),
+      mountPath?: string(name='MountPath', example='/mmt/workspace'),
+      path?: string(name='Path', example='workspace'),
+      subType?: string(name='SubType', example='rootfs'),
+    }
+  ](name='CloudDisks', example='[]'),
   datasets?: [ 
     {
       datasetId?: string(name='DatasetId', example='d-vsqjvsjp4orp5l206u'),
@@ -122,13 +130,16 @@ model CreateInstanceRequest {
     sharedMemory?: string(name='SharedMemory', example='32'),
   }(name='RequestedResource', example='{"CPU":"4","Memory":"8Gi","SharedMemory":"4Gi","GPU":"1","GPUType":"Tesla-V100-16G"}'),
   resourceId?: string(name='ResourceId', example='dsw-123456789'),
+  userId?: string(name='UserId', example='1612285282502324'),
   userVpc?: {
+    defaultRoute?: string(name='DefaultRoute', example='eth0 | eth1'),
     extendedCIDRs?: [ string ](name='ExtendedCIDRs', example='["192.168.0.1/24", "192.168.1.1/24"]'),
     securityGroupId?: string(name='SecurityGroupId', example='sg-xxxxxx'),
     vSwitchId?: string(name='VSwitchId', example='vsw-xxxxx'),
-    vpcId?: string(name='VpcId', description='Vpc Id。', example='vpc-xxxxx'),
+    vpcId?: string(name='VpcId', example='vpc-xxxxx'),
   }(name='UserVpc'),
   workspaceId?: string(name='WorkspaceId', example='40823'),
+  workspaceSource?: string(name='WorkspaceSource', example='d-123456789'),
 }
 
 model CreateInstanceResponseBody = {
@@ -151,6 +162,9 @@ async function createInstanceWithOptions(request: CreateInstanceRequest, headers
   var body : map[string]any = {};
   if (!Util.isUnset(request.accessibility)) {
     body['Accessibility'] = request.accessibility;
+  }
+  if (!Util.isUnset(request.cloudDisks)) {
+    body['CloudDisks'] = request.cloudDisks;
   }
   if (!Util.isUnset(request.datasets)) {
     body['Datasets'] = request.datasets;
@@ -182,11 +196,17 @@ async function createInstanceWithOptions(request: CreateInstanceRequest, headers
   if (!Util.isUnset(request.resourceId)) {
     body['ResourceId'] = request.resourceId;
   }
+  if (!Util.isUnset(request.userId)) {
+    body['UserId'] = request.userId;
+  }
   if (!Util.isUnset(request.userVpc)) {
     body['UserVpc'] = request.userVpc;
   }
   if (!Util.isUnset(request.workspaceId)) {
     body['WorkspaceId'] = request.workspaceId;
+  }
+  if (!Util.isUnset(request.workspaceSource)) {
+    body['WorkspaceSource'] = request.workspaceSource;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -537,6 +557,14 @@ model GetInstanceResponseBody = {
   acceleratorType?: string(name='AcceleratorType', example='CPU'),
   accessibility?: string(name='Accessibility', example='PRIVATE'),
   accumulatedRunningTimeInMs?: long(name='AccumulatedRunningTimeInMs', example='3600000'),
+  cloudDisks?: [ 
+    {
+      capacity?: string(name='Capacity', example='30Gi'),
+      mountPath?: string(name='MountPath', example='/mmt/workspace'),
+      path?: string(name='Path', example='/workspace'),
+      subType?: string(name='SubType', example='rootfs'),
+    }
+  ](name='CloudDisks', example='[]'),
   code?: string(name='Code', example='null'),
   datasets?: [ 
     {
@@ -570,15 +598,15 @@ model GetInstanceResponseBody = {
   }(name='InstanceShutdownTimer'),
   instanceSnapshotList?: [ 
     {
-      gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
-      gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-12T14:36:01Z'),
-      imageId?: string(name='ImageId', example='image-05cefd0be2exxxx'),
-      imageName?: string(name='ImageName', example='py36_cpu_tf1.12_ubuntu'),
-      imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
-      reasonCode?: string(name='ReasonCode', example='Internal Error'),
-      reasonMessage?: string(name='ReasonMessage', example='ImagePullBackOff'),
-      repositoryUrl?: string(name='RepositoryUrl', example='https://cr.console.aliyun.com/repository/cn-hangzhou/zouxu/kf/images'),
-      status?: string(name='Status', example='Pushing'),
+      gmtCreateTime?: string(name='GmtCreateTime', description='快照创建时间', example='2021-01-12T14:36:01Z'),
+      gmtModifiedTime?: string(name='GmtModifiedTime', description='快照修改时间', example='2021-01-12T14:36:01Z'),
+      imageId?: string(name='ImageId', description='镜像Id', example='image-05cefd0be2exxxx'),
+      imageName?: string(name='ImageName', description='镜像名称', example='py36_cpu_tf1.12_ubuntu'),
+      imageUrl?: string(name='ImageUrl', description='镜像Url', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
+      reasonCode?: string(name='ReasonCode', description='实例快照错误代码', example='Internal Error'),
+      reasonMessage?: string(name='ReasonMessage', description='实例快照错误消息', example='ImagePullBackOff'),
+      repositoryUrl?: string(name='RepositoryUrl', description='镜像仓库Url', example='https://cr.console.aliyun.com/repository/cn-hangzhou/zouxu/kf/images'),
+      status?: string(name='Status', description='实例快照状态', example='Pushing'),
     }
   ](name='InstanceSnapshotList', example='[]'),
   instanceUrl?: string(name='InstanceUrl', example='https://dsw-cn-shanghai.data.aliyun.com/notebook.htm?instance=39772#/'),
@@ -595,10 +623,10 @@ model GetInstanceResponseBody = {
     imageId?: string(name='ImageId', example='image-05cefd0be2exxxx'),
     imageName?: string(name='ImageName', example='py36_cpu_tf1.12_ubuntu'),
     imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
-    reasonCode?: string(name='ReasonCode', example='Internal Error'),
-    reasonMessage?: string(name='ReasonMessage', example='ImagePullBackOff'),
+    reasonCode?: string(name='ReasonCode', description='实例快照错误代码', example='Internal Error'),
+    reasonMessage?: string(name='ReasonMessage', description='实例快照错误消息', example='ImagePullBackOff'),
     repositoryUrl?: string(name='RepositoryUrl', example='https://cr.console.aliyun.com/repository/cn-hangzhou/zouxu/kf/images'),
-    status?: string(name='Status', example='Pushing'),
+    status?: string(name='Status', description='实例快照状态', example='Pushing'),
   }(name='LatestSnapshot'),
   message?: string(name='Message', example='"XXX"'),
   paymentType?: string(name='PaymentType', example='PayAsYouGo'),
@@ -621,6 +649,8 @@ model GetInstanceResponseBody = {
   userId?: string(name='UserId', example='1612285282502324'),
   userName?: string(name='UserName', example='测试用户'),
   userVpc?: {
+    defaultRoute?: string(name='DefaultRoute', example='eth0 | eth1'),
+    extendedCIDRs?: [ string ](name='ExtendedCIDRs', example='["192.168.0.1/24", "192.168.1.1/24"]'),
     securityGroupId?: string(name='SecurityGroupId', example='sg-xxxxxx'),
     vSwitchId?: string(name='VSwitchId', example='vsw-xxxxx'),
     vpcId?: string(name='VpcId', description='Vpc Id。', example='vpc-xxxxx'),
@@ -628,6 +658,7 @@ model GetInstanceResponseBody = {
   webIDEUrl?: string(name='WebIDEUrl', description='Web IDE url。', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/ide/'),
   workspaceId?: string(name='WorkspaceId', example='40823'),
   workspaceName?: string(name='WorkspaceName', example='training_data'),
+  workspaceSource?: string(name='WorkspaceSource', example='d-123456789'),
 }
 
 model GetInstanceResponse = {
@@ -1015,6 +1046,22 @@ async function getToken(request: GetTokenRequest): GetTokenResponse {
 model GetUserConfigResponseBody = {
   accountSufficient?: boolean(name='AccountSufficient', example='false'),
   code?: string(name='Code', example='null'),
+  enableEciDisk?: boolean(name='EnableEciDisk', example='true'),
+  freeTier?: {
+    endTime?: string(name='EndTime', example='2020-11-08T15:00:00Z'),
+    initBaseUnit?: string(name='InitBaseUnit', example='个'),
+    initBaseValue?: double(name='InitBaseValue', example='5000'),
+    initShowUnit?: string(name='InitShowUnit', example='个'),
+    initShowValue?: string(name='InitShowValue', example='5000'),
+    isFreeTierUser?: boolean(name='IsFreeTierUser', example='true'),
+    periodBaseUnit?: string(name='PeriodBaseUnit', example='个'),
+    periodBaseValue?: double(name='PeriodBaseValue', example='3000'),
+    periodShowUnit?: string(name='PeriodShowUnit', example='个'),
+    periodShowValue?: string(name='PeriodShowValue', example='3000'),
+    startTime?: string(name='StartTime', example='2020-11-08T15:00:00Z'),
+    status?: string(name='Status', example='valid'),
+  }(name='FreeTier'),
+  freeTierSpecAvailable?: boolean(name='FreeTierSpecAvailable', example='true'),
   httpStatusCode?: int32(name='HttpStatusCode', example='null'),
   message?: string(name='Message', example='"Access denied"'),
   requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
@@ -1051,111 +1098,6 @@ async function getUserConfig(): GetUserConfigResponse {
   return getUserConfigWithOptions(headers, runtime);
 }
 
-model ListDemoCategoriesResponseBody = {
-  categories?: [
-    DemoCategory
-  ](name='Categories'),
-  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
-}
-
-model ListDemoCategoriesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListDemoCategoriesResponseBody(name='body'),
-}
-
-async function listDemoCategoriesWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): ListDemoCategoriesResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  var params = new OpenApi.Params{
-    action = 'ListDemoCategories',
-    version = '2022-01-01',
-    protocol = 'HTTPS',
-    pathname = `/api/v2/democategories`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function listDemoCategories(): ListDemoCategoriesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listDemoCategoriesWithOptions(headers, runtime);
-}
-
-model ListDemosRequest {
-  category?: string(name='Category', example='function.common'),
-  demoName?: string(name='DemoName', example='HousePricePrediction'),
-  pageNumber?: long(name='PageNumber', example='1'),
-  pageSize?: long(name='PageSize', example='10'),
-}
-
-model ListDemosResponseBody = {
-  demos?: [ 
-    {
-      categories?: [ string ](name='Categories', example='["function.common"]'),
-      demoDescription?: string(name='DemoDescription', example='Use DSW magic to write ****'),
-      demoName?: string(name='DemoName', example='DSW magic CMD'),
-      demoUrl?: string(name='DemoUrl', example='https://aliyun-notebook-***.oss-accelerate.aliyuncs.com/****.tar.gz'),
-      order?: long(name='Order', example='1'),
-      size?: long(name='Size', example='2452'),
-    }
-  ](name='Demos'),
-  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
-  totalCount?: long(name='TotalCount', example='35'),
-}
-
-model ListDemosResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListDemosResponseBody(name='body'),
-}
-
-async function listDemosWithOptions(request: ListDemosRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListDemosResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.category)) {
-    query['Category'] = request.category;
-  }
-  if (!Util.isUnset(request.demoName)) {
-    query['DemoName'] = request.demoName;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    query['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query['PageSize'] = request.pageSize;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListDemos',
-    version = '2022-01-01',
-    protocol = 'HTTPS',
-    pathname = `/api/v2/demos`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function listDemos(request: ListDemosRequest): ListDemosResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listDemosWithOptions(request, headers, runtime);
-}
-
 model ListEcsSpecsRequest {
   acceleratorType?: string(name='AcceleratorType', example='PRIVATE'),
   order?: string(name='Order', example='DESC'),
@@ -1175,6 +1117,13 @@ model ListEcsSpecsResponseBody = {
       GPUType?: string(name='GPUType', example='v100'),
       instanceBandwidthRx?: long(name='InstanceBandwidthRx', example='5120000'),
       instanceType?: string(name='InstanceType', example='ecs.gn5-c28g1.7xlarge'),
+      isAvailable?: boolean(name='IsAvailable', example='True'),
+      labels?: [ 
+        {
+          key?: string(name='Key', example='stsTokenOwner'),
+          value?: string(name='Value'),
+        }
+      ](name='Labels', example='{\\"foo\\": \\"bar\\"}'),
       memory?: float(name='Memory', example='32'),
       price?: double(name='Price', example='22.8'),
       systemDiskCapacity?: long(name='SystemDiskCapacity', example='500'),
@@ -1391,6 +1340,14 @@ model ListInstancesResponseBody = {
       acceleratorType?: string(name='AcceleratorType', example='CPU'),
       accessibility?: string(name='Accessibility', example='PRIVATE'),
       accumulatedRunningTimeInMs?: long(name='AccumulatedRunningTimeInMs', example='3600000'),
+      cloudDisks?: [ 
+        {
+          capacity?: string(name='Capacity', example='30Gi'),
+          mountPath?: string(name='MountPath', example='/mmt/workspace'),
+          path?: string(name='Path', example='/workspace'),
+          subType?: string(name='SubType', example='rootfs'),
+        }
+      ](name='CloudDisks', example='[]'),
       datasets?: [ 
         {
           datasetId?: string(name='DatasetId', example='d-vsqjvsjp4orp5l206u'),
@@ -1470,13 +1427,16 @@ model ListInstancesResponseBody = {
       userId?: string(name='UserId', example='1612285282502324'),
       userName?: string(name='UserName', example='测试用户'),
       userVpc?: {
+        defaultRoute?: string(name='DefaultRoute', example='eth0 | eth1'),
+        extendedCIDRs?: [ string ](name='ExtendedCIDRs', example='["192.168.0.1/24", "192.168.1.1/24"]'),
         securityGroupId?: string(name='SecurityGroupId', example='sg-xxxxxx'),
         vSwitchId?: string(name='VSwitchId', example='vsw-xxxxx'),
-        vpcId?: string(name='VpcId', description='Vpc Id。', example='vpc-xxxxx'),
+        vpcId?: string(name='VpcId', example='vpc-xxxxx'),
       }(name='UserVpc'),
       webIDEUrl?: string(name='WebIDEUrl', description='Web IDE url。', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/ide/'),
       workspaceId?: string(name='WorkspaceId', example='40823'),
       workspaceName?: string(name='WorkspaceName', example='training_data'),
+      workspaceSource?: string(name='WorkspaceSource', example='d-123456789'),
     }
   ](name='Instances'),
   message?: string(name='Message', example='"XXX"'),
@@ -1665,12 +1625,15 @@ model UpdateInstanceRequest {
     memory?: string(name='Memory', example='32'),
     sharedMemory?: string(name='SharedMemory', example='32'),
   }(name='RequestedResource', example='{"CPU":"4","Memory":"8Gi","SharedMemory":"4Gi","GPU":"1","GPUType":"Tesla-V100-16G"}'),
+  userId?: string(name='UserId', example='1612285282502324'),
   userVpc?: {
+    defaultRoute?: string(name='DefaultRoute', example='eth0 | eth1'),
     extendedCIDRs?: [ string ](name='ExtendedCIDRs', example='["192.168.0.1/24", "192.168.1.1/24"]'),
     securityGroupId?: string(name='SecurityGroupId', example='sg-xxxxxx'),
     vSwitchId?: string(name='VSwitchId', example='vsw-xxxxx'),
-    vpcId?: string(name='VpcId', description='Vpc Id。', example='vpc-xxxxx'),
+    vpcId?: string(name='VpcId', example='vpc-xxxxx'),
   }(name='UserVpc'),
+  workspaceSource?: string(name='WorkspaceSource', example='d-123456789'),
 }
 
 model UpdateInstanceResponseBody = {
@@ -1718,8 +1681,14 @@ async function updateInstanceWithOptions(InstanceId: string, request: UpdateInst
   if (!Util.isUnset(request.requestedResource)) {
     body['RequestedResource'] = request.requestedResource;
   }
+  if (!Util.isUnset(request.userId)) {
+    body['UserId'] = request.userId;
+  }
   if (!Util.isUnset(request.userVpc)) {
     body['UserVpc'] = request.userVpc;
+  }
+  if (!Util.isUnset(request.workspaceSource)) {
+    body['WorkspaceSource'] = request.workspaceSource;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
