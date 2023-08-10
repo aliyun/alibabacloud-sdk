@@ -94,6 +94,11 @@ model RelationshipVO {
   type?: string(name='Type', example='sql'),
 }
 
+model UserEntityTag {
+  tagKey?: string(name='TagKey', example='priority'),
+  tagValue?: string(name='TagValue', example='p1'),
+}
+
 model AbolishDataServiceApiRequest {
   apiId?: long(name='ApiId', description='The ID of the DataService Studio API.', example='10000'),
   projectId?: long(name='ProjectId', description='The ID of the workspace.', example='10001'),
@@ -154,6 +159,7 @@ model AddMetaCollectionEntityRequest {
 
 Example: maxcompute-table.projectA.tableA.', example='album.2222'),
   entityQualifiedName?: string(name='EntityQualifiedName', description='The ID of the request. You can use the ID to query logs and troubleshoot issues.', example='maxcompute-table.projectA.tableB'),
+  remark?: string(name='Remark'),
 }
 
 model AddMetaCollectionEntityResponseBody = {
@@ -186,6 +192,9 @@ async function addMetaCollectionEntityWithOptions(request: AddMetaCollectionEnti
   }
   if (!Util.isUnset(request.entityQualifiedName)) {
     query['EntityQualifiedName'] = request.entityQualifiedName;
+  }
+  if (!Util.isUnset(request.remark)) {
+    query['Remark'] = request.remark;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -13804,6 +13813,118 @@ async function listEnabledExtensionsForProject(request: ListEnabledExtensionsFor
   return listEnabledExtensionsForProjectWithOptions(request, runtime);
 }
 
+model ListEntitiesByTagsRequest {
+  entityType?: string(name='EntityType', example='maxcompute-table'),
+  nextToken?: string(name='NextToken', example='12345'),
+  pageSize?: int32(name='PageSize', example='10'),
+  tags?: [
+    UserEntityTag
+  ](name='Tags'),
+}
+
+model ListEntitiesByTagsShrinkRequest {
+  entityType?: string(name='EntityType', example='maxcompute-table'),
+  nextToken?: string(name='NextToken', example='12345'),
+  pageSize?: int32(name='PageSize', example='10'),
+  tagsShrink?: string(name='Tags'),
+}
+
+model ListEntitiesByTagsResponseBody = {
+  data?: {
+    entityList?: [
+      Entity
+    ](name='EntityList'),
+    nextToken?: string(name='NextToken', example='12345'),
+  }(name='Data'),
+  errorCode?: string(name='ErrorCode', example='101011005'),
+  errorMessage?: string(name='ErrorMessage', example='Invalid.Entity.EntityTypeNotSupported'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='0000-ABCD-E****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListEntitiesByTagsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListEntitiesByTagsResponseBody(name='body'),
+}
+
+async function listEntitiesByTagsWithOptions(tmpReq: ListEntitiesByTagsRequest, runtime: Util.RuntimeOptions): ListEntitiesByTagsResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListEntitiesByTagsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.tags)) {
+    request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'Tags', 'json');
+  }
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListEntitiesByTags',
+    version = '2020-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listEntitiesByTags(request: ListEntitiesByTagsRequest): ListEntitiesByTagsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listEntitiesByTagsWithOptions(request, runtime);
+}
+
+model ListEntityTagsRequest {
+  qualifiedName?: string(name='QualifiedName', example='maxcompute-table.projectA.tableA'),
+}
+
+model ListEntityTagsResponseBody = {
+  data?: [
+    UserEntityTag
+  ](name='Data'),
+  errorCode?: string(name='ErrorCode', example='101011005'),
+  errorMessage?: string(name='ErrorMessage', example='Invalid.Entity.EntityTypeNotSupported'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='0000-ABCD-E****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListEntityTagsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListEntityTagsResponseBody(name='body'),
+}
+
+async function listEntityTagsWithOptions(request: ListEntityTagsRequest, runtime: Util.RuntimeOptions): ListEntityTagsResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListEntityTags',
+    version = '2020-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listEntityTags(request: ListEntityTagsRequest): ListEntityTagsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listEntityTagsWithOptions(request, runtime);
+}
+
 model ListExtensionsRequest {
   pageNumber?: int32(name='PageNumber', description='The number of entries to return on each page.', example='1'),
   pageSize?: int32(name='PageSize', description='Id of the request', example='10'),
@@ -17674,6 +17795,69 @@ async function registerLineageRelation(request: RegisterLineageRelationRequest):
   return registerLineageRelationWithOptions(request, runtime);
 }
 
+model RemoveEntityTagsRequest {
+  qualifiedName?: string(name='QualifiedName', example='maxcompute-table.projectA.tableA'),
+  tagKeys?: [ string ](name='TagKeys'),
+}
+
+model RemoveEntityTagsShrinkRequest {
+  qualifiedName?: string(name='QualifiedName', example='maxcompute-table.projectA.tableA'),
+  tagKeysShrink?: string(name='TagKeys'),
+}
+
+model RemoveEntityTagsResponseBody = {
+  data?: boolean(name='Data', example='true'),
+  errorCode?: string(name='ErrorCode', example='101011005'),
+  errorMessage?: string(name='ErrorMessage', example='Invalid.Entity.EntityTypeNotSupported'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='0000-ABCD-E****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model RemoveEntityTagsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: RemoveEntityTagsResponseBody(name='body'),
+}
+
+async function removeEntityTagsWithOptions(tmpReq: RemoveEntityTagsRequest, runtime: Util.RuntimeOptions): RemoveEntityTagsResponse {
+  Util.validateModel(tmpReq);
+  var request = new RemoveEntityTagsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.tagKeys)) {
+    request.tagKeysShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tagKeys, 'TagKeys', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.qualifiedName)) {
+    query['QualifiedName'] = request.qualifiedName;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.tagKeysShrink)) {
+    body['TagKeys'] = request.tagKeysShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'RemoveEntityTags',
+    version = '2020-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function removeEntityTags(request: RemoveEntityTagsRequest): RemoveEntityTagsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return removeEntityTagsWithOptions(request, runtime);
+}
+
 model RemoveProjectMemberFromRoleRequest {
   projectId?: long(name='ProjectId', description='The ID of the DataWorks workspace.', example='27'),
   roleCode?: string(name='RoleCode', description='The role in the DataWorks workspace. You can call the ListProjectRoles operation to query codes of the roles in the workspace.
@@ -18679,6 +18863,71 @@ async function setDataSourceShareWithOptions(request: SetDataSourceShareRequest,
 async function setDataSourceShare(request: SetDataSourceShareRequest): SetDataSourceShareResponse {
   var runtime = new Util.RuntimeOptions{};
   return setDataSourceShareWithOptions(request, runtime);
+}
+
+model SetEntityTagsRequest {
+  qualifiedName?: string(name='QualifiedName', example='maxcompute-table.projectA.tableA'),
+  tags?: [
+    UserEntityTag
+  ](name='Tags'),
+}
+
+model SetEntityTagsShrinkRequest {
+  qualifiedName?: string(name='QualifiedName', example='maxcompute-table.projectA.tableA'),
+  tagsShrink?: string(name='Tags'),
+}
+
+model SetEntityTagsResponseBody = {
+  data?: boolean(name='Data', example='true'),
+  errorCode?: string(name='ErrorCode', example='101011005'),
+  errorMessage?: string(name='ErrorMessage', example='Invalid.Entity.EntityTypeNotSupported'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='0000-ABCD-E****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model SetEntityTagsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: SetEntityTagsResponseBody(name='body'),
+}
+
+async function setEntityTagsWithOptions(tmpReq: SetEntityTagsRequest, runtime: Util.RuntimeOptions): SetEntityTagsResponse {
+  Util.validateModel(tmpReq);
+  var request = new SetEntityTagsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.tags)) {
+    request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'Tags', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.qualifiedName)) {
+    query['QualifiedName'] = request.qualifiedName;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.tagsShrink)) {
+    body['Tags'] = request.tagsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SetEntityTags',
+    version = '2020-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function setEntityTags(request: SetEntityTagsRequest): SetEntityTagsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return setEntityTagsWithOptions(request, runtime);
 }
 
 model SetSuccessInstanceRequest {
