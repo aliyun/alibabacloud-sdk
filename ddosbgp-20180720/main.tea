@@ -163,6 +163,7 @@ async function checkAccessLogAuth(request: CheckAccessLogAuthRequest): CheckAcce
 }
 
 model CheckGrantRequest {
+  isSlr?: boolean(name='IsSlr'),
   regionId?: string(name='RegionId', description='WB269094', example='cn-hangzhou'),
   resourceGroupId?: string(name='ResourceGroupId', description='CheckGrant', example='rg-acfm2pz25js****'),
 }
@@ -435,14 +436,22 @@ async function createSchedruleOnDemand(request: CreateSchedruleOnDemandRequest):
 }
 
 model DeleteBlackholeRequest {
-  instanceId?: string(name='InstanceId', description='DeleteBlackhole', example='ddosbgp-cn-n6w1r7nz****'),
-  ip?: string(name='Ip', description='Deactivates blackhole filtering for a protected IP address.', example='47.89.XX.XX'),
-  regionId?: string(name='RegionId', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', description='WB269094', example='rg-acfm2pz25js****'),
+  instanceId?: string(name='InstanceId', description='The ID of the Anti-DDoS Origin instance.
+
+>  You can call the [DescribeInstanceList](~~118698~~) operation to query the IDs of all Anti-DDoS Origin instances.', example='ddosbgp-cn-n6w1r7nz****'),
+  ip?: string(name='Ip', description='The IP address for which you want to deactivate blackhole filtering.
+
+>  You can call the [DescribePackIpList](~~118701~~) operation to query all the IP addresses that are protected by the Anti-DDoS Origin instance and the protection status of the IP addresses. For example, you can query whether blackhole filtering is triggered for an IP address.', example='47.89.XX.XX'),
+  regionId?: string(name='RegionId', description='The ID of the region where the Anti-DDoS Origin instance resides.
+
+>  You can call the [DescribeRegions](~~118703~~) operation to query the most recent region list.', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the Anti-DDoS Origin instance belongs in Resource Management.
+
+If you do not specify this parameter, the instance belongs to the default resource group.', example='rg-acfm2pz25js****'),
 }
 
 model DeleteBlackholeResponseBody = {
-  requestId?: string(name='RequestId', example='C33EB3D5-AF96-43CA-9C7E-37A81BC06A1E'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='C33EB3D5-AF96-43CA-9C7E-37A81BC06A1E'),
 }
 
 model DeleteBlackholeResponse = {
@@ -452,7 +461,10 @@ model DeleteBlackholeResponse = {
 }
 
 /**
-  * The operation that you want to perform. Set the value to **DeleteBlackhole**.
+  * You can call the DeleteBlackhole operation to deactivate blackhole filtering for a protected IP address.
+  * Before you call this operation, you can call the [DescribePackIpList](~~118701~~) operation to query the protection status of the IP addresses that are protected by your Anti-DDoS Origin instance. For example, you can query whether blackhole filtering is triggered for an IP address.
+  * ### Limits
+  * You can call this operation up to 10 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
   *
   * @param request DeleteBlackholeRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -491,7 +503,10 @@ async function deleteBlackholeWithOptions(request: DeleteBlackholeRequest, runti
 }
 
 /**
-  * The operation that you want to perform. Set the value to **DeleteBlackhole**.
+  * You can call the DeleteBlackhole operation to deactivate blackhole filtering for a protected IP address.
+  * Before you call this operation, you can call the [DescribePackIpList](~~118701~~) operation to query the protection status of the IP addresses that are protected by your Anti-DDoS Origin instance. For example, you can query whether blackhole filtering is triggered for an IP address.
+  * ### Limits
+  * You can call this operation up to 10 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
   *
   * @param request DeleteBlackholeRequest
   * @return DeleteBlackholeResponse
@@ -1322,6 +1337,7 @@ model DescribePackIpListRequest {
 
 If you do not specify this parameter, the instance belongs to the default resource group.', example='ddosbgp-cn-n6w1r7nz****'),
   ip?: string(name='Ip', description='The number of the page to return.', example='47.98.XX.XX'),
+  memberUid?: string(name='MemberUid'),
   pageNo?: int32(name='PageNo', description='The operation that you want to perform. Set the value to **DescribePackIpList**.', example='1'),
   pageSize?: int32(name='PageSize', description='The type of the cloud asset to which the protected IP address to query belongs. Valid values:
 
@@ -1344,8 +1360,9 @@ model DescribePackIpListResponseBody = {
   ipList?: [ 
     {
       ip?: string(name='Ip', example='47.98.XX.XX'),
+      memberUid?: string(name='MemberUid'),
       product?: string(name='Product', example='ECS'),
-      region?: string(name='Region'),
+      region?: string(name='Region', example='cn-hangzhou'),
       remark?: string(name='Remark', example='test'),
       status?: string(name='Status', example='normal'),
     }
@@ -1378,6 +1395,9 @@ async function describePackIpListWithOptions(request: DescribePackIpListRequest,
   }
   if (!Util.isUnset(request.ip)) {
     query['Ip'] = request.ip;
+  }
+  if (!Util.isUnset(request.memberUid)) {
+    query['MemberUid'] = request.memberUid;
   }
   if (!Util.isUnset(request.pageNo)) {
     query['PageNo'] = request.pageNo;
@@ -1423,26 +1443,28 @@ async function describePackIpList(request: DescribePackIpListRequest): DescribeP
 }
 
 model DescribeRegionsRequest {
-  regionId?: string(name='RegionId', description='The ID of the request.', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The HTTP status code.', example='rg-acfm2pz25js****'),
+  regionId?: string(name='RegionId', description='The region ID to query. The default value is **cn-hangzhou**, which indicates that the regions of cloud assets that are supported by an Anti-DDoS Origin instance in the China (Hangzhou) region are queried.
+
+For more information about the IDs of other regions, see [Regions and zones](~~40654~~).', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the Anti-DDoS Origin instance belongs in Resource Management. This parameter is empty by default, which indicates that the instance belongs to the default resource group.
+
+For more information about resource groups, see [Create a resource group](~~94485~~).', example='rg-acfm2pz25js****'),
 }
 
 model DescribeRegionsResponseBody = {
-  code?: string(name='Code', description='Indicates whether the request is successful. Valid values:
-
-*   **true**: The request is successful.
-*   **false**: The request failed.', example='200'),
+  code?: string(name='Code', description='The HTTP status code.', example='200'),
   regions?: [ 
     {
-      regionEnName?: string(name='RegionEnName', description='The ID of the region.', example='China (Hangzhou)'),
-      regionId?: string(name='RegionId', example='cn-hangzhou'),
-      regionName?: string(name='RegionName', description='All Alibaba Cloud API operations must include common request parameters. For more information about common request parameters, see [Common parameters](~~118841~~).
-
-For more information about sample requests, see the **"Examples"** section of this topic.'),
+      regionEnName?: string(name='RegionEnName', description='The English name of the region where the cloud assets reside.', example='China (Hangzhou)'),
+      regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
+      regionName?: string(name='RegionName', description='The name of the region where the cloud assets reside.'),
     }
-  ](name='Regions', description='The name of the region where the cloud assets reside.'),
-  requestId?: string(name='RequestId', description='The information about regions of the cloud assets that are supported by the Anti-DDoS Origin instance. The information includes region IDs and names.', example='F7CA8B4E-FB15-4336-A351-8DC29D66EA82'),
-  success?: boolean(name='Success', description='The English name of the region where the cloud assets reside.', example='true'),
+  ](name='Regions', description='The information about regions of the cloud assets that are supported by the Anti-DDoS Origin instance. The information includes region IDs and names.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='F7CA8B4E-FB15-4336-A351-8DC29D66EA82'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful. Valid values:
+
+*   **true**: The request is successful.
+*   **false**: The request failed.', example='true'),
 }
 
 model DescribeRegionsResponse = {
