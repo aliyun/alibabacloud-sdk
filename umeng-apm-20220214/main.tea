@@ -2,6 +2,10 @@
  *
  */
 import Util;
+import OSS;
+import OpenPlatform;
+import OSSUtil;
+import FileForm;
 import OpenApi;
 import OpenApiUtil;
 import EndpointUtil;
@@ -412,6 +416,7 @@ model GetSymUploadParamRequest {
   dataSourceId?: string(name='dataSourceId', example='5fb6001a73749c24fd9cb356'),
   fileName?: string(name='fileName', example='symbol.zip'),
   fileType?: int32(name='fileType', example='1'),
+  flutterName?: string(name='flutterName', example='my-flutter-app'),
 }
 
 model GetSymUploadParamResponseBody = {
@@ -449,6 +454,9 @@ async function getSymUploadParamWithOptions(request: GetSymUploadParamRequest, h
   }
   if (!Util.isUnset(request.fileType)) {
     query['fileType'] = request.fileType;
+  }
+  if (!Util.isUnset(request.flutterName)) {
+    query['flutterName'] = request.flutterName;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -592,5 +600,157 @@ async function updateAlertPlan(request: UpdateAlertPlanRequest): UpdateAlertPlan
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateAlertPlanWithOptions(request, headers, runtime);
+}
+
+model UploadSymbolFileRequest {
+  appVersion?: string(name='appVersion', example='1.0.3'),
+  dataSourceId?: string(name='dataSourceId', example='5fb6001a73749c24fd9cb356'),
+  fileName?: string(name='fileName', example='symbol.zip'),
+  fileType?: int32(name='fileType', example='1'),
+  flutterName?: string(name='flutterName', example='my-flutter-app'),
+  ossUrl?: string(name='ossUrl', example='-'),
+}
+
+model UploadSymbolFileAdvanceRequest {
+  appVersion?: string(name='appVersion', example='1.0.3'),
+  dataSourceId?: string(name='dataSourceId', example='5fb6001a73749c24fd9cb356'),
+  fileName?: string(name='fileName', example='symbol.zip'),
+  fileType?: int32(name='fileType', example='1'),
+  flutterName?: string(name='flutterName', example='my-flutter-app'),
+  ossUrlObject?: readable(name='ossUrl', example='-'),
+}
+
+model UploadSymbolFileResponseBody = {
+  code?: long(name='code', description='code', example='200'),
+  msg?: string(name='msg', example='succeed in handling request'),
+  requestId?: string(name='requestId', example='8B99488B-2B73-502E-A5F2-00B4746F4325'),
+  success?: boolean(name='success', example='true'),
+  traceId?: string(name='traceId', description='traceId', example='210f07c516457690916816858d94ea'),
+}
+
+model UploadSymbolFileResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UploadSymbolFileResponseBody(name='body'),
+}
+
+async function uploadSymbolFileWithOptions(request: UploadSymbolFileRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UploadSymbolFileResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.appVersion)) {
+    query['appVersion'] = request.appVersion;
+  }
+  if (!Util.isUnset(request.dataSourceId)) {
+    query['dataSourceId'] = request.dataSourceId;
+  }
+  if (!Util.isUnset(request.fileName)) {
+    query['fileName'] = request.fileName;
+  }
+  if (!Util.isUnset(request.fileType)) {
+    query['fileType'] = request.fileType;
+  }
+  if (!Util.isUnset(request.flutterName)) {
+    query['flutterName'] = request.flutterName;
+  }
+  if (!Util.isUnset(request.ossUrl)) {
+    query['ossUrl'] = request.ossUrl;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UploadSymbolFile',
+    version = '2022-02-14',
+    protocol = 'HTTPS',
+    pathname = `/uploadSymbolFile`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function uploadSymbolFile(request: UploadSymbolFileRequest): UploadSymbolFileResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return uploadSymbolFileWithOptions(request, headers, runtime);
+}
+
+async function uploadSymbolFileAdvance(request: UploadSymbolFileAdvanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UploadSymbolFileResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'umeng-apm',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var uploadSymbolFileReq = new UploadSymbolFileRequest{};
+  OpenApiUtil.convert(request, uploadSymbolFileReq);
+
+  if(!Util.isUnset(request.ossUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.ossUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    uploadSymbolFileReq.ossUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var uploadSymbolFileResp = uploadSymbolFileWithOptions(uploadSymbolFileReq, headers, runtime);
+  return uploadSymbolFileResp;
 }
 
