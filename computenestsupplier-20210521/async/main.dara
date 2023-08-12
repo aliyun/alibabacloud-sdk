@@ -30,6 +30,34 @@ function close(): void {
   @handler.close();
 }
 
+model ContinueDeployServiceInstanceRequest {
+  clientToken?: string(name='ClientToken', example='123e4567-e89b-12d3-a456-426655440000', position='Query'),
+  dryRun?: boolean(name='DryRun', example='false', position='Query'),
+  parameters?: string(name='Parameters', example='{"NodeCount": 3, "SystemDiskSize": 40, "InstancePassword": "******"}', position='Query'),
+  regionId: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  serviceInstanceId: string(name='ServiceInstanceId', example='si-0e6fca6a51a54420****', position='Query'),
+}
+
+model ContinueDeployServiceInstanceResponseBody = {
+  dryRunResult?: {
+    parametersAllowedToBeModified?: [ string ](name='ParametersAllowedToBeModified'),
+    parametersConditionallyAllowedToBeModified?: [ string ](name='ParametersConditionallyAllowedToBeModified'),
+    parametersNotAllowedToBeModified?: [ string ](name='ParametersNotAllowedToBeModified'),
+  }(name='DryRunResult'),
+  requestId?: string(name='RequestId', example='82DF27ED-E538-5AC0-A11C-39334A873189'),
+  serviceInstanceId?: string(name='ServiceInstanceId', example='si-d6ab3a63ccbb4b17****'),
+}
+
+model ContinueDeployServiceInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  body: ContinueDeployServiceInstanceResponseBody(name='body'),
+}
+
+async function continueDeployServiceInstance(request: ContinueDeployServiceInstanceRequest): ContinueDeployServiceInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ContinueDeployServiceInstance', 'POST', '/', 'json', false, 'json', request);
+}
+
 model CreateArtifactRequest {
   artifactId?: string(name='ArtifactId', example='artifact-eea08d1e2d3a43aexxxx', position='Query'),
   artifactProperty?: {
@@ -38,7 +66,10 @@ model CreateArtifactRequest {
     fileScriptMetadata?: string(name='FileScriptMetadata', example='{\\"WorkDir\\":\\"/root\\",\\"CommandType\\":\\"RunShellScript\\",\\"Platform\\":\\"Linux\\",\\"Script\\":\\"echo hello\\"}'),
     imageId?: string(name='ImageId', example='m-0xij191j9cuev6xxxxxx'),
     regionId?: string(name='RegionId', example='cn-hangzhou'),
+    repoId?: string(name='RepoId'),
+    repoName?: string(name='RepoName'),
     scriptMetadata?: string(name='ScriptMetadata', example='{"ScriptMetadata":"{\\"CommandType\\":\\"RunShellScript\\",\\"Platform\\":\\"Linux\\",\\"Script\\":\\"ls\\"}"}'),
+    tag?: string(name='Tag'),
     url?: string(name='Url', example='https://service-info-private.oss-cn-hangzhou.aliyuncs.com/1309208528xxxxxx/template/2e1ce8fc-xxxx-481c-9e8e-789ba9db487d.json'),
   }(name='ArtifactProperty', shrink='json', position='Query'),
   artifactType: string(name='ArtifactType', example='EcsImage', position='Query'),
@@ -86,6 +117,7 @@ model CreateServiceRequest {
   duration?: long(name='Duration', example='0', position='Query'),
   isSupportOperated?: boolean(name='IsSupportOperated', example='false', position='Query'),
   licenseMetadata?: string(name='LicenseMetadata', position='Query'),
+  logMetadata?: string(name='LogMetadata', position='Query'),
   operationMetadata?: string(name='OperationMetadata', example='{\\"PrometheusConfigMap\\":{\\"New_Vpc_Ack_And_Jumpserver\\":{}}}', position='Query'),
   policyNames?: string(name='PolicyNames', example='policyName1, policyName2', position='Query'),
   regionId: string(name='RegionId', example='cn-hangzhou', position='Query'),
@@ -95,12 +127,15 @@ model CreateServiceRequest {
     {
       image?: string(name='Image', example='http://img.tidb.oss.url'),
       locale: string(name='Locale', example='zh-CN'),
+      longDescriptionUrl?: string(name='LongDescriptionUrl'),
       name: string(name='Name', example='TiDB Database'),
       shortDescription?: string(name='ShortDescription'),
     }
   ](name='ServiceInfo', position='Query'),
   serviceType?: string(name='ServiceType', example='private', position='Query'),
   shareType?: string(name='ShareType', example='Public', position='Query'),
+  sourceServiceId?: string(name='SourceServiceId', position='Query'),
+  sourceServiceVersion?: string(name='SourceServiceVersion', position='Query'),
   tag?: [ 
     {
       key?: string(name='Key', example='Usage'),
@@ -128,6 +163,42 @@ model CreateServiceResponse = {
 async function createService(request: CreateServiceRequest): CreateServiceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateService', 'POST', '/', 'json', false, 'json', request);
+}
+
+model CreateServiceInstanceRequest {
+  clientToken?: string(name='ClientToken', example='123e4567-e89b-12d3-a456-426655440000', position='Query'),
+  dryRun?: boolean(name='DryRun', position='Query'),
+  name?: string(name='Name', example='TestName', position='Query'),
+  parameters?: map[string]any(name='Parameters', example='{"NodeCount": 3, "SystemDiskSize": 40, "InstancePassword": "******"}', shrink='json', position='Query'),
+  regionId: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-aekzuqyxxxxxx', position='Query'),
+  serviceId: string(name='ServiceId', example='service-0e6fca6a51a54420****', position='Query'),
+  serviceVersion?: string(name='ServiceVersion', example='1', position='Query'),
+  specificationName?: string(name='SpecificationName', position='Query'),
+  tag?: [ 
+    {
+      key?: string(name='Key', example='key1'),
+      value?: string(name='Value', example='value1'),
+    }
+  ](name='Tag', position='Query'),
+  templateName?: string(name='TemplateName', position='Query'),
+  userId?: string(name='UserId', example='1563457855xxxxxx', position='Query'),
+}
+
+model CreateServiceInstanceResponseBody = {
+  requestId?: string(name='RequestId', example='4DB0F536-B3BE-4F0D-BD29-E83FB56D****'),
+  serviceInstanceId?: string(name='ServiceInstanceId', example='si-d6ab3a63ccbb4b17****'),
+  status?: string(name='Status', example='Created'),
+}
+
+model CreateServiceInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  body: CreateServiceInstanceResponseBody(name='body'),
+}
+
+async function createServiceInstance(request: CreateServiceInstanceRequest): CreateServiceInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateServiceInstance', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteArtifactRequest {
@@ -168,6 +239,26 @@ model DeleteServiceResponse = {
 async function deleteService(request: DeleteServiceRequest): DeleteServiceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteService', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DeleteServiceInstancesRequest {
+  clientToken?: string(name='ClientToken', example='123e4567-e89b-12d3-a456-426655440000', position='Query'),
+  regionId: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  serviceInstanceId: [ string ](name='ServiceInstanceId', position='Query'),
+}
+
+model DeleteServiceInstancesResponseBody = {
+  requestId?: string(name='RequestId', example='DB140E67-D75F-5585-946E-41D8DC8F4E00'),
+}
+
+model DeleteServiceInstancesResponse = {
+  headers: map[string]string(name='headers'),
+  body: DeleteServiceInstancesResponseBody(name='body'),
+}
+
+async function deleteServiceInstances(request: DeleteServiceInstancesRequest): DeleteServiceInstancesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteServiceInstances', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetArtifactRequest {
@@ -237,9 +328,12 @@ async function getArtifactRepositoryCredentials(request: GetArtifactRepositoryCr
 }
 
 model GetServiceRequest {
+  filterAliUid?: boolean(name='FilterAliUid', position='Query'),
   regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
   serviceId: string(name='ServiceId', example='service-4ee86df83fd948******', position='Query'),
   serviceVersion?: string(name='ServiceVersion', example='1', position='Query'),
+  sharedAccountType?: string(name='SharedAccountType', position='Query'),
+  showDetail?: [ string ](name='ShowDetail', position='Query'),
 }
 
 model GetServiceResponseBody = {
@@ -267,6 +361,7 @@ model GetServiceResponseBody = {
   duration?: long(name='Duration', example='259200'),
   isSupportOperated?: boolean(name='IsSupportOperated', example='false'),
   licenseMetadata?: string(name='LicenseMetadata'),
+  logMetadata?: string(name='LogMetadata'),
   operationMetadata?: string(name='OperationMetadata', example='{\\"PrometheusConfigMap\\":{\\"New_Vpc_Ack_And_Jumpserver\\":{}}}'),
   payFromType?: string(name='PayFromType', example='None'),
   payType?: string(name='PayType', example='Permanent'),
@@ -283,6 +378,7 @@ model GetServiceResponseBody = {
     {
       image?: string(name='Image', example='https://example.com/service-image/c1c4a559-cc60-4af1-b976-98f356602462.png'),
       locale?: string(name='Locale', example='zh-CN'),
+      longDescriptionUrl?: string(name='LongDescriptionUrl'),
       name?: string(name='Name'),
       shortDescription?: string(name='ShortDescription'),
     }
@@ -290,6 +386,20 @@ model GetServiceResponseBody = {
   serviceProductUrl?: string(name='ServiceProductUrl', example='http://example2.com'),
   serviceType?: string(name='ServiceType', example='private'),
   shareType?: string(name='ShareType', example='Public'),
+  sourceServiceId?: string(name='SourceServiceId'),
+  sourceServiceVersion?: string(name='SourceServiceVersion'),
+  sourceSupplierName?: string(name='SourceSupplierName'),
+  statistic?: {
+    accumulativeInstanceCount?: int32(name='AccumulativeInstanceCount'),
+    accumulativePocAmount?: double(name='AccumulativePocAmount'),
+    accumulativeUserCount?: int32(name='AccumulativeUserCount'),
+    averagePocAmount?: double(name='AveragePocAmount'),
+    averagePocDuration?: double(name='AveragePocDuration'),
+    averagePocUnitAmount?: double(name='AveragePocUnitAmount'),
+    deployedServiceInstanceCount?: int32(name='DeployedServiceInstanceCount'),
+    deployedUserCount?: int32(name='DeployedUserCount'),
+    submittedUsageCount?: int32(name='SubmittedUsageCount'),
+  }(name='Statistic'),
   status?: string(name='Status', example='Online'),
   statusDetail?: string(name='StatusDetail', example='deploy successfully'),
   supplierName?: string(name='SupplierName'),
@@ -331,7 +441,7 @@ model GetServiceEstimateCostRequest {
 }
 
 model GetServiceEstimateCostResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request', example='E73F09DC-6C13-5CB1-A10F-7A4E125ABD2C'),
+  requestId?: string(name='RequestId', example='E73F09DC-6C13-5CB1-A10F-7A4E125ABD2C'),
   resources?: map[string]any(name='Resources', example='{
       "ECSInstances":{
         "Type":"ALIYUN::ECS::InstanceGroup",
@@ -399,6 +509,7 @@ model GetServiceInstanceRequest {
 }
 
 model GetServiceInstanceResponseBody = {
+  bizStatus?: string(name='BizStatus'),
   createTime?: string(name='CreateTime', example='2021-05-20T00:00:00Z'),
   enableInstanceOps?: boolean(name='EnableInstanceOps', example='true'),
   enableUserPrometheus?: string(name='EnableUserPrometheus', example='true'),
@@ -447,9 +558,11 @@ model GetServiceInstanceResponseBody = {
       "param": "value"
 }'),
   payType?: string(name='PayType', example='Subscription'),
+  predefinedParameterName?: string(name='PredefinedParameterName'),
   progress?: long(name='Progress', example='90'),
   rdAccountLoginUrl?: string(name='RdAccountLoginUrl'),
   requestId?: string(name='RequestId', example='4DB0F536-B3BE-4F0D-BD29-E83FB56D550C'),
+  resourceGroupId?: string(name='ResourceGroupId'),
   resources?: string(name='Resources', example='[
       {
             "StackId": "stack-xxx"
@@ -512,13 +625,13 @@ model GetUploadCredentialsRequest {
 model GetUploadCredentialsResponseBody = {
   code?: string(name='Code', example='200'),
   data?: {
-    accessKeyId?: string(name='AccessKeyId', description='ak', example='STS.NUCe19W1FKaHAYAhe********'),
-    accessKeySecret?: string(name='AccessKeySecret', description='sk', example='8LQGp59mY23pcXeTdcvSA1cUQZBeD92sFrXi********'),
-    bucketName?: string(name='BucketName', description='仓库名称', example='service-info-private'),
-    expireDate?: string(name='ExpireDate', description='过期时间', example='2023-05-18T12:27:59Z'),
-    key?: string(name='Key', description='文件key', example='221514575922756034/cn-hangzhou/d57c62fbd508xxxxxxxx.json'),
-    regionId?: string(name='RegionId', description='地域', example='cn-hangzhou'),
-    securityToken?: string(name='SecurityToken', description='安全token', example='CAISzQN1q6Ft5B2yfSjIr5b2LouNuu5n/KOjQ3/wjGUHYdlagYGdmzz2IH1Le3NrBO8esfgymGFU6v8dlo1dYLQeHhadQI5cs80HtFqLSNaE65LswPlZ2M2ISETPJzfV9pCK'),
+    accessKeyId?: string(name='AccessKeyId', example='STS.NUCe19W1FKaHAYAhe********'),
+    accessKeySecret?: string(name='AccessKeySecret', example='8LQGp59mY23pcXeTdcvSA1cUQZBeD92sFrXi********'),
+    bucketName?: string(name='BucketName', example='service-info-private'),
+    expireDate?: string(name='ExpireDate', example='2023-05-18T12:27:59Z'),
+    key?: string(name='Key', example='221514575922756034/cn-hangzhou/d57c62fbd508xxxxxxxx.json'),
+    regionId?: string(name='RegionId', example='cn-hangzhou'),
+    securityToken?: string(name='SecurityToken', example='CAISzQN1q6Ft5B2yfSjIr5b2LouNuu5n/KOjQ3/wjGUHYdlagYGdmzz2IH1Le3NrBO8esfgymGFU6v8dlo1dYLQeHhadQI5cs80HtFqLSNaE65LswPlZ2M2ISETPJzfV9pCK'),
   }(name='Data'),
   httpStatusCode?: int32(name='HttpStatusCode', example='200'),
   message?: string(name='Message', example='Success.'),
@@ -538,7 +651,7 @@ async function getUploadCredentials(request: GetUploadCredentialsRequest): GetUp
 
 model ListArtifactVersionsRequest {
   artifactId: string(name='ArtifactId', example='artifact-eea08d1e2d3a43aexxxx', position='Query'),
-  maxResult?: string(name='MaxResult', example='20', position='Query'),
+  maxResult?: int32(name='MaxResult', example='20', position='Query'),
   nextToken?: string(name='NextToken', example='AAAAAc3HCuYhJi/wvpk4xOr0VLbfVwapgMwCN1wYzPVzLbItEdB0uWSY7AGnM3qCgm/YnjuEfwSnMwiMkcUoI0hRQzE=', position='Query'),
 }
 
@@ -564,10 +677,10 @@ model ListArtifactVersionsResponseBody = {
       versionName?: string(name='VersionName', example='v1'),
     }
   ](name='Artifacts'),
-  maxResults?: string(name='MaxResults', example='20'),
+  maxResults?: int32(name='MaxResults', example='20'),
   nextToken?: string(name='NextToken', example='AAAAAc3HCuYhJi/wvpk4xOr0VLbfVwapgMwCN1wYzPVzLbItEdB0uWSY7AGnM3qCgm/YnjuEfwSnMwiMkcUoI0hRQzE='),
   requestId?: string(name='RequestId', example='46577928-3162-15A6-9084-69820EB9xxxx'),
-  totalCount?: string(name='TotalCount', example='2'),
+  totalCount?: int32(name='TotalCount', example='2'),
 }
 
 model ListArtifactVersionsResponse = {
@@ -587,7 +700,7 @@ model ListArtifactsRequest {
       values?: [ string ](name='Values'),
     }
   ](name='Filter', position='Query'),
-  maxResults?: string(name='MaxResults', example='20', position='Query'),
+  maxResults?: int32(name='MaxResults', example='20', position='Query'),
   nextToken?: string(name='NextToken', example='AAAAAc3HCuYhJi/wvpk4xOr0VLbfVwapgMwCN1wYzPVzLbItEdB0uWSY7AGnM3qCgm/YnjuEfwSnMwiMkcUoI0hRQzE=', position='Query'),
 }
 
@@ -603,10 +716,10 @@ model ListArtifactsResponseBody = {
       status?: string(name='Status', example='Created'),
     }
   ](name='Artifacts'),
-  maxResults?: string(name='MaxResults', example='20'),
+  maxResults?: int32(name='MaxResults', example='20'),
   nextToken?: string(name='NextToken', example='AAAAAc3HCuYhJi/wvpk4xOr0VLbfVwapgMwCN1wYzPVzLbItEdB0uWSY7AGnM3qCgm/YnjuEfwSnMwiMkcUoI0hRQzE='),
   requestId?: string(name='RequestId', example='46577928-3162-15A6-9084-69820EB9xxxx'),
-  totalCount?: string(name='TotalCount', example='2'),
+  totalCount?: int32(name='TotalCount', example='2'),
 }
 
 model ListArtifactsResponse = {
@@ -626,9 +739,10 @@ model ListServiceInstancesRequest {
       value?: [ string ](name='Value'),
     }
   ](name='Filter', position='Query'),
-  maxResults?: string(name='MaxResults', example='10', position='Query'),
+  maxResults?: int32(name='MaxResults', example='10', position='Query'),
   nextToken?: string(name='NextToken', example='BBBAAfu+XtuBE55iRLHEYYuojI4=', position='Query'),
   regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   showDeleted?: boolean(name='ShowDeleted', example='false', position='Query'),
   tag?: [ 
     {
@@ -639,7 +753,7 @@ model ListServiceInstancesRequest {
 }
 
 model ListServiceInstancesResponseBody = {
-  maxResults?: string(name='MaxResults', example='20'),
+  maxResults?: int32(name='MaxResults', example='20'),
   nextToken?: string(name='NextToken', example='AAAAAfu+XtuBE55iRLHEYYuojI4='),
   requestId?: string(name='RequestId', example='E50287CB-AABF-4877-92C0-289B339A1546'),
   serviceInstances?: [ 
@@ -655,6 +769,7 @@ model ListServiceInstancesResponseBody = {
       parameters?: string(name='Parameters', example='{"param":"value"}'),
       payType?: string(name='PayType', example='Subscription'),
       progress?: long(name='Progress', example='90'),
+      resourceGroupId?: string(name='ResourceGroupId'),
       service?: {
         deployMetadata?: string(name='DeployMetadata'),
         deployType?: string(name='DeployType', example='ros'),
@@ -670,6 +785,7 @@ model ListServiceInstancesResponseBody = {
           }
         ](name='ServiceInfos'),
         serviceType?: string(name='ServiceType', example='private'),
+        sourceSupplierName?: string(name='SourceSupplierName'),
         status?: string(name='Status', example='Online'),
         supplierName?: string(name='SupplierName'),
         supplierUrl?: string(name='SupplierUrl', example='http://example.com'),
@@ -718,8 +834,8 @@ model ListServiceUsagesRequest {
 
 model ListServiceUsagesResponseBody = {
   maxResults?: int32(name='MaxResults', example='20'),
-  nextToken?: string(name='NextToken', description='NextToken', example='AAAAAYChudnQUoBH+mGWFpb6oP0='),
-  requestId?: string(name='RequestId', description='Id of the request', example='18AD0960-A9FE-1AC8-ADF8-22131Fxxxxxx'),
+  nextToken?: string(name='NextToken', example='AAAAAYChudnQUoBH+mGWFpb6oP0='),
+  requestId?: string(name='RequestId', example='18AD0960-A9FE-1AC8-ADF8-22131Fxxxxxx'),
   serviceUsages?: [ 
     {
       comments?: string(name='Comments'),
@@ -763,7 +879,7 @@ model ListServicesRequest {
       value?: [ string ](name='Value'),
     }
   ](name='Filter', position='Query'),
-  maxResults?: string(name='MaxResults', example='10', position='Query'),
+  maxResults?: int32(name='MaxResults', example='10', position='Query'),
   nextToken?: string(name='NextToken', example='BBBAAfu+XtuBE55iRLHEYYuojI4=', position='Query'),
   regionId: string(name='RegionId', example='cn-hangzhou', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', position='Query'),
@@ -788,8 +904,10 @@ model ListServicesResponseBody = {
       createTime?: string(name='CreateTime', example='2021-05-20T00:00:00Z'),
       defaultVersion?: boolean(name='DefaultVersion', example='true'),
       deployType?: string(name='DeployType', example='ros'),
+      latestResellSourceServiceVersion?: string(name='LatestResellSourceServiceVersion'),
       publishTime?: string(name='PublishTime', example='2021-05-21T00:00:00Z'),
       relationType?: string(name='RelationType', example='ServiceDeployment'),
+      resellServiceId?: string(name='ResellServiceId'),
       resourceGroupId?: string(name='ResourceGroupId'),
       serviceId?: string(name='ServiceId', example='service-70a3b15bb62643xxxxxx'),
       serviceInfos?: [ 
@@ -803,6 +921,9 @@ model ListServicesResponseBody = {
       serviceType?: string(name='ServiceType', example='private'),
       shareType?: string(name='ShareType', example='Public'),
       sourceImage?: string(name='SourceImage', example='centos_7'),
+      sourceServiceId?: string(name='SourceServiceId'),
+      sourceServiceVersion?: string(name='SourceServiceVersion'),
+      sourceSupplierName?: string(name='SourceSupplierName'),
       status?: string(name='Status', example='Online'),
       supplierName?: string(name='SupplierName'),
       supplierUrl?: string(name='SupplierUrl', example='http://example.com'),
@@ -819,7 +940,7 @@ model ListServicesResponseBody = {
       versionName?: string(name='VersionName', example='v2.0.0'),
     }
   ](name='Services'),
-  totalCount?: string(name='TotalCount', example='100'),
+  totalCount?: int32(name='TotalCount', example='100'),
 }
 
 model ListServicesResponse = {
@@ -830,6 +951,35 @@ model ListServicesResponse = {
 async function listServices(request: ListServicesRequest): ListServicesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListServices', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ModifyServiceInstanceResourcesRequest {
+  resources?: string(name='Resources', example='{
+  "RegionId": "cn-hangzhou",
+  "Type": "ResourceIds",
+  "ResourceIds": {
+    "ALIYUN::ECS::INSTANCE": ["i-xxx", "i-yyy"],
+    "ALIYUN::RDS::INSTANCE": ["rm-xxx", "rm-yyy"],
+    "ALIYUN::VPC::VPC": ["vpc-xxx", "vpc-yyy"],
+    "ALIYUN::SLB::INSTANCE": ["lb-xxx", "lb-yyy"]
+  }
+}', position='Query'),
+  serviceInstanceId: string(name='ServiceInstanceId', example='si-d8a0cc2a1ee04dce****', position='Query'),
+  serviceInstanceResourcesAction?: string(name='ServiceInstanceResourcesAction', example='Import', position='Query'),
+}
+
+model ModifyServiceInstanceResourcesResponseBody = {
+  requestId?: string(name='RequestId', example='46577928-3162-15A6-9084-69820EB9xxxx'),
+}
+
+model ModifyServiceInstanceResourcesResponse = {
+  headers: map[string]string(name='headers'),
+  body: ModifyServiceInstanceResourcesResponseBody(name='body'),
+}
+
+async function modifyServiceInstanceResources(request: ModifyServiceInstanceResourcesRequest): ModifyServiceInstanceResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ModifyServiceInstanceResources', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ReleaseArtifactRequest {
@@ -909,6 +1059,7 @@ model UpdateServiceRequest {
   duration?: long(name='Duration', example='259200', position='Query'),
   isSupportOperated?: boolean(name='IsSupportOperated', example='false', position='Query'),
   licenseMetadata?: string(name='LicenseMetadata', position='Query'),
+  logMetadata?: string(name='LogMetadata', position='Query'),
   operationMetadata?: string(name='OperationMetadata', example='{\\"PrometheusConfigMap\\":{\\"Custom_Image_Ecs\\":{\\"EnablePrometheus\\":false}}}', position='Query'),
   policyNames?: string(name='PolicyNames', example='policyName1, policyName2', position='Query'),
   regionId: string(name='RegionId', example='cn-hangzhou', position='Query'),
@@ -917,6 +1068,7 @@ model UpdateServiceRequest {
     {
       image?: string(name='Image', example='http://img.tidb.oss.url'),
       locale?: string(name='Locale', example='zh-CN'),
+      longDescriptionUrl?: string(name='LongDescriptionUrl'),
       name?: string(name='Name'),
       shortDescription?: string(name='ShortDescription'),
     }
