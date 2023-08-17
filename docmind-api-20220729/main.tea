@@ -90,6 +90,131 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model ExtractFeedbackRequest {
+  feedbackUrl?: string(name='FeedbackUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+}
+
+model ExtractFeedbackAdvanceRequest {
+  feedbackUrlObject?: readable(name='FeedbackUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+}
+
+model ExtractFeedbackResponseBody = {
+  code?: string(name='Code', example='noPermission'),
+  data?: {
+    id?: string(name='Id', example='docmind-20220816-15bc7965'),
+  }(name='Data'),
+  message?: string(name='Message', example='You are not authorized to perform this operation.'),
+  requestId?: string(name='RequestId', example='43A29C77-405E-4CC0-BC55-EE694AD00655'),
+}
+
+model ExtractFeedbackResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ExtractFeedbackResponseBody(name='body'),
+}
+
+async function extractFeedbackWithOptions(request: ExtractFeedbackRequest, runtime: Util.RuntimeOptions): ExtractFeedbackResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.feedbackUrl)) {
+    query['FeedbackUrl'] = request.feedbackUrl;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ExtractFeedback',
+    version = '2022-07-29',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function extractFeedback(request: ExtractFeedbackRequest): ExtractFeedbackResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return extractFeedbackWithOptions(request, runtime);
+}
+
+async function extractFeedbackAdvance(request: ExtractFeedbackAdvanceRequest, runtime: Util.RuntimeOptions): ExtractFeedbackResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'docmind-api',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var extractFeedbackReq = new ExtractFeedbackRequest{};
+  OpenApiUtil.convert(request, extractFeedbackReq);
+
+  if(!Util.isUnset(request.feedbackUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.feedbackUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    extractFeedbackReq.feedbackUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var extractFeedbackResp = extractFeedbackWithOptions(extractFeedbackReq, runtime);
+  return extractFeedbackResp;
+}
+
 model GetSingleDocumentExtractResultRequest {
   id?: string(name='Id', example='docmind-20220816-1e89d65c'),
 }
@@ -144,16 +269,131 @@ async function getSingleDocumentExtractResult(request: GetSingleDocumentExtractR
   return getSingleDocumentExtractResultWithOptions(request, runtime);
 }
 
+model ReClassifyTradeDocumentExtractRequest {
+  bizId?: string(name='BizId'),
+  pageUpdateInfoModels?: [ 
+    {
+      attTypeCode?: string(name='AttTypeCode'),
+      pageId?: string(name='PageId'),
+    }
+  ](name='PageUpdateInfoModels'),
+}
+
+model ReClassifyTradeDocumentExtractShrinkRequest {
+  bizId?: string(name='BizId'),
+  pageUpdateInfoModelsShrink?: string(name='PageUpdateInfoModels'),
+}
+
+model ReClassifyTradeDocumentExtractResponseBody = {
+  code?: string(name='Code', example='noPermission'),
+  data?: {
+    id?: string(name='Id', example='docmind-20220816-15bc7965'),
+  }(name='Data'),
+  message?: string(name='Message', example='You are not authorized to perform this operation.'),
+  requestId?: string(name='RequestId', example='43A29C77-405E-4CC0-BC55-EE694AD00655'),
+}
+
+model ReClassifyTradeDocumentExtractResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ReClassifyTradeDocumentExtractResponseBody(name='body'),
+}
+
+async function reClassifyTradeDocumentExtractWithOptions(tmpReq: ReClassifyTradeDocumentExtractRequest, runtime: Util.RuntimeOptions): ReClassifyTradeDocumentExtractResponse {
+  Util.validateModel(tmpReq);
+  var request = new ReClassifyTradeDocumentExtractShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.pageUpdateInfoModels)) {
+    request.pageUpdateInfoModelsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.pageUpdateInfoModels, 'PageUpdateInfoModels', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.bizId)) {
+    query['BizId'] = request.bizId;
+  }
+  if (!Util.isUnset(request.pageUpdateInfoModelsShrink)) {
+    query['PageUpdateInfoModels'] = request.pageUpdateInfoModelsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ReClassifyTradeDocumentExtract',
+    version = '2022-07-29',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function reClassifyTradeDocumentExtract(request: ReClassifyTradeDocumentExtractRequest): ReClassifyTradeDocumentExtractResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return reClassifyTradeDocumentExtractWithOptions(request, runtime);
+}
+
+model RetryTradeDocumentExtractRequest {
+  bizId?: string(name='BizId'),
+}
+
+model RetryTradeDocumentExtractResponseBody = {
+  code?: string(name='Code', example='noPermission'),
+  data?: {
+    id?: string(name='Id', example='docmind-20220816-15bc7965'),
+  }(name='Data'),
+  message?: string(name='Message', example='You are not authorized to perform this operation.'),
+  requestId?: string(name='RequestId', example='43A29C77-405E-4CC0-BC55-EE694AD00655'),
+}
+
+model RetryTradeDocumentExtractResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: RetryTradeDocumentExtractResponseBody(name='body'),
+}
+
+async function retryTradeDocumentExtractWithOptions(request: RetryTradeDocumentExtractRequest, runtime: Util.RuntimeOptions): RetryTradeDocumentExtractResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.bizId)) {
+    query['BizId'] = request.bizId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'RetryTradeDocumentExtract',
+    version = '2022-07-29',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function retryTradeDocumentExtract(request: RetryTradeDocumentExtractRequest): RetryTradeDocumentExtractResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return retryTradeDocumentExtractWithOptions(request, runtime);
+}
+
 model SubmitAirWaybillExtractJobRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrl?: string(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitAirWaybillExtractJobAdvanceRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrlObject?: readable(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitAirWaybillExtractJobResponseBody = {
@@ -182,6 +422,9 @@ async function submitAirWaybillExtractJobWithOptions(request: SubmitAirWaybillEx
   }
   if (!Util.isUnset(request.fileUrl)) {
     query['FileUrl'] = request.fileUrl;
+  }
+  if (!Util.isUnset(request.parserConfigId)) {
+    query['ParserConfigId'] = request.parserConfigId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -283,12 +526,14 @@ model SubmitBillOfLadingExtractJobRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrl?: string(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitBillOfLadingExtractJobAdvanceRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrlObject?: readable(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitBillOfLadingExtractJobResponseBody = {
@@ -317,6 +562,9 @@ async function submitBillOfLadingExtractJobWithOptions(request: SubmitBillOfLadi
   }
   if (!Util.isUnset(request.fileUrl)) {
     query['FileUrl'] = request.fileUrl;
+  }
+  if (!Util.isUnset(request.parserConfigId)) {
+    query['ParserConfigId'] = request.parserConfigId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -418,12 +666,14 @@ model SubmitBookingNoteExtractJobRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrl?: string(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitBookingNoteExtractJobAdvanceRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrlObject?: readable(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitBookingNoteExtractJobResponseBody = {
@@ -452,6 +702,9 @@ async function submitBookingNoteExtractJobWithOptions(request: SubmitBookingNote
   }
   if (!Util.isUnset(request.fileUrl)) {
     query['FileUrl'] = request.fileUrl;
+  }
+  if (!Util.isUnset(request.parserConfigId)) {
+    query['ParserConfigId'] = request.parserConfigId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -553,12 +806,14 @@ model SubmitCertificateOfOriginExtractJobRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrl?: string(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitCertificateOfOriginExtractJobAdvanceRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrlObject?: readable(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitCertificateOfOriginExtractJobResponseBody = {
@@ -587,6 +842,9 @@ async function submitCertificateOfOriginExtractJobWithOptions(request: SubmitCer
   }
   if (!Util.isUnset(request.fileUrl)) {
     query['FileUrl'] = request.fileUrl;
+  }
+  if (!Util.isUnset(request.parserConfigId)) {
+    query['ParserConfigId'] = request.parserConfigId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -688,12 +946,14 @@ model SubmitContainerLoadPlanExtractJobRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrl?: string(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitContainerLoadPlanExtractJobAdvanceRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrlObject?: readable(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitContainerLoadPlanExtractJobResponseBody = {
@@ -722,6 +982,9 @@ async function submitContainerLoadPlanExtractJobWithOptions(request: SubmitConta
   }
   if (!Util.isUnset(request.fileUrl)) {
     query['FileUrl'] = request.fileUrl;
+  }
+  if (!Util.isUnset(request.parserConfigId)) {
+    query['ParserConfigId'] = request.parserConfigId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -823,12 +1086,14 @@ model SubmitExportDeclarationSheetExtractJobRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrl?: string(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitExportDeclarationSheetExtractJobAdvanceRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrlObject?: readable(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitExportDeclarationSheetExtractJobResponseBody = {
@@ -857,6 +1122,9 @@ async function submitExportDeclarationSheetExtractJobWithOptions(request: Submit
   }
   if (!Util.isUnset(request.fileUrl)) {
     query['FileUrl'] = request.fileUrl;
+  }
+  if (!Util.isUnset(request.parserConfigId)) {
+    query['ParserConfigId'] = request.parserConfigId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -958,12 +1226,14 @@ model SubmitImportDeclarationSheetExtractJobRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrl?: string(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitImportDeclarationSheetExtractJobAdvanceRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrlObject?: readable(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitImportDeclarationSheetExtractJobResponseBody = {
@@ -992,6 +1262,9 @@ async function submitImportDeclarationSheetExtractJobWithOptions(request: Submit
   }
   if (!Util.isUnset(request.fileUrl)) {
     query['FileUrl'] = request.fileUrl;
+  }
+  if (!Util.isUnset(request.parserConfigId)) {
+    query['ParserConfigId'] = request.parserConfigId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1093,12 +1366,14 @@ model SubmitInvoiceExtractJobRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrl?: string(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitInvoiceExtractJobAdvanceRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrlObject?: readable(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitInvoiceExtractJobResponseBody = {
@@ -1127,6 +1402,9 @@ async function submitInvoiceExtractJobWithOptions(request: SubmitInvoiceExtractJ
   }
   if (!Util.isUnset(request.fileUrl)) {
     query['FileUrl'] = request.fileUrl;
+  }
+  if (!Util.isUnset(request.parserConfigId)) {
+    query['ParserConfigId'] = request.parserConfigId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1228,12 +1506,14 @@ model SubmitPackingListExtractJobRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrl?: string(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitPackingListExtractJobAdvanceRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrlObject?: readable(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitPackingListExtractJobResponseBody = {
@@ -1262,6 +1542,9 @@ async function submitPackingListExtractJobWithOptions(request: SubmitPackingList
   }
   if (!Util.isUnset(request.fileUrl)) {
     query['FileUrl'] = request.fileUrl;
+  }
+  if (!Util.isUnset(request.parserConfigId)) {
+    query['ParserConfigId'] = request.parserConfigId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1363,12 +1646,14 @@ model SubmitSalesConfirmationExtractJobRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrl?: string(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitSalesConfirmationExtractJobAdvanceRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrlObject?: readable(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitSalesConfirmationExtractJobResponseBody = {
@@ -1397,6 +1682,9 @@ async function submitSalesConfirmationExtractJobWithOptions(request: SubmitSales
   }
   if (!Util.isUnset(request.fileUrl)) {
     query['FileUrl'] = request.fileUrl;
+  }
+  if (!Util.isUnset(request.parserConfigId)) {
+    query['ParserConfigId'] = request.parserConfigId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1498,12 +1786,14 @@ model SubmitSeaWaybillExtractJobRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrl?: string(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitSeaWaybillExtractJobAdvanceRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
   fileUrlObject?: readable(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+  parserConfigId?: int32(name='ParserConfigId'),
 }
 
 model SubmitSeaWaybillExtractJobResponseBody = {
@@ -1532,6 +1822,9 @@ async function submitSeaWaybillExtractJobWithOptions(request: SubmitSeaWaybillEx
   }
   if (!Util.isUnset(request.fileUrl)) {
     query['FileUrl'] = request.fileUrl;
+  }
+  if (!Util.isUnset(request.parserConfigId)) {
+    query['ParserConfigId'] = request.parserConfigId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1627,5 +1920,157 @@ async function submitSeaWaybillExtractJobAdvance(request: SubmitSeaWaybillExtrac
   }
   var submitSeaWaybillExtractJobResp = submitSeaWaybillExtractJobWithOptions(submitSeaWaybillExtractJobReq, runtime);
   return submitSeaWaybillExtractJobResp;
+}
+
+model SubmitTradeDocumentPackageExtractJobRequest {
+  customExtractionRange?: [ string ](name='CustomExtractionRange'),
+  fileName?: string(name='FileName'),
+  fileNameExtension?: string(name='FileNameExtension', example='pdf'),
+  fileUrl?: string(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+}
+
+model SubmitTradeDocumentPackageExtractJobAdvanceRequest {
+  customExtractionRange?: [ string ](name='CustomExtractionRange'),
+  fileName?: string(name='FileName'),
+  fileNameExtension?: string(name='FileNameExtension', example='pdf'),
+  fileUrlObject?: readable(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+}
+
+model SubmitTradeDocumentPackageExtractJobShrinkRequest {
+  customExtractionRangeShrink?: string(name='CustomExtractionRange'),
+  fileName?: string(name='FileName'),
+  fileNameExtension?: string(name='FileNameExtension', example='pdf'),
+  fileUrl?: string(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+}
+
+model SubmitTradeDocumentPackageExtractJobResponseBody = {
+  code?: string(name='Code', example='noPermission'),
+  data?: {
+    id?: string(name='Id', example='docmind-20220816-15bc7965'),
+  }(name='Data'),
+  message?: string(name='Message', example='You are not authorized to perform this operation.'),
+  requestId?: string(name='RequestId', example='43A29C77-405E-4CC0-BC55-EE694AD00655'),
+}
+
+model SubmitTradeDocumentPackageExtractJobResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: SubmitTradeDocumentPackageExtractJobResponseBody(name='body'),
+}
+
+async function submitTradeDocumentPackageExtractJobWithOptions(tmpReq: SubmitTradeDocumentPackageExtractJobRequest, runtime: Util.RuntimeOptions): SubmitTradeDocumentPackageExtractJobResponse {
+  Util.validateModel(tmpReq);
+  var request = new SubmitTradeDocumentPackageExtractJobShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.customExtractionRange)) {
+    request.customExtractionRangeShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.customExtractionRange, 'CustomExtractionRange', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.customExtractionRangeShrink)) {
+    query['CustomExtractionRange'] = request.customExtractionRangeShrink;
+  }
+  if (!Util.isUnset(request.fileName)) {
+    query['FileName'] = request.fileName;
+  }
+  if (!Util.isUnset(request.fileNameExtension)) {
+    query['FileNameExtension'] = request.fileNameExtension;
+  }
+  if (!Util.isUnset(request.fileUrl)) {
+    query['FileUrl'] = request.fileUrl;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'SubmitTradeDocumentPackageExtractJob',
+    version = '2022-07-29',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function submitTradeDocumentPackageExtractJob(request: SubmitTradeDocumentPackageExtractJobRequest): SubmitTradeDocumentPackageExtractJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return submitTradeDocumentPackageExtractJobWithOptions(request, runtime);
+}
+
+async function submitTradeDocumentPackageExtractJobAdvance(request: SubmitTradeDocumentPackageExtractJobAdvanceRequest, runtime: Util.RuntimeOptions): SubmitTradeDocumentPackageExtractJobResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'docmind-api',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var submitTradeDocumentPackageExtractJobReq = new SubmitTradeDocumentPackageExtractJobRequest{};
+  OpenApiUtil.convert(request, submitTradeDocumentPackageExtractJobReq);
+
+  if(!Util.isUnset(request.fileUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.fileUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    submitTradeDocumentPackageExtractJobReq.fileUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var submitTradeDocumentPackageExtractJobResp = submitTradeDocumentPackageExtractJobWithOptions(submitTradeDocumentPackageExtractJobReq, runtime);
+  return submitTradeDocumentPackageExtractJobResp;
 }
 
