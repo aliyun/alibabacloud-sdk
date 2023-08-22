@@ -199,6 +199,12 @@ model CreateAppInstanceGroupRequest {
   chargeResourceMode?: string(name='ChargeResourceMode', example='Node'),
   chargeType?: string(name='ChargeType', example='PrePaid'),
   network?: {
+    domainRules?: [ 
+      {
+        domain?: string(name='Domain'),
+        policy?: string(name='Policy'),
+      }
+    ](name='DomainRules'),
     ipExpireMinutes?: int32(name='IpExpireMinutes', example='60'),
     routes?: [ 
       {
@@ -245,7 +251,7 @@ model CreateAppInstanceGroupRequest {
   }(name='RuntimePolicy'),
   securityPolicy?: {
     resetAfterUnbind?: boolean(name='ResetAfterUnbind', example='true'),
-    skipUserAuthCheck?: boolean(name='SkipUserAuthCheck'),
+    skipUserAuthCheck?: boolean(name='SkipUserAuthCheck', example='false'),
   }(name='SecurityPolicy'),
   sessionTimeout?: int32(name='SessionTimeout', example='15'),
   storagePolicy?: {
@@ -562,22 +568,26 @@ model GetAppInstanceGroupRequest {
 
 model GetAppInstanceGroupResponseBody = {
   appInstanceGroupModels?: {
-    amount?: int32(name='Amount', example='0'),
+    amount?: int32(name='Amount'),
     appCenterImageId?: string(name='AppCenterImageId', example='img-8z4nztpaqvay4****'),
     appCenterImageName?: string(name='AppCenterImageName', example='OfficeApps'),
     appInstanceGroupId?: string(name='AppInstanceGroupId', example='aig-9ciijz60n4xsv****'),
     appInstanceGroupName?: string(name='AppInstanceGroupName'),
     appInstanceType?: string(name='AppInstanceType', example='__dynamic__'),
-    appPolicyId?: string(name='AppPolicyId'),
+    appInstanceTypeName?: string(name='AppInstanceTypeName', example='test001'),
+    appPolicyId?: string(name='AppPolicyId', example='pg-g3k5wa2ms2****'),
     apps?: [ 
       {
         appId?: string(name='AppId', example='ca-i87mycyn419nu****'),
         appName?: string(name='AppName'),
       }
     ](name='Apps'),
+    chargeResourceMode?: string(name='ChargeResourceMode', example='Node'),
     chargeType?: string(name='ChargeType', example='PrePaid'),
     expiredTime?: string(name='ExpiredTime', example='2022-04-27T16:00:00.000+00:00'),
     gmtCreate?: string(name='GmtCreate', example='2022-04-26T15:06:16.000+00:00'),
+    maxAmount?: int32(name='MaxAmount', example='10'),
+    minAmount?: int32(name='MinAmount', example='1'),
     nodePool?: [ 
       {
         amount?: int32(name='Amount', example='2'),
@@ -620,9 +630,15 @@ model GetAppInstanceGroupResponseBody = {
     }(name='OtaInfo'),
     productType?: string(name='ProductType', example='CloudApp'),
     regionId?: string(name='RegionId', example='cn-hangzhou'),
+    reserveAmountRatio?: string(name='ReserveAmountRatio', example='20'),
+    reserveMaxAmount?: int32(name='ReserveMaxAmount', example='5'),
+    reserveMinAmount?: int32(name='ReserveMinAmount', example='1'),
     resourceStatus?: string(name='ResourceStatus', example='AVAILABLE'),
+    scalingDownAfterIdleMinutes?: int32(name='ScalingDownAfterIdleMinutes', example='5'),
+    scalingStep?: int32(name='ScalingStep', example='10'),
+    scalingUsageThreshold?: string(name='ScalingUsageThreshold', example='85'),
     sessionTimeout?: string(name='SessionTimeout', example='15'),
-    skipUserAuthCheck?: boolean(name='SkipUserAuthCheck'),
+    skipUserAuthCheck?: boolean(name='SkipUserAuthCheck', example='false'),
     specId?: string(name='SpecId', example='spec-8o18t8uc31qib0****'),
     status?: string(name='Status', example='PUBLISHED'),
   }(name='AppInstanceGroupModels', description='AppInstanceGroupModels'),
@@ -686,6 +702,7 @@ model GetConnectionTicketResponseBody = {
   requestId?: string(name='RequestId', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
   taskId?: string(name='TaskId', example='f3d1b31c-605e-4d04-a896****'),
   taskStatus?: string(name='TaskStatus', example='Running'),
+  tenantId?: long(name='TenantId'),
   ticket?: string(name='Ticket', example='DQpbRGVza3RvcF0NCkZvcmNlVGxzVHlwZT0xDQpHV1Rva2VuUGFydDE9MDAva09ROW1FUTU3dU****'),
 }
 
@@ -848,6 +865,7 @@ async function getOtaTaskByTaskId(request: GetOtaTaskByTaskIdRequest): GetOtaTas
 
 model GetResourcePriceRequest {
   amount?: long(name='Amount', example='1'),
+  appInstanceType?: string(name='AppInstanceType', example='appstreaming.general'),
   bizRegionId?: string(name='BizRegionId', example='cn-hangzhou'),
   chargeType?: string(name='ChargeType', example='PrePaid'),
   nodeInstanceType?: string(name='NodeInstanceType', example='appstreaming.vgpu.4c8g.2g'),
@@ -859,6 +877,32 @@ model GetResourcePriceRequest {
 model GetResourcePriceResponseBody = {
   code?: string(name='Code', example='InvalidParameter.ProductType'),
   message?: string(name='Message', example='The parameter ProductType is invalid.'),
+  priceList?: [ 
+    {
+      price?: {
+        currency?: string(name='Currency', example='CNY'),
+        discountPrice?: string(name='DiscountPrice', example='999.0'),
+        originalPrice?: string(name='OriginalPrice', example='6700'),
+        promotions?: [ 
+          {
+            optionCode?: string(name='OptionCode', example='coupon****'),
+            promotionDesc?: string(name='PromotionDesc'),
+            promotionId?: string(name='PromotionId', example='1847709****'),
+            promotionName?: string(name='PromotionName'),
+            selected?: boolean(name='Selected', example='true'),
+          }
+        ](name='Promotions'),
+        tradePrice?: string(name='TradePrice', example='5278.0'),
+      }(name='Price'),
+      priceType?: string(name='PriceType', example='Standby'),
+      rules?: [ 
+        {
+          description?: string(name='Description'),
+          ruleId?: long(name='RuleId', example='260904273633****'),
+        }
+      ](name='Rules'),
+    }
+  ](name='PriceList'),
   priceModel?: {
     price?: {
       currency?: string(name='Currency', example='CNY'),
@@ -896,6 +940,9 @@ async function getResourcePriceWithOptions(request: GetResourcePriceRequest, run
   var query = {};
   if (!Util.isUnset(request.amount)) {
     query['Amount'] = request.amount;
+  }
+  if (!Util.isUnset(request.appInstanceType)) {
+    query['AppInstanceType'] = request.appInstanceType;
   }
   if (!Util.isUnset(request.bizRegionId)) {
     query['BizRegionId'] = request.bizRegionId;
@@ -1029,7 +1076,7 @@ model ListAppInstanceGroupRequest {
 model ListAppInstanceGroupResponseBody = {
   appInstanceGroupModels?: [ 
     {
-      amount?: int32(name='Amount'),
+      amount?: int32(name='Amount', example='1'),
       appCenterImageId?: string(name='AppCenterImageId', example='img-8z4nztpaqvay4****'),
       appInstanceGroupId?: string(name='AppInstanceGroupId', example='aig-9ciijz60n4xsv****'),
       appInstanceGroupName?: string(name='AppInstanceGroupName'),
@@ -1048,6 +1095,8 @@ model ListAppInstanceGroupResponseBody = {
       chargeType?: string(name='ChargeType', example='PrePaid'),
       expiredTime?: string(name='ExpiredTime', example='2022-04-27T16:00:00.000+00:00'),
       gmtCreate?: string(name='GmtCreate', example='2022-04-26T15:06:16.000+00:00'),
+      maxAmount?: int32(name='MaxAmount', example='10'),
+      minAmount?: int32(name='MinAmount', example='1'),
       nodePool?: [ 
         {
           amount?: int32(name='Amount', example='2'),
@@ -1090,9 +1139,15 @@ model ListAppInstanceGroupResponseBody = {
       }(name='OtaInfo'),
       productType?: string(name='ProductType', example='CloudApp'),
       regionId?: string(name='RegionId', example='cn-hangzhou'),
+      reserveAmountRatio?: string(name='ReserveAmountRatio', example='20'),
+      reserveMaxAmount?: int32(name='ReserveMaxAmount', example='5'),
+      reserveMinAmount?: int32(name='ReserveMinAmount', example='1'),
       resourceStatus?: string(name='ResourceStatus', example='AVAILABLE'),
+      scalingDownAfterIdleMinutes?: int32(name='ScalingDownAfterIdleMinutes', example='5'),
+      scalingStep?: int32(name='ScalingStep', example='10'),
+      scalingUsageThreshold?: string(name='ScalingUsageThreshold', example='85'),
       sessionTimeout?: string(name='SessionTimeout', example='15'),
-      skipUserAuthCheck?: boolean(name='SkipUserAuthCheck'),
+      skipUserAuthCheck?: boolean(name='SkipUserAuthCheck', example='false'),
       specId?: string(name='SpecId', example='spec-8o18t8uc31qib0****'),
       status?: string(name='Status', example='PUBLISHED'),
     }
@@ -1167,7 +1222,7 @@ model ListAppInstancesRequest {
   appInstanceGroupId?: string(name='AppInstanceGroupId', example='aig-4p5f8tj16yb8b****'),
   appInstanceId?: string(name='AppInstanceId', example='ai-azn3kmwruh1vl****'),
   appInstanceIdList?: [ string ](name='AppInstanceIdList'),
-  includeDeleted?: boolean(name='IncludeDeleted'),
+  includeDeleted?: boolean(name='IncludeDeleted', example='true'),
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='20'),
   status?: [ string ](name='Status'),
@@ -1179,8 +1234,8 @@ model ListAppInstancesResponseBody = {
       appInstanceGroupId?: string(name='AppInstanceGroupId', example='aig-dk8p95irqfst9****'),
       appInstanceId?: string(name='AppInstanceId', example='ai-8dl7dzchklmka****'),
       bindInfo?: {
-        endUserId?: string(name='EndUserId'),
-        usageDuration?: long(name='UsageDuration'),
+        endUserId?: string(name='EndUserId', example='app.test'),
+        usageDuration?: long(name='UsageDuration', example='2000'),
       }(name='BindInfo'),
       gmtCreate?: string(name='GmtCreate', example='2023-03-07T20:29:19.000+08:00'),
       gmtModified?: string(name='GmtModified', example='2023-03-07T20:29:19.000+08:00'),
@@ -1522,14 +1577,24 @@ async function logOffAllSessionsInAppInstanceGroup(request: LogOffAllSessionsInA
 model ModifyAppInstanceGroupAttributeRequest {
   appInstanceGroupId?: string(name='AppInstanceGroupId', example='aig-9ciijz60n4xsv****'),
   appInstanceGroupName?: string(name='AppInstanceGroupName'),
+  network?: {
+    domainRules?: [ 
+      {
+        domain?: string(name='Domain'),
+        policy?: string(name='Policy'),
+      }
+    ](name='DomainRules'),
+  }(name='Network'),
   nodePool?: {
     nodeCapacity?: int32(name='NodeCapacity', example='2'),
     nodePoolId?: string(name='NodePoolId', example='rg-ew7va2g1wl3vm****'),
   }(name='NodePool'),
+  preOpenAppId?: string(name='PreOpenAppId'),
+  preOpenMode?: string(name='PreOpenMode'),
   productType?: string(name='ProductType', example='CloudApp'),
   securityPolicy?: {
-    resetAfterUnbind?: boolean(name='ResetAfterUnbind'),
-    skipUserAuthCheck?: boolean(name='SkipUserAuthCheck'),
+    resetAfterUnbind?: boolean(name='ResetAfterUnbind', example='true'),
+    skipUserAuthCheck?: boolean(name='SkipUserAuthCheck', example='false'),
   }(name='SecurityPolicy'),
   sessionTimeout?: int32(name='SessionTimeout', example='15'),
   storagePolicy?: {
@@ -1540,7 +1605,10 @@ model ModifyAppInstanceGroupAttributeRequest {
 model ModifyAppInstanceGroupAttributeShrinkRequest {
   appInstanceGroupId?: string(name='AppInstanceGroupId', example='aig-9ciijz60n4xsv****'),
   appInstanceGroupName?: string(name='AppInstanceGroupName'),
+  networkShrink?: string(name='Network'),
   nodePoolShrink?: string(name='NodePool'),
+  preOpenAppId?: string(name='PreOpenAppId'),
+  preOpenMode?: string(name='PreOpenMode'),
   productType?: string(name='ProductType', example='CloudApp'),
   securityPolicyShrink?: string(name='SecurityPolicy'),
   sessionTimeout?: int32(name='SessionTimeout', example='15'),
@@ -1563,6 +1631,9 @@ async function modifyAppInstanceGroupAttributeWithOptions(tmpReq: ModifyAppInsta
   Util.validateModel(tmpReq);
   var request = new ModifyAppInstanceGroupAttributeShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.network)) {
+    request.networkShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.network, 'Network', 'json');
+  }
   if (!Util.isUnset(tmpReq.nodePool)) {
     request.nodePoolShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.nodePool, 'NodePool', 'json');
   }
@@ -1589,6 +1660,15 @@ async function modifyAppInstanceGroupAttributeWithOptions(tmpReq: ModifyAppInsta
     query['SessionTimeout'] = request.sessionTimeout;
   }
   var body : map[string]any = {};
+  if (!Util.isUnset(request.networkShrink)) {
+    body['Network'] = request.networkShrink;
+  }
+  if (!Util.isUnset(request.preOpenAppId)) {
+    body['PreOpenAppId'] = request.preOpenAppId;
+  }
+  if (!Util.isUnset(request.preOpenMode)) {
+    body['PreOpenMode'] = request.preOpenMode;
+  }
   if (!Util.isUnset(request.securityPolicyShrink)) {
     body['SecurityPolicy'] = request.securityPolicyShrink;
   }
