@@ -359,6 +359,7 @@ async function deleteUserPropertyValue(request: DeleteUserPropertyValueRequest):
 }
 
 model DescribeMfaDevicesRequest {
+  adDomain?: string(name='AdDomain'),
   endUserIds?: [ string ](name='EndUserIds', description='The list of username of convenience users.', example='test'),
   maxResults?: long(name='MaxResults', description='The maximum number of entries to return. Valid values: 1 to 500.
 
@@ -398,6 +399,9 @@ model DescribeMfaDevicesResponse = {
 async function describeMfaDevicesWithOptions(request: DescribeMfaDevicesRequest, runtime: Util.RuntimeOptions): DescribeMfaDevicesResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.adDomain)) {
+    query['AdDomain'] = request.adDomain;
+  }
   if (!Util.isUnset(request.endUserIds)) {
     query['EndUserIds'] = request.endUserIds;
   }
@@ -433,12 +437,16 @@ async function describeMfaDevices(request: DescribeMfaDevicesRequest): DescribeM
 }
 
 model DescribeUsersRequest {
-  endUserIds?: [ string ](name='EndUserIds'),
-  excludeEndUserIds?: [ string ](name='ExcludeEndUserIds'),
-  filter?: string(name='Filter'),
-  maxResults?: long(name='MaxResults', example='10'),
-  nextToken?: string(name='NextToken'),
-  orgId?: string(name='OrgId'),
+  endUserIds?: [ string ](name='EndUserIds', description='The list of usernames that must be exactly matched.'),
+  excludeEndUserIds?: [ string ](name='ExcludeEndUserIds', description='The list of usernames to be exactly excluded.'),
+  filter?: string(name='Filter', description='The string that is used for fuzzy search. You perform fuzzy search by username (EndUserId) and email address (Email). Wildcard characters (\\*) are supported. For example, if you set this parameter to `a*m`, usernames or email addresses that start with `a` and end with `m` are returned.', example='a*m'),
+  maxResults?: long(name='MaxResults', description='The number of entries per page.
+
+*   Valid values: 1 to 500
+*   Default value: 500', example='10'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request.\\
+If not all results are returned in a query, a value is returned for the NextToken parameter. In this case, you can use the return value of NextToken to perform the next query.', example='caeba0bbb2be03f84eb48b699f0a****'),
+  orgId?: string(name='OrgId', description='The ID of the organization in which you want to query users.', example='org-4mdgc1cocc59z****'),
 }
 
 model DescribeUsersResponseBody = {
@@ -446,19 +454,62 @@ model DescribeUsersResponseBody = {
   requestId?: string(name='RequestId', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
   users?: [ 
     {
-      email?: string(name='Email', example='username@example.com'),
-      endUserId?: string(name='EndUserId'),
-      id?: long(name='Id'),
-      isTenantManager?: boolean(name='IsTenantManager', example='true'),
-      nickName?: string(name='NickName'),
-      orgId?: string(name='OrgId', example='org-4mdgc1cocc59z****'),
-      ownerType?: string(name='OwnerType', example='Normal'),
-      phone?: string(name='Phone', example='1381111****'),
-      remark?: string(name='Remark'),
-      status?: long(name='Status', example='0'),
-      wyId?: string(name='WyId', example='41fd1254d8f7****'),
+      email?: string(name='Email', description='The email address.', example='username@example.com'),
+      endUserId?: string(name='EndUserId', description='The name of the user.', example='alice'),
+      id?: long(name='Id', description='The ID of the user.', example='4205**'),
+      isTenantManager?: boolean(name='IsTenantManager', description='Indicates whether the user is an administrator. If the convenience user is of the administrator-activated type, you must specify a user administrator. Notifications such as password reset on a client are sent to the email address or mobile phone of the user administrator. For more information, see [Create a convenience user](~~214472~~).', example='true'),
+      nickName?: string(name='NickName', description='The nickname of the user.', example='Lee'),
+      orgId?: string(name='OrgId', description='The ID of the organization to which the user belongs.', example='org-4mdgc1cocc59z****'),
+      ownerType?: string(name='OwnerType', description='The type of the convenience account.
+
+*   The administrator-activated type. The administrator specifies the username and the password of the convenience account. User notifications such as password reset are sent to the email address or mobile number of the administrator.
+*   The user-activated type. The administrator specifies the username and the email address or mobile number of a user. Activation notifications are sent to the email address or mobile number of the user.
+
+Valid values:
+
+*   CreateFromManager
+
+    <!-- -->
+
+    :
+
+    <!-- -->
+
+    administrator-activated
+
+    <!-- -->
+
+*   Normal: user-activated
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->', example='Normal'),
+      phone?: string(name='Phone', description='The mobile number of the user. If you leave this parameter empty, the value of this parameter is not returned.', example='1381111****'),
+      remark?: string(name='Remark', description='The remarks on the user.'),
+      status?: long(name='Status', description='The status of the user.
+
+Valid values:
+
+*   0: The user status is normal.
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   9: The user is locked.
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->', example='0'),
+      wyId?: string(name='WyId', description='The user ID that is globally unique.', example='41fd1254d8f7****'),
     }
-  ](name='Users'),
+  ](name='Users', description='Details of the convenience users.'),
 }
 
 model DescribeUsersResponse = {
@@ -513,16 +564,60 @@ async function describeUsers(request: DescribeUsersRequest): DescribeUsersRespon
 }
 
 model FilterUsersRequest {
-  excludeEndUserIds?: [ string ](name='ExcludeEndUserIds', description='The IDs of excluded users.'),
-  filter?: string(name='Filter', description='The string that you enter for a fuzzy search. You can enter a string to match the username or email address.', example='test'),
+  excludeEndUserIds?: [ string ](name='ExcludeEndUserIds', description='The list of usernames to be precisely excluded.'),
+  filter?: string(name='Filter', description='The string that is used for fuzzy search. You can use usernames and email addresses to perform fuzzy search. Wildcard characters (\\*) are supported for this parameter. For example, if you set this parameter to a\\*m, the usernames or an email addresses that start with a or end with m are returned.', example='test'),
   includeDesktopCount?: boolean(name='IncludeDesktopCount', description='Specifies whether to return information about cloud desktops that are assigned to the convenience user.', example='true'),
   includeDesktopGroupCount?: boolean(name='IncludeDesktopGroupCount', description='Specifies whether to return the number of desktop groups that are assigned to the user.', example='false'),
-  maxResults?: long(name='MaxResults', description='The number of entries to return on each page. If you set this parameter to a value greater than 100, the system resets the value to 100.', example='10'),
-  nextToken?: string(name='NextToken', description='The token that determines the start point of the query. You do not need to configure this parameter if you call this operation for the first time. If not all results are returned in a query, a value is returned for the NextToken parameter. In this case, you can use the returned NextToken value to perform the next query.', example='caeba0bbb2be03f84eb48b699f0a4883'),
+  maxResults?: long(name='MaxResults', description='The number of entries per page. If you set this parameter to a value greater than 100, the system resets the value to 100.', example='10'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. If not all results are returned in a query, a value is returned for the NextToken parameter. In this case, you can use the returned NextToken value to start the next query.', example='caeba0bbb2be03f84eb48b699f0a4883'),
   orderParam?: {
-    orderField?: string(name='OrderField', description='The method that you want to use to sort query results.', example='id'),
-    orderType?: string(name='OrderType', description='Specifies whether to sort query results in ascending or descending order.', example='ASC'),
-  }(name='OrderParam', description='The parameter that is supported to sort query results.'),
+    orderField?: string(name='OrderField', description='The way to sort query results.
+
+Valid values:
+
+*   EndUserId
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   id
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   gmt_created
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->', example='id'),
+    orderType?: string(name='OrderType', description='Specifies whether to sort query results in ascending or descending order. Valid values:
+
+Valid values:
+
+*   ASC: ascending
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   DESC (default): descending
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->', example='ASC'),
+  }(name='OrderParam', description='The parameter that supports to sort query results.'),
   orgId?: string(name='OrgId', description='The ID of the organization.', example='org-aliyun-wy-org-id'),
   ownerType?: string(name='OwnerType', description='The type of the account ownership.', example='Normal'),
   propertyFilterParam?: [ 
@@ -530,23 +625,23 @@ model FilterUsersRequest {
       propertyId?: long(name='PropertyId', description='The ID of the property.', example='123'),
       propertyValueIds?: string(name='PropertyValueIds', description='The IDs of the property values.', example='test'),
     }
-  ](name='PropertyFilterParam', description='Details of the user property that you want to perform fuzzy search.'),
+  ](name='PropertyFilterParam', description='The list of properties for fuzzy search.'),
   propertyKeyValueFilterParam?: [ 
     {
-      propertyKey?: string(name='PropertyKey', description='The name of the property.', example='job'),
-      propertyValues?: string(name='PropertyValues', description='The values of the property.', example='dev'),
+      propertyKey?: string(name='PropertyKey', description='The property name.', example='job'),
+      propertyValues?: string(name='PropertyValues', description='The property values.', example='dev'),
     }
-  ](name='PropertyKeyValueFilterParam', description='Details of the properties and property values.'),
+  ](name='PropertyKeyValueFilterParam', description='The list of property names and property values.'),
 }
 
 model FilterUsersShrinkRequest {
-  excludeEndUserIds?: [ string ](name='ExcludeEndUserIds', description='The IDs of excluded users.'),
-  filter?: string(name='Filter', description='The string that you enter for a fuzzy search. You can enter a string to match the username or email address.', example='test'),
+  excludeEndUserIds?: [ string ](name='ExcludeEndUserIds', description='The list of usernames to be precisely excluded.'),
+  filter?: string(name='Filter', description='The string that is used for fuzzy search. You can use usernames and email addresses to perform fuzzy search. Wildcard characters (\\*) are supported for this parameter. For example, if you set this parameter to a\\*m, the usernames or an email addresses that start with a or end with m are returned.', example='test'),
   includeDesktopCount?: boolean(name='IncludeDesktopCount', description='Specifies whether to return information about cloud desktops that are assigned to the convenience user.', example='true'),
   includeDesktopGroupCount?: boolean(name='IncludeDesktopGroupCount', description='Specifies whether to return the number of desktop groups that are assigned to the user.', example='false'),
-  maxResults?: long(name='MaxResults', description='The number of entries to return on each page. If you set this parameter to a value greater than 100, the system resets the value to 100.', example='10'),
-  nextToken?: string(name='NextToken', description='The token that determines the start point of the query. You do not need to configure this parameter if you call this operation for the first time. If not all results are returned in a query, a value is returned for the NextToken parameter. In this case, you can use the returned NextToken value to perform the next query.', example='caeba0bbb2be03f84eb48b699f0a4883'),
-  orderParamShrink?: string(name='OrderParam', description='The parameter that is supported to sort query results.'),
+  maxResults?: long(name='MaxResults', description='The number of entries per page. If you set this parameter to a value greater than 100, the system resets the value to 100.', example='10'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. If not all results are returned in a query, a value is returned for the NextToken parameter. In this case, you can use the returned NextToken value to start the next query.', example='caeba0bbb2be03f84eb48b699f0a4883'),
+  orderParamShrink?: string(name='OrderParam', description='The parameter that supports to sort query results.'),
   orgId?: string(name='OrgId', description='The ID of the organization.', example='org-aliyun-wy-org-id'),
   ownerType?: string(name='OwnerType', description='The type of the account ownership.', example='Normal'),
   propertyFilterParam?: [ 
@@ -554,50 +649,130 @@ model FilterUsersShrinkRequest {
       propertyId?: long(name='PropertyId', description='The ID of the property.', example='123'),
       propertyValueIds?: string(name='PropertyValueIds', description='The IDs of the property values.', example='test'),
     }
-  ](name='PropertyFilterParam', description='Details of the user property that you want to perform fuzzy search.'),
+  ](name='PropertyFilterParam', description='The list of properties for fuzzy search.'),
   propertyKeyValueFilterParam?: [ 
     {
-      propertyKey?: string(name='PropertyKey', description='The name of the property.', example='job'),
-      propertyValues?: string(name='PropertyValues', description='The values of the property.', example='dev'),
+      propertyKey?: string(name='PropertyKey', description='The property name.', example='job'),
+      propertyValues?: string(name='PropertyValues', description='The property values.', example='dev'),
     }
-  ](name='PropertyKeyValueFilterParam', description='Details of the properties and property values.'),
+  ](name='PropertyKeyValueFilterParam', description='The list of property names and property values.'),
 }
 
 model FilterUsersResponseBody = {
-  nextToken?: string(name='NextToken', description='The token that is used to query the next page. If not all results are returned in a query, a value is returned for the NextToken parameter. In this case, you can use the returned NextToken value to perform the next query.', example='caeba0bbb2be03f84eb48b699f0a4883'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='DBD276B5-00FF-5E04-8EF7-5CBA09BF112A'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. If not all results are returned in a query, a value is returned for the NextToken parameter. In this case, you can use the returned NextToken value to start the next query.', example='caeba0bbb2be03f84eb48b699f0a4883'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DBD276B5-00FF-5E04-8EF7-5CBA09BF112A'),
   users?: [ 
     {
       desktopCount?: long(name='DesktopCount', description='The number of cloud desktops that are assigned to the user.', example='1'),
       desktopGroupCount?: long(name='DesktopGroupCount', description='The number of authorized desktop groups that are owned by the user. This value is returned if you set `IncludeDesktopGroupCount` to `true`.', example='2'),
-      email?: string(name='Email', description='The email address of the user.', example='testName@example.com'),
-      enableAdminAccess?: boolean(name='EnableAdminAccess', example='true'),
-      endUserId?: string(name='EndUserId', description='The name of the user.', example='testName'),
+      email?: string(name='Email', description='The email address.', example='testName@example.com'),
+      enableAdminAccess?: boolean(name='EnableAdminAccess', description='Indicates whether the user is a local administrator.
+
+Valid values:
+
+*   true
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   false
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->', example='true'),
+      endUserId?: string(name='EndUserId', description='The username.', example='testName'),
       externalInfo?: {
-        externalName?: string(name='ExternalName', description='The name of the external system account to which the user is connected.', example='test'),
-        jobNumber?: string(name='JobNumber', description='The student ID or employee ID of the external system account that is connected to the user.', example='030801'),
+        externalName?: string(name='ExternalName', description='The account that is connected to the user.', example='test'),
+        jobNumber?: string(name='JobNumber', description='The account, student ID, or employee ID that is connected to the user.', example='030801'),
       }(name='ExternalInfo', description='The additional information about the user.'),
-      id?: long(name='Id', description='The ID of the user.', example='12345'),
-      isTenantManager?: boolean(name='IsTenantManager', description='Specifies whether the user is a tenant administrator.', example='true'),
-      ownerType?: string(name='OwnerType', description='The type of the account ownership.', example='Normal'),
-      phone?: string(name='Phone', description='The mobile number of the user.', example='1381111****'),
-      remark?: string(name='Remark', description='The remarks of the user.', example='1'),
-      status?: long(name='Status', description='The status of the user.', example='0'),
+      id?: long(name='Id', description='The user ID.', example='12345'),
+      isTenantManager?: boolean(name='IsTenantManager', description='Indicates whether the user is a tenant administrator.
+
+Valid values:
+
+*   true
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   false
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->', example='true'),
+      ownerType?: string(name='OwnerType', description='The type of the account ownership.
+
+Valid values:
+
+*   CreateFromManager
+
+    <!-- -->
+
+    :
+
+    <!-- -->
+
+    administrator-activated
+
+    <!-- -->
+
+*   Normal
+
+    <!-- -->
+
+    :
+
+    <!-- -->
+
+    user-activated
+
+    <!-- -->', example='Normal'),
+      phone?: string(name='Phone', description='The mobile number.', example='1381111****'),
+      remark?: string(name='Remark', description='The remarks.', example='1'),
+      status?: long(name='Status', description='The user status.
+
+Valid values:
+
+*   0: The user status is normal.
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   9: The user is locked.
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->', example='0'),
       userSetPropertiesModels?: [ 
         {
-          propertyId?: long(name='PropertyId', description='The ID of the property.', example='12'),
-          propertyKey?: string(name='PropertyKey', description='The name of the property.', example='department'),
-          propertyType?: int32(name='PropertyType', description='The ID of property.', example='2'),
+          propertyId?: long(name='PropertyId', description='The property ID.', example='12'),
+          propertyKey?: string(name='PropertyKey', description='The property name.', example='department'),
+          propertyType?: int32(name='PropertyType', description='The property ID.', example='2'),
           propertyValues?: [ 
             {
               propertyValue?: string(name='PropertyValue', description='The property value.', example='A'),
-              propertyValueId?: long(name='PropertyValueId', description='The ID of the property value.', example='42'),
+              propertyValueId?: long(name='PropertyValueId', description='The property value ID.', example='42'),
             }
-          ](name='PropertyValues', description='Details of the property value.'),
+          ](name='PropertyValues', description='The property value.'),
           userId?: long(name='UserId', description='The ID of the user that is bound to the property.', example='12345'),
           userName?: string(name='UserName', description='The name of the user that is bound to the property.', example='testName'),
         }
-      ](name='UserSetPropertiesModels', description='Details of the user properties.'),
+      ](name='UserSetPropertiesModels', description='Details of the properties.'),
     }
   ](name='Users', description='Details of the convenience users.'),
 }
@@ -764,6 +939,7 @@ async function listPropertyValue(request: ListPropertyValueRequest): ListPropert
 }
 
 model LockMfaDeviceRequest {
+  adDomain?: string(name='AdDomain'),
   serialNumber?: string(name='SerialNumber', example='dc856334-446b-4035-bfbc-18af261e****'),
 }
 
@@ -787,6 +963,9 @@ model LockMfaDeviceResponse = {
 async function lockMfaDeviceWithOptions(request: LockMfaDeviceRequest, runtime: Util.RuntimeOptions): LockMfaDeviceResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.adDomain)) {
+    query['AdDomain'] = request.adDomain;
+  }
   if (!Util.isUnset(request.serialNumber)) {
     query['SerialNumber'] = request.serialNumber;
   }
@@ -967,6 +1146,7 @@ async function querySyncStatusByAliUid(): QuerySyncStatusByAliUidResponse {
 }
 
 model RemoveMfaDeviceRequest {
+  adDomain?: string(name='AdDomain'),
   serialNumber?: string(name='SerialNumber', example='dc856334-446b-4035-bfbc-18af261e****'),
 }
 
@@ -983,6 +1163,9 @@ model RemoveMfaDeviceResponse = {
 async function removeMfaDeviceWithOptions(request: RemoveMfaDeviceRequest, runtime: Util.RuntimeOptions): RemoveMfaDeviceResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.adDomain)) {
+    query['AdDomain'] = request.adDomain;
+  }
   if (!Util.isUnset(request.serialNumber)) {
     query['SerialNumber'] = request.serialNumber;
   }
@@ -1103,22 +1286,60 @@ async function removeUsers(request: RemoveUsersRequest): RemoveUsersResponse {
 }
 
 model ResetUserPasswordRequest {
-  notifyType?: int32(name='NotifyType', example='1'),
-  users?: [ string ](name='Users', example='test1'),
+  notifyType?: int32(name='NotifyType', description='The method to notify the user after the password is reset.
+
+Valid values:
+
+*   1
+
+    <!-- -->
+
+    :
+
+    <!-- -->
+
+    email
+
+    <!-- -->
+
+*   2
+
+    <!-- -->
+
+    :
+
+    <!-- -->
+
+    text message
+
+    <!-- -->
+
+*   3
+
+    <!-- -->
+
+    :
+
+    <!-- -->
+
+    both
+
+    <!-- -->', example='1'),
+  users?: [ string ](name='Users', description='The names of the convenience users whose passwords you want to reset.', example='test1'),
 }
 
 model ResetUserPasswordResponseBody = {
-  requestId?: string(name='RequestId', example='32D05B39-E6EE-4D7A-9FD0-762A26859D0D'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='32D05B39-E6EE-4D7A-9FD0-762A26859D0D'),
   resetUsersResult?: {
     failedUsers?: [ 
       {
-        endUserId?: string(name='EndUserId', example='test123'),
-        errorCode?: string(name='ErrorCode', example='InvalidUsername'),
-        errorMessage?: string(name='ErrorMessage', example='test123 is an invalid username.'),
+        endUserId?: string(name='EndUserId', description='The ID of the convenience user whose password failed to be reset.', example='test123'),
+        errorCode?: string(name='ErrorCode', description='The error code.', example='InvalidUsername'),
+        errorMessage?: string(name='ErrorMessage', description='The error message.', example='test123 is an invalid username.'),
       }
-    ](name='FailedUsers'),
-    resetUsers?: [ string ](name='ResetUsers'),
-  }(name='ResetUsersResult'),
+    ](name='FailedUsers', description='The information about the convenience users whose passwords failed to be reset.'),
+    resetUsers?: [ string ](name='ResetUsers', description='The convenience users to which the system sent a password reset email.'),
+  }(name='ResetUsersResult', description='The result of resetting the password of the convenience user.'),
 }
 
 model ResetUserPasswordResponse = {
@@ -1261,6 +1482,7 @@ async function syncAllEduInfo(): SyncAllEduInfoResponse {
 }
 
 model UnlockMfaDeviceRequest {
+  adDomain?: string(name='AdDomain'),
   serialNumber?: string(name='SerialNumber', example='dc856334-446b-4035-bfbc-18af261e****'),
 }
 
@@ -1277,6 +1499,9 @@ model UnlockMfaDeviceResponse = {
 async function unlockMfaDeviceWithOptions(request: UnlockMfaDeviceRequest, runtime: Util.RuntimeOptions): UnlockMfaDeviceResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.adDomain)) {
+    query['AdDomain'] = request.adDomain;
+  }
   if (!Util.isUnset(request.serialNumber)) {
     query['SerialNumber'] = request.serialNumber;
   }
