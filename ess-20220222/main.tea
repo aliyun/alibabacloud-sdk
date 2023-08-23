@@ -1691,6 +1691,7 @@ If you specify a snapshot that is created on or before July 15, 2013, the operat
   dedicatedHostId?: string(name='DedicatedHostId', description='The ID of the dedicated host on which you want to create an ECS instance. You cannot create preemptible instances on dedicated hosts. If you specify DedicatedHostId, SpotStrategy and SpotPriceLimit are ignored.
 
 You can call the DescribeDedicatedHosts operation to query dedicated host IDs.', example='dh-bp67acfmxazb4p****'),
+  deletionProtection?: boolean(name='DeletionProtection'),
   deploymentSetId?: string(name='DeploymentSetId', description='The ID of the deployment set of the ECS instances that are created by using the scaling configuration.', example='ds-bp1frxuzdg87zh4pz****'),
   hostName?: string(name='HostName', description='The hostname of the ECS instance. The hostname cannot start or end with a period (.) or a hyphen (-). The hostname cannot contain consecutive periods (.) or hyphens (-). Naming conventions for different types of instances:
 
@@ -2042,6 +2043,7 @@ If you specify a snapshot that is created on or before July 15, 2013, the operat
   dedicatedHostId?: string(name='DedicatedHostId', description='The ID of the dedicated host on which you want to create an ECS instance. You cannot create preemptible instances on dedicated hosts. If you specify DedicatedHostId, SpotStrategy and SpotPriceLimit are ignored.
 
 You can call the DescribeDedicatedHosts operation to query dedicated host IDs.', example='dh-bp67acfmxazb4p****'),
+  deletionProtection?: boolean(name='DeletionProtection'),
   deploymentSetId?: string(name='DeploymentSetId', description='The ID of the deployment set of the ECS instances that are created by using the scaling configuration.', example='ds-bp1frxuzdg87zh4pz****'),
   hostName?: string(name='HostName', description='The hostname of the ECS instance. The hostname cannot start or end with a period (.) or a hyphen (-). The hostname cannot contain consecutive periods (.) or hyphens (-). Naming conventions for different types of instances:
 
@@ -2278,6 +2280,9 @@ async function createScalingConfigurationWithOptions(tmpReq: CreateScalingConfig
   }
   if (!Util.isUnset(request.dedicatedHostId)) {
     query['DedicatedHostId'] = request.dedicatedHostId;
+  }
+  if (!Util.isUnset(request.deletionProtection)) {
+    query['DeletionProtection'] = request.deletionProtection;
   }
   if (!Util.isUnset(request.deploymentSetId)) {
     query['DeploymentSetId'] = request.deploymentSetId;
@@ -4615,7 +4620,12 @@ async function describeNotificationTypes(request: DescribeNotificationTypesReque
 }
 
 model DescribeRegionsRequest {
-  acceptLanguage?: string(name='AcceptLanguage', description='The ID of the request.', example='zh-CN'),
+  acceptLanguage?: string(name='AcceptLanguage', description='The language used for the returned value. Valid values:
+
+*   **zh-CN**: Chinese.
+*   **en-US**: English.
+
+>  Default value: **zh-CN**.', example='zh-CN'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
@@ -4624,17 +4634,20 @@ model DescribeRegionsRequest {
 model DescribeRegionsResponseBody = {
   regions?: [ 
     {
-      classicUnavailable?: boolean(name='ClassicUnavailable', description='The endpoint of the region.', example='false'),
-      localName?: string(name='LocalName', description='China (Beijing)', example='Indicates whether the region supports scaling groups of the virtual private cloud (VPC) type. Valid values:
+      classicUnavailable?: boolean(name='ClassicUnavailable', description='Indicates whether the region supports scaling groups of the classic network type. Valid values:
+
+*   true
+*   false', example='false'),
+      localName?: string(name='LocalName', description='The name of the region.', example='China (Beijing)'),
+      regionEndpoint?: string(name='RegionEndpoint', description='The endpoint of the region.', example='ess.aliyuncs.com'),
+      regionId?: string(name='RegionId', description='The ID of the region.', example='cn-beijing'),
+      vpcUnavailable?: boolean(name='VpcUnavailable', description='Indicates whether the region supports scaling groups of the virtual private cloud (VPC) type. Valid values:
 
 *   true: The region does not support scaling groups of the VPC type.
-*   false: The region supports scaling groups of the VPC type.'),
-      regionEndpoint?: string(name='RegionEndpoint', description='The name of the region.', example='ess.aliyuncs.com'),
-      regionId?: string(name='RegionId', description='auditing', example='cn-beijing'),
-      vpcUnavailable?: boolean(name='VpcUnavailable', description='The ID of the region.', example='false'),
+*   false: The region supports scaling groups of the VPC type.', example='false'),
     }
   ](name='Regions', description='Details of the regions.'),
-  requestId?: string(name='RequestId', description='Details of the regions.', example='73469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='73469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
 }
 
 model DescribeRegionsResponse = {
@@ -4985,6 +4998,7 @@ Default value: false.', example='false'),
       dedicatedHostId?: string(name='DedicatedHostId', description='The ID of the dedicated host on which the ECS instance is created. Preemptible instances cannot be created on dedicated hosts. If you specify the DedicatedHostId parameter, the SpotStrategy and SpotPriceLimit parameters are ignored.
 
 You can call the DescribeDedicatedHosts operation to query dedicated host IDs.', example='dh-bp67acfmxazb4p****'),
+      deletionProtection?: boolean(name='DeletionProtection'),
       deploymentSetId?: string(name='DeploymentSetId', description='The ID of the deployment set to which the Elastic Compute Service (ECS) instance belongs.', example='ds-bp1frxuzdg87zh4p****'),
       hostName?: string(name='HostName', description='The hostname of the ECS instance.', example='LocalHost'),
       hpcClusterId?: string(name='HpcClusterId', description='The ID of the Elastic High Performance Computing (E-HPC) cluster to which the ECS instance belongs.', example='hpc-clus****'),
@@ -6734,18 +6748,25 @@ async function executeScalingRule(request: ExecuteScalingRuleRequest): ExecuteSc
 }
 
 model ExitStandbyRequest {
-  async?: boolean(name='Async', description='Moves an Elastic Compute Service (ECS) instance out of the Standby state.', example='false'),
-  clientToken?: string(name='ClientToken', description='The ID of the scaling activity.', example='123e4567-e89b-12d3-a456-42665544****'),
-  instanceIds?: [ string ](name='InstanceIds', description='The ID of the scaling group.'),
+  async?: boolean(name='Async', description='Specifies whether to put the ECS instance into the Standby state in an asynchronous manner. Valid values:
+
+*   true
+*   false
+
+Default value: false.', example='false'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the value, but you must ensure that it is unique among different requests.
+
+The token can only contain ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure idempotence](~~25965~~).', example='123e4567-e89b-12d3-a456-42665544****'),
+  instanceIds?: [ string ](name='InstanceIds', description='The IDs of the ECS instances.'),
   ownerId?: long(name='OwnerId'),
-  regionId?: string(name='RegionId', description='ExitStandby', example='cn-hangzhou'),
+  regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
-  scalingGroupId?: string(name='ScalingGroupId', description='The region ID of the scaling group.', example='asg-bp1fo0dbtsbmqa9h****'),
+  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.', example='asg-bp1fo0dbtsbmqa9h****'),
 }
 
 model ExitStandbyResponseBody = {
-  requestId?: string(name='RequestId', description='330440', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
-  scalingActivityId?: string(name='ScalingActivityId', example='asa-2zeb04oym05qaceq****'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
+  scalingActivityId?: string(name='ScalingActivityId', description='The ID of the scaling activity.', example='asa-2zeb04oym05qaceq****'),
 }
 
 model ExitStandbyResponse = {
@@ -6754,13 +6775,6 @@ model ExitStandbyResponse = {
   body: ExitStandbyResponseBody(name='body'),
 }
 
-/**
-  * The IDs of the ECS instances. The value of this parameter can be a JSON array that consists of up to 20 instance IDs. Separate multiple instance IDs with commas (,).
-  *
-  * @param request ExitStandbyRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ExitStandbyResponse
- */
 async function exitStandbyWithOptions(request: ExitStandbyRequest, runtime: Util.RuntimeOptions): ExitStandbyResponse {
   Util.validateModel(request);
   var query = {};
@@ -6802,12 +6816,6 @@ async function exitStandbyWithOptions(request: ExitStandbyRequest, runtime: Util
   return callApi(params, req, runtime);
 }
 
-/**
-  * The IDs of the ECS instances. The value of this parameter can be a JSON array that consists of up to 20 instance IDs. Separate multiple instance IDs with commas (,).
-  *
-  * @param request ExitStandbyRequest
-  * @return ExitStandbyResponse
- */
 async function exitStandby(request: ExitStandbyRequest): ExitStandbyResponse {
   var runtime = new Util.RuntimeOptions{};
   return exitStandbyWithOptions(request, runtime);
@@ -6960,20 +6968,20 @@ async function listTagResources(request: ListTagResourcesRequest): ListTagResour
 }
 
 model ListTagValuesRequest {
-  key?: string(name='Key', example='ESS'),
-  nextToken?: string(name='NextToken', example='caeba0bbb2be03f84eb48b699f0a****'),
+  key?: string(name='Key', description='The key of the messages that you want to query.', example='ESS'),
+  nextToken?: string(name='NextToken', description='The token that determines the start point of the query. The return value is the value of the NextToken response parameter that was returned last time the QueryInstanceByTag operation was called.', example='caeba0bbb2be03f84eb48b699f0a****'),
   ownerId?: long(name='OwnerId'),
-  pageSize?: int32(name='PageSize', example='10'),
-  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Default value: 10. Maximum value: 100.', example='10'),
+  regionId?: string(name='RegionId', description='The region ID of the scaling group.', example='cn-hangzhou'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
-  resourceType?: string(name='ResourceType', example='scalinggroup'),
+  resourceType?: string(name='ResourceType', description='The type of the Auto Scaling resource. Only scaling groups are supported. Set the value to scalinggroup.', example='scalinggroup'),
 }
 
 model ListTagValuesResponseBody = {
-  nextToken?: string(name='NextToken', example='caeba0bbb2be03f84eb48b699f0a****'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='AB444F46-1CFF-4B06-B8F0-B45D3158****'),
-  values?: [ string ](name='Values'),
+  nextToken?: string(name='NextToken', description='The token that is returned for the next query.', example='caeba0bbb2be03f84eb48b699f0a****'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='AB444F46-1CFF-4B06-B8F0-B45D3158****'),
+  values?: [ string ](name='Values', description='The information of the tag values.'),
 }
 
 model ListTagValuesResponse = {
@@ -8168,6 +8176,7 @@ If you specify a snapshot that is created on or before July 15, 2013, the operat
   dedicatedHostId?: string(name='DedicatedHostId', description='The ID of the dedicated host on which you want to create ECS instances. You cannot create preemptible instances on dedicated hosts. If you specify DedicatedHostId, SpotStrategy and SpotPriceLimit are ignored.
 
 You can call the DescribeDedicatedHosts operation to query the most recent list of dedicated host IDs.', example='dh-bp67acfmxazb4p****'),
+  deletionProtection?: boolean(name='DeletionProtection'),
   deploymentSetId?: string(name='DeploymentSetId', description='The ID of the deployment set of the ECS instances that are created by using the scaling configuration.', example='ds-bp13v7bjnj9gis****'),
   hostName?: string(name='HostName', description='The hostname of the ECS instance. The hostname cannot start or end with a period (.) or a hyphen (-). The hostname cannot contain consecutive periods (.) or hyphens (-). Naming conventions for different types of instances:
 
@@ -8479,6 +8488,7 @@ If you specify a snapshot that is created on or before July 15, 2013, the operat
   dedicatedHostId?: string(name='DedicatedHostId', description='The ID of the dedicated host on which you want to create ECS instances. You cannot create preemptible instances on dedicated hosts. If you specify DedicatedHostId, SpotStrategy and SpotPriceLimit are ignored.
 
 You can call the DescribeDedicatedHosts operation to query the most recent list of dedicated host IDs.', example='dh-bp67acfmxazb4p****'),
+  deletionProtection?: boolean(name='DeletionProtection'),
   deploymentSetId?: string(name='DeploymentSetId', description='The ID of the deployment set of the ECS instances that are created by using the scaling configuration.', example='ds-bp13v7bjnj9gis****'),
   hostName?: string(name='HostName', description='The hostname of the ECS instance. The hostname cannot start or end with a period (.) or a hyphen (-). The hostname cannot contain consecutive periods (.) or hyphens (-). Naming conventions for different types of instances:
 
@@ -8680,6 +8690,9 @@ async function modifyScalingConfigurationWithOptions(tmpReq: ModifyScalingConfig
   }
   if (!Util.isUnset(request.dedicatedHostId)) {
     query['DedicatedHostId'] = request.dedicatedHostId;
+  }
+  if (!Util.isUnset(request.deletionProtection)) {
+    query['DeletionProtection'] = request.deletionProtection;
   }
   if (!Util.isUnset(request.deploymentSetId)) {
     query['DeploymentSetId'] = request.deploymentSetId;
@@ -9777,14 +9790,23 @@ async function setGroupDeletionProtection(request: SetGroupDeletionProtectionReq
 }
 
 model SetInstanceHealthRequest {
-  healthStatus?: string(name='HealthStatus', example='Healthy'),
-  instanceId?: string(name='InstanceId', example='i-bp1ap6bro51a7fsa****'),
+  healthStatus?: string(name='HealthStatus', description='The health status of the ECS instance in the scaling group. If ECS instances do not run as expected, Auto Scaling considers the ECS instances unhealthy. Valid values:
+
+*   Healthy
+*   Unhealthy
+
+Auto Scaling automatically removes unhealthy ECS instances from the scaling group and then releases the automatically created instances among the unhealthy instances.
+
+Unhealthy ECS instances that are manually added to the scaling group are released based on the management mode of the instance lifecycles. If the lifecycles of the ECS instances are not managed by the scaling group, Auto Scaling removes the instances from the scaling group but does not release the instances. If the lifecycles of the ECS instances are managed by the scaling group, Auto Scaling removes the instances from the scaling group and releases the instances.
+
+>  Make sure that you have sufficient balance within your Alibaba Cloud account. If you have overdue payments within your Alibaba Cloud account, pay-as-you-go and preemptible instances are stopped or released. For information about how the states of ECS instances change when you have overdue payments within your Alibaba Cloud account, see [Overdue payments](~~170589~~).', example='Healthy'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-bp1ap6bro51a7fsa****'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
 }
 
 model SetInstanceHealthResponseBody = {
-  requestId?: string(name='RequestId', example='B755AE57-6093-43E4-938E-DEA422A9****'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='B755AE57-6093-43E4-938E-DEA422A9****'),
 }
 
 model SetInstanceHealthResponse = {
@@ -9793,6 +9815,13 @@ model SetInstanceHealthResponse = {
   body: SetInstanceHealthResponseBody(name='body'),
 }
 
+/**
+  * Configures the health check feature for Elastic Compute Service (ECS) instances.
+  *
+  * @param request SetInstanceHealthRequest
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return SetInstanceHealthResponse
+ */
 async function setInstanceHealthWithOptions(request: SetInstanceHealthRequest, runtime: Util.RuntimeOptions): SetInstanceHealthResponse {
   Util.validateModel(request);
   var query = {};
@@ -9825,21 +9854,30 @@ async function setInstanceHealthWithOptions(request: SetInstanceHealthRequest, r
   return callApi(params, req, runtime);
 }
 
+/**
+  * Configures the health check feature for Elastic Compute Service (ECS) instances.
+  *
+  * @param request SetInstanceHealthRequest
+  * @return SetInstanceHealthResponse
+ */
 async function setInstanceHealth(request: SetInstanceHealthRequest): SetInstanceHealthResponse {
   var runtime = new Util.RuntimeOptions{};
   return setInstanceHealthWithOptions(request, runtime);
 }
 
 model SetInstancesProtectionRequest {
-  instanceIds?: [ string ](name='InstanceIds'),
+  instanceIds?: [ string ](name='InstanceIds', description='The IDs of the ECS instances.'),
   ownerId?: long(name='OwnerId'),
-  protectedFromScaleIn?: boolean(name='ProtectedFromScaleIn', example='true'),
+  protectedFromScaleIn?: boolean(name='ProtectedFromScaleIn', description='Specifies whether to put ECS instances into the Protected state. Auto Scaling does not remove ECS instances in the Protected state from scaling groups during scale-in activities.
+
+*   true
+*   false', example='true'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
-  scalingGroupId?: string(name='ScalingGroupId', example='asg-bp18p2yfxow2dloq****'),
+  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.', example='asg-bp18p2yfxow2dloq****'),
 }
 
 model SetInstancesProtectionResponseBody = {
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
 }
 
 model SetInstancesProtectionResponse = {
@@ -9848,6 +9886,13 @@ model SetInstancesProtectionResponse = {
   body: SetInstancesProtectionResponseBody(name='body'),
 }
 
+/**
+  * Puts one or more Elastic Compute Service (ECS) instances into the Protected state.
+  *
+  * @param request SetInstancesProtectionRequest
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return SetInstancesProtectionResponse
+ */
 async function setInstancesProtectionWithOptions(request: SetInstancesProtectionRequest, runtime: Util.RuntimeOptions): SetInstancesProtectionResponse {
   Util.validateModel(request);
   var query = {};
@@ -9883,6 +9928,12 @@ async function setInstancesProtectionWithOptions(request: SetInstancesProtection
   return callApi(params, req, runtime);
 }
 
+/**
+  * Puts one or more Elastic Compute Service (ECS) instances into the Protected state.
+  *
+  * @param request SetInstancesProtectionRequest
+  * @return SetInstancesProtectionResponse
+ */
 async function setInstancesProtection(request: SetInstancesProtectionRequest): SetInstancesProtectionResponse {
   var runtime = new Util.RuntimeOptions{};
   return setInstancesProtectionWithOptions(request, runtime);
