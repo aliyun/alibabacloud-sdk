@@ -1,16 +1,26 @@
 /**
  *
  */
-import Util;
-import OpenApi;
-import OpenApiUtil;
-import EndpointUtil;
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
 
-extends OpenApi;
-
-
-init(config: OpenApi.Config){
-  super(config);
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'MaxCompute';
+  @version = '2022-01-04';
   @endpointRule = 'regional';
   @endpointMap = {
     ap-northeast-1 = 'maxcompute.aliyuncs.com',
@@ -68,23 +78,14 @@ init(config: OpenApi.Config){
     us-east-1 = 'maxcompute.aliyuncs.com',
     us-west-1 = 'maxcompute.aliyuncs.com',
   };
-
-  checkConfig(config);
-  @endpoint = getEndpoint('maxcompute', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
-function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
-    return endpoint;
-  }
-  
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
-    return endpointMap[regionId];
-  }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+function close(): void {
+  @handler.close();
 }
 
 model CreatePackageRequest {
+  projectName: string(name='projectName', description='The name of the MaxCompute project.', example='projectA', position='Path'),
   body?: string(name='body', description='The request body parameters.', example='{
 "name": "test_packege", 
     "resourceList": { 
@@ -125,8 +126,8 @@ model CreatePackageRequest {
             }
         ]
     }
-}'),
-  isInstall?: boolean(name='isInstall', description='Specifies whether to install the package.', example='false'),
+}', position='Body'),
+  isInstall?: boolean(name='isInstall', description='Specifies whether to install the package.', example='false', position='Query'),
 }
 
 model CreatePackageResponseBody = {
@@ -136,44 +137,16 @@ model CreatePackageResponseBody = {
 
 model CreatePackageResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: CreatePackageResponseBody(name='body'),
 }
 
-async function createPackageWithOptions(projectName: string, request: CreatePackageRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreatePackageResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.isInstall)) {
-    query['isInstall'] = request.isInstall;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-    body = request.body,
-  };
-  var params = new OpenApi.Params{
-    action = 'CreatePackage',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/packages`,
-    method = 'POST',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function createPackage(projectName: string, request: CreatePackageRequest): CreatePackageResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createPackageWithOptions(projectName, request, headers, runtime);
+async function createPackage(request: CreatePackageRequest): CreatePackageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreatePackage', 'POST', '/api/v1/projects/{projectName}/packages', 'json', false, 'json', request);
 }
 
 model CreateProjectRequest {
-  body?: string(name='body', description='The request body parameters.', example='{ "name": "project_name", "comment": "", "productType":"payasyougo/subscription/dev", /\\*\\* \\* "PAYASYOUGO": specifies a pay-as-you-go project. \\* "SUBSCRIPTION": specifies a subscription project. \\* "DEV": specifies that the project is created in Developer Edition. \\*/ "defaultQuota": "quota_nick_name", "properties": { "sqlMeteringMax":"", "typeSystem": "",// The string type. Valid values: 1, 2, and hive. "encryption": { "enable": true, "algorithm":"" , // The name of the encryption algorithm. "key":"" // The key of the encryption algorithm. } // json: This field is required only when data encryption is enabled. } }'),
+  body?: string(name='body', description='The request body parameters.', example='{ "name": "project_name", "comment": "", "productType":"payasyougo/subscription/dev", /\\*\\* \\* "PAYASYOUGO": specifies a pay-as-you-go project. \\* "SUBSCRIPTION": specifies a subscription project. \\* "DEV": specifies that the project is created in Developer Edition. \\*/ "defaultQuota": "quota_nick_name", "properties": { "sqlMeteringMax":"", "typeSystem": "",// The string type. Valid values: 1, 2, and hive. "encryption": { "enable": true, "algorithm":"" , // The name of the encryption algorithm. "key":"" // The key of the encryption algorithm. } // json: This field is required only when data encryption is enabled. } }', position='Body'),
 }
 
 model CreateProjectResponseBody = {
@@ -183,40 +156,19 @@ model CreateProjectResponseBody = {
 
 model CreateProjectResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: CreateProjectResponseBody(name='body'),
 }
 
-async function createProjectWithOptions(request: CreateProjectRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateProjectResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = request.body,
-  };
-  var params = new OpenApi.Params{
-    action = 'CreateProject',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects`,
-    method = 'POST',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function createProject(request: CreateProjectRequest): CreateProjectResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createProjectWithOptions(request, headers, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateProject', 'POST', '/api/v1/projects', 'json', false, 'json', request);
 }
 
 model CreateQuotaPlanRequest {
-  body?: string(name='body', description='The request body parameters.', example='{ "name": "planA", // The quota is a level-1 quota. You can select only the fields that are related to the quota plan. "quota": { "name": "a", "nickName": "aaa_nick", "tenantId": "10001", "regionId": "cn-hangzhou", "parentId": "0", "cluster": "AT-ODPS-TEST3", "parameter": { "minCU": 40, "maxCU": 40, "adhocCU": 0, "elasticMinCU": 40, "elasticMaxCU": 40, "enablePreemptiveScheduling": false, "forceReservedMin":true, "enablePriority":false, "singleJobCULimit":100, "adhocQuotaBeginTimeInSec": 1345, "adhocQuotaEndTimeInSec": 1234, "ignoreAdhocQuota":false }, "subQuotaInfoList": \\[ { "nickName": "WlmFuxiSecondaryOnlineQuotaTest", "name": "WlmFuxiSecondaryOnlineQuotaTest", "type": "FUXI_ONLINE", "tenantId": "10001", "regionId": "cn-hangzhou", "cluster": "AT-ODPS-TEST3", "parameter": { "minCU": 40, "maxCU": 40, "adhocCU": 0, "elasticMinCU": 40, "elasticMaxCU": 40, "enablePreemptiveScheduling": false, "forceReservedMin":true, "enablePriority":false, "singleJobCULimit":100, "adhocQuotaBeginTimeInSec": 1345, "adhocQuotaEndTimeInSec": 1234, "ignoreAdhocQuota":false } } ] } }'),
-  region?: string(name='region', description='The ID of the region.', example='cn-beijing'),
-  tenantId?: string(name='tenantId', description='The ID of the tenant.', example='228451885265153'),
+  nickname: string(name='nickname', description='QuotaNickName', example='planA', position='Path'),
+  body?: string(name='body', description='The request body parameters.', example='{ "name": "planA", // The quota is a level-1 quota. You can select only the fields that are related to the quota plan. "quota": { "name": "a", "nickName": "aaa_nick", "tenantId": "10001", "regionId": "cn-hangzhou", "parentId": "0", "cluster": "AT-ODPS-TEST3", "parameter": { "minCU": 40, "maxCU": 40, "adhocCU": 0, "elasticMinCU": 40, "elasticMaxCU": 40, "enablePreemptiveScheduling": false, "forceReservedMin":true, "enablePriority":false, "singleJobCULimit":100, "adhocQuotaBeginTimeInSec": 1345, "adhocQuotaEndTimeInSec": 1234, "ignoreAdhocQuota":false }, "subQuotaInfoList": \\[ { "nickName": "WlmFuxiSecondaryOnlineQuotaTest", "name": "WlmFuxiSecondaryOnlineQuotaTest", "type": "FUXI_ONLINE", "tenantId": "10001", "regionId": "cn-hangzhou", "cluster": "AT-ODPS-TEST3", "parameter": { "minCU": 40, "maxCU": 40, "adhocCU": 0, "elasticMinCU": 40, "elasticMaxCU": 40, "enablePreemptiveScheduling": false, "forceReservedMin":true, "enablePriority":false, "singleJobCULimit":100, "adhocQuotaBeginTimeInSec": 1345, "adhocQuotaEndTimeInSec": 1234, "ignoreAdhocQuota":false } } ] } }', position='Body'),
+  region?: string(name='region', description='The ID of the region.', example='cn-beijing', position='Query'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant.', example='228451885265153', position='Query'),
 }
 
 model CreateQuotaPlanResponseBody = {
@@ -226,49 +178,19 @@ model CreateQuotaPlanResponseBody = {
 
 model CreateQuotaPlanResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: CreateQuotaPlanResponseBody(name='body'),
 }
 
-async function createQuotaPlanWithOptions(nickname: string, request: CreateQuotaPlanRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateQuotaPlanResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.region)) {
-    query['region'] = request.region;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    query['tenantId'] = request.tenantId;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-    body = request.body,
-  };
-  var params = new OpenApi.Params{
-    action = 'CreateQuotaPlan',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}/plans`,
-    method = 'POST',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function createQuotaPlan(nickname: string, request: CreateQuotaPlanRequest): CreateQuotaPlanResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createQuotaPlanWithOptions(nickname, request, headers, runtime);
+async function createQuotaPlan(request: CreateQuotaPlanRequest): CreateQuotaPlanResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateQuotaPlan', 'POST', '/api/v1/quotas/{nickname}/plans', 'json', false, 'json', request);
 }
 
 model CreateQuotaScheduleRequest {
-  body?: string(name='body', description='The request body parameters.', example='\\# The quota plan immediately takes effect. \\[ { "type": "once", "plan": "planA", "operator":"xxx" } ] # The quota plan is scheduled on a regular basis. \\[ { "id": "bi", "type": "daily", "condition": { "at": "0800", "after": "2022-04-25T04:23:04Z" // optional }, "plan": "planA" }, { "id": "bi", "type": "daily", "condition": { "at": "0900", "after": "2022-04-25T04:23:04Z" // optional }, "plan": "planB" }, ]'),
-  region?: string(name='region', description='The ID of the region.', example='cn-chengdu'),
-  tenantId?: string(name='tenantId', description='The ID of the tenant.', example='407137536592384'),
+  nickname: string(name='nickname', description='QuotaNickName', example='quota_A', position='Path'),
+  body?: string(name='body', description='The request body parameters.', example='\\# The quota plan immediately takes effect. \\[ { "type": "once", "plan": "planA", "operator":"xxx" } ] # The quota plan is scheduled on a regular basis. \\[ { "id": "bi", "type": "daily", "condition": { "at": "0800", "after": "2022-04-25T04:23:04Z" // optional }, "plan": "planA" }, { "id": "bi", "type": "daily", "condition": { "at": "0900", "after": "2022-04-25T04:23:04Z" // optional }, "plan": "planB" }, ]', position='Body'),
+  region?: string(name='region', description='The ID of the region.', example='cn-chengdu', position='Query'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant.', example='407137536592384', position='Query'),
 }
 
 model CreateQuotaScheduleResponseBody = {
@@ -278,47 +200,17 @@ model CreateQuotaScheduleResponseBody = {
 
 model CreateQuotaScheduleResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: CreateQuotaScheduleResponseBody(name='body'),
 }
 
-async function createQuotaScheduleWithOptions(nickname: string, request: CreateQuotaScheduleRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateQuotaScheduleResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.region)) {
-    query['region'] = request.region;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    query['tenantId'] = request.tenantId;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-    body = request.body,
-  };
-  var params = new OpenApi.Params{
-    action = 'CreateQuotaSchedule',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}/schedule`,
-    method = 'POST',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function createQuotaSchedule(nickname: string, request: CreateQuotaScheduleRequest): CreateQuotaScheduleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createQuotaScheduleWithOptions(nickname, request, headers, runtime);
+async function createQuotaSchedule(request: CreateQuotaScheduleRequest): CreateQuotaScheduleResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateQuotaSchedule', 'POST', '/api/v1/quotas/{nickname}/schedule', 'json', false, 'json', request);
 }
 
 model CreateRoleRequest {
-  body?: string(name='body', description='The request body parameters. For valid values, see [MaxCompute permissions](~~27935~~).', example='{"name": "role_name","type": "resource/adminn","policy": "", // The document of the policy. This parameter is not required if an access-control list (ACL) is used. "acl": { // This parameter is not required if a policy is used. "table": \\[{"name": "", "actions":\\["","",]}, {"name": "", "actions":\\[]}],"resource":\\[{"name": "", "actions":\\["","",]}, {"name": "", "actions":\\[]}],"function":\\[{"name": "", "actions":\\["","",]}, {"name": "", "actions":\\[]}],"package":\\[{"name": "", "actions":\\["","",]}, {"name": "", "actions":\\[]}],"project":\\[{"name": "", "actions":\\[]}], // Only the current project is displayed in the console. "instance":\\[{"name": "", "actions":\\[]}] // The parameter name must be set to an asterisk (\\*) in the console. }}// An asterisk (\\*) can be specified for name.'),
+  projectName: string(name='projectName', description='The name of the MaxCompute project.', example='projectA', position='Path'),
+  body?: string(name='body', description='The request body parameters. For valid values, see [MaxCompute permissions](~~27935~~).', example='{"name": "role_name","type": "resource/adminn","policy": "", // The document of the policy. This parameter is not required if an access-control list (ACL) is used. "acl": { // This parameter is not required if a policy is used. "table": \\[{"name": "", "actions":\\["","",]}, {"name": "", "actions":\\[]}],"resource":\\[{"name": "", "actions":\\["","",]}, {"name": "", "actions":\\[]}],"function":\\[{"name": "", "actions":\\["","",]}, {"name": "", "actions":\\[]}],"package":\\[{"name": "", "actions":\\["","",]}, {"name": "", "actions":\\[]}],"project":\\[{"name": "", "actions":\\[]}], // Only the current project is displayed in the console. "instance":\\[{"name": "", "actions":\\[]}] // The parameter name must be set to an asterisk (\\*) in the console. }}// An asterisk (\\*) can be specified for name.', position='Body'),
 }
 
 model CreateRoleResponseBody = {
@@ -328,39 +220,19 @@ model CreateRoleResponseBody = {
 
 model CreateRoleResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: CreateRoleResponseBody(name='body'),
 }
 
-async function createRoleWithOptions(projectName: string, request: CreateRoleRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateRoleResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = request.body,
-  };
-  var params = new OpenApi.Params{
-    action = 'CreateRole',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/roles`,
-    method = 'POST',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function createRole(projectName: string, request: CreateRoleRequest): CreateRoleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createRoleWithOptions(projectName, request, headers, runtime);
+async function createRole(request: CreateRoleRequest): CreateRoleResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateRole', 'POST', '/api/v1/projects/{projectName}/roles', 'json', false, 'json', request);
 }
 
 model DeleteQuotaPlanRequest {
-  region?: string(name='region', description='The ID of the region.', example='cn-hangzhou'),
-  tenantId?: string(name='tenantId', description='The ID of the tenant.', example='416441016836866'),
+  nickname: string(name='nickname', description='QuotaNickName', example='quota_A', position='Path'),
+  planName: string(name='planName', description='The name of the quota plan.', example='planA', position='Path'),
+  region?: string(name='region', description='The ID of the region.', example='cn-hangzhou', position='Query'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant.', example='416441016836866', position='Query'),
 }
 
 model DeleteQuotaPlanResponseBody = {
@@ -370,58 +242,20 @@ model DeleteQuotaPlanResponseBody = {
 
 model DeleteQuotaPlanResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: DeleteQuotaPlanResponseBody(name='body'),
 }
 
-async function deleteQuotaPlanWithOptions(nickname: string, planName: string, request: DeleteQuotaPlanRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteQuotaPlanResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.region)) {
-    query['region'] = request.region;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    query['tenantId'] = request.tenantId;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'DeleteQuotaPlan',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}/plans/${OpenApiUtil.getEncodeParam(planName)}`,
-    method = 'DELETE',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function deleteQuotaPlan(nickname: string, planName: string, request: DeleteQuotaPlanRequest): DeleteQuotaPlanResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteQuotaPlanWithOptions(nickname, planName, request, headers, runtime);
+async function deleteQuotaPlan(request: DeleteQuotaPlanRequest): DeleteQuotaPlanResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteQuotaPlan', 'DELETE', '/api/v1/quotas/{nickname}/plans/{planName}', 'json', false, 'json', request);
 }
 
 model GetJobResourceUsageRequest {
-  date?: string(name='date', example='2023-05-15'),
-  jobOwnerList?: [ string ](name='jobOwnerList'),
-  pageNumber?: long(name='pageNumber', example='1'),
-  pageSize?: long(name='pageSize', example='10'),
-  quotaNicknameList?: [ string ](name='quotaNicknameList'),
-}
-
-model GetJobResourceUsageShrinkRequest {
-  date?: string(name='date', example='2023-05-15'),
-  jobOwnerListShrink?: string(name='jobOwnerList'),
-  pageNumber?: long(name='pageNumber', example='1'),
-  pageSize?: long(name='pageSize', example='10'),
-  quotaNicknameListShrink?: string(name='quotaNicknameList'),
+  date: string(name='date', example='2023-05-15', position='Query'),
+  jobOwnerList?: [ string ](name='jobOwnerList', shrink='simple', position='Query'),
+  pageNumber?: long(name='pageNumber', example='1', position='Query'),
+  pageSize?: long(name='pageSize', example='10', position='Query'),
+  quotaNicknameList?: [ string ](name='quotaNicknameList', shrink='simple', position='Query'),
 }
 
 model GetJobResourceUsageResponseBody = {
@@ -447,63 +281,18 @@ model GetJobResourceUsageResponseBody = {
 
 model GetJobResourceUsageResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: GetJobResourceUsageResponseBody(name='body'),
 }
 
-async function getJobResourceUsageWithOptions(tmpReq: GetJobResourceUsageRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetJobResourceUsageResponse {
-  Util.validateModel(tmpReq);
-  var request = new GetJobResourceUsageShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.jobOwnerList)) {
-    request.jobOwnerListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.jobOwnerList, 'jobOwnerList', 'simple');
-  }
-  if (!Util.isUnset(tmpReq.quotaNicknameList)) {
-    request.quotaNicknameListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.quotaNicknameList, 'quotaNicknameList', 'simple');
-  }
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.date)) {
-    query['date'] = request.date;
-  }
-  if (!Util.isUnset(request.jobOwnerListShrink)) {
-    query['jobOwnerList'] = request.jobOwnerListShrink;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    query['pageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query['pageSize'] = request.pageSize;
-  }
-  if (!Util.isUnset(request.quotaNicknameListShrink)) {
-    query['quotaNicknameList'] = request.quotaNicknameListShrink;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetJobResourceUsage',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/jobs/resourceUsage`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function getJobResourceUsage(request: GetJobResourceUsageRequest): GetJobResourceUsageResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getJobResourceUsageWithOptions(request, headers, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetJobResourceUsage', 'GET', '/api/v1/jobs/resourceUsage', 'json', false, 'json', request);
 }
 
 model GetPackageRequest {
-  sourceProject?: string(name='sourceProject', description='The project to which the package belongs. This parameter is required if the package is installed in the MaxCompute project.', example='projectB'),
+  projectName: string(name='projectName', description='The name of the MaxCompute project.', example='projectA', position='Path'),
+  packageName: string(name='packageName', description='The name of the package.', example='test_package', position='Path'),
+  sourceProject?: string(name='sourceProject', description='The project to which the package belongs. This parameter is required if the package is installed in the MaxCompute project.', example='projectB', position='Query'),
 }
 
 model GetPackageResponseBody = {
@@ -540,39 +329,16 @@ model GetPackageResponseBody = {
 
 model GetPackageResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: GetPackageResponseBody(name='body'),
 }
 
-async function getPackageWithOptions(projectName: string, packageName: string, request: GetPackageRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetPackageResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.sourceProject)) {
-    query['sourceProject'] = request.sourceProject;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetPackage',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/packages/${OpenApiUtil.getEncodeParam(packageName)}`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+async function getPackage(request: GetPackageRequest): GetPackageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetPackage', 'GET', '/api/v1/projects/{projectName}/packages/{packageName}', 'json', false, 'json', request);
 }
 
-async function getPackage(projectName: string, packageName: string, request: GetPackageRequest): GetPackageResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getPackageWithOptions(projectName, packageName, request, headers, runtime);
+model GetProjectRequest {
+  projectName: string(name='projectName', description='The name of the MaxCompute project.', example='odps_project', position='Path'),
 }
 
 model GetProjectResponseBody = {
@@ -646,39 +412,20 @@ model GetProjectResponseBody = {
 
 model GetProjectResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: GetProjectResponseBody(name='body'),
 }
 
-async function getProjectWithOptions(projectName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetProjectResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  var params = new OpenApi.Params{
-    action = 'GetProject',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function getProject(projectName: string): GetProjectResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getProjectWithOptions(projectName, headers, runtime);
+async function getProject(request: GetProjectRequest): GetProjectResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetProject', 'GET', '/api/v1/projects/{projectName}', 'json', false, 'json', request);
 }
 
 model GetQuotaRequest {
-  akProven?: string(name='AkProven', example='null'),
-  mock?: boolean(name='mock', example='false'),
-  region?: string(name='region', example='cn-chengdu'),
-  tenantId?: string(name='tenantId', example='520539530998273'),
+  nickname: string(name='nickname', example='quota_a', position='Path'),
+  akProven?: string(name='AkProven', example='null', position='Query'),
+  mock?: boolean(name='mock', example='false', position='Query'),
+  region?: string(name='region', example='cn-chengdu', position='Query'),
+  tenantId?: string(name='tenantId', example='520539530998273', position='Query'),
 }
 
 model GetQuotaResponseBody = {
@@ -831,53 +578,19 @@ model GetQuotaResponseBody = {
 
 model GetQuotaResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: GetQuotaResponseBody(name='body'),
 }
 
-async function getQuotaWithOptions(nickname: string, request: GetQuotaRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetQuotaResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.akProven)) {
-    query['AkProven'] = request.akProven;
-  }
-  if (!Util.isUnset(request.mock)) {
-    query['mock'] = request.mock;
-  }
-  if (!Util.isUnset(request.region)) {
-    query['region'] = request.region;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    query['tenantId'] = request.tenantId;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetQuota',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function getQuota(nickname: string, request: GetQuotaRequest): GetQuotaResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getQuotaWithOptions(nickname, request, headers, runtime);
+async function getQuota(request: GetQuotaRequest): GetQuotaResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetQuota', 'GET', '/api/v1/quotas/{nickname}', 'json', false, 'json', request);
 }
 
 model GetQuotaPlanRequest {
-  region?: string(name='region', description='The ID of the region.', example='cn-beijing'),
-  tenantId?: string(name='tenantId', description='The ID of the tenant.', example='483212237127906'),
+  nickname: string(name='nickname', description='The name of the quota.', example='quotaA', position='Path'),
+  planName: string(name='planName', description='The name of the quota plan.', example='planA', position='Path'),
+  region?: string(name='region', description='The ID of the region.', example='cn-beijing', position='Query'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant.', example='483212237127906', position='Query'),
 }
 
 model GetQuotaPlanResponseBody = {
@@ -958,42 +671,17 @@ model GetQuotaPlanResponseBody = {
 
 model GetQuotaPlanResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: GetQuotaPlanResponseBody(name='body'),
 }
 
-async function getQuotaPlanWithOptions(nickname: string, planName: string, request: GetQuotaPlanRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetQuotaPlanResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.region)) {
-    query['region'] = request.region;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    query['tenantId'] = request.tenantId;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetQuotaPlan',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}/plans/${OpenApiUtil.getEncodeParam(planName)}`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+async function getQuotaPlan(request: GetQuotaPlanRequest): GetQuotaPlanResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetQuotaPlan', 'GET', '/api/v1/quotas/{nickname}/plans/{planName}', 'json', false, 'json', request);
 }
 
-async function getQuotaPlan(nickname: string, planName: string, request: GetQuotaPlanRequest): GetQuotaPlanResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getQuotaPlanWithOptions(nickname, planName, request, headers, runtime);
+model GetRoleAclRequest {
+  projectName: string(name='projectName', description='The name of the MaxCompute project.', example='projectA', position='Path'),
+  roleName: string(name='roleName', description='The name of the role.', example='roleA', position='Path'),
 }
 
 model GetRoleAclResponseBody = {
@@ -1040,37 +728,19 @@ model GetRoleAclResponseBody = {
 
 model GetRoleAclResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: GetRoleAclResponseBody(name='body'),
 }
 
-async function getRoleAclWithOptions(projectName: string, roleName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetRoleAclResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  var params = new OpenApi.Params{
-    action = 'GetRoleAcl',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/roles/${OpenApiUtil.getEncodeParam(roleName)}/roleAcl`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function getRoleAcl(projectName: string, roleName: string): GetRoleAclResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getRoleAclWithOptions(projectName, roleName, headers, runtime);
+async function getRoleAcl(request: GetRoleAclRequest): GetRoleAclResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetRoleAcl', 'GET', '/api/v1/projects/{projectName}/roles/{roleName}/roleAcl', 'json', false, 'json', request);
 }
 
 model GetRoleAclOnObjectRequest {
-  objectName?: string(name='objectName', description='The name of the object.', example='tableA'),
-  objectType?: string(name='objectType', description='The type of the object.', example='table'),
+  projectName: string(name='projectName', description='The name of the MaxCompute project.', example='projectA', position='Path'),
+  roleName: string(name='roleName', description='The name of the role.', example='roleA', position='Path'),
+  objectName: string(name='objectName', description='The name of the object.', example='tableA', position='Query'),
+  objectType: string(name='objectType', description='The type of the object.', example='table', position='Query'),
 }
 
 model GetRoleAclOnObjectResponseBody = {
@@ -1083,42 +753,17 @@ model GetRoleAclOnObjectResponseBody = {
 
 model GetRoleAclOnObjectResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: GetRoleAclOnObjectResponseBody(name='body'),
 }
 
-async function getRoleAclOnObjectWithOptions(projectName: string, roleName: string, request: GetRoleAclOnObjectRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetRoleAclOnObjectResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.objectName)) {
-    query['objectName'] = request.objectName;
-  }
-  if (!Util.isUnset(request.objectType)) {
-    query['objectType'] = request.objectType;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetRoleAclOnObject',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/roles/${OpenApiUtil.getEncodeParam(roleName)}/acl`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+async function getRoleAclOnObject(request: GetRoleAclOnObjectRequest): GetRoleAclOnObjectResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetRoleAclOnObject', 'GET', '/api/v1/projects/{projectName}/roles/{roleName}/acl', 'json', false, 'json', request);
 }
 
-async function getRoleAclOnObject(projectName: string, roleName: string, request: GetRoleAclOnObjectRequest): GetRoleAclOnObjectResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getRoleAclOnObjectWithOptions(projectName, roleName, request, headers, runtime);
+model GetRolePolicyRequest {
+  projectName: string(name='projectName', description='The name of the MaxCompute project.', example='projectA', position='Path'),
+  roleName: string(name='roleName', description='The name of the role.', example='roleA', position='Path'),
 }
 
 model GetRolePolicyResponseBody = {
@@ -1141,50 +786,21 @@ model GetRolePolicyResponseBody = {
 
 model GetRolePolicyResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: GetRolePolicyResponseBody(name='body'),
 }
 
-async function getRolePolicyWithOptions(projectName: string, roleName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetRolePolicyResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  var params = new OpenApi.Params{
-    action = 'GetRolePolicy',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/roles/${OpenApiUtil.getEncodeParam(roleName)}/policy`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function getRolePolicy(projectName: string, roleName: string): GetRolePolicyResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getRolePolicyWithOptions(projectName, roleName, headers, runtime);
+async function getRolePolicy(request: GetRolePolicyRequest): GetRolePolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetRolePolicy', 'GET', '/api/v1/projects/{projectName}/roles/{roleName}/policy', 'json', false, 'json', request);
 }
 
 model GetRunningJobsRequest {
-  from?: long(name='from', example='1683785928'),
-  jobOwnerList?: [ string ](name='jobOwnerList'),
-  pageNumber?: long(name='pageNumber', example='1'),
-  pageSize?: long(name='pageSize', example='10'),
-  quotaNicknameList?: [ string ](name='quotaNicknameList'),
-  to?: long(name='to', example='1683612946'),
-}
-
-model GetRunningJobsShrinkRequest {
-  from?: long(name='from', example='1683785928'),
-  jobOwnerListShrink?: string(name='jobOwnerList'),
-  pageNumber?: long(name='pageNumber', example='1'),
-  pageSize?: long(name='pageSize', example='10'),
-  quotaNicknameListShrink?: string(name='quotaNicknameList'),
-  to?: long(name='to', example='1683612946'),
+  from: long(name='from', example='1683785928', position='Query'),
+  jobOwnerList?: [ string ](name='jobOwnerList', shrink='simple', position='Query'),
+  pageNumber?: long(name='pageNumber', example='1', position='Query'),
+  pageSize?: long(name='pageSize', example='10', position='Query'),
+  quotaNicknameList?: [ string ](name='quotaNicknameList', shrink='simple', position='Query'),
+  to: long(name='to', example='1683612946', position='Query'),
 }
 
 model GetRunningJobsResponseBody = {
@@ -1214,62 +830,16 @@ model GetRunningJobsResponseBody = {
 
 model GetRunningJobsResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: GetRunningJobsResponseBody(name='body'),
 }
 
-async function getRunningJobsWithOptions(tmpReq: GetRunningJobsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetRunningJobsResponse {
-  Util.validateModel(tmpReq);
-  var request = new GetRunningJobsShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.jobOwnerList)) {
-    request.jobOwnerListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.jobOwnerList, 'jobOwnerList', 'simple');
-  }
-  if (!Util.isUnset(tmpReq.quotaNicknameList)) {
-    request.quotaNicknameListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.quotaNicknameList, 'quotaNicknameList', 'simple');
-  }
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.from)) {
-    query['from'] = request.from;
-  }
-  if (!Util.isUnset(request.jobOwnerListShrink)) {
-    query['jobOwnerList'] = request.jobOwnerListShrink;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    query['pageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query['pageSize'] = request.pageSize;
-  }
-  if (!Util.isUnset(request.quotaNicknameListShrink)) {
-    query['quotaNicknameList'] = request.quotaNicknameListShrink;
-  }
-  if (!Util.isUnset(request.to)) {
-    query['to'] = request.to;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetRunningJobs',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/jobs/runningJobs`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+async function getRunningJobs(request: GetRunningJobsRequest): GetRunningJobsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetRunningJobs', 'GET', '/api/v1/jobs/runningJobs', 'json', false, 'json', request);
 }
 
-async function getRunningJobs(request: GetRunningJobsRequest): GetRunningJobsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getRunningJobsWithOptions(request, headers, runtime);
+model GetTrustedProjectsRequest {
+  projectName: string(name='projectName', description='The name of the MaxCompute project.', example='odps_project', position='Path'),
 }
 
 model GetTrustedProjectsResponseBody = {
@@ -1279,32 +849,12 @@ model GetTrustedProjectsResponseBody = {
 
 model GetTrustedProjectsResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: GetTrustedProjectsResponseBody(name='body'),
 }
 
-async function getTrustedProjectsWithOptions(projectName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetTrustedProjectsResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  var params = new OpenApi.Params{
-    action = 'GetTrustedProjects',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/trustedProjects`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function getTrustedProjects(projectName: string): GetTrustedProjectsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getTrustedProjectsWithOptions(projectName, headers, runtime);
+async function getTrustedProjects(request: GetTrustedProjectsRequest): GetTrustedProjectsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetTrustedProjects', 'GET', '/api/v1/projects/{projectName}/trustedProjects', 'json', false, 'json', request);
 }
 
 model KillJobsRequest {
@@ -1317,9 +867,9 @@ model KillJobsRequest {
             "instanceId": "",
             "projectName": ""
       }
-]'),
-  region?: string(name='region', example='cn-hangzhou'),
-  tenantId?: string(name='tenantId', example='478403690625249'),
+]', position='Body'),
+  region?: string(name='region', example='cn-hangzhou', position='Query'),
+  tenantId?: string(name='tenantId', example='478403690625249', position='Query'),
 }
 
 model KillJobsResponseBody = {
@@ -1330,49 +880,19 @@ model KillJobsResponseBody = {
 
 model KillJobsResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: KillJobsResponseBody(name='body'),
 }
 
-async function killJobsWithOptions(request: KillJobsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): KillJobsResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.region)) {
-    query['region'] = request.region;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    query['tenantId'] = request.tenantId;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-    body = request.body,
-  };
-  var params = new OpenApi.Params{
-    action = 'KillJobs',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/jobs/kill`,
-    method = 'POST',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function killJobs(request: KillJobsRequest): KillJobsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return killJobsWithOptions(request, headers, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'KillJobs', 'POST', '/api/v1/jobs/kill', 'json', false, 'json', request);
 }
 
 model ListFunctionsRequest {
-  marker?: string(name='marker', description='Specifies the marker after which the returned list begins.', example='cHlvZHBzX3VkZl8xMDExNV8xNDU3NDI4NDkzKg=='),
-  maxItem?: int32(name='maxItem', description='The maximum number of entries to return on each page.', example='10'),
-  prefix?: string(name='prefix', description='The names of the returned resources. The names must start with the value specified by the prefix parameter. If the prefix parameter is set to a, the names of the returned resources must start with a.', example='a'),
+  projectName: string(name='projectName', description='The name of the MaxCompute project.', example='odps_project', position='Path'),
+  marker?: string(name='marker', description='Specifies the marker after which the returned list begins.', example='cHlvZHBzX3VkZl8xMDExNV8xNDU3NDI4NDkzKg==', position='Query'),
+  maxItem?: int32(name='maxItem', description='The maximum number of entries to return on each page.', example='10', position='Query'),
+  prefix?: string(name='prefix', description='The names of the returned resources. The names must start with the value specified by the prefix parameter. If the prefix parameter is set to a, the names of the returned resources must start with a.', example='a', position='Query'),
 }
 
 model ListFunctionsResponseBody = {
@@ -1395,45 +915,16 @@ model ListFunctionsResponseBody = {
 
 model ListFunctionsResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: ListFunctionsResponseBody(name='body'),
 }
 
-async function listFunctionsWithOptions(projectName: string, request: ListFunctionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListFunctionsResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.marker)) {
-    query['marker'] = request.marker;
-  }
-  if (!Util.isUnset(request.maxItem)) {
-    query['maxItem'] = request.maxItem;
-  }
-  if (!Util.isUnset(request.prefix)) {
-    query['prefix'] = request.prefix;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListFunctions',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/functions`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+async function listFunctions(request: ListFunctionsRequest): ListFunctionsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListFunctions', 'GET', '/api/v1/projects/{projectName}/functions', 'json', false, 'json', request);
 }
 
-async function listFunctions(projectName: string, request: ListFunctionsRequest): ListFunctionsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listFunctionsWithOptions(projectName, request, headers, runtime);
+model ListPackagesRequest {
+  projectName: string(name='projectName', description='The name of the MaxCompute project.', example='projectA', position='Path'),
 }
 
 model ListPackagesResponseBody = {
@@ -1458,32 +949,16 @@ model ListPackagesResponseBody = {
 
 model ListPackagesResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: ListPackagesResponseBody(name='body'),
 }
 
-async function listPackagesWithOptions(projectName: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListPackagesResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  var params = new OpenApi.Params{
-    action = 'ListPackages',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/packages`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+async function listPackages(request: ListPackagesRequest): ListPackagesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListPackages', 'GET', '/api/v1/projects/{projectName}/packages', 'json', false, 'json', request);
 }
 
-async function listPackages(projectName: string): ListPackagesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listPackagesWithOptions(projectName, headers, runtime);
+model ListProjectUsersRequest {
+  projectName: string(name='projectName', description='The name of the MaxCompute project.', example='projectA', position='Path'),
 }
 
 model ListProjectUsersResponseBody = {
@@ -1499,44 +974,24 @@ model ListProjectUsersResponseBody = {
 
 model ListProjectUsersResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: ListProjectUsersResponseBody(name='body'),
 }
 
-async function listProjectUsersWithOptions(projectName: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListProjectUsersResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  var params = new OpenApi.Params{
-    action = 'ListProjectUsers',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/users`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function listProjectUsers(projectName: string): ListProjectUsersResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listProjectUsersWithOptions(projectName, headers, runtime);
+async function listProjectUsers(request: ListProjectUsersRequest): ListProjectUsersResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListProjectUsers', 'GET', '/api/v1/projects/{projectName}/users', 'json', false, 'json', request);
 }
 
 model ListProjectsRequest {
-  marker?: string(name='marker', example='cHlvZHBzX3VkZl8xMDExNV8xNDU3NDI4NDkzKg=='),
-  maxItem?: int32(name='maxItem', example='10'),
-  prefix?: string(name='prefix', example='a'),
-  quotaName?: string(name='quotaName'),
-  quotaNickName?: string(name='quotaNickName', example='quotaA'),
-  region?: string(name='region', example='cn-beijing'),
-  saleTags?: string(name='saleTags'),
-  tenantId?: string(name='tenantId', example='549532154333697'),
-  type?: string(name='type'),
+  marker?: string(name='marker', example='cHlvZHBzX3VkZl8xMDExNV8xNDU3NDI4NDkzKg==', position='Query'),
+  maxItem?: int32(name='maxItem', example='10', position='Query'),
+  prefix?: string(name='prefix', example='a', position='Query'),
+  quotaName?: string(name='quotaName', position='Query'),
+  quotaNickName?: string(name='quotaNickName', example='quotaA', position='Query'),
+  region?: string(name='region', example='cn-beijing', position='Query'),
+  saleTags?: string(name='saleTags', position='Query'),
+  tenantId?: string(name='tenantId', example='549532154333697', position='Query'),
+  type?: string(name='type', position='Query'),
 }
 
 model ListProjectsResponseBody = {
@@ -1626,73 +1081,22 @@ model ListProjectsResponseBody = {
 
 model ListProjectsResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: ListProjectsResponseBody(name='body'),
 }
 
-async function listProjectsWithOptions(request: ListProjectsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListProjectsResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.marker)) {
-    query['marker'] = request.marker;
-  }
-  if (!Util.isUnset(request.maxItem)) {
-    query['maxItem'] = request.maxItem;
-  }
-  if (!Util.isUnset(request.prefix)) {
-    query['prefix'] = request.prefix;
-  }
-  if (!Util.isUnset(request.quotaName)) {
-    query['quotaName'] = request.quotaName;
-  }
-  if (!Util.isUnset(request.quotaNickName)) {
-    query['quotaNickName'] = request.quotaNickName;
-  }
-  if (!Util.isUnset(request.region)) {
-    query['region'] = request.region;
-  }
-  if (!Util.isUnset(request.saleTags)) {
-    query['saleTags'] = request.saleTags;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    query['tenantId'] = request.tenantId;
-  }
-  if (!Util.isUnset(request.type)) {
-    query['type'] = request.type;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListProjects',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listProjects(request: ListProjectsRequest): ListProjectsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listProjectsWithOptions(request, headers, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListProjects', 'GET', '/api/v1/projects', 'json', false, 'json', request);
 }
 
 model ListQuotasRequest {
-  billingType?: string(name='billingType', example='subscription'),
-  marker?: string(name='marker', example='cHlvZHBzX3VkZl8xMDExNV8xNDU3NDI4NDkzKg=='),
-  maxItem?: long(name='maxItem', example='100'),
-  productId?: string(name='productId', example='ODPS'),
-  region?: string(name='region', example='cn-beijing'),
-  saleTags?: string(name='saleTags'),
-  tenantId?: string(name='tenantId', example='280747109771520'),
+  billingType?: string(name='billingType', example='subscription', position='Query'),
+  marker?: string(name='marker', example='cHlvZHBzX3VkZl8xMDExNV8xNDU3NDI4NDkzKg==', position='Query'),
+  maxItem?: long(name='maxItem', example='100', position='Query'),
+  productId?: string(name='productId', example='ODPS', position='Query'),
+  region?: string(name='region', example='cn-beijing', position='Query'),
+  saleTags?: string(name='saleTags', position='Query'),
+  tenantId?: string(name='tenantId', example='280747109771520', position='Query'),
 }
 
 model ListQuotasResponseBody = {
@@ -1873,62 +1277,18 @@ model ListQuotasResponseBody = {
 
 model ListQuotasResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: ListQuotasResponseBody(name='body'),
 }
 
-async function listQuotasWithOptions(request: ListQuotasRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListQuotasResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.billingType)) {
-    query['billingType'] = request.billingType;
-  }
-  if (!Util.isUnset(request.marker)) {
-    query['marker'] = request.marker;
-  }
-  if (!Util.isUnset(request.maxItem)) {
-    query['maxItem'] = request.maxItem;
-  }
-  if (!Util.isUnset(request.productId)) {
-    query['productId'] = request.productId;
-  }
-  if (!Util.isUnset(request.region)) {
-    query['region'] = request.region;
-  }
-  if (!Util.isUnset(request.saleTags)) {
-    query['saleTags'] = request.saleTags;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    query['tenantId'] = request.tenantId;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListQuotas',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/quotas`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listQuotas(request: ListQuotasRequest): ListQuotasResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listQuotasWithOptions(request, headers, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListQuotas', 'GET', '/api/v1/quotas', 'json', false, 'json', request);
 }
 
 model ListQuotasPlansRequest {
-  region?: string(name='region', description='The ID of the region.', example='cn-beijing'),
-  tenantId?: string(name='tenantId', description='The ID of the tenant.', example='478403690625249'),
+  nickname: string(name='nickname', description='The name of the quota.', example='quotaA', position='Path'),
+  region?: string(name='region', description='The ID of the region.', example='cn-beijing', position='Query'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant.', example='478403690625249', position='Query'),
 }
 
 model ListQuotasPlansResponseBody = {
@@ -2013,48 +1373,19 @@ model ListQuotasPlansResponseBody = {
 
 model ListQuotasPlansResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: ListQuotasPlansResponseBody(name='body'),
 }
 
-async function listQuotasPlansWithOptions(nickname: string, request: ListQuotasPlansRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListQuotasPlansResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.region)) {
-    query['region'] = request.region;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    query['tenantId'] = request.tenantId;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListQuotasPlans',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}/plans`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function listQuotasPlans(nickname: string, request: ListQuotasPlansRequest): ListQuotasPlansResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listQuotasPlansWithOptions(nickname, request, headers, runtime);
+async function listQuotasPlans(request: ListQuotasPlansRequest): ListQuotasPlansResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListQuotasPlans', 'GET', '/api/v1/quotas/{nickname}/plans', 'json', false, 'json', request);
 }
 
 model ListResourcesRequest {
-  marker?: string(name='marker', description='Specifies the marker after which the returned list begins.', example='cHlvZHBzX3VkZl8xMDExNV8xNDU3NDI4NDkzKg=='),
-  maxItem?: int32(name='maxItem', description='The maximum number of entries to return on each page.', example='10'),
-  name?: string(name='name', description='The name of the resource.', example='res'),
+  projectName: string(name='projectName', description='The name of the MaxCompute project.', example='projectA', position='Path'),
+  marker?: string(name='marker', description='Specifies the marker after which the returned list begins.', example='cHlvZHBzX3VkZl8xMDExNV8xNDU3NDI4NDkzKg==', position='Query'),
+  maxItem?: int32(name='maxItem', description='The maximum number of entries to return on each page.', example='10', position='Query'),
+  name?: string(name='name', description='The name of the resource.', example='res', position='Query'),
 }
 
 model ListResourcesResponseBody = {
@@ -2076,45 +1407,16 @@ model ListResourcesResponseBody = {
 
 model ListResourcesResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: ListResourcesResponseBody(name='body'),
 }
 
-async function listResourcesWithOptions(projectName: string, request: ListResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListResourcesResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.marker)) {
-    query['marker'] = request.marker;
-  }
-  if (!Util.isUnset(request.maxItem)) {
-    query['maxItem'] = request.maxItem;
-  }
-  if (!Util.isUnset(request.name)) {
-    query['name'] = request.name;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListResources',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/resources`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+async function listResources(request: ListResourcesRequest): ListResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListResources', 'GET', '/api/v1/projects/{projectName}/resources', 'json', false, 'json', request);
 }
 
-async function listResources(projectName: string, request: ListResourcesRequest): ListResourcesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listResourcesWithOptions(projectName, request, headers, runtime);
+model ListRolesRequest {
+  projectName: string(name='projectName', description='The name of the MaxCompute project.', example='projectA', position='Path'),
 }
 
 model ListRolesResponseBody = {
@@ -2183,39 +1485,20 @@ model ListRolesResponseBody = {
 
 model ListRolesResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: ListRolesResponseBody(name='body'),
 }
 
-async function listRolesWithOptions(projectName: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListRolesResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  var params = new OpenApi.Params{
-    action = 'ListRoles',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/roles`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function listRoles(projectName: string): ListRolesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listRolesWithOptions(projectName, headers, runtime);
+async function listRoles(request: ListRolesRequest): ListRolesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListRoles', 'GET', '/api/v1/projects/{projectName}/roles', 'json', false, 'json', request);
 }
 
 model ListTablesRequest {
-  marker?: string(name='marker', description='Specifies the marker after which the returned list begins.', example='Y29tbWlzc2lvbl9leHRlcm5hbF91cmdlXzFfd3Ih'),
-  maxItem?: int32(name='maxItem', description='The maximum number of entries to return on each page.', example='10'),
-  prefix?: string(name='prefix', description='The names of the returned resources. The names must start with the value specified by the prefix parameter. If the prefix parameter is set to a, the names of the returned resources must start with a.', example='a'),
-  type?: string(name='type', description='The type of the table.', example='internal'),
+  projectName: string(name='projectName', description='The name of the MaxCompute project.', example='projectA', position='Path'),
+  marker?: string(name='marker', description='Specifies the marker after which the returned list begins.', example='Y29tbWlzc2lvbl9leHRlcm5hbF91cmdlXzFfd3Ih', position='Query'),
+  maxItem?: int32(name='maxItem', description='The maximum number of entries to return on each page.', example='10', position='Query'),
+  prefix?: string(name='prefix', description='The names of the returned resources. The names must start with the value specified by the prefix parameter. If the prefix parameter is set to a, the names of the returned resources must start with a.', example='a', position='Query'),
+  type?: string(name='type', description='The type of the table.', example='internal', position='Query'),
 }
 
 model ListTablesResponseBody = {
@@ -2237,53 +1520,17 @@ model ListTablesResponseBody = {
 
 model ListTablesResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: ListTablesResponseBody(name='body'),
 }
 
-async function listTablesWithOptions(projectName: string, request: ListTablesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTablesResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.marker)) {
-    query['marker'] = request.marker;
-  }
-  if (!Util.isUnset(request.maxItem)) {
-    query['maxItem'] = request.maxItem;
-  }
-  if (!Util.isUnset(request.prefix)) {
-    query['prefix'] = request.prefix;
-  }
-  if (!Util.isUnset(request.type)) {
-    query['type'] = request.type;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListTables',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/tables`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function listTables(projectName: string, request: ListTablesRequest): ListTablesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listTablesWithOptions(projectName, request, headers, runtime);
+async function listTables(request: ListTablesRequest): ListTablesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListTables', 'GET', '/api/v1/projects/{projectName}/tables', 'json', false, 'json', request);
 }
 
 model ListUsersRequest {
-  pageNumber?: int32(name='pageNumber', example='1'),
-  pageSize?: int32(name='pageSize', example='10'),
+  pageNumber?: int32(name='pageNumber', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', example='10', position='Query'),
 }
 
 model ListUsersResponseBody = {
@@ -2306,42 +1553,17 @@ model ListUsersResponseBody = {
 
 model ListUsersResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: ListUsersResponseBody(name='body'),
 }
 
-async function listUsersWithOptions(request: ListUsersRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListUsersResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.pageNumber)) {
-    query['pageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query['pageSize'] = request.pageSize;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListUsers',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/users`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+async function listUsers(request: ListUsersRequest): ListUsersResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListUsers', 'GET', '/api/v1/users', 'json', false, 'json', request);
 }
 
-async function listUsers(request: ListUsersRequest): ListUsersResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listUsersWithOptions(request, headers, runtime);
+model ListUsersByRoleRequest {
+  projectName: string(name='projectName', description='The name of the MaxCompute project.', example='projectA', position='Path'),
+  roleName: string(name='roleName', description='The name of the role.', example='roleA', position='Path'),
 }
 
 model ListUsersByRoleResponseBody = {
@@ -2357,35 +1579,17 @@ model ListUsersByRoleResponseBody = {
 
 model ListUsersByRoleResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: ListUsersByRoleResponseBody(name='body'),
 }
 
-async function listUsersByRoleWithOptions(projectName: string, roleName: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListUsersByRoleResponse {
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-  };
-  var params = new OpenApi.Params{
-    action = 'ListUsersByRole',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/roles/${OpenApiUtil.getEncodeParam(roleName)}/users`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function listUsersByRole(projectName: string, roleName: string): ListUsersByRoleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listUsersByRoleWithOptions(projectName, roleName, headers, runtime);
+async function listUsersByRole(request: ListUsersByRoleRequest): ListUsersByRoleResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListUsersByRole', 'GET', '/api/v1/projects/{projectName}/roles/{roleName}/users', 'json', false, 'json', request);
 }
 
 model UpdatePackageRequest {
+  projectName: string(name='projectName', description='The name of the MaxCompute project.', example='projectA', position='Path'),
+  packageName: string(name='packageName', description='The name of the package.', example='packageA', position='Path'),
   body?: string(name='body', description='The request body parameters.', example='{
     "add": {
         "allowedProjectList": [
@@ -2469,7 +1673,7 @@ model UpdatePackageRequest {
             ]
         }
     }
-}'),
+}', position='Body'),
 }
 
 model UpdatePackageResponseBody = {
@@ -2479,38 +1683,17 @@ model UpdatePackageResponseBody = {
 
 model UpdatePackageResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: UpdatePackageResponseBody(name='body'),
 }
 
-async function updatePackageWithOptions(projectName: string, packageName: string, request: UpdatePackageRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdatePackageResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = request.body,
-  };
-  var params = new OpenApi.Params{
-    action = 'UpdatePackage',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/packages/${OpenApiUtil.getEncodeParam(packageName)}`,
-    method = 'PUT',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function updatePackage(projectName: string, packageName: string, request: UpdatePackageRequest): UpdatePackageResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updatePackageWithOptions(projectName, packageName, request, headers, runtime);
+async function updatePackage(request: UpdatePackageRequest): UpdatePackageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdatePackage', 'PUT', '/api/v1/projects/{projectName}/packages/{packageName}', 'json', false, 'json', request);
 }
 
 model UpdateProjectIpWhiteListRequest {
-  body?: string(name='body', description='The request body parameters.', example='json {"ipWhiteList":{"ipList": "", // The IP address whitelists are of the STRING data type. Separate multiple IP address whitelists with commas (,). "vpcIpList": "", //} }'),
+  projectName: string(name='projectName', description='The name of the MaxCompute project.', example='odps_project', position='Path'),
+  body?: string(name='body', description='The request body parameters.', example='json {"ipWhiteList":{"ipList": "", // The IP address whitelists are of the STRING data type. Separate multiple IP address whitelists with commas (,). "vpcIpList": "", //} }', position='Body'),
 }
 
 model UpdateProjectIpWhiteListResponseBody = {
@@ -2520,45 +1703,20 @@ model UpdateProjectIpWhiteListResponseBody = {
 
 model UpdateProjectIpWhiteListResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: UpdateProjectIpWhiteListResponseBody(name='body'),
 }
 
-async function updateProjectIpWhiteListWithOptions(projectName: string, request: UpdateProjectIpWhiteListRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateProjectIpWhiteListResponse {
-  Util.validateModel(request);
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    body = request.body,
-  };
-  var params = new OpenApi.Params{
-    action = 'UpdateProjectIpWhiteList',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/projects/${OpenApiUtil.getEncodeParam(projectName)}/ipWhiteList`,
-    method = 'PUT',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function updateProjectIpWhiteList(projectName: string, request: UpdateProjectIpWhiteListRequest): UpdateProjectIpWhiteListResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateProjectIpWhiteListWithOptions(projectName, request, headers, runtime);
-}
-
-model UpdateQuotaHeaders {
-  commonHeaders?: map[string]string,
-  akProven?: string(name='AkProven', example='null'),
+async function updateProjectIpWhiteList(request: UpdateProjectIpWhiteListRequest): UpdateProjectIpWhiteListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateProjectIpWhiteList', 'PUT', '/api/v1/projects/{projectName}/ipWhiteList', 'json', false, 'json', request);
 }
 
 model UpdateQuotaRequest {
-  body?: string(name='body'),
-  region?: string(name='region', example='cn-shanghai'),
-  tenantId?: string(name='tenantId', example='196871833188896'),
+  nickname: string(name='nickname', example='quota_a', position='Path'),
+  akProven?: string(name='AkProven', example='null', position='Header'),
+  body?: string(name='body', position='Body'),
+  region?: string(name='region', example='cn-shanghai', position='Query'),
+  tenantId?: string(name='tenantId', example='196871833188896', position='Query'),
 }
 
 model UpdateQuotaResponseBody = {
@@ -2568,56 +1726,20 @@ model UpdateQuotaResponseBody = {
 
 model UpdateQuotaResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: UpdateQuotaResponseBody(name='body'),
 }
 
-async function updateQuotaWithOptions(nickname: string, request: UpdateQuotaRequest, headers: UpdateQuotaHeaders, runtime: Util.RuntimeOptions): UpdateQuotaResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.region)) {
-    query['region'] = request.region;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    query['tenantId'] = request.tenantId;
-  }
-
-  var realHeaders : map[string]string = {};
-  if (!Util.isUnset(headers.commonHeaders)) {
-    realHeaders = headers.commonHeaders;
-  }
-  if (!Util.isUnset(headers.akProven)) {
-    realHeaders['AkProven'] = Util.toJSONString(headers.akProven);
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = realHeaders,
-    query = OpenApiUtil.query(query),
-    body = request.body,
-  };
-  var params = new OpenApi.Params{
-    action = 'UpdateQuota',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}`,
-    method = 'PUT',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function updateQuota(nickname: string, request: UpdateQuotaRequest): UpdateQuotaResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers = new UpdateQuotaHeaders{};
-  return updateQuotaWithOptions(nickname, request, headers, runtime);
+async function updateQuota(request: UpdateQuotaRequest): UpdateQuotaResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateQuota', 'PUT', '/api/v1/quotas/{nickname}', 'json', false, 'json', request);
 }
 
 model UpdateQuotaPlanRequest {
-  body?: string(name='body', description='The request body parameters.', example='{ "name": "planA", // The quota is a level-1 quota. You can select only the fields that are related to the quota plan. "quota": { "name": "a", "nickName": "aaa_nick", "tenantId": "10001", "regionId": "cn-hangzhou", "parentId": "0", "cluster": "AT-ODPS-TEST3", "parameter": { "minCU": 40, "maxCU": 40, "adhocCU": 0, "elasticMinCU": 40, "elasticMaxCU": 40, "enablePreemptiveScheduling": false, "forceReservedMin":true, "enablePriority":false, "singleJobCULimit":100, "adhocQuotaBeginTimeInSec": 1345, "adhocQuotaEndTimeInSec": 1234, "ignoreAdhocQuota":false }, "subQuotaInfoList": \\[ { "nickName": "WlmFuxiSecondaryOnlineQuotaTest", "name": "WlmFuxiSecondaryOnlineQuotaTest", "type": "FUXI_ONLINE", "tenantId": "10001", "regionId": "cn-hangzhou", "cluster": "AT-ODPS-TEST3", "parameter": { "minCU": 40, "maxCU": 40, "adhocCU": 0, "elasticMinCU": 40, "elasticMaxCU": 40, "enablePreemptiveScheduling": false, "forceReservedMin":true, "enablePriority":false, "singleJobCULimit":100, "adhocQuotaBeginTimeInSec": 1345, "adhocQuotaEndTimeInSec": 1234, "ignoreAdhocQuota":false } } ] } }'),
-  region?: string(name='region', description='The ID of the region.', example='cn-hangzhou'),
-  tenantId?: string(name='tenantId', description='The ID of the tenant.', example='478403690625249'),
+  nickname: string(name='nickname', description='The name of the quota.', example='quotaA', position='Path'),
+  planName: string(name='planName', description='The name of the quota plan.', example='planA', position='Path'),
+  body?: string(name='body', description='The request body parameters.', example='{ "name": "planA", // The quota is a level-1 quota. You can select only the fields that are related to the quota plan. "quota": { "name": "a", "nickName": "aaa_nick", "tenantId": "10001", "regionId": "cn-hangzhou", "parentId": "0", "cluster": "AT-ODPS-TEST3", "parameter": { "minCU": 40, "maxCU": 40, "adhocCU": 0, "elasticMinCU": 40, "elasticMaxCU": 40, "enablePreemptiveScheduling": false, "forceReservedMin":true, "enablePriority":false, "singleJobCULimit":100, "adhocQuotaBeginTimeInSec": 1345, "adhocQuotaEndTimeInSec": 1234, "ignoreAdhocQuota":false }, "subQuotaInfoList": \\[ { "nickName": "WlmFuxiSecondaryOnlineQuotaTest", "name": "WlmFuxiSecondaryOnlineQuotaTest", "type": "FUXI_ONLINE", "tenantId": "10001", "regionId": "cn-hangzhou", "cluster": "AT-ODPS-TEST3", "parameter": { "minCU": 40, "maxCU": 40, "adhocCU": 0, "elasticMinCU": 40, "elasticMaxCU": 40, "enablePreemptiveScheduling": false, "forceReservedMin":true, "enablePriority":false, "singleJobCULimit":100, "adhocQuotaBeginTimeInSec": 1345, "adhocQuotaEndTimeInSec": 1234, "ignoreAdhocQuota":false } } ] } }', position='Body'),
+  region?: string(name='region', description='The ID of the region.', example='cn-hangzhou', position='Query'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant.', example='478403690625249', position='Query'),
 }
 
 model UpdateQuotaPlanResponseBody = {
@@ -2627,49 +1749,19 @@ model UpdateQuotaPlanResponseBody = {
 
 model UpdateQuotaPlanResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: UpdateQuotaPlanResponseBody(name='body'),
 }
 
-async function updateQuotaPlanWithOptions(nickname: string, planName: string, request: UpdateQuotaPlanRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateQuotaPlanResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.region)) {
-    query['region'] = request.region;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    query['tenantId'] = request.tenantId;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-    body = request.body,
-  };
-  var params = new OpenApi.Params{
-    action = 'UpdateQuotaPlan',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}/plans/${OpenApiUtil.getEncodeParam(planName)}`,
-    method = 'PUT',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function updateQuotaPlan(nickname: string, planName: string, request: UpdateQuotaPlanRequest): UpdateQuotaPlanResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateQuotaPlanWithOptions(nickname, planName, request, headers, runtime);
+async function updateQuotaPlan(request: UpdateQuotaPlanRequest): UpdateQuotaPlanResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateQuotaPlan', 'PUT', '/api/v1/quotas/{nickname}/plans/{planName}', 'json', false, 'json', request);
 }
 
 model UpdateQuotaScheduleRequest {
-  body?: string(name='body', description='The request body parameters.', example='\\# The quota plan immediately takes effect. \\[ { "type": "once", "plan": "planA", "operator":"userA" } ] # The quota plan is scheduled on a regular basis. \\[ { "id": "etl_time", "type": "daily", "condition": { "at": "0800", "after": "2022-04-25T04:23:04Z" // optional }, "plan": "planA" }, { "id": "bi", "type": "daily", "condition": { "at": "0900", "after": "2022-04-25T04:23:04Z" // optional }, "plan": "planB" }, ]'),
-  region?: string(name='region', description='The ID of the region.', example='cn-chengdu'),
-  tenantId?: string(name='tenantId', description='The ID of the tenant.', example='478403690625249'),
+  nickname: string(name='nickname', description='The name of the quota.', example='quotaA', position='Path'),
+  body?: string(name='body', description='The request body parameters.', example='\\# The quota plan immediately takes effect. \\[ { "type": "once", "plan": "planA", "operator":"userA" } ] # The quota plan is scheduled on a regular basis. \\[ { "id": "etl_time", "type": "daily", "condition": { "at": "0800", "after": "2022-04-25T04:23:04Z" // optional }, "plan": "planA" }, { "id": "bi", "type": "daily", "condition": { "at": "0900", "after": "2022-04-25T04:23:04Z" // optional }, "plan": "planB" }, ]', position='Body'),
+  region?: string(name='region', description='The ID of the region.', example='cn-chengdu', position='Query'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant.', example='478403690625249', position='Query'),
 }
 
 model UpdateQuotaScheduleResponseBody = {
@@ -2679,42 +1771,11 @@ model UpdateQuotaScheduleResponseBody = {
 
 model UpdateQuotaScheduleResponse = {
   headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
   body: UpdateQuotaScheduleResponseBody(name='body'),
 }
 
-async function updateQuotaScheduleWithOptions(nickname: string, request: UpdateQuotaScheduleRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateQuotaScheduleResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.region)) {
-    query['region'] = request.region;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    query['tenantId'] = request.tenantId;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-    body = request.body,
-  };
-  var params = new OpenApi.Params{
-    action = 'UpdateQuotaSchedule',
-    version = '2022-01-04',
-    protocol = 'HTTPS',
-    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}/schedule`,
-    method = 'PUT',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function updateQuotaSchedule(nickname: string, request: UpdateQuotaScheduleRequest): UpdateQuotaScheduleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateQuotaScheduleWithOptions(nickname, request, headers, runtime);
+async function updateQuotaSchedule(request: UpdateQuotaScheduleRequest): UpdateQuotaScheduleResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateQuotaSchedule', 'PUT', '/api/v1/quotas/{nickname}/schedule', 'json', false, 'json', request);
 }
 
