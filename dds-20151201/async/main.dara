@@ -289,6 +289,7 @@ The values that can be specified for this parameter vary based on the instance t
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   period?: int32(name='Period', description='The ID of the vSwitch to which the instance is connected.', example='1', position='Query'),
+  provisionedIops?: long(name='ProvisionedIops', position='Query'),
   readonlyReplicas?: string(name='ReadonlyReplicas', description='The storage type of the instance. Valid values:
 
 *   **cloud_essd1** :ESSD PL1.
@@ -650,6 +651,7 @@ Valid values: 1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 24, 36, and 60*********************
 
 *   **mongodb**: the MongoDB protocol
 *   **dynamodb**: the DynamoDB protocol', example='mongodb', position='Query'),
+  provisionedIops?: long(name='ProvisionedIops', position='Query'),
   regionId: string(name='RegionId', description='The region ID of the instance. You can call the [DescribeRegions](~~61933~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   replicaSet: [ 
     {
@@ -870,7 +872,7 @@ async function deleteNode(request: DeleteNodeRequest): DeleteNodeResponse {
 model DescribeAccountsRequest {
   regionId?: string(name='RegionId', position='Host'),
   accountName?: string(name='AccountName', description='The name of the account. Set the value to **root**.', example='root', position='Query'),
-  DBInstanceId: string(name='DBInstanceId', description='The ID of the instance.', example='dds-bp1fd530f271****', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The instance ID.', example='dds-bp1fd530f271****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -882,24 +884,26 @@ model DescribeAccountsResponseBody = {
   accounts?: {
     account?: [ 
     {
-      accountDescription?: string(name='AccountDescription', description='The description of the account.', example='account description.'),
+      accountDescription?: string(name='AccountDescription', description='The description of the account.
+
+> This parameter is returned only after you configure the description of the account by calling the [ModifyAccountDescription](~~468391~~) operation.', example='account description.'),
       accountName?: string(name='AccountName', description='The name of the account.', example='root'),
       accountStatus?: string(name='AccountStatus', description='The status of the account.
 
-*   Unavailable
-*   Available', example='Available'),
+*   **Unavailable**
+*   **Available**', example='Available'),
       characterType?: string(name='CharacterType', description='The role of the account. Valid values:
 
-*   db: shard
-*   cs: Configserver
-*   mongos: mongos
-*   logic: sharded cluster instance
-*   normal: replica set instance', example='mongos'),
+*   **db**: shard
+*   **cs**: Configserver
+*   **mongos**: mongos
+*   **logic:** sharded cluster instance
+*   **normal:** replica set instance', example='mongos'),
       DBInstanceId?: string(name='DBInstanceId', description='The name of the instance to which the account belongs.', example='dds-bp1fd530f271****'),
     }
   ](name='Account')
-  }(name='Accounts', description='Details about the accounts.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='B562A65B-39AB-4EE8-8635-5A222054FB35'),
+  }(name='Accounts', description='The username of the account.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B562A65B-39AB-4EE8-8635-5A222054FB35'),
 }
 
 model DescribeAccountsResponse = {
@@ -908,7 +912,7 @@ model DescribeAccountsResponse = {
 }
 
 /**
-  * >  This operation can query only the information of the root account.
+  * >  You can call this operation to query only the information of the root account.
   *
  */
 async function describeAccounts(request: DescribeAccountsRequest): DescribeAccountsResponse {
@@ -988,19 +992,31 @@ async function describeActiveOperationTaskType(request: DescribeActiveOperationT
 
 model DescribeAuditLogFilterRequest {
   regionId?: string(name='RegionId', position='Host'),
-  DBInstanceId: string(name='DBInstanceId', example='dds-bp12c5b040dc****', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The ID of the instance.', example='dds-bp12c5b040dc****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  roleType?: string(name='RoleType', position='Query'),
+  roleType?: string(name='RoleType', description='The role of the node in the instance. Valid values:
+
+* **mongos**: mongos node.
+* **db** : shard node.
+* **logic** : logical instance.', example='logic', position='Query'),
   securityToken?: string(name='SecurityToken', position='Query'),
 }
 
 model DescribeAuditLogFilterResponseBody = {
-  filter?: string(name='Filter', example='admin,slow,insert,query,update,delete,command'),
-  requestId?: string(name='RequestId', example='7BAFB0B3-2A54-5B65-B13E-3937CF08FEE6'),
-  roleType?: string(name='RoleType'),
+  filter?: string(name='Filter', description='The type of the audit log entries. Valid values:
+
+*   **admin**: O\\&M and management operations
+*   **slow**: slow query logs
+*   **query**: query operations
+*   **insert**: insert operations
+*   **update**: update operations
+*   **delete**: delete operations
+*   **command**: protocol commands such as the aggregate method', example='admin,slow,insert,query,update,delete,command'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='7BAFB0B3-2A54-5B65-B13E-3937CF08FEE6'),
+  roleType?: string(name='RoleType', description='The role of the node.', example='logic'),
 }
 
 model DescribeAuditLogFilterResponse = {
@@ -1009,9 +1025,9 @@ model DescribeAuditLogFilterResponse = {
 }
 
 /**
-  * The role of the node in the instance. Valid values:
-  * *   **primary**
-  * *   **secondary**
+  * *   The instance must be in the running state when you call this operation.
+  * *   This operation is applicable only to **general-purpose local-disk** and **dedicated local-disk** instances.
+  * *   You can call this operation up to 30 times per minute. To call this operation at a higher frequency, use a Logstore. For more information, see [Manage a Logstore](~~48990~~).
   *
  */
 async function describeAuditLogFilter(request: DescribeAuditLogFilterRequest): DescribeAuditLogFilterResponse {
@@ -1513,6 +1529,7 @@ model DescribeDBInstanceAttributeResponseBody = {
   DBInstances?: {
     DBInstance?: [ 
     {
+      burstingEnabled?: boolean(name='BurstingEnabled'),
       capacityUnit?: string(name='CapacityUnit', description='The storage type of the instance. Valid values:
 
 **cloud_essd1** :ESSD PL1 **cloud_essd2**: ESSD of PL2. **cloud_essd3**: ESSD of PL3. **local_ssd**: local SSD.', example='100'),
@@ -1658,6 +1675,7 @@ Default value: false', example='true'),
 *   **4.2**
 *   **4.0**', example='VPC'),
       protocolType?: string(name='ProtocolType', description='Test database', example='mongodb'),
+      provisionedIops?: long(name='ProvisionedIops'),
       readonlyReplicas?: string(name='ReadonlyReplicas', description='The kind code of the instance. Valid values:
 
 *   **0**: physical machine
@@ -4088,8 +4106,8 @@ async function modifyDBInstanceMaintainTime(request: ModifyDBInstanceMaintainTim
 
 model ModifyDBInstanceMonitorRequest {
   regionId?: string(name='RegionId', position='Host'),
-  DBInstanceId: string(name='DBInstanceId', example='dds-bpxxxxxxxx', position='Query'),
-  granularity: string(name='Granularity', example='1', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The ID of the instance.', example='dds-bpxxxxxxxx', position='Query'),
+  granularity: string(name='Granularity', description='The collection frequency of monitoring data. Valid values: **1** or **300**. Unit: seconds.', example='1', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -4098,7 +4116,7 @@ model ModifyDBInstanceMonitorRequest {
 }
 
 model ModifyDBInstanceMonitorResponseBody = {
-  requestId?: string(name='RequestId', example='EFD65226-08CC-4C4D-B6A4-CB3C382F67B0'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='EFD65226-08CC-4C4D-B6A4-CB3C382F67B0'),
 }
 
 model ModifyDBInstanceMonitorResponse = {
@@ -4107,10 +4125,10 @@ model ModifyDBInstanceMonitorResponse = {
 }
 
 /**
-  * >  operation is currently unavailable.
+  * >  This operation is applicable only to the ApsaraDB for MongoDB console of the previous version due to the change in the frequency at which the monitoring data of an ApsaraDB for MongoDB instance is collected.
   * Before you call this operation, make sure that the following requirements are met:
-  * *   A replica set or sharded cluster instance is used.
-  * *   MongoDB 3.4 (the latest minor version) or 4.0 must be selected.
+  * *   The instance is a replica set or sharded cluster instance.
+  * *   The instance runs MongoDB 3.4 (the latest minor version) or 4.0.
   *
  */
 async function modifyDBInstanceMonitor(request: ModifyDBInstanceMonitorRequest): ModifyDBInstanceMonitorResponse {
@@ -5100,6 +5118,7 @@ model TransformInstanceChargeTypeRequest {
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   period?: long(name='Period', description='The subscription duration of the instance. Unit: months. Valid values: **1, 2, 3, 4, 5, 6, 7, 8, 9******, **12**, **24**, and **36**.', example='1', position='Query'),
+  pricingCycle?: string(name='PricingCycle', example='Month', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   securityToken?: string(name='SecurityToken', position='Query'),
