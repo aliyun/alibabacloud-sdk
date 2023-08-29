@@ -178,8 +178,11 @@ model DatabaseProfile {
   createTime?: string(name='CreateTime'),
   fileCnt?: long(name='FileCnt'),
   fileSize?: long(name='FileSize'),
+  latestDate?: string(name='LatestDate'),
   location?: string(name='Location'),
   name?: string(name='Name'),
+  objectCnt?: long(name='ObjectCnt'),
+  objectSize?: long(name='ObjectSize'),
 }
 
 model DatabaseResource {
@@ -404,13 +407,24 @@ model PartitionInput {
 }
 
 model PartitionProfile {
+  accessNum?: long(name='AccessNum'),
+  accessNumMonthly?: long(name='AccessNumMonthly'),
+  accessNumWeekly?: long(name='AccessNumWeekly'),
   archiveStatus?: string(name='ArchiveStatus'),
   createTime?: string(name='CreateTime'),
+  dataSourceType?: string(name='DataSourceType'),
   databaseName?: string(name='DatabaseName'),
+  fileCnt?: long(name='FileCnt'),
+  fileSize?: long(name='FileSize'),
+  lastAccessNumTime?: string(name='LastAccessNumTime'),
   lastAccessTime?: string(name='LastAccessTime'),
-  lastModifedTime?: string(name='LastModifedTime'),
-  latestDate?: string(name='LatestDate'),
+  lastModifyTime?: string(name='LastModifyTime'),
   location?: string(name='Location'),
+  objectAccessNum?: long(name='ObjectAccessNum'),
+  objectAccessNumMonthly?: long(name='ObjectAccessNumMonthly'),
+  objectAccessNumWeekly?: long(name='ObjectAccessNumWeekly'),
+  objectCnt?: long(name='ObjectCnt'),
+  objectSize?: long(name='ObjectSize'),
   partitionName?: string(name='PartitionName'),
   tableName?: string(name='TableName'),
 }
@@ -714,14 +728,23 @@ model TableProfile {
   accessNumMonthly?: long(name='AccessNumMonthly'),
   accessNumWeekly?: long(name='AccessNumWeekly'),
   createTime?: string(name='CreateTime'),
+  dataSourceType?: string(name='DataSourceType'),
   databaseName?: string(name='DatabaseName'),
   fileCnt?: long(name='FileCnt'),
   fileSize?: long(name='FileSize'),
   isPartitioned?: boolean(name='IsPartitioned'),
+  lastAccessNumTime?: string(name='LastAccessNumTime'),
   lastAccessTime?: string(name='LastAccessTime'),
+  lastDdlTime?: string(name='LastDdlTime'),
   lastModifyTime?: string(name='LastModifyTime'),
+  latestAccessNumDate?: string(name='LatestAccessNumDate'),
   latestDate?: string(name='LatestDate'),
   location?: string(name='Location'),
+  objectAccessNum?: long(name='ObjectAccessNum'),
+  objectAccessNumMonthly?: long(name='ObjectAccessNumMonthly'),
+  objectAccessNumWeekly?: long(name='ObjectAccessNumWeekly'),
+  objectCnt?: long(name='ObjectCnt'),
+  objectSize?: long(name='ObjectSize'),
   partitionCnt?: long(name='PartitionCnt'),
   recordCnt?: long(name='RecordCnt'),
   tableName?: string(name='TableName'),
@@ -2179,6 +2202,7 @@ async function deleteCatalog(request: DeleteCatalogRequest): DeleteCatalogRespon
 }
 
 model DeleteDatabaseRequest {
+  async?: boolean(name='Async'),
   cascade?: boolean(name='Cascade', example='false'),
   catalogId?: string(name='CatalogId', example='1344371'),
   name?: string(name='Name', example='database_test'),
@@ -2189,6 +2213,7 @@ model DeleteDatabaseResponseBody = {
   message?: string(name='Message', example='.'),
   requestId?: string(name='RequestId', example='73201200-4C1A-4FEF-BD6B-C0DA7994FFA2'),
   success?: boolean(name='Success', example='true'),
+  taskId?: string(name='TaskId'),
 }
 
 model DeleteDatabaseResponse = {
@@ -2200,6 +2225,9 @@ model DeleteDatabaseResponse = {
 async function deleteDatabaseWithOptions(request: DeleteDatabaseRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteDatabaseResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
+  if (!Util.isUnset(request.async)) {
+    query['Async'] = request.async;
+  }
   if (!Util.isUnset(request.cascade)) {
     query['Cascade'] = request.cascade;
   }
@@ -3026,6 +3054,57 @@ async function getFunction(request: GetFunctionRequest): GetFunctionResponse {
   return getFunctionWithOptions(request, headers, runtime);
 }
 
+model GetLifecycleRuleRequest {
+  bizId?: string(name='BizId', example='LCRU-17E7192705C365C0'),
+  resourceName?: string(name='ResourceName', example='demo_catalog_id.demo_db_name.demo_table_name'),
+}
+
+model GetLifecycleRuleResponseBody = {
+  data?: LifecycleRule(name='Data'),
+  requestId?: string(name='RequestId', description='RequestId', example='EDBC848F-7CC7-52E3-9FBF-924D09B5C27A'),
+  success?: boolean(name='Success', description='Success', example='True'),
+}
+
+model GetLifecycleRuleResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetLifecycleRuleResponseBody(name='body'),
+}
+
+async function getLifecycleRuleWithOptions(request: GetLifecycleRuleRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetLifecycleRuleResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.bizId)) {
+    query['BizId'] = request.bizId;
+  }
+  if (!Util.isUnset(request.resourceName)) {
+    query['ResourceName'] = request.resourceName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetLifecycleRule',
+    version = '2020-07-10',
+    protocol = 'HTTPS',
+    pathname = `/webapi/metastorehouse/lifecycle/rule/getLifecycleRule`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getLifecycleRule(request: GetLifecycleRuleRequest): GetLifecycleRuleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getLifecycleRuleWithOptions(request, headers, runtime);
+}
+
 model GetLockRequest {
   lockId?: long(name='LockId', description='LockId', example='16533'),
 }
@@ -3580,16 +3659,16 @@ async function getTableColumnStatistics(request: GetTableColumnStatisticsRequest
 }
 
 model GetTableProfileRequest {
-  catalogId?: string(name='CatalogId', example='可不填'),
-  databaseName?: string(name='DatabaseName'),
-  tableName?: string(name='TableName'),
+  catalogId?: string(name='CatalogId', description='CatalogId', example='可不填'),
+  databaseName?: string(name='DatabaseName', description='DatabaseName', example='exp_table'),
+  tableName?: string(name='TableName', description='TableName', example='admin_user'),
 }
 
 model GetTableProfileResponseBody = {
-  code?: string(name='Code'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  code?: string(name='Code', description='Code', example='OK'),
+  message?: string(name='Message', description='Message', example='None'),
+  requestId?: string(name='RequestId', example='C742A04F-F304-5440-9ED8-AD58C36D1915'),
+  success?: boolean(name='Success', example='true'),
   tableProfile?: TableProfile(name='TableProfile'),
 }
 
