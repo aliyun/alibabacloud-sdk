@@ -89,6 +89,7 @@ model AddDcdnDomainRequest {
   domainName?: string(name='DomainName', description='The domain name that you want to add. You can specify only one domain name in each request.
 
 Wildcard domain names are supported. A wildcard domain name must start with a period (.), such as .example.com.', example='example.com'),
+  functionType?: string(name='FunctionType'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group. If you do not specify a value for this parameter, the system automatically assigns the ID of the default resource group.', example='rg-acfmyuji4b6r4**'),
@@ -140,6 +141,9 @@ async function addDcdnDomainWithOptions(request: AddDcdnDomainRequest, runtime: 
   }
   if (!Util.isUnset(request.domainName)) {
     query['DomainName'] = request.domainName;
+  }
+  if (!Util.isUnset(request.functionType)) {
+    query['FunctionType'] = request.functionType;
   }
   if (!Util.isUnset(request.ownerAccount)) {
     query['OwnerAccount'] = request.ownerAccount;
@@ -342,10 +346,9 @@ model BatchAddDcdnDomainResponse = {
   * **Prerequisites**:
   * *   The [DCDN service is activated](~~64926~~).
   * *   Internet content provider (ICP) filing is complete for the accelerated domain names.
-  * > 
-  * *   If the content of the origin server is not stored on Alibaba Cloud, the content must be reviewed. After you submit the request, the review is complete by the end of the following business day.
-  * *   You can specify up to 50 domain names in each request.
-  * *   You can call this operation up to 30 times per second per account.
+  * > *   If the content of the origin server is not stored on Alibaba Cloud, the content must be reviewed. After you submit the request, the review is complete by the end of the following business day.
+  * >*   You can specify up to 50 domain names in each request.
+  * >*   You can call this operation up to 30 times per second per account.
   *
   * @param request BatchAddDcdnDomainRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -402,10 +405,9 @@ async function batchAddDcdnDomainWithOptions(request: BatchAddDcdnDomainRequest,
   * **Prerequisites**:
   * *   The [DCDN service is activated](~~64926~~).
   * *   Internet content provider (ICP) filing is complete for the accelerated domain names.
-  * > 
-  * *   If the content of the origin server is not stored on Alibaba Cloud, the content must be reviewed. After you submit the request, the review is complete by the end of the following business day.
-  * *   You can specify up to 50 domain names in each request.
-  * *   You can call this operation up to 30 times per second per account.
+  * > *   If the content of the origin server is not stored on Alibaba Cloud, the content must be reviewed. After you submit the request, the review is complete by the end of the following business day.
+  * >*   You can specify up to 50 domain names in each request.
+  * >*   You can call this operation up to 30 times per second per account.
   *
   * @param request BatchAddDcdnDomainRequest
   * @return BatchAddDcdnDomainResponse
@@ -1701,6 +1703,71 @@ async function batchModifyDcdnWafRules(request: BatchModifyDcdnWafRulesRequest):
   return batchModifyDcdnWafRulesWithOptions(request, runtime);
 }
 
+model BatchPutDcdnKvRequest {
+  kvList?: [ 
+    {
+      expiration?: long(name='Expiration', example='1690081381'),
+      expirationTtl?: long(name='ExpirationTtl', example='3600'),
+      key?: string(name='Key', example='testkey'),
+      value?: string(name='Value', example='testValue'),
+    }
+  ](name='KvList'),
+  namespace?: string(name='Namespace', example='ns1'),
+}
+
+model BatchPutDcdnKvShrinkRequest {
+  kvListShrink?: string(name='KvList'),
+  namespace?: string(name='Namespace', example='ns1'),
+}
+
+model BatchPutDcdnKvResponseBody = {
+  failKeys?: [ string ](name='FailKeys'),
+  requestId?: string(name='RequestId', example='156A6B-677B1A-4297B7-9187B7-2B44792'),
+  successKeys?: [ string ](name='SuccessKeys'),
+}
+
+model BatchPutDcdnKvResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: BatchPutDcdnKvResponseBody(name='body'),
+}
+
+async function batchPutDcdnKvWithOptions(tmpReq: BatchPutDcdnKvRequest, runtime: Util.RuntimeOptions): BatchPutDcdnKvResponse {
+  Util.validateModel(tmpReq);
+  var request = new BatchPutDcdnKvShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.kvList)) {
+    request.kvListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.kvList, 'KvList', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.kvListShrink)) {
+    query['KvList'] = request.kvListShrink;
+  }
+  if (!Util.isUnset(request.namespace)) {
+    query['Namespace'] = request.namespace;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'BatchPutDcdnKv',
+    version = '2018-01-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function batchPutDcdnKv(request: BatchPutDcdnKvRequest): BatchPutDcdnKvResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return batchPutDcdnKvWithOptions(request, runtime);
+}
+
 model BatchSetDcdnDomainCertificateRequest {
   certName?: string(name='CertName', description='The name of the certificate.', example='cert-te**.com'),
   certType?: string(name='CertType', description='The type of the certificate. Valid values:
@@ -1841,8 +1908,9 @@ model BatchSetDcdnDomainConfigsResponse = {
 }
 
 /**
-  * > * You can specify up to 50 domain names in each request. Separate multiple domain names with commas (,)
-  * > * You can call this operation up to 30 times per second per account.
+  * > 
+  * *   You can specify up to 50 domain names in each request.
+  * *   You can call this operation up to 30 times per second per account.
   *
   * @param request BatchSetDcdnDomainConfigsRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -1884,8 +1952,9 @@ async function batchSetDcdnDomainConfigsWithOptions(request: BatchSetDcdnDomainC
 }
 
 /**
-  * > * You can specify up to 50 domain names in each request. Separate multiple domain names with commas (,)
-  * > * You can call this operation up to 30 times per second per account.
+  * > 
+  * *   You can specify up to 50 domain names in each request.
+  * *   You can call this operation up to 30 times per second per account.
   *
   * @param request BatchSetDcdnDomainConfigsRequest
   * @return BatchSetDcdnDomainConfigsResponse
@@ -2038,13 +2107,13 @@ async function batchSetDcdnWafDomainConfigs(request: BatchSetDcdnWafDomainConfig
 }
 
 model BatchStartDcdnDomainRequest {
-  domainNames?: string(name='DomainNames', description='The accelerated domain name. Separate multiple accelerated domain names with commas (,).', example='example.com'),
+  domainNames?: string(name='DomainNames', description='The accelerated domain name. You can specify multiple accelerated domain names and separate them with commas (,).', example='example.com'),
   ownerId?: long(name='OwnerId'),
   securityToken?: string(name='SecurityToken'),
 }
 
 model BatchStartDcdnDomainResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='0AEDAF20-4DDF-4165-8750-47FF9C1929C9'),
+  requestId?: string(name='RequestId', description='The request ID.', example='0AEDAF20-4DDF-4165-8750-47FF9C1929C9'),
 }
 
 model BatchStartDcdnDomainResponse = {
@@ -2055,7 +2124,7 @@ model BatchStartDcdnDomainResponse = {
 
 /**
   * > 
-  * *   If an accelerated domain name is in invalid state or your account has an overdue payment, the accelerated domain name cannot be enabled.
+  * *   If an accelerated domain name is in an invalid state or your account has an overdue payment, the accelerated domain name cannot be enabled.
   * *   You can specify up to 50 domain names in each request.
   * *   You can call this operation up to 30 times per second per account.
   *
@@ -2094,7 +2163,7 @@ async function batchStartDcdnDomainWithOptions(request: BatchStartDcdnDomainRequ
 
 /**
   * > 
-  * *   If an accelerated domain name is in invalid state or your account has an overdue payment, the accelerated domain name cannot be enabled.
+  * *   If an accelerated domain name is in an invalid state or your account has an overdue payment, the accelerated domain name cannot be enabled.
   * *   You can specify up to 50 domain names in each request.
   * *   You can call this operation up to 30 times per second per account.
   *
@@ -2113,7 +2182,7 @@ model BatchStopDcdnDomainRequest {
 }
 
 model BatchStopDcdnDomainResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='0AEDAF20-4DDF-4165-8750-47FF9C1929C9'),
+  requestId?: string(name='RequestId', description='The request ID.', example='0AEDAF20-4DDF-4165-8750-47FF9C1929C9'),
 }
 
 model BatchStopDcdnDomainResponse = {
@@ -2123,10 +2192,9 @@ model BatchStopDcdnDomainResponse = {
 }
 
 /**
-  * > 
-  * *   After an accelerated domain name is disabled, Dynamic Content Delivery Network (DCDN) retains the domain name information. The system automatically reroutes all requests that are destined for the accelerated domain name to the origin.
-  * *   You can specify up to 50 domain names in each request.
-  * *   You can call this operation up to 30 times per second per account.
+  * > *   After an accelerated domain name is disabled, Dynamic Content Delivery Network (DCDN) retains the domain name information. The system automatically reroutes all requests that are destined for the accelerated domain name to the origin.
+  * >*   You can specify up to 50 domain names in each request.
+  * >*   You can call this operation up to 30 times per second per account.
   *
   * @param request BatchStopDcdnDomainRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -2162,10 +2230,9 @@ async function batchStopDcdnDomainWithOptions(request: BatchStopDcdnDomainReques
 }
 
 /**
-  * > 
-  * *   After an accelerated domain name is disabled, Dynamic Content Delivery Network (DCDN) retains the domain name information. The system automatically reroutes all requests that are destined for the accelerated domain name to the origin.
-  * *   You can specify up to 50 domain names in each request.
-  * *   You can call this operation up to 30 times per second per account.
+  * > *   After an accelerated domain name is disabled, Dynamic Content Delivery Network (DCDN) retains the domain name information. The system automatically reroutes all requests that are destined for the accelerated domain name to the origin.
+  * >*   You can specify up to 50 domain names in each request.
+  * >*   You can call this operation up to 30 times per second per account.
   *
   * @param request BatchStopDcdnDomainRequest
   * @return BatchStopDcdnDomainResponse
@@ -2710,8 +2777,8 @@ model CreateRoutineResponse = {
 /**
   * > 
   * *   The parameters must comply with the rules of EnvConf. The description of a routine cannot exceed 50 characters in length.
-  * *   This operation creates a routine that contains only production and staging environments.
-  * *   You can call this operation up to 100 times per second per account.
+  * *   You can only specify the production and staging environments when you call this operation.
+  * *   You can call this operation up to 100 times per second.
   *
   * @param tmpReq CreateRoutineRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -2754,8 +2821,8 @@ async function createRoutineWithOptions(tmpReq: CreateRoutineRequest, runtime: U
 /**
   * > 
   * *   The parameters must comply with the rules of EnvConf. The description of a routine cannot exceed 50 characters in length.
-  * *   This operation creates a routine that contains only production and staging environments.
-  * *   You can call this operation up to 100 times per second per account.
+  * *   You can only specify the production and staging environments when you call this operation.
+  * *   You can call this operation up to 100 times per second.
   *
   * @param request CreateRoutineRequest
   * @return CreateRoutineResponse
@@ -2908,7 +2975,7 @@ model DeleteDcdnDomainRequest {
 }
 
 model DeleteDcdnDomainResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='0AEDAF20-4DDF-4165-8750-47FF9C1929C9'),
+  requestId?: string(name='RequestId', description='The request ID.', example='0AEDAF20-4DDF-4165-8750-47FF9C1929C9'),
 }
 
 model DeleteDcdnDomainResponse = {
@@ -2918,9 +2985,9 @@ model DeleteDcdnDomainResponse = {
 }
 
 /**
-  * > *   Before you delete your domain name, you must request the Domain Name System (DNS) provider to restore the A record of the domain name. Otherwise, the domain name may become inaccessible after you delete it.
+  * > *   Before you delete your domain name, you need to request the Domain Name System (DNS) provider to restore the A record of the domain name. Otherwise, the domain name may become inaccessible after you delete it.
   * > *   If you call the **DeleteDcdnDomain** operation, all the information about the accelerated domain name is deleted. If you want to disable an accelerated domain name, call the [StopDcdnDomain](~~130622~~) operation.
-  * > *   The maximum number of times that each user can call this operation per second is 10.
+  * > *   You can call this operation up to 10 times per second per account.
   *
   * @param request DeleteDcdnDomainRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -2959,9 +3026,9 @@ async function deleteDcdnDomainWithOptions(request: DeleteDcdnDomainRequest, run
 }
 
 /**
-  * > *   Before you delete your domain name, you must request the Domain Name System (DNS) provider to restore the A record of the domain name. Otherwise, the domain name may become inaccessible after you delete it.
+  * > *   Before you delete your domain name, you need to request the Domain Name System (DNS) provider to restore the A record of the domain name. Otherwise, the domain name may become inaccessible after you delete it.
   * > *   If you call the **DeleteDcdnDomain** operation, all the information about the accelerated domain name is deleted. If you want to disable an accelerated domain name, call the [StopDcdnDomain](~~130622~~) operation.
-  * > *   The maximum number of times that each user can call this operation per second is 10.
+  * > *   You can call this operation up to 10 times per second per account.
   *
   * @param request DeleteDcdnDomainRequest
   * @return DeleteDcdnDomainResponse
@@ -2979,7 +3046,7 @@ model DeleteDcdnIpaDomainRequest {
 }
 
 model DeleteDcdnIpaDomainResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='94E3559F-7B6A-4A5E-AFFD-44E2A208A249'),
+  requestId?: string(name='RequestId', description='The request ID.', example='94E3559F-7B6A-4A5E-AFFD-44E2A208A249'),
 }
 
 model DeleteDcdnIpaDomainResponse = {
@@ -3162,7 +3229,7 @@ model DeleteDcdnKvNamespaceRequest {
 }
 
 model DeleteDcdnKvNamespaceResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='D61E4801-EAFF-4A63-AAE1-FBF6CE1CFD1C。'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='D61E4801-EAFF-4A63-AAE1-FBF6CE1CFD1C'),
 }
 
 model DeleteDcdnKvNamespaceResponse = {
@@ -3262,7 +3329,7 @@ model DeleteDcdnSpecificConfigRequest {
 }
 
 model DeleteDcdnSpecificConfigResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
+  requestId?: string(name='RequestId', description='The request ID.', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
 }
 
 model DeleteDcdnSpecificConfigResponse = {
@@ -3734,8 +3801,8 @@ model DescribeDcdnAclFieldsResponseBody = {
     {
       fields?: string(name='Fields', description='The rules and policies that were configured. The JSON string is decoded.', example='\\"fieldList\\":[{\\"name\\":\\"alert\\",\\"display\\":\\"observe\\",\\"tip\\":\\"mark the request in the log without blocking it\\"},{\\"name\\":\\"bypass\\",\\"display\\":\\"bypass\\",\\"tip\\":\\"bypass security modules\\"}],\\"module\\":[{\\"name\\":\\"cc\\",\\"display\\":\\"Rate Limit\\",\\"tip\\":\\"bypass Rate Limit\\"},{\\"name\\":\\"bot\\",\\"display\\":\\"Bot Traffic Management\\",\\"tip\\":\\"bypass Bot Manager\\"}]'),
     }
-  ](name='Content', description='Details about the rules.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='30A3A25A-86B3-4C1D-BAA8-12B8607A5CFD'),
+  ](name='Content', description='The details about the rules.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='30A3A25A-86B3-4C1D-BAA8-12B8607A5CFD'),
 }
 
 model DescribeDcdnAclFieldsResponse = {
@@ -4596,6 +4663,21 @@ model DescribeDcdnDomainBpsDataByLayerResponse = {
   body: DescribeDcdnDomainBpsDataByLayerResponseBody(name='body'),
 }
 
+/**
+  * * You can call this operation up to 20 times per second per account.
+  * * If you do not set **StartTime** or **EndTime**, the request returns the data collected in the last 24 hours. If you set both **StartTime** and **EndTime**, the request returns the data collected within the specified time range.
+  * **Time granularity**
+  * The time granularity supported by the Interval parameter, the maximum time period within which historical data is available, and the data delay vary with the time range to query, as described in the following table.
+  * |Time granularity|Maximum time range per query|Historical data available|Data delay|
+  * |---|---|---|---|
+  * |5 minutes|3 days|93 days|15 minutes|
+  * |1 hour|31 days|186 days|4 hours|
+  * |1 day|366 days|366 days|04:00 on the next day|
+  *
+  * @param request DescribeDcdnDomainBpsDataByLayerRequest
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return DescribeDcdnDomainBpsDataByLayerResponse
+ */
 async function describeDcdnDomainBpsDataByLayerWithOptions(request: DescribeDcdnDomainBpsDataByLayerRequest, runtime: Util.RuntimeOptions): DescribeDcdnDomainBpsDataByLayerResponse {
   Util.validateModel(request);
   var query = {};
@@ -4637,13 +4719,30 @@ async function describeDcdnDomainBpsDataByLayerWithOptions(request: DescribeDcdn
   return callApi(params, req, runtime);
 }
 
+/**
+  * * You can call this operation up to 20 times per second per account.
+  * * If you do not set **StartTime** or **EndTime**, the request returns the data collected in the last 24 hours. If you set both **StartTime** and **EndTime**, the request returns the data collected within the specified time range.
+  * **Time granularity**
+  * The time granularity supported by the Interval parameter, the maximum time period within which historical data is available, and the data delay vary with the time range to query, as described in the following table.
+  * |Time granularity|Maximum time range per query|Historical data available|Data delay|
+  * |---|---|---|---|
+  * |5 minutes|3 days|93 days|15 minutes|
+  * |1 hour|31 days|186 days|4 hours|
+  * |1 day|366 days|366 days|04:00 on the next day|
+  *
+  * @param request DescribeDcdnDomainBpsDataByLayerRequest
+  * @return DescribeDcdnDomainBpsDataByLayerResponse
+ */
 async function describeDcdnDomainBpsDataByLayer(request: DescribeDcdnDomainBpsDataByLayerRequest): DescribeDcdnDomainBpsDataByLayerResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeDcdnDomainBpsDataByLayerWithOptions(request, runtime);
 }
 
 model DescribeDcdnDomainByCertificateRequest {
-  exact?: boolean(name='Exact'),
+  exact?: boolean(name='Exact', description='Specifies whether the domain name list to return match the SSL certificate.
+
+- **true**: The domain name list match the SSL certificate.
+- **false**: The domain name list do not match the SSL certificate.', example='true'),
   SSLPub?: string(name='SSLPub', description='The public key of the certificate.
 
 You must use Base64 encoding schemes and then the encodeURIComponent method to encode the public key. PEM files are supported.', example='xxx'),
@@ -4740,43 +4839,43 @@ If you leave this parameter empty, the data of all domain names is queried.', ex
   endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
 
 The end time must be later than the start time.', example='2015-12-10T21:05:00Z'),
-  pageNumber?: long(name='PageNumber', description='The page number of the returned page. Default value: **1**.', example='1'),
+  pageNumber?: long(name='PageNumber', description='The page number of the page returned. Default value: **1**.', example='1'),
   pageSize?: long(name='PageSize', description='The number of entries to return on each page. Default value: **30**.', example='30'),
-  ruleName?: string(name='RuleName', description='The name of the rule.
+  ruleName?: string(name='RuleName', description='The name of the defense rule.
 
 *   default_normal in normal mode
 *   default_attack in emergency mode
 *   A custom rule name in custom mode. Example: test2.
 
-If you leave this parameter empty, all events that triggered rate limiting are queried.', example='test2'),
+If you leave this parameter empty, events that triggered rate limiting based on all rules are queried.', example='test2'),
   startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
 
-The minimum data granularity is 5 minutes.
+The resolution of the queried data is 5 minutes.
 
 If you leave this parameter empty, the data collected over the last 24 hours is queried.', example='2015-12-10T20:00:00Z'),
-  triggerObject?: string(name='TriggerObject', description='The object that triggered rate limiting.
+  triggerObject?: string(name='TriggerObject', description='The trigger of rate limiting by which you want to query data.
 
 If you leave this parameter empty, all events that triggered rate limiting are queried.', example='IP'),
   value?: string(name='Value', description='The value of the object that triggered rate limiting.
 
-If you leave this parameter empty, all events that triggered rate limiting are queried.', example='10.10.10.10'),
+If you leave this parameter empty, events that triggered rate limiting based on all rules are queried.', example='10.10.10.10'),
 }
 
 model DescribeDcdnDomainCcActivityLogResponseBody = {
   activityLog?: [ 
     {
       action?: string(name='Action', description='The action that was triggered.', example='deny'),
-      domainName?: string(name='DomainName', description='The accelerated domain name.', example='example.com'),
+      domainName?: string(name='DomainName', description='The accelerated domain name whose ICP filing status you want to update.', example='example.com'),
       ruleName?: string(name='RuleName', description='The name of the rule that was triggered.', example='test2'),
-      timeStamp?: string(name='TimeStamp', description='The timestamp of the returned data.', example='2015-12-10T20:00:00Z'),
-      triggerObject?: string(name='TriggerObject', description='The object that triggered rate limiting.', example='IP'),
+      timeStamp?: string(name='TimeStamp', description='The timestamp of the data returned.', example='2015-12-10T20:00:00Z'),
+      triggerObject?: string(name='TriggerObject', description='The object that triggered the blocking event.', example='IP'),
       ttl?: long(name='Ttl', description='The period of time during which rate limiting remains effective.', example='300'),
-      value?: string(name='Value', description='The value of the object that triggered rate limiting.', example='10.10.10.10'),
+      value?: string(name='Value', description='The value of the trigger for rate limiting.', example='10.10.10.10'),
     }
   ](name='ActivityLog', description='The log data of the event that triggered rate limiting.'),
   pageIndex?: long(name='PageIndex', description='The page number of the returned page.', example='1'),
   pageSize?: long(name='PageSize', description='The number of entries returned per page.', example='30'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='3C6CCEC4-6B88-4D4A-93E4-D47B3D92CF8F'),
+  requestId?: string(name='RequestId', description='The request ID.', example='3C6CCEC4-6B88-4D4A-93E4-D47B3D92CF8F'),
   total?: long(name='Total', description='The total number of entries returned.', example='20'),
 }
 
@@ -4790,7 +4889,7 @@ model DescribeDcdnDomainCcActivityLogResponse = {
   * > 
   * *   If you do not configure the StartTime or EndTime parameter, data collected over the last 24 hours is queried. If you configure both the StartTime and EndTime parameters, data collected within the specified time range is queried.
   * *   You can query data collected over the last 30 days.
-  * *   You can call this operation up to 50 times per second per user.
+  * *   You can call the RefreshObjectCaches operation up to 50 times per second per account.
   *
   * @param request DescribeDcdnDomainCcActivityLogRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -4844,7 +4943,7 @@ async function describeDcdnDomainCcActivityLogWithOptions(request: DescribeDcdnD
   * > 
   * *   If you do not configure the StartTime or EndTime parameter, data collected over the last 24 hours is queried. If you configure both the StartTime and EndTime parameters, data collected within the specified time range is queried.
   * *   You can query data collected over the last 30 days.
-  * *   You can call this operation up to 50 times per second per user.
+  * *   You can call the RefreshObjectCaches operation up to 50 times per second per account.
   *
   * @param request DescribeDcdnDomainCcActivityLogRequest
   * @return DescribeDcdnDomainCcActivityLogResponse
@@ -4958,7 +5057,7 @@ model DescribeDcdnDomainCnameResponseBody = {
     }
   ](name='Data')
   }(name='CnameDatas', description='The CNAME information.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='15C66C7B-671A-4297-9187-2C4477247A74'),
+  requestId?: string(name='RequestId', description='The request ID.', example='15C66C7B-671A-4297-9187-2C4477247A74'),
 }
 
 model DescribeDcdnDomainCnameResponse = {
@@ -5122,6 +5221,7 @@ model DescribeDcdnDomainDetailResponseBody = {
 *   **configure_failed**
 *   **checking**
 *   **check_failed**', example='online'),
+    functionType?: string(name='FunctionType'),
     gmtCreated?: string(name='GmtCreated', description='The time when the domain name was added.', example='2017-11-27T06:51:26Z'),
     gmtModified?: string(name='GmtModified', description='The time when the domain name was last modified.', example='2017-11-27T06:51:25Z'),
     resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmyuji4b6r4**'),
@@ -6032,7 +6132,7 @@ model DescribeDcdnDomainLogResponse = {
 
 /**
   * > 
-  * *   If you specify neither the **StartTime** parameter nor the **EndTime** parameter, the data in the last 24 hours is returned. If you specify the **StartTime** and **EndTime** parameters, the data within the specified time range is returned.
+  * *   If you do not set the **StartTime** or **EndTime** parameter, the request returns the data collected in the last 24 hours. If you set both these parameters, the request returns the data collected within the specified time range.********
   * *   You can call this operation up to 100 times per second per account.
   *
   * @param request DescribeDcdnDomainLogRequest
@@ -6076,7 +6176,7 @@ async function describeDcdnDomainLogWithOptions(request: DescribeDcdnDomainLogRe
 
 /**
   * > 
-  * *   If you specify neither the **StartTime** parameter nor the **EndTime** parameter, the data in the last 24 hours is returned. If you specify the **StartTime** and **EndTime** parameters, the data within the specified time range is returned.
+  * *   If you do not set the **StartTime** or **EndTime** parameter, the request returns the data collected in the last 24 hours. If you set both these parameters, the request returns the data collected within the specified time range.********
   * *   You can call this operation up to 100 times per second per account.
   *
   * @param request DescribeDcdnDomainLogRequest
@@ -6090,42 +6190,42 @@ async function describeDcdnDomainLog(request: DescribeDcdnDomainLogRequest): Des
 model DescribeDcdnDomainMultiUsageDataRequest {
   domainName?: string(name='DomainName', description='If this parameter is not set, data of all your accelerated domain names is queried.
 
-You can specify one or more accelerated domain names. Separate domain names with commas (,).', example='example.com'),
+You can specify multiple domain names and separate them with commas (,).', example='example.com'),
   endTime?: string(name='EndTime', description='The end time must be later than the start time.
 
-*   Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format.
-*   The time must be in UTC.
-*   You must set both the start time and the end time.', example='2017-12-10T21:00:00Z'),
+*   Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
+*   The time follows the ISO 8601 standard in the YYYY-MM-DDThh:mm:ssZ format. The time is displayed in UTC.
+*   You need to set both the start time and the end time.', example='2017-12-10T21:00:00Z'),
   startTime?: string(name='StartTime', description='The beginning of the time range to query.
 
-*   Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format.
-*   The time must be in UTC.
-*   The minimum data granularity is 5 minutes.
+*   Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
+*   The time follows the ISO 8601 standard in the YYYY-MM-DDThh:mm:ssZ format. The time is displayed in UTC.
+*   The resolution of the queried data is 5 minutes.
 *   If you do not set this parameter, data in the last 24 hours is queried.
-*   You must set both the start time and the end time.', example='2017-12-10T20:00:00Z'),
+*   You need to set both the start time and the end time.', example='2017-12-10T20:00:00Z'),
 }
 
 model DescribeDcdnDomainMultiUsageDataResponseBody = {
-  endTime?: string(name='EndTime', description='The end of the time range during which data was queried.', example='2017-12-10T21:00:00Z'),
+  endTime?: string(name='EndTime', description='The end of the time range that was queried.', example='2017-12-10T21:00:00Z'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='3C6CCEC4-6B88-4D4A-93E4-D47B3D92CF8F'),
   requestPerInterval?: {
     requestDataModule?: [ 
     {
       domain?: string(name='Domain', description='The domain name.', example='example.com'),
       request?: long(name='Request', description='The number of requests.', example='1128'),
-      timeStamp?: string(name='TimeStamp', description='The timestamp of the returned data.', example='2017-12-10T20:00:00Z'),
+      timeStamp?: string(name='TimeStamp', description='The timestamp of the data returned.', example='2017-12-10T20:00:00Z'),
       type?: string(name='Type', description='The type of the requests. Valid values: StaticHttps, DynamicHttps, DynamicHttp, StaticQuic, and DynamicQuic.', example='DynamicHttp'),
     }
   ](name='RequestDataModule')
   }(name='RequestPerInterval', description='The information about requests collected every 5 minutes.'),
-  startTime?: string(name='StartTime', description='The start of the time range during which data was queried.', example='2017-12-10T20:00:00Z'),
+  startTime?: string(name='StartTime', description='The beginning of the time range that was queried.', example='2017-12-10T20:00:00Z'),
   trafficPerInterval?: {
     trafficDataModule?: [ 
     {
       area?: string(name='Area', description='The name of the region.', example='CN'),
       bps?: float(name='Bps', description='The number of bits per second.', example='11288111.1'),
       domain?: string(name='Domain', description='The domain name.', example='example.com'),
-      timeStamp?: string(name='TimeStamp', description='The timestamp of the returned data.', example='2017-12-10T20:00:00Z'),
+      timeStamp?: string(name='TimeStamp', description='The timestamp of the data returned.', example='2017-12-10T20:00:00Z'),
       type?: string(name='Type', description='The type of the network traffic. Valid values: Simple, IPA, and WebSocket.', example='Simple'),
     }
   ](name='TrafficDataModule')
@@ -6139,7 +6239,6 @@ model DescribeDcdnDomainMultiUsageDataResponse = {
 }
 
 /**
-  * When you call this operation, take note of the following rules:
   * *   If you do not set the StartTime or EndTime parameter, data within the last 10 minutes is queried. You can set both the StartTime and EndTime parameters to specify a time range.
   * *   You can specify one or more accelerated domain names. Separate domain names with commas (,).
   * *   You can query data within the last 90 days.
@@ -6179,7 +6278,6 @@ async function describeDcdnDomainMultiUsageDataWithOptions(request: DescribeDcdn
 }
 
 /**
-  * When you call this operation, take note of the following rules:
   * *   If you do not set the StartTime or EndTime parameter, data within the last 10 minutes is queried. You can set both the StartTime and EndTime parameters to specify a time range.
   * *   You can specify one or more accelerated domain names. Separate domain names with commas (,).
   * *   You can query data within the last 90 days.
@@ -6336,7 +6434,8 @@ model DescribeDcdnDomainOriginTrafficDataResponse = {
 /**
   * - You can call this operation up to 100 times per second per account.
   * - If you do not set the **StartTime** or **EndTime** parameters, the request returns the data collected in the last 24 hours. If you set both the **StartTime** and **EndTime** parameters, the request returns the data collected within the specified time range.
-  * **Time granularity**The time granularity supported by the Interval parameter varies with the maximum time range per query. The following table describes the time period within which historical data is available and the data delay. 
+  * **Time granularity**
+  * The time granularity supported by the Interval parameter varies with the maximum time range per query. The following table describes the time period within which historical data is available and the data delay. 
   * | Time granularity | Maximum time range per query | Historical data available | Data delay |
   * | ---------------- | ---------------------------- | ------------------------- | ---------- |
   * | 5 minutes | 3 days | 93 days | 15 minutes |
@@ -6382,7 +6481,8 @@ async function describeDcdnDomainOriginTrafficDataWithOptions(request: DescribeD
 /**
   * - You can call this operation up to 100 times per second per account.
   * - If you do not set the **StartTime** or **EndTime** parameters, the request returns the data collected in the last 24 hours. If you set both the **StartTime** and **EndTime** parameters, the request returns the data collected within the specified time range.
-  * **Time granularity**The time granularity supported by the Interval parameter varies with the maximum time range per query. The following table describes the time period within which historical data is available and the data delay. 
+  * **Time granularity**
+  * The time granularity supported by the Interval parameter varies with the maximum time range per query. The following table describes the time period within which historical data is available and the data delay. 
   * | Time granularity | Maximum time range per query | Historical data available | Data delay |
   * | ---------------- | ---------------------------- | ------------------------- | ---------- |
   * | 5 minutes | 3 days | 93 days | 15 minutes |
@@ -6460,13 +6560,13 @@ async function describeDcdnDomainProperty(request: DescribeDcdnDomainPropertyReq
 model DescribeDcdnDomainPvDataRequest {
   domainName?: string(name='DomainName', description='The accelerated domain name. You can specify only one domain name in each request.', example='example.com'),
   endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.', example='2019-11-29T00:00:00Z'),
-  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.', example='2019-11-28T00:00:00Z'),
+  startTime?: string(name='StartTime', description='The start of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.', example='2019-11-28T00:00:00Z'),
 }
 
 model DescribeDcdnDomainPvDataResponseBody = {
   dataInterval?: string(name='DataInterval', description='The time interval between the data entries returned. Unit: seconds.', example='3600'),
   domainName?: string(name='DomainName', description='The accelerated domain name.', example='example.com'),
-  endTime?: string(name='EndTime', description='The end of the time range during which data was queried.', example='2019-11-29T00:00:00Z'),
+  endTime?: string(name='EndTime', description='The end of the time range that was queried.', example='2019-11-29T00:00:00Z'),
   pvDataInterval?: {
     usageData?: [ 
     {
@@ -6475,8 +6575,8 @@ model DescribeDcdnDomainPvDataResponseBody = {
     }
   ](name='UsageData')
   }(name='PvDataInterval', description='The number of PVs at each interval.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='BCD7D917-76F1-442F-BB75-C810DE34C761'),
-  startTime?: string(name='StartTime', description='The start of the time range during which data was queried.', example='2019-11-28T00:00:00Z'),
+  requestId?: string(name='RequestId', description='The request ID.', example='BCD7D917-76F1-442F-BB75-C810DE34C761'),
+  startTime?: string(name='StartTime', description='The beginning of the time range that was queried.', example='2019-11-28T00:00:00Z'),
 }
 
 model DescribeDcdnDomainPvDataResponse = {
@@ -7244,11 +7344,15 @@ model DescribeDcdnDomainRealTimeReqHitRateDataResponse = {
 }
 
 /**
-  * #
-  * *   You can call this operation up to 10 times per second per account.
-  * *   The network traffic destined for different domain names may be redirected to the same origin server. Therefore, the byte hit ratios may be inaccurate. The accuracy of query results is based on the actual configurations.
-  * *   If you do not set the **StartTime** or **EndTime** parameter, the request returns the data collected in the last hour. If you set both the **StartTime** and **EndTime** parameters, the request returns the data collected within the specified time range.
-  * **Time granularity** The time granularity varies with the time range specified by the StartTime and EndTime parameters. The following table describes the time period within which historical data is available and the data delay. |Time granularity |Maximum time range per query |Historical data available|Data delay| |---------------|--------| |1 minute|1 hour|7 days|5 minutes| |5 minutes|3 days|93 days|15 minutes| |1 hour|31 days|186 days|4 hours|
+  * * You can call this operation up to 10 times per second per user.
+  * * The network traffic destined for different domain names may be redirected to the same origin server. Therefore, the byte hit ratios may be inaccurate. The accuracy of query results is based on the actual configurations.
+  * * If you do not set the **StartTime** or **EndTime** parameter, the request returns the data collected in the last hour. If you set both the **StartTime** and **EndTime** parameters, the request returns the data collected within the specified time range.
+  * **Time granularity** The time granularity varies with the time range specified by the StartTime and EndTime parameters. The following table describes the time period within which historical data is available and the data delay.
+  * |Time granularity|Maximum time range per query|Historical data available|Data delay|
+  * |---|---|---|---|
+  * |1 minute|1 hour|7 days|5 minutes|
+  * |5 minutes|3 days|93 days|15 minutes|
+  * |1 hour|31 days|186 days|4 hours|
   *
   * @param request DescribeDcdnDomainRealTimeReqHitRateDataRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -7275,11 +7379,15 @@ async function describeDcdnDomainRealTimeReqHitRateDataWithOptions(request: Desc
 }
 
 /**
-  * #
-  * *   You can call this operation up to 10 times per second per account.
-  * *   The network traffic destined for different domain names may be redirected to the same origin server. Therefore, the byte hit ratios may be inaccurate. The accuracy of query results is based on the actual configurations.
-  * *   If you do not set the **StartTime** or **EndTime** parameter, the request returns the data collected in the last hour. If you set both the **StartTime** and **EndTime** parameters, the request returns the data collected within the specified time range.
-  * **Time granularity** The time granularity varies with the time range specified by the StartTime and EndTime parameters. The following table describes the time period within which historical data is available and the data delay. |Time granularity |Maximum time range per query |Historical data available|Data delay| |---------------|--------| |1 minute|1 hour|7 days|5 minutes| |5 minutes|3 days|93 days|15 minutes| |1 hour|31 days|186 days|4 hours|
+  * * You can call this operation up to 10 times per second per user.
+  * * The network traffic destined for different domain names may be redirected to the same origin server. Therefore, the byte hit ratios may be inaccurate. The accuracy of query results is based on the actual configurations.
+  * * If you do not set the **StartTime** or **EndTime** parameter, the request returns the data collected in the last hour. If you set both the **StartTime** and **EndTime** parameters, the request returns the data collected within the specified time range.
+  * **Time granularity** The time granularity varies with the time range specified by the StartTime and EndTime parameters. The following table describes the time period within which historical data is available and the data delay.
+  * |Time granularity|Maximum time range per query|Historical data available|Data delay|
+  * |---|---|---|---|
+  * |1 minute|1 hour|7 days|5 minutes|
+  * |5 minutes|3 days|93 days|15 minutes|
+  * |1 hour|31 days|186 days|4 hours|
   *
   * @param request DescribeDcdnDomainRealTimeReqHitRateDataRequest
   * @return DescribeDcdnDomainRealTimeReqHitRateDataResponse
@@ -7864,30 +7972,30 @@ async function describeDcdnDomainStagingConfig(request: DescribeDcdnDomainStagin
 
 model DescribeDcdnDomainTopReferVisitRequest {
   domainName?: string(name='DomainName', description='The accelerated domain name. You can specify only one domain name.', example='example.com'),
-  sortBy?: string(name='SortBy', description='The method that is used to arrange the returned application information. Valid values:
+  sortBy?: string(name='SortBy', description='The sorting order. Valid values:
 
 *   **traf**: by network traffic
 *   **pv**: by the number of visits
 
 Default value: **pv**.', example='pv'),
-  startTime?: string(name='StartTime', description='The start of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
+  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
 
 To query the data on a specified day, use the yyyy-MM-ddT16:00:00Z format.
 
-If you leave this parameter empty, data collected in the last 24 hours is queried.', example='2018-10-03T16:00:00Z'),
+If you do not set this parameter, data collected within the last 24 hours is queried.', example='2018-10-03T16:00:00Z'),
 }
 
 model DescribeDcdnDomainTopReferVisitResponseBody = {
   domainName?: string(name='DomainName', description='The accelerated domain name.', example='example.com'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='95994621-8382-464B-8762-C708E73568D1'),
+  requestId?: string(name='RequestId', description='The request ID.', example='95994621-8382-464B-8762-C708E73568D1'),
   startTime?: string(name='StartTime', description='The start of the time range during which data was queried.', example='2018-10-03T16:00:00Z'),
   topReferList?: {
     referList?: [ 
     {
-      flow?: string(name='Flow', description='The amount of network traffic. Unit: bytes.', example='460486880'),
+      flow?: string(name='Flow', description='The amount of network traffic. (Unit: bytes)', example='460486880'),
       flowProportion?: float(name='FlowProportion', description='The proportion of network traffic consumed to access the URL.', example='0.35'),
       referDetail?: string(name='ReferDetail', description='The complete referenced URL.', example='192.168.0.1'),
-      visitData?: string(name='VisitData', description='The number of visits to the URL.', example='229567'),
+      visitData?: string(name='VisitData', description='The number of visits.', example='229567'),
       visitProportion?: float(name='VisitProportion', description='The proportion of visits to the URL.', example='0.35'),
     }
   ](name='ReferList')
@@ -7901,7 +8009,6 @@ model DescribeDcdnDomainTopReferVisitResponse = {
 }
 
 /**
-  * **Before you call this operation, take note of the following rules:**
   * *   If you do not set the StartTime parameter, the data on the previous day is queried.
   * *   You can specify only one domain name.
   *
@@ -7939,7 +8046,6 @@ async function describeDcdnDomainTopReferVisitWithOptions(request: DescribeDcdnD
 }
 
 /**
-  * **Before you call this operation, take note of the following rules:**
   * *   If you do not set the StartTime parameter, the data on the previous day is queried.
   * *   You can specify only one domain name.
   *
@@ -7953,7 +8059,7 @@ async function describeDcdnDomainTopReferVisit(request: DescribeDcdnDomainTopRef
 
 model DescribeDcdnDomainTopUrlVisitRequest {
   domainName?: string(name='DomainName', description='The accelerated domain name. You can specify only one domain name in each request.', example='example.com'),
-  sortBy?: string(name='SortBy', description='The sorting method. Valid values:
+  sortBy?: string(name='SortBy', description='The sorting order. Valid values:
 
 *   **traf**: by network traffic
 *   **pv**: by the number of visits
@@ -7972,58 +8078,58 @@ model DescribeDcdnDomainTopUrlVisitResponseBody = {
   allUrlList?: {
     urlList?: [ 
     {
-      flow?: string(name='Flow', description='The amount of network traffic. Unit: bytes.', example='460486880'),
+      flow?: string(name='Flow', description='The amount of network traffic. (Unit: bytes)', example='460486880'),
       flowProportion?: float(name='FlowProportion', description='The proportion of network traffic consumed to access the URL.', example='0.35'),
       urlDetail?: string(name='UrlDetail', description='The complete URL.', example='http://example.com/nn_live/nn_x64/a0.m3u8'),
-      visitData?: string(name='VisitData', description='The number of visits to the URL.', example='161673'),
-      visitProportion?: float(name='VisitProportion', description='The proportion of visits to the URL.', example='0.35'),
+      visitData?: string(name='VisitData', description='The number of visits.', example='161673'),
+      visitProportion?: float(name='VisitProportion', description='The proportion of visits.', example='0.35'),
     }
   ](name='UrlList')
   }(name='AllUrlList', description='A list of frequently requested URLs.'),
   domainName?: string(name='DomainName', description='The accelerated domain name.', example='example.com'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='64D28B53-5902-409B-94F6-FD46680144FE'),
+  requestId?: string(name='RequestId', description='The request ID.', example='64D28B53-5902-409B-94F6-FD46680144FE'),
   startTime?: string(name='StartTime', description='The start of the time range during which data was queried.', example='2018-10-03T16:00:00Z'),
   url200List?: {
     urlList?: [ 
     {
-      flow?: string(name='Flow', description='The amount of network traffic. Unit: bytes.', example='460486880'),
+      flow?: string(name='Flow', description='The amount of network traffic. (Unit: bytes)', example='460486880'),
       flowProportion?: float(name='FlowProportion', description='The proportion of network traffic consumed to access the URL.', example='0.35'),
       urlDetail?: string(name='UrlDetail', description='The complete URL.', example='http://example.com/nn_live/nn_x64/a0.m3u8'),
-      visitData?: string(name='VisitData', description='The number of visits to the URL.', example='161673'),
-      visitProportion?: float(name='VisitProportion', description='The proportion of visits to the URL.', example='0.35'),
+      visitData?: string(name='VisitData', description='The number of visits.', example='161673'),
+      visitProportion?: float(name='VisitProportion', description='The proportion of visits.', example='0.35'),
     }
   ](name='UrlList')
   }(name='Url200List', description='A list of URLs for which 2xx status codes were returned.'),
   url300List?: {
     urlList?: [ 
     {
-      flow?: string(name='Flow', description='The amount of network traffic. Unit: bytes.', example='460486880'),
+      flow?: string(name='Flow', description='The amount of network traffic. (Unit: bytes)', example='460486880'),
       flowProportion?: float(name='FlowProportion', description='The proportion of network traffic consumed to access the URL.', example='0.35'),
       urlDetail?: string(name='UrlDetail', description='The complete URL.', example='http://example.com/nn_live/nn_x64/a0.m3u8'),
-      visitData?: string(name='VisitData', description='The number of visits to the URL.', example='161673'),
-      visitProportion?: float(name='VisitProportion', description='The proportion of visits to the URL.', example='0.35'),
+      visitData?: string(name='VisitData', description='The number of visits.', example='161673'),
+      visitProportion?: float(name='VisitProportion', description='The proportion of visits.', example='0.35'),
     }
   ](name='UrlList')
   }(name='Url300List', description='A list of URLs for which 3xx status codes were returned.'),
   url400List?: {
     urlList?: [ 
     {
-      flow?: string(name='Flow', description='The amount of network traffic. Unit: bytes.', example='460486880'),
+      flow?: string(name='Flow', description='The amount of network traffic. (Unit: bytes)', example='460486880'),
       flowProportion?: float(name='FlowProportion', description='The proportion of network traffic consumed to access the URL.', example='0.35'),
       urlDetail?: string(name='UrlDetail', description='The complete URL.', example='http://example.com/nn_live/nn_x64/a0.m3u8'),
-      visitData?: string(name='VisitData', description='The number of visits to the URL.', example='161673'),
-      visitProportion?: float(name='VisitProportion', description='The proportion of visits to the URL.', example='0.35'),
+      visitData?: string(name='VisitData', description='The number of visits.', example='161673'),
+      visitProportion?: float(name='VisitProportion', description='The proportion of visits.', example='0.35'),
     }
   ](name='UrlList')
   }(name='Url400List', description='A list of URLs for which 4xx status codes were returned.'),
   url500List?: {
     urlList?: [ 
     {
-      flow?: string(name='Flow', description='The amount of network traffic. Unit: bytes.', example='460486880'),
+      flow?: string(name='Flow', description='The amount of network traffic. (Unit: bytes)', example='460486880'),
       flowProportion?: float(name='FlowProportion', description='The proportion of network traffic consumed to access the URL.', example='0.35'),
       urlDetail?: string(name='UrlDetail', description='The complete URL.', example='http://example.com/nn_live/nn_x64/a0.m3u8'),
-      visitData?: string(name='VisitData', description='The number of visits to the URL.', example='161673'),
-      visitProportion?: float(name='VisitProportion', description='The proportion of visits to the URL.', example='0.35'),
+      visitData?: string(name='VisitData', description='The number of visits.', example='161673'),
+      visitProportion?: float(name='VisitProportion', description='The proportion of visits.', example='0.35'),
     }
   ](name='UrlList')
   }(name='Url500List', description='A list of URLs for which 5xx status codes were returned.'),
@@ -8367,15 +8473,15 @@ If you do not specify a domain name, this operation queries UV data of all accel
   endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
 
 The end time must be later than the start time.', example='2015-11-30T00:00:00Z'),
-  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.', example='2015-11-29T00:00:00Z'),
+  startTime?: string(name='StartTime', description='The start of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.', example='2015-11-29T00:00:00Z'),
 }
 
 model DescribeDcdnDomainUvDataResponseBody = {
   dataInterval?: string(name='DataInterval', description='The time interval between the data entries returned. Unit: seconds.', example='3600'),
   domainName?: string(name='DomainName', description='The accelerated domain name.', example='example.com'),
-  endTime?: string(name='EndTime', description='The end of the time range during which data was queried.', example='2015-11-30T00:00:00Z'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='E9D3257A-1B7C-414C-90C1-8D07AC47BCAC'),
-  startTime?: string(name='StartTime', description='The start of the time range during which data was queried.', example='2015-11-29T00:00:00Z'),
+  endTime?: string(name='EndTime', description='The end of the time range that was queried.', example='2015-11-30T00:00:00Z'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E9D3257A-1B7C-414C-90C1-8D07AC47BCAC'),
+  startTime?: string(name='StartTime', description='The beginning of the time range that was queried.', example='2015-11-29T00:00:00Z'),
   uvDataInterval?: {
     usageData?: [ 
     {
@@ -8393,7 +8499,6 @@ model DescribeDcdnDomainUvDataResponse = {
 }
 
 /**
-  * ****
   * *   If you do not set the StartTime or EndTime parameter, the request returns the data collected in the last 24 hours. If you set both these parameters, the request returns the data collected within the specified time range.
   * *   You can specify only one accelerated domain name or all the accelerated domain names that belong to your Alibaba Cloud account.
   *
@@ -8431,7 +8536,6 @@ async function describeDcdnDomainUvDataWithOptions(request: DescribeDcdnDomainUv
 }
 
 /**
-  * ****
   * *   If you do not set the StartTime or EndTime parameter, the request returns the data collected in the last 24 hours. If you set both these parameters, the request returns the data collected within the specified time range.
   * *   You can specify only one accelerated domain name or all the accelerated domain names that belong to your Alibaba Cloud account.
   *
@@ -9192,6 +9296,49 @@ async function describeDcdnIpInfo(request: DescribeDcdnIpInfoRequest): DescribeD
   return describeDcdnIpInfoWithOptions(request, runtime);
 }
 
+model DescribeDcdnIpaDomainCidrRequest {
+  domainName?: string(name='DomainName', example='example.com'),
+}
+
+model DescribeDcdnIpaDomainCidrResponseBody = {
+  cidr?: [ string ](name='Cidr', example='["1.1.1.0/24","2.2.2.0/24","1111:2222:3333:4444:5555:0:0:0/80"]'),
+  requestId?: string(name='RequestId', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
+}
+
+model DescribeDcdnIpaDomainCidrResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DescribeDcdnIpaDomainCidrResponseBody(name='body'),
+}
+
+async function describeDcdnIpaDomainCidrWithOptions(request: DescribeDcdnIpaDomainCidrRequest, runtime: Util.RuntimeOptions): DescribeDcdnIpaDomainCidrResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.domainName)) {
+    query['DomainName'] = request.domainName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeDcdnIpaDomainCidr',
+    version = '2018-01-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function describeDcdnIpaDomainCidr(request: DescribeDcdnIpaDomainCidrRequest): DescribeDcdnIpaDomainCidrResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeDcdnIpaDomainCidrWithOptions(request, runtime);
+}
+
 model DescribeDcdnIpaDomainConfigsRequest {
   domainName?: string(name='DomainName', description='The accelerated domain name. Separate multiple domain names with commas (,).', example='example.com'),
   functionNames?: string(name='FunctionNames', description='The name of the feature. Set the value to protogw, which indicates IP Application Accelerator (IPA).', example='protogw'),
@@ -9727,8 +9874,8 @@ model DescribeDcdnKvNamespaceRequest {
 }
 
 model DescribeDcdnKvNamespaceResponseBody = {
-  capacityString?: string(name='CapacityString', description='The available capacity of namespace.', example='1 GB'),
-  capacityUsedString?: string(name='CapacityUsedString', description='Used capacity of namespace.', example='100 MB'),
+  capacityString?: string(name='CapacityString', description='The available capacity of all namespaces in your account.', example='1 GB'),
+  capacityUsedString?: string(name='CapacityUsedString', description='The used capacity of all namespaces in your account.', example='100 MB'),
   description?: string(name='Description', description='The description of the namespace.', example='the first namespace'),
   namespace?: string(name='Namespace', description='The name of the namespace.', example='ns1'),
   namespaceId?: string(name='NamespaceId', description='The ID of the namespace.', example='12423131231****'),
@@ -9943,8 +10090,9 @@ model DescribeDcdnRefreshQuotaResponse = {
 }
 
 /**
-  * > * You can call the **RefreshDcdnObjectCaches** operation to refresh content and call the **PreloadDcdnObjectCaches** operation to prefetch content.
-  * > *   You can call this operation up to 20 times per second per account.
+  * > 
+  * *   You can call the **RefreshDcdnObjectCaches** operation to refresh content and call the **PreloadDcdnObjectCaches** operation to prefetch content.
+  * *   You can call this operation up to 20 times per second per account.
   *
   * @param request DescribeDcdnRefreshQuotaRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -9977,8 +10125,9 @@ async function describeDcdnRefreshQuotaWithOptions(request: DescribeDcdnRefreshQ
 }
 
 /**
-  * > * You can call the **RefreshDcdnObjectCaches** operation to refresh content and call the **PreloadDcdnObjectCaches** operation to prefetch content.
-  * > *   You can call this operation up to 20 times per second per account.
+  * > 
+  * *   You can call the **RefreshDcdnObjectCaches** operation to refresh content and call the **PreloadDcdnObjectCaches** operation to prefetch content.
+  * *   You can call this operation up to 20 times per second per account.
   *
   * @param request DescribeDcdnRefreshQuotaRequest
   * @return DescribeDcdnRefreshQuotaResponse
@@ -9998,7 +10147,7 @@ model DescribeDcdnRefreshTaskByIdRequest {
 }
 
 model DescribeDcdnRefreshTaskByIdResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='E0C2EF95-B1EC-4C93-855E-2059A7DA2B7B'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E0C2EF95-B1EC-4C93-855E-2059A7DA2B7B'),
   tasks?: [ 
     {
       creationTime?: string(name='CreationTime', description='The time when the task was created. The time follows the ISO8601 standard in the YYYY-MM-DDThh:mmZ format. The time is displayed in UTC.', example='2021-05-10T08:54:23Z'),
@@ -10014,7 +10163,7 @@ model DescribeDcdnRefreshTaskByIdResponseBody = {
 *   **directory**: refreshes files under the specified directory.
 *   **preload**: prefetches an individual file.', example='file'),
       process?: string(name='Process', description='The progress of the task, in percentage.', example='100%'),
-      status?: string(name='Status', description='The status of the task. Valid values:
+      status?: string(name='Status', description='The task status. Valid values:
 
 *   **Complete**: The task is complete.
 *   **Pending**: The task is pending.
@@ -10087,6 +10236,7 @@ model DescribeDcdnRefreshTasksRequest {
 
 *   **file**: URL-based refresh
 *   **directory**: directory-based refresh
+*   **regex**: regular expression-based refresh
 *   **preload**: URL-based prefetch
 
 If you set **DomainName** or **Status**, you must also set this parameter.', example='file'),
@@ -10121,17 +10271,18 @@ model DescribeDcdnRefreshTasksResponseBody = {
 
 *   **file**: URL-based refresh
 *   **path**: directory-based refresh
+*   **regex**: regular expression-based refresh
 *   **preload**: URL-based prefetch', example='file'),
       process?: string(name='Process', description='The progress of the task in percentage.', example='10'),
-      status?: string(name='Status', description='The status of the task. Valid values:
+      status?: string(name='Status', description='The status of the auxiliary media asset.
 
 *   **Complete**: The task is complete.
 *   **Refreshing**: The task is in progress.
 *   **Failed**: The task failed.', example='Complete'),
-      taskId?: string(name='TaskId', description='The ID of the task.', example='123'),
+      taskId?: string(name='TaskId', description='The task ID.', example='123'),
     }
   ](name='Task')
-  }(name='Tasks', description='Details about tasks.'),
+  }(name='Tasks', description='The tasks.'),
   totalCount?: long(name='TotalCount', description='The number of tasks.', example='20'),
 }
 
@@ -10777,7 +10928,7 @@ async function describeDcdnSecFuncInfo(request: DescribeDcdnSecFuncInfoRequest):
 }
 
 model DescribeDcdnSecSpecInfoResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='32f6cbb7-13e5-403a-9941-4d4e978dd227'),
+  requestId?: string(name='RequestId', description='The request ID.', example='32f6cbb7-13e5-403a-9941-4d4e978dd227'),
   specInfos?: [ 
     {
       ruleCode?: string(name='RuleCode', description='The code of the security rule.', example='accurate_***'),
@@ -10839,34 +10990,34 @@ model DescribeDcdnServiceRequest {
 
 model DescribeDcdnServiceResponseBody = {
   changingAffectTime?: string(name='ChangingAffectTime', description='The time when the renewed secure DCDN takes effect. The time is displayed in UTC.', example='2018-03-31T16:00:00Z'),
-  changingChargeType?: string(name='ChangingChargeType', description='The new metering method for DCDN. Valid values:
+  changingChargeType?: string(name='ChangingChargeType', description='The new metering method for the renewed secure DCDN. Valid values:
 
-*   **PayByTraffic**: pay-by-data-transfer
-*   **PayByBandwidth**: pay-by-bandwidth
-*   **PayByBandwidth95**: pay-by-95th percentile bandwidth
-*   **PayByBandwidth_monthavg**: pay-by-monthly average bandwidth
-*   **PayByBandwidth_month4th**: pay-by-fourth peak bandwidth per month
-*   **PayByBandwidth_monthday95avg**: pay-by-monthly average 95th percentile bandwidth
-*   **PayByBandwidth_nighthalf95**: pay-by-95th percentile bandwidth (50% off during nighttime)', example='PayByBandwidth'),
+*   **PayByTraffic**: pay by data transfer
+*   **PayByBandwidth**: pay by bandwidth
+*   **PayByBandwidth95**: pay by 95th percentile bandwidth
+*   **PayByBandwidth_monthavg**: pay by monthly average bandwidth
+*   **PayByBandwidth_month4th**: pay by fourth peak bandwidth per month
+*   **PayByBandwidth_monthday95avg**: pay by monthly average 95th percentile bandwidth
+*   **PayByBandwidth_nighthalf95**: pay by 95th percentile bandwidth (50% off during nighttime)', example='PayByBandwidth'),
   instanceId?: string(name='InstanceId', description='The ID of the instance.', example='FP-mkqgwxxxx'),
   internetChargeType?: string(name='InternetChargeType', description='The current metering method. Valid values:
 
-*   **PayByTraffic**: pay-by-data-transfer
-*   **PayByBandwidth**: pay-by-bandwidth
-*   **PayByBandwidth95**: pay-by-95th percentile bandwidth
-*   **PayByBandwidth_monthavg**: pay-by-monthly average bandwidth
-*   **PayByBandwidth_month4th**: pay-by-fourth peak bandwidth per month
-*   **PayByBandwidth_monthday95avg**: pay-by-monthly average 95th percentile bandwidth
-*   **PayByBandwidth_nighthalf95**: pay-by-95th percentile bandwidth (50% off during nighttime)', example='PayByTraffic'),
+*   **PayByTraffic**: pay by data transfer
+*   **PayByBandwidth**: pay by bandwidth
+*   **PayByBandwidth95**: pay by 95th percentile bandwidth
+*   **PayByBandwidth_monthavg**: pay by monthly average bandwidth
+*   **PayByBandwidth_month4th**: pay by fourth peak bandwidth per month
+*   **PayByBandwidth_monthday95avg**: pay by monthly average 95th percentile bandwidth
+*   **PayByBandwidth_nighthalf95**: pay by 95th percentile bandwidth (50% off during nighttime)', example='PayByTraffic'),
   openingTime?: string(name='OpeningTime', description='The time when the DCDN service was activated. The time follows the ISO 8601 standard.', example='2018-03-19T11:16:11Z'),
   operationLocks?: {
     lockReason?: [ 
     {
-      lockReason?: string(name='LockReason', description='The reason why the instance is locked. For example, a value of financial indicates that an overdue payment exists.', example='financial'),
+      lockReason?: string(name='LockReason', description='The reason why secure DCDN was locked. For example, a value of financial indicates that an overdue payment exists.', example='financial'),
     }
   ](name='LockReason')
-  }(name='OperationLocks', description='The lock status of secure DCDN.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='EF2AEBC2-EDBD-41CF-BF64-7E095D42D6EF'),
+  }(name='OperationLocks', description='The lock status of DCDN.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='EF2AEBC2-EDBD-41CF-BF64-7E095D42D6EF'),
   websocketChangingTime?: string(name='WebsocketChangingTime', description='The time when the changes of the WebSocket configuration take effect. The value is the same as that of the ChangingAffectTime parameter. This parameter can be displayed in the console only if the specified time is later than the current time.', example='2018-03-19T11:16:11Z'),
   websocketChangingType?: string(name='WebsocketChangingType', description='The next effective billing method of WebSocket. Valid values: **websockettraffic** and **websocketbps**. A value of websockettraffic indicates that you are billed based on the traffic volume. A value of websocketbps indicates that you are billed based on the bandwidth.', example='websocketbps'),
   websocketType?: string(name='WebsocketType', description='The current billing method of WebSocket. Valid values: **websockettraffic** and **websocketbps**. A value of websockettraffic indicates that you are billed based on the traffic volume. A value of websocketbps indicates that you are billed based on the bandwidth.', example='websocketbps'),
@@ -10970,7 +11121,7 @@ async function describeDcdnStagingIp(): DescribeDcdnStagingIpResponse {
 
 model DescribeDcdnSubListResponseBody = {
   content?: string(name='Content', description='The information about the custom report.', example='"data": [{"subId": 336,"reportId": [6,8],"createTime": "2021-07-05T06:18:46Z","domains": ["example.com"],"effectiveFrom": "2021-07-05T06:18:46Z","effectiveEnd": "2021-10-05T06:18:46Z","status": "enable"}]'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='3250A51D-C11D-46BA-B6B3-95348EEDE652'),
+  requestId?: string(name='RequestId', description='The request ID.', example='3250A51D-C11D-46BA-B6B3-95348EEDE652'),
 }
 
 model DescribeDcdnSubListResponse = {
@@ -10982,7 +11133,7 @@ model DescribeDcdnSubListResponse = {
 /**
   * > 
   * *   By default, this operation queries all custom operations reports. However, only one operations report can be displayed. Therefore, only one operations report is returned.
-  * *   You can call this operation up to three times per second per account.
+  * *   You can call this API operation up to three times per second per account.
   *
   * @param request DescribeDcdnSubListRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -11007,7 +11158,7 @@ async function describeDcdnSubListWithOptions(runtime: Util.RuntimeOptions): Des
 /**
   * > 
   * *   By default, this operation queries all custom operations reports. However, only one operations report can be displayed. Therefore, only one operations report is returned.
-  * *   You can call this operation up to three times per second per account.
+  * *   You can call this API operation up to three times per second per account.
   *
   * @return DescribeDcdnSubListResponse
  */
@@ -11100,15 +11251,15 @@ model DescribeDcdnTopDomainsByFlowRequest {
 
 The end time must be later than the start time.', example='2016-03-14T07:34:00Z'),
   limit?: long(name='Limit', description='The maximum number of domain names to return. Valid values: **1** to **100**. Default value: **20**.', example='20'),
-  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.', example='2016-03-01T04:00:00Z'),
+  startTime?: string(name='StartTime', description='The start of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.', example='2016-03-01T04:00:00Z'),
 }
 
 model DescribeDcdnTopDomainsByFlowResponseBody = {
   domainCount?: long(name='DomainCount', description='The total number of accelerated domains under your account.', example='68'),
   domainOnlineCount?: long(name='DomainOnlineCount', description='The total number of accelerated domains that are in the **Enabled** state under your account.', example='68'),
-  endTime?: string(name='EndTime', description='The end of the time range during which data was queried.', example='2016-03-14T07:34:00Z'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='4E09C5D7-E1CF-4CAA-A45E-8727F4C8FD70'),
-  startTime?: string(name='StartTime', description='The beginning of the time range during which data was queried.', example='2016-03-14T06:34:00Z'),
+  endTime?: string(name='EndTime', description='The end of the reporting period.', example='2016-03-14T07:34:00Z'),
+  requestId?: string(name='RequestId', description='The request ID.', example='4E09C5D7-E1CF-4CAA-A45E-8727F4C8FD70'),
+  startTime?: string(name='StartTime', description='The beginning of the reporting period.', example='2016-03-14T06:34:00Z'),
   topDomains?: {
     topDomain?: [ 
     {
@@ -11116,8 +11267,8 @@ model DescribeDcdnTopDomainsByFlowResponseBody = {
       maxBps?: long(name='MaxBps', description='The peak bandwidth value.', example='22139626'),
       maxBpsTime?: string(name='MaxBpsTime', description='The time follows the ISO 8601 standard in the yyyy-MM-ddThh:mm:ssZ format. The time is displayed in UTC.', example='2018-11-01T08:10:00Z'),
       rank?: long(name='Rank', description='The ranking of the accelerated domain name.', example='1'),
-      totalAccess?: long(name='TotalAccess', description='The number of visits to the URL.', example='3'),
-      totalTraffic?: string(name='TotalTraffic', description='The total volume of traffic.', example='123'),
+      totalAccess?: long(name='TotalAccess', description='The number of visits.', example='3'),
+      totalTraffic?: string(name='TotalTraffic', description='The total amount of network traffic.', example='123'),
       trafficPercent?: string(name='TrafficPercent', description='The proportion of network traffic consumed to access the URL.', example='21.686305274906182'),
     }
   ](name='TopDomain')
@@ -11131,7 +11282,7 @@ model DescribeDcdnTopDomainsByFlowResponse = {
 }
 
 /**
-  * \\*\\*Before you call this operation, pay attention to the following considerations:\\*\\* If you do not specify the StartTime and EndTime parameters, the data within the current month is queried by default. If you specify the StartTime and EndTime parameters, the data within the specified time range is queried.
+  * If you do not specify the StartTime and EndTime parameters, the data within the current month is queried. If you specify the StartTime and EndTime parameters, the data within the specified time range is queried.
   *
   * @param request DescribeDcdnTopDomainsByFlowRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -11167,7 +11318,7 @@ async function describeDcdnTopDomainsByFlowWithOptions(request: DescribeDcdnTopD
 }
 
 /**
-  * \\*\\*Before you call this operation, pay attention to the following considerations:\\*\\* If you do not specify the StartTime and EndTime parameters, the data within the current month is queried by default. If you specify the StartTime and EndTime parameters, the data within the specified time range is queried.
+  * If you do not specify the StartTime and EndTime parameters, the data within the current month is queried. If you specify the StartTime and EndTime parameters, the data within the specified time range is queried.
   *
   * @param request DescribeDcdnTopDomainsByFlowRequest
   * @return DescribeDcdnTopDomainsByFlowResponse
@@ -11286,7 +11437,7 @@ model DescribeDcdnUserBillTypeResponseBody = {
 *   **quic_hour_count**: pay by QUIC request per hour
 *   **hour_count**: pay by request per hour
 *   **rtlog_count_day**: pay by the number of real-time logs per day', example='month_avg_day_bandwidth_overseas'),
-      billingCycle?: string(name='BillingCycle', description='The billing cycle.', example='month'),
+      billingCycle?: string(name='BillingCycle', description='The metering cycle.', example='month'),
       dimension?: string(name='Dimension', description='The dimension. Valid values:
 
 *   **flow**: network traffic and bandwidth
@@ -11300,7 +11451,7 @@ model DescribeDcdnUserBillTypeResponseBody = {
     }
   ](name='BillTypeDataItem')
   }(name='BillTypeData', description='The information about the metering method.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='C370DAF1-C838-4288-A1A0-9A87633D248E'),
+  requestId?: string(name='RequestId', description='The request ID.', example='C370DAF1-C838-4288-A1A0-9A87633D248E'),
 }
 
 model DescribeDcdnUserBillTypeResponse = {
@@ -11503,6 +11654,7 @@ model DescribeDcdnUserDomainsRequest {
       value?: string(name='Value', description='The tag value. Valid values of N: **1** to **20**.', example='1'),
     }
   ](name='Tag', description='The list of tags.'),
+  webSiteType?: string(name='WebSiteType'),
 }
 
 model DescribeDcdnUserDomainsResponseBody = {
@@ -11521,6 +11673,7 @@ model DescribeDcdnUserDomainsResponseBody = {
 *   **configure_failed**: configuration failed
 *   **checking**: reviewing
 *   **check_failed:** review failed', example='online'),
+      functionType?: string(name='FunctionType'),
       gmtCreated?: string(name='GmtCreated', description='The time when the accelerated domain name was added to Dynamic Content Delivery Network (DCDN).', example='2015-10-28T11:05:50Z'),
       gmtModified?: string(name='GmtModified', description='The time when the accelerated domain name was modified.', example='2015-10-28T09:31:59Z'),
       resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmv6jutt**'),
@@ -11529,11 +11682,11 @@ model DescribeDcdnUserDomainsResponseBody = {
 *   **on**
 *   **off**', example='on'),
       sandbox?: string(name='Sandbox', description='Indicates whether the accelerated domain name was in a sandbox.', example='normal'),
-      scene?: string(name='Scene', description='The moderation scenario. Valid values:
-
-*   **apiscene**: Api scene acceleration. 
-*   **webservicescene**: Web scene acceleration.
-*   **staticscene**: Video and graphic scene acceleration.', example='apiscene'),
+      scene?: string(name='Scene', description='场景。支持：
+- **apiscene**：API加速。
+- **webservicescene**：网站业务加速。
+- **staticscene**：视频、图文类加速。
+- **（空）**：没有场景。', example='apiscene'),
       sources?: {
         source?: [ 
         {
@@ -11609,6 +11762,9 @@ async function describeDcdnUserDomainsWithOptions(request: DescribeDcdnUserDomai
   if (!Util.isUnset(request.tag)) {
     query['Tag'] = request.tag;
   }
+  if (!Util.isUnset(request.webSiteType)) {
+    query['WebSiteType'] = request.webSiteType;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -11638,8 +11794,8 @@ async function describeDcdnUserDomains(request: DescribeDcdnUserDomainsRequest):
 }
 
 model DescribeDcdnUserDomainsByFuncRequest {
-  domainName?: string(name='DomainName', description='The accelerated domain name.', example='example.com'),
-  funcFilter?: string(name='FuncFilter', description='Specifies whether the feature that is specified by the FuncId parameter is enabled. Valid values:
+  domainName?: string(name='DomainName', description='The accelerated domain name whose ICP filing status you want to update.', example='example.com'),
+  funcFilter?: string(name='FuncFilter', description='Specifies whether the feature that is specified by the FuncId parameter is enabled.
 
 *   **config**: enabled
 *   **unconfig**: not enabled', example='config'),
@@ -11671,22 +11827,22 @@ model DescribeDcdnUserDomainsByFuncResponseBody = {
       sources?: {
         source?: [ 
         {
-          content?: string(name='Content', description='The address of the origin server.', example='image.developer.aliyundoc.com'),
+          content?: string(name='Content', description='The origin server address.', example='image.developer.aliyundoc.com'),
           port?: int32(name='Port', description='The port of the origin server.', example='80'),
           priority?: string(name='Priority', description='The priority.', example='20'),
           type?: string(name='Type', description='The type of the origin server.', example='oss'),
           weight?: string(name='Weight', description='The weight of the origin server if multiple origin servers have been specified.', example='20'),
         }
       ](name='Source')
-      }(name='Sources', description='The information about the origin server.'),
+      }(name='Sources', description='The information about the origin servers.'),
       sslProtocol?: string(name='SslProtocol', description='Indicates whether HTTPS is enabled. Valid values:
 
-*   **on**
-*   **off**', example='on'),
+*   **on**: HTTPS is enabled.
+*   **off**: HTTPS is disabled.', example='on'),
     }
   ](name='PageData')
   }(name='Domains', description='The array that consists of multiple PageData parameters. The details about each accelerated domain name are included in a separate PageData parameter.'),
-  pageNumber?: long(name='PageNumber', description='The number of the returned page.', example='1'),
+  pageNumber?: long(name='PageNumber', description='The page number of the page returned.', example='1'),
   pageSize?: long(name='PageSize', description='The number of entries returned per page.', example='5'),
   requestId?: string(name='RequestId', description='The request ID.', example='AA75AADB-5E25-4970-B480-EAA1F5658483'),
   totalCount?: long(name='TotalCount', description='The total number of domain names returned.', example='16'),
@@ -11763,8 +11919,8 @@ model DescribeDcdnUserQuotaResponseBody = {
   blockQuota?: int32(name='BlockQuota', description='The maximum number of URLs that can be blocked.', example='20'),
   blockRemain?: int32(name='BlockRemain', description='The remaining number of URLs that can be blocked.', example='500'),
   domainQuota?: int32(name='DomainQuota', description='The maximum number of accelerated domains.', example='50'),
-  ignoreParamsQuota?: int32(name='IgnoreParamsQuota', description='The maximum number of URLs or directories with parameters ignored that can be refreshed on the current day.', example='100'),
-  ignoreParamsRemain?: int32(name='IgnoreParamsRemain', description='The number of remaining URLs or directories that can be refreshed with parameters ignored on the current day.', example='10'),
+  ignoreParamsQuota?: int32(name='IgnoreParamsQuota', description='The maximum number of URLs or directories with parameters ignored that can be refreshed.', example='100'),
+  ignoreParamsRemain?: int32(name='IgnoreParamsRemain', description='The number of remaining URLs or directories with parameters ignored that can be refreshed.', example='10'),
   preloadQuota?: int32(name='PreloadQuota', description='The maximum number of URLs that can be prefetched.', example='500'),
   preloadRemain?: int32(name='PreloadRemain', description='The remaining number of URLs that can be prefetched.', example='300'),
   refreshDirQuota?: int32(name='RefreshDirQuota', description='The maximum number of directories that can be refreshed.', example='100'),
@@ -14449,7 +14605,7 @@ async function describeRoutineRelatedDomains(request: DescribeRoutineRelatedDoma
 }
 
 model DescribeRoutineSpecResponseBody = {
-  content?: map[string]any(name='Content', description='The specification of the CPU time slice. Valid values: 5 ms, 50 ms, and 100 ms.', example='5ms、50ms、100ms'),
+  content?: map[string]any(name='Content', description='The specification of the CPU time slice. Valid values: 5 ms, 50 ms, and 100 ms.', example='5ms, 50ms, 100ms'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='AE4E1B80-D5F3-47DB-824A-DA98A21854C8'),
 }
 
@@ -15085,12 +15241,12 @@ model ModifyDCdnDomainSchdmByPropertyRequest {
   property?: string(name='Property', description='The region where the acceleration service is deployed. Valid values:
 
 *   **domestic**: Chinese mainland
-*   **overseas**: outside the Chinese mainland
+*   **overseas**: global (excluding mainland China)
 *   **global**: global', example='{"coverage":"overseas"}'),
 }
 
 model ModifyDCdnDomainSchdmByPropertyResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='15C66C7B-671A-4297-9187-2C4477247A74'),
+  requestId?: string(name='RequestId', description='The request ID.', example='15C66C7B-671A-4297-9187-2C4477247A74'),
 }
 
 model ModifyDCdnDomainSchdmByPropertyResponse = {
@@ -15144,13 +15300,13 @@ async function modifyDCdnDomainSchdmByProperty(request: ModifyDCdnDomainSchdmByP
 }
 
 model ModifyDcdnWafGroupRequest {
-  id?: long(name='Id', example='30000110'),
-  name?: string(name='Name', example='test'),
-  rules?: string(name='Rules', example='{\\"All\\":false,\\"Op\\":\\"del\\",\\"List\\":\\"900109\\"}'),
+  id?: long(name='Id', description='The ID of the custom WAF rule group.', example='30000110'),
+  name?: string(name='Name', description='The name of the custom WAF rule group.', example='test'),
+  rules?: string(name='Rules', description='The incremental modification of the rules in the custom WAF rule group. The value is a string in the JSON format.', example='{\\"All\\":false,\\"Op\\":\\"del\\",\\"List\\":\\"900109\\"}'),
 }
 
 model ModifyDcdnWafGroupResponseBody = {
-  requestId?: string(name='RequestId', example='79B78B62-9006-5D6A-9DAB-303E134CD7AA'),
+  requestId?: string(name='RequestId', description='The request ID.', example='79B78B62-9006-5D6A-9DAB-303E134CD7AA'),
 }
 
 model ModifyDcdnWafGroupResponse = {
@@ -15269,15 +15425,15 @@ model ModifyDcdnWafPolicyDomainsRequest {
   bindDomains?: string(name='BindDomains', description='The domain names that you want to bind to the protection policy. You can specify up to 50 domain names. Separate multiple domain names with commas (,).
 
 > You can configure either **BindDomains** or **UnbindDomains**.', example='example.com,example2.com'),
-  method?: int32(name='Method', description='The change method. Valid values:
+  method?: int32(name='Method', description='The association method. Valid values:
 
-*   0: replace
-*   1: add
+*   0: replace.
+*   1: add.
 *   Default value: 0.
 
 > 
 
-*   This parameter takes effect only when you specify **BindDomains**. If you have bound a domain name indicated by **BindDomains** to the default protection policy, the `Policy.DefaultAndCustom.BindToSameDomain` error is returned.
+*   This parameter takes effect only when you specify **BindDomains**. If you have associated a domain name indicated by **BindDomains** with the default protection policy, the `Policy.DefaultAndCustom.BindToSameDomain` error is returned.
 
 *   You can only replace accelerated domain names that are bound to the default protection policy.', example='0'),
   policyId?: long(name='PolicyId', description='The ID of the protection policy. You can specify only one ID in each request.', example='1000001'),
@@ -15450,8 +15606,9 @@ model OpenDcdnServiceResponse = {
 }
 
 /**
-  * > *   DCDN can be activated only once per Alibaba Cloud account. The Alibaba Cloud account must pass real-name verification.
-  * >*   You can call this operation up to 5 times per second per account.
+  * > 
+  * *   DCDN can be activated only once per Alibaba Cloud account. The Alibaba Cloud account must pass real-name verification.
+  * *   You can call this operation up to five times per second per user.
   *
   * @param request OpenDcdnServiceRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -15490,8 +15647,9 @@ async function openDcdnServiceWithOptions(request: OpenDcdnServiceRequest, runti
 }
 
 /**
-  * > *   DCDN can be activated only once per Alibaba Cloud account. The Alibaba Cloud account must pass real-name verification.
-  * >*   You can call this operation up to 5 times per second per account.
+  * > 
+  * *   DCDN can be activated only once per Alibaba Cloud account. The Alibaba Cloud account must pass real-name verification.
+  * *   You can call this operation up to five times per second per user.
   *
   * @param request OpenDcdnServiceRequest
   * @return OpenDcdnServiceResponse
@@ -15532,14 +15690,13 @@ model PreloadDcdnObjectCachesResponse = {
 }
 
 /**
-  * #
   * *   You can call the [RefreshDcdnObjectCaches](~~130620~~) operation to refresh content and call the [PreloadDcdnObjectCaches](~~130636~~) operation to prefetch content.
   * *   Dynamic Content Delivery Network (DCDN) supports POST requests in which parameters are sent as a form.
   * *   By default, each Alibaba Cloud account can submit up to 1,000 URLs per day. If the daily peak bandwidth value of your workloads exceeds 200 Mbit/s, you can [submit a ticket](https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A//ticket-intl.console.aliyun.com/%23/ticket/createIndex) to increase your daily quota. Alibaba Cloud reviews your application and then increases the quota accordingly.
-  * *   You can specify at most 100 URLs in each prefetch request.
-  * *   The prefetch queue of each Alibaba Cloud account can contain up to 50,000 URLs. DCDN executes prefetch tasks based on the time at which you submit the URLs.
+  * *   You can specify up to 100 URLs to prefetch.
+  * *   The prefetch queue of each Alibaba Cloud account can contain up to 100,000 URLs. DCDN executes prefetch tasks based on the time at which you submit the URLs.
   * *   You can call this operation up to 15 times per second per account.
-  * # Usage notes
+  * ## Description
   * *   After a refresh task is submitted and completed, the POPs immediately start to retrieve resources from the origin server. Therefore, a large number of refresh tasks cause a large number of concurrent download tasks. This increases the number of requests that are redirected to the origin server. The back-to-origin routing process consumes more bandwidth resources and the origin server may be overwhelmed.
   * *   The time required for a prefetch task to complete is proportional to the size of the prefetched file. In actual practice, most prefetch tasks require 5 to 30 minutes to complete. A task with a smaller average file size requires less time.
   * *   To allow RAM users to perform this operation, you need to first grant them the required permissions. For more information, see [Authorize a RAM user to prefetch and refresh resources](~~445051~~).
@@ -15587,14 +15744,13 @@ async function preloadDcdnObjectCachesWithOptions(request: PreloadDcdnObjectCach
 }
 
 /**
-  * #
   * *   You can call the [RefreshDcdnObjectCaches](~~130620~~) operation to refresh content and call the [PreloadDcdnObjectCaches](~~130636~~) operation to prefetch content.
   * *   Dynamic Content Delivery Network (DCDN) supports POST requests in which parameters are sent as a form.
   * *   By default, each Alibaba Cloud account can submit up to 1,000 URLs per day. If the daily peak bandwidth value of your workloads exceeds 200 Mbit/s, you can [submit a ticket](https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A//ticket-intl.console.aliyun.com/%23/ticket/createIndex) to increase your daily quota. Alibaba Cloud reviews your application and then increases the quota accordingly.
-  * *   You can specify at most 100 URLs in each prefetch request.
-  * *   The prefetch queue of each Alibaba Cloud account can contain up to 50,000 URLs. DCDN executes prefetch tasks based on the time at which you submit the URLs.
+  * *   You can specify up to 100 URLs to prefetch.
+  * *   The prefetch queue of each Alibaba Cloud account can contain up to 100,000 URLs. DCDN executes prefetch tasks based on the time at which you submit the URLs.
   * *   You can call this operation up to 15 times per second per account.
-  * # Usage notes
+  * ## Description
   * *   After a refresh task is submitted and completed, the POPs immediately start to retrieve resources from the origin server. Therefore, a large number of refresh tasks cause a large number of concurrent download tasks. This increases the number of requests that are redirected to the origin server. The back-to-origin routing process consumes more bandwidth resources and the origin server may be overwhelmed.
   * *   The time required for a prefetch task to complete is proportional to the size of the prefetched file. In actual practice, most prefetch tasks require 5 to 30 minutes to complete. A task with a smaller average file size requires less time.
   * *   To allow RAM users to perform this operation, you need to first grant them the required permissions. For more information, see [Authorize a RAM user to prefetch and refresh resources](~~445051~~).
@@ -15673,7 +15829,7 @@ model PublishRoutineCodeRevisionRequest {
 
 *   production: the name of the environment, including the environment name (SpecName) and the domain name whitelist (AllowedHosts).
 
-*   Preset_Canary_xx: You can add canary release environments based on your business requirements. This parameter is optional.', example='["production","presetCanaryZhejiang"]'),
+*   presetCanary: You can add canary release environments based on your business requirements. This parameter is optional.', example='["production","presetCanaryZhejiang"]'),
   name?: string(name='Name', description='The name of the routine. The name must be unique among the routines that belong to the same Alibaba Cloud account.', example='test'),
   selectCodeRevision?: string(name='SelectCodeRevision', description='The version of the routine code that you want to publish.', example='1620876959997924701'),
 }
@@ -15685,7 +15841,7 @@ model PublishRoutineCodeRevisionShrinkRequest {
 
 *   production: the name of the environment, including the environment name (SpecName) and the domain name whitelist (AllowedHosts).
 
-*   Preset_Canary_xx: You can add canary release environments based on your business requirements. This parameter is optional.', example='["production","presetCanaryZhejiang"]'),
+*   presetCanary: You can add canary release environments based on your business requirements. This parameter is optional.', example='["production","presetCanaryZhejiang"]'),
   name?: string(name='Name', description='The name of the routine. The name must be unique among the routines that belong to the same Alibaba Cloud account.', example='test'),
   selectCodeRevision?: string(name='SelectCodeRevision', description='The version of the routine code that you want to publish.', example='1620876959997924701'),
 }
@@ -16569,13 +16725,13 @@ async function setRoutineSubdomain(request: SetRoutineSubdomainRequest): SetRout
 }
 
 model StartDcdnDomainRequest {
-  domainName?: string(name='DomainName', description='The name of the accelerated domain to be enabled. You can specify only one domain name.', example='example.com'),
+  domainName?: string(name='DomainName', description='The accelerated domain name. You can specify only one domain name in each request.', example='example.com'),
   ownerId?: long(name='OwnerId'),
   securityToken?: string(name='SecurityToken'),
 }
 
 model StartDcdnDomainResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='0AEDAF20-4DDF-4165-8750-47FF9C1929C9'),
+  requestId?: string(name='RequestId', description='The request ID.', example='0AEDAF20-4DDF-4165-8750-47FF9C1929C9'),
 }
 
 model StartDcdnDomainResponse = {
@@ -16586,8 +16742,8 @@ model StartDcdnDomainResponse = {
 
 /**
   * > 
-  * *   If an accelerated domain is in an invalid state or your account has an overdue payment, the accelerated domain cannot be enabled.
-  * *   The maximum number of times that each user can call this operation per second is 30.
+  * *   If an accelerated domain name is in invalid state or your account has an overdue payment, the accelerated domain name cannot be enabled.
+  * *   You can call this operation up to 30 times per second per account.
   *
   * @param request StartDcdnDomainRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -16624,8 +16780,8 @@ async function startDcdnDomainWithOptions(request: StartDcdnDomainRequest, runti
 
 /**
   * > 
-  * *   If an accelerated domain is in an invalid state or your account has an overdue payment, the accelerated domain cannot be enabled.
-  * *   The maximum number of times that each user can call this operation per second is 30.
+  * *   If an accelerated domain name is in invalid state or your account has an overdue payment, the accelerated domain name cannot be enabled.
+  * *   You can call this operation up to 30 times per second per account.
   *
   * @param request StartDcdnDomainRequest
   * @return StartDcdnDomainResponse
@@ -16701,13 +16857,13 @@ async function startDcdnIpaDomain(request: StartDcdnIpaDomainRequest): StartDcdn
 }
 
 model StopDcdnDomainRequest {
-  domainName?: string(name='DomainName', description='The name of the accelerated domain to be disabled. You can specify only one domain name.', example='example.com'),
+  domainName?: string(name='DomainName', description='The accelerated domain name that you want to disable. You can specify only one domain name in each request.', example='example.com'),
   ownerId?: long(name='OwnerId'),
   securityToken?: string(name='SecurityToken'),
 }
 
 model StopDcdnDomainResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='0AEDAF20-4DDF-4165-8750-47FF9C1929C9'),
+  requestId?: string(name='RequestId', description='The request ID.', example='0AEDAF20-4DDF-4165-8750-47FF9C1929C9'),
 }
 
 model StopDcdnDomainResponse = {
@@ -16718,8 +16874,8 @@ model StopDcdnDomainResponse = {
 
 /**
   * > 
-  * *   After the accelerated domain is disabled, Dynamic Route for CDN retains its information and reroutes all the requests that are destined for the accelerated domain to the origin.
-  * *   The maximum number of times that each user can call this operation per second is 30.
+  * *   After an accelerated domain is disabled, Dynamic Content Delivery Network (DCDN) retains its information and routes all the requests that are destined for the accelerated domain to the origin server.
+  * *   You can call this operation up to 30 times per second per account.
   *
   * @param request StopDcdnDomainRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -16756,8 +16912,8 @@ async function stopDcdnDomainWithOptions(request: StopDcdnDomainRequest, runtime
 
 /**
   * > 
-  * *   After the accelerated domain is disabled, Dynamic Route for CDN retains its information and reroutes all the requests that are destined for the accelerated domain to the origin.
-  * *   The maximum number of times that each user can call this operation per second is 30.
+  * *   After an accelerated domain is disabled, Dynamic Content Delivery Network (DCDN) retains its information and routes all the requests that are destined for the accelerated domain to the origin server.
+  * *   You can call this operation up to 30 times per second per account.
   *
   * @param request StopDcdnDomainRequest
   * @return StopDcdnDomainResponse
@@ -16774,7 +16930,7 @@ model StopDcdnIpaDomainRequest {
 }
 
 model StopDcdnIpaDomainResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='15C66C7B-671A-4297-9187-2C4477247A74'),
+  requestId?: string(name='RequestId', description='The request ID.', example='15C66C7B-671A-4297-9187-2C4477247A74'),
 }
 
 model StopDcdnIpaDomainResponse = {
